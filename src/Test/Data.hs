@@ -24,4 +24,4 @@ badFiles = foldl (\fm (k,v) -> M.insert k v fm) files newData where
             ]
 
 index :: Index
-index = Index.index files
+index = mkIndex files

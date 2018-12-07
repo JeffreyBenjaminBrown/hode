@@ -12,12 +12,12 @@ import Index.ImgLookup
 -- | == Build the database
 
 -- TODO (#strict) Evaluate `Index` completely at start of program.
-index :: Files -> Index
-index files = Index { addressOf       = imgLookup files
-                    , variety         = variety'
-                    , positionsIn     = positionsIn'
-                    , positionsHeldBy = positionsHeldBy'
-                    }
+mkIndex :: Files -> Index
+mkIndex files = Index { addressOf       = imgLookup files
+                      , variety         = variety'
+                      , positionsIn     = positionsIn'
+                      , positionsHeldBy = positionsHeldBy'
+                      }
  where
   fps = positionsWithinAll files :: [(Addr, [(Role, Addr)])]
 
@@ -74,16 +74,6 @@ relsWithoutMatchingTplts files index = res where
   rels = M.filter isRel files where
     isRel (Rel _ _) = True
     isRel _         = False
-
-
--- | == derivable from an `Index`
-
--- | = deterministic search
-
-holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
-holdsPosition i (r,a) = case positionsIn i a of
-  Nothing -> Nothing
-  Just ps -> M.lookup r ps
 
 
 -- | = Non-deterministic search.

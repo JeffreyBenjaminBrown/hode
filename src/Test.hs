@@ -8,6 +8,7 @@ import Rslt
 import Index
 import Index.Positions
 import Index.ImgLookup
+import Search
 import qualified Test.Data as D
 import Util
 
@@ -69,5 +70,3 @@ testInvertPositions =
                        ,(11, S.fromList [(RoleMember 1,1  )])
                        ,(22, S.fromList [(RoleMember 2,1  )
                                         ,(RoleMember 2,11 )])]
-  
-

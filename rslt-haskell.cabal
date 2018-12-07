@@ -30,6 +30,7 @@ library
                 , Index.ImgLookup
                 , Index.Positions
                 , Index
+                , Search
                 , Test.Data
                 , Test
                 , Util
