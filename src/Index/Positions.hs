@@ -1,9 +1,7 @@
-{-# OPTIONS_CYMAKE -F --pgmF=currypp --optF=defaultrules #-}
-
 module Index.Positions where
 
-import FiniteMap
-import SetRBT
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 import Rslt
 
@@ -15,7 +13,7 @@ import Rslt
 -- the positions  *that contain*  the `Expr` at the key `Addr`.
 
 positionsWithinAll :: Files -> [(Addr, [(Role, Addr)])]
-positionsWithinAll = filter (not . null . snd) . map f . fmToList where
+positionsWithinAll = filter (not . null . snd) . map f . M.toList where
   f :: (Addr, Expr) -> (Addr, [(Role,Addr)])
   f (a, expr) = (a, exprPositions expr)
 
@@ -24,22 +22,22 @@ positionsWithinAll = filter (not . null . snd) . map f . fmToList where
     let r :: (Int, Addr) -> (Role, Addr)
         r (n,a) = (RoleMember n, a)
     in case expr of
-      Word _          -> []
-      Tplt mas    ->                     map r (zip [1..]           mas)
-      Rel mas ta      -> (RoleTplt,ta) : map r (zip [1..]           mas)
-      Par sas _ ->                     map r (zip [1..] $ map snd sas)
+      Word _     -> []
+      Tplt mas   ->                 map r (zip [1..]           mas)
+      Rel mas ta -> (RoleTplt,ta) : map r (zip [1..]           mas)
+      Par sas _  ->                 map r (zip [1..] $ map snd sas)
 
-positionsHeldByAll :: [( Addr,       [(Role, Addr)] )]
-                -> FM Addr (SetRBT (Role, Addr))
-positionsHeldByAll aras = foldl addInvertedPosition (emptyFM (<)) aras where
+positionsHeldByAll :: [( Addr,         [( Role, Addr)] )]
+                   -> M.Map Addr (S.Set ( Role, Addr))
+positionsHeldByAll aras = foldl addInvertedPosition M.empty aras where
 
-  addInvertedPosition :: FM Addr (SetRBT (Role, Addr))
-                      -> (Addr, [(Role, Addr)])
-                      -> FM Addr (SetRBT (Role, Addr))
+  addInvertedPosition :: M.Map Addr (S.Set (Role, Addr))
+                      -> (Addr,           [(Role, Addr)])
+                      -> M.Map Addr (S.Set (Role, Addr))
   addInvertedPosition fm (a1, ras) = foldl f fm ras where
-    f :: FM Addr (SetRBT (Role, Addr))
-      ->                    (Role, Addr)
-      -> FM Addr (SetRBT (Role, Addr))
-    f fm (r,a) = addToFM_C unionRBT fm a newData
-      where newData :: SetRBT (Role, Addr)
-            newData = insertRBT (r,a1) $ emptySetRBT (<)
+    f :: M.Map Addr (S.Set (Role, Addr))
+      ->                   (Role, Addr)
+      -> M.Map Addr (S.Set (Role, Addr))
+    f fm (r,a) = M.insertWith S.union a newData fm
+      where newData :: S.Set (Role, Addr)
+            newData = S.singleton (r,a1)
