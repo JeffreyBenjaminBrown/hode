@@ -62,7 +62,7 @@ data Index = Index {
 type Subst = M.Map Var Addr
 
 data Query = QImg ImgOfExpr
-   |  QRel [Query] Query  |  QHas Query  |  QHasInRole Role Query
+   |  QHasInRole Role Query
    |  QAnd [Query]  |  QOr [Query]
    |  QNot Query  |  QVariety Expr' -- both can be conditions but not searches
    |  QVar String
