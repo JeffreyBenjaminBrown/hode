@@ -8,6 +8,7 @@ import qualified Data.Set as S
 
 type Addr = Int -- ^ Address
 type Arity = Int
+newtype Var = Var String -- ^ a variable, in the logic programming sense
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
@@ -52,8 +53,16 @@ type Files = M.Map Int Expr -- TODO use ordinary hard-disk files
 -- What is in something, what is something in, etc.
 -- It can also find anything findable -- i.e. anything but a `Par`.
 data Index = Index {
-  addressOf         :: ImgOfExpr -> Maybe Addr
+  addrOf            :: ImgOfExpr -> Maybe Addr
   , variety         :: Addr      -> Maybe (Expr', Arity)
   , positionsIn     :: Addr      -> Maybe (M.Map Role Addr)
   , positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
   }
+
+type Subst = M.Map Var Addr
+
+data Query = QImg ImgOfExpr
+   |  QRel [Query] Query  |  QHas Query  |  QHasInRole Role Query
+   |  QAnd [Query]  |  QOr [Query]
+   |  QNot Query  |  QVariety Expr' -- both can be conditions but not searches
+   |  QVar String

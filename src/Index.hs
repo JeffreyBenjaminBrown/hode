@@ -13,7 +13,7 @@ import Index.ImgLookup
 
 -- TODO (#strict) Evaluate `Index` completely at start of program.
 mkIndex :: Files -> Index
-mkIndex files = Index { addressOf       = imgLookup files
+mkIndex files = Index { addrOf          = imgLookup files
                       , variety         = variety'
                       , positionsIn     = positionsIn'
                       , positionsHeldBy = positionsHeldBy'
