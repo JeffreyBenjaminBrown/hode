@@ -74,25 +74,3 @@ relsWithoutMatchingTplts files index = res where
   rels = M.filter isRel files where
     isRel (Rel _ _) = True
     isRel _         = False
-
-
--- | = Non-deterministic search.
--- From Curry. Likely not translateable.
-
--- somethingThatHolds   :: Index -> Addr -> Addr
--- somethingThatHolds i a0
---   | Just s =:= positionsHeldBy i a0
---     & fElem (RoleMember _, a) (setRBT2list s)
---   = a where a,s free
--- 
--- somethingThatHoldsAt :: Index -> Int -> Addr -> Addr
--- somethingThatHoldsAt i pos a0
---   | Just s =:= positionsHeldBy i a0
---     & fElem (RoleMember pos, a) (setRBT2list s)
---   = a where a,s free
--- 
--- aRelUsingTemplate    :: Index -> Addr -> Addr
--- aRelUsingTemplate i a0
---   | Just s =:= positionsHeldBy i a0
---     & fElem (RoleTplt, a) (setRBT2list s)
---   = a where a,s free
