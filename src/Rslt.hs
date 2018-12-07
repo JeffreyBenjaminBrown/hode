@@ -9,6 +9,7 @@ import qualified Data.Set as S
 type Addr = Int -- ^ Address
 type Arity = Int
 newtype Var = Var String -- ^ a variable, in the logic programming sense
+  deriving (Eq, Ord)
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
