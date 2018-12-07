@@ -1,15 +1,12 @@
-{-# OPTIONS_CYMAKE -F --pgmF=currypp --optF=defaultrules #-}
-
 module Index where
 
-import Maybe (isNothing)
-import FiniteMap
-import SetRBT
+import           Data.Maybe (isNothing)
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 import Rslt
 import Index.Positions
 import Index.ImgLookup
-import Util (fElem)
 
 
 -- | == Build the database
@@ -25,46 +22,46 @@ index files = Index { addressOf       = imgLookup files
   fps = positionsWithinAll files :: [(Addr, [(Role, Addr)])]
 
   variety' :: Addr -> Maybe (Expr', Arity)
-  variety' = lookupFM varieties where
+  variety' = flip M.lookup varieties where
     -- (#strict) Build `varieties` completely first.
-    varieties = mapFM (\_ v -> exprVariety v) files
+    varieties = M.map exprVariety files
 
-  positionsIn' :: Addr -> Maybe (FM Role Addr)
-  positionsIn' = lookupFM positions where
+  positionsIn' :: Addr -> Maybe (M.Map Role Addr)
+  positionsIn' = flip M.lookup positions where
     -- (#strict) Build `positions` completely first.
-    positions :: FM Addr (FM Role Addr)
-    positions = mapFM (\_ v -> listToFM (<) v) $ listToFM (<) fps
+    positions :: M.Map Addr (M.Map Role Addr)
+    positions = M.map M.fromList $ M.fromList fps
 
-  positionsHeldBy' :: Addr -> Maybe (SetRBT (Role, Addr))
-  positionsHeldBy' = lookupFM $ positionsHeldByAll fps
+  positionsHeldBy' :: Addr -> Maybe (S.Set (Role, Addr))
+  positionsHeldBy' = flip M.lookup $ positionsHeldByAll fps
     -- (#strict) Build `positionsHeldByAll fps` completely first.
 
 
 -- | == Check the database
 
-collectionsWithAbsentAddrs :: Files -> Index -> FM Addr [Addr]
+collectionsWithAbsentAddrs :: Files -> Index -> M.Map Addr [Addr]
 collectionsWithAbsentAddrs files index = res where
-  res = filterFM (\_ v -> not $ null v)
-        $ mapFM (\_ v -> filter absent $ involved v) collections
+  res = M.filter (not . null)
+        $ M.map (filter absent . involved) collections
 
   absent :: Addr -> Bool
   absent = isNothing . variety index
 
   involved :: Expr -> [Addr]
-  involved (Word _)          = error "impossible"
-  involved (Tplt as)     = as
-  involved (Rel as a)        = a : as
+  involved (Word _)    = error "impossible"
+  involved (Tplt as)   = as
+  involved (Rel as a)  = a : as
   involved (Par sas _) = map snd sas
 
   collections :: Files
-  collections = filterFM (\_ v -> isCollection v) files where
+  collections = M.filter isCollection files where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
 -- TODO ? Report for each bad `Addr` the kind of problem.
 relsWithoutMatchingTplts :: Files -> Index -> Files
 relsWithoutMatchingTplts files index = res where
-  res = filterFM (\_ e -> not $ relMatchesTpltArity e) rels
+  res = M.filter (not . relMatchesTpltArity) rels
 
   -- PITFALL: Intentionally partial (only Rels).
   relMatchesTpltArity :: Expr -> Bool
@@ -74,9 +71,9 @@ relsWithoutMatchingTplts files index = res where
       Tplt' -> arity e == art
       _         -> False
 
-  rels = filterFM (\_ v -> isRel v) files where
-    isRel expr = case expr of Rel _ _ -> True
-                              _       -> False
+  rels = M.filter isRel files where
+    isRel (Rel _ _) = True
+    isRel _         = False
 
 
 -- | == derivable from an `Index`
@@ -86,25 +83,26 @@ relsWithoutMatchingTplts files index = res where
 holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
 holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
-  Just ps -> lookupFM ps r
+  Just ps -> M.lookup r ps
 
 
--- | = non-deterministic search
+-- | = Non-deterministic search.
+-- From Curry. Likely not translateable.
 
-somethingThatHolds   :: Index -> Addr -> Addr
-somethingThatHolds i a0
-  | Just s =:= positionsHeldBy i a0
-    & fElem (RoleMember _, a) (setRBT2list s)
-  = a where a,s free
-
-somethingThatHoldsAt :: Index -> Int -> Addr -> Addr
-somethingThatHoldsAt i pos a0
-  | Just s =:= positionsHeldBy i a0
-    & fElem (RoleMember pos, a) (setRBT2list s)
-  = a where a,s free
-
-aRelUsingTemplate    :: Index -> Addr -> Addr
-aRelUsingTemplate i a0
-  | Just s =:= positionsHeldBy i a0
-    & fElem (RoleTplt, a) (setRBT2list s)
-  = a where a,s free
+-- somethingThatHolds   :: Index -> Addr -> Addr
+-- somethingThatHolds i a0
+--   | Just s =:= positionsHeldBy i a0
+--     & fElem (RoleMember _, a) (setRBT2list s)
+--   = a where a,s free
+-- 
+-- somethingThatHoldsAt :: Index -> Int -> Addr -> Addr
+-- somethingThatHoldsAt i pos a0
+--   | Just s =:= positionsHeldBy i a0
+--     & fElem (RoleMember pos, a) (setRBT2list s)
+--   = a where a,s free
+-- 
+-- aRelUsingTemplate    :: Index -> Addr -> Addr
+-- aRelUsingTemplate i a0
+--   | Just s =:= positionsHeldBy i a0
+--     & fElem (RoleTplt, a) (setRBT2list s)
+--   = a where a,s free
