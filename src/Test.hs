@@ -14,12 +14,20 @@ import Util
 
 
 tests :: [Bool]
-tests = [ testCheckDb
+tests = [ testSearch
+        , testCheckDb
         , testImgLookup
         , testHoldsPosition
         , testVariety
         , testInvertPositions
         ]
+
+testSearch :: Bool
+testSearch = and
+  [ search (D.index) (QHasInRole (RoleMember 1) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
+  , search (D.index) (QHasInRole (RoleMember 3) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
+  , search (D.index) (QHasInRole (RoleMember 2) $ QImg $ ImgOfExpr $ Word "") == S.empty
+  ]
 
 testCheckDb :: Bool
 testCheckDb = and
