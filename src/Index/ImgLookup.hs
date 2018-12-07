@@ -3,7 +3,7 @@
 module Index.ImgLookup where
 
 import Maybe
-import FiniteMap
+import qualified Map as M
 
 import Rslt
 import Util (hasANothing)
