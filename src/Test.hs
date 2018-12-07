@@ -1,14 +1,14 @@
-module Test.Main where
+module Test where
 
-import FiniteMap
-import SetRBT
-import RedBlackTree
+import qualified Data.List  as L
+import qualified Data.Map   as M
+import qualified Data.Set   as S
 
 import Rslt
 import Index
 import Index.Positions
 import Index.ImgLookup
-import Test.Data
+import qualified Test.Data as D
 import Util
 
 
@@ -22,56 +22,52 @@ tests = [ testCheckDb
 
 testCheckDb :: Bool
 testCheckDb = and
-  [ (fmToList $ relsWithoutMatchingTplts testBadFiles testIndex) == [(1001, Rel [1,2] 5), (1002, Rel [1, 2] $ -1000)]
- , (fmToList $ collectionsWithAbsentAddrs testBadFiles testIndex) == [(1002, [-1000])]
+  [ (M.toList $ relsWithoutMatchingTplts D.badFiles D.index) == [(1001, Rel [1,2] 5), (1002, Rel [1, 2] $ -1000)]
+ , (M.toList $ collectionsWithAbsentAddrs D.badFiles D.index) == [(1002, [-1000])]
   ]
 
 testImgLookup :: Bool
 testImgLookup = and
-  [ (imgLookup testFiles $ ImgOfAddr 0)               == Just 0
-  , (imgLookup testFiles $ ImgOfAddr $ -10000)        == Nothing
-  , (imgLookup testFiles $ ImgOfExpr $ Word "needs")     == Just 3
-  , (imgLookup testFiles $ ImgOfExpr $ Tplt [0,3,0]) == Just 4
-  , (imgLookup testFiles $ ImgOfTplt [ImgOfAddr 0, ImgOfExpr $ Word "needs", ImgOfExpr $ Word ""]) == Just 4
+  [ (imgLookup D.files $ ImgOfAddr 0)              == Just 0
+  , (imgLookup D.files $ ImgOfAddr $ -10000)       == Nothing
+  , (imgLookup D.files $ ImgOfExpr $ Word "needs") == Just 3
+  , (imgLookup D.files $ ImgOfExpr $ Tplt [0,3,0]) == Just 4
+  , (imgLookup D.files $ ImgOfTplt [ImgOfAddr 0, ImgOfExpr $ Word "needs", ImgOfExpr $ Word ""]) == Just 4
 
-  , (imgLookup testFiles $ ImgOfRel [ImgOfAddr 1, ImgOfExpr $ Word "oxygen"] $ ImgOfAddr 4) == Just 5
-  , (imgLookup testFiles $ ImgOfRel [ImgOfAddr 1, ImgOfExpr $ Word "oxygen"] $ ImgOfAddr 6) == Nothing
+  , (imgLookup D.files $ ImgOfRel [ImgOfAddr 1, ImgOfExpr $ Word "oxygen"] $ ImgOfAddr 4) == Just 5
+  , (imgLookup D.files $ ImgOfRel [ImgOfAddr 1, ImgOfExpr $ Word "oxygen"] $ ImgOfAddr 6) == Nothing
   ]
 
 testHoldsPosition :: Bool
 testHoldsPosition = and
-  [ holdsPosition testIndex (RoleMember 1, 4) == Just 0
-  , holdsPosition testIndex (RoleMember 2, 4) == Just 3
-  , holdsPosition testIndex (RoleMember 2, 5) == Just 2
-  , holdsPosition testIndex (RoleMember 1, 5) == Just 1
-  , holdsPosition testIndex (RoleTplt, 5) == Just 4
-  , holdsPosition testIndex (RoleTplt, 6) == Nothing
+  [ holdsPosition D.index (RoleMember 1, 4) == Just 0
+  , holdsPosition D.index (RoleMember 2, 4) == Just 3
+  , holdsPosition D.index (RoleMember 2, 5) == Just 2
+  , holdsPosition D.index (RoleMember 1, 5) == Just 1
+  , holdsPosition D.index (RoleTplt, 5) == Just 4
+  , holdsPosition D.index (RoleTplt, 6) == Nothing
   ]
 
 testVariety :: Bool
-testVariety = and [ variety testIndex 3 == Just (Word',0)
-                  , variety testIndex 4 == Just (Tplt',2)
-                  , variety testIndex 5 == Just (Rel',2)
-                  , variety testIndex 6 == Just (Par',1)
-                  , variety testIndex (-133) == Nothing
+testVariety = and [ variety D.index 3 == Just (Word',0)
+                  , variety D.index 4 == Just (Tplt',2)
+                  , variety D.index 5 == Just (Rel',2)
+                  , variety D.index 6 == Just (Par',1)
+                  , variety D.index (-133) == Nothing
                   ]
 
 testInvertPositions :: Bool
 testInvertPositions =
-  let ips = positionsHeldByAll [ (1, [ (RoleMember 1, 11)
-                                  , (RoleMember 2, 22) ] )
-                            , (11, [ (RoleMember 1, 1)
-                                   , (RoleMember 2, 22) ] )
-                            , (3, [ (RoleMember 1, 1) ] )
-                            ]
-      ips' = fmToList $ mapFM (\_ v -> sort (<) $ setRBT2list v) ips
-  in ips' == [(1,[(RoleMember 1,3)
-                 ,(RoleMember 1,11)])
-             ,(11,[(RoleMember 1,1)])
-             ,(22,[(RoleMember 2,1)
-                  ,(RoleMember 2,11)])]
+  let ips = positionsHeldByAll [ (1,  [ (RoleMember 1, 11 )
+                                      , (RoleMember 2, 22 ) ] )
+                               , (11, [ (RoleMember 1, 1  )
+                                      , (RoleMember 2, 22 ) ] )
+                               , (3,  [ (RoleMember 1, 1  ) ] )
+                               ]
+  in ips == M.fromList [(1,  S.fromList [(RoleMember 1,3  )
+                                        ,(RoleMember 1,11 )])
+                       ,(11, S.fromList [(RoleMember 1,1  )])
+                       ,(22, S.fromList [(RoleMember 2,1  )
+                                        ,(RoleMember 2,11 )])]
+  
 
--- TODO I can call `broken` fron the REPL,
--- but I can't evaluate the RHS of its definition there.
-broken :: SetRBT Int
-broken = insertRBT 1 $ emptySetRBT (<)

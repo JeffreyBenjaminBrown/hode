@@ -1,13 +1,13 @@
 module Test.Data where
 
-import FiniteMap
+import qualified Data.Map as M
 
 import Rslt
 import Index
 
 
-testFiles :: Files
-testFiles = listToFM (<)
+files :: Files
+files = M.fromList
   [ (0, Word "")
   , (1, Word "dog")
   , (2, Word "oxygen")
@@ -17,11 +17,11 @@ testFiles = listToFM (<)
   , (6, Par [("The first relationship in this graph is ", 5)] ".")
   ]
 
-testBadFiles :: Files
-testBadFiles = foldl (\fm (k,v) -> addToFM fm k v)  testFiles newData where
+badFiles :: Files
+badFiles = foldl (\fm (k,v) -> M.insert k v fm) files newData where
   newData = [ (1001, Rel [1,2] 5)
             , (1002, Rel [1,2] (-1000))
             ]
 
-testIndex :: Index
-testIndex = index testFiles
+index :: Index
+index = Index.index files
