@@ -24,6 +24,18 @@ tests = [ and testJoinSubsts
         , and testInvertPositions
         ]
 
+testNegativeQuery :: [Bool]
+testNegativeQuery =
+  [ negativeQuery D.index (QNot $ QUnion [ QImg $ ImgOfAddr 0
+                                         , QImg $ ImgOfAddr 1 ] )
+                           1 == False
+  , negativeQuery D.index (QNot $ QUnion [ QImg $ ImgOfAddr 0
+                                         , QImg $ ImgOfAddr 1 ] )
+                           2 == True
+  , negativeQuery D.index (QVariety Tplt') 4 == True
+  , negativeQuery D.index (QVariety Tplt') 5 == False
+  ]
+
 testJoinSubsts :: [Bool]
 testJoinSubsts =
   [ join2Substs M.empty M.empty == Right M.empty

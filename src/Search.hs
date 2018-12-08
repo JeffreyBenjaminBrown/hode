@@ -22,6 +22,11 @@ holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
 
+negativeQuery :: Index -> Query -> Addr -> Bool
+negativeQuery idx (QNot q) a = not $ elem a $ search idx q
+negativeQuery idx (QVariety e) a = Just e == (fst <$> variety idx a)
+negativeQuery _ _ _ = error "negativeQuery called for a non-negative query."
+
 joinSubsts :: [Subst] -> Either () Subst
 joinSubsts = foldl f (Right M.empty) where
   f :: Either () Subst -> Subst -> Either () Subst

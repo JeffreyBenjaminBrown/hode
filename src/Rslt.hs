@@ -70,14 +70,20 @@ data Query = QImg ImgOfExpr
    |  QVar String
 
 -- | Positive `Query`s are things you can search for.
--- The others are too broad.
+-- Non-positive `Query`s are too broad to search for.
+-- `QVar` is neither positive nor negative.
 isPositiveQuery, isNegativeQuery, isVariableQuery :: Query -> Bool
-isPositiveQuery (QImg _)          = True
-isPositiveQuery (QHasInRole _ q)  =            isPositiveQuery q
-isPositiveQuery (QHasInRoles qrs) = or  $ map (isPositiveQuery . snd) qrs
-isPositiveQuery (QIntersect qs)   = or  $ map  isPositiveQuery        qs
-isPositiveQuery (QUnion qs)       = and $ map  isPositiveQuery        qs
-isPositiveQuery _                 = False
+isPositiveQuery (QImg _)         = True
+isPositiveQuery (QHasInRole _ _) = True
+isPositiveQuery (QHasInRoles _)  = True
+isPositiveQuery (QIntersect _)   = True
+isPositiveQuery (QUnion _)       = True
+isPositiveQuery _                = False
+-- Will I need a recursive version?
+  --isPositiveQuery (QHasInRole _ q)  =            isPositiveQuery q
+  --isPositiveQuery (QHasInRoles qrs) = or  $ map (isPositiveQuery . snd) qrs
+  --isPositiveQuery (QIntersect qs)   = or  $ map  isPositiveQuery        qs
+  --isPositiveQuery (QUnion qs)       = and $ map  isPositiveQuery        qs
 
 isNegativeQuery (QNot _)     = True
 isNegativeQuery (QVariety _) = True
