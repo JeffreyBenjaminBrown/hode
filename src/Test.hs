@@ -14,7 +14,7 @@ import Util
 
 
 tests :: [Bool]
-tests = [ and testJoin2Substs
+tests = [ and testJoinSubsts
         , and testSearch
         , and testCheckDb
         , and testImgLookup
@@ -23,8 +23,8 @@ tests = [ and testJoin2Substs
         , and testInvertPositions
         ]
 
-testJoin2Substs :: [Bool]
-testJoin2Substs = 
+testJoinSubsts :: [Bool]
+testJoinSubsts =
   [ join2Substs M.empty M.empty == Right M.empty
   , join2Substs ( M.fromList [(Var "a",0), (Var "b",1)])
                 ( M.fromList [(Var "b",1), (Var "a",0)])
@@ -32,10 +32,16 @@ testJoin2Substs =
   , join2Substs ( M.fromList [(Var "a",0), (Var "b",1)])
                 ( M.fromList [(Var "b",1)] )
       == (Right $ M.fromList [(Var "b",1), (Var "a",0)])
+  , joinSubsts [] == Right M.empty
+  , joinSubsts [ M.singleton (Var "a") 0
+               , M.singleton (Var "b") 1
+               , M.singleton (Var "c") 2 ]
+               == Right (M.fromList [(Var "a",0), (Var "b",1), (Var "c",2)])
+  , joinSubsts [ M.singleton (Var "a") 0
+               , M.empty
+               , M.singleton (Var "a") 2 ]
+               == Left ()
   ]
-
-x = join2Substs ( M.fromList [(Var "a",0), (Var "b",1)])
-                ( M.fromList [(Var "b",1)] )
 
 testSearch :: [Bool]
 testSearch =

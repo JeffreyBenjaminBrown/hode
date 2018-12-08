@@ -21,11 +21,18 @@ holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
 
+joinSubsts :: [Subst] -> Either () Subst
+joinSubsts = foldl f (Right M.empty) where
+  f :: Either () Subst -> Subst -> Either () Subst
+  f (Left ()) _ = Left ()
+  f (Right s1) s2 = join2Substs s1 s2
+
 join2Substs :: Subst -> Subst -> Either () Subst
 join2Substs m n = case fromM of Left () -> Left ()
                                 Right sub -> Right $ M.union sub fromN
- -- `fromM` is the result of unifying each elt of `m` with `n`.
- -- `fromN` is what is left in `n` that matched with nothing in `m`.
+ -- `fromM` = the result of unifying each elt of `m` with `n`.
+   -- If that unification fails, we never need to find `fromN`.
+ -- `fromN` = what is left in `n` that matched with nothing in `m`.
  where fromN = S.foldl f M.empty $ S.difference (M.keysSet n) (M.keysSet m)
          where f :: Subst -> Var -> Subst
                f sub v = M.insert v ((M.!) n v) sub
