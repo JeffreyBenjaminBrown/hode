@@ -52,12 +52,12 @@ join2Substs m n = case fromM of Left () -> Left ()
   -- e.g. because `S.intersection (S.fromList [1]) (S.fromList [1..)) hangs
   -- https://www.reddit.com/r/haskell/comments/9zf1tj/zipwith_const_is_my_favorite_haskell_function/
 searchSubst :: Index -> Query -> Map Addr Subst
-searchSubst idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
-  in M.fromList $ S.toList $ S.map (, M.empty) sa
+searchSubst idx q@(QImg _) = M.fromList $ S.toList
+                             $ S.map (, M.empty) $ search idx q
 
 searchSubst idx qhr@(QHasInRoles rqs) = M.empty where -- TODO : finish
-  (pos,rem)  = L.partition (positiveQuery . snd) rqs
-  (neg,vars) = L.partition (negativeQuery . snd) rem
+  (pos,rem)  = L.partition (isPositiveQuery . snd) rqs
+  (neg,vars) = L.partition (isNegativeQuery . snd) rem
   (candidates :: Set Addr) = search idx $ QHasInRoles pos
 
 searchSubst idx (QIntersect qs) = S.foldl f M.empty inAll  where

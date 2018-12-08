@@ -71,17 +71,17 @@ data Query = QImg ImgOfExpr
 
 -- | Positive `Query`s are things you can search for.
 -- The others are too broad.
-positiveQuery, negativeQuery, variableQuery :: Query -> Bool
-positiveQuery (QImg _)          = True
-positiveQuery (QHasInRole _ q)  = positiveQuery q
-positiveQuery (QHasInRoles qrs) = or $ map (positiveQuery . snd) qrs
-positiveQuery (QIntersect qs)   = or $ map positiveQuery qs
-positiveQuery (QUnion qs)       = and $ map positiveQuery qs
-positiveQuery _                 = False
+isPositiveQuery, isNegativeQuery, isVariableQuery :: Query -> Bool
+isPositiveQuery (QImg _)          = True
+isPositiveQuery (QHasInRole _ q)  =            isPositiveQuery q
+isPositiveQuery (QHasInRoles qrs) = or  $ map (isPositiveQuery . snd) qrs
+isPositiveQuery (QIntersect qs)   = or  $ map  isPositiveQuery        qs
+isPositiveQuery (QUnion qs)       = and $ map  isPositiveQuery        qs
+isPositiveQuery _                 = False
 
-negativeQuery (QNot _)     = True
-negativeQuery (QVariety _) = True
-negativeQuery _            = False
+isNegativeQuery (QNot _)     = True
+isNegativeQuery (QVariety _) = True
+isNegativeQuery _            = False
 
-variableQuery (QVar _) = True
-variableQuery _        = False
+isVariableQuery (QVar _) = True
+isVariableQuery _        = False
