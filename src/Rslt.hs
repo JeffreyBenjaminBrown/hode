@@ -66,5 +66,16 @@ data Query = QImg ImgOfExpr
    |  QHasInRole Role Query
    |  QHasInRoles [(Role, Query)]
    |  QAnd [Query]  |  QOr [Query]
-   |  QNot Query  |  QVariety Expr' -- both can be conditions but not searches
+   |  QNot Query  |  QVariety Expr'
    |  QVar String
+
+-- | Positive `Query`s are things you can search for.
+-- The others can be conditions to winnow the results from positive queries,
+-- but they are too broad to be themselves run as searches.
+positiveQuery :: Query -> Bool
+positiveQuery (QImg _)         = True
+positiveQuery (QHasInRole _ _) = True
+positiveQuery (QHasInRoles _)  = True
+positiveQuery (QAnd _)         = True
+positiveQuery (QOr _)          = True
+positiveQuery _                = False
