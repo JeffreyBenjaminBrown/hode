@@ -16,19 +16,36 @@ import Index
 import Util
 
 
--- | = deterministic search
-
 holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
 holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
 
-search :: Index -> Query -> Set (Addr, Subst)
-search idx (QImg im) = S.map (, M.empty) $ setFromMaybe $ addrOf idx im
---search idx (QAnd qs) = foldl S.intersection S.empty $ map (search idx) qs
+join2Substs :: Subst -> Subst -> Either () Subst
+join2Substs m n = case fromM of Left () -> Left ()
+                                Right sub -> Right $ M.union sub fromN
+ -- `fromM` is the result of unifying each elt of `m` with `n`.
+ -- `fromN` is what is left in `n` that matched with nothing in `m`.
+ where fromN = S.foldl f M.empty $ S.difference (M.keysSet n) (M.keysSet m)
+         where f :: Subst -> Var -> Subst
+               f sub v = M.insert v ((M.!) n v) sub
+       fromM = M.foldlWithKey f (Right M.empty) m where
+         f :: Either () Subst -> Var -> Addr -> Either () Subst
+         f eSub v a = case eSub of
+           Left () -> eSub
+           Right sub -> case M.lookup v n of
+             Just a' | a == a' -> Right $ M.insert v a sub
+             Nothing           -> Right $ M.insert v a sub
+             _                 -> Left ()
+
+search :: Index -> Query -> Map Addr Subst
+search idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
+  in M.fromList $ S.toList $ S.map (, M.empty) sa
+search idx (QAnd qs) = M.empty where -- TODO : finish
+  (inSome :: [Map Addr Subst]) = map (search idx) qs
+  (inAll :: Set Addr) = foldl S.intersection S.empty
+                        $ (map (S.fromList . M.keys) inSome :: [Set Addr])
 --search idx (QOr qs) = foldl  S.union        S.empty $ map (search idx) qs
-
-
 
 
 

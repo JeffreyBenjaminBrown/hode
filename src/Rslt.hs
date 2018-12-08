@@ -9,7 +9,7 @@ import qualified Data.Set as S
 type Addr = Int -- ^ Address
 type Arity = Int
 newtype Var = Var String -- ^ a variable, in the logic programming sense
-  deriving (Eq, Ord)
+  deriving (Show, Eq, Ord)
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
@@ -60,7 +60,7 @@ data Index = Index {
   , positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
   }
 
-type Subst = M.Map Var Addr
+type Subst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
 
 data Query = QImg ImgOfExpr
    |  QHasInRole Role Query
