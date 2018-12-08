@@ -45,7 +45,11 @@ join2Substs m n = case fromM of Left () -> Left ()
              Nothing           -> Right $ M.insert v a sub
              _                 -> Left ()
 
+-- TODO next : QHasInRole Role Query, QVar String
 -- TODO : test `search`, once cases that make nonempty `Subst`s are written
+-- TODO : `zipWith const` might help for speed.
+  -- e.g. because `S.intersection (S.fromList [1]) (S.fromList [1..)) hangs
+  -- https://www.reddit.com/r/haskell/comments/9zf1tj/zipwith_const_is_my_favorite_haskell_function/
 search :: Index -> Query -> Map Addr Subst
 search idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
   in M.fromList $ S.toList $ S.map (, M.empty) sa
@@ -67,6 +71,9 @@ search' :: Index -> Query -> Set Addr
 search' idx (QImg im) = setFromMaybe $ addrOf idx im
 search' idx (QAnd qs) = foldl S.intersection S.empty $ map (search' idx) qs
 search' idx (QOr qs) = foldl  S.union        S.empty $ map (search' idx) qs
+
+search' idx (QHasInRoles rqs) = foldl1 S.intersection lq where
+  (lq :: [Set Addr]) = map (search' idx . uncurry QHasInRole) rqs
 
 search' idx (QHasInRole r0 q0) = selectFrom positions where
   positions :: Set (Role, Addr)

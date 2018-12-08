@@ -55,6 +55,13 @@ testSearch' =
   [ search' D.index (QHasInRole (RoleMember 1) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
   , search' D.index (QHasInRole (RoleMember 3) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
   , search' D.index (QHasInRole (RoleMember 2) $ QImg $ ImgOfExpr $ Word "") == S.empty
+
+  , search' D.index (QHasInRoles [ (RoleMember 1, QImg $ ImgOfAddr 0)
+                                 , (RoleMember 2, QImg $ ImgOfAddr 3)
+                                 ] ) == S.fromList [4]
+  , search' D.index (QHasInRoles [ (RoleMember 1, QImg $ ImgOfAddr 0)
+                                 , (RoleMember 2, QImg $ ImgOfAddr 2)
+                                 ] ) == S.empty
   ]
 
 testCheckDb :: [Bool]

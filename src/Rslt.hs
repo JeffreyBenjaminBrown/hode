@@ -64,6 +64,7 @@ type Subst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
 
 data Query = QImg ImgOfExpr
    |  QHasInRole Role Query
+   |  QHasInRoles [(Role, Query)]
    |  QAnd [Query]  |  QOr [Query]
    |  QNot Query  |  QVariety Expr' -- both can be conditions but not searches
    |  QVar String
