@@ -16,6 +16,7 @@ import Util
 tests :: [Bool]
 tests = [ and testJoinSubsts
         , and testSearch
+        , and testSearch'
         , and testCheckDb
         , and testImgLookup
         , and testHoldsPosition
@@ -45,9 +46,15 @@ testJoinSubsts =
 
 testSearch :: [Bool]
 testSearch =
-  [ search' (D.index) (QHasInRole (RoleMember 1) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
-  , search' (D.index) (QHasInRole (RoleMember 3) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
-  , search' (D.index) (QHasInRole (RoleMember 2) $ QImg $ ImgOfExpr $ Word "") == S.empty
+  [ search D.index (QImg $ ImgOfExpr $ Word "") == M.fromList [(0, M.empty)]
+  , search D.index (QImg $ ImgOfAddr 5) == M.fromList [(5, M.empty)]
+  ]
+
+testSearch' :: [Bool]
+testSearch' =
+  [ search' D.index (QHasInRole (RoleMember 1) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
+  , search' D.index (QHasInRole (RoleMember 3) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
+  , search' D.index (QHasInRole (RoleMember 2) $ QImg $ ImgOfExpr $ Word "") == S.empty
   ]
 
 testCheckDb :: [Bool]

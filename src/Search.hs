@@ -5,7 +5,7 @@
 
 module Search where
 
-import           Data.Maybe (isNothing)
+import           Data.Maybe (isNothing, catMaybes)
 import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Set (Set)
@@ -45,17 +45,18 @@ join2Substs m n = case fromM of Left () -> Left ()
              Nothing           -> Right $ M.insert v a sub
              _                 -> Left ()
 
+-- TODO : test `search`, once cases that make nonempty `Subst`s are written
 search :: Index -> Query -> Map Addr Subst
 search idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
   in M.fromList $ S.toList $ S.map (, M.empty) sa
-search idx (QAnd qs) = M.empty where -- TODO : finish
+search idx (QAnd qs) = S.foldl f M.empty inAll  where
   (inSome :: [Map Addr Subst]) = map (search idx) qs
   (inAll :: Set Addr) = foldl S.intersection S.empty
-                        $ (map (S.fromList . M.keys) inSome :: [Set Addr])
---search idx (QOr qs) = foldl  S.union        S.empty $ map (search idx) qs
-
-
-
+                        $ (map M.keysSet inSome :: [Set Addr])
+  f :: Map Addr Subst -> Addr -> Map Addr Subst
+  f m a = let eSub = joinSubsts $ catMaybes $ map (M.lookup a) inSome
+          in case eSub of Left () -> m
+                          Right sub -> M.insert a sub m
 
 
 
