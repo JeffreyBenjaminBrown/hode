@@ -65,7 +65,7 @@ type Subst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
 data Query = QImg ImgOfExpr
    |  QHasInRole Role Query
    |  QHasInRoles [(Role, Query)]
-   |  QAnd [Query]  |  QOr [Query]
+   |  QIntersect [Query]  |  QUnion [Query]
    |  QNot Query  |  QVariety Expr'
    |  QVar String
 
@@ -73,9 +73,9 @@ data Query = QImg ImgOfExpr
 -- The others can be conditions to winnow the results from positive queries,
 -- but they are too broad to be themselves run as searches.
 positiveQuery :: Query -> Bool
-positiveQuery (QImg _)         = True
-positiveQuery (QHasInRole _ _) = True
-positiveQuery (QHasInRoles _)  = True
-positiveQuery (QAnd _)         = True
-positiveQuery (QOr _)          = True
-positiveQuery _                = False
+positiveQuery (QImg _)          = True
+positiveQuery (QHasInRole _ q)  = positiveQuery q
+positiveQuery (QHasInRoles qrs) = or $ map (positiveQuery . snd) qrs
+positiveQuery (QIntersect qs)   = or $ map positiveQuery qs
+positiveQuery (QUnion qs)       = and $ map positiveQuery qs
+positiveQuery _                 = False

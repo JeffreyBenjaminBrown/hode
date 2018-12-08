@@ -53,7 +53,7 @@ join2Substs m n = case fromM of Left () -> Left ()
 search :: Index -> Query -> Map Addr Subst
 search idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
   in M.fromList $ S.toList $ S.map (, M.empty) sa
-search idx (QAnd qs) = S.foldl f M.empty inAll  where
+search idx (QIntersect qs) = S.foldl f M.empty inAll  where
   (inSome :: [Map Addr Subst]) = map (search idx) qs
   (inAll :: Set Addr) = foldl S.intersection S.empty
                         $ (map M.keysSet inSome :: [Set Addr])
@@ -69,10 +69,14 @@ search' :: Index -> Query -> Set Addr
 -- the `QHasInRole` case should pay attention to any (role,query) pair
 -- in which the query is a `QVar`.
 search' idx (QImg im) = setFromMaybe $ addrOf idx im
-search' idx (QAnd qs) = foldl S.intersection S.empty $ map (search' idx) qs
-search' idx (QOr qs) = foldl  S.union        S.empty $ map (search' idx) qs
+search' idx (QIntersect qs) = foldl S.intersection S.empty
+  $ map (search' idx) qs
+search' idx (QUnion qs) =     foldl S.union        S.empty
+  $ map (search' idx) qs
 
 search' idx (QHasInRoles rqs) = foldl1 S.intersection lq where
+  -- TODO (#fast) Find the smallest set (without evaluating the remainder
+  -- of the other sets) and check if the conditions apply to all its members.
   (lq :: [Set Addr]) = map (search' idx . uncurry QHasInRole) rqs
 
 search' idx (QHasInRole r0 q0) = selectFrom positions where
