@@ -5,6 +5,7 @@
 
 module Search where
 
+import qualified Data.List as L
 import           Data.Maybe (isNothing, catMaybes)
 import           Data.Map (Map)
 import qualified Data.Map as M
@@ -53,6 +54,12 @@ join2Substs m n = case fromM of Left () -> Left ()
 search :: Index -> Query -> Map Addr Subst
 search idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
   in M.fromList $ S.toList $ S.map (, M.empty) sa
+
+search idx qhr@(QHasInRoles rqs) = M.empty where -- TODO : finish
+  (pos,rem)  = L.partition (positiveQuery . snd) rqs
+  (neg,vars) = L.partition (negativeQuery . snd) rem
+  (candidates :: Set Addr) = search' idx $ QHasInRoles pos
+
 search idx (QIntersect qs) = S.foldl f M.empty inAll  where
   (inSome :: [Map Addr Subst]) = map (search idx) qs
   (inAll :: Set Addr) = foldl S.intersection S.empty
@@ -62,12 +69,7 @@ search idx (QIntersect qs) = S.foldl f M.empty inAll  where
           in case eSub of Left () -> m
                           Right sub -> M.insert a sub m
 
-
-
 search' :: Index -> Query -> Set Addr
--- TODO next : Should return `Set (Addr, Subst)`. In particular,
--- the `QHasInRole` case should pay attention to any (role,query) pair
--- in which the query is a `QVar`.
 search' idx (QImg im) = setFromMaybe $ addrOf idx im
 search' idx (QIntersect qs) = foldl S.intersection S.empty
   $ map (search' idx) qs
@@ -91,7 +93,6 @@ search' idx (QHasInRole r0 q0) = selectFrom positions where
     where f :: (Role, Addr) -> Maybe Addr
           f (r,a) = if r==r0 then Just a else Nothing
 
--- TODO ? Before running a search, replace every `
 search' idx (QNot _)     = error "Cannot search for a QNot."
 search' idx (QVariety _) = error "Cannot search for a QVariety."
 search' idx (QVar _)     = error "Cannot search for a QVar."

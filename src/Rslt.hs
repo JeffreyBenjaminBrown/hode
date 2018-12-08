@@ -70,12 +70,18 @@ data Query = QImg ImgOfExpr
    |  QVar String
 
 -- | Positive `Query`s are things you can search for.
--- The others can be conditions to winnow the results from positive queries,
--- but they are too broad to be themselves run as searches.
-positiveQuery :: Query -> Bool
+-- The others are too broad.
+positiveQuery, negativeQuery, variableQuery :: Query -> Bool
 positiveQuery (QImg _)          = True
 positiveQuery (QHasInRole _ q)  = positiveQuery q
 positiveQuery (QHasInRoles qrs) = or $ map (positiveQuery . snd) qrs
 positiveQuery (QIntersect qs)   = or $ map positiveQuery qs
 positiveQuery (QUnion qs)       = and $ map positiveQuery qs
 positiveQuery _                 = False
+
+negativeQuery (QNot _)     = True
+negativeQuery (QVariety _) = True
+negativeQuery _            = False
+
+variableQuery (QVar _) = True
+variableQuery _        = False

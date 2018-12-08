@@ -58,7 +58,6 @@ collectionsWithAbsentAddrs files index = res where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
--- TODO ? Report for each bad `Addr` the kind of problem.
 relsWithoutMatchingTplts :: Files -> Index -> Files
 relsWithoutMatchingTplts files index = res where
   res = M.filter (not . relMatchesTpltArity) rels
