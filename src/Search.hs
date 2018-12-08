@@ -47,21 +47,21 @@ join2Substs m n = case fromM of Left () -> Left ()
              _                 -> Left ()
 
 -- TODO next : QHasInRole Role Query, QVar String
--- TODO : test `search`, once cases that make nonempty `Subst`s are written
+-- TODO : test `searchSubst`, once cases that make nonempty `Subst`s are written
 -- TODO : `zipWith const` might help for speed.
   -- e.g. because `S.intersection (S.fromList [1]) (S.fromList [1..)) hangs
   -- https://www.reddit.com/r/haskell/comments/9zf1tj/zipwith_const_is_my_favorite_haskell_function/
-search :: Index -> Query -> Map Addr Subst
-search idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
+searchSubst :: Index -> Query -> Map Addr Subst
+searchSubst idx (QImg im) = let sa = setFromMaybe $ addrOf idx im :: Set Addr
   in M.fromList $ S.toList $ S.map (, M.empty) sa
 
-search idx qhr@(QHasInRoles rqs) = M.empty where -- TODO : finish
+searchSubst idx qhr@(QHasInRoles rqs) = M.empty where -- TODO : finish
   (pos,rem)  = L.partition (positiveQuery . snd) rqs
   (neg,vars) = L.partition (negativeQuery . snd) rem
-  (candidates :: Set Addr) = search' idx $ QHasInRoles pos
+  (candidates :: Set Addr) = search idx $ QHasInRoles pos
 
-search idx (QIntersect qs) = S.foldl f M.empty inAll  where
-  (inSome :: [Map Addr Subst]) = map (search idx) qs
+searchSubst idx (QIntersect qs) = S.foldl f M.empty inAll  where
+  (inSome :: [Map Addr Subst]) = map (searchSubst idx) qs
   (inAll :: Set Addr) = foldl S.intersection S.empty
                         $ (map M.keysSet inSome :: [Set Addr])
   f :: Map Addr Subst -> Addr -> Map Addr Subst
@@ -69,23 +69,23 @@ search idx (QIntersect qs) = S.foldl f M.empty inAll  where
           in case eSub of Left () -> m
                           Right sub -> M.insert a sub m
 
-search' :: Index -> Query -> Set Addr
-search' idx (QImg im) = setFromMaybe $ addrOf idx im
-search' idx (QIntersect qs) = foldl S.intersection S.empty
-  $ map (search' idx) qs
-search' idx (QUnion qs) =     foldl S.union        S.empty
-  $ map (search' idx) qs
+search :: Index -> Query -> Set Addr
+search idx (QImg im) = setFromMaybe $ addrOf idx im
+search idx (QIntersect qs) = foldl S.intersection S.empty
+  $ map (search idx) qs
+search idx (QUnion qs) =     foldl S.union        S.empty
+  $ map (search idx) qs
 
-search' idx (QHasInRoles rqs) = foldl1 S.intersection lq where
+search idx (QHasInRoles rqs) = foldl1 S.intersection lq where
   -- TODO (#fast) Find the smallest set (without evaluating the remainder
   -- of the other sets) and check if the conditions apply to all its members.
-  (lq :: [Set Addr]) = map (search' idx . uncurry QHasInRole) rqs
+  (lq :: [Set Addr]) = map (search idx . uncurry QHasInRole) rqs
 
-search' idx (QHasInRole r0 q0) = selectFrom positions where
+search idx (QHasInRole r0 q0) = selectFrom positions where
   positions :: Set (Role, Addr)
   positions = S.foldl S.union S.empty -- Since only one `Expr` fills each position, `S.foldl S.union` destroys no information.
               $ S.map (flat . positionsHeldBy idx)
-              $ (search' idx q0 :: Set Addr)
+              $ (search idx q0 :: Set Addr)
     where flat Nothing = S.empty -- Similar to `S.foldl S.union` above.
           flat (Just s) = s
   selectFrom :: Set (Role, Addr) -> Set Addr
@@ -93,6 +93,6 @@ search' idx (QHasInRole r0 q0) = selectFrom positions where
     where f :: (Role, Addr) -> Maybe Addr
           f (r,a) = if r==r0 then Just a else Nothing
 
-search' idx (QNot _)     = error "Cannot search for a QNot."
-search' idx (QVariety _) = error "Cannot search for a QVariety."
-search' idx (QVar _)     = error "Cannot search for a QVar."
+search idx (QNot _)     = error "Cannot search for a QNot."
+search idx (QVariety _) = error "Cannot search for a QVariety."
+search idx (QVar _)     = error "Cannot search for a QVar."

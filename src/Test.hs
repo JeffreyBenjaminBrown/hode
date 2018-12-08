@@ -15,8 +15,8 @@ import Util
 
 tests :: [Bool]
 tests = [ and testJoinSubsts
+        , and testSearchSubst
         , and testSearch
-        , and testSearch'
         , and testCheckDb
         , and testImgLookup
         , and testHoldsPosition
@@ -44,22 +44,22 @@ testJoinSubsts =
                == Left ()
   ]
 
-testSearch :: [Bool]
-testSearch =
-  [ search D.index (QImg $ ImgOfExpr $ Word "") == M.fromList [(0, M.empty)]
-  , search D.index (QImg $ ImgOfAddr 5) == M.fromList [(5, M.empty)]
+testSearchSubst :: [Bool]
+testSearchSubst =
+  [ searchSubst D.index (QImg $ ImgOfExpr $ Word "") == M.fromList [(0, M.empty)]
+  , searchSubst D.index (QImg $ ImgOfAddr 5) == M.fromList [(5, M.empty)]
   ]
 
-testSearch' :: [Bool]
-testSearch' =
-  [ search' D.index (QHasInRole (RoleMember 1) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
-  , search' D.index (QHasInRole (RoleMember 3) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
-  , search' D.index (QHasInRole (RoleMember 2) $ QImg $ ImgOfExpr $ Word "") == S.empty
+testSearch :: [Bool]
+testSearch =
+  [ search D.index (QHasInRole (RoleMember 1) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
+  , search D.index (QHasInRole (RoleMember 3) $ QImg $ ImgOfExpr $ Word "") == S.fromList [4]
+  , search D.index (QHasInRole (RoleMember 2) $ QImg $ ImgOfExpr $ Word "") == S.empty
 
-  , search' D.index (QHasInRoles [ (RoleMember 1, QImg $ ImgOfAddr 0)
+  , search D.index (QHasInRoles [ (RoleMember 1, QImg $ ImgOfAddr 0)
                                  , (RoleMember 2, QImg $ ImgOfAddr 3)
                                  ] ) == S.fromList [4]
-  , search' D.index (QHasInRoles [ (RoleMember 1, QImg $ ImgOfAddr 0)
+  , search D.index (QHasInRoles [ (RoleMember 1, QImg $ ImgOfAddr 0)
                                  , (RoleMember 2, QImg $ ImgOfAddr 2)
                                  ] ) == S.empty
   ]
