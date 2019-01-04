@@ -1,0 +1,5 @@
+* TODO bug: an incomplete Search does not record whether the solutions are related to the constraints via & or |
+* Search should come in 3 forms: Search, SearchAnd, SearchOr
+* pre-process QAnds by putting QV members last
+* Where taking intersections, lists might work better than Sets
+** Use zip (or zipwith const?) to find the shortest list, and not evaluate the rest of the others.

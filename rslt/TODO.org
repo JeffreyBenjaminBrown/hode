@@ -1,4 +1,4 @@
-* Mercury web to Haskell
+* Mercury -- FFI to C -- web to Haskell
 * try something simpler (in mercury?)
 type Graph = Map Int (Set Int)
 data Query = QInt Int

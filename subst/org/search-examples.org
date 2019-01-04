@@ -1,0 +1,68 @@
+* QAnd
+** QAnd [QVar "a", QInt 1] == Solved (1, Map [("a",1)])
+** q@(QAnd [QVar "a", QNot 1]) == unsolved q
+** unburying unsolved queries
+*** unburying one level
+QAnd[ QAnd [QVar "a", QNot 1]
+    , QElt 2 ]
+The second QAnd is unsolved. 
+Since it is, we know (?) it contains only tests and variable assignments.
+Therefore when we get to the QElt, we can solve that, and test its solutions
+against the tests, and bind the survivors to the variables.
+Therefore the solution is
+  (1, Var "a" = 1)
+*** unburying two levels of QAnd
+QAnd[ QAnd [ QVar "a"
+           , QAnd [ QNot 1, QNot 2 ]
+           ]
+    , QElt 3 ]
+QAnd [[QAnd x,y],z] == QAnd [x,y,z].
+So in evaluating, the QVar is unsolved, and then its QAnd brother is unsolved too. Since they are both children of a QAnd, the child QAnd should be dissolved, and its two QNot children promoted.
+Now it reduces to an earlier case.
+* QOr :: hard
+** unburying mixed And-Or constraints
+QAnd [ QOr [ QAnd[ (> 1), (< 10) ]
+           , QAnd[ QVar "a", (> 20) ] ]
+     , QOr [0, 1, 22] ]
+An & under an & can be dissolved (promoting its content), and similarly for |.
+But Or under an And cannot, and vice-versa.
+The ((> 1) & (< 10)) begins unsolved.
+The ("a" & (> 20)) begins unsolved.
+The Or for them begins unsolved.
+Finally we reach the Qor [0, 1,22]. It has solutions [0, 1,22].
+We can test each against the unsolved Qor:
+  0 passes none of the tests.
+  1 passes the first QAnd tests, producing the solution (1, ()).
+  It still needs to be checked against the second QAnd, which it fails.
+   Once it fails any test in a QAnd, though, it does not need to be
+   run against the rest. For this reason, reorder QAnds to put tests first.
+  22 fails the first &, passes the second &, resulting in (22,"a")
+** QAnd [ Union [Var, Int], ... ]
+QAnd [ Qor [ QQVar "a" , QInt 1]
+     , Qor [QInt 1     , QInt 2] ]
+The first Qor -> Search { solved = [1]
+                        , unsolved = [QVar "a"] }
+The second Qor -> Search { solved = [1,2], unsolved = [] }
+For the intersection, find a Search that's completely solved,
+  and test it against a Search with some unsolved queries.
+  The 1 and 2 from the second Qor both survive, leading to solutions
+    ( 1, Map [Var "a",1] )
+    ( 2, Map [Var "a",2] )
+  To that we can add the 1 from the first Union:
+    ( 1, M.empty )
+** TODO ? unread today, written yesterday
+*** QAnd [ Qor [QNot , QInt], ... ]
+ QAnd [ Qor [QNot 2 , QInt 1]
+      , Qor [QInt 1 , QInt 2] ]
+ The first Qor -> Search { solved = [1]
+                         , unsolved = [QNot 2] }
+ The second Qor -> Search { solved = [1,2], unsolved = [] }
+ The second Search is complete, so test its solutions
+   against the unsolved portions of the first Qor:
+   (1)
+ Now add the intersection of (the solved portion of the incomplete search)
+   and the complete search:
+   (1)
+ Since those two solutions are identical (in value and subst),
+  the resulting Search should have 1, not 2, values.
+*** QAnd [ QAnd [ QNot, QNot ], ... ]

@@ -1,0 +1,24 @@
+* Search results should include both Substs and conditions
+** Example: And [Positive, Not (Var "a")]
+This yields a positive but unfinished solution, subject to a not-yet-checkable constraint.
+* TODO Query, Search, Solution and Subst are not as distinct as I thought
+** easy Queries: Positive, Negative and Variable
+A positive query can be run. It results in a `Solved`: A set of values, with no conditions attached.
+A negative query cannot be run. It is a condition, meaningfully only when applied to the results of positive searches.
+A variable query cannot be run, but it is meaningful only under an "And", and it can be evaluated in one place once it has been evaluated in another.
+** And and Or
+*** An And or an Or joining two easy queries is itself easy.
+On two positive queries, and=intersection, or=union.
+On a positive and a negative query:
+  And limits the results of the positive query; it yields a Solved.
+  Or joins their results. It yields a SolvedOr, the union of
+   some concrete solutions and some queries.
+On a positive and a variable query:
+  And binds the variable name to each positive result. The result is a Solved with a nonempty Subst.
+  Or returns the union of the positive results and anything matching the variable. It yields a SolvedOr.
+*** Hard: And [Positive, Not (Var "a")]
+This yields a positive solution, subject to a not-yet-checkable constraint.
+* Search should come in 3 forms: Search, SearchAnd, SearchOr
+* pre-process QAnds by putting QV members last
+* Where taking intersections, lists might work better than Sets
+** Use zip (or zipwith const?) to find the shortest list, and not evaluate the rest of the others.
