@@ -1,4 +1,58 @@
-* TODO forall and exists clauses for variable functions of variables
+* TODO Transfer positionsHeldByAll from rslt/ to here
+It inverts a Map whose keys are T and whose values are sets of T.
+* TODO ? What if an existential is under a union or intersection?
+** solution
+*** define couldBind :: Query -> Set Var
+-- couldBind Q = Vs  <=>  Q *could* lead to a binding of any var in Vs
+couldBind (ForAll Q) = couldBind Q
+couldBind (ForSome Vs Q) = S.union Vs $ couldBind Q
+couldBind (QUnion Qs) = S.union $ map couldBind Qs
+couldBind (Intersect Qs) = S.union $ map couldBind Qs
+*** Intersection [Qs] is valid if for no Q,R, couldBind Q overlaps couldBind R
+*** ForSome Vs Qs is valid if for no Q in Qs, couldBind Q overlaps Vs
+** earlier thinking
+*** TODO A universal quantifier in any position seems okay
+ because it does not add to the Substs associated with a variable.
+*** DONE A quantifier under a union seems okay
+ ust keep all results, whether or not the Substs are congruent.
+*** TODO A quantifier under an intersection
+**** TODO existentials across the same var : just don't?
+***** this doesn't make sense
+ Z = QIntersect [ ForSome X ...
+                , ForSome X ... ]
+ Which would be the value of X associated with a given Z value?
+***** and it could be rewritten
+ depending on what the user intended, as either this:
+    X = ...
+    Y = X
+    Z = QIntersect [ ForSome X ...
+                   , ForSome Y ... ]
+ or this:
+    Z = QIntersect [ ForSome X [ QIntersect [ ...
+                                            , ... ]
+**** existentials across different vars: Keep both bindings
+ Z = QIntersect [ ForSome X ...
+                , ForSome Y ... ]
+ For any value of Z that obtains from both quantifiers, the X and Y values
+ associated with it are well-defined.
+**** nested existentials
+* TODO ? Lots of constructible data is invalid.
+** potentially invalid input data
+*** Graph: parents must match children
+*** Program.queries
+A variable must not repeat.
+A query can only refer to variables that are both
+  defined in a previous query
+  already quantified over in the current query
+*** Program.output
+Can only refer to variables used in the program.
+Any variable dependencies should also make sense
+  although it's not hard to define a way to treat ones that don't -- just
+  fail to find any matches.
+*** TODO ? QCond and QNot cannot be used everywhere. Is that okay?
+The only thing valid under a QNot is a QCond. A QIntersect is only valid if at least one thing under it is not Cond-like. A QUnion is valid only if none of its members are Cond-like. (A quantifier over a Condlike thing is condlike, as are QCond and QNot.)
+** potentially invalid non-input data: not as worrisome
+* forall and exists clauses for variable functions of variables
 ** Example
 [ (X, ..)
   (Y,              Exists [X] $ ...)
@@ -42,7 +96,7 @@ Z <- for some Y, in children(Y)
 W <- for some X, in children(X)
      & for all Z, for all Y(Z), not( has_battled( W, Y(Z) ) )
        Need two forall statements here because Y(Z) is meaningless until Z has a binding.
-* TODO disjunctions can make a variable's dependencies on other variables depend on the first one's value
+* disjunctions can make a variable's dependencies on other variables depend on the first one's value
 ** The problem
 X <- children of Thor
 Y <- children of Malox
@@ -61,5 +115,7 @@ The user cannot ask for X(Z) or Y(Z).
 ** Only common dependencies survive disjunction
 When taking the disjunction of two queries, retain any variable dependencies that are defined for every member of the disjunction. So, for instance, if one query is dependent on nothing, then no variable dependencies will be recorded.
 
+** A simple solution
+In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 * temporary user burdens: query order, dependency validity
 Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
