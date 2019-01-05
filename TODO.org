@@ -1,5 +1,7 @@
+* TODO ? Are substitutions and depending variables really well-defined?
+Will they never conflict?
 * TODO ? Ask what expressivity I'm losing by requiring sequentiality.
-* TODO ? What if an existential is under a union or intersection?
+* DONE thinking ? What if an existential is under a union or intersection?
 ** solution
 *** define couldBind :: Query -> Set Var
 -- couldBind Q = Vs  <=>  Q *could* lead to a binding of any var in Vs
@@ -35,7 +37,7 @@ couldBind (Intersect Qs) = S.union $ map couldBind Qs
  For any value of Z that obtains from both quantifiers, the X and Y values
  associated with it are well-defined.
 **** nested existentials
-* TODO ? Lots of constructible data is invalid.
+* DONE thinking ? Lots of constructible data is invalid.
 ** potentially invalid input data
 *** Graph: parents must match children
 *** Program.queries
@@ -51,7 +53,7 @@ Any variable dependencies should also make sense
 *** Queries.
 A QIntersect is only valid if at least one thing under it is not Cond-like. A QUnion is valid only if none of its members are Cond-like. (A quantifier over a Condlike thing is condlike, as is QCond itself; nothing else is.)
 ** potentially invalid non-input data: not as worrisome
-* TODO Transfer positionsHeldByAll from rslt/ to here
+* DONE thinking : Transfer positionsHeldByAll from rslt/ to here
 It inverts a Map whose keys are T and whose values are sets of T.
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables

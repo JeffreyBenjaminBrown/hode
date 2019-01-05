@@ -4,24 +4,18 @@ import Data.Map
 import Data.Set
 
 
-data Graph = Graph { children :: Map Int Int   -- ^ keys here are parents
+data Data = Graph { children :: Map Int Int   -- ^ keys here are parents
                    , parents  :: Map Int Int } -- ^ keys here are children
   deriving (Show, Eq, Ord)
 
 newtype Var = Var String deriving (Show, Eq, Ord)
-data Elt = Ground Int | VarElt Var -- TODO ? Use these in QFind, QCond.
-  deriving (Show, Eq, Ord)
 data VarFunc = VarFunc {
   varName :: Var
   , varDets :: Set Var }
   deriving (Show, Eq, Ord)
 
-data Program = Program { programGraph   :: Graph
-                       , programQueries :: [ (Var, Query) ]
-                       , programOutput  :: [ VarFunc ] }
-
-type Find = Graph -> Subst -> Set Int
-type Cond = Graph -> Subst ->     Int -> Bool
+type Find = Data -> Subst -> Set Int
+type Cond = Data -> Subst ->     Int -> Bool
 data Query = QFind Find
            | QCond Cond
            | QIntersect [Query]
@@ -40,3 +34,4 @@ type Subst = Map Var Int
 --     S.fromList [ S.fromList [ (X,2)        ]
 --                , S.fromList [ (X,3), (Z,4) ] ]
 type Result = Map Var (Map Int (Set Subst))
+type Program = Data -> [ (VarFunc, Query) ] -> Result
