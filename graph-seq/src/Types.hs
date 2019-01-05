@@ -24,11 +24,10 @@ type Find = Graph -> Subst -> Set Int
 type Cond = Graph -> Subst ->     Int -> Bool
 data Query = QFind Find
            | QCond Cond
-           | QNot  Cond
            | QIntersect [Query]
            | QUnion     [Query]
            | ForAll  [VarFunc] Query
-           | ForSome [VarFunc] Query -- TODO ? process in terms of ForAll
+           | ForSome [VarFunc] Query
 
 type Subst = Map Var Int
 -- | `VarResult` is used for partial as well as complete results.
@@ -38,6 +37,6 @@ type Subst = Map Var Int
 --     when X is bound to 2
 --     when X is bound to 3 and Z is bound to 4
 -- In that case, M.lookup 1 (M.lookup Y R) =
---     S.fromList [ S.singleton  (X,2)
+--     S.fromList [ S.fromList [ (X,2)        ]
 --                , S.fromList [ (X,3), (Z,4) ] ]
 type Result = Map Var (Map Int (Set Subst))

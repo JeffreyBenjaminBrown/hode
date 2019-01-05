@@ -1,5 +1,4 @@
-* TODO Transfer positionsHeldByAll from rslt/ to here
-It inverts a Map whose keys are T and whose values are sets of T.
+* TODO ? Ask what expressivity I'm losing by requiring sequentiality.
 * TODO ? What if an existential is under a union or intersection?
 ** solution
 *** define couldBind :: Query -> Set Var
@@ -11,12 +10,12 @@ couldBind (Intersect Qs) = S.union $ map couldBind Qs
 *** Intersection [Qs] is valid if for no Q,R, couldBind Q overlaps couldBind R
 *** ForSome Vs Qs is valid if for no Q in Qs, couldBind Q overlaps Vs
 ** earlier thinking
-*** TODO A universal quantifier in any position seems okay
+*** A universal quantifier in any position seems okay
  because it does not add to the Substs associated with a variable.
-*** DONE A quantifier under a union seems okay
+*** A quantifier under a union seems okay
  ust keep all results, whether or not the Substs are congruent.
-*** TODO A quantifier under an intersection
-**** TODO existentials across the same var : just don't?
+*** A quantifier under an intersection
+**** existentials across the same var : just don't?
 ***** this doesn't make sense
  Z = QIntersect [ ForSome X ...
                 , ForSome X ... ]
@@ -49,73 +48,76 @@ Can only refer to variables used in the program.
 Any variable dependencies should also make sense
   although it's not hard to define a way to treat ones that don't -- just
   fail to find any matches.
-*** TODO ? QCond and QNot cannot be used everywhere. Is that okay?
-The only thing valid under a QNot is a QCond. A QIntersect is only valid if at least one thing under it is not Cond-like. A QUnion is valid only if none of its members are Cond-like. (A quantifier over a Condlike thing is condlike, as are QCond and QNot.)
+*** Queries.
+A QIntersect is only valid if at least one thing under it is not Cond-like. A QUnion is valid only if none of its members are Cond-like. (A quantifier over a Condlike thing is condlike, as is QCond itself; nothing else is.)
 ** potentially invalid non-input data: not as worrisome
-* forall and exists clauses for variable functions of variables
-** Example
-[ (X, ..)
-  (Y,              Exists [X] $ ...)
-  (W, Exists [Y] $ ForAll [X(Y)] ...)
-  (V, Exists [Y] $ Exists [X(Y)] ...) ]
-** Analysis
-Y, W and V all quantify across some set of Xs.
-Y quantifies existentially across all the Xs.
-  It draws those X values from the result of the X query.
-W and V quantify across only those Xs associated with the Y in question.
-  They both draw X values the results of the Y query, not the X query.
-* the "Hera's grandchild and not Zeus's child" query
-** query
-X <- every child of Zeus
-Y <- every child of Hera
-Z <- every child of some Y s.t. for all X, X /= Y
-** representation
-[ (X, QFind <child of Zeus> )
-, (Y, QFind <child of Hera> )
-, (Z, QForSome [Y] $ QAnd [ QFind <child of Y>
-                          , QForAll [X] $ QCond <Y /= X> ] ) ]
-** algorithm
-For X: do it.
-For Y: do it.
-For Z: For each possible binding of Y
-  for each C among the children of Y
-    for each possible binding of X -- At this point the subst'n uses 2 vars.
-      test whether X == Y
-      if at any point they are equal, abort
-    if that innermost loop never aborted
-      add* the following association the Z-result:
-        (Var "C" = C) -> (Var "Y" = Y)
-        * where by "add" I mean use insertWith to add (Var "Y" = Y) to the
-         set of possible bindings that make (Var "C" = C) valid..
-* a variable (here, X) can be quantified existentially in one place and universally in another
-** query
-X <- in children(Zeus)
-Y <- in children(Hera)
-Z <- for some Y, in children(Y)
-     & for all X, not equal to X
-W <- for some X, in children(X)
-     & for all Z, for all Y(Z), not( has_battled( W, Y(Z) ) )
-       Need two forall statements here because Y(Z) is meaningless until Z has a binding.
-* disjunctions can make a variable's dependencies on other variables depend on the first one's value
-** The problem
-X <- children of Thor
-Y <- children of Malox
-Z <- for some Y, Z knows Y
-     or for some X, Z knows X
-These are every person who knows a child of Thor or a child of Malox. For some values of Z, Y is defined and X not; for other values of Z, X is defined and Y not.
-** It can be solved by rewriting the query
-X <- children of Thor
-Y <- children of Malox
-W <- X or Y
-Z <- for some W, Z knows W
+* TODO Transfer positionsHeldByAll from rslt/ to here
+It inverts a Map whose keys are T and whose values are sets of T.
+* DONE ? obvious
+** forall and exists clauses for variable functions of variables
+*** Example
+ [ (X, ..)
+   (Y,              Exists [X] $ ...)
+   (W, Exists [Y] $ ForAll [X(Y)] ...)
+   (V, Exists [Y] $ Exists [X(Y)] ...) ]
+*** Analysis
+ Y, W and V all quantify across some set of Xs.
+ Y quantifies existentially across all the Xs.
+   It draws those X values from the result of the X query.
+ W and V quantify across only those Xs associated with the Y in question.
+   They both draw X values the results of the Y query, not the X query.
+** the "Hera's grandchild and not Zeus's child" query
+*** query
+ X <- every child of Zeus
+ Y <- every child of Hera
+ Z <- every child of some Y s.t. for all X, X /= Y
+*** representation
+ [ (X, QFind <child of Zeus> )
+ , (Y, QFind <child of Hera> )
+ , (Z, QForSome [Y] $ QAnd [ QFind <child of Y>
+                           , QForAll [X] $ QCond <Y /= X> ] ) ]
+*** algorithm
+ For X: do it.
+ For Y: do it.
+ For Z: For each possible binding of Y
+   for each C among the children of Y
+     for each possible binding of X -- At this point the subst'n uses 2 vars.
+       test whether X == Y
+       if at any point they are equal, abort
+     if that innermost loop never aborted
+       add* the following association the Z-result:
+         (Var "C" = C) -> (Var "Y" = Y)
+         * where by "add" I mean use insertWith to add (Var "Y" = Y) to the
+          set of possible bindings that make (Var "C" = C) valid..
+** a variable (here, X) can be quantified existentially in one place and universally in another
+*** query
+ X <- in children(Zeus)
+ Y <- in children(Hera)
+ Z <- for some Y, in children(Y)
+      & for all X, not equal to X
+ W <- for some X, in children(X)
+      & for all Z, for all Y(Z), not( has_battled( W, Y(Z) ) )
+        Need two forall statements here because Y(Z) is meaningless until Z has a binding.
+** disjunctions can make a variable's dependencies on other variables depend on the first one's value
+*** The problem
+ X <- children of Thor
+ Y <- children of Malox
+ Z <- for some Y, Z knows Y
+      or for some X, Z knows X
+ These are every person who knows a child of Thor or a child of Malox. For some values of Z, Y is defined and X not; for other values of Z, X is defined and Y not.
+*** It can be solved by rewriting the query
+ X <- children of Thor
+ Y <- children of Malox
+ W <- X or Y
+ Z <- for some W, Z knows W
 
-** The first (problematic) query should be valid
-** But in that case certian result requests are meaningless
-The user cannot ask for X(Z) or Y(Z).
-** Only common dependencies survive disjunction
-When taking the disjunction of two queries, retain any variable dependencies that are defined for every member of the disjunction. So, for instance, if one query is dependent on nothing, then no variable dependencies will be recorded.
+*** The first (problematic) query should be valid
+*** But in that case certian result requests are meaningless
+ The user cannot ask for X(Z) or Y(Z).
+*** Only common dependencies survive disjunction
+ When taking the disjunction of two queries, retain any variable dependencies that are defined for every member of the disjunction. So, for instance, if one query is dependent on nothing, then no variable dependencies will be recorded.
 
-** A simple solution
-In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
-* temporary user burdens: query order, dependency validity
-Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
+*** A simple solution
+ In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
+** temporary user burdens: query order, dependency validity
+ Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
