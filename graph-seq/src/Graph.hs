@@ -17,10 +17,10 @@ graph pairs = Graph g $ invertMapToSet g where
 
 invertMapToSet :: forall a. Ord a => Map a (Set a) -> Map a (Set a)
 invertMapToSet = foldl addInversion M.empty . M.toList where
-
   addInversion :: M.Map a ( Set a )
                ->     ( a,  Set a )
                -> M.Map a ( Set a )
+
   addInversion m (a1, as) -- a1 maps to each a in as
     = S.foldl f m as where
       f :: M.Map  a (S.Set a)

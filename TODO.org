@@ -1,7 +1,7 @@
 * TODO ? Are Substs and DepVars really well-defined?
 Will they never conflict?
 * ? Ask what expressivity I'm losing by requiring sequentiality.
-* thinking ? What if an existential is under a union or intersection?
+* DONE ? If an existential is under a union or intersection?
 ** solution
 *** Intersection [Qs] is valid if for no Q,R, couldBind Q overlaps couldBind R
 *** ForSome Vs Qs is valid if for no Q in Qs, couldBind Q overlaps Vs
@@ -45,6 +45,9 @@ Any variable dependencies should also make sense
   although it's easy to define a way to treat ones that don't
   -- just fail to find any matches.
 ** DONE Queries. See the function "findable".
+* speed|space optimization
+** skip recording unneeded dependent bindings
+You can tell from reading a Program's [ (VarFunc, Query) ] argument which elements of the Substs will never be referred to; those would not have to be recorded.
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example

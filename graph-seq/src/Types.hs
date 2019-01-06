@@ -18,8 +18,8 @@ type Find = Data -> Subst -> Set Int
 type Cond = Data -> Subst ->     Int -> Bool
 data Query = QFind Find
            | QCond Cond
-           | QIntersect           [Query]
-           | QUnion               [Query]
+           | QIntersect           [Query] -- ^ order not important
+           | QUnion               [Query] -- ^ order not important
            | ForAll  (Set VarFunc) Query
            | ForSome (Set VarFunc) Query
 
@@ -34,4 +34,6 @@ type Subst = Map Var Int
 --     S.fromList [ S.fromList [ (X,2)        ]
 --                , S.fromList [ (X,3), (Z,4) ] ]
 type Result = Map Var (Map Int (Set Subst))
-type Program = Data -> [ (VarFunc, Query) ] -> Result
+type Program = Data
+             -> [ (VarFunc, Query) ]  -- ^ order important
+             -> Result
