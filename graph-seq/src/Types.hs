@@ -26,8 +26,8 @@ data Query = QFind Find
            | QCond Cond
            | QAnd           [Query] -- ^ order not important
            | QOr            [Query] -- ^ order not important
-           | ForAll  VarFunc Query -- TODO ? change VarFunc to [VarFunc]
-           | ForSome VarFunc Query -- and ditto
+           | ForAll  VarFunc Query
+           | ForSome VarFunc Query
 
 type Subst     = Map Var Elt
 type DepValues = Map Elt (Set Subst)

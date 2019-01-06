@@ -15,7 +15,21 @@ tests = runTestTT $ TestList
   [ TestLabel "testInvertMapToSet" testInvertMapToSet
   , TestLabel "testFindable" testFindable
   , TestLabel "testValidExistentials" testValidExistentials
+  , TestLabel "testCompatibleSubsts" testCompatibleSubsts
   ]
+
+testCompatibleSubsts = TestCase $ do
+  let x1 = M.singleton (Var "x") 1
+      y1 = M.singleton (Var "y") 1
+      y2 = M.singleton (Var "y") 2
+      x1y2 = M.fromList [ ((Var "x"),1)
+                        , ((Var "y"),2)]
+  assertBool "0" $ compatibleSubsts M.empty M.empty == Just M.empty
+  assertBool "1" $ compatibleSubsts M.empty x1      == Just x1
+  assertBool "2" $ compatibleSubsts x1y2    M.empty == Just x1y2
+  assertBool "3" $ compatibleSubsts x1      y2      == Just x1y2
+  assertBool "3" $ compatibleSubsts y2      x1y2    == Just x1y2
+  assertBool "3" $ compatibleSubsts y1      x1y2    == Nothing
 
 testValidExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty

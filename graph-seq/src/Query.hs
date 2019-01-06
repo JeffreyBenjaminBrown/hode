@@ -8,9 +8,30 @@ import qualified Data.Set       as S
 import Types
 
 
---lookupVarFunc :: Result -> Subst -> VarFunc -> DepValues
---lookupVarFunc r s (VarFunc v dets) =
---  let possibilities = 
+compatibleSubsts :: Subst -> Subst -> Maybe Subst
+compatibleSubsts s t = S.foldl f (Just M.empty) allKeys where
+  allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
+  f :: Maybe Subst -> Var -> Maybe Subst
+  f Nothing _ = Nothing
+  f (Just acc) v =
+    if        S.member v (M.keysSet s)
+    then if   S.member v (M.keysSet t)
+         then if (M.!) t v /= (M.!) s v
+              then Nothing
+              else Just $ M.insert v ((M.!) s v) acc
+         else      Just $ M.insert v ((M.!) s v) acc
+    else           Just $ M.insert v ((M.!) t v) acc
+
+-- | `dets` are `Var`s that depended on `v`'s earlier calculation
+-- for their own. They are bound in the `Subst`, so they determine what
+-- `v` could be.
+lookupVarFunc :: Result -> Subst -> VarFunc -> DepValues
+lookupVarFunc      r        s   (VarFunc v dets) =
+  let vCandidates :: Var -> Set Subst
+      vCandidates det = (M.!) couldBindTo bound where
+        bound = (M.!) s det :: Elt
+        couldBindTo = (M.!) r det :: DepValues
+  in mempty
 
 -- | `couldBind Q = Vs` <=> `Q` could depend on a binding of any var in `Vs`.
 -- `willBind` would be a nice thing to define if it were possible, but
