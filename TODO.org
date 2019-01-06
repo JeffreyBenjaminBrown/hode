@@ -1,4 +1,4 @@
-* TODO ? Are substitutions and depending variables really well-defined?
+* TODO ? Are Substs and DepVars really well-defined?
 Will they never conflict?
 * TODO ? Ask what expressivity I'm losing by requiring sequentiality.
 * DONE thinking ? What if an existential is under a union or intersection?

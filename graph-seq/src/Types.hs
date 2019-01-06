@@ -5,7 +5,7 @@ import Data.Set
 
 
 data Data = Graph { children :: Map Int Int   -- ^ keys here are parents
-                   , parents  :: Map Int Int } -- ^ keys here are children
+                  , parents  :: Map Int Int } -- ^ keys here are children
   deriving (Show, Eq, Ord)
 
 newtype Var = Var String deriving (Show, Eq, Ord)
