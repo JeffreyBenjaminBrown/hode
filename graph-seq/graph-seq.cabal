@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
                   Graph
+                , Query
                 , Test
                 , Types
   other-modules:

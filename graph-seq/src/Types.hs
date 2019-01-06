@@ -10,18 +10,18 @@ data Data = Graph { children :: Map Int Int   -- ^ keys here are parents
 
 newtype Var = Var String deriving (Show, Eq, Ord)
 data VarFunc = VarFunc {
-  varName :: Var
-  , varDets :: Set Var }
+    varFuncName ::     Var
+  , varFuncDets :: Set Var }
   deriving (Show, Eq, Ord)
 
 type Find = Data -> Subst -> Set Int
 type Cond = Data -> Subst ->     Int -> Bool
 data Query = QFind Find
            | QCond Cond
-           | QIntersect [Query]
-           | QUnion     [Query]
-           | ForAll  [VarFunc] Query
-           | ForSome [VarFunc] Query
+           | QIntersect (Set       Query)
+           | QUnion     (Set       Query)
+           | ForAll  (Set VarFunc) Query
+           | ForSome (Set VarFunc) Query
 
 type Subst = Map Var Int
 -- | `VarResult` is used for partial as well as complete results.

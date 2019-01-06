@@ -3,12 +3,6 @@ Will they never conflict?
 * TODO ? Ask what expressivity I'm losing by requiring sequentiality.
 * DONE thinking ? What if an existential is under a union or intersection?
 ** solution
-*** define couldBind :: Query -> Set Var
--- couldBind Q = Vs  <=>  Q *could* lead to a binding of any var in Vs
-couldBind (ForAll Q) = couldBind Q
-couldBind (ForSome Vs Q) = S.union Vs $ couldBind Q
-couldBind (QUnion Qs) = S.union $ map couldBind Qs
-couldBind (Intersect Qs) = S.union $ map couldBind Qs
 *** Intersection [Qs] is valid if for no Q,R, couldBind Q overlaps couldBind R
 *** ForSome Vs Qs is valid if for no Q in Qs, couldBind Q overlaps Vs
 ** earlier thinking
@@ -53,8 +47,6 @@ Any variable dependencies should also make sense
 *** Queries.
 A QIntersect is only valid if at least one thing under it is not Cond-like. A QUnion is valid only if none of its members are Cond-like. (A quantifier over a Condlike thing is condlike, as is QCond itself; nothing else is.)
 ** potentially invalid non-input data: not as worrisome
-* DONE thinking : Transfer positionsHeldByAll from rslt/ to here
-It inverts a Map whose keys are T and whose values are sets of T.
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example
