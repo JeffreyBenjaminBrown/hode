@@ -23,23 +23,23 @@ testValidExistentials = TestCase $ do
       y   = S.singleton $ VarFunc (Var "y") $ S.empty
       qx  = ForSome x qf
       qy  = ForSome y qf
-      qxy = QIntersect [qx,qy]
-  assertBool "1" $ validExistentials (ForSome x qx)        == False
-  assertBool "2" $ validExistentials (ForSome y qx)        == True
-  assertBool "3" $ validExistentials qxy                   == True
-  assertBool "3" $ validExistentials (QIntersect [qx,qxy]) == False
+      qxy = QAnd [qx,qy]
+  assertBool "1" $ validExistentials (ForSome x qx)  == False
+  assertBool "2" $ validExistentials (ForSome y qx)  == True
+  assertBool "3" $ validExistentials qxy             == True
+  assertBool "3" $ validExistentials (QAnd [qx,qxy]) == False
 
 testFindable = TestCase $ do
   let qf = QFind $ \_ _    -> S.empty
       qc = QCond $ \_ _  _ -> False
-  assertBool "1" $ findable (QIntersect [qf, qc]) == True
-  assertBool "2" $ findable (QIntersect [qf]    ) == True
-  assertBool "3" $ findable (QIntersect [qc]    ) == False
-  assertBool "4" $ findable (QIntersect []      ) == False
-  assertBool "5" $ findable (QUnion     [qf, qc]) == False
-  assertBool "6" $ findable (QUnion     [qf]    ) == True
-  assertBool "7" $ findable (QUnion     [qc]    ) == False
-  assertBool "8" $ findable (QUnion     []      ) == False
+  assertBool "1" $ findable (QAnd [qf, qc]) == True
+  assertBool "2" $ findable (QAnd [qf]    ) == True
+  assertBool "3" $ findable (QAnd [qc]    ) == False
+  assertBool "4" $ findable (QAnd []      ) == False
+  assertBool "5" $ findable (QOr  [qf, qc]) == False
+  assertBool "6" $ findable (QOr  [qf]    ) == True
+  assertBool "7" $ findable (QOr  [qc]    ) == False
+  assertBool "8" $ findable (QOr  []      ) == False
 
 testInvertMapToSet = TestCase $ do
   let g = M.fromList [ (1, S.fromList [2,3] )
