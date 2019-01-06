@@ -42,12 +42,14 @@ validExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
                          else (S.empty, False)
 validExistentials _ = True
 
---runQuery :: Data
---         -> Result -- ^ how earlier `Var`s have been bound
---         -> Subst  -- ^ these are drawn from the input `Result`
---         -> Var    -- ^ what we want to bind
---         -> Query  -- ^ how we want to bind it
---         -> DepValues
---
---runQuery d r s v (QFind f) =
---  let found = f d s
+runQuery :: Data
+         -> Result -- ^ how earlier `Var`s have been bound
+         -> Subst  -- ^ these are drawn from the input `Result`
+         -> Var    -- ^ what we want to bind
+         -> Query  -- ^ how we want to bind it
+         -> DepValues
+
+runQuery d r s v (QFind (Find find deps)) =
+  let found = find d s             :: Set Elt
+      used = M.restrictKeys s deps :: Subst
+  in M.fromSet (const $ S.singleton used) found
