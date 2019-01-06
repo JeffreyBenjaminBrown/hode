@@ -8,6 +8,10 @@ import qualified Data.Set       as S
 import Types
 
 
+--lookupVarFunc :: Result -> Subst -> VarFunc -> DepValues
+--lookupVarFunc r s (VarFunc v dets) =
+--  let possibilities = 
+
 -- | `couldBind Q = Vs` <=> `Q` could depend on a binding of any var in `Vs`.
 -- `willBind` would be a nice thing to define if it were possible, but
 -- (without way more data and processing) it is not.
@@ -30,16 +34,17 @@ findable (QOr     qs@(_:_)) = and $ map findable qs
 findable (ForSome vfs q)    = findable q
 findable (ForAll  _   q)    = findable q
 
-validExistentials :: Query -> Bool
-validExistentials (ForSome vf q)
+-- | A validity test.
+disjointExistentials :: Query -> Bool
+disjointExistentials (ForSome vf q)
   = not $ S.member (varFuncName vf) (couldBind q)
-validExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
+disjointExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
   where f :: (Set Var, Bool) -> Query -> (Set Var, Bool)
         f (_, False) _ = (S.empty, False) -- short circuit (roughly)
         f (vs, True) q = if S.disjoint vs $ couldBind q
                          then (S.union vs $ couldBind q, True)
                          else (S.empty, False)
-validExistentials _ = True
+disjointExistentials _ = True
 
 runFind :: Data -> Subst -> Find -> DepValues
 runFind d s (Find find deps) =
@@ -63,4 +68,4 @@ runQuery :: Data -- TODO ? Is the `Var` argument needed here?
 runQuery d _ s _ (QFind f) = runFind d s f
 runQuery _ _ _ _ (QCond _) =
   error "QCond cannot be run as a standalone Query."
---runQuery d r s v (Forall vf q) =
+-- runQuery d r s v (Forall vf q) =

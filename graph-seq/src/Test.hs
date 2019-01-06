@@ -24,10 +24,10 @@ testValidExistentials = TestCase $ do
       qx  = ForSome x qf
       qy  = ForSome y qf
       qxy = QAnd [qx,qy]
-  assertBool "1" $ validExistentials (ForSome x qx)  == False
-  assertBool "2" $ validExistentials (ForSome y qx)  == True
-  assertBool "3" $ validExistentials qxy             == True
-  assertBool "3" $ validExistentials (QAnd [qx,qxy]) == False
+  assertBool "1" $ disjointExistentials (ForSome x qx)  == False
+  assertBool "2" $ disjointExistentials (ForSome y qx)  == True
+  assertBool "3" $ disjointExistentials qxy             == True
+  assertBool "3" $ disjointExistentials (QAnd [qx,qxy]) == False
 
 testFindable = TestCase $ do
   let qf = QFind $ Find (\_ _    -> S.empty) S.empty
