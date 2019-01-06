@@ -30,9 +30,9 @@ data Query = QFind Find
            | ForSome VarFunc Query
 
 type Subst     = Map Var Elt
-type DepValues = Map Elt (Set Subst)
+type ConditionedValues = Map Elt (Set Subst)
   -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
-type Result    = Map Var DepValues
+type Result    = Map Var ConditionedValues
 type Program = Data
              -> [(VarFunc, Query)] -- ^ queries can depend on earlier ones
              -> Result
