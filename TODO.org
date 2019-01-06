@@ -1,3 +1,4 @@
+* TODO Next : Set Query is problematic, because Query cannot be Ord. Use [].
 * TODO ? Are Substs and DepVars really well-defined?
 Will they never conflict?
 * TODO ? Ask what expressivity I'm losing by requiring sequentiality.
