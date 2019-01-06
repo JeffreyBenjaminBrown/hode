@@ -10,6 +10,11 @@ import qualified Data.Set       as S
 import Types
 
 
+graph :: [( Int, [Int] )] -> Data
+graph pairs = Graph g $ invertMapToSet g where
+  g = M.fromList $ map f pairs
+  f (a,b) = (a, S.fromList b)
+
 invertMapToSet :: forall a. Ord a => Map a (Set a) -> Map a (Set a)
 invertMapToSet = foldl addInversion M.empty . M.toList where
 
