@@ -42,14 +42,24 @@ validExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
                          else (S.empty, False)
 validExistentials _ = True
 
-runQuery :: Data
+runFind :: Data -> Subst -> Find -> DepValues
+runFind d s (Find find deps) =
+  let found = find d s             :: Set Elt
+      used = M.restrictKeys s deps :: Subst
+  in M.fromSet (const $ S.singleton used) found
+
+runCond :: Data -> Subst -> Cond -> Elt -> (Bool, Subst)
+runCond d s (Cond test deps) e =
+  let passes = test d s e          :: Bool
+      used = M.restrictKeys s deps :: Subst
+  in (passes, used)
+
+runQuery :: Data -- TODO ? Is the `Var` argument needed here?
          -> Result -- ^ how earlier `Var`s have been bound
          -> Subst  -- ^ these are drawn from the input `Result`
          -> Var    -- ^ what we want to bind
          -> Query  -- ^ how we want to bind it
          -> DepValues
 
-runQuery d r s v (QFind (Find find deps)) =
-  let found = find d s             :: Set Elt
-      used = M.restrictKeys s deps :: Subst
-  in M.fromSet (const $ S.singleton used) found
+runQuery d _ s _ (QFind f) = runFind d s f
+runQuery _ _ _ _ (QCond _) = error "QCond is not a runnable Query."
