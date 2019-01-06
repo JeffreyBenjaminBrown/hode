@@ -12,13 +12,12 @@ import Types
 -- `willBind` would be a nice thing to define if it were possible, but
 -- (without way more data and processing) it is not.
 couldBind :: Query -> Set Var
-couldBind (QFind _)       = S.empty
-couldBind (QCond _)       = S.empty
-couldBind (QOr  qs)       = S.unions $ map couldBind qs
-couldBind (QAnd qs)       = S.unions $ map couldBind qs
-couldBind (ForSome vfs q) = S.union vs $   couldBind q
-  where vs = S.map varFuncName vfs
-couldBind (ForAll  _   q) =                couldBind q
+couldBind (QFind _)      = S.empty
+couldBind (QCond _)      = S.empty
+couldBind (QOr  qs)      = S.unions                  $ map couldBind qs
+couldBind (QAnd qs)      = S.unions                  $ map couldBind qs
+couldBind (ForSome vf q) = S.insert (varFuncName vf) $     couldBind q
+couldBind (ForAll  _  q) =                                 couldBind q
 
 -- | Every `QAnd` must include something `findable`, and
 -- every `QOr` must be nonempty and consist entirely of `findable` things.
@@ -32,8 +31,8 @@ findable (ForSome vfs q)    = findable q
 findable (ForAll  _   q)    = findable q
 
 validExistentials :: Query -> Bool
-validExistentials (ForSome vfs q)
-  = S.disjoint (S.map varFuncName vfs) (couldBind q)
+validExistentials (ForSome vf q)
+  = not $ S.member (varFuncName vf) (couldBind q)
 validExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
   where f :: (Set Var, Bool) -> Query -> (Set Var, Bool)
         f (_, False) _ = (S.empty, False) -- short circuit (roughly)
@@ -62,4 +61,6 @@ runQuery :: Data -- TODO ? Is the `Var` argument needed here?
          -> DepValues
 
 runQuery d _ s _ (QFind f) = runFind d s f
-runQuery _ _ _ _ (QCond _) = error "QCond is not a runnable Query."
+runQuery _ _ _ _ (QCond _) =
+  error "QCond cannot be run as a standalone Query."
+--runQuery d r s v (Forall vf q) =

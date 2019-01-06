@@ -19,8 +19,8 @@ tests = runTestTT $ TestList
 
 testValidExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      x   = S.singleton $ VarFunc (Var "x") $ S.empty
-      y   = S.singleton $ VarFunc (Var "y") $ S.empty
+      x   = VarFunc (Var "x") $ S.empty
+      y   = VarFunc (Var "y") $ S.empty
       qx  = ForSome x qf
       qy  = ForSome y qf
       qxy = QAnd [qx,qy]
