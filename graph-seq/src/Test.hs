@@ -18,7 +18,7 @@ tests = runTestTT $ TestList
   ]
 
 testValidExistentials = TestCase $ do
-  let qf  = QFind $ \_ _ -> S.empty
+  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
       x   = S.singleton $ VarFunc (Var "x") $ S.empty
       y   = S.singleton $ VarFunc (Var "y") $ S.empty
       qx  = ForSome x qf
@@ -30,8 +30,8 @@ testValidExistentials = TestCase $ do
   assertBool "3" $ validExistentials (QAnd [qx,qxy]) == False
 
 testFindable = TestCase $ do
-  let qf = QFind $ \_ _    -> S.empty
-      qc = QCond $ \_ _  _ -> False
+  let qf = QFind $ Find (\_ _    -> S.empty) S.empty
+      qc = QCond $ Cond (\_ _  _ -> False  ) S.empty
   assertBool "1" $ findable (QAnd [qf, qc]) == True
   assertBool "2" $ findable (QAnd [qf]    ) == True
   assertBool "3" $ findable (QAnd [qc]    ) == False

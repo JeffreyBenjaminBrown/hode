@@ -42,16 +42,12 @@ validExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
                          else (S.empty, False)
 validExistentials _ = True
 
--- -- TODO the output Result should not be merged with the input Result.
--- The output Result shouldn't even be a Result
--- -- a map from vars to something --
--- it should just be the something.
 --runQuery :: Data
---         -> Result -- ^ the output `Result` adds to this
---         -> Subst  -- ^ this is drawn from the input `Result`
---         -> Var
---         -> Query
---         -> Result
+--         -> Result -- ^ how earlier `Var`s have been bound
+--         -> Subst  -- ^ these are drawn from the input `Result`
+--         -> Var    -- ^ what we want to bind
+--         -> Query  -- ^ how we want to bind it
+--         -> DepValues
 --
---runQuery d r s v (QFind f) = M.insert r v vMap
---  where found =
+--runQuery d r s v (QFind f) =
+--  let found = f d s
