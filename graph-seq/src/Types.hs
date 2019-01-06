@@ -18,8 +18,8 @@ type Find = Data -> Subst -> Set Int
 type Cond = Data -> Subst ->     Int -> Bool
 data Query = QFind Find
            | QCond Cond
-           | QIntersect (Set       Query)
-           | QUnion     (Set       Query)
+           | QIntersect           [Query]
+           | QUnion               [Query]
            | ForAll  (Set VarFunc) Query
            | ForSome (Set VarFunc) Query
 
