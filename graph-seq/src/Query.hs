@@ -12,21 +12,6 @@ import Subst
 import Types
 
 
--- | Each determinant implies a set of `Subst`s.
--- `lookupVarFunc` finds them, then reconciles them.
---
--- `dets` are `Var`s that depended on `v`'s earlier calculation
--- for their own. They are bound in the `Subst`, so they determine what
--- values `v` can take.
-
-lookupVarFunc :: Result -> Subst -> VarFunc -> ConditionedValues
-lookupVarFunc      r        s   (VarFunc v dets) =
-  let vCandidates :: Var -> Set Subst
-      vCandidates det = (M.!) couldBindTo bound where
-        bound = (M.!) s det :: Elt
-        couldBindTo = (M.!) r det :: ConditionedValues
-  in mempty -- TODO finish
-
 -- | `couldBind Q = Vs` <=> `Q` could depend on a binding of any var in `Vs`.
 -- `willBind` would be a nice thing to define if it were possible, but
 -- (without way more data and processing) it is not.

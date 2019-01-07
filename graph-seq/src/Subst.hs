@@ -9,6 +9,37 @@ import qualified Data.Set       as S
 import Types
 
 
+-- | Each determinant implies a set of `Subst`s.
+-- `lookupVarFunc` finds them, then reconciles them.
+-- That is, `lookupVarFunc r s (VarFunc v dets)` is the set of all
+-- `Subst`s that permit the values of `dets` determined by `s`.
+--
+-- (Re. names: `dets` are `Var`s that depended on `v`'s earlier calculation
+-- for their own. They are bound in the `Subst`, so they determine what
+-- values `v` can take.)
+
+lookupVarFunc :: Result -> Subst -> VarFunc -> Set Subst
+lookupVarFunc      r        s   (VarFunc v dets) =
+  let vCandidates :: Var -> Set Subst
+      vCandidates det = (M.!) couldBindTo bound where
+        bound       = (M.!) s det :: Elt
+        couldBindTo = (M.!) r det :: ConditionedValues
+  in reconcile (S.map vCandidates dets)
+
+
+-- | = Reconciling `Subst`s
+
+reconcile :: Set (Set Subst) -> Set Subst
+reconcile ss = S.foldl reconcile2sets min rest where
+  (min, rest) = S.deleteFindMin ss
+
+reconcile2sets :: Set Subst -> Set Subst -> Set Subst
+reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1toMany s ss2) ss1
+
+reconcile1toMany :: Subst -> Set Subst -> Set Subst
+reconcile1toMany s ss = S.map fromJust $ S.filter isJust
+                $ S.map (reconcile2 s) ss
+
 -- | If they assign different values to the same variable, it's Nothing.
 -- Otherwise it's their union.
 reconcile2 :: Subst -> Subst -> Maybe Subst
@@ -24,14 +55,3 @@ reconcile2 s t = S.foldl f (Just M.empty) allKeys where
               else Just $ M.insert v ((M.!) s v) acc
          else      Just $ M.insert v ((M.!) s v) acc
     else           Just $ M.insert v ((M.!) t v) acc
-
-reconcile1toMany :: Subst -> Set Subst -> Set Subst
-reconcile1toMany s ss = S.map fromJust $ S.filter isJust
-                $ S.map (reconcile2 s) ss
-
-reconcile2sets :: Set Subst -> Set Subst -> Set Subst
-reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1toMany s ss2) ss1
-
-reconcile :: Set (Set Subst) -> Set Subst
-reconcile ss = S.foldl reconcile2sets min rest where
-  (min, rest) = S.deleteFindMin ss
