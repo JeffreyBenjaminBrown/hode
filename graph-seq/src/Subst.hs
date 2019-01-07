@@ -26,6 +26,14 @@ varFuncSubsts      r        s   (VarFunc v dets) =
         couldBindTo = (M.!) r det :: ConditionedValues
   in reconcile (S.map vCandidates dets)
 
+restrictCondVals1 :: Subst -> ConditionedValues -> ConditionedValues
+restrictCondVals1 s = M.map (const $ S.singleton s)
+                              . M.filter (S.member s)
+
+restrictCondVals :: Set Subst -> ConditionedValues -> ConditionedValues
+restrictCondVals s cvs = M.unionsWith S.union
+                         $ S.map (flip restrictCondVals1 cvs) s
+
 
 -- | = Reconciling `Subst`s
 
