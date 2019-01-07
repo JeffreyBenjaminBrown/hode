@@ -9,6 +9,13 @@ import qualified Data.Set       as S
 import Types
 
 
+-- | `varFuncCondVals r s (VarFunc v dets)` returns all values `v` can take,
+-- and the `Subst`s that could lead to each, given r, s and v.
+varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
+varFuncCondVals      r        s  vf@(VarFunc v _) =
+  let substs = varFuncSubsts r s vf :: Set Subst
+  in restrictCondVals substs $ (M.!) r v
+
 -- | Each determinant implies a set of `Subst`s.
 -- `varFuncSubsts` finds them, then reconciles them.
 -- That is, `varFuncSubsts r s (VarFunc v dets)` is the set of all
@@ -19,7 +26,7 @@ import Types
 -- values `v` can take.)
 
 varFuncSubsts :: Result -> Subst -> VarFunc -> Set Subst
-varFuncSubsts      r        s   (VarFunc v dets) =
+varFuncSubsts      r        s   (VarFunc _ dets) =
   let vCandidates :: Var -> Set Subst
       vCandidates det = (M.!) couldBindTo bound where
         bound       = (M.!) s det :: Elt
