@@ -16,11 +16,27 @@ tests = runTestTT $ TestList
   , TestLabel "testFindable" testFindable
   , TestLabel "testValidExistentials" testValidExistentials
   , TestLabel "testCompatibleSubsts" testCompatibleSubsts
+  , TestLabel "testReconcile1toMany" testReconcile1toMany
   , TestLabel "testReconcile" testReconcile
   ]
 
 testReconcile = TestCase $ do
-  assertBool "not done yet" False
+  let x1    = S.singleton ( M.singleton (Var "x") 1 )
+      x1_x2 = S.fromList  [ M.singleton (Var "x") 1
+                          , M.singleton (Var "x") 2 ]
+      x1_x3 = S.fromList  [ M.singleton (Var "x") 1
+                          , M.singleton (Var "x") 3 ]
+  print $ show $   reconcile (S.fromList [x1_x2, x1_x3])
+  assertBool "1" $ reconcile (S.fromList [x1_x2, x1_x3]) == x1
+
+testReconcile1toMany = TestCase $ do
+  let x1 = M.singleton (Var "x") 1
+      y1 = M.singleton (Var "y") 1
+      y2 = M.singleton (Var "y") 2
+      x1y2 = M.fromList [ ((Var "x"),1)
+                        , ((Var "y"),2)]
+  assertBool "1" $ reconcile1toMany x1y2 (S.fromList [x1, y1, y2] )
+    == S.singleton x1y2
 
 testCompatibleSubsts = TestCase $ do
   let x1 = M.singleton (Var "x") 1
