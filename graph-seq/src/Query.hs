@@ -13,8 +13,8 @@ import Types
 
 -- | If they assign different values to the same variable, it's Nothing.
 -- Otherwise it's their union.
-compatibleSubsts :: Subst -> Subst -> Maybe Subst
-compatibleSubsts s t = S.foldl f (Just M.empty) allKeys where
+reconcile2 :: Subst -> Subst -> Maybe Subst
+reconcile2 s t = S.foldl f (Just M.empty) allKeys where
   allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
   f :: Maybe Subst -> Var -> Maybe Subst
   f Nothing _ = Nothing -- short-circuit (roughly)
@@ -30,7 +30,7 @@ compatibleSubsts s t = S.foldl f (Just M.empty) allKeys where
 reconcile1toMany :: Subst -> Set Subst -> Set Subst
 reconcile1toMany s (S.null -> True) = S.singleton s
 reconcile1toMany s ss = S.map fromJust $ S.filter isJust
-                $ S.map (compatibleSubsts s) ss
+                $ S.map (reconcile2 s) ss
 
 reconcile2sets :: Set Subst -> Set Subst -> Set Subst
 reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1toMany s ss2) ss1
