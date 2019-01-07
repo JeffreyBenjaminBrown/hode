@@ -10,6 +10,15 @@ import Types
 import Util
 
 
+
+
+
+substToCondElts :: Var -> Subst -> Maybe ConditionedElts
+substToCondElts v subst = do
+  val <- M.lookup v subst
+  let subst' = M.delete v subst
+  return $ M.singleton val $ S.singleton subst'
+
 -- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
 varFuncToCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
