@@ -1,5 +1,8 @@
-* TODO Test restrictCondVals
-varFuncCondVals is failing, and it uses restrictCondVals.
+* TODO restrictCondVals might have the wrong idea
+restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
+`restrictCondVals1 s ces` should maybe not restrict only to those Substs that exactly match, but rather those Substs that contain.
+** TODO Test restrictCondVals
+ varFuncCondVals is failing, and it uses restrictCondVals.
 * TODO next: runQuery d r s v (ForSome vf q) =
 Collect the results of running q with every posible value of vf.
 ** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst

@@ -21,17 +21,16 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
+--  , TestLabel "testRestrictCondVals1" testRestrictCondVals1
   , TestLabel "testVarFuncCondVals" testVarFuncCondVals
   ]
 
 testVarFuncCondVals = TestCase $ do
-
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
       vf_a_bc = VarFunc a (S.fromList [b, c])
       vf_a_b  = VarFunc a (S.fromList [b   ])
       vf_a    = VarFunc a (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
-      testCv = M.fromList [ (1, S.singleton M.empty) ]:: ConditionedElts
       ra = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty) ] ) ] :: Result
       r = M.fromList
@@ -39,6 +38,7 @@ testVarFuncCondVals = TestCase $ do
                           , (2, S.singleton $ M.singleton x 22) ] )
         , ( b, M.fromList [ (1, S.fromList [ M.singleton a 2 ] ) ] )
         ] :: Result
+
   putStrLn $ "\n\n" ++ show (varFuncCondVals r s_b1c1 vf_a_b) ++ "\n\n"
   assertBool "3" $ varFuncCondVals r s_b1c1 vf_a_b
     == M.fromList [ (2, S.singleton $ M.singleton x 22) ]
@@ -46,8 +46,19 @@ testVarFuncCondVals = TestCase $ do
     == M.fromList [ (1, S.singleton M.empty) ]
   assertBool "1" $ varFuncCondVals ra M.empty vf_a
     == M.fromList [ (1, S.singleton M.empty) ]
-
 --  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
+
+--testRestrictCondVals1 = TestCase $ do
+--  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+--      subst = M.fromList [ (x,1), (y,11) ]
+--      ces = M.fromList [ (1, S.fromList [ subst
+--                                        , M.insert c 111 subst ] )
+--                       , (2, S.fromList [ subst
+--                                        , M.insert x 2 subst ] ) ]
+--  assertBool "1" $ restrictCondVals1 subst ces
+--    ==
+----restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
+
 testVarFuncSubsts = TestCase $ do
   let xCondVals = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (Var "a", 1) ] ] )

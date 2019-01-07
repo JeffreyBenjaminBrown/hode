@@ -7,6 +7,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Types
+import Util
 
 
 -- | `varFuncCondVals r s (VarFunc v dets)` returns all values v can take,
@@ -38,12 +39,17 @@ varFuncSubsts      r        s   (VarFunc _ dets) =
              in reconcile (S.map vCandidates dets)
 
 restrictCondVals :: Set Subst -> ConditionedElts -> ConditionedElts
-restrictCondVals s cvs = M.unionsWith S.union
-                         $ S.map (flip restrictCondVals1 cvs) s
+restrictCondVals s ces = M.unionsWith S.union
+                         $ S.map (flip restrictCondVals1 ces) s
+
+-- | The old definition, which I hope the new one is better than.
+--restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
+--restrictCondVals1 s = M.map (const $ S.singleton s)
+--                      . M.filter (S.member s)
 
 restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
-restrictCondVals1 s = M.map (const $ S.singleton s)
-                              . M.filter (S.member s)
+restrictCondVals1 s = M.filter S.null . M.map keepMatches where
+  keepMatches = S.filter $ isSubsetOfMap s :: Set Subst -> Set Subst
 
 
 -- | = Reconciling `Subst`s
