@@ -31,7 +31,7 @@ testVarFuncCondVals = TestCase $ do
       vf_a_b  = VarFunc a (S.fromList [b   ])
       vf_a    = VarFunc a (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
-      testCv = M.fromList [ (1, S.singleton M.empty) ]:: ConditionedValues
+      testCv = M.fromList [ (1, S.singleton M.empty) ]:: ConditionedElts
       ra = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty) ] ) ] :: Result
       r = M.fromList
@@ -47,7 +47,7 @@ testVarFuncCondVals = TestCase $ do
   assertBool "1" $ varFuncCondVals ra M.empty vf_a
     == M.fromList [ (1, S.singleton M.empty) ]
 
---  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
+--  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
 testVarFuncSubsts = TestCase $ do
   let xCondVals = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (Var "a", 1) ] ] )

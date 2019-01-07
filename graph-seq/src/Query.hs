@@ -46,7 +46,7 @@ disjointExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
                          else (S.empty, False)
 disjointExistentials _ = True
 
-runFind :: Data -> Subst -> Find -> ConditionedValues
+runFind :: Data -> Subst -> Find -> ConditionedElts
 runFind d s (Find find deps) =
   let found = find d s             :: Set Elt
       used = M.restrictKeys s deps :: Subst
@@ -63,7 +63,7 @@ runQuery :: Data -- TODO ? Is the `Var` argument needed here?
          -> Subst  -- ^ these are drawn from the input `Result`
          -> Var    -- ^ what we want to bind
          -> Query  -- ^ how we want to bind it
-         -> ConditionedValues
+         -> ConditionedElts
 
 runQuery d _ s _ (QFind f) = runFind d s f
 runQuery _ _ _ _ (QCond _) =

@@ -6,8 +6,8 @@ Collect the results of running q with every posible value of vf.
 If the two Substs assign different values to the same variable, it's Nothing.
 Otherwise it's their union.
 ** TODO next : lookupVarFunc :: Result -> Subst -> VarFunc -> Set Subst
-** TODO      lookupVarFunc' :: Result -> Subst -> VarFunc -> ConditionedValues
-* TODO safety : check that every Set in a ConditionedValues is nonempty
+** TODO      lookupVarFunc' :: Result -> Subst -> VarFunc -> ConditionedElts
+* TODO safety : check that every Set in a ConditionedElts is nonempty
 * TODO ? Are Substs and DepVars really well-defined?
 Will they never conflict?
 * ? Ask what expressivity I'm losing by requiring sequentiality.

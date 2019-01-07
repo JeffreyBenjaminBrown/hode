@@ -11,7 +11,7 @@ import Types
 
 -- | `varFuncCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
-varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
+varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
 varFuncCondVals      r        s  vf@(VarFunc v dets) =
   case null dets of
     True -> (M.!) r v
@@ -34,14 +34,14 @@ varFuncSubsts      r        s   (VarFunc _ dets) =
     False -> let vCandidates :: Var -> Set Subst
                  vCandidates det = (M.!) couldBindTo bound where
                    bound       = (M.!) s det :: Elt
-                   couldBindTo = (M.!) r det :: ConditionedValues
+                   couldBindTo = (M.!) r det :: ConditionedElts
              in reconcile (S.map vCandidates dets)
 
-restrictCondVals :: Set Subst -> ConditionedValues -> ConditionedValues
+restrictCondVals :: Set Subst -> ConditionedElts -> ConditionedElts
 restrictCondVals s cvs = M.unionsWith S.union
                          $ S.map (flip restrictCondVals1 cvs) s
 
-restrictCondVals1 :: Subst -> ConditionedValues -> ConditionedValues
+restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
 restrictCondVals1 s = M.map (const $ S.singleton s)
                               . M.filter (S.member s)
 
