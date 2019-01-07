@@ -1,13 +1,18 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module Query where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Types
 
 
+-- | If they assign different values to the same variable, it's Nothing.
+-- Otherwise it's their union.
 compatibleSubsts :: Subst -> Subst -> Maybe Subst
 compatibleSubsts s t = S.foldl f (Just M.empty) allKeys where
   allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
@@ -22,16 +27,31 @@ compatibleSubsts s t = S.foldl f (Just M.empty) allKeys where
          else      Just $ M.insert v ((M.!) s v) acc
     else           Just $ M.insert v ((M.!) t v) acc
 
--- | `dets` are `Var`s that depended on `v`'s earlier calculation
+reconcile :: Set (Set Subst) -> Set Subst
+reconcile = S.foldl reconcile1toMany S.empty where
+
+  reconcile2 :: Subst -> Set Subst -> Set Subst
+  reconcile2 s (S.null -> True) = S.singleton s
+  reconcile2 s ss = S.map fromJust $ S.filter isJust
+                  $ S.map (compatibleSubsts s) ss
+
+  reconcile1toMany :: Set Subst -> Set Subst -> Set Subst
+  reconcile1toMany ss1 ss2 = S.unions $ S.map (\s -> reconcile2 s ss2) ss1
+
+-- | Each determinant implies a set of `Subst`s.
+-- `lookupVarFunc` finds them, then reconciles them.
+--
+-- `dets` are `Var`s that depended on `v`'s earlier calculation
 -- for their own. They are bound in the `Subst`, so they determine what
--- `v` could be.
+-- values `v` can take.
+
 lookupVarFunc :: Result -> Subst -> VarFunc -> ConditionedValues
 lookupVarFunc      r        s   (VarFunc v dets) =
   let vCandidates :: Var -> Set Subst
       vCandidates det = (M.!) couldBindTo bound where
         bound = (M.!) s det :: Elt
         couldBindTo = (M.!) r det :: ConditionedValues
-  in mempty
+  in mempty -- TODO finish
 
 -- | `couldBind Q = Vs` <=> `Q` could depend on a binding of any var in `Vs`.
 -- `willBind` would be a nice thing to define if it were possible, but
@@ -89,4 +109,5 @@ runQuery :: Data -- TODO ? Is the `Var` argument needed here?
 runQuery d _ s _ (QFind f) = runFind d s f
 runQuery _ _ _ _ (QCond _) =
   error "QCond cannot be run as a standalone Query."
--- runQuery d r s v (Forall vf q) =
+--runQuery d r s v (ForSome (VarFunc v dets) q) =
+--  let vPossibilities =

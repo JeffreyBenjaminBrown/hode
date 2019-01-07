@@ -10,10 +10,8 @@ data Data = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
   deriving (Show, Eq, Ord)
 
 newtype Var = Var String deriving (Show, Eq, Ord)
-data VarFunc = VarFunc {
-    varFuncName ::     Var
-  , varFuncDets :: Set Var }
-  deriving (Show, Eq, Ord)
+data VarFunc = VarFunc { varFuncName ::     Var
+                       , varFuncDets :: Set Var } deriving (Show, Eq, Ord)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDeps     :: Set Var }

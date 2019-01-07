@@ -16,7 +16,11 @@ tests = runTestTT $ TestList
   , TestLabel "testFindable" testFindable
   , TestLabel "testValidExistentials" testValidExistentials
   , TestLabel "testCompatibleSubsts" testCompatibleSubsts
+  , TestLabel "testReconcile" testReconcile
   ]
+
+testReconcile = TestCase $ do
+  assertBool "not done yet" False
 
 testCompatibleSubsts = TestCase $ do
   let x1 = M.singleton (Var "x") 1
