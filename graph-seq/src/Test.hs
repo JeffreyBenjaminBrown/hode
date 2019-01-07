@@ -25,18 +25,18 @@ tests = runTestTT $ TestList
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
   , TestLabel "testRestrictCondVals1" testRestrictCondVals1
   , TestLabel "testRestrictCondVals" testRestrictCondVals
-  , TestLabel "testVarFuncCondVals" testVarFuncCondVals
+  , TestLabel "testVarFuncToCondVals" testVarFuncToCondVals
   ]
 
-testVarFuncCondVals = TestCase $ do
+testVarFuncToCondVals = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
       vf_a    = VarFunc a (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
       ra = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ] :: Result
-  assertBool "0" $   varFuncCondVals ra M.empty vf_a == (M.!) ra a
-  assertBool "0.1" $ varFuncCondVals ra s_b1c1  vf_a == (M.!) ra a
+  assertBool "0" $   varFuncToCondVals ra M.empty vf_a == (M.!) ra a
+  assertBool "0.1" $ varFuncToCondVals ra s_b1c1  vf_a == (M.!) ra a
     -- the Subst s_b1c1 is ignored because the dets in the VarFunc are empty
 
   let r = M.fromList
@@ -46,10 +46,10 @@ testVarFuncCondVals = TestCase $ do
           ] :: Result
       vf_a_b  = VarFunc a (S.fromList [b   ])
       vf_a_bc = VarFunc a (S.fromList [b, c])
-  putStrLn $ "\n\n" ++ show (varFuncCondVals r s_b1c1 vf_a_b) ++ "\n\n"
-  assertBool "1" $ varFuncCondVals r s_b1c1 vf_a_b
+  putStrLn $ "\n\n" ++ show (varFuncToCondVals r s_b1c1 vf_a_b) ++ "\n\n"
+  assertBool "1" $ varFuncToCondVals r s_b1c1 vf_a_b
     == M.fromList [ (2, S.singleton $ M.singleton x 22) ]
---  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
+--  varFuncToCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
 
 testRestrictCondVals = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")

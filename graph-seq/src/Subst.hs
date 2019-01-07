@@ -10,16 +10,31 @@ import Types
 import Util
 
 
--- | `varFuncCondVals r s (VarFunc v dets)` returns all values v can take,
+-- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
-varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
-varFuncCondVals      r        s  vf@(VarFunc v dets) =
-  case null dets of
-    True -> (M.!) r v
-    False -> let substs = varFuncSubsts r s vf :: Set Subst
-             in restrictCondVals substs $ (M.!) r v -- TODO ! here's the bug
-      -- These condvals have to be drawn not from (M.!) r v,
-      -- but (somehow) from (M.!) r k for each k in dets.
+varFuncToCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
+varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
+  True -> (M.!) r v
+  False -> let
+    substs = varFuncSubsts r s vf :: Set Subst
+    ces = S.map (restrictCondVals substs . (M.!) r) dets
+      :: Set ConditionedElts -- each member should be a singleton set
+    sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
+    ss = reconcile sss
+    -- last step: from some substs including x,
+    -- create a ConditionedElts for x
+    in M.empty -- TODO finish
+
+-- Could test to be sure those ConditionedElts in ces are all singleton maps
+--varFuncToCondVals' :: Result -> Subst -> VarFunc -> Bool
+--varFuncToCondVals'      r        s  vf@(VarFunc v dets) = case null dets of
+--  True -> (M.!) r v
+--  False -> let
+--    substs = varFuncSubsts r s vf :: Set Subst
+--    ces = S.map (restrictCondVals substs . (M.!) r) dets
+--      :: Set ConditionedElts
+--    is
+--    -- in S.null $ S.filter (not . (==) 1 . S.size) ces
 
 -- | Each determinant implies a set of `Subst`s.
 -- `varFuncSubsts` finds them, then reconciles them.
