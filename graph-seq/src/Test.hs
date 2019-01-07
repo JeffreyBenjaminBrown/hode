@@ -20,10 +20,24 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile1toMany" testReconcile1toMany
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
-  , TestLabel "testVarfuncsubsts" testVarfuncsubsts
+  , TestLabel "testVarFuncSubsts" testVarFuncSubsts
+  , TestLabel "testVarFuncCondVals" testVarFuncCondVals
   ]
 
-testVarfuncsubsts = TestCase $ do
+testVarFuncCondVals = TestCase $ do
+--  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
+  let (a,b,c) = (Var "a",Var "b",Var "c")
+      vf_a_bc = VarFunc a (S.fromList [b, c])
+      vf_a_b  = VarFunc a (S.fromList [b   ])
+      vf_a    = VarFunc a (S.empty)
+      s_b1c1 = M.fromList [ (b,1), (c,1) ]
+      testCv = M.fromList [ (1, S.singleton M.empty) ]:: ConditionedValues
+      r = M.fromList [
+        ( a, M.fromList [ (1, S.singleton mempty) ] )
+        ] :: Result
+  assertBool "1" $ varFuncCondVals r M.empty vf_a
+    == M.fromList [ (1, S.singleton M.empty) ]
+testVarFuncSubsts = TestCase $ do
   let xCondVals = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (Var "a", 1) ] ] )
         , (2, S.fromList [ M.fromList [ (Var "a", 2)

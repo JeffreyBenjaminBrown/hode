@@ -9,12 +9,14 @@ import qualified Data.Set       as S
 import Types
 
 
--- | `varFuncCondVals r s (VarFunc v dets)` returns all values `v` can take,
+-- | `varFuncCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
 varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
-varFuncCondVals      r        s  vf@(VarFunc v _) =
-  let substs = varFuncSubsts r s vf :: Set Subst
-  in restrictCondVals substs $ (M.!) r v
+varFuncCondVals      r        s  vf@(VarFunc v dets) =
+  case null dets of
+    True -> (M.!) r v
+    False -> let substs = varFuncSubsts r s vf :: Set Subst
+             in restrictCondVals substs $ (M.!) r v
 
 -- | Each determinant implies a set of `Subst`s.
 -- `varFuncSubsts` finds them, then reconciles them.
@@ -27,11 +29,13 @@ varFuncCondVals      r        s  vf@(VarFunc v _) =
 
 varFuncSubsts :: Result -> Subst -> VarFunc -> Set Subst
 varFuncSubsts      r        s   (VarFunc _ dets) =
-  let vCandidates :: Var -> Set Subst
-      vCandidates det = (M.!) couldBindTo bound where
-        bound       = (M.!) s det :: Elt
-        couldBindTo = (M.!) r det :: ConditionedValues
-  in reconcile (S.map vCandidates dets)
+  case null dets of
+    True -> error "should not happen"
+    False -> let vCandidates :: Var -> Set Subst
+                 vCandidates det = (M.!) couldBindTo bound where
+                   bound       = (M.!) s det :: Elt
+                   couldBindTo = (M.!) r det :: ConditionedValues
+             in reconcile (S.map vCandidates dets)
 
 restrictCondVals1 :: Subst -> ConditionedValues -> ConditionedValues
 restrictCondVals1 s = M.map (const $ S.singleton s)
