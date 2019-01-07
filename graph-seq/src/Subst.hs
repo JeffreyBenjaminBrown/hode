@@ -48,8 +48,10 @@ restrictCondVals s ces = M.unionsWith S.union
 --                      . M.filter (S.member s)
 
 restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
-restrictCondVals1 s = M.filter S.null . M.map keepMatches where
-  keepMatches = S.filter $ isSubsetOfMap s :: Set Subst -> Set Subst
+restrictCondVals1 s = M.filter (not . S.null)
+                      . M.map keepMatches where
+  keepMatches :: Set Subst -> Set Subst
+  keepMatches = S.filter $ isSubsetOfMap s
 
 
 -- | = Reconciling `Subst`s

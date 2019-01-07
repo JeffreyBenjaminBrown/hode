@@ -14,7 +14,8 @@ import Util
 
 
 tests = runTestTT $ TestList
-  [ TestLabel "testInvertMapToSet" testInvertMapToSet
+  [ TestLabel "testIsSubsetOfMap" testIsSubsetOfMap
+  , TestLabel "testInvertMapToSet" testInvertMapToSet
   , TestLabel "testFindable" testFindable
   , TestLabel "testValidExistentials" testValidExistentials
   , TestLabel "testReconcile2" testReconcile2
@@ -23,18 +24,9 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile" testReconcile
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
   , TestLabel "testRestrictCondVals1" testRestrictCondVals1
+  , TestLabel "testRestrictCondVals" testRestrictCondVals
   , TestLabel "testVarFuncCondVals" testVarFuncCondVals
-  , TestLabel "testIsSubsetOfMap" testIsSubsetOfMap
   ]
-
-testIsSubsetOfMap = TestCase $ do
-  let m  = M.fromList [ (1, S.fromList [1,2]), (2, S.fromList [2,3]) ]
-      m' = M.fromList [ (1, S.fromList [1,2]), (2, S.fromList [2,4]) ]
-      n  = M.fromList [ (1, S.fromList [1,2]) ]
-  assertBool "1" $       isSubsetOfMap n m
-  assertBool "1" $ not $ isSubsetOfMap m n
-  assertBool "1" $       isSubsetOfMap n m'
-  assertBool "1" $ not $ isSubsetOfMap m m'
 
 testVarFuncCondVals = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
@@ -59,14 +51,25 @@ testVarFuncCondVals = TestCase $ do
     == M.fromList [ (1, S.singleton M.empty) ]
 --  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
 
+testRestrictCondVals = TestCase $ do
+  let (x,y,z) = (Var "x",Var "y",Var"z")
+      s1 = M.fromList [ (x,1), (y,11) ] :: Subst
+      s2 = M.fromList [        (y,12) ] :: Subst
+      ces = M.fromList [ (1, S.fromList [ s1
+                                        , M.insert z 111 s1 ] )
+                       , (2, S.fromList [ M.insert x 2 s1 ] ) ]
+  assertBool "1" $ restrictCondVals (S.singleton s1) ces
+         == M.fromList [ (1, S.fromList [ s1
+                                        , M.insert z 111 s1 ] ) ]
+  assertBool "2" $ restrictCondVals (S.singleton s2) ces
+         == M.empty
+
 testRestrictCondVals1 = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")
       subst = M.fromList [ (x,1), (y,11) ]
       ces = M.fromList [ (1, S.fromList [ subst
                                         , M.insert z 111 subst ] )
                        , (2, S.fromList [ M.insert x 2 subst ] ) ]
-  putStrLn $ "\n RestrictCondVals \n"
-    ++ show (restrictCondVals1 subst ces) ++ "\n\n"
   assertBool "1" $ restrictCondVals1 subst ces
          == M.fromList [ (1, S.fromList [ subst
                                         , M.insert z 111 subst ] ) ]
@@ -195,3 +198,12 @@ testInvertMapToSet = TestCase $ do
                      , (3, S.fromList [1,2] ) ]
   assertBool "1" $ invertMapToSet g == h
   assertBool "2" $ invertMapToSet h == g
+
+testIsSubsetOfMap = TestCase $ do
+  let m  = M.fromList [ (1, S.fromList [1,2]), (2, S.fromList [2,3]) ]
+      m' = M.fromList [ (1, S.fromList [1,2]), (2, S.fromList [2,4]) ]
+      n  = M.fromList [ (1, S.fromList [1,2]) ]
+  assertBool "1" $       isSubsetOfMap n m
+  assertBool "1" $ not $ isSubsetOfMap m n
+  assertBool "1" $       isSubsetOfMap n m'
+  assertBool "1" $ not $ isSubsetOfMap m m'
