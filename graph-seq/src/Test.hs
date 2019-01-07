@@ -17,6 +17,7 @@ tests = runTestTT $ TestList
   , TestLabel "testValidExistentials" testValidExistentials
   , TestLabel "testReconcile2" testReconcile2
   , TestLabel "testReconcile1toMany" testReconcile1toMany
+  , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
   ]
 
@@ -26,8 +27,34 @@ testReconcile = TestCase $ do
                           , M.singleton (Var "x") 2 ]
       x1_x3 = S.fromList  [ M.singleton (Var "x") 1
                           , M.singleton (Var "x") 3 ]
-  print $ show $   reconcile (S.fromList [x1_x2, x1_x3])
   assertBool "1" $ reconcile (S.fromList [x1_x2, x1_x3]) == x1
+
+testReconcile2sets = TestCase $ do
+  let x1 = M.singleton (Var "x") 1
+      y1 = M.singleton (Var "y") 1
+      y2 = M.singleton (Var "y") 2
+      z2 = M.singleton (Var "z") 2
+      x1y2 = M.fromList [ ((Var "x"),1)
+                        , ((Var "y"),2) ]
+      x1z2 = M.fromList [ ((Var "x"),1)
+                        , ((Var "z"),2) ]
+      x1y1z2 = M.fromList [ ((Var "x"),1)
+                          , ((Var "y"),1)
+                          , ((Var "z"),2) ]
+      x1y2z2 = M.fromList [ ((Var "x"),1)
+                          , ((Var "y"),2)
+                          , ((Var "z"),2) ]
+      ss = S.singleton
+      sf = S.fromList
+  assertBool "0" $ reconcile2sets S.empty (sf [x1y2, x1z2])
+                               == S.empty
+  assertBool "0.1" $ reconcile2sets (ss x1) S.empty
+                                         == S.empty
+  assertBool "1" $ reconcile2sets (ss x1) (sf [x1y2, x1z2])
+                                        == sf [x1y2, x1z2]
+  assertBool "2" $ reconcile2sets (sf [x1,z2]) (sf [x1y2, x1z2])
+                                             == sf [x1y2, x1z2, x1y2z2]
+  assertBool "3" $ reconcile2sets (ss y1) (sf [x1y2, x1z2]) == ss x1y1z2
 
 testReconcile1toMany = TestCase $ do
   let x1 = M.singleton (Var "x") 1
@@ -36,7 +63,11 @@ testReconcile1toMany = TestCase $ do
       x1y2 = M.fromList [ ((Var "x"),1)
                         , ((Var "y"),2)]
   assertBool "1" $ reconcile1toMany x1y2 (S.fromList [x1, y1, y2] )
-    == S.singleton x1y2
+                     == S.singleton x1y2
+  assertBool "2" $ reconcile1toMany x1y2 (S.singleton M.empty)
+                     == S.singleton x1y2
+  assertBool "3" $ reconcile1toMany x1y2 S.empty
+                     == S.empty
 
 testReconcile2 = TestCase $ do
   let x1 = M.singleton (Var "x") 1
@@ -48,8 +79,8 @@ testReconcile2 = TestCase $ do
   assertBool "1" $ reconcile2 M.empty x1      == Just x1
   assertBool "2" $ reconcile2 x1y2    M.empty == Just x1y2
   assertBool "3" $ reconcile2 x1      y2      == Just x1y2
-  assertBool "3" $ reconcile2 y2      x1y2    == Just x1y2
-  assertBool "3" $ reconcile2 y1      x1y2    == Nothing
+  assertBool "4" $ reconcile2 y2      x1y2    == Just x1y2
+  assertBool "5" $ reconcile2 y1      x1y2    == Nothing
 
 testValidExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
@@ -61,7 +92,7 @@ testValidExistentials = TestCase $ do
   assertBool "1" $ disjointExistentials (ForSome x qx)  == False
   assertBool "2" $ disjointExistentials (ForSome y qx)  == True
   assertBool "3" $ disjointExistentials qxy             == True
-  assertBool "3" $ disjointExistentials (QAnd [qx,qxy]) == False
+  assertBool "4" $ disjointExistentials (QAnd [qx,qxy]) == False
 
 testFindable = TestCase $ do
   let qf = QFind $ Find (\_ _    -> S.empty) S.empty
@@ -81,5 +112,5 @@ testInvertMapToSet = TestCase $ do
       h = M.fromList [ (1, S.fromList [2  ] )
                      , (2, S.fromList [1  ] )
                      , (3, S.fromList [1,2] ) ]
-  assertBool "invert a Map from a to (Set a), 1" $ invertMapToSet g == h
-  assertBool "invert a Map from a to (Set a), 1" $ invertMapToSet h == g
+  assertBool "1" $ invertMapToSet g == h
+  assertBool "2" $ invertMapToSet h == g

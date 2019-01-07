@@ -30,6 +30,9 @@ data Query = QFind Find
 type Subst     = Map Var Elt
 type ConditionedValues = Map Elt (Set Subst)
   -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
+  -- PITFALL: If Elt is possible without any other bindings, then
+  -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
+  -- it is as if that `Elt` is not in the `Map`.
 type Result    = Map Var ConditionedValues
 type Program = Data
              -> [(VarFunc, Query)] -- ^ queries can depend on earlier ones
