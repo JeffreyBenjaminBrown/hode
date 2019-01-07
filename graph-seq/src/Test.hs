@@ -10,6 +10,7 @@ import Graph
 import Query
 import Subst
 import Types
+import Util
 
 
 tests = runTestTT $ TestList
@@ -21,9 +22,19 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
---  , TestLabel "testRestrictCondVals1" testRestrictCondVals1
+  , TestLabel "testRestrictCondVals1" testRestrictCondVals1
   , TestLabel "testVarFuncCondVals" testVarFuncCondVals
+  , TestLabel "testIsSubsetOfMap" testIsSubsetOfMap
   ]
+
+testIsSubsetOfMap = TestCase $ do
+  let m  = M.fromList [ (1, S.fromList [1,2]), (2, S.fromList [2,3]) ]
+      m' = M.fromList [ (1, S.fromList [1,2]), (2, S.fromList [2,4]) ]
+      n  = M.fromList [ (1, S.fromList [1,2]) ]
+  assertBool "1" $       isSubsetOfMap n m
+  assertBool "1" $ not $ isSubsetOfMap m n
+  assertBool "1" $       isSubsetOfMap n m'
+  assertBool "1" $ not $ isSubsetOfMap m m'
 
 testVarFuncCondVals = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
@@ -48,16 +59,21 @@ testVarFuncCondVals = TestCase $ do
     == M.fromList [ (1, S.singleton M.empty) ]
 --  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
 
---testRestrictCondVals1 = TestCase $ do
---  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
---      subst = M.fromList [ (x,1), (y,11) ]
---      ces = M.fromList [ (1, S.fromList [ subst
---                                        , M.insert c 111 subst ] )
---                       , (2, S.fromList [ subst
---                                        , M.insert x 2 subst ] ) ]
---  assertBool "1" $ restrictCondVals1 subst ces
---    ==
-----restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
+testRestrictCondVals1 = TestCase $ do
+  let (x,y,z) = (Var "x",Var "y",Var"z")
+      subst = M.fromList [ (x,1), (y,11) ]
+      ces = M.fromList [ (1, S.fromList [ subst
+                                        , M.insert z 111 subst ] )
+                       , (2, S.fromList [ M.insert x 2 subst ] ) ]
+  putStrLn $ "\n RestrictCondVals \n"
+    ++ show (restrictCondVals1 subst ces) ++ "\n\n"
+  assertBool "1" $ restrictCondVals1 subst ces
+         == M.fromList [ (1, S.fromList [ subst
+                                        , M.insert z 111 subst ] ) ]
+  -- TODO speed|memory : Notice how the z-binding is kept, whether or not
+  -- it is relevant. If z is not used later, then maybe it should not be
+  -- kept. This would prevent treating the Subst with the z-binding as
+  -- distinct from the Subst without it, hence avoid duplicating some work.
 
 testVarFuncSubsts = TestCase $ do
   let xCondVals = M.fromList -- x could be 1 or 2, if ...
