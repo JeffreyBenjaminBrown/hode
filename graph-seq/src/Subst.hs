@@ -10,14 +10,19 @@ import Types
 import Util
 
 
-
-
-
 substToCondElts :: Var -> Subst -> Maybe ConditionedElts
 substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
   return $ M.singleton val $ S.singleton subst'
+
+setSubstToCondElts :: Var -> Set Subst -> Maybe ConditionedElts
+setSubstToCondElts v = S.foldr f $ Just M.empty where
+  f :: Subst -> Maybe ConditionedElts -> Maybe ConditionedElts
+  f _ Nothing = Nothing -- short-circuit (hence foldr)
+  f subst (Just ces) = case substToCondElts v subst of
+    Nothing -> Nothing
+    Just ces' -> Just $ M.unionWith S.union ces ces'
 
 -- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
@@ -96,11 +101,11 @@ reconcile1toMany s ss = S.map fromJust $ S.filter isJust
 -- | If they assign different values to the same variable, it's Nothing.
 -- Otherwise it's their union.
 reconcile2 :: Subst -> Subst -> Maybe Subst
-reconcile2 s t = S.foldl f (Just M.empty) allKeys where
+reconcile2 s t = S.foldr f (Just M.empty) allKeys where
   allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
-  f :: Maybe Subst -> Var -> Maybe Subst
-  f Nothing _ = Nothing -- short-circuit (roughly)
-  f (Just acc) v =
+  f :: Var -> Maybe Subst -> Maybe Subst
+  f _ Nothing = Nothing -- short-circuit (hence foldr)
+  f v (Just acc) =
     if        S.member v (M.keysSet s)
     then if   S.member v (M.keysSet t)
          then if (M.!) t v /= (M.!) s v

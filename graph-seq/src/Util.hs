@@ -12,6 +12,6 @@ import qualified Data.Set       as S
 
 isSubsetOfMap :: forall k b. (Ord k, Eq b)
               => Map k b -> Map k b -> Bool
-isSubsetOfMap small big = M.foldlWithKey f True small where
-  f False _ _ = False -- short-circuit (kind of)
-  f True  k b = M.lookup k big == Just b
+isSubsetOfMap small big = M.foldrWithKey f True small where
+  f _ _ False = False -- short-circuit (hence foldr)
+  f k b True = M.lookup k big == Just b

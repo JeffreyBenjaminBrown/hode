@@ -38,10 +38,10 @@ findable (ForAll  _   q)    = findable q
 disjointExistentials :: Query -> Bool
 disjointExistentials (ForSome vf q)
   = not $ S.member (varFuncName vf) (couldBind q)
-disjointExistentials (QAnd qs) = snd $ foldl f (S.empty, True) qs
-  where f :: (Set Var, Bool) -> Query -> (Set Var, Bool)
-        f (_, False) _ = (S.empty, False) -- short circuit (roughly)
-        f (vs, True) q = if S.disjoint vs $ couldBind q
+disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
+  where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
+        f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
+        f q (vs, True) = if S.disjoint vs $ couldBind q
                          then (S.union vs $ couldBind q, True)
                          else (S.empty, False)
 disjointExistentials _ = True
