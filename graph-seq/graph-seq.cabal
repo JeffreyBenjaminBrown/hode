@@ -29,6 +29,7 @@ library
   exposed-modules:
                   Graph
                 , Query
+                , Subst
                 , Test
                 , Types
                 , Util

@@ -17,7 +17,9 @@ varFuncCondVals      r        s  vf@(VarFunc v dets) =
   case null dets of
     True -> (M.!) r v
     False -> let substs = varFuncSubsts r s vf :: Set Subst
-             in restrictCondVals substs $ (M.!) r v
+             in restrictCondVals substs $ (M.!) r v -- TODO ! here's the bug
+      -- These condvals have to be drawn not from (M.!) r v,
+      -- but (somehow) from (M.!) r k for each k in dets.
 
 -- | Each determinant implies a set of `Subst`s.
 -- `varFuncSubsts` finds them, then reconciles them.
