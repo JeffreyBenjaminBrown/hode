@@ -20,7 +20,35 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile1toMany" testReconcile1toMany
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
+  , TestLabel "testVarfuncsubsts" testVarfuncsubsts
   ]
+
+testVarfuncsubsts = TestCase $ do
+  let xCondVals = M.fromList -- x could be 1 or 2, if ...
+        [ (1, S.fromList [ M.fromList [ (Var "a", 1) ] ] )
+        , (2, S.fromList [ M.fromList [ (Var "a", 2)
+                                      , (Var "b", 2) ] ] ) ]
+      yCondVals = M.fromList -- y could be 3 or 4, if ...
+        [ (3, S.fromList [ M.fromList [ (Var "a", 1) ] ] )
+        , (4, S.fromList [ M.fromList [ (Var "b", 2)
+                                      , (Var "c", 2) ]
+                         , M.fromList [ (Var "b", 3)
+                                      , (Var "c", 3) ] ] ) ]
+      r = M.fromList [ ((Var "x"), xCondVals)
+                     , ((Var "y"), yCondVals) ]
+      xySubst xVal yVal = M.fromList [ ((Var "x"), xVal)
+                                   , ((Var "y"), yVal) ]
+      a_x  = VarFunc (Var "a") (S.fromList [(Var "x")           ])
+      a_xy = VarFunc (Var "a") (S.fromList [(Var "x"), (Var "y")])
+  assertBool "0" $ varFuncSubsts r (xySubst 1 4) a_x
+    == S.fromList [ M.fromList [ (Var "a", 1) ] ]
+  assertBool "1" $ varFuncSubsts r (xySubst 1 3) a_xy
+    == S.fromList [ M.fromList [ (Var "a", 1) ] ]
+  assertBool "2" $ varFuncSubsts r (xySubst 2 3) a_xy
+    == S.empty
+  assertBool "3" $ varFuncSubsts r (xySubst 1 4) a_xy
+    == S.fromList [ M.fromList [ (Var "a", 1), (Var "b", 2), (Var "c", 2) ]
+                  , M.fromList [ (Var "a", 1), (Var "b", 3), (Var "c", 3) ] ]
 
 testReconcile = TestCase $ do
   let x1    = S.singleton ( M.singleton (Var "x") 1 )

@@ -10,16 +10,16 @@ import Types
 
 
 -- | Each determinant implies a set of `Subst`s.
--- `lookupVarFunc` finds them, then reconciles them.
--- That is, `lookupVarFunc r s (VarFunc v dets)` is the set of all
+-- `varFuncSubsts` finds them, then reconciles them.
+-- That is, `varFuncSubsts r s (VarFunc v dets)` is the set of all
 -- `Subst`s that permit the values of `dets` determined by `s`.
 --
 -- (Re. names: `dets` are `Var`s that depended on `v`'s earlier calculation
 -- for their own. They are bound in the `Subst`, so they determine what
 -- values `v` can take.)
 
-lookupVarFunc :: Result -> Subst -> VarFunc -> Set Subst
-lookupVarFunc      r        s   (VarFunc v dets) =
+varFuncSubsts :: Result -> Subst -> VarFunc -> Set Subst
+varFuncSubsts      r        s   (VarFunc v dets) =
   let vCandidates :: Var -> Set Subst
       vCandidates det = (M.!) couldBindTo bound where
         bound       = (M.!) s det :: Elt
