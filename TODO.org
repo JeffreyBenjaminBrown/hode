@@ -1,3 +1,5 @@
+* TODO Test restrictCondVals
+varFuncCondVals is failing, and it uses restrictCondVals.
 * TODO next: runQuery d r s v (ForSome vf q) =
 Collect the results of running q with every posible value of vf.
 ** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst

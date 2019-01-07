@@ -25,18 +25,29 @@ tests = runTestTT $ TestList
   ]
 
 testVarFuncCondVals = TestCase $ do
---  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
-  let (a,b,c) = (Var "a",Var "b",Var "c")
+
+  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
       vf_a_bc = VarFunc a (S.fromList [b, c])
       vf_a_b  = VarFunc a (S.fromList [b   ])
       vf_a    = VarFunc a (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
       testCv = M.fromList [ (1, S.singleton M.empty) ]:: ConditionedValues
-      r = M.fromList [
-        ( a, M.fromList [ (1, S.singleton mempty) ] )
+      ra = M.fromList [
+        ( a, M.fromList [ (1, S.singleton mempty) ] ) ] :: Result
+      r = M.fromList
+        [ ( a, M.fromList [ (1, S.singleton mempty)
+                          , (2, S.singleton $ M.singleton x 22) ] )
+        , ( b, M.fromList [ (1, S.fromList [ M.singleton a 2 ] ) ] )
         ] :: Result
-  assertBool "1" $ varFuncCondVals r M.empty vf_a
+  putStrLn $ "\n\n" ++ show (varFuncCondVals r s_b1c1 vf_a_b) ++ "\n\n"
+  assertBool "3" $ varFuncCondVals r s_b1c1 vf_a_b
+    == M.fromList [ (2, S.singleton $ M.singleton x 22) ]
+  assertBool "2" $ varFuncCondVals ra s_b1c1 vf_a
     == M.fromList [ (1, S.singleton M.empty) ]
+  assertBool "1" $ varFuncCondVals ra M.empty vf_a
+    == M.fromList [ (1, S.singleton M.empty) ]
+
+--  varFuncCondVals :: Result -> Subst -> VarFunc -> ConditionedValues
 testVarFuncSubsts = TestCase $ do
   let xCondVals = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (Var "a", 1) ] ] )
