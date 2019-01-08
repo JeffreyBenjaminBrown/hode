@@ -13,8 +13,10 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO next :safety : use Result1 instead of CondElts
+I think that's where my varFuncToCondVals code went wrong.
+Also rename Result -> Possible.
 * TODO ? safety : check that every Set in a CondElts is nonempty
-* TODO ? safety : add a Var to the CondElts type
 * TODO next: runQuery d r s v (ForSome vf q) =
 Collect the results of running q with every posible value of vf.
 ** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst

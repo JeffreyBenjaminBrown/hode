@@ -33,6 +33,7 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+type Result1 = (Var, CondElts)
 type Result  = Map Var CondElts
 type Program = Data
              -> [(VarFunc, Query)] -- ^ queries can depend on earlier ones

@@ -106,6 +106,7 @@ testSubstToCondElts = TestCase $ do
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
 testVarFuncToCondVals = TestCase $ do
+
   let (a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
       vf_a    = VarFunc a (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
@@ -113,6 +114,7 @@ testVarFuncToCondVals = TestCase $ do
       ra = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ] :: Result
+
   assertBool "0" $   varFuncToCondVals ra M.empty vf_a == Just ((M.!) ra a)
   assertBool "0.1" $ varFuncToCondVals ra s_b1c1  vf_a == Just ((M.!) ra a)
     -- the Subst s_b1c1 is ignored because the dets in the VarFunc are empty
@@ -133,9 +135,36 @@ testVarFuncToCondVals = TestCase $ do
               , (2, error "never used, doesn't matter") ] ) ] :: Result
       aOf_b  = VarFunc a (S.fromList [b   ])
       aOf_bc = VarFunc a (S.fromList [b, c])
+
   assertBool "1" $ varFuncToCondVals r s_b2 aOf_b
     == Just ( M.fromList [ (2, S.singleton M.empty) ] )
     -- TODO Why is that 0 showing up here?
+
+(a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
+vf_a    = VarFunc a (S.empty)
+s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
+s_b2   = M.fromList [ (b,2)        ] :: Subst
+ra = M.fromList [
+  ( a, M.fromList [ (1, S.singleton mempty)
+                  , (5, S.singleton $ M.singleton x 23) ] ) ] :: Result
+r = M.fromList
+    [ ( a, M.fromList
+        [ (1, S.singleton $ error "never used")
+        , (2, error "doesn't matter") ] )
+    , ( b, M.fromList
+        [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
+                         , M.fromList [(a, 3)              ]
+                         , M.fromList [(a, 4), (x,1)       ] ] )
+        , (2, S.fromList [M.fromList [(a,2)] ] ) ] )
+    , ( c, M.fromList
+        [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
+                         , M.fromList [(a, 3),       (y,3) ]
+                         , M.fromList [(a, 4), (y,2)       ] ] )
+        , (2, error "never used, doesn't matter") ] ) ] :: Result
+aOf_b  = VarFunc a (S.fromList [b   ])
+aOf_bc = VarFunc a (S.fromList [b, c])
+
+
 
 testRestrictCondVals = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")

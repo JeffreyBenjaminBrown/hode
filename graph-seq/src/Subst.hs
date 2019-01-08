@@ -32,13 +32,13 @@ varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
     ces = S.map (restrictCondVals substs . (M.!) r) dets :: Set CondElts
-      -- each member of ces is an M.singleton
+      -- TODO : I thought each member of ces is an M.singleton, but it's not.
     sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
       -- For each map in ces, this let us return its only value
       -- (and effectively discard the key).
     in setSetSubstToCondElts v sss
 
--- | `varFuncSubsts r s (VarFunc v dets)` is the set of all
+-- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 --
 -- (On names: `dets` are `Var`s that depended on `v`'s earlier calculation
