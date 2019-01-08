@@ -94,7 +94,12 @@ substToCondElts v subst = do
 
 -- | = Reconciling `CondElts`s
 
--- | `reconcileCondEltsAtElt` ASSUMES all input `CondElts`
+-- | `reconcileCondEltsAtElt ces`returns the biggest `CondElts` possible
+-- consistent with every `CondElt` in the input. That is, for every `Elt` e,
+-- and every `Subst` s in `reconcileCondEltsAtElt ces`, and every
+-- `CondElt` ce in ces, s is consistent with at least one `Subst` in ces.
+-- 
+-- ASSUMES all input `CondElts`
 -- condition for `Elt` values of the same `Var`.
 reconcileCondElts :: Set CondElts -> Maybe CondElts
 reconcileCondElts ces = if null u then Nothing else Just u where
@@ -103,7 +108,11 @@ reconcileCondElts ces = if null u then Nothing else Just u where
      where f = flip reconcileCondEltsAtElt ces
    u = M.unions recds
 
--- | `reconcileCondEltsAtElt` ASSUMES all input `CondElts`
+-- | `reconcileCondEltsAtElt e ces` returns the biggest `CondElts` possible
+-- such that each value it associates with e is consistent with each of
+-- the `CondElts`s in ces.
+--
+-- ASSUMES all input `CondElts`
 -- condition for `Elt` values of the same `Var`.
 reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
 reconcileCondEltsAtElt e ces = do
