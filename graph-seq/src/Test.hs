@@ -35,10 +35,18 @@ testSetSubstToCondElts = TestCase $ do
       s = M.fromList [ (a,1), (b,2) ]
       t = M.fromList [ (a,1), (b,3) ]
       u = M.fromList [ (a,1), (b,3)
-                     , (a,2), (b,3) ]
-      v = M.fromList [ (a,1),       (c,3)
-                     , (a,2),       (c,3) ]
-  assertBool "1" $ setSubstToCondElts a (S.fromList [s, t]) == Just M.empty
+                     , (a,2), (b,3), (c,4) ]
+  assertBool "1" $ setSubstToCondElts a (S.fromList [s, t,u,M.empty])
+    == Just ( M.fromList
+              [ (1, S.fromList [ M.singleton b 2
+                               , M.singleton b 3 ] )
+              , (2, S.singleton $ M.fromList [ (b,3), (c,4) ] ) ] )
+(a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+s,t,u :: Subst
+s = M.fromList [ (a,1), (b,2) ]
+t = M.fromList [ (a,1), (b,3) ]
+u = M.fromList [ (a,1), (b,3)
+               , (a,2), (b,3), (c,4) ]
 
 testSubstToCondElts = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
@@ -68,7 +76,7 @@ testVarFuncToCondVals = TestCase $ do
   putStrLn $ "\n\n" ++ show (varFuncToCondVals r s_b1c1 vf_a_b) ++ "\n\n"
   assertBool "1" $ varFuncToCondVals r s_b1c1 vf_a_b
     == M.fromList [ (2, S.singleton $ M.singleton x 22) ]
---  varFuncToCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
+--  varFuncToCondVals :: Result -> Subst -> VarFunc -> CondElts
 
 testRestrictCondVals = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")

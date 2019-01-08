@@ -1,20 +1,20 @@
 * PIFALLs
-** PITFALL: Each mapping in a ConditionedElts can be represented many ways, depending on whether they key is included.
-You could describe a ConditionedElts this way:
+** PITFALL: Each mapping in a CondElts can be represented many ways, depending on whether they key is included.
+You could describe a CondElts this way:
  x=1 if (a=1    ) or (b=1    )
 or equivalently, this way:
  x=1 if (a=1,x=1) or (b=1,x=1)
 or this way:
  x=1 if (a=1    ) or (b=1,x=1)
 etc.
-** The empty set is nonsense in a ConditionedElts
-type ConditionedElts = Map Elt (Set Subst)
+** The empty set is nonsense in a CondElts
+type CondElts = Map Elt (Set Subst)
   -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
 * TODO restrictCondVals might have the wrong idea
-restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
+restrictCondVals1 :: Subst -> CondElts -> CondElts
 `restrictCondVals1 s ces` should maybe not restrict only to those Substs that exactly match, but rather those Substs that contain.
 ** TODO Test restrictCondVals
  varFuncCondVals is failing, and it uses restrictCondVals.
@@ -24,8 +24,8 @@ Collect the results of running q with every posible value of vf.
 If the two Substs assign different values to the same variable, it's Nothing.
 Otherwise it's their union.
 ** TODO next : lookupVarFunc :: Result -> Subst -> VarFunc -> Set Subst
-** TODO      lookupVarFunc' :: Result -> Subst -> VarFunc -> ConditionedElts
-* TODO safety : check that every Set in a ConditionedElts is nonempty
+** TODO      lookupVarFunc' :: Result -> Subst -> VarFunc -> CondElts
+* TODO safety : check that every Set in a CondElts is nonempty
 * TODO ? Are Substs and DepVars really well-defined?
 Will they never conflict?
 * ? Ask what expressivity I'm losing by requiring sequentiality.

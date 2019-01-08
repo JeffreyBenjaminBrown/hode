@@ -10,60 +10,62 @@ import Types
 import Util
 
 
-substToCondElts :: Var -> Subst -> Maybe ConditionedElts
+substToCondElts :: Var -> Subst -> Maybe CondElts
 substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
   return $ M.singleton val $ S.singleton subst'
 
 -- | `setSubstToCondElts v ss` supposes that the `Subst`s all came
--- from the same `ConditionedElts`. Hence, none of them have to be
+-- from the same `CondElts`. Hence, none of them have to be
 -- reconciled. Contrast this to `setSetSubstToCondElts`, in which
 -- the results from each of the innser sets must be reconciled against
 -- each other.
-setSubstToCondElts :: Var -> Set Subst -> Maybe ConditionedElts
+setSubstToCondElts :: Var -> Set Subst -> Maybe CondElts
+-- TODO does not need Maybe
 setSubstToCondElts v = S.foldr f $ Just M.empty where
-  f :: Subst -> Maybe ConditionedElts -> Maybe ConditionedElts
+  f :: Subst -> Maybe CondElts -> Maybe CondElts
   f _ Nothing = Nothing -- short-circuit (hence foldr)
   f subst (Just ces) = case substToCondElts v subst of
     Nothing -> Nothing
     Just ces' -> Just $ M.unionWith S.union ces ces'
 
+
 -- | `setSetSubstToCondElts` supposes that each `SetSubst` came from the
--- `ConditionedElts` correspoding to a separate determinant of `v`.
+-- `CondElts` correspoding to a separate determinant of `v`.
 -- (For instance, if `v` depends on two determinants, then the
 -- `Set (Set Subst)` has two members.) Since each of those determinants
 -- is presumably determined, the results of applying `setSubstToCondElts`
 -- to each of those determinants must be reconciled across determinants.
 
-setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe ConditionedElts
+setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
 setSetSubstToCondElts v ss =
   let condEltsPerDeterminant = S.map (setSubstToCondElts v) ss
   in Nothing -- TODO finish
 
 -- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
-varFuncToCondVals :: Result -> Subst -> VarFunc -> ConditionedElts
+varFuncToCondVals :: Result -> Subst -> VarFunc -> CondElts
 varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
   True -> (M.!) r v
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
     ces = S.map (restrictCondVals substs . (M.!) r) dets
-      :: Set ConditionedElts -- each member should be a singleton set
+      :: Set CondElts -- each member should be a singleton set
     sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
     ss = reconcile sss
     -- last step: from some substs including x,
-    -- create a ConditionedElts for x
+    -- create a CondElts for x
     in M.empty -- TODO finish
 
--- Could test to be sure those ConditionedElts in ces are all singleton maps
+-- Could test to be sure those CondElts in ces are all singleton maps
 --varFuncToCondVals' :: Result -> Subst -> VarFunc -> Bool
 --varFuncToCondVals'      r        s  vf@(VarFunc v dets) = case null dets of
 --  True -> (M.!) r v
 --  False -> let
 --    substs = varFuncSubsts r s vf :: Set Subst
 --    ces = S.map (restrictCondVals substs . (M.!) r) dets
---      :: Set ConditionedElts
+--      :: Set CondElts
 --    is
 --    -- in S.null $ S.filter (not . (==) 1 . S.size) ces
 
@@ -83,26 +85,26 @@ varFuncSubsts      r        s   (VarFunc _ dets) =
     False -> let vCandidates :: Var -> Set Subst
                  vCandidates det = (M.!) couldBindTo bound where
                    bound       = (M.!) s det :: Elt
-                   couldBindTo = (M.!) r det :: ConditionedElts
+                   couldBindTo = (M.!) r det :: CondElts
              in reconcile (S.map vCandidates dets)
 
-restrictCondVals :: Set Subst -> ConditionedElts -> ConditionedElts
+restrictCondVals :: Set Subst -> CondElts -> CondElts
 restrictCondVals s ces = M.unionsWith S.union
                          $ S.map (flip restrictCondVals1 ces) s
 
-restrictCondVals1 :: Subst -> ConditionedElts -> ConditionedElts
+restrictCondVals1 :: Subst -> CondElts -> CondElts
 restrictCondVals1 s = M.filter (not . S.null)
                       . M.map keepMatches where
   keepMatches :: Set Subst -> Set Subst
   keepMatches = S.filter $ isSubsetOfMap s
 
 
--- | = Reconciling `ConditionedElts`s
+-- | = Reconciling `CondElts`s
 
---reconcileCondEltsForElt :: Elt -> Set ConditionedElts -> Maybe ConditionedElts
+--reconcileCondEltsForElt :: Elt -> Set CondElts -> Maybe CondElts
 --reconcileCondEltsForElt e ces = do
 --  conds <- S.foldr f ces where
---    f :: ConditionedElts -> Maybe (Set ConditionedElts) -> Maybe (Set ConditionedElts)
+--    f :: CondElts -> Maybe (Set CondElts) -> Maybe (Set CondElts)
 --    f 
 --   let maybeConditions = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
 --      conditions = S.foldr f maybeConditions where
