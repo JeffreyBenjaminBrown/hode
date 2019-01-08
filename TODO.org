@@ -13,11 +13,9 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO restrictCondVals might have the wrong idea
-restrictCondVals1 :: Subst -> CondElts -> CondElts
-`restrictCondVals1 s ces` should maybe not restrict only to those Substs that exactly match, but rather those Substs that contain.
-** TODO Test restrictCondVals
- varFuncCondVals is failing, and it uses restrictCondVals.
+* TODO next : document and test(if lacking) varFuncSubsts
+* TODO ? safety : check that every Set in a CondElts is nonempty
+* TODO ? safety : add a Var to the CondElts type
 * TODO next: runQuery d r s v (ForSome vf q) =
 Collect the results of running q with every posible value of vf.
 ** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst
@@ -25,9 +23,6 @@ If the two Substs assign different values to the same variable, it's Nothing.
 Otherwise it's their union.
 ** TODO next : lookupVarFunc :: Result -> Subst -> VarFunc -> Set Subst
 ** TODO      lookupVarFunc' :: Result -> Subst -> VarFunc -> CondElts
-* TODO safety : check that every Set in a CondElts is nonempty
-* TODO ? Are Substs and DepVars really well-defined?
-Will they never conflict?
 * ? Ask what expressivity I'm losing by requiring sequentiality.
 * DONE ? If an existential is under a union or intersection?
 ** solution

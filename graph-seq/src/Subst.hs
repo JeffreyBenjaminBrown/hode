@@ -12,18 +12,18 @@ import Util
 
 -- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
-varFuncToCondVals :: Result -> Subst -> VarFunc -> CondElts
+varFuncToCondVals :: Result -> Subst -> VarFunc -> Maybe CondElts
 varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
-  True -> (M.!) r v
+  True -> Just $ (M.!) r v
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
     ces = S.map (restrictCondVals substs . (M.!) r) dets
-      :: Set CondElts -- each member should be a singleton set
-    sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
-    ss = reconcile sss
-    -- last step: from some substs including x,
-    -- create a CondElts for x
-    in M.empty -- TODO finish
+      :: Set CondElts -- each member `CondElts` should be an M.singleton
+    aTest = S.map M.deleteMin ces -- so each of these should be Nothing
+    in case S.null $ S.deleteMin aTest of -- so aTest should be an S.singleton
+      False -> error "varFuncToCondVals: Some map in ces was not a singleton."
+      True -> let sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
+              in setSetSubstToCondElts v sss
 
 -- | Each determinant implies a set of `Subst`s.
 -- `varFuncSubsts` finds them, then reconciles them.
@@ -37,7 +37,7 @@ varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
 varFuncSubsts :: Result -> Subst -> VarFunc -> Set Subst
 varFuncSubsts      r        s   (VarFunc _ dets) =
   case null dets of
-    True -> error "should not happen"
+    True -> error "Should not happen. Thrown by varFuncSubsts."
     False -> let vCandidates :: Var -> Set Subst
                  vCandidates det = (M.!) couldBindTo bound where
                    bound       = (M.!) s det :: Elt

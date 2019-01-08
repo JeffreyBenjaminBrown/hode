@@ -112,8 +112,8 @@ testVarFuncToCondVals = TestCase $ do
       ra = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ] :: Result
-  assertBool "0" $   varFuncToCondVals ra M.empty vf_a == (M.!) ra a
-  assertBool "0.1" $ varFuncToCondVals ra s_b1c1  vf_a == (M.!) ra a
+  assertBool "0" $   varFuncToCondVals ra M.empty vf_a == Just ((M.!) ra a)
+  assertBool "0.1" $ varFuncToCondVals ra s_b1c1  vf_a == Just ((M.!) ra a)
     -- the Subst s_b1c1 is ignored because the dets in the VarFunc are empty
 
   let r = M.fromList
@@ -125,8 +125,7 @@ testVarFuncToCondVals = TestCase $ do
       vf_a_bc = VarFunc a (S.fromList [b, c])
   putStrLn $ "\n\n" ++ show (varFuncToCondVals r s_b1c1 vf_a_b) ++ "\n\n"
   assertBool "1" $ varFuncToCondVals r s_b1c1 vf_a_b
-    == M.fromList [ (2, S.singleton $ M.singleton x 22) ]
---  varFuncToCondVals :: Result -> Subst -> VarFunc -> CondElts
+    == Just ( M.fromList [ (2, S.singleton $ M.singleton x 22) ] )
 
 testRestrictCondVals = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")
