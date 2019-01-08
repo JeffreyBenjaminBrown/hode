@@ -21,14 +21,13 @@ substToCondElts v subst = do
 -- reconciled. Contrast this to `setSetSubstToCondElts`, in which
 -- the results from each of the innser sets must be reconciled against
 -- each other.
-setSubstToCondElts :: Var -> Set Subst -> Maybe CondElts
+setSubstToCondElts :: Var -> Set Subst -> CondElts
 -- TODO does not need Maybe
-setSubstToCondElts v = S.foldr f $ Just M.empty where
-  f :: Subst -> Maybe CondElts -> Maybe CondElts
-  f _ Nothing = Nothing -- short-circuit (hence foldr)
-  f subst (Just ces) = case substToCondElts v subst of
-    Nothing -> Nothing
-    Just ces' -> Just $ M.unionWith S.union ces ces'
+setSubstToCondElts v = S.foldl f M.empty where
+  f :: CondElts -> Subst -> CondElts
+  f ces subst = case substToCondElts v subst of
+    Nothing   -> ces
+    Just ces' -> M.unionWith S.union ces ces'
 
 
 -- | `setSetSubstToCondElts` supposes that each `SetSubst` came from the
