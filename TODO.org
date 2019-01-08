@@ -13,11 +13,6 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO next :safety : where possible, use Possible1 instead of CondElts
-I think that's where my varFuncToCondElts code went wrong.
-* TODO ? safety : check that every Set in a CondElts is nonempty
-* TODO varFuncSubsts should return (a Possible?), not a Set Subst
-Because it matters which determining variable each Subst came from.
 * TODO next: runQuery d r s v (ForSome vf q) =
 Collect the results of running q with every posible value of vf.
 ** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst
@@ -70,9 +65,13 @@ Any variable dependencies should also make sense
   although it's easy to define a way to treat ones that don't
   -- just fail to find any matches.
 ** DONE Queries. See the function "findable".
-* speed|space optimization
-** skip recording unneeded dependent bindings
+* TODO ? safety, speed
+** speed|space optimization
+*** skip recording unneeded dependent bindings
 You can tell from reading a Program's [ (VarFunc, Query) ] argument which elements of the Substs will never be referred to; those would not have to be recorded.
+** todo ?:safety : where possible, use Possible1 instead of CondElts
+** todo ? safety : check that every Set in a CondElts is nonempty
+
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example

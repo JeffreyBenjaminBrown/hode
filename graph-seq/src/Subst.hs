@@ -49,21 +49,6 @@ varFuncSubsts    p           s       (VarFunc _ dets)
            in reconcile $ S.map impliedSubsts dets
 
 
--- | = Using `Subst` to restrict `CondElts`
-
--- | `restrictCondElts ss ces` takes the simple union of the results of
---  calling `restrictCondElts ss ces` for every s in ss.
-restrictCondElts :: Set Subst -> CondElts -> CondElts
-restrictCondElts ss ces = M.unionsWith S.union
-                         $ S.map (flip restrictCondElts1 ces) ss
-
--- | It is as if `restrictCondElts1 s ce` first restricts ce to those Substs
--- reconcilable with s, and then replaces each with its reconciliation.
-restrictCondElts1 :: Subst -> CondElts -> CondElts
-restrictCondElts1 s ce = M.filter (not . null) reconciled
-  where reconciled = M.map (reconcile1ToMany s) ce
-
-
 -- | = Building a `CondElts` from `Subst`s
 -- TODO ? Functions like `setSetSubstToCondElts` are in a sense lossy:
 -- the var input disappears from the output. That might cause confusion.

@@ -25,8 +25,6 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
-  , TestLabel "testRestrictCondElts1" testRestrictCondElts1
-  , TestLabel "testRestrictCondElts" testRestrictCondElts
   , TestLabel "testVarFuncToCondElts" testVarFuncToCondElts
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
@@ -52,7 +50,6 @@ testSubstToCondElts = TestCase $ do
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
 testVarFuncToCondElts = TestCase $ do
-
   let (a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
       vf_a    = VarFunc a (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
@@ -60,7 +57,6 @@ testVarFuncToCondElts = TestCase $ do
       (ra :: Possible) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
-
   assertBool "0" $   varFuncToCondElts ra M.empty vf_a == Just ((M.!) ra a)
   assertBool "0.1" $ varFuncToCondElts ra s_b1c1  vf_a == Just ((M.!) ra a)
     -- the Subst s_b1c1 is ignored because the dets in the VarFunc are empty
@@ -92,70 +88,6 @@ testVarFuncToCondElts = TestCase $ do
     == Just ( M.fromList [ (2, S.fromList [ M.fromList [(x,0), (y,3)]
                                           , M.fromList [(x,0), (y,4)] ] )
                          , (4, S.fromList [ M.fromList [(x,1), (y,2)] ] ) ] )
-
-
-(a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
-vf_a    = VarFunc a (S.empty)
-s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
-s_b2   = M.fromList [ (b,2)        ] :: Subst
-(ra :: Possible) = M.fromList [
-  ( a, M.fromList [ (1, S.singleton mempty)
-                  , (5, S.singleton $ M.singleton x 23) ] ) ]
-(r :: Possible) = M.fromList
-    [ ( a, M.fromList
-        [ (1, S.singleton $ error "never used")
-        , (2, error "doesn't matter") ] )
-    , ( b, M.fromList
-        [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
-                         , M.fromList [(a, 3)              ]
-                         , M.fromList [(a, 4), (x,1)       ] ] )
-        , (2, S.fromList [ M.fromList [(a,2)               ]
-                         , M.fromList [(a,3) , (x,1)       ] ] ) ] )
-    , ( c, M.fromList
-        [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
-                         , M.fromList [(a, 2),       (y,4) ]
-                         , M.fromList [(a, 3), (x,2)       ]
-                         , M.fromList [(a, 4),       (y,2) ] ] )
-        , (2, error "never used, doesn't matter") ] ) ]
-aOf_b  = VarFunc a (S.fromList [b   ])
-aOf_bc = VarFunc a (S.fromList [b, c])
-
-
-testRestrictCondElts = TestCase $ do
-  let (x,y,z) = (Var "x",Var "y",Var"z")
-      x1    = M.fromList [ (x,1)                  ] :: Subst
-      y11   = M.fromList [        (y,11)          ] :: Subst
-      x1y11 = M.fromList [ (x,1), (y,11)          ] :: Subst
-      xyz   = M.fromList [ (x,1), (y,11), (z,111) ] :: Subst
-      x2y11 = M.fromList [ (x,2), (y,11)          ] :: Subst
-      y12   = M.fromList [        (y,12)          ] :: Subst
-      ces   = M.fromList [ (1, S.fromList [ x1y11
-                                          , xyz ] )
-                         , (2, S.singleton x2y11  ) ]
-      ces'  = M.fromList [ (1, S.singleton x1)
-                         , (2, S.singleton y12) ]
-
-  assertBool "2" $ restrictCondElts (S.singleton y11) ces'
-         == M.fromList [ (1, S.fromList [ x1y11 ] ) ]
-  assertBool "1" $ restrictCondElts (S.singleton x1y11) ces
-         == M.fromList [ (1, S.fromList [ x1y11
-                                        , xyz ] ) ]
-  assertBool "0" $ restrictCondElts (S.singleton y12) ces
-         == M.empty
-
-testRestrictCondElts1 = TestCase $ do
-  let (x,y,z) = (Var "x",Var "y",Var"z")
-      subst = M.fromList [ (x,1), (y,11) ]
-      ces = M.fromList [ (1, S.fromList [ subst
-                                        , M.insert z 111 subst ] )
-                       , (2, S.fromList [ M.insert x 2 subst ] ) ]
-  assertBool "1" $ restrictCondElts1 subst ces
-         == M.fromList [ (1, S.fromList [ subst
-                                        , M.insert z 111 subst ] ) ]
-  -- TODO speed|memory : Notice how the z-binding is kept, whether or not
-  -- it is relevant. If z is not used later, then maybe it should not be
-  -- kept. This would prevent treating the Subst with the z-binding as
-  -- distinct from the Subst without it, hence avoid duplicating some work.
 
 testVarFuncSubsts = TestCase $ do
   let (a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
