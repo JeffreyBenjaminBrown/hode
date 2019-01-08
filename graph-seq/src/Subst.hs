@@ -71,9 +71,9 @@ restrictCondVals1 s = M.filter (not . S.null)
 -- `Set (Set Subst)` has two members.
 
 setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
-setSetSubstToCondElts v ss =
-  let condEltsPerDeterminant = S.map (setSubstToCondElts v) ss
-  in Nothing -- TODO finish
+setSetSubstToCondElts v ss = reconcileCondElts condEltsPerDet where
+  condEltsPerDet = S.map (setSubstToCondElts v) ss :: Set CondElts
+
 
 -- | `setSubstToCondElts v ss` presumes that the `Subst`s all came
 -- from the same `CondElts`. Hence, none of them have to be
