@@ -4,7 +4,7 @@ varFuncToCondElts      r        s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) r v
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
-    ces = S.map (restrictCondVals substs . (M.!) r) dets :: Set CondElts
+    ces = S.map (restrictCondElts substs . (M.!) r) dets :: Set CondElts
       -- each member of ces is an M.singleton
     sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
       -- For each map in ces, this let us return its only value
@@ -42,7 +42,7 @@ varFuncToCondElts r s_b2 aOf_b =
   substs = varFuncSubsts r s_b2 aOf_b
          = fromList [fromList [(Var "a",2)]]
   -- TODO : The map in ces is not a singleton!
-  ces = S.map (restrictCondVals substs . (M.!) r) (S.singleton b)
+  ces = S.map (restrictCondElts substs . (M.!) r) (S.singleton b)
       = S.fromList [ M.fromList [ (1,M.fromList [S.fromList [(Var "a",2)
                                                             ,(Var "x",0)]])
                                 , (2,M.fromList [S.fromList [(Var "a",2)]])]]

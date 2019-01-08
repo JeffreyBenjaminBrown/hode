@@ -23,9 +23,9 @@ tests = runTestTT $ TestList
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
-  , TestLabel "testRestrictCondVals1" testRestrictCondVals1
-  , TestLabel "testRestrictCondVals" testRestrictCondVals
-  , TestLabel "testVarFuncToCondVals" testVarFuncToCondVals
+  , TestLabel "testRestrictCondElts1" testRestrictCondElts1
+  , TestLabel "testRestrictCondElts" testRestrictCondElts
+  , TestLabel "testVarFuncToCondElts" testVarFuncToCondElts
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
   , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
@@ -104,7 +104,7 @@ testSubstToCondElts = TestCase $ do
   assertBool "1" $ substToCondElts b s ==
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
-testVarFuncToCondVals = TestCase $ do
+testVarFuncToCondElts = TestCase $ do
 
   let (a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
       vf_a    = VarFunc a (S.empty)
@@ -139,7 +139,7 @@ testVarFuncToCondVals = TestCase $ do
     == Just ( M.fromList [ (2, S.singleton M.empty) ] )
     -- TODO Why is that 0 showing up here?
 
-testRestrictCondVals = TestCase $ do
+testRestrictCondElts = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")
       x1    = M.fromList [ (x,1)                  ] :: Subst
       y11   = M.fromList [        (y,11)          ] :: Subst
@@ -153,21 +153,21 @@ testRestrictCondVals = TestCase $ do
       ces'  = M.fromList [ (1, S.singleton x1)
                          , (2, S.singleton y12) ]
 
-  assertBool "2" $ restrictCondVals (S.singleton y11) ces'
+  assertBool "2" $ restrictCondElts (S.singleton y11) ces'
          == M.fromList [ (1, S.fromList [ x1y11 ] ) ]
-  assertBool "1" $ restrictCondVals (S.singleton x1y11) ces
+  assertBool "1" $ restrictCondElts (S.singleton x1y11) ces
          == M.fromList [ (1, S.fromList [ x1y11
                                         , xyz ] ) ]
-  assertBool "0" $ restrictCondVals (S.singleton y12) ces
+  assertBool "0" $ restrictCondElts (S.singleton y12) ces
          == M.empty
 
-testRestrictCondVals1 = TestCase $ do
+testRestrictCondElts1 = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")
       subst = M.fromList [ (x,1), (y,11) ]
       ces = M.fromList [ (1, S.fromList [ subst
                                         , M.insert z 111 subst ] )
                        , (2, S.fromList [ M.insert x 2 subst ] ) ]
-  assertBool "1" $ restrictCondVals1 subst ces
+  assertBool "1" $ restrictCondElts1 subst ces
          == M.fromList [ (1, S.fromList [ subst
                                         , M.insert z 111 subst ] ) ]
   -- TODO speed|memory : Notice how the z-binding is kept, whether or not
@@ -180,16 +180,16 @@ testVarFuncSubsts = TestCase $ do
       aOf_x  = VarFunc (a) (S.fromList [x   ])
       aOf_xy = VarFunc (a) (S.fromList [x, y])
 
-      xCondVals = M.fromList -- x could be 1 or 2, if ...
+      xCondElts = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (2, S.fromList [ M.fromList [ (a, 2), (b, 2) ] ] ) ]
-      yCondVals = M.fromList -- y could be 3 or 4, if ...
+      yCondElts = M.fromList -- y could be 3 or 4, if ...
         [ (3, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (4, S.fromList [ M.fromList [         (b, 2), (c, 2) ]
                          , M.fromList [ (a, 2),         (c, 3) ]
                          , M.fromList [         (b, 3), (c, 3) ] ] ) ]
-      r = M.fromList [ (x, xCondVals)
-                     , (y, yCondVals) ]
+      r = M.fromList [ (x, xCondElts)
+                     , (y, yCondElts) ]
       xySubst xVal yVal = M.fromList [ (x, xVal), (y, yVal) ]
 
   assertBool "0" $ varFuncSubsts r (xySubst 1 4) aOf_x

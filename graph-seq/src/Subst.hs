@@ -31,7 +31,7 @@ varFuncToCondElts      r        s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) r v
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
-    ces = S.map (restrictCondVals substs . (M.!) r) dets :: Set CondElts
+    ces = S.map (restrictCondElts substs . (M.!) r) dets :: Set CondElts
       -- TODO : I thought each member of ces is an M.singleton, but it's not.
     sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
       -- For each map in ces, this let us return its only value
@@ -58,16 +58,16 @@ varFuncSubsts      r        s   (VarFunc _ dets) =
 
 -- | = Using `Subst` to restrict `CondElts`
 
--- | `restrictCondVals ss ces` takes the simple union of the results of
---  calling `restrictCondVals ss ces` for every s in ss.
-restrictCondVals :: Set Subst -> CondElts -> CondElts
-restrictCondVals ss ces = M.unionsWith S.union
-                         $ S.map (flip restrictCondVals1 ces) ss
+-- | `restrictCondElts ss ces` takes the simple union of the results of
+--  calling `restrictCondElts ss ces` for every s in ss.
+restrictCondElts :: Set Subst -> CondElts -> CondElts
+restrictCondElts ss ces = M.unionsWith S.union
+                         $ S.map (flip restrictCondElts1 ces) ss
 
--- | It is as if `restrictCondVals1 s ce` first restricts ce to those Substs
+-- | It is as if `restrictCondElts1 s ce` first restricts ce to those Substs
 -- reconcilable with s, and then replaces each with its reconciliation.
-restrictCondVals1 :: Subst -> CondElts -> CondElts
-restrictCondVals1 s ce = M.filter (not . null) reconciled
+restrictCondElts1 :: Subst -> CondElts -> CondElts
+restrictCondElts1 s ce = M.filter (not . null) reconciled
   where reconciled = M.map (reconcile1ToMany s) ce
 
 
