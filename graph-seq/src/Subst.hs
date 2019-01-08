@@ -51,11 +51,15 @@ restrictCondVals :: Set Subst -> CondElts -> CondElts
 restrictCondVals s ces = M.unionsWith S.union
                          $ S.map (flip restrictCondVals1 ces) s
 
+-- | `restrictCondVals1 s ce` returns a version of ce that includes
+-- only `Subst`s that are supersets of s.
+-- TODO ! Rather than keep only supersets, I should keep everything
+-- reconcilable, and replace it with the reconciled superset.
 restrictCondVals1 :: Subst -> CondElts -> CondElts
 restrictCondVals1 s = M.filter (not . S.null)
-                      . M.map keepMatches where
-  keepMatches :: Set Subst -> Set Subst
-  keepMatches = S.filter $ isSubsetOfMap s
+                      . M.map (keepMatches s) where
+  keepMatches :: Subst -> Set Subst -> Set Subst
+  keepMatches s = S.filter $ isSubsetOfMap s
 
 
 -- | = Building a `CondElts` from `Subst`s
