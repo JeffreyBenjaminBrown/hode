@@ -27,11 +27,11 @@ import Util
 -- TODO ? does varFuncToCondElts in fact have to work farther backward?
 
 varFuncToCondElts :: Possible -> Subst -> VarFunc -> Maybe CondElts
-varFuncToCondElts      r        s  vf@(VarFunc v dets) = case null dets of
-  True -> Just $ (M.!) r v
+varFuncToCondElts      p        s  vf@(VarFunc v dets) = case null dets of
+  True -> Just $ (M.!) p v
   False -> let
-    substs = varFuncSubsts r s vf :: Set Subst
-    ces = S.map (restrictCondElts substs . (M.!) r) dets :: Set CondElts
+    substs = varFuncSubsts p vf :: Set Subst
+    ces = S.map (restrictCondElts substs . (M.!) p) dets :: Set CondElts
       -- TODO : I thought each member of ces is an M.singleton, but it's not.
     sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
       -- For each map in ces, this let us return its only value
@@ -40,19 +40,16 @@ varFuncToCondElts      r        s  vf@(VarFunc v dets) = case null dets of
 
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
---
--- (On names: `dets` are `Var`s that depended on `v`'s earlier calculation
--- for their own. They are bound in the `Subst`, so they determine what
--- values `v` might take.)
 
 varFuncSubsts :: Possible -> Subst -> VarFunc -> Set Subst
-varFuncSubsts      r        s   (VarFunc _ dets) =
+varFuncSubsts      p           s   (VarFunc _ dets) =
   case null dets of
-    True -> error "Should not happen. Thrown by varFuncSubsts."
+    True -> error
+      "Should not happen. Thrown by varFuncSubsts. Blame varFuncToCondElts."
     False -> let vCandidates :: Var -> Set Subst
                  vCandidates det = (M.!) couldBindTo bound where
                    bound       = (M.!) s det :: Elt
-                   couldBindTo = (M.!) r det :: CondElts
+                   couldBindTo = (M.!) p det :: CondElts
              in reconcile (S.map vCandidates dets)
 
 
