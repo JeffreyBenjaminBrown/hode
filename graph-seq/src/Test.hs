@@ -48,9 +48,6 @@ testReconcileCondEltsAtElt = TestCase $ do
               [ (2, S.singleton
                   $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
-
--- reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
-
 testSetSubstToCondElts = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
       s = M.fromList [ (a,1), (b,2) ]

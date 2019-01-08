@@ -99,8 +99,18 @@ restrictCondVals1 s = M.filter (not . S.null)
 
 -- | = Reconciling `CondElts`s
 
--- | `reconcileCondEltsAtElt` ASSUMES the `Set CondElts` is a collection
--- that all condition for `Elt` values of the same `Var`.
+-- | `reconcileCondEltsAtElt` ASSUMES all input `CondElts`
+-- condition for `Elt` values of the same `Var`.
+
+reconcileCondElts :: Set CondElts -> Maybe CondElts
+reconcileCondElts ces = if null u then Nothing else Just u where
+   keys = S.unions $ S.map M.keysSet ces :: Set Elt
+   recds = S.map fromJust $ S.filter isJust $ S.map f keys :: Set CondElts
+     where f = flip reconcileCondEltsAtElt ces
+   u = M.unions recds
+
+-- | `reconcileCondEltsAtElt` ASSUMES all input `CondElts`
+-- condition for `Elt` values of the same `Var`.
 reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
 reconcileCondEltsAtElt e ces = do
   let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
