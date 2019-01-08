@@ -13,7 +13,7 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO next : document and test(if lacking) varFuncSubsts
+* TODO next : varFuncToCondVals
 * TODO ? safety : check that every Set in a CondElts is nonempty
 * TODO ? safety : add a Var to the CondElts type
 * TODO next: runQuery d r s v (ForSome vf q) =
