@@ -182,12 +182,20 @@ testVarFuncSubsts = TestCase $ do
                   , M.fromList [ (Var "a", 1), (Var "b", 3), (Var "c", 3) ] ]
 
 testReconcile = TestCase $ do
-  let x1    = S.singleton ( M.singleton (Var "x") 1 )
-      x1_x2 = S.fromList  [ M.singleton (Var "x") 1
-                          , M.singleton (Var "x") 2 ]
-      x1_x3 = S.fromList  [ M.singleton (Var "x") 1
-                          , M.singleton (Var "x") 3 ]
+  let (x,y,z) = (Var "x",Var "y",Var"z")
+      x1    = S.singleton ( M.singleton x 1 )
+      x1_x2 = S.fromList  [ M.singleton x 1
+                          , M.singleton x 2 ]
+      x1_x3 = S.fromList  [ M.singleton x 1
+                          , M.singleton x 3 ]
   assertBool "1" $ reconcile (S.fromList [x1_x2, x1_x3]) == x1
+  let x1y1 = S.singleton ( M.fromList [(x,1), (y,2)]        )
+      y2z3 = S.singleton ( M.fromList [(x,1),        (z,3)] )
+  assertBool "2" $ reconcile (S.fromList [x1, x1y1]) == x1y1
+  assertBool "3" $ reconcile (S.fromList [x1, x1y1, y2z3]) ==
+    S.singleton ( M.fromList [(x,1), (y,2), (z,3)] )
+  assertBool "3" $ reconcile (S.fromList [x1, x1y1, y2z3, S.empty]) ==
+                                                          S.empty
 
 testReconcile2sets = TestCase $ do
   let x1 = M.singleton (Var "x") 1

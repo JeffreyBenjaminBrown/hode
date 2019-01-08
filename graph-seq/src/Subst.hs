@@ -58,7 +58,6 @@ restrictCondVals1 s = M.filter (not . S.null)
   keepMatches = S.filter $ isSubsetOfMap s
 
 
-
 -- | = Building a `CondElts` from `Subst`s
 
 -- | `setSetSubstToCondElts` presumes that each `Set Subst` came from the
@@ -73,7 +72,6 @@ restrictCondVals1 s = M.filter (not . S.null)
 setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
 setSetSubstToCondElts v ss = reconcileCondElts condEltsPerDet where
   condEltsPerDet = S.map (setSubstToCondElts v) ss :: Set CondElts
-
 
 -- | `setSubstToCondElts v ss` presumes that the `Subst`s all came
 -- from the same `CondElts`. Hence, none of them have to be
@@ -92,8 +90,6 @@ substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
   return $ M.singleton val $ S.singleton subst'
-
-
 
 
 -- | = Reconciling `CondElts`s
@@ -123,13 +119,20 @@ reconcileCondEltsAtElt e ces = do
 
 -- | = Reconciling `Subst`s
 
+-- | `reconcile ss` finds every `Subst` that reconciles a `Subst`
+-- from every member of ss.
 reconcile :: Set (Set Subst) -> Set Subst
-reconcile ss = S.foldl reconcile2sets min rest where
-  (min, rest) = S.deleteFindMin ss
+reconcile ss = if null ss then S.empty
+               else S.foldl reconcile2sets min rest
+  where (min, rest) = S.deleteFindMin ss
 
+-- | `reconcile2sets ss1 ss2` returns every `Subst` that reconciles
+-- something from ss1 with something from ss2.
 reconcile2sets :: Set Subst -> Set Subst -> Set Subst
 reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1toMany s ss2) ss1
 
+-- | In `reconcile1toMany s1 ss`, there is at most one way to merge s1
+-- with every s from ss. This collects them.
 reconcile1toMany :: Subst -> Set Subst -> Set Subst
 reconcile1toMany s ss = S.map fromJust $ S.filter isJust
                 $ S.map (reconcile2 s) ss
