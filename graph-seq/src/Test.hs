@@ -42,6 +42,7 @@ testSetSetSubstToCondElts = TestCase $ do
       sq = S.fromList [ M.fromList [(x,1), (a,1),       (c,1) ]
                       , M.fromList [(x,2), (a,1), (b,11)      ]
                       , M.fromList [(x,3), (a,1), (b,1)       ] ] :: Set Subst
+
   assertBool "3" $ setSetSubstToCondElts x (S.fromList [st,sq]) == Just
     ( M.fromList [ (1, S.singleton $ M.fromList [(a,1), (b,1),  (c,1)] )
                  , (2, S.singleton $ M.fromList [(a,1), (b,11), (c,1)] ) ] )

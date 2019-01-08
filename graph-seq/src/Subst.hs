@@ -59,21 +59,26 @@ restrictCondVals1 s = M.filter (not . S.null)
 
 
 -- | = Building a `CondElts` from `Subst`s
+-- TODO ? Functions like `setSetSubstToCondElts` are in a sense lossy:
+-- the var input disappears from the output. That might cause confusion.
 
--- | `setSetSubstToCondElts` presumes that each `Set Subst` came from the
--- `CondElts` correspoding to a separate determinant** of `v`.
--- Since each of those determinants
--- is presumably determined, the results of applying `setSubstToCondElts`
--- to each of those determinants must be reconciled across determinants.
+-- | If each s in ss is a `Set Subst` derived from a different determinant**
+-- of v, then `setSetSubstToCondElts v ss` runs `setSubstToCondElts v`
+-- on each s value, and then reconciles the results. No reconciliation
+-- is needed within a determinant (i.e. for the inner `Set`) but it is
+-- needed across determinants, because a `Subst` in the final result is
+-- only valid if it is valid for each determinant.
 --
--- ** For instance, if `v` depends on two determinants, then the
--- `Set (Set Subst)` has two members.
-
+-- ** For instance, if `v` depends on two determinants, then the input
+-- `Set (Set Subst)` should have two members.
 setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
 setSetSubstToCondElts v ss = reconcileCondElts condEltsPerDet where
   condEltsPerDet = S.map (setSubstToCondElts v) ss :: Set CondElts
 
--- | `setSubstToCondElts v ss` presumes that the `Subst`s all came
+-- | `setSubstToCondElts v ss` returns a `CondElts` that associates `v`
+-- with every conceivable `Subst` implied by any of the inputs separately.
+--
+-- ASSUMES that the `Subst`s all came
 -- from the same `CondElts`. Hence, none of them have to be
 -- reconciled. Contrast this to `setSetSubstToCondElts`, in which
 -- the results from each of the innser sets must be reconciled against
@@ -85,6 +90,8 @@ setSubstToCondElts v = S.foldl f M.empty where
     Nothing   -> ces
     Just ces' -> M.unionWith S.union ces ces'
 
+-- | `substToCondElts v s` constructs (if possible) a `CondElts` that
+-- maps `v` to the other elements of the `Subst`.
 substToCondElts :: Var -> Subst -> Maybe CondElts
 substToCondElts v subst = do
   val <- M.lookup v subst
@@ -98,7 +105,7 @@ substToCondElts v subst = do
 -- consistent with every `CondElt` in the input. That is, for every `Elt` e,
 -- and every `Subst` s in `reconcileCondEltsAtElt ces`, and every
 -- `CondElt` ce in ces, s is consistent with at least one `Subst` in ces.
--- 
+--
 -- ASSUMES all input `CondElts`
 -- condition for `Elt` values of the same `Var`.
 reconcileCondElts :: Set CondElts -> Maybe CondElts
