@@ -10,37 +10,6 @@ import Types
 import Util
 
 
-substToCondElts :: Var -> Subst -> Maybe CondElts
-substToCondElts v subst = do
-  val <- M.lookup v subst
-  let subst' = M.delete v subst
-  return $ M.singleton val $ S.singleton subst'
-
--- | `setSubstToCondElts v ss` supposes that the `Subst`s all came
--- from the same `CondElts`. Hence, none of them have to be
--- reconciled. Contrast this to `setSetSubstToCondElts`, in which
--- the results from each of the innser sets must be reconciled against
--- each other.
-setSubstToCondElts :: Var -> Set Subst -> CondElts
-setSubstToCondElts v = S.foldl f M.empty where
-  f :: CondElts -> Subst -> CondElts
-  f ces subst = case substToCondElts v subst of
-    Nothing   -> ces
-    Just ces' -> M.unionWith S.union ces ces'
-
-
--- | `setSetSubstToCondElts` supposes that each `SetSubst` came from the
--- `CondElts` correspoding to a separate determinant of `v`.
--- (For instance, if `v` depends on two determinants, then the
--- `Set (Set Subst)` has two members.) Since each of those determinants
--- is presumably determined, the results of applying `setSubstToCondElts`
--- to each of those determinants must be reconciled across determinants.
-
-setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
-setSetSubstToCondElts v ss =
-  let condEltsPerDeterminant = S.map (setSubstToCondElts v) ss
-  in Nothing -- TODO finish
-
 -- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
 -- and the `Subst`s that could lead to each, given r, s and v.
 varFuncToCondVals :: Result -> Subst -> VarFunc -> CondElts
@@ -87,6 +56,44 @@ restrictCondVals1 s = M.filter (not . S.null)
                       . M.map keepMatches where
   keepMatches :: Set Subst -> Set Subst
   keepMatches = S.filter $ isSubsetOfMap s
+
+
+
+-- | = Building a `CondElts` from `Subst`s
+
+-- | `setSetSubstToCondElts` presumes that each `Set Subst` came from the
+-- `CondElts` correspoding to a separate determinant** of `v`.
+-- Since each of those determinants
+-- is presumably determined, the results of applying `setSubstToCondElts`
+-- to each of those determinants must be reconciled across determinants.
+--
+-- ** For instance, if `v` depends on two determinants, then the
+-- `Set (Set Subst)` has two members.
+
+setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
+setSetSubstToCondElts v ss =
+  let condEltsPerDeterminant = S.map (setSubstToCondElts v) ss
+  in Nothing -- TODO finish
+
+-- | `setSubstToCondElts v ss` presumes that the `Subst`s all came
+-- from the same `CondElts`. Hence, none of them have to be
+-- reconciled. Contrast this to `setSetSubstToCondElts`, in which
+-- the results from each of the innser sets must be reconciled against
+-- each other.
+setSubstToCondElts :: Var -> Set Subst -> CondElts
+setSubstToCondElts v = S.foldl f M.empty where
+  f :: CondElts -> Subst -> CondElts
+  f ces subst = case substToCondElts v subst of
+    Nothing   -> ces
+    Just ces' -> M.unionWith S.union ces ces'
+
+substToCondElts :: Var -> Subst -> Maybe CondElts
+substToCondElts v subst = do
+  val <- M.lookup v subst
+  let subst' = M.delete v subst
+  return $ M.singleton val $ S.singleton subst'
+
+
 
 
 -- | = Reconciling `CondElts`s
