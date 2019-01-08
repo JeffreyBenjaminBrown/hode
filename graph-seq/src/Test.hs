@@ -29,7 +29,24 @@ tests = runTestTT $ TestList
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
   , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
+  , TestLabel "testReconcileCondElts" testReconcileCondElts
   ]
+
+testReconcileCondElts = TestCase $ do
+  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+      ce, cf :: CondElts
+      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] )
+                      , (3, S.fromList [ M.empty ] ) ]
+      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
+  assertBool "1" $ reconcileCondElts (S.fromList [ce,cf])
+    == Just ( M.fromList
+              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] )
+              , (2, S.singleton
+                  $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
 testReconcileCondEltsAtElt = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")

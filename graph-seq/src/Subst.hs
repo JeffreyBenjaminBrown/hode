@@ -56,17 +56,6 @@ varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
     -- create a CondElts for x
     in M.empty -- TODO finish
 
--- Could test to be sure those CondElts in ces are all singleton maps
---varFuncToCondVals' :: Result -> Subst -> VarFunc -> Bool
---varFuncToCondVals'      r        s  vf@(VarFunc v dets) = case null dets of
---  True -> (M.!) r v
---  False -> let
---    substs = varFuncSubsts r s vf :: Set Subst
---    ces = S.map (restrictCondVals substs . (M.!) r) dets
---      :: Set CondElts
---    is
---    -- in S.null $ S.filter (not . (==) 1 . S.size) ces
-
 -- | Each determinant implies a set of `Subst`s.
 -- `varFuncSubsts` finds them, then reconciles them.
 -- That is, `varFuncSubsts r s (VarFunc v dets)` is the set of all
@@ -86,6 +75,9 @@ varFuncSubsts      r        s   (VarFunc _ dets) =
                    couldBindTo = (M.!) r det :: CondElts
              in reconcile (S.map vCandidates dets)
 
+
+-- | = Using `Subst` to restrict `CondElts`
+
 restrictCondVals :: Set Subst -> CondElts -> CondElts
 restrictCondVals s ces = M.unionsWith S.union
                          $ S.map (flip restrictCondVals1 ces) s
@@ -101,7 +93,6 @@ restrictCondVals1 s = M.filter (not . S.null)
 
 -- | `reconcileCondEltsAtElt` ASSUMES all input `CondElts`
 -- condition for `Elt` values of the same `Var`.
-
 reconcileCondElts :: Set CondElts -> Maybe CondElts
 reconcileCondElts ces = if null u then Nothing else Just u where
    keys = S.unions $ S.map M.keysSet ces :: Set Elt
