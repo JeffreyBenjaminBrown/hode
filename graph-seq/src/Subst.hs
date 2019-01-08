@@ -18,7 +18,7 @@ import Util
 -- Specifically, the Substs in the CondElts that varFuncToCondElts
 -- returns will only describe the variables that we're asking for.
 --
--- Suppose we ask for the CondElts of x as a function of a.
+-- For example, suppose we ask for the CondElts of x as a function of a.
 -- Let xs be the possible values of x as determined by a.
 -- Once we know xs, we can look up x in the Possible to find how other,
 -- yet-earlier variables would have to be bound.
@@ -29,28 +29,28 @@ import Util
 varFuncToCondElts :: Possible -> Subst -> VarFunc -> Maybe CondElts
 varFuncToCondElts      p        s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) p v
-  False -> let
-    substs = varFuncSubsts p vf :: Set Subst
-    ces = S.map (restrictCondElts substs . (M.!) p) dets :: Set CondElts
-      -- TODO : I thought each member of ces is an M.singleton, but it's not.
-    sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
-      -- For each map in ces, this let us return its only value
-      -- (and effectively discard the key).
-    in setSetSubstToCondElts v sss
+  False ->
+    let -- These two steps might be duplicating a lot of work.
+      substs = varFuncSubsts p s vf                        :: Set Subst
+      ces = S.map (restrictCondElts substs . (M.!) p) dets :: Set CondElts
+    -- TODO : missing step: "invert" the ces so that they describe v,
+      -- rather than one of the dets
+    in reconcileCondElts ces
 
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
+-- They are reconciled across dets -- that is, for each det in dets
+-- and each s in the result, s is consistent with the CondElts for det.
 
 varFuncSubsts :: Possible -> Subst -> VarFunc -> Set Subst
-varFuncSubsts      p           s   (VarFunc _ dets) =
-  case null dets of
-    True -> error
+varFuncSubsts      p           s   (VarFunc _ dets)
+  | null dets = error
       "Should not happen. Thrown by varFuncSubsts. Blame varFuncToCondElts."
-    False -> let vCandidates :: Var -> Set Subst
-                 vCandidates det = (M.!) couldBindTo bound where
-                   bound       = (M.!) s det :: Elt
-                   couldBindTo = (M.!) p det :: CondElts
-             in reconcile (S.map vCandidates dets)
+  | True = let impliedSubsts :: Var -> Set Subst
+               impliedSubsts det = (M.!) couldBindTo bound where
+                 bound       = (M.!) s det :: Elt
+                 couldBindTo = (M.!) p det :: CondElts
+           in reconcile $ S.map impliedSubsts dets
 
 
 -- | = Using `Subst` to restrict `CondElts`
