@@ -13,9 +13,8 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO next :safety : use Possible1 instead of CondElts
+* TODO next :safety : where possible, use Possible1 instead of CondElts
 I think that's where my varFuncToCondVals code went wrong.
-Also rename Result -> Possible.
 * TODO ? safety : check that every Set in a CondElts is nonempty
 * TODO varFuncSubsts should return (a Possible?), not a Set Subst
 Because it matters which determining variable each Subst came from.

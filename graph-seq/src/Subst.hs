@@ -10,24 +10,24 @@ import Types
 import Util
 
 
--- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
+-- | `varFuncToCondElts r s (VarFunc v dets)` returns all values v can take,
 -- and the relevant part** of the `Subst`s that could lead to each,
 -- given r, s and v.
 --
 -- ** PITFALL: It isn't the whole story, just (I hope) as much as we need.
--- Specifically, the Substs in the CondElts that varFuncToCondVals
+-- Specifically, the Substs in the CondElts that varFuncToCondElts
 -- returns will only describe the variables that we're asking for.
 --
 -- Suppose we ask for the CondElts of x as a function of a.
 -- Let xs be the possible values of x as determined by a.
 -- Once we know xs, we can look up x in the Possible to find how other,
 -- yet-earlier variables would have to be bound.
--- This implementation of varFuncToCondVals does not do that; it stops at x.
+-- This implementation of varFuncToCondElts does not do that; it stops at x.
 --
--- TODO ? does varFuncToCondVals in fact have to work farther backward?
+-- TODO ? does varFuncToCondElts in fact have to work farther backward?
 
-varFuncToCondVals :: Possible -> Subst -> VarFunc -> Maybe CondElts
-varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
+varFuncToCondElts :: Possible -> Subst -> VarFunc -> Maybe CondElts
+varFuncToCondElts      r        s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) r v
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
