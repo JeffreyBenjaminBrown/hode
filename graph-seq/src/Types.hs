@@ -10,8 +10,8 @@ data Data = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
   deriving (Show, Eq, Ord)
 
 newtype Var = Var String deriving (Show, Eq, Ord)
-data VarFunc = VarFunc { varFuncName ::     Var
-                       , varFuncDets :: Set Var } deriving (Show, Eq, Ord)
+data VarFunc = VarFunc { varFuncTarget ::     Var
+                       , varFuncDets   :: Set Var } deriving (Show, Eq, Ord)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDeps     :: Set Var }
@@ -33,8 +33,9 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-
 type Possible1 = (Var, CondElts)
+  -- ^ Describes the conditions under which the `Var` could be any of
+  -- the keys of the `CondElts`.
 type Possible  = Map Var CondElts
 type Program   = Data
                -> [(VarFunc, Query)] -- ^ queries can depend on earlier ones

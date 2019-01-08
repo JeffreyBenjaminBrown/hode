@@ -41,7 +41,7 @@ aOf_bc = VarFunc a (S.fromList [b, c])
 varFuncToCondElts r s_b2 aOf_b =
   substs = varFuncSubsts r s_b2 aOf_b
          = fromList [fromList [(Var "a",2)]]
-  -- TODO :z The map in ces is not a singleton!
+  -- TODO : The map in ces is not a singleton!
   ces = S.map (restrictCondVals substs . (M.!) r) (S.singleton b)
       = S.fromList [ M.fromList [ (1,M.fromList [S.fromList [(Var "a",2)
                                                             ,(Var "x",0)]])

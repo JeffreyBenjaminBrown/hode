@@ -132,8 +132,8 @@ reconcileCondElts ces = if null u then Nothing else Just u where
 -- such that each value it associates with e is consistent with each of
 -- the `CondElts`s in ces.
 --
--- ASSUMES all input `CondElts`
--- condition for `Elt` values of the same `Var`.
+-- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
+-- (Each determinant of a VarFunc implies a separate CondElts for it.)
 reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
 reconcileCondEltsAtElt e ces = do
   let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
