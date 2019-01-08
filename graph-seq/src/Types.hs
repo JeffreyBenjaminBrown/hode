@@ -11,7 +11,11 @@ data Data = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
 
 newtype Var = Var String deriving (Show, Eq, Ord)
 data VarFunc = VarFunc { varFuncTarget ::     Var
-                       , varFuncDets   :: Set Var } deriving (Show, Eq, Ord)
+                       , varFuncDets   :: Set Var } -- ^ The determinants
+  -- of a VarFunc are variables that were calculated based on its own
+  -- earlier calculation. If the determinants are already bound, that
+  -- restricts the possible values the VarFunc can take.
+  deriving (Show, Eq, Ord)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDeps     :: Set Var }

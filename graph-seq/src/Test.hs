@@ -19,7 +19,7 @@ tests = runTestTT $ TestList
   , TestLabel "testFindable" testFindable
   , TestLabel "testValidExistentials" testValidExistentials
   , TestLabel "testReconcile2" testReconcile2
-  , TestLabel "testReconcile1toMany" testReconcile1toMany
+  , TestLabel "testReconcile1ToMany" testReconcile1ToMany
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
   , TestLabel "testVarFuncSubsts" testVarFuncSubsts
@@ -66,8 +66,7 @@ testReconcileCondElts = TestCase $ do
   assertBool "1" $ reconcileCondElts (S.fromList [ce,cf])
     == Just ( M.fromList
               [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] )
-              , (2, S.singleton
-                  $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
+              , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
 testReconcileCondEltsAtElt = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
@@ -246,17 +245,17 @@ testReconcile2sets = TestCase $ do
                                              == sf [x1y2, x1z2, x1y2z2]
   assertBool "3" $ reconcile2sets (ss y1) (sf [x1y2, x1z2]) == ss x1y1z2
 
-testReconcile1toMany = TestCase $ do
+testReconcile1ToMany = TestCase $ do
   let x1 = M.singleton (Var "x") 1
       y1 = M.singleton (Var "y") 1
       y2 = M.singleton (Var "y") 2
       x1y2 = M.fromList [ ((Var "x"),1)
                         , ((Var "y"),2)]
-  assertBool "1" $ reconcile1toMany x1y2 (S.fromList [x1, y1, y2] )
+  assertBool "1" $ reconcile1ToMany x1y2 (S.fromList [x1, y1, y2] )
                      == S.singleton x1y2
-  assertBool "2" $ reconcile1toMany x1y2 (S.singleton M.empty)
+  assertBool "2" $ reconcile1ToMany x1y2 (S.singleton M.empty)
                      == S.singleton x1y2
-  assertBool "3" $ reconcile1toMany x1y2 S.empty
+  assertBool "3" $ reconcile1ToMany x1y2 S.empty
                      == S.empty
 
 testReconcile2 = TestCase $ do
