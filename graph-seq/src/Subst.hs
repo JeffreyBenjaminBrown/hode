@@ -11,28 +11,39 @@ import Util
 
 
 -- | `varFuncToCondVals r s (VarFunc v dets)` returns all values v can take,
--- and the `Subst`s that could lead to each, given r, s and v.
+-- and the relevant part** of the `Subst`s that could lead to each,
+-- given r, s and v.
+--
+-- ** PITFALL: It isn't the whole story, just (I hope) as much as we need.
+-- Specifically, the Substs in the CondElts that varFuncToCondVals
+-- returns will only describe the variables that we're asking for.
+--
+-- Suppose we ask for the CondElts of x as a function of a.
+-- Let xs be the possible values of x as determined by a.
+-- Once we know xs, we can look up x in the Result to find how other,
+-- yet-earlier variables would have to be bound.
+-- This implementation of varFuncToCondVals does not do that; it stops at x.
+--
+-- TODO ? does varFuncToCondVals in fact have to work farther backward?
+
 varFuncToCondVals :: Result -> Subst -> VarFunc -> Maybe CondElts
 varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) r v
   False -> let
     substs = varFuncSubsts r s vf :: Set Subst
-    ces = S.map (restrictCondVals substs . (M.!) r) dets
-      :: Set CondElts -- each member `CondElts` should be an M.singleton
-    aTest = S.map M.deleteMin ces -- so each of these should be Nothing
-    in case S.null $ S.deleteMin aTest of -- so aTest should be an S.singleton
-      False -> error "varFuncToCondVals: Some map in ces was not a singleton."
-      True -> let sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
-              in setSetSubstToCondElts v sss
+    ces = S.map (restrictCondVals substs . (M.!) r) dets :: Set CondElts
+      -- each member of ces is an M.singleton
+    sss = S.map (snd . M.findMin) ces :: Set (Set Subst)
+      -- For each map in ces, this let us return its only value
+      -- (and effectively discard the key).
+    in setSetSubstToCondElts v sss
 
--- | Each determinant implies a set of `Subst`s.
--- `varFuncSubsts` finds them, then reconciles them.
--- That is, `varFuncSubsts r s (VarFunc v dets)` is the set of all
--- `Subst`s that permit the values of `dets` determined by `s`.
+-- | `varFuncSubsts r s (VarFunc v dets)` is the set of all
+-- `Subst`s that permit the values of `dets` specified by `s`.
 --
--- (Re. names: `dets` are `Var`s that depended on `v`'s earlier calculation
+-- (On names: `dets` are `Var`s that depended on `v`'s earlier calculation
 -- for their own. They are bound in the `Subst`, so they determine what
--- values `v` can take.)
+-- values `v` might take.)
 
 varFuncSubsts :: Result -> Subst -> VarFunc -> Set Subst
 varFuncSubsts      r        s   (VarFunc _ dets) =
