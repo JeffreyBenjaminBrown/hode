@@ -28,62 +28,7 @@ tests = runTestTT $ TestList
   , TestLabel "testVarFuncToCondElts" testVarFuncToCondElts
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
-  , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
-  , TestLabel "testReconcileCondElts" testReconcileCondElts
-  , TestLabel "testSetSetSubstToCondElts" testSetSetSubstToCondElts
   ]
-
-testSetSetSubstToCondElts = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
-      ss = S.fromList [ M.fromList [(x,1), (a,1), (b,1)      ]
-                      , M.fromList [(x,1), (a,1),       (c,1)] ] :: Set Subst
-      st = S.fromList [ M.fromList [(x,1), (a,1), (b,1)      ]
-                      , M.fromList [(x,2), (a,1),       (c,1)] ] :: Set Subst
-      sq = S.fromList [ M.fromList [(x,1), (a,1),       (c,1) ]
-                      , M.fromList [(x,2), (a,1), (b,11)      ]
-                      , M.fromList [(x,3), (a,1), (b,1)       ] ] :: Set Subst
-
-  assertBool "3" $ setSetSubstToCondElts x (S.fromList [st,sq]) == Just
-    ( M.fromList [ (1, S.singleton $ M.fromList [(a,1), (b,1),  (c,1)] )
-                 , (2, S.singleton $ M.fromList [(a,1), (b,11), (c,1)] ) ] )
-  assertBool "2" $ setSetSubstToCondElts x (S.fromList [ss,st]) ==
-    Just ( M.singleton 1 $ S.fromList [ M.fromList [(a,1), (b,1), (c,1)]
-                                      , M.fromList [(a,1), (b,1)       ] ] )
-  assertBool "1" $ setSetSubstToCondElts x (S.singleton ss) ==
-    Just ( M.singleton 1 $ S.fromList [ M.fromList [(a,1), (b,1)      ]
-                                      , M.fromList [(a,1),        (c,1)] ] )
-
-testReconcileCondElts = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
-      ce, cf :: CondElts
-      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] )
-                      , (3, S.fromList [ M.empty ] ) ]
-      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
-  assertBool "1" $ reconcileCondElts (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] )
-              , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
-
-testReconcileCondEltsAtElt = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
-      ce, cf :: CondElts
-      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] ) ]
-      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
-  assertBool "1" $ reconcileCondEltsAtElt 1 (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] ) ] )
-  assertBool "1" $ reconcileCondEltsAtElt 2 (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (2, S.singleton
-                  $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
 testSetSubstToCondElts = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")

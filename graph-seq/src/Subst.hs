@@ -27,23 +27,19 @@ import Util
 -- TODO ? does varFuncToCondElts in fact have to work farther backward?
 
 varFuncToCondElts :: Possible -> Subst -> VarFunc -> Maybe CondElts
-varFuncToCondElts      p        s  vf@(VarFunc v dets) = case null dets of
+varFuncToCondElts    p           s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) p v
-  False ->
-    let -- These two steps might be duplicating a lot of work.
-      substs = varFuncSubsts p s vf                        :: Set Subst
-      ces = S.map (restrictCondElts substs . (M.!) p) dets :: Set CondElts
-    -- TODO : missing step: "invert" the ces so that they describe v,
-      -- rather than one of the dets
-    in reconcileCondElts ces
+  False -> let substs = varFuncSubsts p s vf :: Set Subst
+               implied = setSubstToCondElts v substs :: CondElts
+           in if null implied then Nothing else Just implied
 
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 -- They are reconciled across dets -- that is, for each det in dets
 -- and each s in the result, s is consistent with the CondElts for det.
 
-varFuncSubsts :: Possible -> Subst -> VarFunc -> Set Subst
-varFuncSubsts      p           s   (VarFunc _ dets)
+varFuncSubsts :: Possible -> Subst -> VarFunc         -> Set Subst
+varFuncSubsts    p           s       (VarFunc _ dets)
   | null dets = error
       "Should not happen. Thrown by varFuncSubsts. Blame varFuncToCondElts."
   | True = let impliedSubsts :: Var -> Set Subst
@@ -73,22 +69,8 @@ restrictCondElts1 s ce = M.filter (not . null) reconciled
 -- the var input disappears from the output. That might cause confusion.
 -- It would be safer to use `Possible1`.
 
--- | If each s in ss is a `Set Subst` derived from a different determinant**
--- of v, then `setSetSubstToCondElts v ss` creates a `CondElts` for each s,
--- and then reconciles the results.
-
-setSetSubstToCondElts :: Var -> Set (Set Subst) -> Maybe CondElts
-setSetSubstToCondElts v ss = reconcileCondElts condEltsPerDet where
-  condEltsPerDet = S.map (setSubstToCondElts v) ss :: Set CondElts
-
 -- | `setSubstToCondElts v ss` is the simple union of running, across
 -- all s in ss, `setSubstToCondElts v s`.
---
--- ASSUMES that the `Subst`s all came
--- from the same `CondElts`. Hence, none of them have to be
--- reconciled. Contrast this to `setSetSubstToCondElts`, in which
--- the results from each of the innser sets must be reconciled against
--- each other, because each outer set corresponds to a separate determinant.
 
 setSubstToCondElts :: Var -> Set Subst -> CondElts
 setSubstToCondElts v = S.foldl f M.empty where
@@ -105,44 +87,6 @@ substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
   return $ M.singleton val $ S.singleton subst'
-
-
--- | = Reconciling `CondElts`s
-
--- | `reconcileCondEltsAtElt ces`returns the biggest `CondElts` possible
--- consistent with every `CondElt` in the input. That is, for every `Elt` e,
--- and every `Subst` s in `reconcileCondEltsAtElt ces`, and every
--- `CondElt` ce in ces, s is consistent with at least one `Subst` in ces.
---
--- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
--- (Each determinant of a VarFunc implies a separate CondElts for it.)
-
-reconcileCondElts :: Set CondElts -> Maybe CondElts
-reconcileCondElts ces = if null u then Nothing else Just u where
-   keys :: Set Elt
-   keys = S.unions $ S.map M.keysSet ces
-   reconciled :: Set CondElts
-   reconciled = let f = flip reconcileCondEltsAtElt ces
-     in S.map fromJust $ S.filter isJust $ S.map f keys
-   u = M.unions reconciled :: CondElts
-
--- | `reconcileCondEltsAtElt e ces` returns the biggest `CondElts` possible
--- such that each value it associates with e is consistent with each of
--- the `CondElts`s in ces.
---
--- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
--- (Each determinant of a VarFunc implies a separate CondElts for it.)
-
-reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
-reconcileCondEltsAtElt e ces = do
-  let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
-    -- the conditions under which `e` can obtain
-  case S.member Nothing maybeConds of
-    True -> Nothing
-    False -> let conds = S.map fromJust maybeConds :: Set (Set Subst)
-                 rConds = reconcile conds
-      in if null rConds then Nothing
-         else Just $ M.singleton e rConds
 
 
 -- | = Reconciling `Subst`s
