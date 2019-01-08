@@ -27,7 +27,18 @@ tests = runTestTT $ TestList
   , TestLabel "testRestrictCondVals" testRestrictCondVals
   , TestLabel "testVarFuncToCondVals" testVarFuncToCondVals
   , TestLabel "testSubstToCondElts" testSubstToCondElts
+  , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
   ]
+
+testSetSubstToCondElts = TestCase $ do
+  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+      s = M.fromList [ (a,1), (b,2) ]
+      t = M.fromList [ (a,1), (b,3) ]
+      u = M.fromList [ (a,1), (b,3)
+                     , (a,2), (b,3) ]
+      v = M.fromList [ (a,1),       (c,3)
+                     , (a,2),       (c,3) ]
+  assertBool "1" $ setSubstToCondElts a (S.fromList [s, t]) == Just M.empty
 
 testSubstToCondElts = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
