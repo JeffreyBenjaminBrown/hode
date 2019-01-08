@@ -28,7 +28,28 @@ tests = runTestTT $ TestList
   , TestLabel "testVarFuncToCondVals" testVarFuncToCondVals
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
+  , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
   ]
+
+testReconcileCondEltsAtElt = TestCase $ do
+  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+      ce, cf :: CondElts
+      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] ) ]
+      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
+  assertBool "1" $ reconcileCondEltsAtElt 1 (S.fromList [ce,cf])
+    == Just ( M.fromList
+              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] ) ] )
+  assertBool "1" $ reconcileCondEltsAtElt 2 (S.fromList [ce,cf])
+    == Just ( M.fromList
+              [ (2, S.singleton
+                  $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
+
+
+-- reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
 
 testSetSubstToCondElts = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")

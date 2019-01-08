@@ -99,8 +99,10 @@ restrictCondVals1 s = M.filter (not . S.null)
 
 -- | = Reconciling `CondElts`s
 
-reconcileCondEltsForElt :: Elt -> Set CondElts -> Maybe CondElts
-reconcileCondEltsForElt e ces = do
+-- | `reconcileCondEltsAtElt` ASSUMES the `Set CondElts` is a collection
+-- that all condition for `Elt` values of the same `Var`.
+reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
+reconcileCondEltsAtElt e ces = do
   let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
     -- the conditions under which `e` can obtain
   case S.member Nothing maybeConds of
