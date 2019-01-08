@@ -20,13 +20,13 @@ import Util
 --
 -- Suppose we ask for the CondElts of x as a function of a.
 -- Let xs be the possible values of x as determined by a.
--- Once we know xs, we can look up x in the Result to find how other,
+-- Once we know xs, we can look up x in the Possible to find how other,
 -- yet-earlier variables would have to be bound.
 -- This implementation of varFuncToCondVals does not do that; it stops at x.
 --
 -- TODO ? does varFuncToCondVals in fact have to work farther backward?
 
-varFuncToCondVals :: Result -> Subst -> VarFunc -> Maybe CondElts
+varFuncToCondVals :: Possible -> Subst -> VarFunc -> Maybe CondElts
 varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
   True -> Just $ (M.!) r v
   False -> let
@@ -45,7 +45,7 @@ varFuncToCondVals      r        s  vf@(VarFunc v dets) = case null dets of
 -- for their own. They are bound in the `Subst`, so they determine what
 -- values `v` might take.)
 
-varFuncSubsts :: Result -> Subst -> VarFunc -> Set Subst
+varFuncSubsts :: Possible -> Subst -> VarFunc -> Set Subst
 varFuncSubsts      r        s   (VarFunc _ dets) =
   case null dets of
     True -> error "Should not happen. Thrown by varFuncSubsts."

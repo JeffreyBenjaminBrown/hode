@@ -59,8 +59,8 @@ runCond d s (Cond test deps) e =
   in (passes, used)
 
 runQuery :: Data -- TODO ? Is the `Var` argument needed here?
-         -> Result -- ^ how earlier `Var`s have been bound
-         -> Subst  -- ^ these are drawn from the input `Result`
+         -> Possible -- ^ how earlier `Var`s have been bound
+         -> Subst  -- ^ these are drawn from the input `Possible`
          -> Var    -- ^ what we want to bind
          -> Query  -- ^ how we want to bind it
          -> CondElts

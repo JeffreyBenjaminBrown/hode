@@ -113,7 +113,7 @@ testVarFuncToCondVals = TestCase $ do
       s_b2   = M.fromList [ (b,2)        ]
       ra = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
-                        , (5, S.singleton $ M.singleton x 23) ] ) ] :: Result
+                        , (5, S.singleton $ M.singleton x 23) ] ) ] :: Possible
 
   assertBool "0" $   varFuncToCondVals ra M.empty vf_a == Just ((M.!) ra a)
   assertBool "0.1" $ varFuncToCondVals ra s_b1c1  vf_a == Just ((M.!) ra a)
@@ -132,7 +132,7 @@ testVarFuncToCondVals = TestCase $ do
               [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
                                , M.fromList [(a, 3),       (y,3) ]
                                , M.fromList [(a, 4), (y,2)       ] ] )
-              , (2, error "never used, doesn't matter") ] ) ] :: Result
+              , (2, error "never used, doesn't matter") ] ) ] :: Possible
       aOf_b  = VarFunc a (S.fromList [b   ])
       aOf_bc = VarFunc a (S.fromList [b, c])
 
@@ -146,7 +146,7 @@ s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
 s_b2   = M.fromList [ (b,2)        ] :: Subst
 ra = M.fromList [
   ( a, M.fromList [ (1, S.singleton mempty)
-                  , (5, S.singleton $ M.singleton x 23) ] ) ] :: Result
+                  , (5, S.singleton $ M.singleton x 23) ] ) ] :: Possible
 r = M.fromList
     [ ( a, M.fromList
         [ (1, S.singleton $ error "never used")
@@ -160,7 +160,7 @@ r = M.fromList
         [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
                          , M.fromList [(a, 3),       (y,3) ]
                          , M.fromList [(a, 4), (y,2)       ] ] )
-        , (2, error "never used, doesn't matter") ] ) ] :: Result
+        , (2, error "never used, doesn't matter") ] ) ] :: Possible
 aOf_b  = VarFunc a (S.fromList [b   ])
 aOf_bc = VarFunc a (S.fromList [b, c])
 
