@@ -22,7 +22,6 @@ substToCondElts v subst = do
 -- the results from each of the innser sets must be reconciled against
 -- each other.
 setSubstToCondElts :: Var -> Set Subst -> CondElts
--- TODO does not need Maybe
 setSubstToCondElts v = S.foldl f M.empty where
   f :: CondElts -> Subst -> CondElts
   f ces subst = case substToCondElts v subst of
@@ -100,14 +99,17 @@ restrictCondVals1 s = M.filter (not . S.null)
 
 -- | = Reconciling `CondElts`s
 
---reconcileCondEltsForElt :: Elt -> Set CondElts -> Maybe CondElts
---reconcileCondEltsForElt e ces = do
---  conds <- S.foldr f ces where
---    f :: CondElts -> Maybe (Set CondElts) -> Maybe (Set CondElts)
---    f 
---   let maybeConditions = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
---      conditions = S.foldr f maybeConditions where
---        f :: Maybe (Set Subst) -> 
+reconcileCondEltsForElt :: Elt -> Set CondElts -> Maybe CondElts
+reconcileCondEltsForElt e ces = do
+  let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
+    -- the conditions under which `e` can obtain
+  case S.member Nothing maybeConds of
+    True -> Nothing
+    False -> let conds = S.map fromJust maybeConds :: Set (Set Subst)
+                 rConds = reconcile conds
+      in if null rConds then Nothing
+         else Just $ M.singleton e rConds
+
 
 -- | = Reconciling `Subst`s
 

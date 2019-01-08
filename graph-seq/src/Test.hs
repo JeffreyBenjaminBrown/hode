@@ -41,12 +41,6 @@ testSetSubstToCondElts = TestCase $ do
          [ (1, S.fromList [ M.singleton b 2
                           , M.singleton b 3 ] )
          , (2, S.singleton $ M.fromList [ (b,3), (c,4) ] ) ] )
-(a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
-s,t,u :: Subst
-s = M.fromList [ (a,1), (b,2) ]
-t = M.fromList [ (a,1), (b,3) ]
-u = M.fromList [ (a,1), (b,3)
-               , (a,2), (b,3), (c,4) ]
 
 testSubstToCondElts = TestCase $ do
   let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
