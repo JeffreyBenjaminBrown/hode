@@ -130,15 +130,24 @@ testVarFuncToCondVals = TestCase $ do
 
 testRestrictCondVals = TestCase $ do
   let (x,y,z) = (Var "x",Var "y",Var"z")
-      s1 = M.fromList [ (x,1), (y,11) ] :: Subst
-      s2 = M.fromList [        (y,12) ] :: Subst
-      ces = M.fromList [ (1, S.fromList [ s1
-                                        , M.insert z 111 s1 ] )
-                       , (2, S.fromList [ M.insert x 2 s1 ] ) ]
-  assertBool "1" $ restrictCondVals (S.singleton s1) ces
-         == M.fromList [ (1, S.fromList [ s1
-                                        , M.insert z 111 s1 ] ) ]
-  assertBool "2" $ restrictCondVals (S.singleton s2) ces
+      x1    = M.fromList [ (x,1)                  ] :: Subst
+      y11   = M.fromList [        (y,11)          ] :: Subst
+      x1y11 = M.fromList [ (x,1), (y,11)          ] :: Subst
+      xyz   = M.fromList [ (x,1), (y,11), (z,111) ] :: Subst
+      x2y11 = M.fromList [ (x,2), (y,11)          ] :: Subst
+      y12   = M.fromList [        (y,12)          ] :: Subst
+      ces   = M.fromList [ (1, S.fromList [ x1y11
+                                          , xyz ] )
+                         , (2, S.singleton x2y11  ) ]
+      ces'  = M.fromList [ (1, S.singleton x1)
+                         , (2, S.singleton y12) ]
+
+  assertBool "2" $ restrictCondVals (S.singleton y11) ces'
+         == M.fromList [ (1, S.fromList [ x1y11 ] ) ]
+  assertBool "1" $ restrictCondVals (S.singleton x1y11) ces
+         == M.fromList [ (1, S.fromList [ x1y11
+                                        , xyz ] ) ]
+  assertBool "0" $ restrictCondVals (S.singleton y12) ces
          == M.empty
 
 testRestrictCondVals1 = TestCase $ do

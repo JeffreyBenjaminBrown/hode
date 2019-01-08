@@ -47,19 +47,17 @@ varFuncSubsts      r        s   (VarFunc _ dets) =
 
 -- | = Using `Subst` to restrict `CondElts`
 
+-- | `restrictCondVals ss ces` takes the simple union of the results of
+--  calling `restrictCondVals ss ces` for every s in ss.
 restrictCondVals :: Set Subst -> CondElts -> CondElts
-restrictCondVals s ces = M.unionsWith S.union
-                         $ S.map (flip restrictCondVals1 ces) s
+restrictCondVals ss ces = M.unionsWith S.union
+                         $ S.map (flip restrictCondVals1 ces) ss
 
--- | `restrictCondVals1 s ce` returns a version of ce that includes
--- only `Subst`s that are supersets of s.
--- TODO ! Rather than keep only supersets, I should keep everything
--- reconcilable, and replace it with the reconciled superset.
+-- | It is as if `restrictCondVals1 s ce` first restricts ce to those Substs
+-- reconcilable with s, and then replaces each with its reconciliation.
 restrictCondVals1 :: Subst -> CondElts -> CondElts
-restrictCondVals1 s = M.filter (not . S.null)
-                      . M.map (keepMatches s) where
-  keepMatches :: Subst -> Set Subst -> Set Subst
-  keepMatches s = S.filter $ isSubsetOfMap s
+restrictCondVals1 s ce = M.filter (not . null) reconciled
+  where reconciled = M.map (reconcile1toMany s) ce
 
 
 -- | = Building a `CondElts` from `Subst`s
@@ -155,7 +153,7 @@ reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1toMany s ss2) ss1
 -- with every s from ss. This collects them.
 reconcile1toMany :: Subst -> Set Subst -> Set Subst
 reconcile1toMany s ss = S.map fromJust $ S.filter isJust
-                $ S.map (reconcile2 s) ss
+                        $ S.map (reconcile2 s) ss
 
 -- | If they assign different values to the same variable, it's Nothing.
 -- Otherwise it's their union.
