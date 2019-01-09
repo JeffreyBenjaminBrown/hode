@@ -4,10 +4,11 @@ import Data.Map
 import Data.Set
 
 
-type Elt = Int
-data Data = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
-                  , parents  :: Map Elt (Set Elt) } -- ^ keys are children
+data Graph = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
+                   , parents  :: Map Elt (Set Elt) } -- ^ keys are children
   deriving (Show, Eq, Ord)
+type Elt = Int    -- eventually Int   will be replaced with Expr
+type Data = Graph -- eventually Graph will be replaced with Rslt
 
 data VarFunc = VarFunc { varFuncTarget ::     String
                        , varFuncDets   :: Set VarFunc } -- ^ The determinants

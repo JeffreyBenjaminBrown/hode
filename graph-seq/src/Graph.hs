@@ -10,7 +10,7 @@ import qualified Data.Set       as S
 import Types
 
 
-graph :: [( Int, [Int] )] -> Data
+graph :: [( Int, [Int] )] -> Graph
 graph pairs = Graph g $ invertMapToSet g where
   g = M.fromList $ map f pairs
   f (a,b) = (a, S.fromList b)

@@ -14,6 +14,7 @@ type CondElts = Map Elt (Set Subst)
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
 * TODO rename VarFunc -> Term
+* TODO in Graph: Either Elt Var -> Find
 * TODO varFuncToCondElts gets confused about VarFuncs
 Suppose we ask for x( a, b(c) ).
 We should find a in the Possible, and rename every x it depends on
