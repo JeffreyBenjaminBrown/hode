@@ -1,4 +1,5 @@
-I *hope* this stuff is obsolete.
+-- not necessarily useless!
+-- reconcileCondElts proved useful -- I moved it here, then back out.
 
 
 -- | = Using `Subst` to restrict `CondElts`
@@ -98,76 +99,3 @@ testSetSetSubstToCondElts = TestCase $ do
 
 setSubstToCondElts :: Var -> Set Subst -> CondElts
 ...
-
-
--- | = Reconciling `CondElts`s
-
--- | `reconcileCondEltsAtElt ces`returns the biggest `CondElts` possible
--- consistent with every `CondElt` in the input. That is, for every `Elt` e,
--- and every `Subst` s in `reconcileCondEltsAtElt ces`, and every
--- `CondElt` ce in ces, s is consistent with at least one `Subst` in ces.
---
--- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
--- (Each determinant of a VarFunc implies a separate CondElts for it.)
-
-reconcileCondElts :: Set CondElts -> Maybe CondElts
-reconcileCondElts ces = if null u then Nothing else Just u where
-   keys :: Set Elt
-   keys = S.unions $ S.map M.keysSet ces
-   reconciled :: Set CondElts
-   reconciled = let f = flip reconcileCondEltsAtElt ces
-     in S.map fromJust $ S.filter isJust $ S.map f keys
-   u = M.unions reconciled :: CondElts
-
--- | `reconcileCondEltsAtElt e ces` returns the biggest `CondElts` possible
--- such that each value it associates with e is consistent with each of
--- the `CondElts`s in ces.
---
--- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
--- (Each determinant of a VarFunc implies a separate CondElts for it.)
-
-reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
-reconcileCondEltsAtElt e ces = do
-  let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
-    -- the conditions under which `e` can obtain
-  case S.member Nothing maybeConds of
-    True -> Nothing
-    False -> let conds = S.map fromJust maybeConds :: Set (Set Subst)
-                 rConds = reconcile conds
-      in if null rConds then Nothing
-         else Just $ M.singleton e rConds
-
-  , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
-  , TestLabel "testReconcileCondElts" testReconcileCondElts
-
-testReconcileCondElts = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
-      ce, cf :: CondElts
-      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] )
-                      , (3, S.fromList [ M.empty ] ) ]
-      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
-  assertBool "1" $ reconcileCondElts (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] )
-              , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
-
-testReconcileCondEltsAtElt = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
-      ce, cf :: CondElts
-      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] ) ]
-      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
-  assertBool "1" $ reconcileCondEltsAtElt 1 (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] ) ] )
-  assertBool "1" $ reconcileCondEltsAtElt 2 (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (2, S.singleton
-                  $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )

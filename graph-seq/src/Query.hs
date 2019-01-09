@@ -67,9 +67,17 @@ runQuery d _ (QFind f) s = runFind d s f
 runQuery _ _ (QCond _) _ =
   error "QCond cannot be run as a standalone Query."
 
-runQuery d p (ForSome vf@(Var v dets) q) s =
-  let vPossible = varToCondElts p s vf :: CondElts
-      p' = M.insert vf vPossible p
-      substs = S.map (\k -> M.insert vf k s) $ M.keysSet vPossible
+runQuery d p (ForSome v@(Var _ dets) q) s =
+  let vPossible = varToCondElts p s v :: CondElts
+      p' = if null dets then p else M.insert v vPossible p
+      substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible
       ces = S.map (runQuery d p' q) substs :: Set CondElts
   in M.unionsWith S.union ces
+
+runQuery d p (ForAll v@(Var _ dets) q) s =
+  let vPossible = varToCondElts p s v :: CondElts
+      p' = if null dets then p else M.insert v vPossible p
+      substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible
+      ces = S.map (runQuery d p' q) substs :: Set CondElts
+  in error $ "remaining to do: take the intersection of ces, and strip"
+     ++ "\nthe dependency on v"

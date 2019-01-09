@@ -24,6 +24,8 @@ testModuleSubst = TestList
   , TestLabel "testReconcile1ToMany" testReconcile1ToMany
   , TestLabel "testReconcile2sets" testReconcile2sets
   , TestLabel "testReconcile" testReconcile
+  , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
+  , TestLabel "testReconcileCondElts" testReconcileCondElts
   , TestLabel "testVarSubsts" testVarSubsts
   , TestLabel "testVarToCondElts" testVarToCondElts
   , TestLabel "testSubstToCondElts" testSubstToCondElts
@@ -132,6 +134,38 @@ testVarSubsts = TestCase $ do
   assertBool "3" $ varSubsts r (xySubst 1 4) aOf_xy
     == S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
                   , M.fromList [ (a, 1), (b, 3), (c, 3) ] ]
+
+testReconcileCondElts = TestCase $ do
+  let [a,b,c,x] = map (flip Var S.empty) ["a","b","c","x"]
+      ce, cf :: CondElts
+      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] )
+                      , (3, S.fromList [ M.empty ] ) ]
+      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
+  assertBool "1" $ reconcileCondElts (S.fromList [ce,cf])
+    == Just ( M.fromList
+              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] )
+              , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
+
+testReconcileCondEltsAtElt = TestCase $ do
+  let [a,b,c,x] = map (flip Var S.empty) ["a","b","c","x"]
+      ce, cf :: CondElts
+      ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] ) ]
+      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
+                                       , M.fromList [ (a, 2), (b, 2) ] ] )
+                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
+  assertBool "1" $ reconcileCondEltsAtElt 1 (S.fromList [ce,cf])
+    == Just ( M.fromList
+              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] ) ] )
+  assertBool "1" $ reconcileCondEltsAtElt 2 (S.fromList [ce,cf])
+    == Just ( M.fromList
+              [ (2, S.singleton
+                  $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
 testReconcile = TestCase $ do
   let [x,y,z] = map (\s -> Var s S.empty) ["x","y","z"]
