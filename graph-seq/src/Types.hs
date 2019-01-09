@@ -9,19 +9,20 @@ data Data = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
                   , parents  :: Map Elt (Set Elt) } -- ^ keys are children
   deriving (Show, Eq, Ord)
 
+-- TODO remove the Var type, rename VarFunc -> Var, make target a String
 newtype Var = Var String deriving (Show, Eq, Ord)
 data VarFunc = VarFunc { varFuncTarget ::     Var
-                       , varFuncDets   :: Set Var } -- ^ The determinants
+                       , varFuncDets   :: Set VarFunc } -- ^ The determinants
   -- of a VarFunc are variables that were calculated based on its own
   -- earlier calculation. If the determinants are already bound, that
   -- restricts the possible values the VarFunc can take.
   deriving (Show, Eq, Ord)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
-                 , findDeps     :: Set Var }
+                 , findDeps     :: Set VarFunc }
   -- ^ If `findFunction` doesn't use the `Subst`, `findDeps` should be empty.
 data Cond = Cond { condFunction :: Data -> Subst ->     Elt -> Bool
-                 , condDeps     :: Set Var }
+                 , condDeps     :: Set VarFunc }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.
 
 data Query = QFind Find
@@ -31,7 +32,7 @@ data Query = QFind Find
            | ForAll  VarFunc Query
            | ForSome VarFunc Query
 
-type Subst    = Map Var Elt
+type Subst    = Map VarFunc Elt
 type CondElts = Map Elt (Set Subst)
   -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
   -- PITFALL: If Elt is possible without any other bindings, then
@@ -40,7 +41,7 @@ type CondElts = Map Elt (Set Subst)
 type Possible1 = (Var, CondElts)
   -- ^ Describes the conditions under which the `Var` could be any of
   -- the keys of the `CondElts`.
-type Possible  = Map Var CondElts
+type Possible  = Map VarFunc CondElts
 type Program   = Data
                -> [(VarFunc, Query)] -- ^ queries can depend on earlier ones
                -> Possible
