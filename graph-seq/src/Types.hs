@@ -1,7 +1,9 @@
 module Types where
 
-import Data.Map
-import Data.Set
+import           Data.Map (Map)
+import qualified Data.Map       as M
+import           Data.Set (Set)
+import qualified Data.Set       as S
 
 
 data Graph = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
@@ -11,11 +13,13 @@ type Elt = Int    -- eventually Int   will be replaced with Expr
 type Data = Graph -- eventually Graph will be replaced with Rslt
 
 data Var = Var { varName :: String
-               , varDets   :: Set Var } -- ^ The determinants
+               , varDets :: Set Var } -- ^ The determinants
   -- of a Var are variables that were calculated based on its own
   -- earlier calculation. If the determinants are already bound, that
   -- restricts the possible values the Var can take.
-  deriving (Show, Eq, Ord)
+  deriving (Eq, Ord)
+instance Show Var where
+  show v = "Var " ++ varName v ++ " of " ++ show (S.toList $ varDets v)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDeps     :: Set Var }
