@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module Query where
 
 import           Data.Map (Map)

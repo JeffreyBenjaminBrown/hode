@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Test.TQuery where
 
 import           Data.Map (Map)
@@ -19,7 +17,28 @@ testModuleQuery = TestList [
   TestLabel "testFindable" testFindable
   , TestLabel "testDisjointExistentials" testDisjointExistentials
   , TestLabel "testQFind" testQFind
+  , TestLabel "testForSome" testForSome
   ]
+
+testForSome = TestCase $ do
+  let g = graph [ (1, [11, 21] )
+                , (2, [12, 22] ) ]
+      [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
+      aOf_b = Var "a" $ S.singleton a
+      p = M.fromList
+          [ ( a, M.fromList [ (1, S.singleton M.empty)
+                            , (2, S.singleton M.empty) ] )
+          , ( b, M.fromList [ (1, S.singleton $ M.fromList [(a,1), (a,2)])
+                            , (2, S.singleton M.empty) ] ) ]
+      qc :: Var -> Query
+      qc v = QFind $ findChildren $ Right v
+  assertBool "2" $ (runQuery g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 2)
+    == M.empty
+  assertBool "1" $ runQuery g p (ForSome a $ qc a) M.empty
+    == M.fromList [ (11, S.singleton $ M.singleton a 1)
+                  , (21, S.singleton $ M.singleton a 1)
+                  , (12, S.singleton $ M.singleton a 2)
+                  , (22, S.singleton $ M.singleton a 2) ]
 
 testQFind = TestCase $ do
   let g = graph [ (1, [11, 21] )
@@ -58,4 +77,3 @@ testFindable = TestCase $ do
   assertBool "6" $ findable (QOr  [qf]    ) == True
   assertBool "7" $ findable (QOr  [qc]    ) == False
   assertBool "8" $ findable (QOr  []      ) == False
-
