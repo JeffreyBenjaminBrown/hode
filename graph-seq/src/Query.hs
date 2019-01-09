@@ -79,5 +79,8 @@ runQuery d p (ForAll v@(Var _ dets) q) s =
       p' = if null dets then p else M.insert v vPossible p
       substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible
       ces = S.map (runQuery d p' q) substs :: Set CondElts
-  in error $ "remaining to do: take the intersection of ces, and strip"
-     ++ "\nthe dependency on v"
+      ces' = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
+        -- delete the dependency on v, so that reconciliation can work
+  in maybe M.empty id $ reconcileCondElts ces :: CondElts
+        -- keep only results that obtain for every value of v
+

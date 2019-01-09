@@ -18,7 +18,20 @@ testModuleQuery = TestList [
   , TestLabel "testDisjointExistentials" testDisjointExistentials
   , TestLabel "testQFind" testQFind
   , TestLabel "testForSome" testForSome
+  , TestLabel "testForAll" testForAll
   ]
+
+testForAll = TestCase $ do
+  let g = graph [ (1, [11, 12     ] )
+                , (2, [    12, 13 ] ) ]
+      [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
+      p = M.fromList
+          [ ( a, M.fromList [ (1, S.singleton   M.empty)
+                            , (2, S.singleton   M.empty) ] ) ]
+      qc :: Var -> Query
+      qc v = QFind $ findChildren $ Right v
+  assertBool "1" $ (runQuery g p (ForAll a $ qc a) $ M.empty)
+    == M.fromList [ (12, S.singleton $ M.empty) ]
 
 testForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )
