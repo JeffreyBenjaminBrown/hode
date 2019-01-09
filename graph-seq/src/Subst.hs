@@ -39,10 +39,10 @@ import Util
 -- the `Var`s without any dependencies.
 
 varFuncToCondElts :: Possible -> Subst -> VarFunc -> CondElts
-varFuncToCondElts    p           s  vf@(VarFunc v dets) = case null dets of
-  True -> (M.!) p v
+varFuncToCondElts    p           s  vf@(VarFunc _ dets) = case null dets of
+  True -> (M.!) p vf
   False -> let substs = varFuncSubsts p s vf :: Set Subst
-           in setSubstToCondElts v substs :: CondElts
+           in setSubstToCondElts vf substs :: CondElts
 
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
@@ -53,7 +53,7 @@ varFuncSubsts :: Possible -> Subst -> VarFunc         -> Set Subst
 varFuncSubsts    p           s       (VarFunc _ dets)
   | null dets = error
       "Should not happen. Thrown by varFuncSubsts. Blame varFuncToCondElts."
-  | True = let impliedSubsts :: Var -> Set Subst
+  | True = let impliedSubsts :: VarFunc -> Set Subst
                impliedSubsts det = (M.!) couldBindTo bound where
                  bound       = (M.!) s det :: Elt
                  couldBindTo = (M.!) p det :: CondElts
@@ -68,7 +68,7 @@ varFuncSubsts    p           s       (VarFunc _ dets)
 -- | `setSubstToCondElts v ss` is the simple union of running, across
 -- all s in ss, `setSubstToCondElts v s`.
 
-setSubstToCondElts :: Var -> Set Subst -> CondElts
+setSubstToCondElts :: VarFunc -> Set Subst -> CondElts
 setSubstToCondElts v = S.foldl f M.empty where
   f :: CondElts -> Subst -> CondElts
   f ces subst = case substToCondElts v subst of
@@ -78,7 +78,7 @@ setSubstToCondElts v = S.foldl f M.empty where
 -- | `substToCondElts v s` constructs a `CondElts` that maps `v` to the
 -- other elements of the `Subst`. This is possible iff `v`is in the `Subst`.
 
-substToCondElts :: Var -> Subst -> Maybe CondElts
+substToCondElts :: VarFunc -> Subst -> Maybe CondElts
 substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
@@ -109,8 +109,8 @@ reconcile1ToMany s ss = S.map fromJust $ S.filter isJust
 -- Otherwise it's their union.
 reconcile2 :: Subst -> Subst -> Maybe Subst
 reconcile2 s t = S.foldr f (Just M.empty) allKeys where
-  allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
-  f :: Var -> Maybe Subst -> Maybe Subst
+  allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set VarFunc
+  f :: VarFunc -> Maybe Subst -> Maybe Subst
   f _ Nothing = Nothing -- short-circuit (hence foldr)
   f v (Just acc) =
     if        S.member v (M.keysSet s)

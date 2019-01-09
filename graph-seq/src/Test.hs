@@ -31,7 +31,7 @@ tests = runTestTT $ TestList
   ]
 
 testSetSubstToCondElts = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+  let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
       s = M.fromList [ (a,1), (b,2) ]
       t = M.fromList [ (a,1), (b,3) ]
       u = M.fromList [ (a,1), (b,3)
@@ -43,15 +43,46 @@ testSetSubstToCondElts = TestCase $ do
          , (2, S.singleton $ M.fromList [ (b,3), (c,4) ] ) ] )
 
 testSubstToCondElts = TestCase $ do
-  let (a,b,c,x) = (Var "a",Var "b",Var "c",Var "x")
+  let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
       s = M.fromList [ (a,1), (b,2) ]
   assertBool "2" $ substToCondElts c s == Nothing
   assertBool "1" $ substToCondElts b s ==
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
+
+
+[a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
+vf_a    = VarFunc "a" (S.empty)
+aOf_b  = VarFunc "a" (S.fromList [b   ])
+aOf_bc = VarFunc "a" (S.fromList [b, c])
+s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
+s_b2   = M.fromList [ (b,2)        ] :: Subst
+(ra :: Possible) = M.fromList [
+  ( a, M.fromList [ (1, S.singleton mempty)
+                  , (5, S.singleton $ M.singleton x 23) ] ) ]
+
+(r :: Possible) = M.fromList
+    [ ( a, M.fromList
+        [ (1, S.singleton $ error "never used")
+        , (2, error "doesn't matter") ] )
+    , ( b, M.fromList
+        [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
+                         , M.fromList [(a, 3), (x,1)       ]
+                         , M.fromList [(a, 4), (x,1)       ] ] )
+        , (2, S.fromList [ M.fromList [(a,2)               ]
+                         , M.fromList [(a,3) , (x,1)       ] ] ) ] )
+    , ( c, M.fromList
+        [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
+                         , M.fromList [(a, 2),       (y,4) ]
+                         , M.fromList [(a, 3), (x,2)       ]
+                         , M.fromList [(a, 4),       (y,2) ] ] )
+        , (2, error "never used, doesn't matter") ] ) ]
+
+
+
 testVarFuncToCondElts = TestCase $ do
-  let (a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
-      vf_a    = VarFunc a (S.empty)
+  let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
+      vf_a    = VarFunc "a" (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ]
       s_b2   = M.fromList [ (b,2)        ]
       (ra :: Possible) = M.fromList [
@@ -77,8 +108,8 @@ testVarFuncToCondElts = TestCase $ do
                                , M.fromList [(a, 3), (x,2)       ]
                                , M.fromList [(a, 4),       (y,2) ] ] )
               , (2, error "never used, doesn't matter") ] ) ]
-      aOf_b  = VarFunc a (S.fromList [b   ])
-      aOf_bc = VarFunc a (S.fromList [b, c])
+      aOf_b  = VarFunc "a" (S.fromList [b   ])
+      aOf_bc = VarFunc "a" (S.fromList [b, c])
 
   assertBool "1" $ varFuncToCondElts r s_b2 aOf_b
     == M.fromList [ (2, S.singleton M.empty)
@@ -88,10 +119,12 @@ testVarFuncToCondElts = TestCase $ do
                                    , M.fromList [(x,0), (y,4)] ] )
                   , (4, S.fromList [ M.fromList [(x,1), (y,2)] ] ) ]
 
+
+
 testVarFuncSubsts = TestCase $ do
-  let (a,b,c,x,y) = (Var "a",Var "b",Var "c",Var "x",Var "y")
-      aOf_x  = VarFunc (a) (S.fromList [x   ])
-      aOf_xy = VarFunc (a) (S.fromList [x, y])
+  let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
+      aOf_x  = VarFunc "a" (S.fromList [x   ])
+      aOf_xy = VarFunc "a" (S.fromList [x, y])
 
       xCondElts = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (a, 1) ] ] )
@@ -116,7 +149,7 @@ testVarFuncSubsts = TestCase $ do
                   , M.fromList [ (a, 1), (b, 3), (c, 3) ] ]
 
 testReconcile = TestCase $ do
-  let (x,y,z) = (Var "x",Var "y",Var"z")
+  let [x,y,z] = map (\s -> VarFunc s S.empty) ["x","y","z"]
       x1    = S.singleton ( M.singleton x 1 )
       x1_x2 = S.fromList  [ M.singleton x 1
                           , M.singleton x 2 ]
@@ -132,20 +165,20 @@ testReconcile = TestCase $ do
                                                           S.empty
 
 testReconcile2sets = TestCase $ do
-  let x1 = M.singleton (Var "x") 1
-      y1 = M.singleton (Var "y") 1
-      y2 = M.singleton (Var "y") 2
-      z2 = M.singleton (Var "z") 2
-      x1y2 = M.fromList [ ((Var "x"),1)
-                        , ((Var "y"),2) ]
-      x1z2 = M.fromList [ ((Var "x"),1)
-                        , ((Var "z"),2) ]
-      x1y1z2 = M.fromList [ ((Var "x"),1)
-                          , ((Var "y"),1)
-                          , ((Var "z"),2) ]
-      x1y2z2 = M.fromList [ ((Var "x"),1)
-                          , ((Var "y"),2)
-                          , ((Var "z"),2) ]
+  let x1 = M.singleton        (VarFunc "x" $ S.empty) 1
+      y1 = M.singleton        (VarFunc "y" $ S.empty) 1
+      y2 = M.singleton        (VarFunc "y" $ S.empty) 2
+      z2 = M.singleton        (VarFunc "z" $ S.empty) 2
+      x1y2 = M.fromList [ (   (VarFunc "x" $ S.empty), 1)
+                        , (   (VarFunc "y" $ S.empty), 2) ]
+      x1z2 = M.fromList [ (   (VarFunc "x" $ S.empty), 1)
+                        , (   (VarFunc "z" $ S.empty), 2) ]
+      x1y1z2 = M.fromList [ ( (VarFunc "x" $ S.empty), 1)
+                          , ( (VarFunc "y" $ S.empty), 1)
+                          , ( (VarFunc "z" $ S.empty), 2) ]
+      x1y2z2 = M.fromList [ ( (VarFunc "x" $ S.empty), 1)
+                          , ( (VarFunc "y" $ S.empty), 2)
+                          , ( (VarFunc "z" $ S.empty),2) ]
       ss = S.singleton
       sf = S.fromList
   assertBool "0" $ reconcile2sets S.empty (sf [x1y2, x1z2])
@@ -159,11 +192,11 @@ testReconcile2sets = TestCase $ do
   assertBool "3" $ reconcile2sets (ss y1) (sf [x1y2, x1z2]) == ss x1y1z2
 
 testReconcile1ToMany = TestCase $ do
-  let x1 = M.singleton (Var "x") 1
-      y1 = M.singleton (Var "y") 1
-      y2 = M.singleton (Var "y") 2
-      x1y2 = M.fromList [ ((Var "x"),1)
-                        , ((Var "y"),2)]
+  let x1   = M.singleton  (VarFunc "x" $ S.empty) 1
+      y1   = M.singleton  (VarFunc "y" $ S.empty) 1
+      y2   = M.singleton  (VarFunc "y" $ S.empty) 2
+      x1y2 = M.fromList [ (VarFunc "x" $ S.empty, 1)
+                        , (VarFunc "y" $ S.empty, 2)]
   assertBool "1" $ reconcile1ToMany x1y2 (S.fromList [x1, y1, y2] )
                      == S.singleton x1y2
   assertBool "2" $ reconcile1ToMany x1y2 (S.singleton M.empty)
@@ -172,11 +205,11 @@ testReconcile1ToMany = TestCase $ do
                      == S.empty
 
 testReconcile2 = TestCase $ do
-  let x1 = M.singleton (Var "x") 1
-      y1 = M.singleton (Var "y") 1
-      y2 = M.singleton (Var "y") 2
-      x1y2 = M.fromList [ ((Var "x"),1)
-                        , ((Var "y"),2)]
+  let x1 = M.singleton (VarFunc "x" $ S.empty) 1
+      y1 = M.singleton (VarFunc "y" $ S.empty) 1
+      y2 = M.singleton (VarFunc "y" $ S.empty) 2
+      x1y2 = M.fromList [ ( (VarFunc "x" $ S.empty) ,1)
+                        , ( (VarFunc "y" $ S.empty) ,2) ]
   assertBool "0" $ reconcile2 M.empty M.empty == Just M.empty
   assertBool "1" $ reconcile2 M.empty x1      == Just x1
   assertBool "2" $ reconcile2 x1y2    M.empty == Just x1y2
@@ -186,8 +219,8 @@ testReconcile2 = TestCase $ do
 
 testValidExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      x   = VarFunc (Var "x") $ S.empty
-      y   = VarFunc (Var "y") $ S.empty
+      x   = VarFunc "x" $ S.empty
+      y   = VarFunc "y" $ S.empty
       qx  = ForSome x qf
       qy  = ForSome y qf
       qxy = QAnd [qx,qy]
