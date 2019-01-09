@@ -68,7 +68,7 @@ runQuery _ _ (QCond _) _ =
   error "QCond cannot be run as a standalone Query."
 
 runQuery d p (ForSome vf@(Var v dets) q) s =
-  let vPossible = varFuncToCondElts p s vf :: CondElts
+  let vPossible = varToCondElts p s vf :: CondElts
       p' = M.insert vf vPossible p
       substs = S.map (\k -> M.insert vf k s) $ M.keysSet vPossible
       ces = S.map (runQuery d p' q) substs :: Set CondElts

@@ -32,7 +32,7 @@ findChildren :: Either Elt Var -> Find
 findChildren (Left e) = Find f mempty where
   f :: Graph -> Subst -> Set Elt
   f g _ = (M.!) (children g) e
-findChildren (Right v) = Find f $ S.union (S.singleton v) $ varFuncDets v where
+findChildren (Right v) = Find f $ S.union (S.singleton v) $ varDets v where
   f :: Graph -> Subst -> Set Elt
   f g s = (M.!) (children g) $ (M.!) s v
 
@@ -40,6 +40,6 @@ findParents :: Either Elt Var -> Find
 findParents (Left e) = Find f mempty where
   f :: Graph -> Subst -> Set Elt
   f g _ = (M.!) (parents g) e
-findParents (Right v) = Find f $ S.union (S.singleton v) $ varFuncDets v where
+findParents (Right v) = Find f $ S.union (S.singleton v) $ varDets v where
   f :: Graph -> Subst -> Set Elt
   f g s = (M.!) (parents g) $ (M.!) s v

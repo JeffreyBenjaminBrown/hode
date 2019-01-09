@@ -75,8 +75,8 @@ testVarToCondElts = TestCase $ do
       (ra :: Possible) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
-  assertBool "0" $   varFuncToCondElts ra M.empty vf_a == ((M.!) ra a)
-  assertBool "0.1" $ varFuncToCondElts ra s_b1c1  vf_a == ((M.!) ra a)
+  assertBool "0" $   varToCondElts ra M.empty vf_a == ((M.!) ra a)
+  assertBool "0.1" $ varToCondElts ra s_b1c1  vf_a == ((M.!) ra a)
     -- the Subst s_b1c1 is ignored because the dets in the Var are empty
 
   let (r :: Possible) = M.fromList
@@ -98,10 +98,10 @@ testVarToCondElts = TestCase $ do
       aOf_b  = Var "a" (S.fromList [b   ])
       aOf_bc = Var "a" (S.fromList [b, c])
 
-  assertBool "1" $ varFuncToCondElts r s_b2 aOf_b
+  assertBool "1" $ varToCondElts r s_b2 aOf_b
     == M.fromList [ (2, S.singleton M.empty)
                   , (3, S.singleton $ M.singleton x 1 ) ]
-  assertBool "2" $ varFuncToCondElts r s_b1c1 aOf_bc
+  assertBool "2" $ varToCondElts r s_b1c1 aOf_bc
     == M.fromList [ (2, S.fromList [ M.fromList [(x,0), (y,3)]
                                    , M.fromList [(x,0), (y,4)] ] )
                   , (4, S.fromList [ M.fromList [(x,1), (y,2)] ] ) ]
@@ -123,13 +123,13 @@ testVarSubsts = TestCase $ do
                      , (y, yCondElts) ]
       xySubst xVal yVal = M.fromList [ (x, xVal), (y, yVal) ]
 
-  assertBool "0" $ varFuncSubsts r (xySubst 1 4) aOf_x
+  assertBool "0" $ varSubsts r (xySubst 1 4) aOf_x
     == S.fromList [ M.fromList [ (a, 1) ] ]
-  assertBool "1" $ varFuncSubsts r (xySubst 1 3) aOf_xy
+  assertBool "1" $ varSubsts r (xySubst 1 3) aOf_xy
     == S.fromList [ M.fromList [ (a, 1) ] ]
-  assertBool "2" $ varFuncSubsts r (xySubst 2 3) aOf_xy
+  assertBool "2" $ varSubsts r (xySubst 2 3) aOf_xy
     == S.empty
-  assertBool "3" $ varFuncSubsts r (xySubst 1 4) aOf_xy
+  assertBool "3" $ varSubsts r (xySubst 1 4) aOf_xy
     == S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
                   , M.fromList [ (a, 1), (b, 3), (c, 3) ] ]
 

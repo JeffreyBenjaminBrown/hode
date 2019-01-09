@@ -10,26 +10,26 @@ import Types
 import Util
 
 
--- | `varFuncToCondElts r s (Var v dets)` returns all values v can take,
+-- | `varToCondElts r s (Var v dets)` returns all values v can take,
 -- and the relevant part** of the `Subst`s that could lead to each,
 -- given r, s and v.
 --
 -- ** PITFALL: It isn't the whole story, just (I hope) as much as we need.
--- Specifically, the Substs in the CondElts that varFuncToCondElts
+-- Specifically, the Substs in the CondElts that varToCondElts
 -- returns will only describe the variables that we're asking for.
 --
 -- For example, suppose we ask for the CondElts of x as a function of a.
 -- Let xs be the possible values of x as determined by a.
 -- Once we know xs, we can look up x in the Possible to find how other,
 -- yet-earlier variables would have to be bound.
--- This implementation of varFuncToCondElts does not do that; it stops at x.
+-- This implementation of varToCondElts does not do that; it stops at x.
 --
--- TODO ? does varFuncToCondElts in fact have to work farther backward?
+-- TODO ? does varToCondElts in fact have to work farther backward?
 
-varFuncToCondElts :: Possible -> Subst -> Var -> CondElts
-varFuncToCondElts    p           s  vf@(Var _ dets) = case null dets of
+varToCondElts :: Possible -> Subst -> Var -> CondElts
+varToCondElts    p           s  vf@(Var _ dets) = case null dets of
   True -> (M.!) p vf
-  False -> let substs = varFuncSubsts p s vf :: Set Subst
+  False -> let substs = varSubsts p s vf :: Set Subst
                x = setSubstToCondElts (unCondition vf) substs :: CondElts
   -- `unCondition vf` because there do not yet exist conditional values of it
            in recordDependencies vf x
@@ -47,15 +47,15 @@ recordDependencies vf@(Var name _) ce =
         Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
   in M.map (S.map replace) ce
 
--- | `varFuncSubsts r s (Var _ dets)` is the set of all
+-- | `varSubsts r s (Var _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 -- They are reconciled across dets -- that is, for each det in dets
 -- and each s in the result, s is consistent with the CondElts for det.
 
-varFuncSubsts :: Possible -> Subst -> Var         -> Set Subst
-varFuncSubsts    p           s       (Var _ dets)
+varSubsts :: Possible -> Subst -> Var         -> Set Subst
+varSubsts    p           s       (Var _ dets)
   | null dets = error
-      "Should not happen. Thrown by varFuncSubsts. Blame varFuncToCondElts."
+      "Should not happen. Thrown by varSubsts. Blame varToCondElts."
   | True = let impliedSubsts :: Var -> Set Subst
                impliedSubsts det = (M.!) couldBindTo bound where
                  bound       = (M.!) s det :: Elt
