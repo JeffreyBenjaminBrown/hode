@@ -26,6 +26,18 @@ import Util
 --
 -- TODO ? does varFuncToCondElts in fact have to work farther backward?
 
+-- TODO speed|space: This is inefficient, because I don't (currently) need a
+-- `CondElts`, just they set of keys to it.
+--
+-- One solution: Once this has determined a particular key is possible,
+-- it should stop figuring out other ways to achieve the same key. That would
+-- still be inefficient (but less so), because if a later sub-query tries
+-- to quantify the variable we just found keys for, it will duplicate work.
+--
+-- The most efficient solution would be if the keys to `Possible` were
+-- `VarFunc`s instead of `Var`s, and keep this `CondElts` in it alongside
+-- the `Var`s without any dependencies.
+
 varFuncToCondElts :: Possible -> Subst -> VarFunc -> CondElts
 varFuncToCondElts    p           s  vf@(VarFunc v dets) = case null dets of
   True -> (M.!) p v

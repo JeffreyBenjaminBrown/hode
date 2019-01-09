@@ -7,7 +7,7 @@ or equivalently, this way:
 or this way:
  x=1 if (a=1    ) or (b=1,x=1)
 etc.
-** The empty set is nonsense in a CondElts
+** PITFALL: The empty set is nonsense in a CondElts
 type CondElts = Map Elt (Set Subst)
   -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
   -- PITFALL: If Elt is possible without any other bindings, then
