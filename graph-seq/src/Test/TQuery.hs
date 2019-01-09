@@ -18,7 +18,22 @@ import Util
 testModuleQuery = TestList [
   TestLabel "testFindable" testFindable
   , TestLabel "testDisjointExistentials" testDisjointExistentials
+  , TestLabel "testQFind" testQFind
   ]
+
+testQFind = TestCase $ do
+  let g = graph [ (1, [11, 21] )
+                , (2, [12, 22] ) ]
+      [x,y] = map (flip Var S.empty) ["x","y"]
+      f1 = QFind $ findChildren $ Left 1
+      fy = QFind $ findChildren $ Right y
+      s = M.fromList [(x,1), (y,2)] :: Subst
+  assertBool "1" $ runQuery g M.empty f1 M.empty
+    == M.fromList [ (11, S.singleton M.empty)
+                  , (21, S.singleton M.empty) ]
+  assertBool "2" $ runQuery g M.empty fy s
+    == M.fromList [ (12, S.singleton $ M.singleton y 2)
+                  , (22, S.singleton $ M.singleton y 2) ]
 
 testDisjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty

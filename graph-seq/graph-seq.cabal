@@ -31,6 +31,10 @@ library
                 , Query
                 , Subst
                 , Test
+                , Test.TGraph
+                , Test.TQuery
+                , Test.TSubst
+                , Test.TUtil
                 , Types
                 , Util
   other-modules:
