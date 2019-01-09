@@ -10,8 +10,8 @@ data Graph = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
 type Elt = Int    -- eventually Int   will be replaced with Expr
 type Data = Graph -- eventually Graph will be replaced with Rslt
 
-data Var = Var { varFuncTarget ::     String
-                       , varFuncDets   :: Set Var } -- ^ The determinants
+data Var = Var { varFuncTarget :: String
+               , varFuncDets   :: Set Var } -- ^ The determinants
   -- of a Var are variables that were calculated based on its own
   -- earlier calculation. If the determinants are already bound, that
   -- restricts the possible values the Var can take.

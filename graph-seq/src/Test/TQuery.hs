@@ -24,14 +24,17 @@ testForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
       [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
-      aOf_b = Var "a" $ S.singleton a
+      aOf_b = Var "a" $ S.singleton b
       p = M.fromList
-          [ ( a, M.fromList [ (1, S.singleton M.empty)
-                            , (2, S.singleton M.empty) ] )
-          , ( b, M.fromList [ (1, S.singleton $ M.fromList [(a,1), (a,2)])
-                            , (2, S.singleton M.empty) ] ) ]
+          [ ( a, M.fromList [ (1, S.singleton   M.empty)
+                            , (2, S.singleton   M.empty) ] )
+          , ( b, M.fromList [ (1, S.singleton $ M.singleton a 1)
+                            , (2, S.singleton   M.empty) ] ) ]
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
+  assertBool "3" $ (runQuery g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 1)
+    == M.fromList [ (11, S.singleton $ M.fromList [ (b, 1), (aOf_b, 1) ] )
+                  , (21, S.singleton $ M.fromList [ (b, 1), (aOf_b, 1) ] ) ]
   assertBool "2" $ (runQuery g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 2)
     == M.empty
   assertBool "1" $ runQuery g p (ForSome a $ qc a) M.empty
