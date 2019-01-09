@@ -59,8 +59,8 @@ runCond d s (Cond test deps) e =
   in (passes, used)
 
 runQuery :: Data
-         -> Possible -- ^ how earlier `Var`s have been bound
-         -> Query  -- ^ how we intend to bind it
+         -> Possible -- ^ how the `Program`'s earlier `Var`s have been bound
+         -> Query
          -> Subst  -- ^ earlier (higher, calling) quantifiers draw these
                    -- from the input `Possible`
          -> CondElts
@@ -68,8 +68,10 @@ runQuery :: Data
 runQuery d _ (QFind f) s = runFind d s f
 runQuery _ _ (QCond _) _ =
   error "QCond cannot be run as a standalone Query."
---runQuery d p (ForSome vf@(VarFunc v dets) q) s =
---  let vPosslbe = varFuncToCondElts p s vf :: CondElts
---      ces = S.map (runQuery d p q) vPosslbe :: Set CondElts
---  in M.unionsWith S.union ces
 
+runQuery d p (ForSome vf@(VarFunc v dets) q) s =
+  let vPossible = varFuncToCondElts p s vf :: CondElts
+      p' = M.insert vf vPossible p
+      substs = S.map (\k -> M.insert vf k s) $ M.keysSet vPossible
+      ces = S.map (runQuery d p' q) substs :: Set CondElts
+  in M.unionsWith S.union ces

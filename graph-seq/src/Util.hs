@@ -1,5 +1,4 @@
 {-# LANGUAGE ScopedTypeVariables #-}
--- {-# LANGUAGE ExistentialQuantification #-}
 
 module Util where
 
