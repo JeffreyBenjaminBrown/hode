@@ -26,12 +26,11 @@ import Util
 --
 -- TODO ? does varFuncToCondElts in fact have to work farther backward?
 
-varFuncToCondElts :: Possible -> Subst -> VarFunc -> Maybe CondElts
+varFuncToCondElts :: Possible -> Subst -> VarFunc -> CondElts
 varFuncToCondElts    p           s  vf@(VarFunc v dets) = case null dets of
-  True -> Just $ (M.!) p v
+  True -> (M.!) p v
   False -> let substs = varFuncSubsts p s vf :: Set Subst
-               implied = setSubstToCondElts v substs :: CondElts
-           in if null implied then Nothing else Just implied
+           in setSubstToCondElts v substs :: CondElts
 
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.

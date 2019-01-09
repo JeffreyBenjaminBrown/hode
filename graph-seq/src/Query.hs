@@ -58,16 +58,17 @@ runCond d s (Cond test deps) e =
       used = M.restrictKeys s deps :: Subst
   in (passes, used)
 
-runQuery :: Data -- TODO ? Is the `Var` argument needed here?
+runQuery :: Data
          -> Possible -- ^ how earlier `Var`s have been bound
          -> Subst  -- ^ earlier (higher, calling) quantifiers draw these
                    -- from the input `Possible`
-         -> Var    -- ^ what we want to bind
          -> Query  -- ^ how we intend to bind it
          -> CondElts
 
-runQuery d _ s _ (QFind f) = runFind d s f
-runQuery _ _ _ _ (QCond _) =
+runQuery d _ s (QFind f) = runFind d s f
+runQuery _ _ _ (QCond _) =
   error "QCond cannot be run as a standalone Query."
---runQuery d r s v (ForSome (VarFunc v dets) q) =
---  let vPossibilities =
+--runQuery d p s (ForSome vf@(VarFunc v dets) q) =
+--  let vPosslbe = varFuncToCondElts p s vf
+--  in case vPosslbe of
+--    Nothing ->
