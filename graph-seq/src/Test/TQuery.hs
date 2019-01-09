@@ -22,8 +22,8 @@ testModuleQuery = TestList [
 
 testDisjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      x   = VarFunc "x" $ S.empty
-      y   = VarFunc "y" $ S.empty
+      x   = Var "x" $ S.empty
+      y   = Var "y" $ S.empty
       qx  = ForSome x qf
       qy  = ForSome y qf
       qxy = QAnd [qx,qy]

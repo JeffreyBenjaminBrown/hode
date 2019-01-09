@@ -10,7 +10,7 @@ import Types
 import Util
 
 
--- | `varFuncToCondElts r s (VarFunc v dets)` returns all values v can take,
+-- | `varFuncToCondElts r s (Var v dets)` returns all values v can take,
 -- and the relevant part** of the `Subst`s that could lead to each,
 -- given r, s and v.
 --
@@ -26,49 +26,37 @@ import Util
 --
 -- TODO ? does varFuncToCondElts in fact have to work farther backward?
 
--- TODO speed|space: This is inefficient, because I don't (currently) need a
--- `CondElts`, just they set of keys to it.
---
--- One solution: Once this has determined a particular key is possible,
--- it should stop figuring out other ways to achieve the same key. That would
--- still be inefficient (but less so), because if a later sub-query tries
--- to quantify the variable we just found keys for, it will duplicate work.
---
--- The most efficient solution would be if the keys to `Possible` were
--- `VarFunc`s instead of `Var`s, and keep this `CondElts` in it alongside
--- the `Var`s without any dependencies.
-
-varFuncToCondElts :: Possible -> Subst -> VarFunc -> CondElts
-varFuncToCondElts    p           s  vf@(VarFunc _ dets) = case null dets of
+varFuncToCondElts :: Possible -> Subst -> Var -> CondElts
+varFuncToCondElts    p           s  vf@(Var _ dets) = case null dets of
   True -> (M.!) p vf
   False -> let substs = varFuncSubsts p s vf :: Set Subst
                x = setSubstToCondElts (unCondition vf) substs :: CondElts
   -- `unCondition vf` because there do not yet exist conditional values of it
            in recordDependencies vf x
 
-unCondition :: VarFunc -> VarFunc
-unCondition (VarFunc name _) = VarFunc name S.empty
+unCondition :: Var -> Var
+unCondition (Var name _) = Var name S.empty
 
--- | `recordDependencies vf@(VarFunc name _) ce` replaces each instance
--- of `VarFunc name mempty` in `ce` with `vf`.
-recordDependencies :: VarFunc -> CondElts -> CondElts
-recordDependencies vf@(VarFunc name _) ce =
+-- | `recordDependencies vf@(Var name _) ce` replaces each instance
+-- of `Var name mempty` in `ce` with `vf`.
+recordDependencies :: Var -> CondElts -> CondElts
+recordDependencies vf@(Var name _) ce =
   let replace :: Subst -> Subst
       replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
         Nothing -> s -- TODO ? Throw an error?
         Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
   in M.map (S.map replace) ce
 
--- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
+-- | `varFuncSubsts r s (Var _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 -- They are reconciled across dets -- that is, for each det in dets
 -- and each s in the result, s is consistent with the CondElts for det.
 
-varFuncSubsts :: Possible -> Subst -> VarFunc         -> Set Subst
-varFuncSubsts    p           s       (VarFunc _ dets)
+varFuncSubsts :: Possible -> Subst -> Var         -> Set Subst
+varFuncSubsts    p           s       (Var _ dets)
   | null dets = error
       "Should not happen. Thrown by varFuncSubsts. Blame varFuncToCondElts."
-  | True = let impliedSubsts :: VarFunc -> Set Subst
+  | True = let impliedSubsts :: Var -> Set Subst
                impliedSubsts det = (M.!) couldBindTo bound where
                  bound       = (M.!) s det :: Elt
                  couldBindTo = (M.!) p det :: CondElts
@@ -83,7 +71,7 @@ varFuncSubsts    p           s       (VarFunc _ dets)
 -- | `setSubstToCondElts v ss` is the simple union of running, across
 -- all s in ss, `setSubstToCondElts v s`.
 
-setSubstToCondElts :: VarFunc -> Set Subst -> CondElts
+setSubstToCondElts :: Var -> Set Subst -> CondElts
 setSubstToCondElts v = S.foldl f M.empty where
   f :: CondElts -> Subst -> CondElts
   f ces subst = case substToCondElts v subst of
@@ -93,7 +81,7 @@ setSubstToCondElts v = S.foldl f M.empty where
 -- | `substToCondElts v s` constructs a `CondElts` that maps `v` to the
 -- other elements of the `Subst`. This is possible iff `v`is in the `Subst`.
 
-substToCondElts :: VarFunc -> Subst -> Maybe CondElts
+substToCondElts :: Var -> Subst -> Maybe CondElts
 substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
@@ -124,8 +112,8 @@ reconcile1ToMany s ss = S.map fromJust $ S.filter isJust
 -- Otherwise it's their union.
 reconcile2 :: Subst -> Subst -> Maybe Subst
 reconcile2 s t = S.foldr f (Just M.empty) allKeys where
-  allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set VarFunc
-  f :: VarFunc -> Maybe Subst -> Maybe Subst
+  allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
+  f :: Var -> Maybe Subst -> Maybe Subst
   f _ Nothing = Nothing -- short-circuit (hence foldr)
   f v (Just acc) =
     if        S.member v (M.keysSet s)

@@ -15,7 +15,7 @@ import Types
 -- | `couldBind Q = Vs` <=> `Q` could depend on a binding of any var in `Vs`.
 -- `willBind` would be a nice thing to define if it were possible, but
 -- (without way more data and processing) it is not.
-couldBind :: Query -> Set VarFunc
+couldBind :: Query -> Set Var
 couldBind (QFind _)      = S.empty
 couldBind (QCond _)      = S.empty
 couldBind (QOr  qs)      = S.unions    $ map couldBind qs
@@ -39,7 +39,7 @@ disjointExistentials :: Query -> Bool
 disjointExistentials (ForSome vf q)
   = not $ S.member vf $ couldBind q
 disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
-  where f :: Query -> (Set VarFunc, Bool) -> (Set VarFunc, Bool)
+  where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
         f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
         f q (vs, True) = if S.disjoint vs $ couldBind q
                          then (S.union vs $ couldBind q, True)
@@ -69,7 +69,7 @@ runQuery d _ (QFind f) s = runFind d s f
 runQuery _ _ (QCond _) _ =
   error "QCond cannot be run as a standalone Query."
 
-runQuery d p (ForSome vf@(VarFunc v dets) q) s =
+runQuery d p (ForSome vf@(Var v dets) q) s =
   let vPossible = varFuncToCondElts p s vf :: CondElts
       p' = M.insert vf vPossible p
       substs = S.map (\k -> M.insert vf k s) $ M.keysSet vPossible
