@@ -67,20 +67,19 @@ runQuery d _ (QFind f) s = runFind d s f
 runQuery _ _ (QCond _) _ =
   error "QCond cannot be run as a standalone Query."
 
-runQuery d p (ForSome v@(Var _ dets) q) s =
-  let vPossible = varToCondElts p s v :: CondElts
-      p' = if null dets then p else M.insert v vPossible p
-      substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible
-      ces = S.map (runQuery d p' q) substs :: Set CondElts
+runQuery d p (ForSome v@(Var _ dets) q) s = let
+  vPossible = varToCondElts p s v :: CondElts
+  p' = if null dets then p else M.insert v vPossible p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible :: Set Subst
+  ces = S.map (runQuery d p' q) substs :: Set CondElts
   in M.unionsWith S.union ces
 
-runQuery d p (ForAll v@(Var _ dets) q) s =
-  let vPossible = varToCondElts p s v :: CondElts
-      p' = if null dets then p else M.insert v vPossible p
-      substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible
-      ces = S.map (runQuery d p' q) substs :: Set CondElts
-      ces' = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
-        -- delete the dependency on v, so that reconciliation can work
-  in maybe M.empty id $ reconcileCondElts ces :: CondElts
+runQuery d p (ForAll v@(Var _ dets) q) s = let
+  vPossible = varToCondElts p s v :: CondElts
+  p' = if null dets then p else M.insert v vPossible p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible :: Set Subst
+  ces = S.map (runQuery d p' q) substs :: Set CondElts
+  cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
+    -- delete the dependency on v, so that reconciliation can work
+  in maybe M.empty id $ reconcileCondElts cesWithoutV :: CondElts
         -- keep only results that obtain for every value of v
-

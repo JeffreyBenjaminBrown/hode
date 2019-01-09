@@ -22,15 +22,15 @@ testModuleQuery = TestList [
   ]
 
 testForAll = TestCase $ do
-  let g = graph [ (1, [11, 12     ] )
-                , (2, [    12, 13 ] ) ]
+  let g = graph [ (1, [11, 12    ] )
+                , (2, [    12, 22] ) ]
       [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
       p = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
-                            , (2, S.singleton   M.empty) ] ) ]
+                            , (2, S.singleton   M.empty) ] ) ] :: Possible
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
-  assertBool "1" $ (runQuery g p (ForAll a $ qc a) $ M.empty)
+  assertBool "1" $ runQuery g p (ForAll a $ qc a) M.empty
     == M.fromList [ (12, S.singleton $ M.empty) ]
 
 testForSome = TestCase $ do
@@ -42,7 +42,7 @@ testForSome = TestCase $ do
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton   M.empty) ] )
           , ( b, M.fromList [ (1, S.singleton $ M.singleton a 1)
-                            , (2, S.singleton   M.empty) ] ) ]
+                            , (2, S.singleton   M.empty) ] ) ] :: Possible
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
   assertBool "3" $ (runQuery g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 1)
