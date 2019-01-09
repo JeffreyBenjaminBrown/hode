@@ -44,6 +44,17 @@ varFuncToCondElts    p           s  vf@(VarFunc _ dets) = case null dets of
   False -> let substs = varFuncSubsts p s vf :: Set Subst
            in setSubstToCondElts vf substs :: CondElts
 
+-- | `recordDependencies vf@(VarFunc name _) ce` replaces each instance
+-- of `VarFunc name mempty` in `ce` with `vf`.
+recordDependencies :: VarFunc -> CondElts -> CondElts
+recordDependencies vf@(VarFunc name _) ce =
+  let vfUnconditional = VarFunc name mempty
+      replace :: Subst -> Subst
+      replace s = let mlk = M.lookup vfUnconditional s in case mlk of
+        Nothing -> error "recordDependencies: Nothing bad, right?"
+        Just lk -> M.insert vf lk $ M.delete vfUnconditional s
+  in M.map (S.map replace) ce
+
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 -- They are reconciled across dets -- that is, for each det in dets

@@ -13,6 +13,12 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO rename VarFunc -> Term
+* TODO varFuncToCondElts gets confused about VarFuncs
+Suppose we ask for x( a, b(c) ).
+We should find a in the Possible, and rename every x it depends on
+to x(a,b(c)).
+We should find b(c) in the Possible, and do similarly.
 * TODO next: runQuery d r s v (ForSome vf q) =
 Collect the results of running q with every posible value of vf.
 ** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst

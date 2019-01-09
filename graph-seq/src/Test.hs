@@ -28,7 +28,25 @@ tests = runTestTT $ TestList
   , TestLabel "testVarFuncToCondElts" testVarFuncToCondElts
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
+  , TestLabel "testRecordDependencies" testRecordDependencies
   ]
+
+testRecordDependencies = TestCase $ do
+  let x     = VarFunc "x" $ S.empty
+      aOf_x = VarFunc "a" $ S.singleton x
+      a     = VarFunc "a" $ S.empty
+      b     = VarFunc "b" $ S.empty
+      c     = VarFunc "b" $ S.empty
+      s = S.fromList  [ M.fromList [ (a,1)      , (b,1)  ]
+                      , M.fromList [ (a,2)      , (b,2)  ] ]
+      t = S.fromList  [ M.fromList [ (a,11)     , (c,11) ]
+                      , M.fromList [ (a,12)     , (c,12) ] ]
+      s' = S.fromList [ M.fromList [ (aOf_x,1)  , (b,1)  ]
+                      , M.fromList [ (aOf_x,2)  , (b,2)  ] ]
+      t' = S.fromList [ M.fromList [ (aOf_x,11) , (c,11) ]
+                      , M.fromList [ (aOf_x,12) , (c,12) ] ]
+  assertBool "1" $             M.fromList [ (5,s'), (6,t') ] ==
+    recordDependencies aOf_x ( M.fromList [ (5,s),  (6,t ) ] )
 
 testSetSubstToCondElts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
@@ -118,8 +136,6 @@ testVarFuncToCondElts = TestCase $ do
     == M.fromList [ (2, S.fromList [ M.fromList [(x,0), (y,3)]
                                    , M.fromList [(x,0), (y,4)] ] )
                   , (4, S.fromList [ M.fromList [(x,1), (y,2)] ] ) ]
-
-
 
 testVarFuncSubsts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
