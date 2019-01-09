@@ -42,17 +42,21 @@ varFuncToCondElts :: Possible -> Subst -> VarFunc -> CondElts
 varFuncToCondElts    p           s  vf@(VarFunc _ dets) = case null dets of
   True -> (M.!) p vf
   False -> let substs = varFuncSubsts p s vf :: Set Subst
-           in setSubstToCondElts vf substs :: CondElts
+               x = setSubstToCondElts (unCondition vf) substs :: CondElts
+  -- `unCondition vf` because there do not yet exist conditional values of it
+           in recordDependencies vf x
+
+unCondition :: VarFunc -> VarFunc
+unCondition (VarFunc name _) = VarFunc name S.empty
 
 -- | `recordDependencies vf@(VarFunc name _) ce` replaces each instance
 -- of `VarFunc name mempty` in `ce` with `vf`.
 recordDependencies :: VarFunc -> CondElts -> CondElts
 recordDependencies vf@(VarFunc name _) ce =
-  let vfUnconditional = VarFunc name mempty
-      replace :: Subst -> Subst
-      replace s = let mlk = M.lookup vfUnconditional s in case mlk of
-        Nothing -> error "recordDependencies: Nothing bad, right?"
-        Just lk -> M.insert vf lk $ M.delete vfUnconditional s
+  let replace :: Subst -> Subst
+      replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
+        Nothing -> s -- TODO ? Throw an error?
+        Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
   in M.map (S.map replace) ce
 
 -- | `varFuncSubsts r s (VarFunc _ dets)` is the set of all

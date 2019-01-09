@@ -67,37 +67,6 @@ testSubstToCondElts = TestCase $ do
   assertBool "1" $ substToCondElts b s ==
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
-
-
-[a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
-vf_a    = VarFunc "a" (S.empty)
-aOf_b  = VarFunc "a" (S.fromList [b   ])
-aOf_bc = VarFunc "a" (S.fromList [b, c])
-s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
-s_b2   = M.fromList [ (b,2)        ] :: Subst
-(ra :: Possible) = M.fromList [
-  ( a, M.fromList [ (1, S.singleton mempty)
-                  , (5, S.singleton $ M.singleton x 23) ] ) ]
-
-(r :: Possible) = M.fromList
-    [ ( a, M.fromList
-        [ (1, S.singleton $ error "never used")
-        , (2, error "doesn't matter") ] )
-    , ( b, M.fromList
-        [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
-                         , M.fromList [(a, 3), (x,1)       ]
-                         , M.fromList [(a, 4), (x,1)       ] ] )
-        , (2, S.fromList [ M.fromList [(a,2)               ]
-                         , M.fromList [(a,3) , (x,1)       ] ] ) ] )
-    , ( c, M.fromList
-        [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
-                         , M.fromList [(a, 2),       (y,4) ]
-                         , M.fromList [(a, 3), (x,2)       ]
-                         , M.fromList [(a, 4),       (y,2) ] ] )
-        , (2, error "never used, doesn't matter") ] ) ]
-
-
-
 testVarFuncToCondElts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> VarFunc s S.empty) ["a","b","c","x","y"]
       vf_a    = VarFunc "a" (S.empty)

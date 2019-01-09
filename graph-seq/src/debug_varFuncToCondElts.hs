@@ -2,7 +2,8 @@ varFuncToCondElts :: Possible -> Subst -> VarFunc -> CondElts
 varFuncToCondElts    p           s  vf@(VarFunc _ dets) = case null dets of
   True -> (M.!) p vf
   False -> let substs = varFuncSubsts p s vf :: Set Subst
-           in setSubstToCondElts vf substs :: CondElts
+               x = setSubstToCondElts vf substs :: CondElts
+           in recordDependencies vf x :: CondElts
 
 varFuncToCondElts r s_b2 aOf_b
  substs = varFuncSubsts r s_b2 aOf_b :: Set Subst
