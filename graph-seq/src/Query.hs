@@ -90,18 +90,22 @@ runTest d s q ce = M.map harmonize passed where
 runTestable :: Data -> Possible -> Query -> Subst -> CondElts -> CondElts
 runTestable _ _ (testable -> False) _ _ =
   error "runTestable: not a testable Query"
-
--- >>> TODO resume here
--- TODO ? This duplicates a lot of code from runQuery. Avoid?
--- runTestable d p (QForSome v qs) s ce = let
-
-
 runTestable d _ (QTest t) s ce = runTest d s t ce
 
 runTestable d p (QAnd qs) s ce = reconcileCondElts $ S.fromList results
   where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
 runTestable d p (QOr qs) s ce = M.unionsWith S.union results
   where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
+
+runTestable d p (ForSome v q) s ce = let
+  vp = varPossibilities p s v :: CondElts
+  p' = if null $ varDets v then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+  ces = S.map (flip (runTestable d p' q) ce) substs :: Set CondElts
+  in M.unionsWith S.union ces
+
+-- >>> TODO resume here
+--runTestable d p (ForAll v q) s ce = let
 
 --runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
 --runAnd d p qs s = tested where
@@ -133,7 +137,7 @@ runQuery d p (QOr qs) s =
   in M.unionsWith S.union ces
 
 runQuery d p (ForSome v q) s = let
-  ces = queryOverVarPossibilities d p q s v
+  ces = queryOverVarPossibilities d p q s v :: Set CondElts
   in M.unionsWith S.union ces
 
 runQuery d p (ForAll v q) s = let
