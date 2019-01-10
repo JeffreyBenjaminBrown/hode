@@ -14,6 +14,8 @@ import Types
 import Query.Classify
 
 
+-- | = Atomic queries
+
 runFind :: Data -> Subst -> Find -> CondElts
 runFind d s (Find find deps) =
   let found = find d s             :: Set Elt
@@ -35,6 +37,36 @@ runTest d s q ce = M.map harmonize passed where
   harmonize ((_,s),ss) = S.map (M.union s) ss
     -- This M.union is reasonable if we have used disjointExistentials
     -- to ensure the Test does not re-assign an earlier-assigned variable.
+
+
+-- | = some helpers
+
+queryOverVarPossibilities ::
+  Data -> Possible -> Query -> Subst -> Var -> Set CondElts
+queryOverVarPossibilities d p q s v = S.map (runQuery d p' q) substs
+ where
+  vp = varPossibilities p s v :: CondElts
+  p' = if null $ varDets v then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+
+testOverVarPossibilities ::
+  Data -> Possible -> Query -> Subst -> Var -> CondElts -> Set CondElts
+testOverVarPossibilities d p q s v ce = ces where
+  vp = varPossibilities p s v :: CondElts
+  p' = if null $ varDets v then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+  ces = S.map (flip (runTestable d p' q) ce) substs
+
+runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
+runQAnd d p qs s = tested where
+  (searches,tests) = partition findable qs
+  found = map (flip (runQuery d p) s) searches :: [CondElts]
+  reconciled, tested :: CondElts
+  reconciled = reconcileCondElts $ S.fromList found
+  tested = foldr (\t ce -> runTestable d p t s ce) reconciled tests
+
+
+-- | `runTestable` filters the input `CondElts`.
 
 -- TODO (#speed) runTestable: foldr with short-circuiting.
 runTestable :: Data -> Possible -> Query -> Subst -> CondElts -> CondElts
@@ -58,13 +90,8 @@ runTestable d p (ForAll v q) s ce = let
   in reconcileCondElts cesWithoutV
     -- keep only results that obtain for every value of v
 
-runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
-runQAnd d p qs s = tested where
-  (searches,tests) = partition findable qs
-  found = map (flip (runQuery d p) s) searches :: [CondElts]
-  reconciled, tested :: CondElts
-  reconciled = reconcileCondElts $ S.fromList found
-  tested = foldr (\t ce -> runTestable d p t s ce) reconciled tests
+
+-- | `runQuery`
 
 runQuery :: Data
          -> Possible -- ^ how the `Program`'s earlier `Var`s have been bound
@@ -97,19 +124,3 @@ runQuery d p (ForAll v q) s = let
     -- delete the dependency on v, so that reconciliation can work
   in reconcileCondElts cesWithoutV
     -- keep only results that obtain for every value of v
-
-queryOverVarPossibilities ::
-  Data -> Possible -> Query -> Subst -> Var -> Set CondElts
-queryOverVarPossibilities d p q s v = S.map (runQuery d p' q) substs
- where
-  vp = varPossibilities p s v :: CondElts
-  p' = if null $ varDets v then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-
-testOverVarPossibilities ::
-  Data -> Possible -> Query -> Subst -> Var -> CondElts -> Set CondElts
-testOverVarPossibilities d p q s v ce = ces where
-  vp = varPossibilities p s v :: CondElts
-  p' = if null $ varDets v then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-  ces = S.map (flip (runTestable d p' q) ce) substs
