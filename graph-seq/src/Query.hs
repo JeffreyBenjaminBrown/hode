@@ -33,7 +33,7 @@ couldBind _              = S.empty
 
 -- | Every `QAnd` must include something `findable`, and
 -- every `QOr` must be nonempty and consist entirely of `findable` queries.
-findable :: Query -> Bool
+findable, testable :: Query -> Bool
 findable (QFind _)          = True
 findable (QTest _)          = False
 findable (QAnd qs)          = or  $ map findable qs
@@ -41,6 +41,8 @@ findable (QOr     [])       = False
 findable (QOr     qs@(_:_)) = and $ map findable qs
 findable (ForSome vfs q)    = findable q
 findable (ForAll  _   q)    = findable q
+
+testable = not . findable
 
 -- | A `Query` is only valid if no quantifier masks an earlier one,
 -- and if no `
