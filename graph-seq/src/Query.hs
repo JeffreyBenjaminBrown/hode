@@ -104,9 +104,17 @@ runTestable d p (ForSome v q) s ce = let
   ces = S.map (flip (runTestable d p' q) ce) substs :: Set CondElts
   in M.unionsWith S.union ces
 
--- >>> TODO resume here
---runTestable d p (ForAll v q) s ce = let
+runTestable d p (ForAll v q) s ce = let
+  vp = varPossibilities p s v :: CondElts
+  p' = if null $ varDets v then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+  ces = S.map (flip (runTestable d p' q) ce) substs :: Set CondElts
+  cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
+    -- delete the dependency on v, so that reconciliation can work
+  in reconcileCondElts cesWithoutV
+    -- keep only results that obtain for every value of v
 
+-- >>> TODO resume here
 --runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
 --runAnd d p qs s = tested where
 --  (searches,tests) = partition findable qs
