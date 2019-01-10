@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module Query where
 
 import           Data.List
@@ -99,9 +101,8 @@ runQuery :: Data
                    -- from the input `Possible`
          -> CondElts
 
+runQuery _ _ (findable -> False) _ = error "runQuery: non-findable Query"
 runQuery d _ (QFind f) s = runFind d s f
-runQuery _ _ (QTest _) _ =
-  error "QTest cannot be run as a standalone Query."
 
 runQuery d p (QAnd qs) s =
   -- TODO (#speed) Fold QAnd with short-circuiting.
