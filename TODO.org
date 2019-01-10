@@ -13,14 +13,12 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO next: runQuery d r s v (ForSome vf q) =
-Collect the results of running q with every posible value of vf.
-** DONE compatibleSubsts :: Subst -> Subst -> Maybe Subst
-If the two Substs assign different values to the same variable, it's Nothing.
-Otherwise it's their union.
-** TODO next : lookupVarFunc :: Possible -> Subst -> VarFunc -> Set Subst
-** TODO      lookupVarFunc' :: Possible -> Subst -> VarFunc -> CondElts
-* ? Ask what expressivity I'm losing by requiring sequentiality.
+* TODO a Test should process a CondElt, not an Elt
+Because when the Elt is found (with Find), that will generate conditions
+and the Test has to add further conditions.
+* TODO process QTest in QAnd
+* TODO test QAnd, and mixed queries
+* What expressivity do I lose by requiring sequentiality?
 * DONE ? If an existential is under a union or intersection?
 ** solution
 *** Intersection [Qs] is valid if for no Q,R, couldBind Q overlaps couldBind R
@@ -94,7 +92,7 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
  [ (X, QFind <child of Zeus> )
  , (Y, QFind <child of Hera> )
  , (Z, QForSome [Y] $ QAnd [ QFind <child of Y>
-                           , QForAll [X] $ QCond <Y /= X> ] ) ]
+                           , QForAll [X] $ QTest <Y /= X> ] ) ]
 *** algorithm
  For X: do it.
  For Y: do it.

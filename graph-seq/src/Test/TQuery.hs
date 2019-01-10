@@ -105,7 +105,7 @@ testDisjointExistentials = TestCase $ do
 
 testFindable = TestCase $ do
   let qf = QFind $ Find (\_ _    -> S.empty) S.empty
-      qc = QCond $ Cond (\_ _  _ -> False  ) S.empty
+      qc = QTest $ Test (\_ _  _ -> False  ) S.empty
   assertBool "1" $ findable (QAnd [qf, qc]) == True
   assertBool "2" $ findable (QAnd [qf]    ) == True
   assertBool "3" $ findable (QAnd [qc]    ) == False

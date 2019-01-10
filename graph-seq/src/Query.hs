@@ -1,5 +1,6 @@
 module Query where
 
+import           Data.List
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Maybe
@@ -15,7 +16,7 @@ import Types
 -- (without way more data and processing) it is not.
 couldBind :: Query -> Set Var
 couldBind (QFind _)      = S.empty
-couldBind (QCond _)      = S.empty
+couldBind (QTest _)      = S.empty
 couldBind (QOr  qs)      = S.unions    $ map couldBind qs
 couldBind (QAnd qs)      = S.unions    $ map couldBind qs
 couldBind (ForSome vf q) = S.insert vf $     couldBind q
@@ -25,7 +26,7 @@ couldBind (ForAll  _  q) =                   couldBind q
 -- every `QOr` must be nonempty and consist entirely of `findable` things.
 findable :: Query -> Bool
 findable (QFind _)          = True
-findable (QCond _)          = False
+findable (QTest _)          = False
 findable (QAnd qs)          = or  $ map findable qs
 findable (QOr     [])       = False
 findable (QOr     qs@(_:_)) = and $ map findable qs
@@ -50,11 +51,24 @@ runFind d s (Find find deps) =
       used = M.restrictKeys s deps :: Subst
   in M.fromSet (const $ S.singleton used) found
 
-runCond :: Data -> Subst -> Cond -> Elt -> (Bool, Subst)
-runCond d s (Cond test deps) e =
+runCondOnElt :: Data -> Subst -> Test -> Elt -> (Bool, Subst)
+runCondOnElt d s (Test test deps) e =
   let passes = test d s e          :: Bool
       used = M.restrictKeys s deps :: Subst
   in (passes, used)
+
+--runCondOnElts :: Data -> Subst -> Test -> CondElts -> (Bool, Subst)
+--runCondOnElts d s (Test test deps) e =
+--  let passes = test d s e          :: Bool
+--      used = M.restrictKeys s deps :: Subst
+--  in (passes, used)
+
+--runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
+--runQAnd d p qs s =
+--  let (searches,tests) = partition findable qs
+--      found = map (flip (runQuery d p) s) searches :: [CondElts]
+--      rec = reconcileCondElts $ S.fromList found
+--  in if null rec then M.empty else fromJust rec
 
 runQuery :: Data
          -> Possible -- ^ how the `Program`'s earlier `Var`s have been bound
@@ -64,16 +78,19 @@ runQuery :: Data
          -> CondElts
 
 runQuery d _ (QFind f) s = runFind d s f
-runQuery _ _ (QCond _) _ =
-  error "QCond cannot be run as a standalone Query."
+runQuery _ _ (QTest _) _ =
+  error "QTest cannot be run as a standalone Query."
 
 runQuery d p (QAnd qs) s =
-  -- TODO (#speed|#major) fold with short-circuiting.
+  -- TODO (#speed) Fold QAnd with short-circuiting.
   let ces = map (flip (runQuery d p) s) qs :: [CondElts]
       rec = reconcileCondElts $ S.fromList ces
   in if null rec then M.empty else fromJust rec
 
 runQuery d p (QOr qs) s =
+  -- TODO (#speed|#hard) Fold QOr with short-circuiting.
+  -- Once an `Elt` is found, it need not be searched for again, unless
+  -- a new `Subst` would be associated with it.
   let ces = map (flip (runQuery d p) s) qs :: [CondElts]
   in M.unionsWith S.union ces
 
@@ -85,7 +102,7 @@ runQuery d p (ForSome v@(Var _ dets) q) s = let
   in M.unionsWith S.union ces
 
 runQuery d p (ForAll v@(Var _ dets) q) s = let
-  -- TODO (#speed|#major) fold with short-circuiting.
+  -- TODO (#speed) Fold ForAll with short-circuiting.
   -- Once an elt fails to obtain for one value of v,
   -- don't try it for any of the remaining values of v.
   vPossible = varToCondElts p s v :: CondElts
