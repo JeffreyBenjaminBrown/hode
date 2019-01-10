@@ -11,19 +11,28 @@ import Subst
 import Types
 
 
--- | `couldBind Q = Vs` <=> `Q` could depend on a binding of any var in `Vs`.
--- `willBind` would be a nice thing to define if it were possible, but
--- (without way more data and processing) it is not.
+-- | = Testing that a Query is valid.
+
+-- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces `v`.
+-- And every `Query` introduces whatever its subqueries introduces.
+introduces :: Query -> Set Var
+introduces (QOr  qs)      = S.unions    $ map introduces qs
+introduces (QAnd qs)      = S.unions    $ map introduces qs
+introduces (ForSome vf q) = S.insert vf $     introduces q
+introduces (ForAll  vf q) = S.insert vf $     introduces q
+introduces _ = S.empty
+
+-- | The only way a `Var` could be bound is if it was introduced by
+-- a `ForSome`.
 couldBind :: Query -> Set Var
-couldBind (QFind _)      = S.empty
-couldBind (QTest _)      = S.empty
 couldBind (QOr  qs)      = S.unions    $ map couldBind qs
 couldBind (QAnd qs)      = S.unions    $ map couldBind qs
 couldBind (ForSome vf q) = S.insert vf $     couldBind q
-couldBind (ForAll  _  q) =                   couldBind q
+couldBind (ForAll  vf q) =                   couldBind q
+couldBind _              = S.empty
 
 -- | Every `QAnd` must include something `findable`, and
--- every `QOr` must be nonempty and consist entirely of `findable` things.
+-- every `QOr` must be nonempty and consist entirely of `findable` queries.
 findable :: Query -> Bool
 findable (QFind _)          = True
 findable (QTest _)          = False
@@ -33,9 +42,12 @@ findable (QOr     qs@(_:_)) = and $ map findable qs
 findable (ForSome vfs q)    = findable q
 findable (ForAll  _   q)    = findable q
 
--- | A validity test.
+-- | A `Query` is only valid if no quantifier masks an earlier one,
+-- and if no `
 disjointExistentials :: Query -> Bool
 disjointExistentials (ForSome vf q)
+  = not $ S.member vf $ couldBind q
+disjointExistentials (ForAll vf q)
   = not $ S.member vf $ couldBind q
 disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
   where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
@@ -45,30 +57,38 @@ disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
                          else (S.empty, False)
 disjointExistentials _ = True
 
+
+-- | Running queries.
+
 runFind :: Data -> Subst -> Find -> CondElts
 runFind d s (Find find deps) =
   let found = find d s             :: Set Elt
       used = M.restrictKeys s deps :: Subst
   in M.fromSet (const $ S.singleton used) found
 
-runCondOnElt :: Data -> Subst -> Test -> Elt -> (Bool, Subst)
-runCondOnElt d s (Test test deps) e =
+runTestOnElt :: Data -> Subst -> Test -> Elt -> (Bool, Subst)
+runTestOnElt d s (Test test deps) e =
   let passes = test d s e          :: Bool
       used = M.restrictKeys s deps :: Subst
   in (passes, used)
 
---runCondOnElts :: Data -> Subst -> Test -> CondElts -> (Bool, Subst)
---runCondOnElts d s (Test test deps) e =
---  let passes = test d s e          :: Bool
---      used = M.restrictKeys s deps :: Subst
---  in (passes, used)
+runTest :: Data -> Subst -> Test -> CondElts -> CondElts
+runTest d s q ce = M.map harmonize passed where
+  tested, passed :: Map Elt ((Bool, Subst), Set Subst)
+  tested = M.mapWithKey (\k a -> (runTestOnElt d s q k, a)) ce
+  passed = M.filter (fst . fst) tested
+  harmonize :: ((a,Subst), Set Subst) -> Set Subst -- ignores the Bool
+  harmonize ((_,s),ss) = S.map (M.union s) ss
+   -- This M.union is reasonable if we have used disjointExistentials
+  -- to ensure the Test does not re-assign an earlier-assigned variable.
 
---runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
---runQAnd d p qs s =
---  let (searches,tests) = partition findable qs
---      found = map (flip (runQuery d p) s) searches :: [CondElts]
---      rec = reconcileCondElts $ S.fromList found
---  in if null rec then M.empty else fromJust rec
+--runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
+--runAnd d p qs s = tested where
+--  (searches,tests) = partition findable qs
+--  found = map (flip (runQuery d p) s) searches :: [CondElts]
+--  reconciled, tested :: CondElts
+--  reconciled = maybe M.empty id $ reconcileCondElts $ S.fromList found
+--  tested = foldr (runTest d s) reconciled tests
 
 runQuery :: Data
          -> Possible -- ^ how the `Program`'s earlier `Var`s have been bound

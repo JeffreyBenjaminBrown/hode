@@ -13,6 +13,13 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO couldIntroduce and couldBind need separate tests
+Universals and existentials both introduce variables, and (I think) 
+no introduced variable should obscure an earlier one.
+But QAnd imposes another conditions: for any variable x, not more than
+one clause of the QAnd should be able to bind x.
+* TODO non-findable queries make runAnd hard
+e.g. What if one clause of an And is an Or with nothing but tests?
 * TODO a Test should process a CondElt, not an Elt
 Because when the Elt is found (with Find), that will generate conditions
 and the Test has to add further conditions.

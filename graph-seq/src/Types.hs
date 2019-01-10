@@ -24,8 +24,8 @@ instance Show Var where
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDeps     :: Set Var }
   -- ^ If `findFunction` doesn't use the `Subst`, `findDeps` should be empty.
-data Test = Test { condFunction :: Data -> Subst ->     Elt -> Bool
-                 , condDeps     :: Set Var }
+data Test = Test { testFunction :: Data -> Subst ->     Elt -> Bool
+                 , testDeps     :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.
 
 data Query = QFind Find
