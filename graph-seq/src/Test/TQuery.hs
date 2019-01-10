@@ -1,5 +1,4 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-
 module Test.TQuery where
 
 import           Data.Map (Map)
@@ -21,7 +20,14 @@ testModuleQuery = TestList [
   , TestLabel "testQFind" testQFind
   , TestLabel "testForSome" testForSome
   , TestLabel "testForAll" testForAll
+  , TestLabel "testQAnd" testQAnd
   ]
+
+testQAnd = TestCase $ do
+  let g = graph [ (1, [11, 12    ] )
+                , (2, [    12, 22] ) ]
+      [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+  assertBool "todo" False
 
 testForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )

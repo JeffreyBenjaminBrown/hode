@@ -67,6 +67,16 @@ runQuery d _ (QFind f) s = runFind d s f
 runQuery _ _ (QCond _) _ =
   error "QCond cannot be run as a standalone Query."
 
+runQuery d p (QAnd qs) s =
+  -- TODO (#speed|#major) fold with short-circuiting.
+  let ces = map (flip (runQuery d p) s) qs :: [CondElts]
+      rec = reconcileCondElts $ S.fromList ces
+  in if null rec then M.empty else fromJust rec
+
+runQuery d p (QOr qs) s =
+  let ces = map (flip (runQuery d p) s) qs :: [CondElts]
+  in M.unionsWith S.union ces
+
 runQuery d p (ForSome v@(Var _ dets) q) s = let
   vPossible = varToCondElts p s v :: CondElts
   p' = if null dets then p else M.insert v vPossible p
@@ -75,7 +85,8 @@ runQuery d p (ForSome v@(Var _ dets) q) s = let
   in M.unionsWith S.union ces
 
 runQuery d p (ForAll v@(Var _ dets) q) s = let
-  -- TODO (#speed|#major) Once an elt fails to obtain for one value of v,
+  -- TODO (#speed|#major) fold with short-circuiting.
+  -- Once an elt fails to obtain for one value of v,
   -- don't try it for any of the remaining values of v.
   vPossible = varToCondElts p s v :: CondElts
   p' = if null dets then p else M.insert v vPossible p
@@ -84,8 +95,4 @@ runQuery d p (ForAll v@(Var _ dets) q) s = let
   cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
     -- delete the dependency on v, so that reconciliation can work
   in maybe M.empty id $ reconcileCondElts cesWithoutV :: CondElts
-        -- keep only results that obtain for every value of v
-
-runQuery d p (QOr qs) s =
-  let ces = map (flip (runQuery d p) s) qs :: [CondElts]
-  in M.unionsWith S.union ces
+    -- keep only results that obtain for every value of v
