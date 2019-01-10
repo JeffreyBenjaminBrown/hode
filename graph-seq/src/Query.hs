@@ -114,14 +114,13 @@ runTestable d p (ForAll v q) s ce = let
   in reconcileCondElts cesWithoutV
     -- keep only results that obtain for every value of v
 
--- >>> TODO resume here
---runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
---runAnd d p qs s = tested where
---  (searches,tests) = partition findable qs
---  found = map (flip (runQuery d p) s) searches :: [CondElts]
---  reconciled, tested :: CondElts
---  reconciled = reconcileCondElts $ S.fromList found
---  tested = foldr (runTest d s) reconciled tests
+runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
+runAnd d p qs s = tested where
+  (searches,tests) = partition findable qs
+  found = map (flip (runQuery d p) s) searches :: [CondElts]
+  reconciled, tested :: CondElts
+  reconciled = reconcileCondElts $ S.fromList found
+  tested = foldr (\t ce -> runTestable d p t s ce) reconciled tests
 
 runQuery :: Data
          -> Possible -- ^ how the `Program`'s earlier `Var`s have been bound
