@@ -77,8 +77,8 @@ testVarToCondElts = TestCase $ do
       (ra :: Possible) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
-  assertBool "0" $   varToCondElts ra M.empty vf_a == ((M.!) ra a)
-  assertBool "0.1" $ varToCondElts ra s_b1c1  vf_a == ((M.!) ra a)
+  assertBool "0" $   varPossibilities ra M.empty vf_a == ((M.!) ra a)
+  assertBool "0.1" $ varPossibilities ra s_b1c1  vf_a == ((M.!) ra a)
     -- the Subst s_b1c1 is ignored because the dets in the Var are empty
 
   let (r :: Possible) = M.fromList
@@ -100,10 +100,10 @@ testVarToCondElts = TestCase $ do
       aOf_b  = Var "a" (S.fromList [b   ])
       aOf_bc = Var "a" (S.fromList [b, c])
 
-  assertBool "1" $ varToCondElts r s_b2 aOf_b
+  assertBool "1" $ varPossibilities r s_b2 aOf_b
     == M.fromList [ (2, S.singleton M.empty)
                   , (3, S.singleton $ M.singleton x 1 ) ]
-  assertBool "2" $ varToCondElts r s_b1c1 aOf_bc
+  assertBool "2" $ varPossibilities r s_b1c1 aOf_bc
     == M.fromList [ (2, S.fromList [ M.fromList [(x,0), (y,3)]
                                    , M.fromList [(x,0), (y,4)] ] )
                   , (4, S.fromList [ M.fromList [(x,1), (y,2)] ] ) ]

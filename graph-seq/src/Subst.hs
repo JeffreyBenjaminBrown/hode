@@ -10,24 +10,24 @@ import Types
 import Util
 
 
--- | `varToCondElts r s (Var v dets)` returns all values v can take,
+-- | `varPossibilities r s (Var v dets)` returns all values v can take,
 -- and the relevant part** of the `Subst`s that could lead to each,
 -- given r, s and v.
 --
 -- ** PITFALL: It isn't the whole story, just (I hope) as much as we need.
--- Specifically, the Substs in the CondElts that varToCondElts
+-- Specifically, the Substs in the CondElts that varPossibilities
 -- returns will only describe the variables that we're asking for.
 --
 -- For example, suppose we ask for the CondElts of x as a function of a.
 -- Let xs be the possible values of x as determined by a.
 -- Once we know xs, we can look up x in the Possible to find how other,
 -- yet-earlier variables would have to be bound.
--- This implementation of varToCondElts does not do that; it stops at x.
+-- This implementation of varPossibilities does not do that; it stops at x.
 --
--- TODO ? does varToCondElts in fact have to work farther backward?
+-- TODO ? does varPossibilities in fact have to work farther backward?
 
-varToCondElts :: Possible -> Subst -> Var -> CondElts
-varToCondElts    p           s  vf@(Var _ dets) = case null dets of
+varPossibilities :: Possible -> Subst -> Var -> CondElts
+varPossibilities    p           s  vf@(Var _ dets) = case null dets of
   True -> (M.!) p vf
   False -> let substs = varSubsts p s vf :: Set Subst
                x = setSubstToCondElts (unCondition vf) substs :: CondElts
@@ -55,7 +55,7 @@ recordDependencies vf@(Var name _) ce =
 varSubsts :: Possible -> Subst -> Var         -> Set Subst
 varSubsts    p           s       (Var _ dets)
   | null dets = error
-      "Should not happen. Thrown by varSubsts. Blame varToCondElts."
+      "Should not happen. Thrown by varSubsts. Blame varPossibilities."
   | True = let impliedSubsts :: Var -> Set Subst
                impliedSubsts det = (M.!) couldBindTo bound where
                  bound       = (M.!) s det :: Elt

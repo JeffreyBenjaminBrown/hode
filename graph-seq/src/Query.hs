@@ -93,7 +93,7 @@ runTestable _ _ (testable -> False) _ _ =
   error "runTestable: not a testable Query"
 
 --runTestable d p (QForSome v qs) s ce =
---  vPossible = varToCondElts p s v :: CondElts
+--  vp = varPossibilities p s v :: CondElts
 --
 
 runTestable d p (QTest t) s ce = runTest d s t ce
@@ -133,19 +133,19 @@ runQuery d p (QOr qs) s =
   in M.unionsWith S.union ces
 
 runQuery d p (ForSome v@(Var _ dets) q) s = let
-  vPossible = varToCondElts p s v :: CondElts
-  p' = if null dets then p else M.insert v vPossible p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible :: Set Subst
+  vp = varPossibilities p s v :: CondElts
+  p' = if null dets then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
   ces = S.map (runQuery d p' q) substs :: Set CondElts
   in M.unionsWith S.union ces
 
 runQuery d p (ForAll v@(Var _ dets) q) s = let
   -- TODO (#speed) Fold ForAll with short-circuiting.
-  -- Once an elt fails to obtain for one value of v,
-  -- don't try it for any of the remaining values of v.
-  vPossible = varToCondElts p s v :: CondElts
-  p' = if null dets then p else M.insert v vPossible p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible :: Set Subst
+  -- Once an Elt fails to obtain for one value of v,
+  -- don't search for it using any remaining value of v.
+  vp = varPossibilities p s v :: CondElts
+  p' = if null dets then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
   ces = S.map (runQuery d p' q) substs :: Set CondElts
   cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
     -- delete the dependency on v, so that reconciliation can work
