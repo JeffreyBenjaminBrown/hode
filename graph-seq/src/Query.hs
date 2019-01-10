@@ -98,24 +98,18 @@ runTestable d p (QOr qs) s ce = M.unionsWith S.union results
   where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
 
 runTestable d p (ForSome v q) s ce = let
-  vp = varPossibilities p s v :: CondElts
-  p' = if null $ varDets v then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-  ces = S.map (flip (runTestable d p' q) ce) substs :: Set CondElts
+  ces = testOverVarPossibilities d p q s v ce
   in M.unionsWith S.union ces
 
 runTestable d p (ForAll v q) s ce = let
-  vp = varPossibilities p s v :: CondElts
-  p' = if null $ varDets v then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-  ces = S.map (flip (runTestable d p' q) ce) substs :: Set CondElts
+  ces = testOverVarPossibilities d p q s v ce
   cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
     -- delete the dependency on v, so that reconciliation can work
   in reconcileCondElts cesWithoutV
     -- keep only results that obtain for every value of v
 
-runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
-runAnd d p qs s = tested where
+runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
+runQAnd d p qs s = tested where
   (searches,tests) = partition findable qs
   found = map (flip (runQuery d p) s) searches :: [CondElts]
   reconciled, tested :: CondElts
@@ -131,10 +125,7 @@ runQuery :: Data
 
 runQuery _ _ (findable -> False) _ = error "runQuery: non-findable Query"
 runQuery d _ (QFind f) s = runFind d s f
-
-runQuery d p (QAnd qs) s = reconcileCondElts $ S.fromList ces where
-  -- TODO (#speed) Fold QAnd with short-circuiting.
-  ces = map (flip (runQuery d p) s) qs :: [CondElts]
+runQuery d p (QAnd qs) s = runQAnd d p qs s
 
 runQuery d p (QOr qs) s =
   -- TODO (#speed|#hard) Fold QOr with short-circuiting.
@@ -164,3 +155,11 @@ queryOverVarPossibilities d p q s v = S.map (runQuery d p' q) substs
   vp = varPossibilities p s v :: CondElts
   p' = if null $ varDets v then p else M.insert v vp p
   substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+
+testOverVarPossibilities ::
+  Data -> Possible -> Query -> Subst -> Var -> CondElts -> Set CondElts
+testOverVarPossibilities d p q s v ce = ces where
+  vp = varPossibilities p s v :: CondElts
+  p' = if null $ varDets v then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+  ces = S.map (flip (runTestable d p' q) ce) substs
