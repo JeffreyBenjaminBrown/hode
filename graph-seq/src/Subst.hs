@@ -98,8 +98,8 @@ substToCondElts v subst = do
 -- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
 -- (Each determinant of a VarFunc implies a separate CondElts for it.)
 
-reconcileCondElts :: Set CondElts -> Maybe CondElts
-reconcileCondElts ces = if null u then Nothing else Just u where
+reconcileCondElts :: Set CondElts -> CondElts
+reconcileCondElts ces = u where
    keys :: Set Elt
    keys = S.unions $ S.map M.keysSet ces
    reconciled :: Set CondElts

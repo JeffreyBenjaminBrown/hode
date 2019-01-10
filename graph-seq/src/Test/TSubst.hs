@@ -146,9 +146,8 @@ testReconcileCondElts = TestCase $ do
                                        , M.fromList [ (a, 2), (b, 2) ] ] )
                       , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
   assertBool "1" $ reconcileCondElts (S.fromList [ce,cf])
-    == Just ( M.fromList
-              [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] )
-              , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
+    == M.fromList [ (1, S.singleton $ M.fromList [ (a,2), (b,2) ] )
+                  , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ]
 
 testReconcileCondEltsAtElt = TestCase $ do
   let [a,b,c,x] = map (flip Var S.empty) ["a","b","c","x"]

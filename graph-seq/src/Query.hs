@@ -91,7 +91,7 @@ runTest d s q ce = M.map harmonize passed where
 --  (searches,tests) = partition findable qs
 --  found = map (flip (runQuery d p) s) searches :: [CondElts]
 --  reconciled, tested :: CondElts
---  reconciled = maybe M.empty id $ reconcileCondElts $ S.fromList found
+--  reconciled = reconcileCondElts $ S.fromList found
 --  tested = foldr (runTest d s) reconciled tests
 
 runQuery :: Data
@@ -104,11 +104,9 @@ runQuery :: Data
 runQuery _ _ (findable -> False) _ = error "runQuery: non-findable Query"
 runQuery d _ (QFind f) s = runFind d s f
 
-runQuery d p (QAnd qs) s =
+runQuery d p (QAnd qs) s = reconcileCondElts $ S.fromList ces where
   -- TODO (#speed) Fold QAnd with short-circuiting.
-  let ces = map (flip (runQuery d p) s) qs :: [CondElts]
-      rec = reconcileCondElts $ S.fromList ces
-  in if null rec then M.empty else fromJust rec
+  ces = map (flip (runQuery d p) s) qs :: [CondElts]
 
 runQuery d p (QOr qs) s =
   -- TODO (#speed|#hard) Fold QOr with short-circuiting.
@@ -134,5 +132,5 @@ runQuery d p (ForAll v@(Var _ dets) q) s = let
   ces = S.map (runQuery d p' q) substs :: Set CondElts
   cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
     -- delete the dependency on v, so that reconciliation can work
-  in maybe M.empty id $ reconcileCondElts cesWithoutV :: CondElts
+  in reconcileCondElts cesWithoutV :: CondElts
     -- keep only results that obtain for every value of v
