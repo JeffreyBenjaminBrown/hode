@@ -91,10 +91,10 @@ runTestable :: Data -> Possible -> Query -> Subst -> CondElts -> CondElts
 runTestable _ _ (testable -> False) _ _ =
   error "runTestable: not a testable Query"
 
----- >>> TODO resume here
---runTestable d p (QForSome v qs) s ce =
---  vp = varPossibilities p s v :: CondElts
---  p' = if null dets then p else M.insert v vp p
+-- >>> TODO resume here
+-- TODO ? This duplicates a lot of code from runQuery. Avoid?
+-- runTestable d p (QForSome v qs) s ce = let
+
 
 runTestable d _ (QTest t) s ce = runTest d s t ce
 
@@ -132,22 +132,24 @@ runQuery d p (QOr qs) s =
   let ces = map (flip (runQuery d p) s) qs :: [CondElts]
   in M.unionsWith S.union ces
 
-runQuery d p (ForSome v@(Var _ dets) q) s = let
-  vp = varPossibilities p s v :: CondElts
-  p' = if null dets then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-  ces = S.map (runQuery d p' q) substs :: Set CondElts
+runQuery d p (ForSome v q) s = let
+  ces = queryOverVarPossibilities d p q s v
   in M.unionsWith S.union ces
 
-runQuery d p (ForAll v@(Var _ dets) q) s = let
+runQuery d p (ForAll v q) s = let
   -- TODO (#speed) Fold ForAll with short-circuiting.
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
-  vp = varPossibilities p s v :: CondElts
-  p' = if null dets then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-  ces = S.map (runQuery d p' q) substs :: Set CondElts
+  ces = queryOverVarPossibilities d p q s v
   cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
     -- delete the dependency on v, so that reconciliation can work
-  in reconcileCondElts cesWithoutV :: CondElts
+  in reconcileCondElts cesWithoutV
     -- keep only results that obtain for every value of v
+
+queryOverVarPossibilities ::
+  Data -> Possible -> Query -> Subst -> Var -> Set CondElts
+queryOverVarPossibilities d p q s v = S.map (runQuery d p' q) substs
+ where
+  vp = varPossibilities p s v :: CondElts
+  p' = if null $ varDets v then p else M.insert v vp p
+  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
