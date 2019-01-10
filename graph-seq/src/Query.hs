@@ -30,7 +30,7 @@ couldBind :: Query -> Set Var
 couldBind (QOr  qs)      = S.unions    $ map couldBind qs
 couldBind (QAnd qs)      = S.unions    $ map couldBind qs
 couldBind (ForSome vf q) = S.insert vf $     couldBind q
-couldBind (ForAll  vf q) =                   couldBind q
+couldBind (ForAll  _  q) =                   couldBind q
 couldBind _              = S.empty
 
 -- | Every `QAnd` must include something `findable`, and
@@ -41,8 +41,8 @@ findable (QTest _)          = False
 findable (QAnd qs)          = or  $ map findable qs
 findable (QOr     [])       = False
 findable (QOr     qs@(_:_)) = and $ map findable qs
-findable (ForSome vfs q)    = findable q
-findable (ForAll  _   q)    = findable q
+findable (ForSome _ q)      = findable q
+findable (ForAll  _ q)      = findable q
 
 testable = not . findable
 
@@ -86,17 +86,17 @@ runTest d s q ce = M.map harmonize passed where
     -- This M.union is reasonable if we have used disjointExistentials
     -- to ensure the Test does not re-assign an earlier-assigned variable.
 
--- >>> TODO resume here
 -- TODO (#speed) runTestable: foldr with short-circuiting.
 runTestable :: Data -> Possible -> Query -> Subst -> CondElts -> CondElts
 runTestable _ _ (testable -> False) _ _ =
   error "runTestable: not a testable Query"
 
+---- >>> TODO resume here
 --runTestable d p (QForSome v qs) s ce =
 --  vp = varPossibilities p s v :: CondElts
---
+--  p' = if null dets then p else M.insert v vp p
 
-runTestable d p (QTest t) s ce = runTest d s t ce
+runTestable d _ (QTest t) s ce = runTest d s t ce
 
 runTestable d p (QAnd qs) s ce = reconcileCondElts $ S.fromList results
   where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]

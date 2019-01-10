@@ -8,9 +8,6 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import Test.HUnit
 
-import Graph
-import Query
-import Subst
 import Types
 import Util
 

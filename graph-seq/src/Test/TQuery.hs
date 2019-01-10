@@ -9,9 +9,7 @@ import Test.HUnit
 
 import Graph
 import Query
-import Subst
 import Types
-import Util
 
 
 testModuleQuery = TestList [

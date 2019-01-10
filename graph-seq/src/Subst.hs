@@ -40,7 +40,7 @@ unCondition (Var name _) = Var name S.empty
 -- | `recordDependencies vf@(Var name _) ce` replaces each instance
 -- of `Var name mempty` in `ce` with `vf`.
 recordDependencies :: Var -> CondElts -> CondElts
-recordDependencies vf@(Var name _) ce =
+recordDependencies vf ce =
   let replace :: Subst -> Subst
       replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
         Nothing -> s -- TODO ? Throw an error?
@@ -133,7 +133,7 @@ reconcileCondEltsAtElt e ces = do
 reconcile :: Set (Set Subst) -> Set Subst
 reconcile ss = if null ss then S.empty
                else S.foldl reconcile2sets min rest
-  where (min, rest) = S.deleteFindMin ss
+  where (min, rest) = S.deleteFindMin ss -- like head-tail decomposition
 
 -- | `reconcile2sets ss1 ss2` returns every `Subst` that reconciles
 -- something from ss1 with something from ss2.

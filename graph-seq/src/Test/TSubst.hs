@@ -8,15 +8,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import Test.HUnit
 
-import Graph
-import Query
 import Subst
 import Types
-import Util
-
-import Test.TGraph
-import Test.TQuery
-import Test.TUtil
 
 
 testModuleSubst = TestList
@@ -185,7 +178,6 @@ testReconcile = TestCase $ do
 testReconcile2sets = TestCase $ do
   let x1 = M.singleton        (Var "x" $ S.empty) 1
       y1 = M.singleton        (Var "y" $ S.empty) 1
-      y2 = M.singleton        (Var "y" $ S.empty) 2
       z2 = M.singleton        (Var "z" $ S.empty) 2
       x1y2 = M.fromList [ (   (Var "x" $ S.empty), 1)
                         , (   (Var "y" $ S.empty), 2) ]
