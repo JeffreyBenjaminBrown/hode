@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Test.TQuery where
 
 import           Data.Map (Map)
@@ -14,7 +16,7 @@ import Util
 
 
 testModuleQuery = TestList [
-  TestLabel "testFindable" testFindable
+    TestLabel "testFindable" testFindable
   , TestLabel "testDisjointExistentials" testDisjointExistentials
   , TestLabel "testQFind" testQFind
   , TestLabel "testForSome" testForSome
@@ -24,14 +26,27 @@ testModuleQuery = TestList [
 testForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
-      [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
-      p = M.fromList
+      [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+      aOf_c = a {varDets = S.singleton c}
+      (p :: Possible) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
-                            , (2, S.singleton   M.empty) ] ) ] :: Possible
+                            , (2, S.singleton   M.empty) ] )
+          , ( b, M.fromList [ (1, S.singleton   M.empty)
+                            , (2, S.singleton $ M.singleton x 1) ] )
+          , ( c, M.fromList [ (1, S.singleton $ M.singleton a 2) ] ) ]
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
+  assertBool "4" $ runQuery g p (ForAll aOf_c $ qc aOf_c) (M.singleton c 1)
+    == M.fromList [ (12, S.singleton $ M.singleton c 1)
+                  , (22, S.singleton $ M.singleton c 1) ]
+  assertBool "3" $ runQuery g p (ForAll b $ qc b) (M.singleton x 1)
+    == M.fromList [ (12, S.singleton M.empty) ]
+  assertBool "3" $ runQuery g p (ForAll b $ qc b) (M.singleton x 1)
+    == M.fromList [ (12, S.singleton M.empty) ]
+  assertBool "2" $ runQuery g p (ForAll b $ qc b) M.empty
+    == M.fromList [ (12, S.singleton M.empty) ]
   assertBool "1" $ runQuery g p (ForAll a $ qc a) M.empty
-    == M.fromList [ (12, S.singleton $ M.empty) ]
+    == M.fromList [ (12, S.singleton M.empty) ]
 
 testForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )

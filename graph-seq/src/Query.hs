@@ -75,6 +75,8 @@ runQuery d p (ForSome v@(Var _ dets) q) s = let
   in M.unionsWith S.union ces
 
 runQuery d p (ForAll v@(Var _ dets) q) s = let
+  -- TODO (#speed|#major) Once an elt fails to obtain for one value of v,
+  -- don't try it for any of the remaining values of v.
   vPossible = varToCondElts p s v :: CondElts
   p' = if null dets then p else M.insert v vPossible p
   substs = S.map (\k -> M.insert v k s) $ M.keysSet vPossible :: Set Subst
