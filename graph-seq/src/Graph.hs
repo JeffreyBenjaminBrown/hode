@@ -28,6 +28,14 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
         -> M.Map  a (S.Set a)
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
 
+isNot :: Either Elt Var -> Test
+isNot (Left e) = Test t mempty where
+  t :: Data -> Subst -> Elt -> Bool
+  t _ _ = (/=) e
+isNot (Right v) = Test t mempty where
+  t :: Data -> Subst -> Elt -> Bool
+  t _ s = (/=) $ (M.!) s v
+
 findChildren :: Either Elt Var -> Find
 findChildren (Left e) = Find f mempty where
   f :: Graph -> Subst -> Set Elt
