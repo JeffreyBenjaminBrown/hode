@@ -85,3 +85,7 @@ runQuery d p (ForAll v@(Var _ dets) q) s = let
     -- delete the dependency on v, so that reconciliation can work
   in maybe M.empty id $ reconcileCondElts cesWithoutV :: CondElts
         -- keep only results that obtain for every value of v
+
+runQuery d p (QOr qs) s =
+  let ces = map (flip (runQuery d p) s) qs :: [CondElts]
+  in M.unionsWith S.union ces
