@@ -83,8 +83,25 @@ runTest d s q ce = M.map harmonize passed where
   passed = M.filter (fst . fst) tested
   harmonize :: ((a,Subst), Set Subst) -> Set Subst -- ignores the Bool
   harmonize ((_,s),ss) = S.map (M.union s) ss
-   -- This M.union is reasonable if we have used disjointExistentials
-  -- to ensure the Test does not re-assign an earlier-assigned variable.
+    -- This M.union is reasonable if we have used disjointExistentials
+    -- to ensure the Test does not re-assign an earlier-assigned variable.
+
+-- >>> TODO resume here
+-- TODO (#speed) runTestable: foldr with short-circuiting.
+runTestable :: Data -> Possible -> Query -> Subst -> CondElts -> CondElts
+runTestable _ _ (testable -> False) _ _ =
+  error "runTestable: not a testable Query"
+
+--runTestable d p (QForSome v qs) s ce =
+--  vPossible = varToCondElts p s v :: CondElts
+--
+
+runTestable d p (QTest t) s ce = runTest d s t ce
+
+runTestable d p (QAnd qs) s ce = reconcileCondElts $ S.fromList results
+  where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
+runTestable d p (QOr qs) s ce = M.unionsWith S.union results
+  where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
 
 --runAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
 --runAnd d p qs s = tested where
