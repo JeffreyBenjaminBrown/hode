@@ -18,12 +18,6 @@ Universals and existentials both introduce variables, and (I think)
 no introduced variable should obscure an earlier one.
 But QAnd imposes another conditions: for any variable x, not more than
 one clause of the QAnd should be able to bind x.
-* TODO non-findable queries make runAnd hard
-e.g. What if one clause of an And is an Or with nothing but tests?
-* TODO a Test should process a CondElt, not an Elt
-Because when the Elt is found (with Find), that will generate conditions
-and the Test has to add further conditions.
-* TODO process QTest in QAnd
 * TODO test QAnd, and mixed queries
 * What expressivity do I lose by requiring sequentiality?
 * DONE ? If an existential is under a union or intersection?

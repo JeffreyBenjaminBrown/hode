@@ -29,6 +29,7 @@ library
   exposed-modules:
                   Graph
                 , Query
+                , Query.Classify
                 , Subst
                 , Test
                 , Test.TGraph
