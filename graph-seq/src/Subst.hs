@@ -12,11 +12,16 @@ import Types
 import Util
 
 
-extendPossible :: Var -> Possible -> Subst -> (Possible, Set Subst)
-extendPossible v p s = (p',s') where
-    vp = varPossibilities p s v :: CondElts
-    p' = if null $ varDets v then p else M.insert v vp p
-    s' = S.map (\k -> M.insert v k s) $ M.keysSet vp
+extendPossible :: Var -> Possible -> Subst
+  -> Either String (Possible, Set Subst)
+extendPossible v p s = let
+  e = varPossibilities p s v :: Either String CondElts
+  in case e of
+       Left s -> Left $ "extendPossible: error in callee:\n" ++ s
+       Right ce -> let
+         p' = if null $ varDets v then p else M.insert v ce p
+         s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
+         in Right (p',s')
 
 -- | `varPossibilities r s (Var v dets)` returns all values v can take,
 -- given r, s and v. If dets is non-null, then the CondElts returned
@@ -25,9 +30,10 @@ extendPossible v p s = (p',s') where
 -- in a Possible -- and it would only duplicate information already
 -- present in the input Subst.)
 
-varPossibilities :: Possible -> Subst -> Var -> CondElts
+varPossibilities :: Possible -> Subst -> Var -> Either String CondElts
 varPossibilities    p           s  vf@(Var v dets)
-  | null dets = (M.!) p vf
+  | null dets = maybe (Left $ keyErr "varPossibilities" vf p) Right
+                $ M.lookup vf p
   | otherwise = let
     (pRestricted :: Possible) = M.map (f :: CondElts -> CondElts)
                                 $ M.restrictKeys p vAndDets
@@ -39,8 +45,9 @@ varPossibilities    p           s  vf@(Var v dets)
     substs = reconcileDepsAcrossVars pRestricted s dets :: Set Subst
     (possible :: Set Elt) =
       M.keysSet $ setSubstToCondElts (unCondition vf) substs
-    in
-      M.restrictKeys ((M.!) p (unCondition vf)) possible
+    (lk :: Maybe CondElts) = M.lookup (unCondition vf) p
+    in maybe (Left $ keyErr "varPossibilities" vf p)
+       (Right . flip M.restrictKeys possible) lk
 
 unCondition :: Var -> Var
 unCondition (Var name _) = Var name S.empty

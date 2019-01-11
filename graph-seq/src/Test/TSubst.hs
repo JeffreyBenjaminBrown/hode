@@ -68,8 +68,8 @@ testVarPossibilities = TestCase $ do
       (pa :: Possible) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
-  assertBool "0" $   varPossibilities pa M.empty a == ((M.!) pa a)
-  assertBool "0.1" $ varPossibilities pa s_b1c1  a == ((M.!) pa a)
+  assertBool "0" $   varPossibilities pa M.empty a == Right ((M.!) pa a)
+  assertBool "0.1" $ varPossibilities pa s_b1c1  a == Right ((M.!) pa a)
     -- the Subst s_b1c1 is ignored because the dets in the Var are empty
 
   let (p :: Possible) = M.fromList
@@ -92,11 +92,11 @@ testVarPossibilities = TestCase $ do
       aOf_bc = Var "a" (S.fromList [b, c])
 
   assertBool "1" $ varPossibilities p s_b2 aOf_b
-    == M.fromList [ (2, S.singleton M.empty )
-                  , (3, S.singleton $ M.singleton x 13) ]
+    == Right (M.fromList [ (2, S.singleton M.empty )
+                  , (3, S.singleton $ M.singleton x 13) ])
   assertBool "2" $ varPossibilities p s_b1c1 aOf_bc
-    == M.fromList [ (2, S.singleton M.empty )
-                  , (4, S.singleton $ M.singleton x 14) ]
+    == Right (M.fromList [ (2, S.singleton M.empty )
+                         , (4, S.singleton $ M.singleton x 14) ])
 
 testVarSubsts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]
