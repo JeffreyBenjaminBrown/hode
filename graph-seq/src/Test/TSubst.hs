@@ -20,7 +20,7 @@ testModuleSubst = TestList
   , TestLabel "testReconcileCondEltsAtElt" testReconcileCondEltsAtElt
   , TestLabel "testReconcileCondElts" testReconcileCondElts
   , TestLabel "testVarSubsts" testVarSubsts
-  , TestLabel "testVarToCondElts" testVarToCondElts
+  , TestLabel "testVarPossibilities" testVarPossibilities
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
   , TestLabel "testRecordDependencies" testRecordDependencies
@@ -61,7 +61,7 @@ testSubstToCondElts = TestCase $ do
   assertBool "1" $ substToCondElts b s ==
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
-testVarToCondElts = TestCase $ do
+testVarPossibilities = TestCase $ do
   let [a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]
       s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
       s_b2   = M.fromList [ (b,2)        ] :: Subst
@@ -75,7 +75,9 @@ testVarToCondElts = TestCase $ do
   let (p :: Possible) = M.fromList
           [ ( a, M.fromList
               [ (1, S.singleton M.empty)
-              , (2, S.singleton M.empty) ] )
+              , (2, S.singleton M.empty)
+              , (3, S.singleton $ M.singleton x 13)
+              , (4, S.singleton $ M.singleton x 14) ] )
           , ( b, M.fromList
               [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
                                , M.fromList [(a, 3), (x,1)       ]
@@ -91,10 +93,10 @@ testVarToCondElts = TestCase $ do
 
   assertBool "1" $ varPossibilities p s_b2 aOf_b
     == M.fromList [ (2, S.singleton M.empty )
-                  , (3, S.singleton M.empty ) ]
+                  , (3, S.singleton $ M.singleton x 13) ]
   assertBool "2" $ varPossibilities p s_b1c1 aOf_bc
     == M.fromList [ (2, S.singleton M.empty )
-                  , (4, S.singleton M.empty ) ]
+                  , (4, S.singleton $ M.singleton x 14) ]
 
 testVarSubsts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]

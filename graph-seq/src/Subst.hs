@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Subst where
 
 import           Data.Map (Map)
@@ -24,21 +26,21 @@ extendPossible v p s = (p',s') where
 -- present in the input Subst.)
 
 varPossibilities :: Possible -> Subst -> Var -> CondElts
-varPossibilities    p           s  vf@(Var v dets) = case null dets of
-  True -> (M.!) p vf
-  False ->
-    let
-      pRestricted = M.map (f :: CondElts -> CondElts) p
-        where
-  -- Any Subst in p that mentions a variable other than v or one of the
-  -- dets is irrelevant. So too is any such key of p.
-          vAndDets = S.insert (Var v S.empty) dets
-          f = M.map $ S.map $ flip M.restrictKeys vAndDets
-      substs = reconcileDepsAcrossVars pRestricted s dets :: Set Subst
-      x = setSubstToCondElts (unCondition vf) substs :: CondElts
-  -- `unCondition vf` because there do not yet exist conditional values of it
+varPossibilities    p           s  vf@(Var v dets) =
+  | null dets = (M.!) p vf
+  | otherwise = let
+    (pRestricted :: Possible) = M.map (f :: CondElts -> CondElts)
+                                $ M.restrictKeys p vAndDets
+      where
+       -- A Subst in p that mentions a variable other than v or
+       -- one of the dets is irrelevant, as is any such key of p.
+        vAndDets = S.insert (Var v S.empty) dets
+        f = M.map $ S.map $ flip M.restrictKeys vAndDets
+    substs = reconcileDepsAcrossVars pRestricted s dets :: Set Subst
+    (possible :: Set Elt) =
+      M.keysSet $ setSubstToCondElts (unCondition vf) substs
     in
-      recordDependencies vf x
+      M.restrictKeys ((M.!) p (unCondition vf)) possible
 
 unCondition :: Var -> Var
 unCondition (Var name _) = Var name S.empty
