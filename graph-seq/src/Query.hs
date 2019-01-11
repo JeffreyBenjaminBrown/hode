@@ -44,7 +44,7 @@ runTest d s q ce =
 runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
 runQAnd d p qs s = tested where
   (searches,tests) = partition findable qs
-  found = map (flip (runQuery d p) s) searches :: [CondElts]
+  found = map (flip (runFindable d p) s) searches :: [CondElts]
   reconciled, tested :: CondElts
   reconciled = reconcileCondElts $ S.fromList found
   tested = foldr (\t ce -> runTestable d p t s ce) reconciled tests
@@ -76,36 +76,36 @@ runTestable d p (ForAll v q) s ce = let
     -- keep only results that obtain for every value of v
 
 
--- | = runQuery
+-- | = runFindable
 
-runQuery :: Data
+runFindable :: Data
          -> Possible -- ^ how the `Program`'s earlier `Var`s have been bound
          -> Query
          -> Subst  -- ^ earlier (higher, calling) quantifiers draw these
                    -- from the input `Possible`
          -> CondElts
 
-runQuery _ _ (findable -> False) _ = error "runQuery: non-findable Query"
-runQuery d _ (QFind f) s = runFind d s f
-runQuery d p (QAnd qs) s = runQAnd d p qs s
+runFindable _ _ (findable -> False) _ = error "runFindable: non-findable Query"
+runFindable d _ (QFind f) s = runFind d s f
+runFindable d p (QAnd qs) s = runQAnd d p qs s
 
-runQuery d p (QOr qs) s =
+runFindable d p (QOr qs) s =
   -- TODO (#speed|#hard) Fold QOr with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
-  let ces = map (flip (runQuery d p) s) qs :: [CondElts]
+  let ces = map (flip (runFindable d p) s) qs :: [CondElts]
   in M.unionsWith S.union ces
 
-runQuery d p (ForSome v q) s = let
+runFindable d p (ForSome v q) s = let
   (p',ss) = extendPossible v p s
-  in M.unionsWith S.union $ S.map (runQuery d p' q) ss
+  in M.unionsWith S.union $ S.map (runFindable d p' q) ss
 
-runQuery d p (ForAll v q) s = let
+runFindable d p (ForAll v q) s = let
   -- TODO (#speed) Fold ForAll with short-circuiting.
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
   (p',ss) = extendPossible v p s
-  ces = S.map (runQuery d p' q) ss
+  ces = S.map (runFindable d p' q) ss
   cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
     -- delete the dependency on v, so that reconciliation can work
   in reconcileCondElts cesWithoutV

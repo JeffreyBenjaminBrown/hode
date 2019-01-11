@@ -1,12 +1,12 @@
-runQuery d p q s
+runFindable d p q s
 = runQAnd d p qs s
 
   (searches,tests) = partition findable qs
-  found = map (flip (runQuery d p) s) searches :: [CondElts]
+  found = map (flip (runFindable d p) s) searches :: [CondElts]
 
-head found = runQuery d p (ForSome aOf_b $ fc aOf_b) s :: CondElts
+head found = runFindable d p (ForSome aOf_b $ fc aOf_b) s :: CondElts
 
-runQuery d p (ForSome v q) s
+runFindable d p (ForSome v q) s
   v = aOf_b
   q = fc aOf_b -- this shadows the earlier q
   vp = varPossibilities p s v

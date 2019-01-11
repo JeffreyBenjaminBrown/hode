@@ -17,13 +17,13 @@ import Types
 testModuleQuery = TestList [
     TestLabel "testFindable" testFindable
   , TestLabel "testOkExistentials" testOkExistentials
-  , TestLabel "test_runQuery_Find" test_runQuery_Find
+  , TestLabel "test_runFindable_Find" test_runFindable_Find
   , TestLabel "testRunTest" testRunTest
-  , TestLabel "test_runQuery_ForSome" test_runQuery_ForSome
-  , TestLabel "test_runQuery_ForAll" test_runQuery_ForAll
+  , TestLabel "test_runFindable_ForSome" test_runFindable_ForSome
+  , TestLabel "test_runFindable_ForAll" test_runFindable_ForAll
   , TestLabel "testRunTestable" testRunTestable
   , TestLabel "testRunQAnd" testRunQAnd
-  , TestLabel "test_runQuery_mixed" test_runQuery_mixed
+  , TestLabel "test_runFindable_mixed" test_runFindable_mixed
   ]
 
 [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
@@ -47,7 +47,7 @@ q = QAnd [ ForAll aOf_b $ isnt aOf_b
 qs = [ ForAll aOf_b $ isnt aOf_b
      , ForSome aOf_b $ fc aOf_b ]
 
-test_runQuery_mixed = TestCase $ do
+test_runFindable_mixed = TestCase $ do
   let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
       aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
 
@@ -66,10 +66,10 @@ test_runQuery_mixed = TestCase $ do
 
   assertBool "2" $ let q = QAnd [ ForAll aOf_b $ isnt aOf_b
                                 , ForSome aOf_b $ fc aOf_b ]
-    in runQuery d p q s == M.singleton 4 (S.fromList [ M.singleton aOf_b 2
+    in runFindable d p q s == M.singleton 4 (S.fromList [ M.singleton aOf_b 2
                                                      , M.singleton b 23 ] )
   assertBool "1" $ let q = ForAll aOf_b $ QAnd [ fc0, isnt a ]
-    in runQuery d p q s == M.singleton 1 (S.singleton $ M.singleton a 2)
+    in runFindable d p q s == M.singleton 1 (S.singleton $ M.singleton a 2)
 
 testRunQAnd = TestCase $ do
   let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
@@ -111,7 +111,7 @@ testRunTestable = TestCase $ do
   assertBool "1" $ runTestable d M.empty (QTest nota)                   a2 ce
     == M.fromList ( map (, S.singleton $ M.singleton a 2) [1,3] )
 
-test_runQuery_ForAll = TestCase $ do
+test_runFindable_ForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
       [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
@@ -124,19 +124,19 @@ test_runQuery_ForAll = TestCase $ do
           , ( c, M.fromList [ (1, S.singleton $ M.singleton a 2) ] ) ]
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
-  assertBool "4" $ runQuery g p (ForAll aOf_c $ qc aOf_c) (M.singleton c 1)
+  assertBool "4" $ runFindable g p (ForAll aOf_c $ qc aOf_c) (M.singleton c 1)
     == M.fromList [ (12, S.singleton $ M.singleton c 1)
                   , (22, S.singleton $ M.singleton c 1) ]
-  assertBool "3" $ runQuery g p (ForAll b $ qc b) (M.singleton x 1)
+  assertBool "3" $ runFindable g p (ForAll b $ qc b) (M.singleton x 1)
     == M.fromList [ (12, S.singleton M.empty) ]
-  assertBool "3" $ runQuery g p (ForAll b $ qc b) (M.singleton x 1)
+  assertBool "3" $ runFindable g p (ForAll b $ qc b) (M.singleton x 1)
     == M.fromList [ (12, S.singleton M.empty) ]
-  assertBool "2" $ runQuery g p (ForAll b $ qc b) M.empty
+  assertBool "2" $ runFindable g p (ForAll b $ qc b) M.empty
     == M.fromList [ (12, S.singleton M.empty) ]
-  assertBool "1" $ runQuery g p (ForAll a $ qc a) M.empty
+  assertBool "1" $ runFindable g p (ForAll a $ qc a) M.empty
     == M.fromList [ (12, S.singleton M.empty) ]
 
-test_runQuery_ForSome = TestCase $ do
+test_runFindable_ForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
       [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
@@ -148,12 +148,12 @@ test_runQuery_ForSome = TestCase $ do
                             , (2, S.singleton   M.empty) ] ) ] :: Possible
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
-  assertBool "3" $ (runQuery g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 1)
+  assertBool "3" $ (runFindable g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 1)
     == M.fromList [ (11, S.singleton $ M.fromList [ (b, 1), (aOf_b, 1) ] )
                   , (21, S.singleton $ M.fromList [ (b, 1), (aOf_b, 1) ] ) ]
-  assertBool "2" $ (runQuery g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 2)
+  assertBool "2" $ (runFindable g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 2)
     == M.empty
-  assertBool "1" $ runQuery g p (ForSome a $ qc a) M.empty
+  assertBool "1" $ runFindable g p (ForSome a $ qc a) M.empty
     == M.fromList [ (11, S.singleton $ M.singleton a 1)
                   , (21, S.singleton $ M.singleton a 1)
                   , (12, S.singleton $ M.singleton a 2)
@@ -171,17 +171,17 @@ testRunTest = TestCase $ do
   assertBool "2" $ runTest g a2 (isNot $ Right a) ce
     == M.singleton 1 ( S.singleton $ M.fromList [(a,2)] )
 
-test_runQuery_Find = TestCase $ do
+test_runFindable_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
       [x,y] = map (flip Var S.empty) ["x","y"]
       f1 = QFind $ findChildren $ Left 1
       fy = QFind $ findChildren $ Right y
       s = M.fromList [(x,1), (y,2)] :: Subst
-  assertBool "1" $ runQuery g M.empty f1 M.empty
+  assertBool "1" $ runFindable g M.empty f1 M.empty
     == M.fromList [ (11, S.singleton M.empty)
                   , (21, S.singleton M.empty) ]
-  assertBool "2" $ runQuery g M.empty fy s
+  assertBool "2" $ runFindable g M.empty fy s
     == M.fromList [ (12, S.singleton $ M.singleton y 2)
                   , (22, S.singleton $ M.singleton y 2) ]
 
