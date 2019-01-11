@@ -74,8 +74,8 @@ testVarToCondElts = TestCase $ do
 
   let (p :: Possible) = M.fromList
           [ ( a, M.fromList
-              [ (1, S.singleton $ error "never used")
-              , (2, error "doesn't matter") ] )
+              [ (1, S.singleton M.empty)
+              , (2, S.singleton M.empty) ] )
           , ( b, M.fromList
               [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
                                , M.fromList [(a, 3), (x,1)       ]
@@ -84,8 +84,8 @@ testVarToCondElts = TestCase $ do
                                , M.fromList [(a,3) , (x,1)       ] ] ) ] )
           , ( c, M.fromList
               [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
-                               , M.fromList [(a, 4),       (y,2) ] ] )
-              , (2, error "never used, doesn't matter") ] ) ]
+                               , M.fromList [(a, 4), (x,2)       ] ] )
+              , (2, S.singleton M.empty) ] ) ]
       aOf_b  = Var "a" (S.fromList [b   ])
       aOf_bc = Var "a" (S.fromList [b, c])
 
@@ -93,39 +93,8 @@ testVarToCondElts = TestCase $ do
     == M.fromList [ (2, S.singleton M.empty )
                   , (3, S.singleton M.empty ) ]
   assertBool "2" $ varPossibilities p s_b1c1 aOf_bc
-    == M.fromList [ (2, S.singleton M.empty ) ]
-
---- FOR DEBUGGING varPossibilities
-
-[a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]
-vf_a    = Var "a" (S.empty)
-s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
-s_b2   = M.fromList [ (b,2)        ] :: Subst
-(pa :: Possible) = M.fromList [
-  ( a, M.fromList [ (1, S.singleton mempty)
-                  , (5, S.singleton $ M.singleton x 23) ] ) ]
-
-(p :: Possible) = M.fromList
-    [ ( a, M.fromList
-        [ (1, S.singleton $ error "never used")
-        , (2, error "doesn't matter") ] )
-    , ( b, M.fromList
-        [ (1, S.fromList [ M.fromList [(a, 2), (x,0)       ]
-                         , M.fromList [(a, 3), (x,1)       ]
-                         , M.fromList [(a, 4), (x,1)       ] ] )
-        , (2, S.fromList [ M.fromList [(a,2)               ]
-                         , M.fromList [(a,3) , (x,1)       ] ] ) ] )
-    , ( c, M.fromList
-        [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
-                         , M.fromList [(a, 2),       (y,4) ]
-                         , M.fromList [(a, 3), (x,2)       ]
-                         , M.fromList [(a, 4),       (y,2) ] ] )
-        , (2, error "never used, doesn't matter") ] ) ]
-aOf_b  = Var "a" (S.fromList [b   ])
-aOf_bc = Var "a" (S.fromList [b, c])
-
---- /FOR DEBUGGING varPossibilities
-
+    == M.fromList [ (2, S.singleton M.empty )
+                  , (4, S.singleton M.empty ) ]
 
 testVarSubsts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]

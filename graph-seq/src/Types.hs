@@ -19,7 +19,7 @@ data Var = Var { varName :: String
   -- restricts the possible values the Var can take.
   deriving (Eq, Ord)
 instance Show Var where
-  show v = "Var " ++ varName v ++ " of " ++ show (S.toList $ varDets v)
+  show v = "Var " ++ varName v ++ "<=" ++ show (S.toList $ varDets v)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDeps     :: Set Var }

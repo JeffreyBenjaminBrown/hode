@@ -28,7 +28,7 @@ varPossibilities    p           s  vf@(Var v dets) = case null dets of
   True -> (M.!) p vf
   False ->
     let
-      pRestricted = M.map f p
+      pRestricted = M.map (f :: CondElts -> CondElts) p
         where
   -- Any Subst in p that mentions a variable other than v or one of the
   -- dets is irrelevant. So too is any such key of p.
