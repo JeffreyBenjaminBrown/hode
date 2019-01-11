@@ -23,7 +23,53 @@ testModuleQuery = TestList [
   , TestLabel "test_runQuery_ForAll" test_runQuery_ForAll
   , TestLabel "testRunTestable" testRunTestable
   , TestLabel "testRunQAnd" testRunQAnd
+  , TestLabel "test_runQuery_mixed" test_runQuery_mixed
   ]
+
+[a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
+
+isnt v = QTest $ isNot $ Right v
+d = graph [ (0, [1,2        ] )
+          , (3, [  2,3,4    ] )
+          , (10,[11, 23     ] ) ]
+(p :: Possible) = M.fromList
+  [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
+  , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
+                   , (23, S.fromList [ M.singleton a 2
+                                     , M.singleton a 3 ] ) ] ) ]
+fc0 = QFind $ findChildren $ Left 0
+fc v = QFind $ findChildren $ Right v
+s = M.fromList [(a,2), (b,23)] :: Subst
+
+q = QAnd [ ForAll aOf_b $ isnt aOf_b
+         , ForSome aOf_b $ fc aOf_b ]
+qs = [ ForAll aOf_b $ isnt aOf_b
+     , ForSome aOf_b $ fc aOf_b ]
+
+test_runQuery_mixed = TestCase $ do
+  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+      aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
+
+      isnt v = QTest $ isNot $ Right v
+      d = graph [ (0, [1,2        ] )
+                , (3, [  2,3,4    ] )
+                , (10,[11, 23     ] ) ]
+      (p :: Possible) = M.fromList
+        [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
+        , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
+                         , (23, S.fromList [ M.singleton a 2
+                                           , M.singleton a 3 ] ) ] ) ]
+      fc0 = QFind $ findChildren $ Left 0
+      fc v = QFind $ findChildren $ Right v
+      s = M.fromList [(a,2), (b,23)] :: Subst
+
+  assertBool "2" $ let q = QAnd [ ForAll aOf_b $ isnt aOf_b
+                                , ForSome aOf_b $ fc aOf_b ]
+    in runQuery d p q s == M.singleton 4 (S.fromList [ M.singleton aOf_b 2
+                                                     , M.singleton b 23 ] )
+  assertBool "1" $ let q = ForAll aOf_b $ QAnd [ fc0, isnt a ]
+    in runQuery d p q s == M.singleton 1 (S.singleton $ M.singleton a 2)
 
 testRunQAnd = TestCase $ do
   let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
