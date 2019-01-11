@@ -50,6 +50,8 @@ queryOverVarPossibilities d p q s v =
     p' = if null $ varDets v then p else M.insert v vp p
     substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
 
+-- TODO : unduplicate testOverVarPossibilities, queryOverVarPossibilities
+
 testOverVarPossibilities ::
   Data -> Possible -> Query -> Subst -> Var -> CondElts -> Set CondElts
 testOverVarPossibilities d p q s v ce =

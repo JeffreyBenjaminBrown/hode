@@ -59,6 +59,12 @@ recordDependencies vf ce =
 -- and we ask for reconcileDepsAcrossVars consistent with the subst (a=1,b=1).
 -- THe only Subst consistent with both is a=2.
 
+-- TODO (#fast) short-circuit reconcileDepsAcrossVars.
+-- varPossibilities is so far reconcileDepsAcrossVars's only caller.
+-- varPossibilities only wants the Elt, not the associated Substs,
+-- so if there is any way to reconcile an Elt across Substs,
+-- don't search for yet more ways.
+
 reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Set Subst
 reconcileDepsAcrossVars    p           s        dets
   | null dets = error
