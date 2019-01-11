@@ -17,12 +17,26 @@ import Types
 testModuleQuery = TestList [
     TestLabel "testFindable" testFindable
   , TestLabel "testOkExistentials" testOkExistentials
-  , TestLabel "testRunFind" testRunFind
+  , TestLabel "test_runQuery_Find" test_runQuery_Find
   , TestLabel "testRunTest" testRunTest
-  , TestLabel "testForSome" testForSome
-  , TestLabel "testForAll" testForAll
+  , TestLabel "test_runQuery_ForSome" test_runQuery_ForSome
+  , TestLabel "test_runQuery_ForAll" test_runQuery_ForAll
   , TestLabel "testRunTestable" testRunTestable
+  , TestLabel "testRunQAnd" testRunQAnd
   ]
+
+testRunQAnd = TestCase $ do
+  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+      (a2 :: Subst) = M.singleton a 2
+      nota = QTest $ isNot $ Right a
+      d = graph [ (0, [1,2    ] )
+                , (3, [  2,3,4] ) ]
+      (p :: Possible) = M.singleton a $
+        M.fromList [ (1, S.singleton M.empty)
+                   , (3, S.singleton M.empty) ]
+      fc0 = QFind $ findChildren $ Left 0
+  assertBool "1" $ runQAnd d p [fc0, nota] a2
+    == M.singleton 1 (S.singleton $ M.singleton a 2)
 
 testRunTestable = TestCase $ do
   let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
@@ -51,7 +65,7 @@ testRunTestable = TestCase $ do
   assertBool "1" $ runTestable d M.empty (QTest nota)                   a2 ce
     == M.fromList ( map (, S.singleton $ M.singleton a 2) [1,3] )
 
-testForAll = TestCase $ do
+test_runQuery_ForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
       [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
@@ -76,7 +90,7 @@ testForAll = TestCase $ do
   assertBool "1" $ runQuery g p (ForAll a $ qc a) M.empty
     == M.fromList [ (12, S.singleton M.empty) ]
 
-testForSome = TestCase $ do
+test_runQuery_ForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
       [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
@@ -111,7 +125,7 @@ testRunTest = TestCase $ do
   assertBool "2" $ runTest g a2 (isNot $ Right a) ce
     == M.singleton 1 ( S.singleton $ M.fromList [(a,2)] )
 
-testRunFind = TestCase $ do
+test_runQuery_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
       [x,y] = map (flip Var S.empty) ["x","y"]
