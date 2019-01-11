@@ -104,7 +104,6 @@ testVarSubsts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]
       aOf_x  = Var "a" (S.fromList [x   ])
       aOf_xy = Var "a" (S.fromList [x, y])
-
       xCondElts = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (2, S.fromList [ M.fromList [ (a, 2), (b, 2) ] ] ) ]
@@ -117,7 +116,7 @@ testVarSubsts = TestCase $ do
                      , (y, yCondElts) ]
       xySubst xVal yVal = M.fromList [ (x, xVal), (y, yVal) ]
 
-  assertBool "0" $ varSubsts r (xySubst 1 4) aOf_x
+  assertBool "0" $ varSubsts r (xySubst 1 4) aOf_x -- y irrelevant in aOf_x
     == S.fromList [ M.fromList [ (a, 1) ] ]
   assertBool "1" $ varSubsts r (xySubst 1 3) aOf_xy
     == S.fromList [ M.fromList [ (a, 1) ] ]

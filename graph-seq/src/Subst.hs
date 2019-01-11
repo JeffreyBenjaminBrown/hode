@@ -50,7 +50,14 @@ recordDependencies vf ce =
 -- | `varSubsts r s (Var _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 -- They are reconciled across dets -- that is, for each det in dets
--- and each s in the result, s is consistent with the CondElts for det.
+-- and each s in the result, s is consistent with at least one Subst
+-- that r assigns to det (given the value of det in s).
+--
+-- For instance, imagine a Possible in which
+-- a can be 1 provided x is 1 or 2, and
+-- b can be 1 provided x is      2 or 3.
+-- and we ask for varSubsts consistent with the subst (a=1,b=1).
+-- THe only Subst consistent with both is a=2.
 
 varSubsts :: Possible -> Subst -> Var         -> Set Subst
 varSubsts    p           s       (Var _ dets)
