@@ -29,25 +29,37 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
 
 isNot :: Either Elt Var -> Test
-isNot (Left e) = Test t mempty where
-  t :: Data -> Subst -> Elt -> Bool
-  t _ _ = (/=) e
-isNot (Right v) = Test t mempty where
-  t :: Data -> Subst -> Elt -> Bool
-  t _ s = (/=) $ (M.!) s v
+isNot (Left e) =
+  Test t mempty
+  where
+    t :: Data -> Subst -> Elt -> Bool
+    t _ _ = (/=) e
+isNot (Right v) =
+  Test t $ S.union (S.singleton v) $ varDets v
+  where
+    t :: Data -> Subst -> Elt -> Bool
+    t _ s = (/=) $ (M.!) s v
 
 findChildren :: Either Elt Var -> Find
-findChildren (Left e) = Find f mempty where
-  f :: Graph -> Subst -> Set Elt
-  f g _ = (M.!) (children g) e
-findChildren (Right v) = Find f $ S.union (S.singleton v) $ varDets v where
-  f :: Graph -> Subst -> Set Elt
-  f g s = (M.!) (children g) $ (M.!) s v
+findChildren (Left e) =
+  Find f mempty
+  where
+    f :: Graph -> Subst -> Set Elt
+    f g _ = (M.!) (children g) e
+findChildren (Right v) =
+  Find f $ S.union (S.singleton v) $ varDets v
+  where
+    f :: Graph -> Subst -> Set Elt
+    f g s = (M.!) (children g) $ (M.!) s v
 
 findParents :: Either Elt Var -> Find
-findParents (Left e) = Find f mempty where
-  f :: Graph -> Subst -> Set Elt
-  f g _ = (M.!) (parents g) e
-findParents (Right v) = Find f $ S.union (S.singleton v) $ varDets v where
-  f :: Graph -> Subst -> Set Elt
-  f g s = (M.!) (parents g) $ (M.!) s v
+findParents (Left e) =
+  Find f mempty
+  where
+    f :: Graph -> Subst -> Set Elt
+    f g _ = (M.!) (parents g) e
+findParents (Right v) =
+  Find f $ S.union (S.singleton v) $ varDets v
+  where
+    f :: Graph -> Subst -> Set Elt
+    f g s = (M.!) (parents g) $ (M.!) s v

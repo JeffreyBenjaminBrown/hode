@@ -16,7 +16,8 @@ import Types
 testModuleQuery = TestList [
     TestLabel "testFindable" testFindable
   , TestLabel "testOkExistentials" testOkExistentials
-  , TestLabel "testQFind" testQFind
+  , TestLabel "testRunFind" testRunFind
+  , TestLabel "testRunTest" testRunTest
   , TestLabel "testForSome" testForSome
   , TestLabel "testForAll" testForAll
   , TestLabel "testQAnd" testQAnd
@@ -76,7 +77,19 @@ testForSome = TestCase $ do
                   , (12, S.singleton $ M.singleton a 2)
                   , (22, S.singleton $ M.singleton a 2) ]
 
-testQFind = TestCase $ do
+testRunTest = TestCase $ do
+  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+      g = graph [ (1, [11, 12    ] )
+                , (2, [    12, 22] ) ]
+      (a2 :: Subst) = M.singleton a 2
+      (ce :: CondElts) = M.fromList [ (1, S.singleton $ M.singleton x 0)
+                                    , (2, S.empty) ]
+  assertBool "1" $ runTest g a2 (isNot $ Left 1) ce
+    == M.singleton 2 (S.singleton M.empty)
+  assertBool "2" $ runTest g a2 (isNot $ Right a) ce
+    == M.singleton 1 ( S.singleton $ M.fromList [(a,2)] )
+
+testRunFind = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
       [x,y] = map (flip Var S.empty) ["x","y"]

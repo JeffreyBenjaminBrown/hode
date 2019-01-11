@@ -18,44 +18,47 @@ import Query.Classify
 
 runFind :: Data -> Subst -> Find -> CondElts
 runFind d s (Find find deps) =
-  let found = find d s             :: Set Elt
-      used = M.restrictKeys s deps :: Subst
-  in M.fromSet (const $ S.singleton used) found
+  M.fromSet (const $ S.singleton used) found
+  where
+    found = find d s             :: Set Elt
+    used = M.restrictKeys s deps :: Subst
 
 runTestOnElt :: Data -> Subst -> Test -> Elt -> (Bool, Subst)
 runTestOnElt d s (Test test deps) e =
-  let passes = test d s e          :: Bool
-      used = M.restrictKeys s deps :: Subst
-  in (passes, used)
+  (passes, used)
+  where
+    passes = test d s e          :: Bool
+    used = M.restrictKeys s deps :: Subst
+
 
 runTest :: Data -> Subst -> Test -> CondElts -> CondElts
-runTest d s q ce = M.map harmonize passed where
-  tested, passed :: Map Elt ((Bool, Subst), Set Subst)
-  tested = M.mapWithKey (\k a -> (runTestOnElt d s q k, a)) ce
-  passed = M.filter (fst . fst) tested
-  harmonize :: ((a,Subst), Set Subst) -> Set Subst -- ignores the Bool
-  harmonize ((_,s),ss) = S.map (M.union s) ss
-    -- This M.union is reasonable if we have used disjointExistentials
-    -- to ensure the Test does not re-assign an earlier-assigned variable.
+runTest d s q ce =
+  M.map ( S.singleton . snd) passed
+  where
+    tested, passed :: Map Elt (Bool, Subst)
+    tested = M.mapWithKey (\k v -> runTestOnElt d s q k) ce
+    passed = M.filter fst tested
 
 
 -- | = some helpers
 
 queryOverVarPossibilities ::
   Data -> Possible -> Query -> Subst -> Var -> Set CondElts
-queryOverVarPossibilities d p q s v = S.map (runQuery d p' q) substs
- where
-  vp = varPossibilities p s v :: CondElts
-  p' = if null $ varDets v then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
+queryOverVarPossibilities d p q s v =
+  S.map (runQuery d p' q) substs
+  where
+    vp = varPossibilities p s v :: CondElts
+    p' = if null $ varDets v then p else M.insert v vp p
+    substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
 
 testOverVarPossibilities ::
   Data -> Possible -> Query -> Subst -> Var -> CondElts -> Set CondElts
-testOverVarPossibilities d p q s v ce = ces where
-  vp = varPossibilities p s v :: CondElts
-  p' = if null $ varDets v then p else M.insert v vp p
-  substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
-  ces = S.map (flip (runTestable d p' q) ce) substs
+testOverVarPossibilities d p q s v ce =
+  S.map (flip (runTestable d p' q) ce) substs
+  where
+    vp = varPossibilities p s v :: CondElts
+    p' = if null $ varDets v then p else M.insert v vp p
+    substs = S.map (\k -> M.insert v k s) $ M.keysSet vp :: Set Subst
 
 runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
 runQAnd d p qs s = tested where
