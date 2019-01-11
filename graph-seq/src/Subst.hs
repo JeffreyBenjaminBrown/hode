@@ -35,10 +35,13 @@ extendPossible v p s = (p',s') where
 varPossibilities :: Possible -> Subst -> Var -> CondElts
 varPossibilities    p           s  vf@(Var _ dets) = case null dets of
   True -> (M.!) p vf
-  False -> let substs = reconcileDepsAcrossVars p s dets :: Set Subst
-               x = setSubstToCondElts (unCondition vf) substs :: CondElts
+  False ->
+    let
+      substs = reconcileDepsAcrossVars p s dets :: Set Subst
+      x = setSubstToCondElts (unCondition vf) substs :: CondElts
   -- `unCondition vf` because there do not yet exist conditional values of it
-           in recordDependencies vf x
+    in
+      recordDependencies vf x
 
 unCondition :: Var -> Var
 unCondition (Var name _) = Var name S.empty
@@ -46,11 +49,11 @@ unCondition (Var name _) = Var name S.empty
 -- | `recordDependencies vf@(Var name _) ce` replaces each instance
 -- of `Var name mempty` in `ce` with `vf`.
 recordDependencies :: Var -> CondElts -> CondElts
-recordDependencies vf ce =
-  let replace :: Subst -> Subst
-      replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
-        Nothing -> s -- TODO ? Throw an error?
-        Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
+recordDependencies vf ce = let
+  replace :: Subst -> Subst
+  replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
+    Nothing -> s -- TODO ? Throw an error?
+    Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
   in M.map (S.map replace) ce
 
 -- | `reconcileDepsAcrossVars r s (Var _ dets)` is the set of all
@@ -64,7 +67,7 @@ recordDependencies vf ce =
 -- b can be 1 provided x is      2 or 3.
 -- and we ask for reconcileDepsAcrossVars consistent with the subst (a=1,b=1).
 -- THe only Subst consistent with both is a=2.
-
+--
 -- TODO (#fast) short-circuit reconcileDepsAcrossVars.
 -- varPossibilities is so far reconcileDepsAcrossVars's only caller.
 -- varPossibilities only wants the Elt, not the associated Substs,
@@ -75,11 +78,14 @@ reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Set Subst
 reconcileDepsAcrossVars    p           s        dets
   | null dets = error
       "Should not happen. Thrown by reconcileDepsAcrossVars. Blame varPossibilities."
-  | True = let impliedSubsts :: Var -> Set Subst
-               impliedSubsts det = (M.!) couldBindTo bound where
-                 bound       = (M.!) s det :: Elt
-                 couldBindTo = (M.!) p det :: CondElts
-           in reconcile $ S.map impliedSubsts dets
+  | True = let
+      impliedSubsts :: Var -> Set Subst
+      impliedSubsts det = (M.!) couldBindTo bound
+        where
+          bound       = (M.!) s det :: Elt
+          couldBindTo = (M.!) p det :: CondElts
+    in
+      reconcile $ S.map impliedSubsts dets
 
 
 -- | = Building a `CondElts` from `Subst`s
