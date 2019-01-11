@@ -1,11 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 module Test.TQuery where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import Test.HUnit
+import Test.HUnit hiding (Test)
 
 import Graph
 import Query
@@ -20,14 +21,35 @@ testModuleQuery = TestList [
   , TestLabel "testRunTest" testRunTest
   , TestLabel "testForSome" testForSome
   , TestLabel "testForAll" testForAll
-  , TestLabel "testQAnd" testQAnd
+  , TestLabel "testRunTestable" testRunTestable
   ]
 
-testQAnd = TestCase $ do
-  let g = graph [ (1, [11, 12    ] )
-                , (2, [    12, 22] ) ]
-      [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
-  assertBool "todo" False
+testRunTestable = TestCase $ do
+  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+      (a2 :: Subst) = M.singleton a 2
+      (not3 :: Test) = isNot $ Left 3
+      (nota :: Test) = isNot $ Right a
+      d = graph $ map (,[]) [1..3]
+      (p :: Possible) = M.singleton a $
+        M.fromList [ (1, S.singleton M.empty)
+                   , (2, S.singleton M.empty) ]
+      (ce :: CondElts) = M.fromList [ (1, S.singleton $ M.singleton x 0)
+                                    , (2, S.singleton M.empty)
+                                    , (3, S.singleton M.empty) ]
+  assertBool "5" $ runTestable d p (ForAll a ( QTest nota )) M.empty ce
+       == M.singleton 3 (S.singleton M.empty)
+  assertBool "4" $ let qfa = ForSome a ( QAnd [QTest not3, QTest nota] )
+                       ce23 = M.restrictKeys ce $ S.singleton 2
+    in runTestable d p qfa M.empty ce23
+       == M.singleton 2 (S.singleton $ M.singleton a 1)
+  assertBool "3" $ runTestable d M.empty (QOr  [QTest not3,QTest nota]) a2 ce
+    == M.fromList [ (1, S.fromList [ M.empty, M.singleton a 2 ] )
+                  , (2, S.fromList [ M.empty                  ] )
+                  , (3, S.fromList [          M.singleton a 2 ] ) ]
+  assertBool "2" $ runTestable d M.empty (QAnd [QTest not3,QTest nota]) a2 ce
+    == M.fromList ( map (, S.singleton $ M.singleton a 2) [1  ] )
+  assertBool "1" $ runTestable d M.empty (QTest nota)                   a2 ce
+    == M.fromList ( map (, S.singleton $ M.singleton a 2) [1,3] )
 
 testForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )

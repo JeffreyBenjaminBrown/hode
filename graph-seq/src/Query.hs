@@ -30,7 +30,6 @@ runTestOnElt d s (Test test deps) e =
     passes = test d s e          :: Bool
     used = M.restrictKeys s deps :: Subst
 
-
 runTest :: Data -> Subst -> Test -> CondElts -> CondElts
 runTest d s q ce =
   M.map ( S.singleton . snd) passed
