@@ -21,10 +21,11 @@ that can lead to v.
 varPossibilities (Var x dets) looks up each det in the Possible, and
 if that det depened on an earlier-computed value of x, then that is a possible
 value of "x of dets". But the other inputs that went into that value of dets
--- y, for instance, which was simlar to x, but which we didn't ask about --
-are not relevant to computing "x of dets".
+-- y, say, which like x was also an earlier-computed input into v, but which we didn't ask about -- are not relevant to computing "x of dets".
 
-The Substs could probably be thrown away because they now mean the reverse thing: If a Possible maps v to the CondElts mapping 1 to the subst a=1, that means a=1 was an *input* used to create v. If  (Var a of [b,c]) is now added as a key to that same Possible, if b and c showed up in its substs, they would be saying the reverse. Moreover, they would be saying nothing that the Subst doesn't already tell us.
+The Substs could probably be thrown away because they now mean the reverse thing: If a Possible maps v to the CondElts mapping 1 to the subst a=1, that means a=1 was an *input* used to create v. If  (Var a of [b,c]) is now added as a key to that same Possible, and b and c showed up in its substs, they would be saying the reverse. Moreover, they would be saying nothing that the Subst doesn't already tell us.
+
+*However*, suppose we are computing (Var a of b, c). Once we find values vs for a which are congruent (i.e. that could lead to) the current values of b and c, we should restrict the CondElts for (Var a of b,c) to the CondElts of (Var a of []), restricting keys to es. That way, if we want to ask for something that might have generated (a of b,c), we can get there.
 
 * TODO test mixed queries
 * What expressivity do I lose by requiring sequentiality?

@@ -63,17 +63,16 @@ testSubstToCondElts = TestCase $ do
 
 testVarToCondElts = TestCase $ do
   let [a,b,c,x,y] = map (\s -> Var s S.empty) ["a","b","c","x","y"]
-      vf_a    = Var "a" (S.empty)
       s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
       s_b2   = M.fromList [ (b,2)        ] :: Subst
-      (ra :: Possible) = M.fromList [
+      (pa :: Possible) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
-  assertBool "0" $   varPossibilities ra M.empty vf_a == ((M.!) ra a)
-  assertBool "0.1" $ varPossibilities ra s_b1c1  vf_a == ((M.!) ra a)
+  assertBool "0" $   varPossibilities pa M.empty a == ((M.!) pa a)
+  assertBool "0.1" $ varPossibilities pa s_b1c1  a == ((M.!) pa a)
     -- the Subst s_b1c1 is ignored because the dets in the Var are empty
 
-  let (r :: Possible) = M.fromList
+  let (p :: Possible) = M.fromList
           [ ( a, M.fromList
               [ (1, S.singleton $ error "never used")
               , (2, error "doesn't matter") ] )
@@ -90,10 +89,10 @@ testVarToCondElts = TestCase $ do
       aOf_b  = Var "a" (S.fromList [b   ])
       aOf_bc = Var "a" (S.fromList [b, c])
 
-  assertBool "1" $ varPossibilities r s_b2 aOf_b
+  assertBool "1" $ varPossibilities p s_b2 aOf_b
     == M.fromList [ (2, S.singleton M.empty )
                   , (3, S.singleton M.empty ) ]
-  assertBool "2" $ varPossibilities r s_b1c1 aOf_bc
+  assertBool "2" $ varPossibilities p s_b1c1 aOf_bc
     == M.fromList [ (2, S.singleton M.empty ) ]
 
 --- FOR DEBUGGING varPossibilities
@@ -102,11 +101,11 @@ testVarToCondElts = TestCase $ do
 vf_a    = Var "a" (S.empty)
 s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
 s_b2   = M.fromList [ (b,2)        ] :: Subst
-(ra :: Possible) = M.fromList [
+(pa :: Possible) = M.fromList [
   ( a, M.fromList [ (1, S.singleton mempty)
                   , (5, S.singleton $ M.singleton x 23) ] ) ]
 
-(r :: Possible) = M.fromList
+(p :: Possible) = M.fromList
     [ ( a, M.fromList
         [ (1, S.singleton $ error "never used")
         , (2, error "doesn't matter") ] )
@@ -134,7 +133,9 @@ testVarSubsts = TestCase $ do
       aOf_xy = Var "a" (S.fromList [x, y])
       xCondElts = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (a, 1) ] ] )
-        , (2, S.fromList [ M.fromList [ (a, 2), (b, 2) ] ] ) ]
+        , (2, S.fromList [ M.fromList [ (a, 2), (b, 2) ] ] )
+        , (3, S.fromList [ M.fromList [ (a, 1) ,       (c, 3) ]
+                         , M.fromList [         (b, 3)        ] ] ) ]
       yCondElts = M.fromList -- y could be 3 or 4, if ...
         [ (3, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (4, S.fromList [ M.fromList [         (b, 2), (c, 2) ]
@@ -153,7 +154,13 @@ testVarSubsts = TestCase $ do
   assertBool "3" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.fromList [x,y])
     == S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
                   , M.fromList [ (a, 1), (b, 3), (c, 3) ] ]
-
+  assertBool "3" $ reconcileDepsAcrossVars r (xySubst 3 4) (S.fromList [x,y])
+    == S.fromList [ M.fromList [ (a, 1), (b, 3), (c, 3) ]
+  -- TODO : are the next two answers redundant? Should I keep only the 1st?
+  -- If we ever need to know whether a prior value of a led to this one,
+  -- that way it would be available.
+                  , M.fromList [ (a, 2), (b, 3), (c, 3) ]
+                  , M.fromList [         (b, 3), (c, 3) ] ]
 testReconcileCondElts = TestCase $ do
   let [a,b,c,x] = map (flip Var S.empty) ["a","b","c","x"]
       ce, cf :: CondElts
