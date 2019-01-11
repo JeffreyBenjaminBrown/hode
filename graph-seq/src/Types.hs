@@ -6,7 +6,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 
-data Graph = Graph { children :: Map Elt (Set Elt)   -- ^ keys are parents
+data Graph = Graph { nodes    :: Set Elt
+                   , children :: Map Elt (Set Elt)   -- ^ keys are parents
                    , parents  :: Map Elt (Set Elt) } -- ^ keys are children
   deriving (Show, Eq, Ord)
 type Elt = Int    -- eventually Int   will be replaced with Expr

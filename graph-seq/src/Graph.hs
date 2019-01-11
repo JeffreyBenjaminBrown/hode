@@ -11,9 +11,10 @@ import Types
 
 
 graph :: [( Int, [Int] )] -> Graph
-graph pairs = Graph g $ invertMapToSet g where
-  g = M.fromList $ map f pairs
-  f (a,b) = (a, S.fromList b)
+graph pairs = Graph nodes children $ invertMapToSet children where
+  children = M.fromList $ map f pairs
+    where f (a,b) = (a, S.fromList b)
+  nodes = S.union (M.keysSet children) $ M.foldl S.union S.empty children
 
 invertMapToSet :: forall a. Ord a => Map a (Set a) -> Map a (Set a)
 invertMapToSet = foldl addInversion M.empty . M.toList where
