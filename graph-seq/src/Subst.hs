@@ -26,6 +26,12 @@ import Util
 --
 -- TODO ? does varPossibilities in fact have to work farther backward?
 
+extendPossible :: Var -> Possible -> Subst -> (Possible, Set Subst)
+extendPossible v p s = (p',s') where
+    vp = varPossibilities p s v :: CondElts
+    p' = if null $ varDets v then p else M.insert v vp p
+    s' = S.map (\k -> M.insert v k s) $ M.keysSet vp
+
 varPossibilities :: Possible -> Subst -> Var -> CondElts
 varPossibilities    p           s  vf@(Var _ dets) = case null dets of
   True -> (M.!) p vf
