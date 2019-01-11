@@ -2,6 +2,7 @@
 
 module Query where
 
+import           Data.Either
 import           Data.List
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -53,27 +54,61 @@ runQAnd d p qs s = tested where
 -- | = runTestable
 
 -- TODO (#speed) runTestable: foldr with short-circuiting.
-runTestable :: Data -> Possible -> Query -> Subst -> CondElts -> CondElts
+runTestable :: Data -> Possible -> Query -> Subst -> CondElts
+            -> Either String CondElts
 runTestable _ _ (testable -> False) _ _ =
-  error "runTestable: not a testable Query"
-runTestable d _ (QTest t) s ce = runTest d s t ce
+  Left $ "runTestable: not a testable Query"
+runTestable d _ (QTest t) s ce = Right $ runTest d s t ce
 
-runTestable d p (QAnd qs) s ce = reconcileCondElts $ S.fromList results
-  where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
-runTestable d p (QOr qs) s ce = M.unionsWith S.union results
-  where results = map (\q -> runTestable d p q s ce) qs :: [CondElts]
+runTestable d p (QAnd qs) s ce = let
+  results = map (\q -> runTestable d p q s ce) qs :: [Either String CondElts]
+  lefts = filter isLeft results
+  in case null lefts of
+       True -> Left $ "runTestable: error in callee:\n"
+               ++ show (map (fromLeft "") lefts)
+       False -> Right $ reconcileCondElts $ S.fromList
+                $ map (fromRight M.empty) results
 
-runTestable d p (ForSome v q) s ce = let
-  (p',ss) = extendPossible v p s
-  in M.unionsWith S.union $ S.map (flip (runTestable d p' q) ce) ss
+runTestable d p (QOr qs) s ce = let
+  results = map (\q -> runTestable d p q s ce) qs :: [Either String CondElts]
+  lefts = filter isLeft results
+  in case null lefts of
+       True -> Left $ "runTestable: error in callee:\n"
+               ++ show (map (fromLeft "") lefts)
+       False -> Right $ M.unionsWith S.union
+                $ map (fromRight M.empty) results
 
-runTestable d p (ForAll v q) s ce = let
-  (p',ss) = extendPossible v p s
-  ces = S.map (flip (runTestable d p' q) ce) ss
-  cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
-    -- delete the dependency on v, so that reconciliation can work
-  in reconcileCondElts cesWithoutV
-    -- keep only results that obtain for every value of v
+runTestable d p (ForSome v q) s ce =
+  case extendPossible v p s of
+    Left s -> Left $ "runTestable: error in callee:\n" ++ s
+    Right (p',ss) -> let
+      res :: Set (Either String CondElts)
+      res = S.map (flip (runTestable d p' q) ce) ss
+      lefts = S.filter isLeft res
+      in case null lefts of
+           False -> Left $ "runTestable: error(s) in callee:\n"
+             ++ show (S.map (fromLeft "") lefts)
+           True -> Right $ M.unionsWith S.union
+                   $ S.map (fromRight M.empty) res
+
+runTestable d p (ForAll v q) s ce =
+  case extendPossible v p s of
+    Left s -> Left $ "runTestable: error in callee:\n" ++ s
+    Right (p',ss) -> let
+      res :: Set (Either String CondElts)
+      res = S.map (flip (runTestable d p' q) ce) ss
+      lefts = S.filter isLeft res
+      in case null lefts of
+
+           False -> Left $ "runTestable: error(s) in callee:\n"
+             ++ show (S.map (fromLeft "") lefts)
+           True -> let
+             cesWithoutV :: Set CondElts
+             cesWithoutV = S.map f res where
+               -- delete the dependency on v, so that reconciliation can work
+               f = (M.map $ S.map $ M.delete v) . (fromRight M.empty)
+             in Right $ reconcileCondElts cesWithoutV
+                -- keep only results that obtain for every value of v
 
 
 -- | = runFindable
@@ -110,3 +145,4 @@ runFindable d p (ForAll v q) s = let
     -- delete the dependency on v, so that reconciliation can work
   in reconcileCondElts cesWithoutV
     -- keep only results that obtain for every value of v
+
