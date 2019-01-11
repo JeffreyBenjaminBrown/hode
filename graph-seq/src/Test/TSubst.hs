@@ -27,11 +27,9 @@ testModuleSubst = TestList
   ]
 
 testRecordDependencies = TestCase $ do
-  let x     = Var "x" $ S.empty
+  let [a,b,c,x] = map (\x -> Var x S.empty) ["a","b","c","x"]
       aOf_x = Var "a" $ S.singleton x
-      a     = Var "a" $ S.empty
-      b     = Var "b" $ S.empty
-      c     = Var "b" $ S.empty
+
       s = S.fromList  [ M.fromList [ (a,1)      , (b,1)  ]
                       , M.fromList [ (a,2)      , (b,2)  ] ]
       t = S.fromList  [ M.fromList [ (a,11)     , (c,11) ]
@@ -40,6 +38,7 @@ testRecordDependencies = TestCase $ do
                       , M.fromList [ (aOf_x,2)  , (b,2)  ] ]
       t' = S.fromList [ M.fromList [ (aOf_x,11) , (c,11) ]
                       , M.fromList [ (aOf_x,12) , (c,12) ] ]
+
   assertBool "1" $             M.fromList [ (5,s'), (6,t') ] ==
     recordDependencies aOf_x ( M.fromList [ (5,s),  (6,t ) ] )
 

@@ -43,7 +43,9 @@ type CondElts = Map Elt (Set Subst)
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
 type Possible  = Map Var CondElts
-  -- ^ Describes the values each `Var` can take.
+  -- ^ Describes the values each `Var` can take. Maps to a `CondElts`
+  -- rather than to  `Set Elt` because for each `Elt` we will (sometimes)
+  -- need to know what the other bindings were that led to it.
 type Program   = Data
                -> [(Var, Query)] -- ^ queries can depend on earlier ones
                -> Possible

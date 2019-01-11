@@ -13,6 +13,15 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO Bugfix: varPossibilities should produce Set Elt, not CondElts
+A Possible records, for each variable, the set of values it could have,
+and for each such value v, the set of values of earlier-computed Vars
+that can lead to v.
+varPossibilities (Var x dets) looks up each det in the Possible, and
+if that det depened on an earlier-computed value of x, then that is a possible
+value of "x of dets". But the other inputs that went into that value of dets
+-- y, for instance, which was simlar to x, but which we didn't ask about --
+are not relevant to computing "x of dets".
 * TODO test mixed queries
 * What expressivity do I lose by requiring sequentiality?
 * DONE ? If an existential is under a union or intersection?
