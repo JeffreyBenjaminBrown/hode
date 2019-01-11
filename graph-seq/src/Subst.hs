@@ -29,7 +29,7 @@ import Util
 varPossibilities :: Possible -> Subst -> Var -> CondElts
 varPossibilities    p           s  vf@(Var _ dets) = case null dets of
   True -> (M.!) p vf
-  False -> let substs = varSubsts p s vf :: Set Subst
+  False -> let substs = reconcileDepsAcrossVars p s dets :: Set Subst
                x = setSubstToCondElts (unCondition vf) substs :: CondElts
   -- `unCondition vf` because there do not yet exist conditional values of it
            in recordDependencies vf x
@@ -47,7 +47,7 @@ recordDependencies vf ce =
         Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
   in M.map (S.map replace) ce
 
--- | `varSubsts r s (Var _ dets)` is the set of all
+-- | `reconcileDepsAcrossVars r s (Var _ dets)` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
 -- They are reconciled across dets -- that is, for each det in dets
 -- and each s in the result, s is consistent with at least one Subst
@@ -56,13 +56,13 @@ recordDependencies vf ce =
 -- For instance, imagine a Possible in which
 -- a can be 1 provided x is 1 or 2, and
 -- b can be 1 provided x is      2 or 3.
--- and we ask for varSubsts consistent with the subst (a=1,b=1).
+-- and we ask for reconcileDepsAcrossVars consistent with the subst (a=1,b=1).
 -- THe only Subst consistent with both is a=2.
 
-varSubsts :: Possible -> Subst -> Var         -> Set Subst
-varSubsts    p           s       (Var _ dets)
+reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Set Subst
+reconcileDepsAcrossVars    p           s        dets
   | null dets = error
-      "Should not happen. Thrown by varSubsts. Blame varPossibilities."
+      "Should not happen. Thrown by reconcileDepsAcrossVars. Blame varPossibilities."
   | True = let impliedSubsts :: Var -> Set Subst
                impliedSubsts det = (M.!) couldBindTo bound where
                  bound       = (M.!) s det :: Elt

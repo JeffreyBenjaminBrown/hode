@@ -116,13 +116,13 @@ testVarSubsts = TestCase $ do
                      , (y, yCondElts) ]
       xySubst xVal yVal = M.fromList [ (x, xVal), (y, yVal) ]
 
-  assertBool "0" $ varSubsts r (xySubst 1 4) aOf_x -- y irrelevant in aOf_x
+  assertBool "0" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.singleton x)
+    == S.fromList [ M.fromList [ (a, 1) ] ] -- y irrelevant in aOf_x
+  assertBool "1" $ reconcileDepsAcrossVars r (xySubst 1 3) (S.fromList [x,y])
     == S.fromList [ M.fromList [ (a, 1) ] ]
-  assertBool "1" $ varSubsts r (xySubst 1 3) aOf_xy
-    == S.fromList [ M.fromList [ (a, 1) ] ]
-  assertBool "2" $ varSubsts r (xySubst 2 3) aOf_xy
+  assertBool "2" $ reconcileDepsAcrossVars r (xySubst 2 3) (S.fromList [x,y])
     == S.empty
-  assertBool "3" $ varSubsts r (xySubst 1 4) aOf_xy
+  assertBool "3" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.fromList [x,y])
     == S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
                   , M.fromList [ (a, 1), (b, 3), (c, 3) ] ]
 
