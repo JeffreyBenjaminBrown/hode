@@ -6,7 +6,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 
-data Graph = Graph { nodes    :: Set Elt
+data Graph = Graph { nodes    :: Set Elt -- ^ for disconnected graphs
                    , children :: Map Elt (Set Elt)   -- ^ keys are parents
                    , parents  :: Map Elt (Set Elt) } -- ^ keys are children
   deriving (Show, Eq, Ord)

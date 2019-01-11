@@ -42,13 +42,15 @@ test_runFindable_mixed = TestCase $ do
       fc0 = QFind $ findChildren $ Left 0
       fc v = QFind $ findChildren $ Right v
       s = M.fromList [(a,2), (b,23)] :: Subst
+      q_And_Quant = QAnd [ ForAll aOf_b $ isnt aOf_b
+                         , ForSome aOf_b $ fc aOf_b ]
+      q_ForAll_And = ForAll aOf_b $ QAnd [ fc0, isnt a ]
 
-  assertBool "2" $ let q = QAnd [ ForAll aOf_b $ isnt aOf_b
-                                , ForSome aOf_b $ fc aOf_b ]
-    in runFindable d p q s == M.singleton 4 (S.fromList [ M.singleton aOf_b 2
-                                                     , M.singleton b 23 ] )
-  assertBool "1" $ let q = ForAll aOf_b $ QAnd [ fc0, isnt a ]
-    in runFindable d p q s == M.singleton 1 (S.singleton $ M.singleton a 2)
+  assertBool "2" $ runFindable d p q_And_Quant s
+    == M.singleton 4 (S.fromList [ M.singleton aOf_b 2
+                                 , M.singleton b 23 ] )
+  assertBool "1" $ runFindable d p q_ForAll_And s
+    == M.singleton 1 (S.singleton $ M.singleton a 2)
 
 testRunQAnd = TestCase $ do
   let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]

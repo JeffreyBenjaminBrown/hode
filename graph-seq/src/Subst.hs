@@ -26,7 +26,7 @@ extendPossible v p s = (p',s') where
 -- present in the input Subst.)
 
 varPossibilities :: Possible -> Subst -> Var -> CondElts
-varPossibilities    p           s  vf@(Var v dets) =
+varPossibilities    p           s  vf@(Var v dets)
   | null dets = (M.!) p vf
   | otherwise = let
     (pRestricted :: Possible) = M.map (f :: CondElts -> CondElts)

@@ -13,6 +13,7 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO use Either wherever a lookup can fail
 * TODO test mixed queries
 * What expressivity do I lose by requiring sequentiality?
 * DONE ? If an existential is under a union or intersection?
