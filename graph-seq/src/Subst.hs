@@ -10,34 +10,31 @@ import Types
 import Util
 
 
--- | `varPossibilities r s (Var v dets)` returns all values v can take,
--- and the relevant part** of the `Subst`s that could lead to each,
--- given r, s and v.
---
--- ** PITFALL: It isn't the whole story, just (I hope) as much as we need.
--- Specifically, the Substs in the CondElts that varPossibilities
--- returns will only describe the variables that we're asking for.
---
--- For example, suppose we ask for the CondElts of x as a function of a.
--- Let xs be the possible values of x as determined by a.
--- Once we know xs, we can look up x in the Possible to find how other,
--- yet-earlier variables would have to be bound.
--- This implementation of varPossibilities does not do that; it stops at x.
---
--- TODO ? does varPossibilities in fact have to work farther backward?
-
 extendPossible :: Var -> Possible -> Subst -> (Possible, Set Subst)
 extendPossible v p s = (p',s') where
     vp = varPossibilities p s v :: CondElts
     p' = if null $ varDets v then p else M.insert v vp p
     s' = S.map (\k -> M.insert v k s) $ M.keysSet vp
 
+-- | `varPossibilities r s (Var v dets)` returns all values v can take,
+-- given r, s and v. If dets is non-null, then the CondElts returned
+-- will have no dependencies. (We could include those dets as its
+-- dependencies, but that would reverse the normal meaning of a Subst
+-- in a Possible -- and it would only duplicate information already
+-- present in the input Subst.)
+
 varPossibilities :: Possible -> Subst -> Var -> CondElts
-varPossibilities    p           s  vf@(Var _ dets) = case null dets of
+varPossibilities    p           s  vf@(Var v dets) = case null dets of
   True -> (M.!) p vf
   False ->
     let
-      substs = reconcileDepsAcrossVars p s dets :: Set Subst
+      pRestricted = M.map f p
+        where
+  -- Any Subst in p that mentions a variable other than v or one of the
+  -- dets is irrelevant. So too is any such key of p.
+          vAndDets = S.insert (Var v S.empty) dets
+          f = M.map $ S.map $ flip M.restrictKeys vAndDets
+      substs = reconcileDepsAcrossVars pRestricted s dets :: Set Subst
       x = setSubstToCondElts (unCondition vf) substs :: CondElts
   -- `unCondition vf` because there do not yet exist conditional values of it
     in
