@@ -2,6 +2,7 @@
 
 module Subst where
 
+import           Data.Either
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Maybe
@@ -82,8 +83,7 @@ recordDependencies vf ce = let
 
 reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Set Subst
 reconcileDepsAcrossVars    p           s        dets
-  | null dets = error
-      "Should not happen. Thrown by reconcileDepsAcrossVars. Blame varPossibilities."
+  | null dets = error "reconcileDepsAcrossVars: empty 'dets' argument."
   | True = let
       impliedSubsts :: Var -> Set Subst
       impliedSubsts det = (M.!) couldBindTo bound
@@ -92,6 +92,26 @@ reconcileDepsAcrossVars    p           s        dets
           couldBindTo = (M.!) p det :: CondElts
     in
       reconcile $ S.map impliedSubsts dets
+
+reconcileDepsAcrossVars' :: Possible -> Subst -> Set Var -> Either String (Set Subst)
+reconcileDepsAcrossVars'    p           s        dets
+  | null dets = error "reconcileDepsAcrossVars: empty 'dets' argument."
+  | True = let
+    se = S.map (impliedSubsts p s) dets :: Set (Either String (Set Subst))
+    lefts = S.filter isLeft se
+    in case null lefts of
+      False -> Left $ S.foldr (++) "" $ S.map (fromLeft "") lefts
+      True -> Right $ reconcile $ S.map (fromRight S.empty) se
+
+impliedSubsts :: Possible -> Subst -> Var -> Either String (Set Subst)
+impliedSubsts p s v =
+  case (M.lookup v s :: Maybe Elt) of
+    Nothing -> Left $ keyErr "impliedSubsts / Subst" v s
+    Just (bound :: Elt) -> case M.lookup v p of
+      Nothing -> Left $ keyErr "impliedSubsts / Possible" v p
+      Just (couldBindTo :: CondElts) -> case M.lookup bound couldBindTo of
+        Nothing -> Left $ keyErr "impliedSubsts / CondElts" bound couldBindTo
+        Just ss -> Right ss
 
 
 -- | = Building a `CondElts` from `Subst`s
