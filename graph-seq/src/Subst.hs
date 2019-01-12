@@ -131,10 +131,9 @@ substToCondElts v subst = do
 
 reconcileCondElts :: Set CondElts -> CondElts
 reconcileCondElts ces = let
-   keys :: Set Elt
-   keys = S.unions $ S.map M.keysSet ces
    reconciled :: Set CondElts
    reconciled = let f = flip reconcileCondEltsAtElt ces
+                    keys = S.unions $ S.map M.keysSet ces :: Set Elt
      in S.map fromJust $ S.filter isJust $ S.map f keys
    in M.unions reconciled :: CondElts
 

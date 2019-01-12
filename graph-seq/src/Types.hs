@@ -15,13 +15,20 @@ type Elt = Int    -- eventually Int   will be replaced with Expr
 type Data = Graph -- eventually Graph will be replaced with Rslt
 
 data Var = Var { varName :: String
-               , varDets :: Set Var } -- ^ The determinants
-  -- of a Var are variables that were calculated based on its own
-  -- earlier calculation. If the determinants are already bound, that
-  -- restricts the possible values the Var can take.
+               , varDets :: Maybe (Var, Set Var)
+               }
+  -- ^ When a `Query` creates a `Var`, the result has no `varDets`.
+  -- However, sometimes a Var is created by subsetting an earlier one.
+  -- In that case, suppose it decomposes as `v@(Var _ (source, dets))`.
+  -- "source" is the earlier Var, and "dets" is a set of variables
+  -- that were calculated based on source's earlier calculation.
   deriving (Eq, Ord)
+
 instance Show Var where
-  show v = "Var " ++ varName v ++ "<=" ++ show (S.toList $ varDets v)
+  show v = case varDets v of
+    Nothing -> "Var " ++ varName v
+    Just (source,dets) -> "Var " ++ varName v ++ "<==" ++ show source
+      ++ "->" ++ show (S.toList dets)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDets     :: Set Var }

@@ -40,11 +40,12 @@ isNot (Left e) =
   where
     t :: Data -> Subst -> Elt -> Bool
     t _ _ = (/=) e
-isNot (Right v) =
-  Test t $ S.union (S.singleton v) $ varDets v
+isNot (Right v) = -- TODO Maybe dets should just be S.singleton v?
+  Test t $ S.union (S.singleton v) dets
   where
     t :: Data -> Subst -> Elt -> Bool
     t _ s = (/=) $ (M.!) s v
+    dets = maybe S.empty snd $ varDets v
 
 findChildren :: Either Elt Var -> Find
 findChildren (Left e) =
@@ -52,11 +53,12 @@ findChildren (Left e) =
   where
     f :: Graph -> Subst -> Set Elt
     f g _ = children g e
-findChildren (Right v) =
-  Find f $ S.union (S.singleton v) $ varDets v
+findChildren (Right v) = -- TODO Maybe dets should just be S.singleton v?
+  Find f $ S.union (S.singleton v) dets
   where
     f :: Graph -> Subst -> Set Elt
     f g s = children g $ (M.!) s v
+    dets = maybe S.empty snd $ varDets v
 
 findParents :: Either Elt Var -> Find
 findParents (Left e) =
@@ -64,8 +66,9 @@ findParents (Left e) =
   where
     f :: Graph -> Subst -> Set Elt
     f g _ = parents g e
-findParents (Right v) =
-  Find f $ S.union (S.singleton v) $ varDets v
+findParents (Right v) = -- TODO Maybe dets should just be S.singleton v?
+  Find f $ S.union (S.singleton v) dets
   where
     f :: Graph -> Subst -> Set Elt
     f g s = (parents g) $ (M.!) s v
+    dets = maybe S.empty snd $ varDets v
