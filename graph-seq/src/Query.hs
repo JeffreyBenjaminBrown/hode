@@ -26,20 +26,22 @@ runFind d s (Find find deps) =
     used = M.restrictKeys s deps :: Subst
 
 runTestOnElt :: Data -> Subst -> Test -> Elt -> (Bool, Subst)
-runTestOnElt d s (Test test deps) e =
-  (passes, used)
+runTestOnElt d s (Test test deps) e = (passes, used)
   where
     passes = test d s e          :: Bool
     used = M.restrictKeys s deps :: Subst
 
+-- TODO : rather than replace the Substs in the input CondElts, add to them.
 runTest :: Data -> Subst -> Test -> CondElts -> CondElts
 runTest d s q ce =
-  M.map ( S.singleton . snd) passed
+  M.mapWithKey f passed
   where
     tested, passed :: Map Elt (Bool, Subst)
     tested = M.mapWithKey (\k v -> runTestOnElt d s q k) ce
     passed = M.filter fst tested
-
+    f ::  Elt -> (Bool, Subst) -> Set Subst
+    f k (_,s) = let ss = (M.!) ce k :: Set Subst
+                in S.map (M.union s) ss
 
 -- | == Complex queries
 

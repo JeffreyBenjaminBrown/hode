@@ -29,8 +29,10 @@ testModuleQuery = TestList [
 -- DEBUGGING
 [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
 aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
-
 isnt v = QTest $ isNot $ Right v
+fc0 = QFind $ findChildren $ Left 0
+fc v = QFind $ findChildren $ Right v
+
 d = graph [ (0, [1,2        ] )
           , (3, [  2,3,4    ] )
           , (10,[11, 23     ] ) ]
@@ -39,8 +41,7 @@ d = graph [ (0, [1,2        ] )
   , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
                    , (23, S.fromList [ M.singleton a 2
                                      , M.singleton a 3 ] ) ] ) ]
-fc0 = QFind $ findChildren $ Left 0
-fc v = QFind $ findChildren $ Right v
+
 s = M.fromList [(a,2), (b,23)] :: Subst
 q_And_Quant = QAnd [ ForAll aOf_b $ isnt aOf_b
                    , ForSome aOf_b $ fc aOf_b ]
@@ -68,8 +69,7 @@ test_runFindable_mixed = TestCase $ do
       q_ForAll_And = ForAll aOf_b $ QAnd [ fc0, isnt a ]
 
   assertBool "2" $ runFindable d p q_And_Quant s
-    == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 2
-                                         , M.singleton b 23 ] ) )
+    == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 2 ] ) )
   assertBool "1" $ runFindable d p q_ForAll_And s
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
@@ -105,13 +105,16 @@ testRunTestable = TestCase $ do
     in runTestable d p qfa M.empty ce23
        == Right ( M.singleton 2 (S.singleton $ M.singleton a 1) )
   assertBool "3" $ runTestable d M.empty (QOr  [QTest not3,QTest nota]) a2 ce
-    == Right ( M.fromList [ (1, S.fromList [ M.empty, M.singleton a 2 ] )
-                          , (2, S.fromList [ M.empty                  ] )
-                          , (3, S.fromList [          M.singleton a 2 ] ) ] )
+    == Right ( M.fromList
+               [ (1, S.fromList [ M.fromList [(a,2), (x,0)]
+                                , M.singleton x 0           ] )
+               , (2, S.fromList [ M.empty                   ] )
+               , (3, S.fromList [          M.singleton a 2  ] ) ] )
   assertBool "2" $ runTestable d M.empty (QAnd [QTest not3,QTest nota]) a2 ce
-    == Right ( M.fromList ( map (, S.singleton $ M.singleton a 2) [1  ] ) )
+    == Right ( M.singleton 1 $ S.singleton $ M.fromList [(a,2), (x,0)] )
   assertBool "1" $ runTestable d M.empty (QTest nota)                   a2 ce
-    == Right ( M.fromList ( map (, S.singleton $ M.singleton a 2) [1,3] ) )
+    == Right ( M.fromList [ (1, S.singleton $ M.fromList [(a,2), (x,0)] )
+                          , (3, S.singleton $ M.singleton a 2) ] )
 
 test_runFindable_ForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )
@@ -168,11 +171,11 @@ testRunTest = TestCase $ do
                 , (2, [    12, 22] ) ]
       (a2 :: Subst) = M.singleton a 2
       (ce :: CondElts) = M.fromList [ (1, S.singleton $ M.singleton x 0)
-                                    , (2, S.empty) ]
+                                    , (2, S.singleton $ M.empty) ]
   assertBool "1" $ runTest g a2 (isNot $ Left 1) ce
     == M.singleton 2 (S.singleton M.empty)
   assertBool "2" $ runTest g a2 (isNot $ Right a) ce
-    == M.singleton 1 ( S.singleton $ M.fromList [(a,2)] )
+    == M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] )
 
 test_runFindable_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
