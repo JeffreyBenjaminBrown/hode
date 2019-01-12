@@ -39,15 +39,13 @@ data Query = QFind Find
 
 type Subst    = Map Var Elt
 type CondElts = Map Elt (Set Subst)
-  -- ^ Each `Subst` describes one way that the associated `Elt` could obtain.
-  -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
-  -- PITFALL: If Elt is possible without any other bindings, then
-  -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
-  -- it is as if that `Elt` is not in the `Map`.
+  -- ^ The set of solutions to a query: which `Elts` solve it, and which
+  -- values of earlier-computed input variables permit each solution.
+  -- Each Subst is a set of determinants leading to the associated Elt.
+  -- Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
+  -- ^ PITFALL: If `Elt` is possible without any determining bindings, then
+  -- the `Set` should include an empty `Map`. The `Set` should not be empty.
 type Possible  = Map Var CondElts
-  -- ^ A Possible records, for each variable, the set of values it
-  -- could have, and for each such value v, the set of Substs over
-  -- earlier-computed Vars that can lead to v.
 type Program   = Data
                -> [(Var, Query)] -- ^ queries can depend on earlier ones
                -> Possible

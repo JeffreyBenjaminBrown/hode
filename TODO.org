@@ -13,6 +13,18 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO rewrite whole thing
+** TODO name changes
+findDeps -> findDets, testDeps -> testDets
+reconcileDepsAcrossVars -> reconcileDetsAcrossVars
+unCondition -> stripDets
+** TODO Vars should have a name field and a source field
+This way multiple Vars can be drawn from the same source, without having to duplicate the source.
+** TODO VarTest
+Tests test elements, and must come after Finds.
+VarTest would test (sets of) Vars.
+  They should (probably) come before Finds, because
+    that ordering would reduce the number of searches the Find runs.
 * TODO variables are colliding in QAnd
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.

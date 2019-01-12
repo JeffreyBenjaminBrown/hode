@@ -24,52 +24,40 @@ extendPossible v p s = let
        s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
        in Right (p',s')
 
--- | `varPossibilities r s (Var v dets)` returns all values v can take,
--- given r, s and v. If dets is non-null, then the CondElts returned
--- will have no dependencies. (We could include those dets as its
--- dependencies, but that would reverse the normal meaning of a Subst
--- in a Possible -- and it would only duplicate information already
--- present in the input Subst.)
+-- | `varPossibilities p s dv@(Var v dets)` is all values dv can take.
+-- dv should not be bound in s or p, and every det in dets should be.
+-- If dets is null, then the CondElts returned
+-- has no determinants, and the Subst is not used.
 
 varPossibilities :: Possible -> Subst -> Var -> Either String CondElts
-varPossibilities    p           s  vf@(Var v dets)
-  | null dets = maybe (Left $ keyErr "varPossibilities" vf p) Right
-                $ M.lookup vf p
+varPossibilities    p           s  dv@(Var v dets)
+  | null dets = maybe (Left $ keyErr "varPossibilities" dv p) Right
+                $ M.lookup dv p
   | otherwise = let
     (pRestricted :: Possible) = M.map (f :: CondElts -> CondElts)
                                 $ M.restrictKeys p vAndDets
-      where
-       -- A Subst in p that mentions a variable other than v or
-       -- one of the dets is irrelevant, as is any such key of p.
+      where -- A Subst in p that mentions a variable other than v or
+            -- one of the dets is irrelevant, as is any such key of p.
         vAndDets = S.insert (Var v S.empty) dets
         f = M.map $ S.map $ flip M.restrictKeys vAndDets
     in case reconcileDepsAcrossVars pRestricted s dets of
       Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
       Right (substs :: Set Subst) -> let
         (possible :: Set Elt) =
-          M.keysSet $ setSubstToCondElts (unCondition vf) substs
-        (lk :: Maybe CondElts) = M.lookup (unCondition vf) p
-        in maybe (Left $ keyErr "varPossibilities" vf p)
+          M.keysSet $ setSubstToCondElts (unCondition dv) substs
+        (lk :: Maybe CondElts) = M.lookup (unCondition dv) p
+        in maybe (Left $ keyErr "varPossibilities" dv p)
            (Right . flip M.restrictKeys possible) lk
 
 unCondition :: Var -> Var
 unCondition (Var name _) = Var name S.empty
 
--- | `recordDependencies vf@(Var name _) ce` replaces each instance
--- of `Var name mempty` in `ce` with `vf`.
-recordDependencies :: Var -> CondElts -> CondElts
-recordDependencies vf ce = let
-  replace :: Subst -> Subst
-  replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
-    Nothing -> s -- TODO ? Throw an error?
-    Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
-  in M.map (S.map replace) ce
-
--- | `reconcileDepsAcrossVars r s (Var _ dets)` is the set of all
+-- | `reconcileDepsAcrossVars p s dets` is the set of all
 -- `Subst`s that permit the values of `dets` specified by `s`.
--- They are reconciled across dets -- that is, for each det in dets
--- and each s in the result, s is consistent with at least one Subst
--- that r assigns to det (given the value of det in s).
+-- Each det should be bound in s. 
+-- The results are reconciled across dets -- that is, for each det in dets
+-- and each r in the result, r is consistent with at least one Subst
+-- that p assigns to det (given the value of det in s).
 --
 -- For instance, imagine a Possible in which
 -- a can be 1 provided x is 1 or 2, and
@@ -93,6 +81,9 @@ reconcileDepsAcrossVars    p           s        dets
       False -> Left $ S.foldr (++) "" $ S.map (fromLeft "") lefts
       True -> Right $ reconcile $ S.map (fromRight S.empty) se
 
+-- | If s maps v to e, then `impliedSubsts p s v` returns all Substs
+-- that could lead to the result v=e.
+
 impliedSubsts :: Possible -> Subst -> Var -> Either String (Set Subst)
 impliedSubsts p s v =
   case (M.lookup v s :: Maybe Elt) of
@@ -105,9 +96,6 @@ impliedSubsts p s v =
 
 
 -- | = Building a `CondElts` from `Subst`s
--- TODO ? Functions like `setSetSubstToCondElts` are in a sense lossy:
--- the var input disappears from the output. That might cause confusion.
--- It would be safer to use `Possible1`.
 
 -- | `setSubstToCondElts v ss` is the simple union of running, across
 -- all s in ss, `setSubstToCondElts v s`.
@@ -131,7 +119,7 @@ substToCondElts v subst = do
 
 -- | = Reconciling `CondElts`s
 
--- | `reconcileCondEltsAtElt ces`returns the biggest `CondElts` possible
+-- | `reconcileCondEltsAtElt ces` is the biggest `CondElts` possible
 -- consistent with every `CondElt` in the input. That is, for every `Elt` e,
 -- and every `Subst` s in `reconcileCondEltsAtElt ces`, and every
 -- `CondElt` ce in ces, s is consistent with at least one `Subst` in ces.
@@ -148,7 +136,7 @@ reconcileCondElts ces = u where
      in S.map fromJust $ S.filter isJust $ S.map f keys
    u = M.unions reconciled :: CondElts
 
--- | `reconcileCondEltsAtElt e ces` returns the biggest `CondElts` possible
+-- | `reconcileCondEltsAtElt e ces` is the biggest `CondElts` possible
 -- such that each value it associates with e is consistent with each of
 -- the `CondElts`s in ces.
 --
@@ -176,7 +164,7 @@ reconcile ss = if null ss then S.empty
                else S.foldl reconcile2sets min rest
   where (min, rest) = S.deleteFindMin ss -- like head-tail decomposition
 
--- | `reconcile2sets ss1 ss2` returns every `Subst` that reconciles
+-- | `reconcile2sets ss1 ss2` is every `Subst` that reconciles
 -- something from ss1 with something from ss2.
 reconcile2sets :: Set Subst -> Set Subst -> Set Subst
 reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1ToMany s ss2) ss1

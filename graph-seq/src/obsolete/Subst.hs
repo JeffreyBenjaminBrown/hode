@@ -56,6 +56,35 @@ testRestrictCondElts1 = TestCase $ do
   -- distinct from the Subst without it, hence avoid duplicating some work.
 
 
+-- | = Changing the names in a CondElts
+
+-- | `recordDependencies vf@(Var name _) ce` replaces each instance
+-- of `Var name mempty` in `ce` with `vf`.
+recordDependencies :: Var -> CondElts -> CondElts
+recordDependencies vf ce = let
+  replace :: Subst -> Subst
+  replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
+    Nothing -> s -- TODO ? Throw an error?
+    Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
+  in M.map (S.map replace) ce
+
+  , TestLabel "testRecordDependencies" testRecordDependencies
+testRecordDependencies = TestCase $ do
+  let [a,b,c,x] = map (\x -> Var x S.empty) ["a","b","c","x"]
+      aOf_x = Var "a" $ S.singleton x
+      s = S.fromList  [ M.fromList [ (a,1)      , (b,1)  ]
+                      , M.fromList [ (a,2)      , (b,2)  ] ]
+      t = S.fromList  [ M.fromList [ (a,11)     , (c,11) ]
+                      , M.fromList [ (a,12)     , (c,12) ] ]
+      s' = S.fromList [ M.fromList [ (aOf_x,1)  , (b,1)  ]
+                      , M.fromList [ (aOf_x,2)  , (b,2)  ] ]
+      t' = S.fromList [ M.fromList [ (aOf_x,11) , (c,11) ]
+                      , M.fromList [ (aOf_x,12) , (c,12) ] ]
+  assertBool "1" $             M.fromList [ (5,s'), (6,t') ] ==
+    recordDependencies aOf_x ( M.fromList [ (5,s),  (6,t ) ] )
+
+
+
 -- | = (a section that remains)
 -- | = Building a `CondElts` from `Subst`s
 
