@@ -103,7 +103,7 @@ runTestable d p (ForSome v q) s ce =
 
 runTestable d p (ForAll v q) s ce =
   let errMsg = "runTestable: error in callee:\n"
-  case extendPossible v p s of
+  in case extendPossible v p s of
     Left s -> Left $ errMsg ++ s
     Right (p',ss) -> let
       res :: Set (Either String CondElts)
