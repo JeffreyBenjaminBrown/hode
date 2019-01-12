@@ -118,31 +118,53 @@ runFindable :: Data
          -> Query
          -> Subst  -- ^ earlier (higher, calling) quantifiers draw these
                    -- from the input `Possible`
-         -> CondElts
+         -> Either String CondElts
 
-runFindable _ _ (findable -> False) _ = error "runFindable: non-findable Query"
-runFindable d _ (QFind f) s = runFind d s f
-runFindable d p (QAnd qs) s = runQAnd d p qs s
+runFindable _ _ (findable -> False) _ = Left "runFindable: non-findable Query"
+runFindable d _ (QFind f) s = Right $ runFind d s f
+--runFindable d p (QAnd qs) s = Right $ runQAnd d p qs s
 
-runFindable d p (QOr qs) s =
+runFindable d p (QOr qs) s = let
   -- TODO (#speed|#hard) Fold QOr with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
-  let ces = map (flip (runFindable d p) s) qs :: [CondElts]
-  in M.unionsWith S.union ces
+  ces = map (flip (runFindable d p) s) qs :: [Either String CondElts]
+  lefts = filter isLeft ces
+  in case null lefts of
+       True -> Left $ "runFindable: error in callee:\n"
+         ++ show (map (fromLeft "") lefts)
+       False -> Right $ M.unionsWith S.union $ map (fromRight M.empty) ces
 
-runFindable d p (ForSome v q) s = let
-  (p',ss) = extendPossible v p s
-  in M.unionsWith S.union $ S.map (runFindable d p' q) ss
+runFindable d p (ForSome v q) s =
+  case extendPossible v p s of
+    Left s -> Left $ "runFindable: error in callee:\n" ++ s
+    Right (p',ss) -> let
+      res :: Set (Either String CondElts)
+      res = S.map (runFindable d p' q) ss
+      lefts = S.filter isLeft res
+      in case null lefts of
+           False -> Left $ "runTestable: error(s) in callee:\n"
+             ++ show (S.map (fromLeft "") lefts)
+           True -> Right $ M.unionsWith S.union
+                   $ S.map (fromRight M.empty) res
 
-runFindable d p (ForAll v q) s = let
+runFindable d p (ForAll v q) s =
   -- TODO (#speed) Fold ForAll with short-circuiting.
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
-  (p',ss) = extendPossible v p s
-  ces = S.map (runFindable d p' q) ss
-  cesWithoutV = S.map (M.map $ S.map $ M.delete v) ces :: Set CondElts
-    -- delete the dependency on v, so that reconciliation can work
-  in reconcileCondElts cesWithoutV
-    -- keep only results that obtain for every value of v
-
+  case extendPossible v p s of
+    Left s -> Left $ "runFindable: error in callee:\n" ++ s
+    Right (p',ss) -> let
+      res :: Set (Either String CondElts)
+      res = S.map (runFindable d p' q) ss
+      lefts = S.filter isLeft res
+      in case null lefts of
+           False -> Left $ "runTestable: error(s) in callee:\n"
+             ++ show (S.map (fromLeft "") lefts)
+           True -> let
+             cesWithoutV :: Set CondElts
+             cesWithoutV = S.map f res where
+               -- delete the dependency on v, so that reconciliation can work
+               f = (M.map $ S.map $ M.delete v) . (fromRight M.empty)
+             in Right $ reconcileCondElts cesWithoutV
+                -- keep only results that obtain for every value of v
