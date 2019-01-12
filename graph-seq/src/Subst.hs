@@ -21,7 +21,7 @@ extendPossible v p s =
      Right ce -> let
        p' = if null $ varDets v then p else M.insert v ce p
          -- TODO ? Does ce need this insertion into p? It is only a subset
-         -- of a the CondElts already present, keyed by (unCondition v).
+         -- of a the CondElts already present, keyed by (stripDets v).
        s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
        in Right (p',s')
 
@@ -39,21 +39,21 @@ varPossibilities    p           s        dv@(Var v dets)
                                 $ M.restrictKeys p vAndDets
       where -- A Subst in p that mentions a variable other than v or
             -- one of the dets is irrelevant, as is any such key of p.
-        vAndDets = S.insert (unCondition dv) dets
+        vAndDets = S.insert (stripDets dv) dets
         f = M.map $ S.map $ flip M.restrictKeys vAndDets
-    in case reconcileDepsAcrossVars pRestricted s dets of
+    in case reconcileDetsAcrossVars pRestricted s dets of
       Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
       Right (substs :: Set Subst) -> let
         (possible :: Set Elt) =
-          M.keysSet $ setSubstToCondElts (unCondition dv) substs
-        (mce_v :: Maybe CondElts) = M.lookup (unCondition dv) p
+          M.keysSet $ setSubstToCondElts (stripDets dv) substs
+        (mce_v :: Maybe CondElts) = M.lookup (stripDets dv) p
         in maybe (Left $ keyErr "varPossibilities" dv p)
            (Right . flip M.restrictKeys possible) mce_v
 
-unCondition :: Var -> Var
-unCondition (Var name _) = Var name S.empty
+stripDets :: Var -> Var
+stripDets (Var name _) = Var name S.empty
 
--- | `reconcileDepsAcrossVars p s dets` is every
+-- | `reconcileDetsAcrossVars p s dets` is every
 -- `Subst` that permits every value in `dets` specified by `s`.
 -- Each det should be bound in s.
 -- The reconciliation is across dets -- that is, for each det in dets
@@ -63,19 +63,19 @@ unCondition (Var name _) = Var name S.empty
 -- For instance, imagine a Possible in which
 -- a can be 1 provided x is 1 or 2, and
 -- b can be 1 provided x is      2 or 3.
--- and we ask for reconcileDepsAcrossVars consistent with the subst (a=1,b=1).
+-- and we ask for reconcileDetsAcrossVars consistent with the subst (a=1,b=1).
 -- THe only Subst consistent with both is a=2.
 --
--- TODO (#fast) short-circuit reconcileDepsAcrossVars.
--- varPossibilities is so far reconcileDepsAcrossVars's only caller.
+-- TODO (#fast) short-circuit reconcileDetsAcrossVars.
+-- varPossibilities is so far reconcileDetsAcrossVars's only caller.
 -- varPossibilities only wants the Elt, not the associated Substs,
 -- so if there is any way to reconcile an Elt across Substs,
 -- don't search for yet more ways.
 
-reconcileDepsAcrossVars :: Possible -> Subst -> Set Var
+reconcileDetsAcrossVars :: Possible -> Subst -> Set Var
                         -> Either String (Set Subst)
-reconcileDepsAcrossVars    p           s        dets
-  | null dets = Left $ "reconcileDepsAcrossVars: empty 'dets' argument.\n"
+reconcileDetsAcrossVars    p           s        dets
+  | null dets = Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
   | True = let
     se = S.map (impliedSubsts p s) dets :: Set (Either String (Set Subst))
     lefts = S.filter isLeft se

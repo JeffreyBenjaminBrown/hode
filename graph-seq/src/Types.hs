@@ -24,8 +24,8 @@ instance Show Var where
   show v = "Var " ++ varName v ++ "<=" ++ show (S.toList $ varDets v)
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
-                 , findDeps     :: Set Var }
-  -- ^ If `findFunction` doesn't use the `Subst`, `findDeps` should be empty.
+                 , findDets     :: Set Var }
+  -- ^ If `findFunction` doesn't use the `Subst`, `findDets` should be empty.
 data Test = Test { testFunction :: Data -> Subst ->     Elt -> Bool
                  , testDeps     :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.

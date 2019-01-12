@@ -63,9 +63,9 @@ testRestrictCondElts1 = TestCase $ do
 recordDependencies :: Var -> CondElts -> CondElts
 recordDependencies vf ce = let
   replace :: Subst -> Subst
-  replace s = let mlk = M.lookup (unCondition vf) s in case mlk of
+  replace s = let mlk = M.lookup (stripDets vf) s in case mlk of
     Nothing -> s -- TODO ? Throw an error?
-    Just lk -> M.insert vf lk $ M.delete (unCondition vf) s
+    Just lk -> M.insert vf lk $ M.delete (stripDets vf) s
   in M.map (S.map replace) ce
 
   , TestLabel "testRecordDependencies" testRecordDependencies

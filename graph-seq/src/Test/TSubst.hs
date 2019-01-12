@@ -99,16 +99,16 @@ testVarSubsts = TestCase $ do
                      , (y, yCondElts) ]
       xySubst xVal yVal = M.fromList [ (x, xVal), (y, yVal) ]
 
-  assertBool "0" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.singleton x)
+  assertBool "0" $ reconcileDetsAcrossVars r (xySubst 1 4) (S.singleton x)
     == Right ( S.fromList [ M.fromList [ (a, 1) ] ] ) -- y irrelevant in aOf_x
-  assertBool "1" $ reconcileDepsAcrossVars r (xySubst 1 3) (S.fromList [x,y])
+  assertBool "1" $ reconcileDetsAcrossVars r (xySubst 1 3) (S.fromList [x,y])
     == Right ( S.fromList [ M.fromList [ (a, 1) ] ] )
-  assertBool "2" $ reconcileDepsAcrossVars r (xySubst 2 3) (S.fromList [x,y])
+  assertBool "2" $ reconcileDetsAcrossVars r (xySubst 2 3) (S.fromList [x,y])
     == Right ( S.empty )
-  assertBool "3" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.fromList [x,y])
+  assertBool "3" $ reconcileDetsAcrossVars r (xySubst 1 4) (S.fromList [x,y])
     == Right ( S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
                           , M.fromList [ (a, 1), (b, 3), (c, 3) ] ] )
-  assertBool "3" $ reconcileDepsAcrossVars r (xySubst 3 4) (S.fromList [x,y])
+  assertBool "3" $ reconcileDetsAcrossVars r (xySubst 3 4) (S.fromList [x,y])
     == Right ( S.fromList [ M.fromList [ (a, 1), (b, 3), (c, 3) ]
   -- TODO : are the next two answers redundant? Should I keep only the 1st?
   -- If we ever need to know whether a prior value of a led to this one,
