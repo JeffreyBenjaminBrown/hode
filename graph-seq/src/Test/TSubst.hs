@@ -132,6 +132,7 @@ testVarSubsts = TestCase $ do
   -- that way it would be available.
                           , M.fromList [ (a, 2), (b, 3), (c, 3) ]
                           , M.fromList [         (b, 3), (c, 3) ] ] )
+
 testReconcileCondElts = TestCase $ do
   let [a,b,c,x] = map (flip Var S.empty) ["a","b","c","x"]
       ce, cf :: CondElts
