@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module Query where
@@ -42,14 +43,23 @@ runTest d s q ce =
 
 -- | == Complex queries
 
-runQAnd :: Data -> Possible -> [Query] -> Subst -> CondElts
-runQAnd d p qs s = tested where
+runQAnd :: Data -> Possible -> [Query] -> Subst -> Either String CondElts
+runQAnd d p qs s = let
+  errMsg = "runQAnd: error in callee:\n"
   (searches,tests) = partition findable qs
-  found = map (flip (runFindable d p) s) searches :: [CondElts]
-  reconciled, tested :: CondElts
-  reconciled = reconcileCondElts $ S.fromList found
-  tested = foldr (\t ce -> runTestable d p t s ce) reconciled tests
-
+  eFound :: [Either String CondElts]
+  eFound = map (flip (runFindable d p) s) searches
+  lefts = filter isLeft eFound
+  in case null lefts of
+       False -> Left $ errMsg ++ show (map (fromLeft "") lefts)
+       True -> let
+         (found :: [CondElts]) = map (fromRight M.empty) eFound
+         (reconciled :: CondElts) = reconcileCondElts $ S.fromList found
+         tested = foldr f (Right reconciled) tests where
+           f :: Query -> Either String CondElts -> Either String CondElts
+           f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
+           f t (Right ce) = runTestable d p t s ce
+         in tested
 
 -- | = runTestable
 
@@ -64,44 +74,44 @@ runTestable d p (QAnd qs) s ce = let
   results = map (\q -> runTestable d p q s ce) qs :: [Either String CondElts]
   lefts = filter isLeft results
   in case null lefts of
-       True -> Left $ "runTestable: error in callee:\n"
+       False -> Left $ "runTestable: error in callee:\n"
                ++ show (map (fromLeft "") lefts)
-       False -> Right $ reconcileCondElts $ S.fromList
+       True -> Right $ reconcileCondElts $ S.fromList
                 $ map (fromRight M.empty) results
 
 runTestable d p (QOr qs) s ce = let
   results = map (\q -> runTestable d p q s ce) qs :: [Either String CondElts]
   lefts = filter isLeft results
   in case null lefts of
-       True -> Left $ "runTestable: error in callee:\n"
+       False -> Left $ "runTestable: error in callee:\n"
                ++ show (map (fromLeft "") lefts)
-       False -> Right $ M.unionsWith S.union
+       True -> Right $ M.unionsWith S.union
                 $ map (fromRight M.empty) results
 
 runTestable d p (ForSome v q) s ce =
-  case extendPossible v p s of
-    Left s -> Left $ "runTestable: error in callee:\n" ++ s
+  let errMsg = "runTestable: error in callee:\n"
+  in case extendPossible v p s of
+    Left s -> Left $ errMsg ++ s
     Right (p',ss) -> let
       res :: Set (Either String CondElts)
       res = S.map (flip (runTestable d p' q) ce) ss
       lefts = S.filter isLeft res
       in case null lefts of
-           False -> Left $ "runTestable: error(s) in callee:\n"
-             ++ show (S.map (fromLeft "") lefts)
+           False -> Left $ errMsg ++ show (S.map (fromLeft "") lefts)
            True -> Right $ M.unionsWith S.union
                    $ S.map (fromRight M.empty) res
 
 runTestable d p (ForAll v q) s ce =
+  let errMsg = "runTestable: error in callee:\n"
   case extendPossible v p s of
-    Left s -> Left $ "runTestable: error in callee:\n" ++ s
+    Left s -> Left $ errMsg ++ s
     Right (p',ss) -> let
       res :: Set (Either String CondElts)
       res = S.map (flip (runTestable d p' q) ce) ss
       lefts = S.filter isLeft res
       in case null lefts of
 
-           False -> Left $ "runTestable: error(s) in callee:\n"
-             ++ show (S.map (fromLeft "") lefts)
+           False -> Left $ errMsg ++ show (S.map (fromLeft "") lefts)
            True -> let
              cesWithoutV :: Set CondElts
              cesWithoutV = S.map f res where
@@ -131,9 +141,9 @@ runFindable d p (QOr qs) s = let
   ces = map (flip (runFindable d p) s) qs :: [Either String CondElts]
   lefts = filter isLeft ces
   in case null lefts of
-       True -> Left $ "runFindable: error in callee:\n"
+       False -> Left $ "runFindable: error in callee:\n"
          ++ show (map (fromLeft "") lefts)
-       False -> Right $ M.unionsWith S.union $ map (fromRight M.empty) ces
+       True -> Right $ M.unionsWith S.union $ map (fromRight M.empty) ces
 
 runFindable d p (ForSome v q) s =
   case extendPossible v p s of
