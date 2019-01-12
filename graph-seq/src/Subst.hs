@@ -15,12 +15,13 @@ import Util
 
 extendPossible :: Var -> Possible -> Subst
   -> Either String (Possible, Set Subst)
-extendPossible v p s = let
-  e = varPossibilities p s v :: Either String CondElts
-  in case e of
+extendPossible v p s =
+  case varPossibilities p s v of
      Left s -> Left $ "extendPossible: error in callee:\n" ++ s
      Right ce -> let
        p' = if null $ varDets v then p else M.insert v ce p
+         -- TODO ? Does ce need this insertion into p? It is only a subset
+         -- of a the CondElts already present, keyed by (unCondition v).
        s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
        in Right (p',s')
 
@@ -30,7 +31,7 @@ extendPossible v p s = let
 -- has no determinants, and the Subst is not used.
 
 varPossibilities :: Possible -> Subst -> Var -> Either String CondElts
-varPossibilities    p           s  dv@(Var v dets)
+varPossibilities    p           s        dv@(Var v dets)
   | null dets = maybe (Left $ keyErr "varPossibilities" dv p) Right
                 $ M.lookup dv p
   | otherwise = let
@@ -38,24 +39,24 @@ varPossibilities    p           s  dv@(Var v dets)
                                 $ M.restrictKeys p vAndDets
       where -- A Subst in p that mentions a variable other than v or
             -- one of the dets is irrelevant, as is any such key of p.
-        vAndDets = S.insert (Var v S.empty) dets
+        vAndDets = S.insert (unCondition dv) dets
         f = M.map $ S.map $ flip M.restrictKeys vAndDets
     in case reconcileDepsAcrossVars pRestricted s dets of
       Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
       Right (substs :: Set Subst) -> let
         (possible :: Set Elt) =
           M.keysSet $ setSubstToCondElts (unCondition dv) substs
-        (lk :: Maybe CondElts) = M.lookup (unCondition dv) p
+        (mce_v :: Maybe CondElts) = M.lookup (unCondition dv) p
         in maybe (Left $ keyErr "varPossibilities" dv p)
-           (Right . flip M.restrictKeys possible) lk
+           (Right . flip M.restrictKeys possible) mce_v
 
 unCondition :: Var -> Var
 unCondition (Var name _) = Var name S.empty
 
--- | `reconcileDepsAcrossVars p s dets` is the set of all
--- `Subst`s that permit the values of `dets` specified by `s`.
--- Each det should be bound in s. 
--- The results are reconciled across dets -- that is, for each det in dets
+-- | `reconcileDepsAcrossVars p s dets` is every
+-- `Subst` that permits every value in `dets` specified by `s`.
+-- Each det should be bound in s.
+-- The reconciliation is across dets -- that is, for each det in dets
 -- and each r in the result, r is consistent with at least one Subst
 -- that p assigns to det (given the value of det in s).
 --
@@ -71,7 +72,8 @@ unCondition (Var name _) = Var name S.empty
 -- so if there is any way to reconcile an Elt across Substs,
 -- don't search for yet more ways.
 
-reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Either String (Set Subst)
+reconcileDepsAcrossVars :: Possible -> Subst -> Set Var
+                        -> Either String (Set Subst)
 reconcileDepsAcrossVars    p           s        dets
   | null dets = Left $ "reconcileDepsAcrossVars: empty 'dets' argument.\n"
   | True = let
@@ -87,12 +89,12 @@ reconcileDepsAcrossVars    p           s        dets
 impliedSubsts :: Possible -> Subst -> Var -> Either String (Set Subst)
 impliedSubsts p s v =
   case (M.lookup v s :: Maybe Elt) of
-    Nothing -> Left $ keyErr "impliedSubsts / Subst" v s
-    Just (bound :: Elt) -> case M.lookup v p of
-      Nothing -> Left $ keyErr "impliedSubsts / Possible" v p
-      Just (couldBindTo :: CondElts) -> case M.lookup bound couldBindTo of
-        Nothing -> Left $ keyErr "impliedSubsts / CondElts" bound couldBindTo
-        Just ss -> Right ss
+  Nothing -> Left $ keyErr "impliedSubsts / Subst" v s
+  Just (vIs :: Elt) -> case M.lookup v p of
+    Nothing -> Left $ keyErr "impliedSubsts / Possible" v p
+    Just (vCouldHaveBeen :: CondElts) -> case M.lookup vIs vCouldHaveBeen of
+      Nothing -> Left $ keyErr "impliedSubsts / CondElts" vIs vCouldHaveBeen
+      Just ss -> Right ss
 
 
 -- | = Building a `CondElts` from `Subst`s
@@ -128,13 +130,13 @@ substToCondElts v subst = do
 -- (Each determinant of a VarFunc implies a separate CondElts for it.)
 
 reconcileCondElts :: Set CondElts -> CondElts
-reconcileCondElts ces = u where
+reconcileCondElts ces = let
    keys :: Set Elt
    keys = S.unions $ S.map M.keysSet ces
    reconciled :: Set CondElts
    reconciled = let f = flip reconcileCondEltsAtElt ces
      in S.map fromJust $ S.filter isJust $ S.map f keys
-   u = M.unions reconciled :: CondElts
+   in M.unions reconciled :: CondElts
 
 -- | `reconcileCondEltsAtElt e ces` is the biggest `CondElts` possible
 -- such that each value it associates with e is consistent with each of
