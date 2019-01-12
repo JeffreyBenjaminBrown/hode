@@ -132,7 +132,7 @@ runFindable :: Data
 
 runFindable _ _ (findable -> False) _ = Left "runFindable: non-findable Query"
 runFindable d _ (QFind f) s = Right $ runFind d s f
---runFindable d p (QAnd qs) s = Right $ runQAnd d p qs s
+runFindable d p (QAnd qs) s = runQAnd d p qs s
 
 runFindable d p (QOr qs) s = let
   -- TODO (#speed|#hard) Fold QOr with short-circuiting.
