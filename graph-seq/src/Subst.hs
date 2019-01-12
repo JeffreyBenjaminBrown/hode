@@ -18,11 +18,11 @@ extendPossible :: Var -> Possible -> Subst
 extendPossible v p s = let
   e = varPossibilities p s v :: Either String CondElts
   in case e of
-       Left s -> Left $ "extendPossible: error in callee:\n" ++ s
-       Right ce -> let
-         p' = if null $ varDets v then p else M.insert v ce p
-         s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
-         in Right (p',s')
+     Left s -> Left $ "extendPossible: error in callee:\n" ++ s
+     Right ce -> let
+       p' = if null $ varDets v then p else M.insert v ce p
+       s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
+       in Right (p',s')
 
 -- | `varPossibilities r s (Var v dets)` returns all values v can take,
 -- given r, s and v. If dets is non-null, then the CondElts returned
