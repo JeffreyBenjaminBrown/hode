@@ -26,6 +26,27 @@ testModuleQuery = TestList [
   , TestLabel "test_runFindable_mixed" test_runFindable_mixed
   ]
 
+-- DEBUGGING
+[a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
+
+isnt v = QTest $ isNot $ Right v
+d = graph [ (0, [1,2        ] )
+          , (3, [  2,3,4    ] )
+          , (10,[11, 23     ] ) ]
+(p :: Possible) = M.fromList
+  [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
+  , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
+                   , (23, S.fromList [ M.singleton a 2
+                                     , M.singleton a 3 ] ) ] ) ]
+fc0 = QFind $ findChildren $ Left 0
+fc v = QFind $ findChildren $ Right v
+s = M.fromList [(a,2), (b,23)] :: Subst
+q_And_Quant = QAnd [ ForAll aOf_b $ isnt aOf_b
+                   , ForSome aOf_b $ fc aOf_b ]
+q_ForAll_And = ForAll aOf_b $ QAnd [ fc0, isnt a ]
+
+-- /DEBUGGING
 test_runFindable_mixed = TestCase $ do
   let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
       aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
@@ -48,7 +69,7 @@ test_runFindable_mixed = TestCase $ do
 
   assertBool "2" $ runFindable d p q_And_Quant s
     == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 2
-                                 , M.singleton b 23 ] ) )
+                                         , M.singleton b 23 ] ) )
   assertBool "1" $ runFindable d p q_ForAll_And s
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 

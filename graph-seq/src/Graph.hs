@@ -16,6 +16,11 @@ graph pairs = Graph nodes children $ invertMapToSet children where
     where f (a,b) = (a, S.fromList b)
   nodes = S.union (M.keysSet children) $ M.foldl S.union S.empty children
 
+parents :: Graph -> Int -> Set Int
+parents g i  = maybe mempty id $ M.lookup i $ graphParents g
+children :: Graph -> Int -> Set Int
+children g i = maybe mempty id $ M.lookup i $ graphChildren g
+
 invertMapToSet :: forall a. Ord a => Map a (Set a) -> Map a (Set a)
 invertMapToSet = foldl addInversion M.empty . M.toList where
   addInversion :: M.Map a ( Set a )
@@ -46,21 +51,21 @@ findChildren (Left e) =
   Find f mempty
   where
     f :: Graph -> Subst -> Set Elt
-    f g _ = (M.!) (children g) e
+    f g _ = children g e
 findChildren (Right v) =
   Find f $ S.union (S.singleton v) $ varDets v
   where
     f :: Graph -> Subst -> Set Elt
-    f g s = (M.!) (children g) $ (M.!) s v
+    f g s = children g $ (M.!) s v
 
 findParents :: Either Elt Var -> Find
 findParents (Left e) =
   Find f mempty
   where
     f :: Graph -> Subst -> Set Elt
-    f g _ = (M.!) (parents g) e
+    f g _ = parents g e
 findParents (Right v) =
   Find f $ S.union (S.singleton v) $ varDets v
   where
     f :: Graph -> Subst -> Set Elt
-    f g s = (M.!) (parents g) $ (M.!) s v
+    f g s = (parents g) $ (M.!) s v
