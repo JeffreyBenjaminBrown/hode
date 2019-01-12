@@ -117,21 +117,21 @@ testVarSubsts = TestCase $ do
       xySubst xVal yVal = M.fromList [ (x, xVal), (y, yVal) ]
 
   assertBool "0" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.singleton x)
-    == S.fromList [ M.fromList [ (a, 1) ] ] -- y irrelevant in aOf_x
+    == Right ( S.fromList [ M.fromList [ (a, 1) ] ] ) -- y irrelevant in aOf_x
   assertBool "1" $ reconcileDepsAcrossVars r (xySubst 1 3) (S.fromList [x,y])
-    == S.fromList [ M.fromList [ (a, 1) ] ]
+    == Right ( S.fromList [ M.fromList [ (a, 1) ] ] )
   assertBool "2" $ reconcileDepsAcrossVars r (xySubst 2 3) (S.fromList [x,y])
-    == S.empty
+    == Right ( S.empty )
   assertBool "3" $ reconcileDepsAcrossVars r (xySubst 1 4) (S.fromList [x,y])
-    == S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
-                  , M.fromList [ (a, 1), (b, 3), (c, 3) ] ]
+    == Right ( S.fromList [ M.fromList [ (a, 1), (b, 2), (c, 2) ]
+                          , M.fromList [ (a, 1), (b, 3), (c, 3) ] ] )
   assertBool "3" $ reconcileDepsAcrossVars r (xySubst 3 4) (S.fromList [x,y])
-    == S.fromList [ M.fromList [ (a, 1), (b, 3), (c, 3) ]
+    == Right ( S.fromList [ M.fromList [ (a, 1), (b, 3), (c, 3) ]
   -- TODO : are the next two answers redundant? Should I keep only the 1st?
   -- If we ever need to know whether a prior value of a led to this one,
   -- that way it would be available.
-                  , M.fromList [ (a, 2), (b, 3), (c, 3) ]
-                  , M.fromList [         (b, 3), (c, 3) ] ]
+                          , M.fromList [ (a, 2), (b, 3), (c, 3) ]
+                          , M.fromList [         (b, 3), (c, 3) ] ] )
 testReconcileCondElts = TestCase $ do
   let [a,b,c,x] = map (flip Var S.empty) ["a","b","c","x"]
       ce, cf :: CondElts

@@ -11,7 +11,7 @@ import qualified Data.Set       as S
 
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key map =  callingFunction ++ ": key "
-  ++ show key ++ "not found in map " ++ show map
+  ++ show key ++ "not found in map " ++ show map ++ ".\n"
 
 isSubsetOfMap :: forall k b. (Ord k, Eq b)
               => Map k b -> Map k b -> Bool

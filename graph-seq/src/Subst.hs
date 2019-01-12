@@ -43,12 +43,14 @@ varPossibilities    p           s  vf@(Var v dets)
        -- one of the dets is irrelevant, as is any such key of p.
         vAndDets = S.insert (Var v S.empty) dets
         f = M.map $ S.map $ flip M.restrictKeys vAndDets
-    substs = reconcileDepsAcrossVars pRestricted s dets :: Set Subst
-    (possible :: Set Elt) =
-      M.keysSet $ setSubstToCondElts (unCondition vf) substs
-    (lk :: Maybe CondElts) = M.lookup (unCondition vf) p
-    in maybe (Left $ keyErr "varPossibilities" vf p)
-       (Right . flip M.restrictKeys possible) lk
+    in case reconcileDepsAcrossVars pRestricted s dets of
+      Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
+      Right (substs :: Set Subst) -> let
+        (possible :: Set Elt) =
+          M.keysSet $ setSubstToCondElts (unCondition vf) substs
+        (lk :: Maybe CondElts) = M.lookup (unCondition vf) p
+        in maybe (Left $ keyErr "varPossibilities" vf p)
+           (Right . flip M.restrictKeys possible) lk
 
 unCondition :: Var -> Var
 unCondition (Var name _) = Var name S.empty
@@ -81,21 +83,9 @@ recordDependencies vf ce = let
 -- so if there is any way to reconcile an Elt across Substs,
 -- don't search for yet more ways.
 
-reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Set Subst
+reconcileDepsAcrossVars :: Possible -> Subst -> Set Var -> Either String (Set Subst)
 reconcileDepsAcrossVars    p           s        dets
-  | null dets = error "reconcileDepsAcrossVars: empty 'dets' argument."
-  | True = let
-      impliedSubsts :: Var -> Set Subst
-      impliedSubsts det = (M.!) couldBindTo bound
-        where
-          bound       = (M.!) s det :: Elt
-          couldBindTo = (M.!) p det :: CondElts
-    in
-      reconcile $ S.map impliedSubsts dets
-
-reconcileDepsAcrossVars' :: Possible -> Subst -> Set Var -> Either String (Set Subst)
-reconcileDepsAcrossVars'    p           s        dets
-  | null dets = error "reconcileDepsAcrossVars: empty 'dets' argument."
+  | null dets = Left $ "reconcileDepsAcrossVars: empty 'dets' argument.\n"
   | True = let
     se = S.map (impliedSubsts p s) dets :: Set (Either String (Set Subst))
     lefts = S.filter isLeft se
