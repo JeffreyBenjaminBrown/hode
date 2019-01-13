@@ -8,6 +8,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Types
+import Util
 
 
 graph :: [( Int, [Int] )] -> Graph
@@ -35,40 +36,38 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
 
 isNot :: Either Elt Var -> Test
-isNot (Left e) =
-  Test t mempty
+isNot (Left e) = Test go mempty
   where
-    t :: Data -> Subst -> Elt -> Bool
-    t _ _ = (/=) e
-isNot (Right v) = -- TODO Maybe dets should just be S.singleton v?
-  Test t $ S.union (S.singleton v) dets
+    go :: Data -> Subst -> Elt -> Bool
+    go _ _ = (/=) e
+isNot (Right v) = Test go $ S.singleton v
   where
-    t :: Data -> Subst -> Elt -> Bool
-    t _ s = (/=) $ (M.!) s v
+    go :: Data -> Subst -> Elt -> Bool
+    go _ s = case (M.lookup) v s of Nothing -> error $ keyErr "isNot" v s
+                                    Just e -> (/=) e
     dets = maybe S.empty snd $ varDets v
 
 findChildren :: Either Elt Var -> Find
 findChildren (Left e) =
-  Find f mempty
+  Find go mempty
   where
-    f :: Graph -> Subst -> Set Elt
-    f g _ = children g e
-findChildren (Right v) = -- TODO Maybe dets should just be S.singleton v?
-  Find f $ S.union (S.singleton v) dets
+    go :: Graph -> Subst -> Set Elt
+    go g _ = children g e
+findChildren (Right v) = Find go $ S.singleton v
   where
-    f :: Graph -> Subst -> Set Elt
-    f g s = children g $ (M.!) s v
+    go :: Graph -> Subst -> Set Elt
+    go g s = maybe err (children g) $ M.lookup v s
+      where err = error $ keyErr "findChildren" v s
     dets = maybe S.empty snd $ varDets v
 
 findParents :: Either Elt Var -> Find
-findParents (Left e) =
-  Find f mempty
+findParents (Left e) = Find go mempty
   where
-    f :: Graph -> Subst -> Set Elt
-    f g _ = parents g e
-findParents (Right v) = -- TODO Maybe dets should just be S.singleton v?
-  Find f $ S.union (S.singleton v) dets
+    go :: Graph -> Subst -> Set Elt
+    go g _ = parents g e
+findParents (Right v) = Find go $ S.singleton v
   where
-    f :: Graph -> Subst -> Set Elt
-    f g s = (parents g) $ (M.!) s v
+    go :: Graph -> Subst -> Set Elt
+    go g s = maybe err (parents g) $ M.lookup v s
+      where err = error $ keyErr "findParents" v s
     dets = maybe S.empty snd $ varDets v

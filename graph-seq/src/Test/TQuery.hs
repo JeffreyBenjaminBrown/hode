@@ -42,12 +42,13 @@ test_runFindable_mixed = TestCase $ do
       fc0 = QFind $ findChildren $ Left 0
       fc v = QFind $ findChildren $ Right v
       s = M.fromList [(a,2), (b,23)] :: Subst
-      q_And_Quant = QAnd [ ForAll aOf_b $ isnt aOf_b
-                         , ForSome aOf_b $ fc aOf_b ]
+      q_And_Quant = let aOf_b' = aOf_b {varName = "a1"}
+        in QAnd [ ForAll aOf_b' $ isnt aOf_b'
+                , ForSome aOf_b $ fc aOf_b ]
       q_ForAll_And = ForAll aOf_b $ QAnd [ fc0, isnt a ]
 
   assertBool "2" $ runFindable d p q_And_Quant s
-    == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 2 ] ) )
+    == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 3 ] ) )
   assertBool "1" $ runFindable d p q_ForAll_And s
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
@@ -107,9 +108,10 @@ test_runFindable_ForAll = TestCase $ do
           , ( c, M.fromList [ (1, S.singleton $ M.singleton a 2) ] ) ]
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
+
   assertBool "4" $ runFindable g p (ForAll aOf_c $ qc aOf_c) (M.singleton c 1)
-    == Right ( M.fromList [ (12, S.singleton $ M.singleton c 1)
-                          , (22, S.singleton $ M.singleton c 1) ] )
+    == Right ( M.fromList [ (12, S.singleton $ M.empty)
+                          , (22, S.singleton $ M.empty) ] )
   assertBool "3" $ runFindable g p (ForAll b $ qc b) (M.singleton x 1)
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
   assertBool "3" $ runFindable g p (ForAll b $ qc b) (M.singleton x 1)
@@ -131,10 +133,11 @@ test_runFindable_ForSome = TestCase $ do
                             , (2, S.singleton   M.empty) ] ) ] :: Possible
       qc :: Var -> Query
       qc v = QFind $ findChildren $ Right v
+
   assertBool "3" $ (runFindable g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 1)
     == Right
-    ( M.fromList [ (11, S.singleton $ M.fromList [ (b, 1), (aOf_b, 1) ] )
-                 , (21, S.singleton $ M.fromList [ (b, 1), (aOf_b, 1) ] ) ] )
+    ( M.fromList [ (11, S.singleton $ M.fromList [ (aOf_b, 1) ] )
+                 , (21, S.singleton $ M.fromList [ (aOf_b, 1) ] ) ] )
   assertBool "2" $ (runFindable g p (ForSome aOf_b $ qc aOf_b) $ M.singleton b 2)
     == Right M.empty
   assertBool "1" $ runFindable g p (ForSome a $ qc a) M.empty

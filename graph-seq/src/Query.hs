@@ -149,9 +149,8 @@ runFindable d p (ForSome v q) s =
   case extendPossible v p s of
   Left s -> Left $ "runFindable: error in callee:\n" ++ s
   Right (p',ss) -> let
-    res :: Set (Either String CondElts)
-    res = S.map (runFindable d p' q) ss
-    lefts = S.filter isLeft res
+    (res   :: Set (Either String CondElts)) = S.map (runFindable d p' q) ss
+    (lefts :: Set (Either String CondElts)) = S.filter isLeft res
     in case null lefts of
     False -> Left $ "runTestable: error(s) in callee:\n"
       ++ show (S.map (fromLeft "") lefts)
@@ -166,15 +165,13 @@ runFindable d p (ForAll v q) s =
   case extendPossible v p s of
   Left s -> Left $ "runFindable: error in callee:\n" ++ s
   Right (p',ss) -> let
-    res :: Set (Either String CondElts)
-    res = S.map (runFindable d p' q) ss
-    lefts = S.filter isLeft res
+    (res   :: Set (Either String CondElts)) = S.map (runFindable d p' q) ss
+    (lefts :: Set (Either String CondElts)) = S.filter isLeft res
     in case null lefts of
     False -> Left $ "runTestable: error(s) in callee:\n"
       ++ show (S.map (fromLeft "") lefts)
     True -> let
-      cesWithoutV :: Set CondElts
-      cesWithoutV = S.map f res where
+      (cesWithoutV :: Set CondElts) = S.map f res where
         -- delete the dependency on v, so that reconciliation can work
         f = (M.map $ S.map $ M.delete v) . (fromRight M.empty)
       in Right $ reconcileCondElts cesWithoutV
