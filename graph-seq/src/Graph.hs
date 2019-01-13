@@ -45,7 +45,6 @@ isNot (Right v) = Test go $ S.singleton v
     go :: Data -> Subst -> Elt -> Bool
     go _ s = maybe err (/=) $ M.lookup v s
       where err = error $ keyErr "isNot" v s
-    dets = maybe S.empty snd $ varDets v
 
 findChildren :: Either Elt Var -> Find
 findChildren (Left e) =
@@ -58,7 +57,6 @@ findChildren (Right v) = Find go $ S.singleton v
     go :: Graph -> Subst -> Set Elt
     go g s = maybe err (children g) $ M.lookup v s
       where err = error $ keyErr "findChildren" v s
-    dets = maybe S.empty snd $ varDets v
 
 findParents :: Either Elt Var -> Find
 findParents (Left e) = Find go mempty
@@ -70,4 +68,3 @@ findParents (Right v) = Find go $ S.singleton v
     go :: Graph -> Subst -> Set Elt
     go g s = maybe err (parents g) $ M.lookup v s
       where err = error $ keyErr "findParents" v s
-    dets = maybe S.empty snd $ varDets v
