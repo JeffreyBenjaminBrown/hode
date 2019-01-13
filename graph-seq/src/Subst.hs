@@ -13,41 +13,42 @@ import Types
 import Util
 
 
-extendPossible :: Var -> Possible -> Subst
+extendPossible :: Var -> Source -> Possible -> Subst
   -> Either String (Possible, Set Subst)
-extendPossible v p s =
-  case varPossibilities p s v of
-     Left s -> Left $ "extendPossible: error in callee:\n" ++ s
-     Right ce -> let
-       p' = if null $ varDets v then p else M.insert v ce p
-         -- TODO ? Does ce need this insertion into p? It is only a subset
-         -- of a the CondElts already present, keyed by 'source'.
-       s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
-       in Right (p',s')
+extendPossible v src p s =
+  case varPossibilities p s src of
+  Left s -> Left $ "extendPossible: error in callee:\n" ++ s
+  Right ce -> let
+    p' = case src of Source v -> p
+                     Source' v' dets -> M.insert v ce p
+      -- TODO ? Does ce need this insertion into p? It is only a subset
+      -- of a the CondElts already present, keyed by v' instead of v.
+    s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
+    in Right (p',s')
 
 -- | `varPossibilities p s dv@(Var v dets)` is all values dv can take.
 -- dv should not be bound in s or p, and every det in dets should be.
 -- If dets is null, then the CondElts returned
 -- has no determinants, and the Subst is not used.
 
-varPossibilities :: Possible -> Subst -> Var -> Either String CondElts
-varPossibilities    p           s        dv@(Var _ Nothing) =
-  maybe (Left $ keyErr "varPossibilities" dv p) Right $ M.lookup dv p
+varPossibilities :: Possible -> Subst -> Source
+                 -> Either String CondElts
+varPossibilities    p           s        (Source v) =
+  maybe (Left $ keyErr "varPossibilities" v p) Right $ M.lookup v p
 
-varPossibilities p s dv@(Var v (Just (source,dets))) = let
+varPossibilities    p           s        (Source' v dets) = let
   (pRestricted :: Possible) = M.map (f :: CondElts -> CondElts)
                               $ M.restrictKeys p vAndDets
     where -- A Subst in p that mentions a variable other than v or
           -- one of the dets is irrelevant, as is any such key of p.
-      vAndDets = S.insert source dets
+      vAndDets = S.insert v dets
       f = M.map $ S.map $ flip M.restrictKeys vAndDets
   in case reconcileDetsAcrossVars pRestricted s dets of
     Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
     Right (substs :: Set Subst) -> let
-      (possible :: Set Elt) =
-        M.keysSet $ setSubstToCondElts source substs
-      (mce_v :: Maybe CondElts) = M.lookup source p
-      in maybe (Left $ keyErr "varPossibilities" dv p)
+      (possible :: Set Elt) = M.keysSet $ setSubstToCondElts v substs
+      (mce_v :: Maybe CondElts) = M.lookup v p
+      in maybe (Left $ keyErr "varPossibilities" v p)
          (Right . flip M.restrictKeys possible) mce_v
 
 
