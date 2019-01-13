@@ -26,31 +26,9 @@ testModuleQuery = TestList [
   , TestLabel "test_runFindable_mixed" test_runFindable_mixed
   ]
 
--- DEBUGGING
-[a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
-aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
-isnt v = QTest $ isNot $ Right v
-fc0 = QFind $ findChildren $ Left 0
-fc v = QFind $ findChildren $ Right v
-
-d = graph [ (0, [1,2        ] )
-          , (3, [  2,3,4    ] )
-          , (10,[11, 23     ] ) ]
-(p :: Possible) = M.fromList
-  [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
-  , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
-                   , (23, S.fromList [ M.singleton a 2
-                                     , M.singleton a 3 ] ) ] ) ]
-
-s = M.fromList [(a,2), (b,23)] :: Subst
-q_And_Quant = QAnd [ ForAll aOf_b $ isnt aOf_b
-                   , ForSome aOf_b $ fc aOf_b ]
-q_ForAll_And = ForAll aOf_b $ QAnd [ fc0, isnt a ]
-
--- /DEBUGGING
 test_runFindable_mixed = TestCase $ do
-  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
-      aOf_b = Var "a" $ S.singleton $ Var "b" S.empty
+  let [a,b,c,x,y] = map (flip Var Nothing) ["a","b","c","x","y"]
+      aOf_b = Var "a" $ Just (a, S.singleton b)
 
       isnt v = QTest $ isNot $ Right v
       d = graph [ (0, [1,2        ] )
@@ -74,7 +52,7 @@ test_runFindable_mixed = TestCase $ do
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
 testRunQAnd = TestCase $ do
-  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+  let [a,b,c,x,y] = map (flip Var Nothing) ["a","b","c","x","y"]
       (a2 :: Subst) = M.singleton a 2
       nota = QTest $ isNot $ Right a
       d = graph [ (0, [1,2    ] )
@@ -87,7 +65,7 @@ testRunQAnd = TestCase $ do
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
 testRunTestable = TestCase $ do
-  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+  let [a,b,c,x,y] = map (flip Var Nothing) ["a","b","c","x","y"]
       (a2 :: Subst) = M.singleton a 2
       (not3 :: Test) = isNot $ Left 3
       (nota :: Test) = isNot $ Right a
@@ -119,8 +97,8 @@ testRunTestable = TestCase $ do
 test_runFindable_ForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
-      [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
-      aOf_c = a {varDets = S.singleton c}
+      [a,b,c,x,y] = map (flip Var Nothing) ["a","b","c","x","y"]
+      aOf_c = Var "aOf_c" $ Just (a, S.singleton c)
       (p :: Possible) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton   M.empty) ] )
@@ -144,8 +122,8 @@ test_runFindable_ForAll = TestCase $ do
 test_runFindable_ForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
-      [a,b,x,y] = map (flip Var S.empty) ["a","b","x","y"]
-      aOf_b = Var "a" $ S.singleton b
+      [a,b,x,y] = map (flip Var Nothing) ["a","b","x","y"]
+      aOf_b = Var "aOf_b" $ Just (a, S.singleton b)
       p = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton   M.empty) ] )
@@ -166,7 +144,7 @@ test_runFindable_ForSome = TestCase $ do
                           , (22, S.singleton $ M.singleton a 2) ] )
 
 testRunTest = TestCase $ do
-  let [a,b,c,x,y] = map (flip Var S.empty) ["a","b","c","x","y"]
+  let [a,b,c,x,y] = map (flip Var Nothing) ["a","b","c","x","y"]
       g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
       (a2 :: Subst) = M.singleton a 2
@@ -180,7 +158,7 @@ testRunTest = TestCase $ do
 test_runFindable_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
-      [x,y] = map (flip Var S.empty) ["x","y"]
+      [x,y] = map (flip Var Nothing) ["x","y"]
       f1 = QFind $ findChildren $ Left 1
       fy = QFind $ findChildren $ Right y
       s = M.fromList [(x,1), (y,2)] :: Subst
@@ -193,8 +171,8 @@ test_runFindable_Find = TestCase $ do
 
 testOkExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      x   = Var "x" $ S.empty
-      y   = Var "y" $ S.empty
+      x   = Var "x" Nothing
+      y   = Var "y" Nothing
       qx  = ForSome x qf
       qy  = ForSome y qf
       qxy = QAnd [qx,qy]
