@@ -26,9 +26,9 @@ data Var = Var { varName :: String
 
 instance Show Var where
   show v = case varDets v of
-    Nothing -> "Var " ++ varName v
-    Just (source,dets) -> "Var " ++ varName v ++ "<==" ++ show source
-      ++ "->" ++ show (S.toList dets)
+    Nothing -> "<Var " ++ varName v ++ ">"
+    Just (source,dets) -> "<Var " ++ varName v ++ ": " ++ show source
+      ++ "->" ++ show (S.toList dets) ++ ">"
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDets     :: Set Var }
@@ -56,7 +56,4 @@ type CondElts = Map Elt (Set Subst)
   -- Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
   -- ^ PITFALL: If `Elt` is possible without any determining bindings, then
   -- the `Set` should include an empty `Map`. The `Set` should not be empty.
-type Possible  = Map Var CondElts
-type Program   = Data
-               -> [(Var, Query)] -- ^ queries can depend on earlier ones
-               -> Possible
+type Possible = Map Var CondElts

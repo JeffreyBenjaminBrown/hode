@@ -179,10 +179,10 @@ testOkExistentials = TestCase $ do
       qx  = ForSome x qf
       qy  = ForSome y qf
       qxy = QAnd [qx,qy]
-  assertBool "1" $ okExistentials (ForSome x qx)  == False
-  assertBool "2" $ okExistentials (ForSome y qx)  == True
-  assertBool "3" $ okExistentials qxy             == True
-  assertBool "4" $ okExistentials (QAnd [qx,qxy]) == False
+  assertBool "1" $ disjointExistentials (ForSome x qx)  == False
+  assertBool "2" $ disjointExistentials (ForSome y qx)  == True
+  assertBool "3" $ disjointExistentials qxy             == True
+  assertBool "4" $ disjointExistentials (QAnd [qx,qxy]) == False
 
 testFindlike = TestCase $ do
   let qf = QFind $ Find (\_ _    -> S.empty) S.empty

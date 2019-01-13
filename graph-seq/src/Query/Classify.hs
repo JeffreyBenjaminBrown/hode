@@ -33,20 +33,30 @@ findlike (ForAll  _ q)      = findlike q
 
 -- | = Avoiding collisions between existentials
 
--- | A `Query` is only valid if no quantifier masks an earlier one,
--- and if no two clauses of a `QAnd` could bind the same variable.
-okExistentials :: Query -> Bool
-okExistentials (ForSome vf q)
+-- | `disjointExistentials` tests that no quantifier masks an earlier one,
+-- and that no two clauses of a `QAnd` introduce the same variable.
+--
+-- (That second condition is stricter than necessary. For instance, the query
+-- "Both (for all x, it is not x) and (for some x, it is a child of x)"
+-- is meaningful: The x associated with the result would be from "for some",
+-- while "for all" would generate no association. It ought to be that
+-- a QAnd is valid as long as no two clauses `couldBind` the same variable,
+-- rather than `introduces` the same variable. But that would take some
+-- work, because a ForAll Test that runs after a ForSome Find would clobber
+-- the ForSome's binding.)
+
+disjointExistentials :: Query -> Bool
+disjointExistentials (ForSome vf q)
   = not $ S.member vf $ introduces q
-okExistentials (ForAll vf q)
+disjointExistentials (ForAll vf q)
   = not $ S.member vf $ introduces q
-okExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
+disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
   where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
         f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
-        f q (vs, True) = if S.disjoint vs $ couldBind q
-                         then (S.union vs $ couldBind q, True)
+        f q (vs, True) = if S.disjoint vs $ introduces q
+                         then (S.union vs $ introduces q, True)
                          else (S.empty, False)
-okExistentials _ = True
+disjointExistentials _ = True
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces `v`.
 -- And every `Query` introduces whatever its subqueries introduces.
