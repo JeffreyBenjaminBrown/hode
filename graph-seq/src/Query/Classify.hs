@@ -14,20 +14,20 @@ import Types
 
 -- | == Testing that a Query is valid.
 
--- | = findable and testable
--- Every `QAnd` must include something `findable`, and every
--- `QOr` must be nonempty and consist entirely of `findable` queries.
+-- | = findlike and testlike
+-- Every `QAnd` must include something `findlike`, and every
+-- `QOr` must be nonempty and consist entirely of `findlike` queries.
 
-testable = not . findable
+testlike = not . findlike
 
-findable, testable :: Query -> Bool
-findable (QFind _)          = True
-findable (QTest _)          = False
-findable (QAnd qs)          = or  $ map findable qs
-findable (QOr     [])       = False
-findable (QOr     qs@(_:_)) = and $ map findable qs
-findable (ForSome _ q)      = findable q
-findable (ForAll  _ q)      = findable q
+findlike, testlike :: Query -> Bool
+findlike (QFind _)          = True
+findlike (QTest _)          = False
+findlike (QAnd qs)          = or  $ map findlike qs
+findlike (QOr     [])       = False
+findlike (QOr     qs@(_:_)) = and $ map findlike qs
+findlike (ForSome _ q)      = findlike q
+findlike (ForAll  _ q)      = findlike q
 
 
 -- | = Avoiding collisions between existentials
