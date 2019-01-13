@@ -28,7 +28,7 @@ testModuleQuery = TestList [
 
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
-      aOf_b = Var "a"
+      aOf_b = Var "aOf_b"
       src_aOf_b = Source' a $ S.singleton b
 
       isnt v = QTest $ isNot $ Right v
