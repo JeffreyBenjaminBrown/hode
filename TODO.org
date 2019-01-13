@@ -13,8 +13,8 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO ! Disentangle variables from sets of results.
-Only extendPossible and varPossibilities (in Subst.hs) decompose a Var.
+* TODO test introduces, etc.
+I'm really not sure about it.
 * TODO ?! ask for two variables that determined a given one
 As opposed to Var String (Set Var), this would be Var (Set String) Var,
 or Var (Set String) (Set Var).

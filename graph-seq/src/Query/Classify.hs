@@ -16,7 +16,7 @@ validQuery :: Query -> Either String ()
 validQuery q =
   case feasible'Junctions q of
   False -> Left $ "Infeasible junction in Query."
-  True -> case disjointExistentials q of
+  True -> case disjointQuantifiers q of
     False -> Left $ "Existentials not disjoint in Query."
     True -> case usesOnlyQuantifiedVariables q of
       False -> Left $ "Variable referred to before quantification."
@@ -50,9 +50,13 @@ findlike (ForSome _ _ q)    = findlike q
 findlike (ForAll  _ _ q)    = findlike q
 findlike _                  = False
 
--- | = Avoiding collisions between existentials
 
--- | `disjointExistentials` tests that no quantifier masks an earlier one,
+-- | = Ensuring the Vars used in a Query make sense
+
+-- queryRefersOnlyTo :: Set Var -> Query -> Bool -- TODO finish
+
+
+-- | `disjointQuantifiers` tests that no quantifier masks an earlier one,
 -- and that no two clauses of a `QAnd` introduce the same variable.
 --
 -- (That second condition is stricter than necessary. For instance, the query
@@ -64,18 +68,18 @@ findlike _                  = False
 -- work, because a ForAll Test that runs after a ForSome Find would clobber
 -- the ForSome's binding.)
 
-disjointExistentials :: Query -> Bool
-disjointExistentials (ForSome vf _ q)
+disjointQuantifiers :: Query -> Bool
+disjointQuantifiers (ForSome vf _ q)
   = not $ S.member vf $ introduces q
-disjointExistentials (ForAll vf _ q)
+disjointQuantifiers (ForAll vf _ q)
   = not $ S.member vf $ introduces q
-disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
+disjointQuantifiers (QAnd qs) = snd $ foldr f (S.empty, True) qs
   where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
         f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
         f q (vs, True) = if S.disjoint vs $ introduces q
                          then (S.union vs $ introduces q, True)
                          else (S.empty, False)
-disjointExistentials _ = True
+disjointQuantifiers _ = True
 
 usesOnlyQuantifiedVariables :: Query -> Bool
 usesOnlyQuantifiedVariables q = f S.empty q where
