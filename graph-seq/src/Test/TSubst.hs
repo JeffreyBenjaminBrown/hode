@@ -26,7 +26,7 @@ testModuleSubst = TestList
   ]
 
 testSetSubstToCondElts = TestCase $ do
-  let [a,b,c,x,y] = map (\s -> Var s Nothing) ["a","b","c","x","y"]
+  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
       s = M.fromList [ (a,1), (b,2) ]
       t = M.fromList [ (a,1), (b,3) ]
       u = M.fromList [ (a,1), (b,3)
@@ -38,21 +38,23 @@ testSetSubstToCondElts = TestCase $ do
          , (2, S.singleton $ M.fromList [ (b,3), (c,4) ] ) ] )
 
 testSubstToCondElts = TestCase $ do
-  let [a,b,c,x,y] = map (\s -> Var s Nothing) ["a","b","c","x","y"]
+  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
       s = M.fromList [ (a,1), (b,2) ]
   assertBool "2" $ substToCondElts c s == Nothing
   assertBool "1" $ substToCondElts b s ==
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
 testVarPossibilities = TestCase $ do
-  let [a,b,c,x,y] = map (\s -> Var s Nothing) ["a","b","c","x","y"]
+  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
       s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
       s_b2   = M.fromList [ (b,2)        ] :: Subst
       (pa :: Possible) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
-  assertBool "0" $   varPossibilities pa M.empty a == Right ((M.!) pa a)
-  assertBool "0.1" $ varPossibilities pa s_b1c1  a == Right ((M.!) pa a)
+  assertBool "0" $   varPossibilities pa M.empty (Source a)
+    == Right ((M.!) pa a)
+  assertBool "0.1" $ varPossibilities pa s_b1c1  (Source a)
+    == Right ((M.!) pa a)
     -- the Subst s_b1c1 is ignored because the dets in the Var are empty
 
   let (p :: Possible) = M.fromList
@@ -71,8 +73,8 @@ testVarPossibilities = TestCase $ do
               [ (1, S.fromList [ M.fromList [(a, 2),       (y,3) ]
                                , M.fromList [(a, 4), (x,2)       ] ] )
               , (2, S.singleton M.empty) ] ) ]
-      aOf_b  = Var "a1" $ Just (a, S.fromList [b   ])
-      aOf_bc = Var "a1" $ Just (a, S.fromList [b, c])
+      aOf_b  = Source' a $ S.singleton b
+      aOf_bc = Source' a $ S.fromList [b, c]
 
   assertBool "1" $ varPossibilities p s_b2 aOf_b
     == Right (M.fromList [ (2, S.singleton M.empty )
@@ -82,9 +84,9 @@ testVarPossibilities = TestCase $ do
                          , (4, S.singleton $ M.singleton x 14) ])
 
 testVarSubsts = TestCase $ do
-  let [a,b,c,x,y] = map (\s -> Var s Nothing) ["a","b","c","x","y"]
-      aOf_x  = Var "a1" $ Just (a, S.fromList [x   ])
-      aOf_xy = Var "a1" $ Just (a, S.fromList [x, y])
+  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
+      aOf_x  = Var "aOf_x" -- (a, S.fromList [x   ])
+      aOf_xy = Var "aOf_xy" -- (a, S.fromList [x, y])
       xCondElts = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (2, S.fromList [ M.fromList [ (a, 2), (b, 2) ] ] )
@@ -117,7 +119,7 @@ testVarSubsts = TestCase $ do
                           , M.fromList [         (b, 3), (c, 3) ] ] )
 
 testReconcileCondElts = TestCase $ do
-  let [a,b,c,x] = map (flip Var Nothing) ["a","b","c","x"]
+  let [a,b,c,x] = map Var ["a","b","c","x"]
       ce, cf :: CondElts
       ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
                                        , M.fromList [ (a, 2), (b, 2) ] ] )
@@ -131,7 +133,7 @@ testReconcileCondElts = TestCase $ do
                   , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ]
 
 testReconcileCondEltsAtElt = TestCase $ do
-  let [a,b,c,x] = map (flip Var Nothing) ["a","b","c","x"]
+  let [a,b,c,x] = map Var ["a","b","c","x"]
       ce, cf :: CondElts
       ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
                                        , M.empty ] ) ]
@@ -158,7 +160,7 @@ testReconcileCondEltsAtElt = TestCase $ do
                   $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
 testReconcile = TestCase $ do
-  let [x,y,z] = map (\s -> Var s Nothing) ["x","y","z"]
+  let [x,y,z] = map Var ["x","y","z"]
       x1    = S.singleton ( M.singleton x 1 )
       x1_x2 = S.fromList  [ M.singleton x 1
                           , M.singleton x 2 ]
@@ -174,19 +176,19 @@ testReconcile = TestCase $ do
                                                           S.empty
 
 testReconcile2sets = TestCase $ do
-  let x1 = M.singleton        (Var "x" Nothing) 1
-      y1 = M.singleton        (Var "y" Nothing) 1
-      z2 = M.singleton        (Var "z" Nothing) 2
-      x1y2 = M.fromList [ (   (Var "x" Nothing), 1)
-                        , (   (Var "y" Nothing), 2) ]
-      x1z2 = M.fromList [ (   (Var "x" Nothing), 1)
-                        , (   (Var "z" Nothing), 2) ]
-      x1y1z2 = M.fromList [ ( (Var "x" Nothing), 1)
-                          , ( (Var "y" Nothing), 1)
-                          , ( (Var "z" Nothing), 2) ]
-      x1y2z2 = M.fromList [ ( (Var "x" Nothing), 1)
-                          , ( (Var "y" Nothing), 2)
-                          , ( (Var "z" Nothing), 2) ]
+  let x1 = M.singleton        (Var "x") 1
+      y1 = M.singleton        (Var "y") 1
+      z2 = M.singleton        (Var "z") 2
+      x1y2 = M.fromList [ (   (Var "x"), 1)
+                        , (   (Var "y"), 2) ]
+      x1z2 = M.fromList [ (   (Var "x"), 1)
+                        , (   (Var "z"), 2) ]
+      x1y1z2 = M.fromList [ ( (Var "x"), 1)
+                          , ( (Var "y"), 1)
+                          , ( (Var "z"), 2) ]
+      x1y2z2 = M.fromList [ ( (Var "x"), 1)
+                          , ( (Var "y"), 2)
+                          , ( (Var "z"), 2) ]
       ss = S.singleton
       sf = S.fromList
   assertBool "0" $ reconcile2sets S.empty (sf [x1y2, x1z2])
@@ -200,11 +202,11 @@ testReconcile2sets = TestCase $ do
   assertBool "3" $ reconcile2sets (ss y1) (sf [x1y2, x1z2]) == ss x1y1z2
 
 testReconcile1ToMany = TestCase $ do
-  let x1   = M.singleton  (Var "x" Nothing) 1
-      y1   = M.singleton  (Var "y" Nothing) 1
-      y2   = M.singleton  (Var "y" Nothing) 2
-      x1y2 = M.fromList [ (Var "x" Nothing, 1)
-                        , (Var "y" Nothing, 2)]
+  let x1   = M.singleton  (Var "x") 1
+      y1   = M.singleton  (Var "y") 1
+      y2   = M.singleton  (Var "y") 2
+      x1y2 = M.fromList [ (Var "x", 1)
+                        , (Var "y", 2)]
   assertBool "1" $ reconcile1ToMany x1y2 (S.fromList [x1, y1, y2] )
                      == S.singleton x1y2
   assertBool "2" $ reconcile1ToMany x1y2 (S.singleton M.empty)
@@ -213,11 +215,11 @@ testReconcile1ToMany = TestCase $ do
                      == S.empty
 
 testReconcile2 = TestCase $ do
-  let x1 = M.singleton (Var "x" Nothing) 1
-      y1 = M.singleton (Var "y" Nothing) 1
-      y2 = M.singleton (Var "y" Nothing) 2
-      x1y2 = M.fromList [ ( (Var "x" Nothing) ,1)
-                        , ( (Var "y" Nothing) ,2) ]
+  let x1 = M.singleton (Var "x") 1
+      y1 = M.singleton (Var "y") 1
+      y2 = M.singleton (Var "y") 2
+      x1y2 = M.fromList [ ( (Var "x") ,1)
+                        , ( (Var "y") ,2) ]
   assertBool "0" $ reconcile2 M.empty M.empty == Just M.empty
   assertBool "1" $ reconcile2 M.empty x1      == Just x1
   assertBool "2" $ reconcile2 x1y2    M.empty == Just x1y2

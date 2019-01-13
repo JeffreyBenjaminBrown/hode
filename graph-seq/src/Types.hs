@@ -23,8 +23,8 @@ data Var = Var { varName :: String }
   deriving (Show, Eq, Ord)
 
 data Source = Source Var -- ^ draw from the solution set of a prior Query
-  | Source' { name :: Var
-            , dets :: (Set Var) }
+            | Source' { name :: Var
+                      , dets :: (Set Var) }
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDets     :: Set Var }
