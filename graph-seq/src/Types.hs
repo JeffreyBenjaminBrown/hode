@@ -41,8 +41,8 @@ data Query = QFind Find
            | QVarTest VarTest
            | QAnd           [Query] -- ^ order not important
            | QOr            [Query] -- ^ order not important
-           | ForAll  Var Query
-           | ForSome Var Query
+           | ForAll  Var Source Query
+           | ForSome Var Source Query
 
 type Subst    = Map Var Elt
 type CondElts = Map Elt (Set Subst)

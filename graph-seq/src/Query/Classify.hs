@@ -30,11 +30,11 @@ feasible'Junctions = recursive where
   simple (QOr qs)  = and $           map findlike qs
   simple _         = True
 
-  recursive j@(QAnd qs)   = simple j && and (map recursive qs)
-  recursive j@(QOr  qs)   = simple j && and (map recursive qs)
-  recursive (ForAll  _ q) =                      recursive q
-  recursive (ForSome _ q) =                      recursive q
-  recursive _             = True
+  recursive j@(QAnd qs)     = simple j && and (map recursive qs)
+  recursive j@(QOr  qs)     = simple j && and (map recursive qs)
+  recursive (ForAll  _ _ q) =                      recursive q
+  recursive (ForSome _ _ q) =                      recursive q
+  recursive _               = True
 
 
 -- | = Classifying Queries as findlike or testlike
@@ -46,8 +46,8 @@ testlike = not . findlike
 findlike (QFind _)          = True
 findlike (QAnd qs)          = or  $ map findlike qs
 findlike (QOr     qs@(_:_)) = and $ map findlike qs
-findlike (ForSome _ q)      = findlike q
-findlike (ForAll  _ q)      = findlike q
+findlike (ForSome _ _ q)    = findlike q
+findlike (ForAll  _ _ q)    = findlike q
 findlike _                  = False
 
 -- | = Avoiding collisions between existentials
@@ -65,9 +65,9 @@ findlike _                  = False
 -- the ForSome's binding.)
 
 disjointExistentials :: Query -> Bool
-disjointExistentials (ForSome vf q)
+disjointExistentials (ForSome vf _ q)
   = not $ S.member vf $ introduces q
-disjointExistentials (ForAll vf q)
+disjointExistentials (ForAll vf _ q)
   = not $ S.member vf $ introduces q
 disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
   where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
@@ -80,29 +80,29 @@ disjointExistentials _ = True
 usesOnlyQuantifiedVariables :: Query -> Bool
 usesOnlyQuantifiedVariables q = f S.empty q where
   f :: Set Var -> Query -> Bool
-  f vs (QVarTest f)   = S.isSubsetOf (varTestDets  f) vs
-  f vs (QFind f)      = S.isSubsetOf (findDets     f) vs
-  f vs (QTest f)      = S.isSubsetOf (testDets     f) vs
-  f vs (QAnd qs)      = and $ map (f vs) qs
-  f vs (QOr qs)       = and $ map (f vs) qs
-  f vs (ForAll v qs)  = f (S.insert v vs) qs
-  f vs (ForSome v qs) = f (S.insert v vs) qs
+  f vs (QVarTest f)     = S.isSubsetOf (varTestDets  f) vs
+  f vs (QFind f)        = S.isSubsetOf (findDets     f) vs
+  f vs (QTest f)        = S.isSubsetOf (testDets     f) vs
+  f vs (QAnd qs)        = and $ map (f vs) qs
+  f vs (QOr qs)         = and $ map (f vs) qs
+  f vs (ForAll  v _ qs) = f (S.insert v vs) qs
+  f vs (ForSome v _ qs) = f (S.insert v vs) qs
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces `v`.
 -- And every `Query` introduces whatever its subqueries introduces.
 introduces :: Query -> Set Var
-introduces (QOr  qs)      = S.unions    $ map introduces qs
-introduces (QAnd qs)      = S.unions    $ map introduces qs
-introduces (ForSome vf q) = S.insert vf $     introduces q
-introduces (ForAll  vf q) = S.insert vf $     introduces q
+introduces (QOr  qs)        = S.unions    $ map introduces qs
+introduces (QAnd qs)        = S.unions    $ map introduces qs
+introduces (ForSome vf _ q) = S.insert vf $     introduces q
+introduces (ForAll  vf _ q) = S.insert vf $     introduces q
 introduces _ = S.empty
 
 
 -- | The only way a `Var` could be bound (outside of the binding Query)
 -- is if it was introduced by a `ForSome`.
 couldBind :: Query -> Set Var
-couldBind (QOr  qs)      = S.unions    $ map couldBind qs
-couldBind (QAnd qs)      = S.unions    $ map couldBind qs
-couldBind (ForSome vf q) = S.insert vf $     couldBind q
-couldBind (ForAll  _  q) =                   couldBind q
-couldBind _              = S.empty
+couldBind (QOr  qs)        = S.unions    $ map couldBind qs
+couldBind (QAnd qs)        = S.unions    $ map couldBind qs
+couldBind (ForSome vf _ q) = S.insert vf $     couldBind q
+couldBind (ForAll  _  _ q) =                   couldBind q
+couldBind _                = S.empty
