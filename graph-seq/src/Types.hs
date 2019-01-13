@@ -36,9 +36,13 @@ data Find = Find { findFunction :: Data -> Subst -> Set Elt
 data Test = Test { testFunction :: Data -> Subst ->     Elt -> Bool
                  , testDeps     :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.
+data VarTest = VarTest { varTestFunction :: Data -> Subst -> Bool
+                       , varTestDets     :: Set Var }
+  -- ^ If `*Function` doesn't use the `Subst`, `*Dets` should be empty.
 
 data Query = QFind Find
            | QTest Test
+           | QVarTest VarTest
            | QAnd           [Query] -- ^ order not important
            | QOr            [Query] -- ^ order not important
            | ForAll  Var Query

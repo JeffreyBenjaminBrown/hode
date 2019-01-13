@@ -14,8 +14,6 @@ type CondElts = Map Elt (Set Subst)
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
 * TODO add some fields
-** TODO Vars should have a name field and a source field
-This way multiple Vars can be drawn from the same source, without having to duplicate the source, and name collisions can be prevented between clauses of an And.
 ** TODO VarTest
 Tests test elements, and must come after Finds.
 VarTest would test (sets of) Vars.

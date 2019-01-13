@@ -18,6 +18,9 @@ import Query.Classify
 
 -- | = Atomic queries
 
+runVarTest :: Data -> Subst -> VarTest -> Bool
+runVarTest d s t = (varTestFunction t) d s
+
 runFind :: Data -> Subst -> Find -> CondElts
 runFind d s (Find find deps) =
   M.fromSet (const $ S.singleton used) found
@@ -42,6 +45,7 @@ runTest d s q ce = let
               in S.map (M.union s) ss
   in M.mapWithKey f passed
 
+
 -- | == Complex queries
 
 runQAnd :: Data -> Possible -> [Query] -> Subst -> Either String CondElts
@@ -61,6 +65,7 @@ runQAnd d p qs s = let
       f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
       f t (Right ce) = runTestable d p t s ce
     in tested
+
 
 -- | = runTestable
 
