@@ -97,6 +97,7 @@ introduces (ForSome vf q) = S.insert vf $     introduces q
 introduces (ForAll  vf q) = S.insert vf $     introduces q
 introduces _ = S.empty
 
+
 -- | The only way a `Var` could be bound (outside of the binding Query)
 -- is if it was introduced by a `ForSome`.
 couldBind :: Query -> Set Var

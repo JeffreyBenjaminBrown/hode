@@ -83,7 +83,7 @@ runQAnd d p qs s = let
 
 -- | = runTestlike
 
--- TODO (#speed) runTestlike: foldr with short-circuiting.
+-- TODO (#fast) runTestlike: foldr with short-circuiting.
 runTestlike :: Data -> Possible -> Query -> Subst -> CondElts
             -> Either String CondElts
 runTestlike _ _ (testlike -> False) _ _ =
@@ -156,7 +156,7 @@ runFindlike d _ (QFind f) s = Right $ runFind d s f
 runFindlike d p (QAnd qs) s = runQAnd d p qs s
 
 runFindlike d p (QOr qs) s = let
-  -- TODO (#speed|#hard) Fold QOr with short-circuiting.
+  -- TODO (#fast|#hard) Fold QOr with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
   ces = map (flip (runFindlike d p) s) qs :: [Either String CondElts]
@@ -178,7 +178,7 @@ runFindlike d p (ForSome v q) s =
     True -> Right $ M.unionsWith S.union
             $ S.map (fromRight M.empty) res
 
-  -- TODO (#speed) runFindlike: Fold ForAll with short-circuiting.
+  -- TODO (#fast) runFindlike: Fold ForAll with short-circuiting.
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 

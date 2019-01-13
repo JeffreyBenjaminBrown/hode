@@ -27,3 +27,6 @@ runProgram d vqs = let
     of Left s -> Left $ "runProgram: error in callee:\n" ++ s
        Right ec -> Right $ M.insert v ec p
   in foldr go (Right M.empty) vqs
+
+--validProgram :: [(Var,Query)] -> Bool
+--validProgram vqs = foldr f True vqs where

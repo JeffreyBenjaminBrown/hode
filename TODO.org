@@ -13,6 +13,8 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO ! Disentangle variables from sets of results.
+Only extendPossible and varPossibilities (in Subst.hs) decompose a Var.
 * TODO ?! ask for two variables that determined a given one
 As opposed to Var String (Set Var), this would be Var (Set String) Var,
 or Var (Set String) (Set Var).
@@ -22,27 +24,11 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * What expressivity do I lose by requiring sequentiality?
-* TODO potentially invalid input data
-potentially invalid non-input data: not as worrisome
-** Graph: parents must match children
-** TODO Program.queries
-A variable must not repeat.
-A query can only refer to variables that are both
-  defined in a previous query
-  already quantified over in the current query
-** Program.output
-Can only refer to variables used in the program.
-Any variable dependencies should also make sense
-  although it's easy to define a way to treat ones that don't
-  -- just fail to find any matches.
-** DONE Queries. See the function "findable".
 * TODO ? safety, speed
 ** speed|space optimization
 *** skip recording unneeded dependent bindings
 You can tell from reading a Program's [ (VarFunc, Query) ] argument which elements of the Substs will never be referred to; those would not have to be recorded.
-** todo ?:safety : where possible, use Possible1 instead of CondElts
 ** todo ? safety : check that every Set in a CondElts is nonempty
-
 * TODO ? simplicity
 ** VarTests render much of varPossibilities redundant.
 varPossibilities is probably faster, because it does not cause a
@@ -120,6 +106,3 @@ variables ...".)
  In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 ** temporary user burdens: query order, dependency validity
  Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
-* dubious
-** TODO ? test VarTests
- seems too simple to be worth it.

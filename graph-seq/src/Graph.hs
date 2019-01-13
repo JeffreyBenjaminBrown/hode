@@ -43,8 +43,8 @@ isNot (Left e) = Test go mempty
 isNot (Right v) = Test go $ S.singleton v
   where
     go :: Data -> Subst -> Elt -> Bool
-    go _ s = case (M.lookup) v s of Nothing -> error $ keyErr "isNot" v s
-                                    Just e -> (/=) e
+    go _ s = maybe err (/=) $ M.lookup v s
+      where err = error $ keyErr "isNot" v s
     dets = maybe S.empty snd $ varDets v
 
 findChildren :: Either Elt Var -> Find
