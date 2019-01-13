@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Query where
 
@@ -34,12 +35,11 @@ runTestOnElt d s (Test test deps) e = (passes, used)
     passes = test d s e          :: Bool
     used = M.restrictKeys s deps :: Subst
 
--- TODO : rather than replace the Substs in the input CondElts, add to them.
 runTest :: Data -> Subst -> Test -> CondElts -> CondElts
 runTest d s q ce = let
-  tested, passed :: Map Elt (Bool, Subst)
-  tested = M.mapWithKey (\k v -> runTestOnElt d s q k) ce
-  passed = M.filter fst tested
+  passed :: Map Elt (Bool, Subst)
+  passed = M.filter fst tested where
+    tested = M.mapWithKey (\k v -> runTestOnElt d s q k) ce
   f ::  Elt -> (Bool, Subst) -> Set Subst
   f k (_,s) = let ss = (M.!) ce k :: Set Subst
               in S.map (M.union s) ss
@@ -48,23 +48,37 @@ runTest d s q ce = let
 
 -- | == Complex queries
 
+-- | = runQAnd
+-- There are three types of queries: testlike, findlike, and VarTests.
+-- varTests and testlike queries can only be run from a conjunction (QAnd).
+-- A conjunction runs all varTests first, because they are simplest: they
+-- don't require reference to the Possible, and often not the data either.
+-- If all Vars in the Subst pass all VarTests, then the findlike queries are
+-- run. Once those results are collected, they are filtered by the testlike
+-- queries.
+
 runQAnd :: Data -> Possible -> [Query] -> Subst -> Either String CondElts
 runQAnd d p qs s = let
   errMsg = "runQAnd: error in callee:\n"
-  (searches,tests) = partition findlike qs
-  eFound :: [Either String CondElts]
-  eFound = map (flip (runFindlike d p) s) searches
-  lefts = filter isLeft eFound
-  in case null lefts of
-  False -> Left $ errMsg ++ show (map (fromLeft "") lefts)
-  True -> let
-    (found :: [CondElts]) = map (fromRight M.empty) eFound
-    (reconciled :: CondElts) = reconcileCondElts $ S.fromList found
-    tested = foldr f (Right reconciled) tests where
-      f :: Query -> Either String CondElts -> Either String CondElts
-      f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
-      f t (Right ce) = runTestlike d p t s ce
-    in tested
+  (searches,tests') = partition findlike qs
+  (varTests,tests) = partition (\case QVarTest _->True; _->False) tests'
+  varTestResults = map (runVarTest d s . unwrap) varTests where
+    unwrap = \case QVarTest t->t; _->error "runQAnd: unwrap: impossible."
+  in if not $ and varTestResults then Right M.empty else let
+
+    eFound :: [Either String CondElts]
+    eFound = map (flip (runFindlike d p) s) searches
+    lefts = filter isLeft eFound
+    in case null lefts of
+    False -> Left $ errMsg ++ show (map (fromLeft "") lefts)
+    True -> let
+      (found :: [CondElts]) = map (fromRight M.empty) eFound
+      (reconciled :: CondElts) = reconcileCondElts $ S.fromList found
+      tested = foldr f (Right reconciled) tests where
+        f :: Query -> Either String CondElts -> Either String CondElts
+        f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
+        f t (Right ce) = runTestlike d p t s ce
+      in tested
 
 
 -- | = runTestlike
@@ -75,6 +89,8 @@ runTestlike :: Data -> Possible -> Query -> Subst -> CondElts
 runTestlike _ _ (testlike -> False) _ _ =
   Left $ "runTestlike: not a testlike Query"
 runTestlike d _ (QTest t) s ce = Right $ runTest d s t ce
+runTestlike _ _ (QVarTest _) _ _ =
+  Left $ "runTestlike: VarTest should have been handled by QAnd."
 
 runTestlike d p (QAnd qs) s ce = let
   results = map (\q -> runTestlike d p q s ce) qs :: [Either String CondElts]

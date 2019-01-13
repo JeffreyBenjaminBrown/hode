@@ -18,9 +18,10 @@ import Types
 -- Every `QAnd` must include something `findlike`, and every
 -- `QOr` must be nonempty and consist entirely of `findlike` queries.
 
+findlike, testlike :: Query -> Bool
+
 testlike = not . findlike
 
-findlike, testlike :: Query -> Bool
 findlike (QFind _)          = True
 findlike (QTest _)          = False
 findlike (QAnd qs)          = or  $ map findlike qs
