@@ -34,7 +34,7 @@ data Find = Find { findFunction :: Data -> Subst -> Set Elt
                  , findDets     :: Set Var }
   -- ^ If `findFunction` doesn't use the `Subst`, `findDets` should be empty.
 data Test = Test { testFunction :: Data -> Subst ->     Elt -> Bool
-                 , testDeps     :: Set Var }
+                 , testDets     :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.
 data VarTest = VarTest { varTestFunction :: Data -> Subst -> Bool
                        , varTestDets     :: Set Var }

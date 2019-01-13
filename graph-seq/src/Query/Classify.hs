@@ -12,24 +12,43 @@ import Subst
 import Types
 
 
--- | == Testing that a Query is valid.
+validQuery :: Query -> Either String ()
+validQuery q =
+  case feasible'Junctions q of
+  False -> Left $ "Infeasible junction in Query."
+  True -> case disjointExistentials q of
+    False -> Left $ "Existentials not disjoint in Query."
+    True -> case usesOnlyQuantifiedVariables q of
+      False -> Left $ "Variable referred to before quantification."
+      True -> Right ()
 
--- | = findlike and testlike
--- Every `QAnd` must include something `findlike`, and every
--- `QOr` must be nonempty and consist entirely of `findlike` queries.
+feasible'Junctions :: Query -> Bool
+feasible'Junctions = recursive where
+  simple, recursive :: Query -> Bool
+
+  simple (QAnd qs) = not $ null $ filter findlike qs
+  simple (QOr qs)  = and $           map findlike qs
+  simple _         = True
+
+  recursive j@(QAnd qs)   = simple j && and (map recursive qs)
+  recursive j@(QOr  qs)   = simple j && and (map recursive qs)
+  recursive (ForAll  _ q) =                      recursive q
+  recursive (ForSome _ q) =                      recursive q
+  recursive _             = True
+
+
+-- | = Classifying Queries as findlike or testlike
 
 findlike, testlike :: Query -> Bool
 
 testlike = not . findlike
 
 findlike (QFind _)          = True
-findlike (QTest _)          = False
 findlike (QAnd qs)          = or  $ map findlike qs
-findlike (QOr     [])       = False
 findlike (QOr     qs@(_:_)) = and $ map findlike qs
 findlike (ForSome _ q)      = findlike q
 findlike (ForAll  _ q)      = findlike q
-
+findlike _                  = False
 
 -- | = Avoiding collisions between existentials
 
@@ -57,6 +76,17 @@ disjointExistentials (QAnd qs) = snd $ foldr f (S.empty, True) qs
                          then (S.union vs $ introduces q, True)
                          else (S.empty, False)
 disjointExistentials _ = True
+
+usesOnlyQuantifiedVariables :: Query -> Bool
+usesOnlyQuantifiedVariables q = f S.empty q where
+  f :: Set Var -> Query -> Bool
+  f vs (QVarTest f)   = S.isSubsetOf (varTestDets  f) vs
+  f vs (QFind f)      = S.isSubsetOf (findDets     f) vs
+  f vs (QTest f)      = S.isSubsetOf (testDets     f) vs
+  f vs (QAnd qs)      = and $ map (f vs) qs
+  f vs (QOr qs)       = and $ map (f vs) qs
+  f vs (ForAll v qs)  = f (S.insert v vs) qs
+  f vs (ForSome v qs) = f (S.insert v vs) qs
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces `v`.
 -- And every `Query` introduces whatever its subqueries introduces.
