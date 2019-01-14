@@ -25,8 +25,8 @@ testModuleQuery = TestList [
   ]
 
 test_runFindlike_mixed = TestCase $ do
-  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
-      aOf_b = Var "aOf_b"
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
+      aOf_b = "aOf_b"
       src_aOf_b = Source' a $ S.singleton b
 
       isnt v = QTest $ isNot $ Right v
@@ -41,7 +41,7 @@ test_runFindlike_mixed = TestCase $ do
       fc0 = QFind $ findChildren $ Left 0
       fc v = QFind $ findChildren $ Right v
       s = M.fromList [(a,2), (b,23)] :: Subst
-      q_And_Quant = let aOf_b' = aOf_b {varName = "a1"}
+      q_And_Quant = let aOf_b' = aOf_b ++ "'"
         in QAnd [ ForAll aOf_b' src_aOf_b $ isnt aOf_b'
                 , ForSome aOf_b src_aOf_b $ fc aOf_b ]
       q_ForAll_And = ForAll aOf_b src_aOf_b $ QAnd [ fc0, isnt a ]
@@ -52,7 +52,7 @@ test_runFindlike_mixed = TestCase $ do
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
 testRunQAnd = TestCase $ do
-  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: Subst) = M.singleton a 2
       nota = QTest $ isNot $ Right a
       d = graph [ (0, [1,2    ] )
@@ -65,7 +65,7 @@ testRunQAnd = TestCase $ do
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
 testRunTestlike = TestCase $ do
-  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: Subst) = M.singleton a 2
       (not3 :: Test) = isNot $ Left 3
       (nota :: Test) = isNot $ Right a
@@ -99,8 +99,8 @@ testRunTestlike = TestCase $ do
 test_runFindlike_ForAll = TestCase $ do
   let g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
-      [a,b,c,x,y] = map Var ["a","b","c","x","y"]
-      aOf_c = Var "aOf_c"
+      [a,b,c,x,y] = ["a","b","c","x","y"]
+      aOf_c = "aOf_c"
       src_aOf_c = Source' a $ S.singleton c
       (p :: Possible) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
@@ -129,8 +129,8 @@ test_runFindlike_ForAll = TestCase $ do
 test_runFindlike_ForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
-      [a,b,x,y] = map Var ["a","b","x","y"]
-      aOf_b = Var "aOf_b"
+      [a,b,x,y] = ["a","b","x","y"]
+      aOf_b = "aOf_b"
       src_aOf_b = Source' a $ S.singleton b
       p = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
@@ -154,7 +154,7 @@ test_runFindlike_ForSome = TestCase $ do
                           , (22, S.singleton $ M.singleton a 2) ] )
 
 testRunTest = TestCase $ do
-  let [a,b,c,x,y] = map Var ["a","b","c","x","y"]
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
       g = graph [ (1, [11, 12    ] )
                 , (2, [    12, 22] ) ]
       (a2 :: Subst) = M.singleton a 2
@@ -168,7 +168,7 @@ testRunTest = TestCase $ do
 test_runFindlike_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]
-      [x,y] = map Var ["x","y"]
+      [x,y] = ["x","y"]
       f1 = QFind $ findChildren $ Left 1
       fy = QFind $ findChildren $ Right y
       s = M.fromList [(x,1), (y,2)] :: Subst

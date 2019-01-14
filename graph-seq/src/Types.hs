@@ -14,23 +14,22 @@ data Graph = Graph {
 type Elt = Int    -- eventually Int   will be replaced with Expr
 type Data = Graph -- eventually Graph will be replaced with Rslt
 
-data Var = Var { varName :: String }
+type Var = String
   -- ^ When a `Query` creates a `Var`, the result has no `varDets`.
   -- However, sometimes a Var is created by subsetting an earlier one.
   -- In that case, suppose it decomposes as `v@(Var _ (source, dets))`.
   -- "source" is the earlier Var, and "dets" is a set of variables
   -- that were calculated based on source's earlier calculation.
-  deriving (Show, Eq, Ord)
 
 data Source = Source  { source :: Var }
             | Source' { source :: Var
                       , dets :: (Set Var) }
 
-data Find = Find { findFunction :: Data -> Subst -> Set Elt
-                 , findDets     :: Set Var }
+data Find = Find {       findFunction    :: Data -> Subst -> Set Elt
+                       , findDets        :: Set Var }
   -- ^ If `findFunction` doesn't use the `Subst`, `findDets` should be empty.
-data Test = Test { testFunction :: Data -> Subst ->     Elt -> Bool
-                 , testDets     :: Set Var }
+data Test = Test {       testFunction    :: Data -> Subst ->     Elt -> Bool
+                       , testDets        :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.
 data VarTest = VarTest { varTestFunction :: Data -> Subst -> Bool
                        , varTestDets     :: Set Var }

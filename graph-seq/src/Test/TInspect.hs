@@ -28,7 +28,7 @@ testModuleQueryClassify = TestList [
 --    ( ForSome v (Source v)
 
 test_internalAndExternalVars = TestCase $ do
-  let [a,b,c,d,e,f,g,h,x,y,z] = map Var ["a","b","c","d","e","f","g","h","x","y","z"]
+  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       -- These queries are named for their internal and external variables.
       c_ade = ForSome c (Source' d $ S.singleton a)
         $ QFind $ findParents $ Right e
@@ -49,11 +49,11 @@ test_internalAndExternalVars = TestCase $ do
 
 test_disjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      [x,x1,x2,y,y1,y2] = map Var ["x","x1","x2","y","y1","y2"]
-      qx  = ForSome (Var "x") (Source x) qf
-      qy  = ForSome (Var "y") (Source y) qf
-      qx1  = ForSome (Var "x1") (Source x) qf
-      qy1  = ForSome (Var "y1") (Source y) qf
+      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
+      qx  = ForSome  "x"  (Source x) qf
+      qy  = ForSome  "y"  (Source y) qf
+      qx1  = ForSome "x1" (Source x) qf
+      qy1  = ForSome "y1" (Source y) qf
       qxy = QOr [qx1,qy1]
   assertBool "-1" $ disjointQuantifiers (ForSome x (Source y) qx)  == False
   assertBool "0" $ disjointQuantifiers (ForSome x (Source x) qy)   == False
@@ -65,7 +65,7 @@ test_disjointExistentials = TestCase $ do
   assertBool "4" $ disjointQuantifiers (QAnd [qx1,qxy])            == False
 
 test_quantifies = TestCase $ do
-  let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]
+  let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
   assertBool "1" $ quantifies (
     QOr [ ForAll x (Source x) $ QTest $ error "whatever"
         , ForAll y (Source y) $ QAnd [ ForSome z (Source z)
