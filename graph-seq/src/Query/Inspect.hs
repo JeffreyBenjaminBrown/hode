@@ -12,6 +12,21 @@ import Types
 import Util
 
 
+validProgram :: [(Var,Query)] -> Either String ()
+validProgram vqs = case null bad of
+  True -> Right ()
+  False -> Left $ "validProgram: variables " ++ show bad
+           ++ " used before being defined.\n"
+  where
+  f :: (Var, Query) -> (Set Var, Set Var) -> (Set Var, Set Var)
+  f (v,q) (defined,bad) =
+    -- "defined" are variables defined by previous Queries.
+    -- "bad" are variables used before being defined.
+    let (_,ext) = internalAndExternalVars q
+        moreBad = S.filter (not . flip S.member defined) ext
+    in (S.insert v defined, S.union bad moreBad)
+  (_,bad) = foldr f (S.empty, S.empty) vqs :: (Set Var, Set Var)
+
 validQuery :: Query -> Either String ()
 validQuery q =
   case feasible'Junctions q of

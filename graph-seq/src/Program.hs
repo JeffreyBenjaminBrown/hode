@@ -27,15 +27,3 @@ runProgram d vqs = let
     of Left s -> Left $ "runProgram: error in callee:\n" ++ s
        Right ec -> Right $ M.insert v ec p
   in foldr go (Right M.empty) vqs
-
-validProgram :: [(Var,Query)] -> Either String ()
-validProgram vqs = let
-  doLeft (Left s) = Left $ "Invalid program:\n" ++ s
-  x = foldr f (Right S.empty) vqs where
-    f :: (Var, Query) -> Either String (Set Var)
-                      -> Either String (Set Var)
-    f _ e@(Left _) = doLeft e
-    f (v,q) (Right vs) = case validQuery q of
-      e@(Left _) -> doLeft e
-      Right () -> Right S.empty -- TODO finish
-  in either Left (Right . const ()) x

@@ -19,11 +19,25 @@ testModuleQueryClassify = TestList [
   , TestLabel "test_quantifies" test_quantifies
   , TestLabel "test_disjointExistentials" test_disjointExistentials
   , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
+  , TestLabel "test_validProgram" test_validProgram
   -- these seem too easy to bother testing:
     -- validQuery
     -- feasible'Junctions
     -- findsAndTestsOnlyQuantifiedVars
   ]
+
+-- TODO ? Test some big recursive queries
+test_validProgram = TestCase $ do
+  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
+      errMsg :: [Var] -> Either String ()
+      errMsg vs = Left $ "validProgram: variables " ++ show (S.fromList vs)
+                  ++ " used before being defined.\n"
+  assertBool "1" $ errMsg ["a","b"]
+    == validProgram [ ("a", QAnd [ QFind $ findParents $ Right "a"
+                                 , QFind $ findParents $ Right "b" ] ) ]
+  assertBool "2" $ Right ()
+    == validProgram [ ("a", QFind $ findParents $ Left 3)
+                    , ("b", QFind $ findParents $ Right "a") ]
 
 test_internalAndExternalVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
