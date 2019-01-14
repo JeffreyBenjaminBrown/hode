@@ -13,8 +13,15 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO test introduces, etc.
-I'm really not sure about it.
+* TODO rewrite Query.Classify
+** quantifies: describes what variables a query introduces via quantifiers
+** sourcesReferTo
+*** ought to count both, and distinguish between internal and external references
+*** currently, only considers Sources, not Source's, and pretends all are external references
+Let qvs = the vars that were quantified over by superqueries.
+  Note that `quantifies` computes the reverse: quantified by subqueries.
+Any Source that reads from qvs does not increase the set of external references.
+Any other Var that a Source reads from goes into the external references.
 * TODO ?! ask for two variables that determined a given one
 As opposed to Var String (Set Var), this would be Var (Set String) Var,
 or Var (Set String) (Set Var).

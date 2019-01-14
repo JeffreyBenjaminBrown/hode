@@ -17,10 +17,10 @@ testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_quantifies" test_quantifies
   , TestLabel "test_disjointExistentials" test_disjointExistentials
---  , TestLabel "test_usesOnlyQuantifiedVars" test_usesOnlyQuantifiedVars
+--  , TestLabel "test_findsAndTestsOnlyQuantifiedVars" test_findsAndTestsOnlyQuantifiedVars
   ]
 
---test_usesOnlyQuantifiedVars = TestCase $ do -- TODO finish
+--test_findsAndTestsOnlyQuantifiedVars = TestCase $ do -- TODO finish
 --  let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]
 --  assertBool "1" $ usesOnlyQuantifiedVariables
 --    ( ForSome v (Source v)

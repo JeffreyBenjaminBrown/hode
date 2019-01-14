@@ -18,7 +18,7 @@ validQuery q =
   False -> Left $ "Infeasible junction in Query."
   True -> case disjointQuantifiers q of
     False -> Left $ "Existentials not disjoint in Query."
-    True -> case usesOnlyQuantifiedVars q of
+    True -> case findsAndTestsOnlyQuantifiedVars q of
       False -> Left $ "Variable referred to before quantification."
       True -> Right ()
 
@@ -65,6 +65,9 @@ findlike _                  = False
 -- rather than quantify (`quantifies`) the same variable. But that's hard,
 -- because a ForAll Test that runs after a ForSome Find would clobber
 -- the ForSome's binding.)
+--
+-- TODO `disjointQuantifiers` should ensure that every quantifier
+-- introducing a Var does not shadow that Var's source.
 
 disjointQuantifiers :: Query -> Bool
 disjointQuantifiers (ForSome vf _ q)
@@ -74,46 +77,47 @@ disjointQuantifiers (ForAll vf _ q)
 disjointQuantifiers (QOr qs) =           and $ map disjointQuantifiers qs
 disjointQuantifiers (QAnd qs) =
   (snd $ foldr f (S.empty, True) qs) && (and $ map disjointQuantifiers qs)
-  where f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
-        f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
-        f q (vs, True) = if S.disjoint vs $ quantifies q
-                         then (S.union vs $ quantifies q, True)
-                         else (S.empty, False)
+  where -- `f` verifies that no Var is quantified in two clauses of the QAnd
+    f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
+    f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
+    f q (vs, True) = if S.disjoint vs $ quantifies q
+                     then (S.union vs $ quantifies q, True)
+                     else (S.empty, False)
 disjointQuantifiers _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or ForSome.
---
--- TODO : `usesOnlyQuantifiedVars` should not worry about Sources;
--- `sourcesReferTo` can do that.
-usesOnlyQuantifiedVars :: Query -> Bool
-usesOnlyQuantifiedVars q = f S.empty q where
+findsAndTestsOnlyQuantifiedVars :: Query -> Bool
+findsAndTestsOnlyQuantifiedVars q = f S.empty q where
   f :: Set Var -> Query -> Bool
-  f vs (ForAll  v (Source _) qs) = f (S.insert v vs) qs
-  f vs (ForSome v (Source _) qs) = f (S.insert v vs) qs
-  f vs (ForAll  v (Source' s dets) qs) =
-    if not $ S.isSubsetOf (S.insert s dets) vs then False
-    else f (S.insert v vs) qs
-  f vs (ForSome v (Source' s dets) qs) =
-    if not $ S.isSubsetOf (S.insert s dets) vs then False
-    else f (S.insert v vs) qs
+  f vs (ForAll  v _ qs) = f (S.insert v vs) qs
+  f vs (ForSome v _ qs) = f (S.insert v vs) qs
   f vs (QAnd qs)        = and $ map (f vs) qs
   f vs (QOr qs)         = and $ map (f vs) qs
   f vs _                = S.isSubsetOf (queryDets q) vs
 
--- | Note that `sourcesReferTo` checks Sources but not Source's.
--- Source's are checked by `usesOnlyQuantifiedVariables`.
+-- | `internalAndExternalVars` checks Sources and quantifiers.
 --
--- TODO: `sourcesReferTo` should consider both Sources and Source's.
--- If a Source or a Source' refers to a previously quantified var, it's okay.
+-- TODO: `internalAndExternalVars` should consider both Sources and Source's.
+-- The Var that a quantifier binds to is always internal. If a Source or a
+-- Source' refers to
+-- a previously quantified var, then the Var that it binds to is internal.
 -- If it does not, it refers to something external, and should go into the
 -- result.
-sourcesReferTo :: Query -> Set Var
-sourcesReferTo (QOr  qs)                = S.unions $ map sourcesReferTo qs
-sourcesReferTo (QAnd qs)                = S.unions $ map sourcesReferTo qs
-sourcesReferTo (ForSome _ (Source v) q) = S.insert v $   sourcesReferTo q
-sourcesReferTo (ForAll  _ (Source v) q) = S.insert v $   sourcesReferTo q
-sourcesReferTo _                        = S.empty
+
+checkInternalAndExternalVars :: Query -> (Set Var, Set Var)
+checkInternalAndExternalVars q = f (S.empty,S.empty,True) q where
+  merge :: (Set Var, Set Var)
+        -> (Set Var, Set Var)
+        -> (Set Var, Set Var)
+  merge (s,s',b) (t,t',c) = (S.union s t, S.union s' t')
+  f :: (Set Var, Set Var) -> Query -> (Set Var, Set Var)
+  f ei (QOr  qs) = S.foldr merge $ map (f ei) qs
+  f ei (QAnd qs) = S.foldr merge $ map (f ei) qs
+--  f (e,i) (ForSome v s q) =
+--  f (e,i) (ForAll  v s q) = 
+  f (e,i) q = (S.union e notInInt, i) where
+    notInInt = S.filter (not . flip S.member i) $ sourceRefs q
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, quantifies `v`.
 -- And every `Query` quantifies whatever its subqueries quantifies.
