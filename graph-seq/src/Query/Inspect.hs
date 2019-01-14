@@ -54,26 +54,18 @@ findlike _                  = False
 -- | = Ensuring the Vars used in a Query make sense
 
 -- | `disjointQuantifiers` tests that no quantifier is masked by
--- a quantifier in a subquery, and that no two clauses of a `QAnd`
--- introduce the same variable.
+-- a quantifier in a subquery, that no quantifier masks part of its Source,
+-- and that no two clauses of a `QAnd` introduce the same variable.
 --
--- (That second condition is stricter than necessary. For instance, the query
--- "Both (for all x, it is not x) and (for some x, it is a child of x)"
--- is meaningful: The x associated with the result could be from "for some",
--- while "for all" would generate no association. It ought to be that
--- a QAnd is valid as long as no two clauses could bind the same variable,
--- rather than quantify (`quantifies`) the same variable. But that's hard,
--- because a ForAll Test that runs after a ForSome Find would clobber
--- the ForSome's binding.)
---
--- TODO `disjointQuantifiers` should ensure that every quantifier
--- introducing a Var does not shadow that Var's source.
+-- TODO ? Those conditions are stricter than necessary, but hard to relax.
 
 disjointQuantifiers :: Query -> Bool
-disjointQuantifiers (ForSome vf _ q)
-  = (not $ S.member vf $ quantifies q)          && disjointQuantifiers q
-disjointQuantifiers (ForAll vf _ q)
-  = (not $ S.member vf $ quantifies q)          && disjointQuantifiers q
+disjointQuantifiers (ForSome v s q)
+  = (not $ S.member v $ S.union (quantifies q) $ sourceRefs s)
+                                                && disjointQuantifiers q
+disjointQuantifiers (ForAll v s q)
+  = (not $ S.member v $ S.union (quantifies q) $ sourceRefs s)
+                                                && disjointQuantifiers q
 disjointQuantifiers (QOr qs) =           and $ map disjointQuantifiers qs
 disjointQuantifiers (QAnd qs) =
   (snd $ foldr f (S.empty, True) qs) && (and $ map disjointQuantifiers qs)
@@ -105,25 +97,25 @@ findsAndTestsOnlyQuantifiedVars q = f S.empty q where
 -- If it does not, it refers to something external, and should go into the
 -- result.
 
-checkInternalAndExternalVars :: Query -> (Set Var, Set Var)
-checkInternalAndExternalVars q = f (S.empty,S.empty,True) q where
-  merge :: (Set Var, Set Var)
-        -> (Set Var, Set Var)
-        -> (Set Var, Set Var)
-  merge (s,s',b) (t,t',c) = (S.union s t, S.union s' t')
-  f :: (Set Var, Set Var) -> Query -> (Set Var, Set Var)
-  f ei (QOr  qs) = S.foldr merge $ map (f ei) qs
-  f ei (QAnd qs) = S.foldr merge $ map (f ei) qs
---  f (e,i) (ForSome v s q) =
---  f (e,i) (ForAll  v s q) = 
-  f (e,i) q = (S.union e notInInt, i) where
-    notInInt = S.filter (not . flip S.member i) $ sourceRefs q
+--checkInternalAndExternalVars :: Query -> (Set Var, Set Var)
+--checkInternalAndExternalVars q = f (S.empty,S.empty,True) q where
+--  merge :: (Set Var, Set Var)
+--        -> (Set Var, Set Var)
+--        -> (Set Var, Set Var)
+--  merge (s,s',b) (t,t',c) = (S.union s t, S.union s' t')
+--  f :: (Set Var, Set Var) -> Query -> (Set Var, Set Var)
+--  f ei (QOr  qs) = S.foldr merge $ map (f ei) qs
+--  f ei (QAnd qs) = S.foldr merge $ map (f ei) qs
+----  f (e,i) (ForSome v s q) =
+----  f (e,i) (ForAll  v s q) =
+--  f (e,i) q = (S.union e notInInt, i) where
+--    notInInt = S.filter (not . flip S.member i) $ sourceRefs q
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, quantifies `v`.
 -- And every `Query` quantifies whatever its subqueries quantifies.
 quantifies :: Query -> Set Var
 quantifies (QOr  qs)        = S.unions    $ map quantifies qs
 quantifies (QAnd qs)        = S.unions    $ map quantifies qs
-quantifies (ForSome vf _ q) = S.insert vf $     quantifies q
-quantifies (ForAll  vf _ q) = S.insert vf $     quantifies q
+quantifies (ForSome v _ q) = S.insert v $     quantifies q
+quantifies (ForAll  v _ q) = S.insert v $     quantifies q
 quantifies _ = S.empty

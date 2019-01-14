@@ -13,6 +13,9 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO refactor Query for subtypes QLeaf, Quant, Junct
+This way queryDets need not be partial. (It's not technically, but in spirit.)
+This way quantifiers, and sometimes *junctions, can be handled with less code duplication.
 * TODO rewrite Query.Classify
 ** quantifies: describes what variables a query introduces via quantifiers
 ** sourcesReferTo

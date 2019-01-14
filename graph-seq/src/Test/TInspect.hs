@@ -27,15 +27,20 @@ testModuleQueryClassify = TestList [
 
 test_disjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      x   = Var "x"
-      y   = Var "y"
+      [x,x1,x2,y,y1,y2] = map Var ["x","x1","x2","y","y1","y2"]
       qx  = ForSome (Var "x") (Source x) qf
       qy  = ForSome (Var "y") (Source y) qf
-      qxy = QAnd [qx,qy]
-  assertBool "1" $ disjointQuantifiers (ForSome x (Source x) qx)  == False
-  assertBool "2" $ disjointQuantifiers (ForSome y (Source x) qx)  == True
-  assertBool "3" $ disjointQuantifiers qxy             == True
-  assertBool "4" $ disjointQuantifiers (QAnd [qx,qxy]) == False
+      qx1  = ForSome (Var "x1") (Source x) qf
+      qy1  = ForSome (Var "y1") (Source y) qf
+      qxy = QOr [qx1,qy1]
+  assertBool "-1" $ disjointQuantifiers (ForSome x (Source y) qx)  == False
+  assertBool "0" $ disjointQuantifiers (ForSome x (Source x) qy)   == False
+  assertBool "1" $ disjointQuantifiers (ForSome x2 (Source y) qx1) == True
+  assertBool "2" $ disjointQuantifiers (ForSome y (Source x) qx1)  == True
+  assertBool "3" $ disjointQuantifiers qx                          == False
+  assertBool "3.5" $ disjointQuantifiers qx1                       == True
+  assertBool "3.7" $ disjointQuantifiers qxy                       == True
+  assertBool "4" $ disjointQuantifiers (QAnd [qx1,qxy])            == False
 
 test_quantifies = TestCase $ do
   let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]

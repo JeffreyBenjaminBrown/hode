@@ -30,7 +30,7 @@ library
                   Graph
                 , Program
                 , Query
-                , Query.Classify
+                , Query.Inspect
                 , Subst
                 , Test
                 , Test.TGraph
