@@ -4,7 +4,7 @@ module Test where
 
 import Test.HUnit
 
-import Test.TClassify
+import Test.TInspect
 import Test.TGraph
 import Test.TQuery
 import Test.TSubst

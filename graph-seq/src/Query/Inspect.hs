@@ -1,5 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
-module Query.Classify where
+module Query.Inspect where
 
 import           Data.List
 import           Data.Map (Map)
@@ -18,7 +18,7 @@ validQuery q =
   False -> Left $ "Infeasible junction in Query."
   True -> case disjointQuantifiers q of
     False -> Left $ "Existentials not disjoint in Query."
-    True -> case usesOnlyQuantifiedVariables q of
+    True -> case usesOnlyQuantifiedVars q of
       False -> Left $ "Variable referred to before quantification."
       True -> Right ()
 
@@ -53,9 +53,9 @@ findlike _                  = False
 
 -- | = Ensuring the Vars used in a Query make sense
 
-
--- | `disjointQuantifiers` tests that no quantifier masks an earlier one,
--- and that no two clauses of a `QAnd` introduce the same variable.
+-- | `disjointQuantifiers` tests that no quantifier is masked by
+-- a quantifier in a subquery, and that no two clauses of a `QAnd`
+-- introduce the same variable.
 --
 -- (That second condition is stricter than necessary. For instance, the query
 -- "Both (for all x, it is not x) and (for some x, it is a child of x)"
@@ -83,11 +83,14 @@ disjointQuantifiers _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or ForSome.
-usesOnlyQuantifiedVariables :: Query -> Bool
-usesOnlyQuantifiedVariables q = f S.empty q where
+--
+-- TODO : `usesOnlyQuantifiedVars` should not worry about Sources;
+-- `sourcesReferTo` can do that.
+usesOnlyQuantifiedVars :: Query -> Bool
+usesOnlyQuantifiedVars q = f S.empty q where
   f :: Set Var -> Query -> Bool
-  f vs (ForAll  v (Source s) qs) = f (S.insert v vs) qs
-  f vs (ForSome v (Source s) qs) = f (S.insert v vs) qs
+  f vs (ForAll  v (Source _) qs) = f (S.insert v vs) qs
+  f vs (ForSome v (Source _) qs) = f (S.insert v vs) qs
   f vs (ForAll  v (Source' s dets) qs) =
     if not $ S.isSubsetOf (S.insert s dets) vs then False
     else f (S.insert v vs) qs
@@ -100,6 +103,11 @@ usesOnlyQuantifiedVariables q = f S.empty q where
 
 -- | Note that `sourcesReferTo` checks Sources but not Source's.
 -- Source's are checked by `usesOnlyQuantifiedVariables`.
+--
+-- TODO: `sourcesReferTo` should consider both Sources and Source's.
+-- If a Source or a Source' refers to a previously quantified var, it's okay.
+-- If it does not, it refers to something external, and should go into the
+-- result.
 sourcesReferTo :: Query -> Set Var
 sourcesReferTo (QOr  qs)                = S.unions $ map sourcesReferTo qs
 sourcesReferTo (QAnd qs)                = S.unions $ map sourcesReferTo qs

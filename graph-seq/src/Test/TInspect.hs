@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Test.TClassify where
+module Test.TInspect where
 
 import           Data.List
 import           Data.Map (Map)
@@ -9,7 +9,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import Query.Classify
+import Query.Inspect
 import Types
 
 
@@ -17,7 +17,13 @@ testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_quantifies" test_quantifies
   , TestLabel "test_disjointExistentials" test_disjointExistentials
+--  , TestLabel "test_usesOnlyQuantifiedVars" test_usesOnlyQuantifiedVars
   ]
+
+--test_usesOnlyQuantifiedVars = TestCase $ do -- TODO finish
+--  let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]
+--  assertBool "1" $ usesOnlyQuantifiedVariables
+--    ( ForSome v (Source v)
 
 test_disjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty

@@ -13,7 +13,7 @@ import qualified Data.Set       as S
 import Subst
 import Types
 import Query
-import Query.Classify
+import Query.Inspect
 
 
 runProgram :: Data

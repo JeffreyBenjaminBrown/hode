@@ -22,8 +22,8 @@ data Var = Var { varName :: String }
   -- that were calculated based on source's earlier calculation.
   deriving (Show, Eq, Ord)
 
-data Source = Source Var -- ^ draw from the solution set of a prior Query
-            | Source' { name :: Var
+data Source = Source  { source :: Var }
+            | Source' { source :: Var
                       , dets :: (Set Var) }
 
 data Find = Find { findFunction :: Data -> Subst -> Set Elt

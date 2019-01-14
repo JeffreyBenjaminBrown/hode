@@ -10,7 +10,7 @@ import           Test.HUnit hiding (Test)
 
 import Graph
 import Query
-import Query.Classify
+import Query.Inspect
 import Types
 
 
