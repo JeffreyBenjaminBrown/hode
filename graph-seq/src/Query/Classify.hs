@@ -8,7 +8,6 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Subst
 import Types
 import Util
 
@@ -106,7 +105,7 @@ sourcesReferTo (QOr  qs)                = S.unions $ map sourcesReferTo qs
 sourcesReferTo (QAnd qs)                = S.unions $ map sourcesReferTo qs
 sourcesReferTo (ForSome _ (Source v) q) = S.insert v $   sourcesReferTo q
 sourcesReferTo (ForAll  _ (Source v) q) = S.insert v $   sourcesReferTo q
-sourcesReferTo q                        = queryDets q
+sourcesReferTo _                        = S.empty
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, quantifies `v`.
 -- And every `Query` quantifies whatever its subqueries quantifies.

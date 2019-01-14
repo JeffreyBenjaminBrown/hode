@@ -14,8 +14,22 @@ import Types
 
 
 testModuleQueryClassify = TestList [
-  TestLabel "test_quantifies" test_quantifies
+    TestLabel "test_findlike" test_findlike
+  , TestLabel "test_quantifies" test_quantifies
+  , TestLabel "test_disjointExistentials" test_disjointExistentials
   ]
+
+test_disjointExistentials = TestCase $ do
+  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
+      x   = Var "x"
+      y   = Var "y"
+      qx  = ForSome (Var "x") (Source x) qf
+      qy  = ForSome (Var "y") (Source y) qf
+      qxy = QAnd [qx,qy]
+  assertBool "1" $ disjointQuantifiers (ForSome x (Source x) qx)  == False
+  assertBool "2" $ disjointQuantifiers (ForSome y (Source x) qx)  == True
+  assertBool "3" $ disjointQuantifiers qxy             == True
+  assertBool "4" $ disjointQuantifiers (QAnd [qx,qxy]) == False
 
 test_quantifies = TestCase $ do
   let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]
@@ -24,3 +38,15 @@ test_quantifies = TestCase $ do
         , ForAll y (Source y) $ QAnd [ ForSome z (Source z)
                                        $ QTest $ error "whatever" ] ] )
     == S.fromList [x,y,z]
+
+test_findlike = TestCase $ do
+  let qf = QFind $ Find (\_ _    -> S.empty) S.empty
+      qc = QTest $ Test (\_ _  _ -> False  ) S.empty
+  assertBool "1" $ findlike (QAnd [qf, qc]) == True
+  assertBool "2" $ findlike (QAnd [qf]    ) == True
+  assertBool "3" $ findlike (QAnd [qc]    ) == False
+  assertBool "4" $ findlike (QAnd []      ) == False
+  assertBool "5" $ findlike (QOr  [qf, qc]) == False
+  assertBool "6" $ findlike (QOr  [qf]    ) == True
+  assertBool "7" $ findlike (QOr  [qc]    ) == False
+  assertBool "8" $ findlike (QOr  []      ) == False

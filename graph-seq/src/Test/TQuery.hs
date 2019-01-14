@@ -6,7 +6,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import Test.HUnit hiding (Test)
+import           Test.HUnit hiding (Test)
 
 import Graph
 import Query
@@ -15,9 +15,7 @@ import Types
 
 
 testModuleQuery = TestList [
-    TestLabel "testFindlike" testFindlike
-  , TestLabel "testOkExistentials" testOkExistentials
-  , TestLabel "test_runFindlike_Find" test_runFindlike_Find
+    TestLabel "test_runFindlike_Find" test_runFindlike_Find
   , TestLabel "testRunTest" testRunTest
   , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
   , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
@@ -180,27 +178,3 @@ test_runFindlike_Find = TestCase $ do
   assertBool "2" $ runFindlike g M.empty fy s
     == Right ( M.fromList [ (12, S.singleton $ M.singleton y 2)
                           , (22, S.singleton $ M.singleton y 2) ] )
-
-testOkExistentials = TestCase $ do
-  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
-      x   = Var "x"
-      y   = Var "y"
-      qx  = ForSome (Var "x") (Source x) qf
-      qy  = ForSome (Var "y") (Source y) qf
-      qxy = QAnd [qx,qy]
-  assertBool "1" $ disjointQuantifiers (ForSome x (Source x) qx)  == False
-  assertBool "2" $ disjointQuantifiers (ForSome y (Source x) qx)  == True
-  assertBool "3" $ disjointQuantifiers qxy             == True
-  assertBool "4" $ disjointQuantifiers (QAnd [qx,qxy]) == False
-
-testFindlike = TestCase $ do
-  let qf = QFind $ Find (\_ _    -> S.empty) S.empty
-      qc = QTest $ Test (\_ _  _ -> False  ) S.empty
-  assertBool "1" $ findlike (QAnd [qf, qc]) == True
-  assertBool "2" $ findlike (QAnd [qf]    ) == True
-  assertBool "3" $ findlike (QAnd [qc]    ) == False
-  assertBool "4" $ findlike (QAnd []      ) == False
-  assertBool "5" $ findlike (QOr  [qf, qc]) == False
-  assertBool "6" $ findlike (QOr  [qf]    ) == True
-  assertBool "7" $ findlike (QOr  [qc]    ) == False
-  assertBool "8" $ findlike (QOr  []      ) == False
