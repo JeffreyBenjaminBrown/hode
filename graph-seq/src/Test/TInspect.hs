@@ -44,8 +44,7 @@ test_internalAndExternalVars = TestCase $ do
     == (S.empty, S.singleton c)
   assertBool "1" $ internalAndExternalVars
     ( ForAll a (Source b) $ QOr [ c_ade, c_ag ] )
-    == ( S.fromList [a,c,d ], S.fromList [b,e,g ] )
-
+    == ( S.fromList [a,c ], S.fromList [b,d,e,g ] )
 
 test_disjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
