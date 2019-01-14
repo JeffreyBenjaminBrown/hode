@@ -19,13 +19,11 @@ testModuleQueryClassify = TestList [
   , TestLabel "test_quantifies" test_quantifies
   , TestLabel "test_disjointExistentials" test_disjointExistentials
   , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
---  , TestLabel "test_findsAndTestsOnlyQuantifiedVars" test_findsAndTestsOnlyQuantifiedVars
+  -- these seem too easy to bother testing:
+    -- validQuery
+    -- feasible'Junctions
+    -- findsAndTestsOnlyQuantifiedVars
   ]
-
---test_findsAndTestsOnlyQuantifiedVars = TestCase $ do -- TODO finish
---  let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]
---  assertBool "1" $ usesOnlyQuantifiedVariables
---    ( ForSome v (Source v)
 
 test_internalAndExternalVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]

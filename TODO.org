@@ -13,21 +13,14 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO refactor Query for subtypes QLeaf, Quant, Junct
+* TODO ? refactor Query for subtypes QLeaf, Quant, Junct
 This way queryDets need not be partial. (It's not technically, but in spirit.)
 This way quantifiers, and sometimes *junctions, can be handled with less code duplication.
-* TODO rewrite Query.Classify
-** quantifies: describes what variables a query introduces via quantifiers
-** sourcesReferTo
-*** ought to count both, and distinguish between internal and external references
-*** currently, only considers Sources, not Source's, and pretends all are external references
-Let qvs = the vars that were quantified over by superqueries.
-  Note that `quantifies` computes the reverse: quantified by subqueries.
-Any Source that reads from qvs does not increase the set of external references.
-Any other Var that a Source reads from goes into the external references.
-* TODO ?! ask for two variables that determined a given one
+This way the default definitions (the one that catches things not caught by earlier definitions of the same functions) that currently catch QLeafs would be robust to refactoring the type. Currently if I added a constructor it could be caught by those same default cases when it doesn't make sense.
+* TODO ?! ask for multiple variables that determined a given one
 As opposed to Var String (Set Var), this would be Var (Set String) Var,
 or Var (Set String) (Set Var).
+* TODO track outputs, not just inputs, in the Possible
 * TODO ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
@@ -47,7 +40,7 @@ CondElts. But the simplicity might be worth it. (They are not substitutes;
 VarTests is far more expressive. varPossibilities will only let you ask
 for "some x such that it could be an input to all of the following 
 variables ...".)
-* TODO test mixed queries
+* TODO test mixed queries more
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example
