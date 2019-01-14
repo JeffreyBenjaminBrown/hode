@@ -97,19 +97,22 @@ findsAndTestsOnlyQuantifiedVars q = f S.empty q where
 -- If it does not, it refers to something external, and should go into the
 -- result.
 
---checkInternalAndExternalVars :: Query -> (Set Var, Set Var)
---checkInternalAndExternalVars q = f (S.empty,S.empty,True) q where
---  merge :: (Set Var, Set Var)
---        -> (Set Var, Set Var)
---        -> (Set Var, Set Var)
---  merge (s,s',b) (t,t',c) = (S.union s t, S.union s' t')
---  f :: (Set Var, Set Var) -> Query -> (Set Var, Set Var)
---  f ei (QOr  qs) = S.foldr merge $ map (f ei) qs
---  f ei (QAnd qs) = S.foldr merge $ map (f ei) qs
-----  f (e,i) (ForSome v s q) =
-----  f (e,i) (ForAll  v s q) =
---  f (e,i) q = (S.union e notInInt, i) where
---    notInInt = S.filter (not . flip S.member i) $ sourceRefs q
+internalAndExternalVars :: Query -> (Set Var, Set Var)
+internalAndExternalVars q = f (S.empty,S.empty) q where
+  merge :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
+  merge (s,s') (t,t') = (S.union s t, S.union s' t')
+
+  f :: (Set Var, Set Var) -> Query -> (Set Var, Set Var)
+  f ie (QOr  qs) = S.foldr merge (S.empty, S.empty)
+    $ S.fromList $ map (f ie) qs
+  f ie (QAnd qs) = S.foldr merge (S.empty, S.empty)
+    $ S.fromList $ map (f ie) qs
+  f (i,e) (ForSome v s q) = f (S.insert v i, S.union e notInInt) q
+    where notInInt = S.filter (not . flip S.member i) $ sourceRefs s
+  f (i,e) (ForAll  v s q) = f (S.insert v i, S.union e notInInt) q
+    where notInInt = S.filter (not . flip S.member i) $ sourceRefs s
+  f (i,e) q = (i, S.union e notInInt)
+    where notInInt = S.filter (not . flip S.member i) $ queryDets q
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, quantifies `v`.
 -- And every `Query` quantifies whatever its subqueries quantifies.

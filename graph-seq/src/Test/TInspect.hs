@@ -9,6 +9,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
+import Graph
 import Query.Inspect
 import Types
 
@@ -17,6 +18,7 @@ testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_quantifies" test_quantifies
   , TestLabel "test_disjointExistentials" test_disjointExistentials
+  , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
 --  , TestLabel "test_findsAndTestsOnlyQuantifiedVars" test_findsAndTestsOnlyQuantifiedVars
   ]
 
@@ -24,6 +26,26 @@ testModuleQueryClassify = TestList [
 --  let [a,b,c,x,y,z] = map Var ["a","b","c","x","y","z"]
 --  assertBool "1" $ usesOnlyQuantifiedVariables
 --    ( ForSome v (Source v)
+
+test_internalAndExternalVars = TestCase $ do
+  let [a,b,c,d,e,f,g,h,x,y,z] = map Var ["a","b","c","d","e","f","g","h","x","y","z"]
+      -- These queries are named for their internal and external variables.
+      c_ade = ForSome c (Source' d $ S.singleton a)
+        $ QFind $ findParents $ Right e
+      c_ag = ForSome c (Source' a $ S.singleton g)
+        $ QFind $ findParents $ Right c
+  assertBool "5" $ internalAndExternalVars (QOr [ c_ade, c_ag ])
+    == (S.singleton c, S.fromList [a,d,e,g] )
+  assertBool "4" $ internalAndExternalVars c_ade
+    == (S.singleton c, S.fromList [a,d,e])
+  assertBool "3" $ internalAndExternalVars c_ag
+    == (S.singleton c, S.fromList [a,g])
+  assertBool "2" $ internalAndExternalVars (QFind $ findParents $ Right c )
+    == (S.empty, S.singleton c)
+  assertBool "1" $ internalAndExternalVars
+    ( ForAll a (Source b) $ QOr [ c_ade, c_ag ] )
+    == ( S.fromList [a,c,d ], S.fromList [b,e,g ] )
+
 
 test_disjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
