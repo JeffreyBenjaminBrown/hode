@@ -8,6 +8,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Types
+
 
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key map =  callingFunction ++ ": key "
@@ -18,3 +20,16 @@ isSubsetOfMap :: forall k b. (Ord k, Eq b)
 isSubsetOfMap small big = M.foldrWithKey f True small where
   f _ _ False = False -- short-circuit (hence foldr)
   f k b True = M.lookup k big == Just b
+
+
+-- | = functions that use the Types module
+
+queryDets :: Query -> Set Var
+queryDets (QFind f)        = findDets f
+queryDets (QTest t)        = testDets t
+queryDets (QVarTest t)     = varTestDets t
+queryDets _ = S.empty
+
+sourceDets :: Source -> Set Var
+sourceDets (Source v) = S.singleton v
+sourceDets (Source' v dets) = dets
