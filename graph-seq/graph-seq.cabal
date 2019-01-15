@@ -38,6 +38,7 @@ library
                 , Test.TQuery
                 , Test.TSubst
                 , Test.TUtil
+                , Test.TProgram
                 , Types
                 , Util
   other-modules:

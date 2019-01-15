@@ -12,6 +12,7 @@ import           Test.HUnit hiding (Test)
 
 import Test.TInspect
 import Test.TGraph
+import Test.TProgram
 import Test.TQuery
 import Test.TSubst
 import Test.TUtil
@@ -25,6 +26,7 @@ tests = runTestTT $ TestList
   [ testModuleUtil
   , testModuleQueryClassify
   , testModuleGraph
+  , test_module_Program
   , testModuleQuery
   , testModuleSubst
   ]

@@ -2,6 +2,7 @@
 
 module Graph where
 
+import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -10,6 +11,8 @@ import qualified Data.Set       as S
 import Types
 import Util
 
+
+-- | Building and reading graphs
 
 graph :: [( Int, [Int] )] -> Graph
 graph pairs = Graph nodes children $ invertMapToSet children where
@@ -35,16 +38,44 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
         -> M.Map  a (S.Set a)
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
 
-isNot :: Either Elt Var -> Test
-isNot (Left e) = Test go mempty
-  where
-    go :: Data -> Subst -> Elt -> Bool
-    go _ _ = (/=) e
-isNot (Right v) = Test go $ S.singleton v
-  where
-    go :: Data -> Subst -> Elt -> Bool
-    go _ s = maybe err (/=) $ M.lookup v s
-      where err = error $ keyErr "isNot" v s
+
+-- | == for building `Query`s
+
+unEitherEltVar :: Subst -> Either Elt Var -> (Maybe Elt, Maybe Var)
+unEitherEltVar _ (Left e) = (Just e, Nothing)
+unEitherEltVar s (Right v) = (M.lookup v s, Just v)
+
+
+-- | = `Test`s
+
+isNot_1 :: Either Elt Var -> Test
+isNot_1 eev = Test go deps where
+  go :: Data -> Subst -> Elt -> Bool
+  go _ s = let (me, mv) = unEitherEltVar s eev :: (Maybe Elt, Maybe Var)
+               err = error $ keyErr "isNot_1" (fromJust mv) s
+           in maybe err (/=) me
+  deps :: Set Var
+  deps = S.fromList $ catMaybes $ map (either (const Nothing) Just) [eev]
+
+
+-- | = `VarTest`s
+
+isNot_2 :: Either Elt Var -> Either Elt Var -> VarTest
+isNot_2 eev eev' = VarTest go deps where
+  go :: Data -> Subst -> Bool
+  go _ s = let (me , mv ) = unEitherEltVar s eev  :: (Maybe Elt, Maybe Var)
+               (me', mv') = unEitherEltVar s eev' :: (Maybe Elt, Maybe Var)
+               err  = error $ keyErr "isNot_2" (fromJust mv ) s
+               err' = error $ keyErr "isNot_2" (fromJust mv') s
+    in case me of Nothing -> err
+                  Just _ -> case me' of Nothing -> err'
+                                        Just _ -> me == me'
+  deps :: Set Var
+  deps = S.fromList $ catMaybes
+    $ map (either (const Nothing) Just) [eev,eev']
+
+
+-- | = `Find`s
 
 findChildren :: Either Elt Var -> Find
 findChildren (Left e) =

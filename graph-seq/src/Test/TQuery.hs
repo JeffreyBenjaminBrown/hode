@@ -29,7 +29,7 @@ test_runFindlike_mixed = TestCase $ do
       aOf_b = "aOf_b"
       src_aOf_b = Source' a $ S.singleton b
 
-      isnt v = QTest $ isNot $ Right v
+      isnt v = QTest $ isNot_1 $ Right v
       d = graph [ (0, [1,2        ] )
                 , (3, [  2,3,4    ] )
                 , (10,[11, 23     ] ) ]
@@ -54,7 +54,7 @@ test_runFindlike_mixed = TestCase $ do
 testRunQAnd = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: Subst) = M.singleton a 2
-      nota = QTest $ isNot $ Right a
+      nota = QTest $ isNot_1 $ Right a
       d = graph [ (0, [1,2    ] )
                 , (3, [  2,3,4] ) ]
       (p :: Possible) = M.singleton a $
@@ -67,8 +67,8 @@ testRunQAnd = TestCase $ do
 testRunTestlike = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: Subst) = M.singleton a 2
-      (not3 :: Test) = isNot $ Left 3
-      (nota :: Test) = isNot $ Right a
+      (not3 :: Test) = isNot_1 $ Left 3
+      (nota :: Test) = isNot_1 $ Right a
       d = graph $ map (,[]) [1..3]
       (p :: Possible) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
@@ -160,9 +160,9 @@ testRunTest = TestCase $ do
       (a2 :: Subst) = M.singleton a 2
       (ce :: CondElts) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton $ M.empty) ]
-  assertBool "1" $ runTest g a2 (isNot $ Left 1) ce
+  assertBool "1" $ runTest g a2 (isNot_1 $ Left 1) ce
     == M.singleton 2 (S.singleton M.empty)
-  assertBool "2" $ runTest g a2 (isNot $ Right a) ce
+  assertBool "2" $ runTest g a2 (isNot_1 $ Right a) ce
     == M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] )
 
 test_runFindlike_Find = TestCase $ do
