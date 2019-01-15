@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 module Query.Inspect where
 
@@ -12,27 +13,27 @@ import Types
 import Util
 
 
-validProgram :: [(Var,Query)] -> Either String ()
+validProgram :: [(Var,Query e sp)] -> Either String ()
 validProgram vqs = let
   wholeProgramTest, individualQueryTests :: Either String ()
   wholeProgramTest     = noPrematureReference vqs
   individualQueryTests = foldl f (Right ()) vqs
     where
-      f :: Either String () -> (Var, Query) -> Either String ()
+      f :: Either String () -> (Var, Query e sp) -> Either String ()
       f e@(Left _) _     = e
       f (Right ()) (_,q) = validQuery q
   in case wholeProgramTest of
   e@(Left _) -> e
   Right () -> individualQueryTests
 
-noPrematureReference :: [(Var,Query)] -> Either String ()
+noPrematureReference :: forall e sp. [(Var,Query e sp)] -> Either String ()
 noPrematureReference vqs = case null bad of
   True -> Right ()
   False -> Left $ "validProgram: variables " ++ show bad
            ++ " used before being defined.\n"
   where
   (_,bad) = foldl f (S.empty, S.empty) vqs :: (Set Var, Set Var)
-  f :: (Set Var, Set Var) -> (Var, Query) -> (Set Var, Set Var)
+  f :: (Set Var, Set Var) -> (Var, Query e sp) -> (Set Var, Set Var)
   f (defined,bad) (v,q) =
     -- "defined" are variables defined by previous Queries.
     -- "bad" are variables used before being defined.
@@ -40,7 +41,7 @@ noPrematureReference vqs = case null bad of
         moreBad = S.filter (not . flip S.member defined) ext
     in (S.insert v defined, S.union bad moreBad)
 
-validQuery :: Query -> Either String ()
+validQuery :: Query e sp -> Either String ()
 validQuery q =
   case feasible'Junctions q of
   False -> Left $ "Infeasible junction in Query."
@@ -50,9 +51,9 @@ validQuery q =
       False -> Left $ "Variable referred to before quantification."
       True -> Right ()
 
-feasible'Junctions :: Query -> Bool
+feasible'Junctions :: Query e sp -> Bool
 feasible'Junctions = recursive where
-  simple, recursive :: Query -> Bool
+  simple, recursive :: Query e sp -> Bool
 
   simple (QAnd qs) = not $ null $ filter findlike qs
   simple (QOr qs)  = and $           map findlike qs
@@ -67,7 +68,7 @@ feasible'Junctions = recursive where
 
 -- | = Classifying Queries as findlike or testlike
 
-findlike, testlike :: Query -> Bool
+findlike, testlike :: Query e sp -> Bool
 
 testlike = not . findlike
 
@@ -87,7 +88,7 @@ findlike _                  = False
 --
 -- TODO ? Those conditions are stricter than necessary, but hard to relax.
 
-disjointQuantifiers :: Query -> Bool
+disjointQuantifiers :: Query e sp -> Bool
 disjointQuantifiers (ForSome v s q)
   = (not $ S.member v $ S.union (quantifies q) $ sourceRefs s)
                                                 && disjointQuantifiers q
@@ -98,7 +99,7 @@ disjointQuantifiers (QOr qs) =           and $ map disjointQuantifiers qs
 disjointQuantifiers (QAnd qs) =
   (snd $ foldr f (S.empty, True) qs) && (and $ map disjointQuantifiers qs)
   where -- `f` verifies that no Var is quantified in two clauses of the QAnd
-    f :: Query -> (Set Var, Bool) -> (Set Var, Bool)
+    f :: Query e sp -> (Set Var, Bool) -> (Set Var, Bool)
     f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
     f q (vs, True) = if S.disjoint vs $ quantifies q
                      then (S.union vs $ quantifies q, True)
@@ -107,9 +108,9 @@ disjointQuantifiers _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or ForSome.
-findsAndTestsOnlyQuantifiedVars :: Query -> Bool
+findsAndTestsOnlyQuantifiedVars :: Query e sp -> Bool
 findsAndTestsOnlyQuantifiedVars q = f S.empty q where
-  f :: Set Var -> Query -> Bool
+  f :: Set Var -> Query e sp -> Bool
   f vs (ForAll  v _ qs) = f (S.insert v vs) qs
   f vs (ForSome v _ qs) = f (S.insert v vs) qs
   f vs (QAnd qs)        = and $ map (f vs) qs
@@ -125,12 +126,12 @@ findsAndTestsOnlyQuantifiedVars q = f S.empty q where
 -- If it does not, it refers to something external, and should go into the
 -- result.
 
-internalAndExternalVars :: Query -> (Set Var, Set Var)
+internalAndExternalVars :: Query e sp -> (Set Var, Set Var)
 internalAndExternalVars q = f (S.empty,S.empty) q where
   merge :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
   merge (s,s') (t,t') = (S.union s t, S.union s' t')
 
-  f :: (Set Var, Set Var) -> Query -> (Set Var, Set Var)
+  f :: (Set Var, Set Var) -> Query e sp -> (Set Var, Set Var)
   f ie (QOr  qs) = S.foldr merge (S.empty, S.empty)
     $ S.fromList $ map (f ie) qs
   f ie (QAnd qs) = S.foldr merge (S.empty, S.empty)
@@ -144,7 +145,7 @@ internalAndExternalVars q = f (S.empty,S.empty) q where
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, quantifies `v`.
 -- And every `Query` quantifies whatever its subqueries quantifies.
-quantifies :: Query -> Set Var
+quantifies :: Query e sp -> Set Var
 quantifies (QOr  qs)        = S.unions    $ map quantifies qs
 quantifies (QAnd qs)        = S.unions    $ map quantifies qs
 quantifies (ForSome v _ q) = S.insert v $     quantifies q

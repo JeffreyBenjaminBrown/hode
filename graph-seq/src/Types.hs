@@ -30,13 +30,13 @@ data Source = Source  { source :: Var }
             | Source' { source :: Var
                       , dets :: (Set Var) }
 
-data Find e sp = Find { findFunction    :: sp -> Subst e -> Set Elt
-                      , findDets        :: Set Var }
+data Find e sp = Find { findFunction          :: sp -> Subst e -> Set e
+                      , findDets              :: Set Var }
   -- ^ If `findFunction` doesn't use the `Subst`, `findDets` should be empty.
-data Test e sp = Test {  testFunction    :: sp -> Subst e ->     Elt -> Bool
-                       , testDets        :: Set Var }
+data Test e sp = Test {  testFunction         :: sp -> Subst e ->    e -> Bool
+                       , testDets             :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`, `condDeps` should be empty.
-data VarTest e sp = VarTest { varTestFunction :: sp -> Subst e ->       Bool
+data VarTest e sp = VarTest { varTestFunction :: sp -> Subst e         -> Bool
                             , varTestDets     :: Set Var }
   -- ^ If `*Function` doesn't use the `Subst`, `*Dets` should be empty.
 

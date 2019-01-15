@@ -46,9 +46,9 @@ testSubstToCondElts = TestCase $ do
 
 testVarPossibilities = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
-      s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst
-      s_b2   = M.fromList [ (b,2)        ] :: Subst
-      (pa :: Possible) = M.fromList [
+      s_b1c1 = M.fromList [ (b,1), (c,1) ] :: Subst Int
+      s_b2   = M.fromList [ (b,2)        ] :: Subst Int
+      (pa :: Possible Int) = M.fromList [
         ( a, M.fromList [ (1, S.singleton mempty)
                         , (5, S.singleton $ M.singleton x 23) ] ) ]
   assertBool "0" $   varPossibilities pa M.empty (Source a)
@@ -57,7 +57,7 @@ testVarPossibilities = TestCase $ do
     == Right ((M.!) pa a)
     -- the Subst s_b1c1 is ignored because the dets in the Var are empty
 
-  let (p :: Possible) = M.fromList
+  let (p :: Possible Int) = M.fromList
           [ ( a, M.fromList
               [ (1, S.singleton M.empty)
               , (2, S.singleton M.empty)
@@ -120,7 +120,7 @@ testVarSubsts = TestCase $ do
 
 testReconcileCondElts = TestCase $ do
   let [a,b,c,x] = ["a","b","c","x"]
-      ce, cf :: CondElts
+      ce, cf :: CondElts Int
       ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
                                        , M.fromList [ (a, 2), (b, 2) ] ] )
                       , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] )
@@ -134,7 +134,7 @@ testReconcileCondElts = TestCase $ do
 
 testReconcileCondEltsAtElt = TestCase $ do
   let [a,b,c,x] = ["a","b","c","x"]
-      ce, cf :: CondElts
+      ce, cf :: CondElts Int
       ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
                                        , M.empty ] ) ]
       cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1)         ]
@@ -215,12 +215,13 @@ testReconcile1ToMany = TestCase $ do
                      == S.empty
 
 testReconcile2 = TestCase $ do
-  let x1 = M.singleton "x" 1
+  let x1,y1,y2,x1y2 :: Subst Int
+      x1 = M.singleton "x" 1
       y1 = M.singleton "y" 1
       y2 = M.singleton "y" 2
       x1y2 = M.fromList [ ("x" ,1)
                         , ("y" ,2) ]
-  assertBool "0" $ reconcile2 M.empty M.empty == Just M.empty
+  assertBool "0" $ reconcile2 M.empty M.empty == Just (M.empty :: Subst Int)
   assertBool "1" $ reconcile2 M.empty x1      == Just x1
   assertBool "2" $ reconcile2 x1y2    M.empty == Just x1y2
   assertBool "3" $ reconcile2 x1      y2      == Just x1y2

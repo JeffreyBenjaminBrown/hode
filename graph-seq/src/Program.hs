@@ -16,17 +16,21 @@ import Query
 import Query.Inspect
 
 
-runProgram :: Data
-           -> [(Var,Query)] -- ^ queries can depend on earlier ones
-           -> Either String Possible
+runProgram :: forall e sp. (Ord e, Show e)
+           => sp
+           -> [(Var,Query e sp)] -- ^ queries can depend on earlier ones
+           -> Either String (Possible e)
+
 runProgram d vqs = case validProgram vqs of
   Left s -> Left s
   Right () ->  foldl go (Right M.empty) vqs
     where
-    go :: Either String Possible -> (Var, Query) -> Either String Possible
+    go :: Either String (Possible e) -> (Var, Query e sp)
+       -> Either String (Possible e)
     go (Left s) _ = Left s
     go (Right p) (v,q) =
-      case runFindlike d p q (M.empty :: Subst) :: Either String CondElts
+      case runFindlike d p q (M.empty :: Subst e)
+           :: Either String (CondElts e)
       of Left s -> Left $ "runProgram: error in callee:\n" ++ s
          Right ec -> Right $ M.insert v ec p
 
