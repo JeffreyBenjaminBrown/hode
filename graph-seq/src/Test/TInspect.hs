@@ -26,37 +26,44 @@ testModuleQueryClassify = TestList [
     -- findsAndTestsOnlyQuantifiedVars
   ]
 
+type QIGI = Query Int (Graph Int)
+
 test_noPrematureReference = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       errMsg :: [Var] -> Either String ()
       errMsg vs = Left $ "validProgram: variables " ++ show (S.fromList vs)
                   ++ " used before being defined.\n"
   assertBool "1" $ errMsg ["a","b"]
-    == noPrematureReference [ ("a", QAnd [ QFind $ findParents $ Right "a"
-                                 , QFind $ findParents $ Right "b" ] ) ]
+    == noPrematureReference
+    [ ("a", QAnd [ QFind $ findParents $ Right "a"
+                 , QFind $ findParents $ Right "b" ] :: QIGI ) ]
   assertBool "2" $ errMsg ["a","b","d"]
-    == noPrematureReference [ ("c", QAnd [ QFind $ findParents $ Right "a"
-                                 , QFind $ findParents $ Right "b" ] )
-                    , ("d", QAnd [ QFind $ findParents $ Right "c"
-                                 , QFind $ findParents $ Right "d" ] ) ]
+    == noPrematureReference
+    [ ("c", QAnd [ QFind $ findParents $ Right "a"
+                 , QFind $ findParents $ Right "b" ] :: QIGI )
+    , ("d", QAnd [ QFind $ findParents $ Right "c"
+                 , QFind $ findParents $ Right "d" ] ) ]
   assertBool "3" $ Right ()
-    == noPrematureReference [ ("a", QFind $ findParents $ Left 3)
-                    , ("b", QFind $ findParents $ Right "a") ]
+    == noPrematureReference [ ("a", QFind $ findParents $ Left 3 :: QIGI)
+                            , ("b", QFind $ findParents $ Right "a") ]
 
 test_internalAndExternalVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       -- These queries are named for their internal and external variables.
+      c_ade, c_ag :: QIGI
       c_ade = ForSome c (Source' d $ S.singleton a)
         $ QFind $ findParents $ Right e
       c_ag = ForSome c (Source' a $ S.singleton g)
         $ QFind $ findParents $ Right c
-  assertBool "5" $ internalAndExternalVars (QOr [ c_ade, c_ag ])
+  assertBool "5" $ internalAndExternalVars
+    (QOr [ c_ade, c_ag ] :: QIGI)
     == (S.singleton c, S.fromList [a,d,e,g] )
   assertBool "4" $ internalAndExternalVars c_ade
     == (S.singleton c, S.fromList [a,d,e])
   assertBool "3" $ internalAndExternalVars c_ag
     == (S.singleton c, S.fromList [a,g])
-  assertBool "2" $ internalAndExternalVars (QFind $ findParents $ Right c )
+  assertBool "2" $ internalAndExternalVars
+    (QFind $ findParents $ Right c :: QIGI)
     == (S.empty, S.singleton c)
   assertBool "1" $ internalAndExternalVars
     ( ForAll a (Source b) $ QOr [ c_ade, c_ag ] )

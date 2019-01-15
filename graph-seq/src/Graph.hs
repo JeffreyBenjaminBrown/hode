@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Graph where
@@ -13,17 +15,26 @@ import Types
 import Util
 
 
+data Graph e = Graph {
+    graphNodes    :: Set e             -- ^ good for disconnected graphs
+  , graphChildren :: Map e (Set e)   -- ^ keys are parents
+  , graphParents  :: Map e (Set e) } -- ^ keys are children
+  deriving (Show, Eq, Ord)
+
+instance Space e (Graph e)
+
+
 -- | Building and reading graphs
 
-graph :: [( Int, [Int] )] -> Graph
+graph :: Ord e => [( e, [e] )] -> Graph e
 graph pairs = Graph nodes children $ invertMapToSet children where
   children = M.fromList $ map f pairs
     where f (a,b) = (a, S.fromList b)
   nodes = S.union (M.keysSet children) $ M.foldl S.union S.empty children
 
-parents :: Graph -> Int -> Set Int
+parents :: Ord e => Graph e -> e -> Set e
 parents g i  = maybe mempty id $ M.lookup i $ graphParents g
-children :: Graph -> Int -> Set Int
+children :: Ord e => Graph e -> e -> Set e
 children g i = maybe mempty id $ M.lookup i $ graphChildren g
 
 invertMapToSet :: forall a. Ord a => Map a (Set a) -> Map a (Set a)
@@ -42,5 +53,7 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
 
 -- | == for building `Query`s
 
+findChildren, findParents :: (Ord e, Show e)
+                          => Either e Var -> Find e (Graph e)
 findChildren = toFind "findChildren" children
 findParents  = toFind "findParents"  parents

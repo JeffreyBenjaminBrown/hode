@@ -27,8 +27,8 @@ testModuleQuery = TestList [
 
 test_isNot_2 = TestCase $ do
   let (a,b) = ("a","b")
-      t_34 = isNot_2 (Left 3)    (Left 4)    :: VarTest Int Graph
-      t_ab = isNot_2 (Right "a") (Right "b") :: VarTest Int Graph
+      t_34 = isNot_2 (Left 3)    (Left 4)    :: VarTest Int (Graph Int)
+      t_ab = isNot_2 (Right "a") (Right "b") :: VarTest Int (Graph Int)
       a1b1 = M.fromList [(a,1),(b,1)]
       a1b2 = M.fromList [(a,1),(b,2)]
   assertBool "1" $ False == varTestFunction t_34 (graph []) M.empty
@@ -78,8 +78,8 @@ testRunQAnd = TestCase $ do
 testRunTestlike = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: (Subst Int)) = M.singleton a 2
-      (not3 :: Test Int Graph) = isNot_1 $ Left 3
-      (nota :: Test Int Graph) = isNot_1 $ Right a
+      (not3 :: Test Int (Graph Int)) = isNot_1 $ Left 3
+      (nota :: Test Int (Graph Int)) = isNot_1 $ Right a
       d = graph $ map (,[]) [1..3]
       (p :: (Possible Int)) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
@@ -119,7 +119,7 @@ test_runFindlike_ForAll = TestCase $ do
           , ( b, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton $ M.singleton x 1) ] )
           , ( c, M.fromList [ (1, S.singleton $ M.singleton a 2) ] ) ]
-      qc :: Var -> (Query Int Graph)
+      qc :: Var -> (Query Int (Graph Int))
       qc v = QFind $ findChildren $ Right v
 
   assertBool "4" $
@@ -148,7 +148,7 @@ test_runFindlike_ForSome = TestCase $ do
                             , (2, S.singleton   M.empty) ] )
           , ( b, M.fromList [ (1, S.singleton $ M.singleton a 1)
                             , (2, S.singleton   M.empty) ] ) ]
-      qc :: Var -> (Query Int Graph)
+      qc :: Var -> (Query Int (Graph Int))
       qc v = QFind $ findChildren $ Right v
 
   assertBool "3" $

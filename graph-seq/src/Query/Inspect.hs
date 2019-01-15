@@ -118,13 +118,6 @@ findsAndTestsOnlyQuantifiedVars q = f S.empty q where
   f vs _                = S.isSubsetOf (queryDets q) vs
 
 -- | `internalAndExternalVars` checks Sources and quantifiers.
---
--- TODO: `internalAndExternalVars` should consider both Sources and Source's.
--- The Var that a quantifier binds to is always internal. If a Source or a
--- Source' refers to
--- a previously quantified var, then the Var that it binds to is internal.
--- If it does not, it refers to something external, and should go into the
--- result.
 
 internalAndExternalVars :: Query e sp -> (Set Var, Set Var)
 internalAndExternalVars q = f (S.empty,S.empty) q where

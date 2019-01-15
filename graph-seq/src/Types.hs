@@ -9,15 +9,6 @@ import qualified Data.Set       as S
 
 
 class Space e sp | sp -> e
-type Elt = Int    -- TODO ? make generic
-type Data = Graph -- TODO ? make generic
-
-data Graph = Graph { -- TODO Move to Graph once generic
-    graphNodes    :: Set Elt             -- ^ good for disconnected graphs
-  , graphChildren :: Map Elt (Set Elt)   -- ^ keys are parents
-  , graphParents  :: Map Elt (Set Elt) } -- ^ keys are children
-  deriving (Show, Eq, Ord)
-instance Space Int Graph
 
 type Var = String
   -- ^ When a `Query` creates a `Var`, the result has no `varDets`.
