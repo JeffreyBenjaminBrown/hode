@@ -1,5 +1,6 @@
 # An EDSL for logical search over arbitrary spaces, with existential and universal quantification
 
+
 ## Introduction
 
 Suppose your space is a graph, equipped with functions "parents" and "children", both of which have the type `Graph e -> e -> Set e`. (See Graph.hs for a tiny (50 lines) implementation of such a space.) Suppose further that you'd like to define the following program:
@@ -24,12 +25,12 @@ Here's how you would write that:
                 , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
 ```
 
-See Test/TProgram.hs for that very Program in action. (The String argument to `mkFind` is only there to make errors more intelligible.)
+See Test/TProgram.hs for that very program in action. (The String argument to `mkFind` is only there to make errors more intelligible.)
 
 
-## The full vocabulary
+## The full language
 
-A `Program` is a list of `(String,Query)` pairs. The `Query` finds some stuff, which is then stored under the `String` label. Later `Query`s can refer to the results of earlier ones.
+A program is a list of `(String,Query)` pairs. The `Query` finds some stuff, which is then stored under the `String` label. Later `Query`s can refer to the results of earlier ones.
 
 The `Query` type looks like this:
 
@@ -64,4 +65,42 @@ Everywhere you use a quantifier (`ForAll` or `ForSome`), a variable is bound to 
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
 ```
 
-That `Program` would first find all children of 0, and label that collection "a". Then it would find all nodes "n" such that there exist two members "a1" and "a2" of the collection "a" for which "a1" < "a2" and "n" is a child of both "a1" and "a2". (See Test/TProgram.hs for this very Program in action.)
+That program would first find all children of 0, and label that collection "a". Then it would find all nodes "n" such that there exist two members "a1" and "a2" of the collection "a" for which "a1" < "a2" and "n" is a child of both "a1" and "a2". (See Test/TProgram.hs for this very program in action.)
+
+(`Find`, `Test` and `VarTest` are actually more general than that; all of them can refer to the set of currently-bound variables (the `Subst`), and they can take varying numbers of arguments. But the `mk*` family of functions is surely sufficient for most purposes.)
+
+
+## Some idiosyncracies of the language
+
+Most of these constraints are common sense, but alas not quite all of them.
+
+
+### Natural constraints
+
+Variables should not shadow each other.
+
+A `Source` cannot be referred to before it has been defined. For instance, the following program is not valid:
+```
+    [ ( "a", QFind $ findParents $ Right "a" ...) ]
+```
+
+Every `QAnd` must include at least one findlike clause, and every `QOr` must contain nothing but findlike clauses. (See Inspect.hs for the precise definition of `findlike`.)
+
+`QTest` and `QVarTest`, since they are not findlike, can only be invoked as a clause in a `QAnd`. (Both are filters; it doesn't make sense to run them without first having found something to filter.)
+
+
+### Not entirely natural
+
+The variables introduced by the clauses of a `QAnd` must be distinct.
+
+A variable should not bear the same name as one of the `Source`s. That is, while this is valid:
+```
+    [ ("a", ...)
+    , ("b", ForSome "a1" (Source "a") ...) ]
+```
+
+this is not:
+```
+    [ ("a", ...)
+    , ("b", ForSome "a" (Source "a") ...) ]
+```
