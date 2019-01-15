@@ -13,8 +13,8 @@ import Types
 import Util
 
 
-extendPossible :: Var -> Source -> Possible -> Subst
-  -> Either String (Possible, Set Subst)
+extendPossible :: (Ord e, Show e) => Var -> Source -> Possible e -> Subst e
+               -> Either String (Possible e, Set (Subst e))
 extendPossible v src p s =
   case varPossibilities p s src of
   Left s -> Left $ "extendPossible: error in callee:\n" ++ s
@@ -31,13 +31,14 @@ extendPossible v src p s =
 -- If dets is null, then the CondElts returned
 -- has no determinants, and the Subst is not used.
 
-varPossibilities :: Possible -> Subst -> Source
-                 -> Either String CondElts
+varPossibilities :: forall e. (Ord e, Show e)
+                 => Possible e -> Subst e -> Source
+                 -> Either String (CondElts e)
 varPossibilities    p           s        (Source v) =
   maybe (Left $ keyErr "varPossibilities" v p) Right $ M.lookup v p
 
 varPossibilities    p           s        (Source' v dets) = let
-  (pRestricted :: Possible) = M.map (f :: CondElts -> CondElts)
+  (pRestricted :: Possible e) = M.map (f :: CondElts e -> CondElts e)
                               $ M.restrictKeys p vAndDets
     where -- A Subst in p that mentions a variable other than v or
           -- one of the dets is irrelevant, as is any such key of p.
@@ -45,9 +46,9 @@ varPossibilities    p           s        (Source' v dets) = let
       f = M.map $ S.map $ flip M.restrictKeys vAndDets
   in case reconcileDetsAcrossVars pRestricted s dets of
     Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
-    Right (substs :: Set Subst) -> let
-      (possible :: Set Elt) = M.keysSet $ setSubstToCondElts v substs
-      (mce_v :: Maybe CondElts) = M.lookup v p
+    Right (substs :: Set (Subst e)) -> let
+      (possible :: Set e) = M.keysSet $ setSubstToCondElts v substs
+      (mce_v :: Maybe (CondElts e)) = M.lookup v p
       in maybe (Left $ keyErr "varPossibilities" v p)
          (Right . flip M.restrictKeys possible) mce_v
 
@@ -71,12 +72,13 @@ varPossibilities    p           s        (Source' v dets) = let
 -- so if there is any way to reconcile an Elt across Substs,
 -- don't search for yet more ways.
 
-reconcileDetsAcrossVars :: Possible -> Subst -> Set Var
-                        -> Either String (Set Subst)
+reconcileDetsAcrossVars :: forall e. (Ord e, Show e)
+                        => Possible e -> Subst e -> Set Var
+                        -> Either String (Set (Subst e))
 reconcileDetsAcrossVars    p           s        dets
   | null dets = Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
   | True = let
-    se = S.map (impliedSubsts p s) dets :: Set (Either String (Set Subst))
+    se = S.map (impliedSubsts p s) dets :: Set (Either String (Set (Subst e)))
     lefts = S.filter isLeft se
     in case null lefts of
       False -> Left $ S.foldr (++) "" $ S.map (fromLeft "") lefts
@@ -85,13 +87,14 @@ reconcileDetsAcrossVars    p           s        dets
 -- | If s maps v to e, then `impliedSubsts p s v` returns all Substs
 -- that could lead to the result v=e.
 
-impliedSubsts :: Possible -> Subst -> Var -> Either String (Set Subst)
+impliedSubsts :: forall e. (Ord e, Show e)
+              => Possible e -> Subst e -> Var -> Either String (Set (Subst e))
 impliedSubsts p s v =
-  case (M.lookup v s :: Maybe Elt) of
+  case (M.lookup v s :: Maybe e) of
   Nothing -> Left $ keyErr "impliedSubsts / Subst" v s
-  Just (vIs :: Elt) -> case M.lookup v p of
+  Just (vIs :: e) -> case M.lookup v p of
     Nothing -> Left $ keyErr "impliedSubsts / Possible" v p
-    Just (vCouldHaveBeen :: CondElts) -> case M.lookup vIs vCouldHaveBeen of
+    Just (vCouldHaveBeen :: CondElts e) -> case M.lookup vIs vCouldHaveBeen of
       Nothing -> Left $ keyErr "impliedSubsts / CondElts" vIs vCouldHaveBeen
       Just ss -> Right ss
 
@@ -101,9 +104,10 @@ impliedSubsts p s v =
 -- | `setSubstToCondElts v ss` is the simple union of running, across
 -- all s in ss, `setSubstToCondElts v s`.
 
-setSubstToCondElts :: Var -> Set Subst -> CondElts
+setSubstToCondElts :: forall e. Ord e
+                   => Var -> Set (Subst e) -> CondElts e
 setSubstToCondElts v = S.foldl f M.empty where
-  f :: CondElts -> Subst -> CondElts
+  f :: CondElts e -> Subst e -> CondElts e
   f ces subst = case substToCondElts v subst of
     Nothing   -> ces
     Just ces' -> M.unionWith S.union ces ces'
@@ -111,7 +115,7 @@ setSubstToCondElts v = S.foldl f M.empty where
 -- | `substToCondElts v s` constructs a `CondElts` that maps `v` to the
 -- other elements of the `Subst`. This is possible iff `v`is in the `Subst`.
 
-substToCondElts :: Var -> Subst -> Maybe CondElts
+substToCondElts :: Var -> Subst e -> Maybe (CondElts e)
 substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
@@ -128,13 +132,13 @@ substToCondElts v subst = do
 -- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
 -- (Each determinant of a VarFunc implies a separate CondElts for it.)
 
-reconcileCondElts :: Set CondElts -> CondElts
+reconcileCondElts :: forall e. Ord e => Set (CondElts e) -> CondElts e
 reconcileCondElts ces = let
-   reconciled :: Set CondElts
+   reconciled :: Set (CondElts e)
    reconciled = let f = flip reconcileCondEltsAtElt ces
-                    keys = S.unions $ S.map M.keysSet ces :: Set Elt
+                    keys = S.unions $ S.map M.keysSet ces :: Set e
      in S.map fromJust $ S.filter isJust $ S.map f keys
-   in M.unions reconciled :: CondElts
+   in M.unions reconciled :: CondElts e
 
 -- | `reconcileCondEltsAtElt e ces` is the biggest `CondElts` possible
 -- such that each value it associates with e is consistent with each of
@@ -143,13 +147,14 @@ reconcileCondElts ces = let
 -- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
 -- (Each determinant of a VarFunc implies a separate CondElts for it.)
 
-reconcileCondEltsAtElt :: Elt -> Set CondElts -> Maybe CondElts
+reconcileCondEltsAtElt :: forall e. Ord e
+                       => e -> Set (CondElts e) -> Maybe (CondElts e)
 reconcileCondEltsAtElt e ces = do
-  let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set Subst))
+  let maybeConds = S.map (M.lookup e) ces :: Set (Maybe (Set (Subst e)))
     -- the conditions under which `e` can obtain
   case S.member Nothing maybeConds of
     True -> Nothing
-    False -> let conds = S.map fromJust maybeConds :: Set (Set Subst)
+    False -> let conds = S.map fromJust maybeConds :: Set (Set (Subst e))
                  rConds = reconcile conds
       in if null rConds then Nothing
          else Just $ M.singleton e rConds
@@ -159,28 +164,28 @@ reconcileCondEltsAtElt e ces = do
 
 -- | `reconcile ss` finds every `Subst` that reconciles a `Subst`
 -- from every member of ss.
-reconcile :: Set (Set Subst) -> Set Subst
+reconcile :: Ord e => Set (Set (Subst e)) -> Set (Subst e)
 reconcile ss = if null ss then S.empty
                else S.foldl reconcile2sets min rest
   where (min, rest) = S.deleteFindMin ss -- like head-tail decomposition
 
 -- | `reconcile2sets ss1 ss2` is every `Subst` that reconciles
 -- something from ss1 with something from ss2.
-reconcile2sets :: Set Subst -> Set Subst -> Set Subst
+reconcile2sets :: Ord e => Set (Subst e) -> Set (Subst e) -> Set (Subst e)
 reconcile2sets ss1 ss2 = S.unions $ S.map (\s -> reconcile1ToMany s ss2) ss1
 
 -- | In `reconcile1ToMany s ss`, there is at most one way to merge s
 -- with every s' from ss. This collects them.
-reconcile1ToMany :: Subst -> Set Subst -> Set Subst
+reconcile1ToMany :: Ord e => Subst e -> Set (Subst e) -> Set (Subst e)
 reconcile1ToMany s ss = S.map fromJust $ S.filter isJust
                         $ S.map (reconcile2 s) ss
 
 -- | If they assign different values to the same variable, it's Nothing.
 -- Otherwise it's their union.
-reconcile2 :: Subst -> Subst -> Maybe Subst
+reconcile2 :: forall e. Eq e => Subst e -> Subst e -> Maybe (Subst e)
 reconcile2 s t = S.foldr f (Just M.empty) allKeys where
   allKeys = S.union (M.keysSet s) (M.keysSet t) :: Set Var
-  f :: Var -> Maybe Subst -> Maybe Subst
+  f :: Var -> Maybe (Subst e) -> Maybe (Subst e)
   f _ Nothing = Nothing -- short-circuit (hence foldr)
   f v (Just acc) =
     if        S.member v (M.keysSet s)

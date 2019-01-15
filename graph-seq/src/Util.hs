@@ -24,7 +24,7 @@ isSubsetOfMap small big = M.foldrWithKey f True small where
 
 -- | = functions that use the Types module
 
-queryDets :: Query -> Set Var
+queryDets :: Query e sp -> Set Var
 queryDets (QFind f)        = findDets f
 queryDets (QTest t)        = testDets t
 queryDets (QVarTest t)     = varTestDets t
