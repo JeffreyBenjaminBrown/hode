@@ -13,7 +13,20 @@ import Util
 
 
 validProgram :: [(Var,Query)] -> Either String ()
-validProgram vqs = case null bad of
+validProgram vqs = let
+  wholeProgramTest, individualQueryTests :: Either String ()
+  wholeProgramTest     = noPrematureReference vqs
+  individualQueryTests = foldl f (Right ()) vqs
+    where
+      f :: Either String () -> (Var, Query) -> Either String ()
+      f e@(Left _) _     = e
+      f (Right ()) (_,q) = validQuery q
+  in case wholeProgramTest of
+  e@(Left _) -> e
+  Right () -> individualQueryTests
+
+noPrematureReference :: [(Var,Query)] -> Either String ()
+noPrematureReference vqs = case null bad of
   True -> Right ()
   False -> Left $ "validProgram: variables " ++ show bad
            ++ " used before being defined.\n"

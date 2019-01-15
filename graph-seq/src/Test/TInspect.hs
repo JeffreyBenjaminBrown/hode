@@ -19,29 +19,28 @@ testModuleQueryClassify = TestList [
   , TestLabel "test_quantifies" test_quantifies
   , TestLabel "test_disjointExistentials" test_disjointExistentials
   , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
-  , TestLabel "test_validProgram" test_validProgram
+  , TestLabel "test_noPrematureReference" test_noPrematureReference
   -- these seem too easy to bother testing:
     -- validQuery
     -- feasible'Junctions
     -- findsAndTestsOnlyQuantifiedVars
   ]
 
--- TODO ? Test some big recursive queries
-test_validProgram = TestCase $ do
+test_noPrematureReference = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       errMsg :: [Var] -> Either String ()
       errMsg vs = Left $ "validProgram: variables " ++ show (S.fromList vs)
                   ++ " used before being defined.\n"
   assertBool "1" $ errMsg ["a","b"]
-    == validProgram [ ("a", QAnd [ QFind $ findParents $ Right "a"
+    == noPrematureReference [ ("a", QAnd [ QFind $ findParents $ Right "a"
                                  , QFind $ findParents $ Right "b" ] ) ]
   assertBool "2" $ errMsg ["a","b","d"]
-    == validProgram [ ("c", QAnd [ QFind $ findParents $ Right "a"
+    == noPrematureReference [ ("c", QAnd [ QFind $ findParents $ Right "a"
                                  , QFind $ findParents $ Right "b" ] )
                     , ("d", QAnd [ QFind $ findParents $ Right "c"
                                  , QFind $ findParents $ Right "d" ] ) ]
   assertBool "3" $ Right ()
-    == validProgram [ ("a", QFind $ findParents $ Left 3)
+    == noPrematureReference [ ("a", QFind $ findParents $ Left 3)
                     , ("b", QFind $ findParents $ Right "a") ]
 
 test_internalAndExternalVars = TestCase $ do
