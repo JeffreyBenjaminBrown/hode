@@ -26,15 +26,15 @@ test_runProgram = TestCase $ do
                                             , (3,S.singleton M.empty) ] ) )
   assertBool "2" $ runProgram d
     [ ( "b", ( QAnd [ QFind $ findChildren $ Left 3
-                    , QTest $ isNot_1 $ Left 2 ] ) ) ]
+                    , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right (M.singleton "b" ( M.fromList [ (3, S.singleton M.empty)
                                            , (4, S.singleton M.empty) ] ) )
   assertBool "3" $ runProgram d
     [ ( "a", QFind $ findParents $ Left 2)
     , ( "b", ( ForSome "a1" (Source "a") $
                QAnd [ QFind $ findChildren $ Right "a1"
-                    , QTest $ isNot_1 $ Right "a1"
-                    , QTest $ isNot_1 $ Left 2 ] ) ) ]
+                    , QTest $ mkTest (/=) $ Right "a1"
+                    , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList
                [ ( "a", M.fromList [ (0, S.singleton M.empty)
                                    , (3, S.singleton M.empty) ] )
@@ -49,9 +49,9 @@ test_runProgram = TestCase $ do
 
   assertBool "4" $ runProgram d
     [ ("a", QFind $ findChildren $ Left 0)
-    , ("b", ( ForAll "a1" (Source "a")
-              ( ForAll "a2" (Source "a")
-                (QAnd [ QVarTest $ isNot_2 (Right "a1") (Right "a2")
+    , ("b", ( ForSome "a1" (Source "a")
+              ( ForSome "a2" (Source "a")
+                (QAnd [ QVarTest $ mkVarTest (/=) (Right "a1") (Right "a2")
                       , QFind $ findChildren $ Right "a1"
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
     == Right ( M.fromList
@@ -62,29 +62,3 @@ test_runProgram = TestCase $ do
                                             [ M.fromList [("a1",1),("a2",2)]
                                             , M.fromList [("a1",2),("a2",1)]
                                             ] ) ) ] ) ] )
-
-wut = let d = graph [ (0, [1,2,3] )
-                , (1, [11,12] )
-                , (2, [   12,13] )
-                , (3, [] ) ]
-
-  in runProgram d
-     [ ("a", QFind $ findChildren $ Left 0)
-     , ("b", ( ForSome "a1" (Source "a")
-               ( ForSome "a2" (Source "a")
-                 (QAnd [ QVarTest $ isNot_2 (Right "a1") (Right "a2")
-                       , QFind $ findChildren $ Right "a1"
-                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
-
--- What it actually returns:
---Right (fl [("a",fl [(1,fl [fl []])
---                   ,(2,fl [fl []])
---                   ,(3,fl [fl []])])
---          ,("b",fl [(11,fl [fl [("a1",1)
---                               ,("a2",1)]])
---                   ,(12,fl [fl [("a1",1)
---                               ,("a2",1)]
---                           ,fl [("a1",2)
---                               ,("a2",2)]])
---                   ,(13,fl [fl [("a1",2)
---                               ,("a2",2)]])])])

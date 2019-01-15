@@ -29,30 +29,30 @@ unEitherEltVar s (Right v) = (M.lookup v s, Just v)
 
 -- | = `Test`s
 
-isNot_1 :: forall e sp. (Eq e, Show e)
-        => Either e Var -> Test e sp
-isNot_1 eev = Test go deps where
+mkTest :: forall e sp. (Eq e, Show e)
+        => (e -> e -> Bool) -> Either e Var -> Test e sp
+mkTest compare eev = Test go deps where
   go :: sp -> Subst e -> e -> Bool
   go _ s = let (me, mv) = unEitherEltVar s eev :: (Maybe e, Maybe Var)
                err = error $ keyErr "isNot_1" (fromJust mv) s
-           in maybe err (/=) me
+           in maybe err compare me
   deps :: Set Var
   deps = S.fromList $ catMaybes $ map (either (const Nothing) Just) [eev]
 
 
 -- | = `VarTest`s
 
-isNot_2 :: forall e sp. (Eq e, Show e)
-        => Either e Var -> Either e Var -> VarTest e sp
-isNot_2 eev eev' = VarTest go deps where
+mkVarTest :: forall e sp. (Eq e, Show e)
+        => (e -> e -> Bool) -> Either e Var -> Either e Var -> VarTest e sp
+mkVarTest compare eev eev' = VarTest go deps where
   go :: sp -> Subst e -> Bool
   go _ s = let (me , mv ) = unEitherEltVar s eev  :: (Maybe e, Maybe Var)
                (me', mv') = unEitherEltVar s eev' :: (Maybe e, Maybe Var)
                err  = error $ keyErr "isNot_2" (fromJust mv ) s
                err' = error $ keyErr "isNot_2" (fromJust mv') s
     in case me of Nothing -> err
-                  Just _ -> case me' of Nothing -> err'
-                                        Just _ -> me == me'
+                  Just e -> case me' of Nothing -> err'
+                                        Just e' -> compare e e'
   deps :: Set Var
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev,eev']

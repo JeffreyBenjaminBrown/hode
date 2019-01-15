@@ -27,20 +27,21 @@ testModuleQuery = TestList [
 
 test_isNot_2 = TestCase $ do
   let (a,b) = ("a","b")
-      t_34 = isNot_2 (Left 3)    (Left 4)    :: VarTest Int (Graph Int)
-      t_ab = isNot_2 (Right "a") (Right "b") :: VarTest Int (Graph Int)
+      t_34, t_ab :: VarTest Int (Graph Int)
+      t_34 = mkVarTest (/=) (Left 3)    (Left 4)
+      t_ab = mkVarTest (/=) (Right "a") (Right "b")
       a1b1 = M.fromList [(a,1),(b,1)]
       a1b2 = M.fromList [(a,1),(b,2)]
-  assertBool "1" $ False == varTestFunction t_34 (graph []) M.empty
-  assertBool "2" $ True  == varTestFunction t_ab (graph []) a1b1
-  assertBool "3" $ False == varTestFunction t_ab (graph []) a1b2
+  assertBool "1" $ True  == varTestFunction t_34 (graph []) M.empty
+  assertBool "2" $ False == varTestFunction t_ab (graph []) a1b1
+  assertBool "3" $ True  == varTestFunction t_ab (graph []) a1b2
 
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       aOf_b = "aOf_b"
       src_aOf_b = Source' a $ S.singleton b
 
-      isnt v = QTest $ isNot_1 $ Right v
+      isnt v = QTest $ mkTest (/=) $ Right v
       d = graph [ (0, [1,2        ] )
                 , (3, [  2,3,4    ] )
                 , (10,[11, 23     ] ) ]
@@ -65,7 +66,7 @@ test_runFindlike_mixed = TestCase $ do
 testRunQAnd = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: (Subst Int)) = M.singleton a 2
-      nota = QTest $ isNot_1 $ Right a
+      nota = QTest $ mkTest (/=) $ Right a
       d = graph [ (0, [1,2    ] )
                 , (3, [  2,3,4] ) ]
       (p :: (Possible Int)) = M.singleton a $
@@ -78,8 +79,8 @@ testRunQAnd = TestCase $ do
 testRunTestlike = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: (Subst Int)) = M.singleton a 2
-      (not3 :: Test Int (Graph Int)) = isNot_1 $ Left 3
-      (nota :: Test Int (Graph Int)) = isNot_1 $ Right a
+      (not3 :: Test Int (Graph Int)) = mkTest (/=) $ Left 3
+      (nota :: Test Int (Graph Int)) = mkTest (/=) $ Right a
       d = graph $ map (,[]) [1..3]
       (p :: (Possible Int)) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
@@ -171,9 +172,9 @@ testRunTest = TestCase $ do
       (a2 :: (Subst Int)) = M.singleton a 2
       (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton $ M.empty) ]
-  assertBool "1" $ runTest g a2 (isNot_1 $ Left 1) ce
+  assertBool "1" $ runTest g a2 (mkTest (/=) $ Left 1) ce
     == M.singleton 2 (S.singleton M.empty)
-  assertBool "2" $ runTest g a2 (isNot_1 $ Right a) ce
+  assertBool "2" $ runTest g a2 (mkTest (/=) $ Right a) ce
     == M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] )
 
 test_runFindlike_Find = TestCase $ do
