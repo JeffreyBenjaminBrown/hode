@@ -32,7 +32,7 @@ test_runProgram = TestCase $ do
   assertBool "3" $ runProgram d
     [ ( "a", QFind $ findParents $ Left 2)
     , ( "b", ( ForSome "a1" (Source "a") $
-               QAnd [ QFind $ findChildren $ Right "a1"
+               QAnd [ QFind $  mkFind "children" children $ Right "a1"
                     , QTest $ mkTest (/=) $ Right "a1"
                     , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList
@@ -51,14 +51,13 @@ test_runProgram = TestCase $ do
     [ ("a", QFind $ findChildren $ Left 0)
     , ("b", ( ForSome "a1" (Source "a")
               ( ForSome "a2" (Source "a")
-                (QAnd [ QVarTest $ mkVarTest (/=) (Right "a1") (Right "a2")
+                (QAnd [ QVarTest $ mkVarTest (<) (Right "a1") (Right "a2")
                       , QFind $ findChildren $ Right "a1"
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
     == Right ( M.fromList
                [ ( "a", M.fromList [ (1, S.singleton M.empty)
                                    , (2, S.singleton M.empty)
                                    , (3, S.singleton M.empty) ] )
-               , ( "b", M.fromList [ (12, ( S.fromList
-                                            [ M.fromList [("a1",1),("a2",2)]
-                                            , M.fromList [("a1",2),("a2",1)]
-                                            ] ) ) ] ) ] )
+               , ( "b", M.fromList [ (12, ( S.singleton
+                                            $ M.fromList [("a1",1),("a2",2)]
+                                          ) ) ] ) ] )

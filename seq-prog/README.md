@@ -1,8 +1,9 @@
 # Nested existentialy and universally quantifiable search over arbitrary spaces
 
-## An example search
+## Introduction: An example search
 
-Suppose you wanted to define the following program:
+Suppose your space is a graph, equipped with functions "parents" and "children", both of which have the type `Graph e -> e -> Set e`. (See Graph.hs for one such implementation.) Suppose further that you'd like to define the following program:
+
 Find every child of 2.
   Call That collection "a".
 Find every node "n" satisfying the following critieria:
@@ -11,13 +12,17 @@ Find every node "n" satisfying the following critieria:
     n should not be equal to "a1", nor to the node 2.
   Call that collection "b".
 
-Here's how you would write that:    
-    
-    [ ( "a", QFind $ findParents $ Left 2)
-    , ( "b", ( ForSome "a1" (Source "a") $
-               QAnd [ QFind $ findChildren $ Right "a1"
-                    , QTest $ isNot_1 $ Right "a1"
-                    , QTest $ isNot_1 $ Left 2 ] ) ) ]
+Here's how you would write that:
+
+```
+[ ( "a", QFind $ findParents $ Left 2)
+, ( "b", ( ForSome "a1" (Source "a") $
+           QAnd [ QFind $ mkFind "children" children $ Right "a1"
+                , QTest $ mkTest (/=) $ Right "a1"
+                , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
+```
+
+See Test/TProgram.hs for that very Program in action. (The String argument to `mkFind` is only there to make errors more intelligible.)
 
 
 ## The full vocabulary
@@ -40,22 +45,19 @@ The QAnd and QOr constructors take a list of Queries and find their intersection
 
 The QFind, QTest and QVarTest constructors are defined in terms of the Find, Test and VarTest types. See the code for the full spec, but here they are in brief:
 
-The important part of Find is a function of type `sp -> Subst e -> Set e`. `Subst e` means `substitution`, a term I'm borrowing from Prolog: it is an assignment of variable names (Strings) to values of type `e`. So a Find is capable of, given a space and an assignment of variable names to elements of that space, to return a set of elements of the space. An example would be "find all the children of the variable x", or "find all the children of 2". (Note that the latter makes sense even with an empty Subst; the former only makes sense if the Subst assigns a value to the string "x".)
+A Find is used to find stuff in the space. You can make something of type Find by running mkFind. mkFind expects a function of type `(sp -> e -> Set e)`. That is, given a space sp and an element e of it, this function can produce a bunch of other elements of the space.
 
-A Test includes a function of type `sp -> Subst e -> e -> Bool`. Tests are used to filter the results of Finds.
+A Test is used to filter things that have been Found. You can make a Test by running mkTest, which expects a function of type `(e -> e -> Bool)`.
 
-A VarTest includes a function of type `sp -> Subst e -> Bool`. A VarTest is useful for narrowing the set of Substs under consideration. For instance, the Query
-
-
--- TODO: This doesn't work.
-
+Everywhere you use a quantifier (ForAll or ForSome), a variable is bound to every possible value of that quantifier's Source. A VarTest is used to reduce the combinations of variables tried. You can make VarTests with mkVarTest. Here's an example:
 
 ```
-ForSOme "a1" (Source "a")
-  (ForSOme "a2" (Source "a")
-    (QAnd [ QVarTest $ isNot_2 (Right "a1") (Right "a2")
-          , QFind $ findChildren $ Right "a1"
-          , QFind $ findChildren $ Right "a2" ] ) )
+    [ ("a", QFind $ findChildren $ Left 0)
+    , ("b", ( ForSome "a1" (Source "a")
+              ( ForSome "a2" (Source "a")
+                (QAnd [ QVarTest $ mkVarTest (<) (Right "a1") (Right "a2")
+                      , QFind $ findChildren $ Right "a1"
+                      , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
 ```
-  
-would find all nodes "n" such that for two distinct members "a1" and "a2" of the set "a", "n" is a child of both "a1" and "a2".
+
+would find all nodes "n" such that there exist two members "a1" and "a2" of the set "a" for which "a1" < "a2" and "n" is a child of both "a1" and "a2". (See Test/TProgram.hs for this very Program in action.)

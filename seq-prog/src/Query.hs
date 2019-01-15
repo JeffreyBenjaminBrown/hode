@@ -60,9 +60,9 @@ mkVarTest compare eev eev' = VarTest go deps where
 
 -- | = `Find`s
 
-toFind :: forall e sp. (Show e) =>
+mkFind :: forall e sp. (Show e) =>
   String -> (sp -> e -> Set e) -> (Either e Var -> Find e sp)
-toFind findName finder eev = Find go deps where
+mkFind findName finder eev = Find go deps where
   go :: sp -> Subst e -> Set e
   go g s = maybe err (finder g) me where
       (me, mv) = unEitherEltVar s eev :: (Maybe e, Maybe Var)
