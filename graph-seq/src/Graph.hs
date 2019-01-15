@@ -1,5 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Graph where
@@ -20,8 +18,6 @@ data Graph e = Graph {
   , graphChildren :: Map e (Set e)   -- ^ keys are parents
   , graphParents  :: Map e (Set e) } -- ^ keys are children
   deriving (Show, Eq, Ord)
-
-instance Space e (Graph e)
 
 
 -- | Building and reading graphs

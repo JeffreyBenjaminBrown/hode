@@ -1,5 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FunctionalDependencies #-}
 module Types where
 
 import           Data.Map (Map)
@@ -8,7 +6,13 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 
-class Space e sp | sp -> e
+-- | The type variables `sp` and `e` below stand for a space and the
+-- elements of that space. They could be reified via womething like this:
+--{-# LANGUAGE MultiParamTypeClasses #-}
+--{-# LANGUAGE FunctionalDependencies #-}
+--class Space e sp | sp -> e
+--instance Space e (Graph e)
+
 
 type Var = String
   -- ^ When a `Query` creates a `Var`, the result has no `varDets`.
