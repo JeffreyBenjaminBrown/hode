@@ -35,7 +35,12 @@ test_validProgram = TestCase $ do
   assertBool "1" $ errMsg ["a","b"]
     == validProgram [ ("a", QAnd [ QFind $ findParents $ Right "a"
                                  , QFind $ findParents $ Right "b" ] ) ]
-  assertBool "2" $ Right ()
+  assertBool "2" $ errMsg ["a","b","d"]
+    == validProgram [ ("c", QAnd [ QFind $ findParents $ Right "a"
+                                 , QFind $ findParents $ Right "b" ] )
+                    , ("d", QAnd [ QFind $ findParents $ Right "c"
+                                 , QFind $ findParents $ Right "d" ] ) ]
+  assertBool "3" $ Right ()
     == validProgram [ ("a", QFind $ findParents $ Left 3)
                     , ("b", QFind $ findParents $ Right "a") ]
 

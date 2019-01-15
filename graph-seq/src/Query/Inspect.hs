@@ -18,14 +18,14 @@ validProgram vqs = case null bad of
   False -> Left $ "validProgram: variables " ++ show bad
            ++ " used before being defined.\n"
   where
-  f :: (Var, Query) -> (Set Var, Set Var) -> (Set Var, Set Var)
-  f (v,q) (defined,bad) =
+  (_,bad) = foldl f (S.empty, S.empty) vqs :: (Set Var, Set Var)
+  f :: (Set Var, Set Var) -> (Var, Query) -> (Set Var, Set Var)
+  f (defined,bad) (v,q) =
     -- "defined" are variables defined by previous Queries.
     -- "bad" are variables used before being defined.
     let (_,ext) = internalAndExternalVars q
         moreBad = S.filter (not . flip S.member defined) ext
     in (S.insert v defined, S.union bad moreBad)
-  (_,bad) = foldr f (S.empty, S.empty) vqs :: (Set Var, Set Var)
 
 validQuery :: Query -> Either String ()
 validQuery q =
