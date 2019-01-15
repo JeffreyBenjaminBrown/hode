@@ -19,11 +19,15 @@ import Query.Inspect
 runProgram :: Data
            -> [(Var,Query)] -- ^ queries can depend on earlier ones
            -> Either String Possible
-runProgram d vqs = let
-  go :: (Var, Query) -> Either String Possible -> Either String Possible
-  go _ (Left s) = Left s
-  go (v,q) (Right p) =
-    case runFindlike d p q (M.empty :: Subst) :: Either String CondElts
-    of Left s -> Left $ "runProgram: error in callee:\n" ++ s
-       Right ec -> Right $ M.insert v ec p
-  in foldr go (Right M.empty) vqs
+runProgram d vqs = case validProgram vqs of
+  Left s -> Left s
+  Right () ->  foldl go (Right M.empty) vqs
+    where
+    go :: Either String Possible -> (Var, Query) -> Either String Possible
+    go (Left s) _ = Left s
+    go (Right p) (v,q) =
+      case runFindlike d p q (M.empty :: Subst) :: Either String CondElts
+      of Left s -> Left $ "runProgram: error in callee:\n" ++ s
+         Right ec -> Right $ M.insert v ec p
+
+

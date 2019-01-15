@@ -22,7 +22,18 @@ testModuleQuery = TestList [
   , TestLabel "testRunTestlike" testRunTestlike
   , TestLabel "testRunQAnd" testRunQAnd
   , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
+  , TestLabel "test_isNot_2" test_isNot_2
   ]
+
+test_isNot_2 = TestCase $ do
+  let (a,b) = ("a","b")
+      t_34 = isNot_2 (Left 3)    (Left 4)    :: VarTest
+      t_ab = isNot_2 (Right "a") (Right "b") :: VarTest
+      a1b1 = M.fromList [(a,1),(b,1)]
+      a1b2 = M.fromList [(a,1),(b,2)]
+  assertBool "1" $ False == varTestFunction t_34 (graph []) M.empty
+  assertBool "2" $ True  == varTestFunction t_ab (graph []) a1b1
+  assertBool "3" $ False == varTestFunction t_ab (graph []) a1b2
 
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]

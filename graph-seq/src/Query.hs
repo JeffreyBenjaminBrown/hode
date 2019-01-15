@@ -12,12 +12,63 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Query.Inspect
 import Subst
 import Types
-import Query.Inspect
+import Util
 
 
--- | = Atomic queries
+-- | == Atomic queries
+
+-- | = Building atomic queries
+
+unEitherEltVar :: Subst -> Either Elt Var -> (Maybe Elt, Maybe Var)
+unEitherEltVar _ (Left e) = (Just e, Nothing)
+unEitherEltVar s (Right v) = (M.lookup v s, Just v)
+
+
+-- | = `Test`s
+
+isNot_1 :: Either Elt Var -> Test
+isNot_1 eev = Test go deps where
+  go :: Data -> Subst -> Elt -> Bool
+  go _ s = let (me, mv) = unEitherEltVar s eev :: (Maybe Elt, Maybe Var)
+               err = error $ keyErr "isNot_1" (fromJust mv) s
+           in maybe err (/=) me
+  deps :: Set Var
+  deps = S.fromList $ catMaybes $ map (either (const Nothing) Just) [eev]
+
+
+-- | = `VarTest`s
+
+isNot_2 :: Either Elt Var -> Either Elt Var -> VarTest
+isNot_2 eev eev' = VarTest go deps where
+  go :: Data -> Subst -> Bool
+  go _ s = let (me , mv ) = unEitherEltVar s eev  :: (Maybe Elt, Maybe Var)
+               (me', mv') = unEitherEltVar s eev' :: (Maybe Elt, Maybe Var)
+               err  = error $ keyErr "isNot_2" (fromJust mv ) s
+               err' = error $ keyErr "isNot_2" (fromJust mv') s
+    in case me of Nothing -> err
+                  Just _ -> case me' of Nothing -> err'
+                                        Just _ -> me == me'
+  deps :: Set Var
+  deps = S.fromList $ catMaybes
+    $ map (either (const Nothing) Just) [eev,eev']
+
+
+-- | = `Find`s
+
+toFind :: String -> (Data -> Int -> Set Int) -> (Either Elt Var -> Find)
+toFind findName finder eev = Find go deps where
+  go :: Data -> Subst -> Set Elt
+  go g s = maybe err (finder g) me where
+      (me, mv) = unEitherEltVar s eev :: (Maybe Elt, Maybe Var)
+      err = error $ keyErr findName (fromJust mv) s
+  deps = S.fromList $ catMaybes
+    $ map (either (const Nothing) Just) [eev]
+
+
+-- | = Running atomic queries
 
 runVarTest :: Data -> Subst -> VarTest -> Bool
 runVarTest d s t = (varTestFunction t) d s
