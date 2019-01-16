@@ -1,1 +1,0 @@
-# rslt-haskell
