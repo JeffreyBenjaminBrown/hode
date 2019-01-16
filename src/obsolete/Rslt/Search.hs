@@ -15,33 +15,60 @@ import Space.Rslt.Index
 import Util
 
 
-holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
-holdsPosition i (r,a) = case positionsIn i a of
-  Nothing -> Nothing
-  Just ps -> M.lookup r ps
+type RSubst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
+
+data RQuery = RQImg ImgOfExpr
+   |  RQHasInRole Role RQuery
+   |  RQHasInRoles [(Role, RQuery)]
+   |  RQIntersect [RQuery]  |  RQUnion [RQuery]
+   |  RQNot RQuery  |  RRQVariety Expr'
+   |  RQVar String
+
+-- | Positive `RQuery`s are things you can search for.
+-- Non-positive `RQuery`s are too broad to search for.
+-- `RQVar` is neither positive nor negative.
+isPositiveRQuery, isNegativeRQuery, isVariableRQuery :: RQuery -> Bool
+isPositiveRQuery (RQImg _)         = True
+isPositiveRQuery (RQHasInRole _ _) = True
+isPositiveRQuery (RQHasInRoles _)  = True
+isPositiveRQuery (RQIntersect _)   = True
+isPositiveRQuery (RQUnion _)       = True
+isPositiveRQuery _                = False
+-- Will I need a recursive version?
+  --isPositiveRQuery (RQHasInRole _ q)  =            isPositiveRQuery q
+  --isPositiveRQuery (RQHasInRoles qrs) = or  $ map (isPositiveRQuery . snd) qrs
+  --isPositiveRQuery (RQIntersect qs)   = or  $ map  isPositiveRQuery        qs
+  --isPositiveRQuery (RQUnion qs)       = and $ map  isPositiveRQuery        qs
+
+isNegativeRQuery (RQNot _)     = True
+isNegativeRQuery (RRQVariety _) = True
+isNegativeRQuery _            = False
+
+isVariableRQuery (RQVar _) = True
+isVariableRQuery _        = False
 
 negativeRQuery :: Index -> RQuery -> Addr -> Bool
 negativeRQuery idx (RQNot q) a = not $ elem a $ search idx q
 negativeRQuery idx (RRQVariety e) a = Just e == (fst <$> variety idx a)
 negativeRQuery _ _ _ = error "negativeRQuery called for a non-negative query."
 
-joinSubsts :: [Subst] -> Either () Subst
-joinSubsts = foldl f (Right M.empty) where
-  f :: Either () Subst -> Subst -> Either () Subst
+joinRSubsts :: [RSubst] -> Either () RSubst
+joinRSubsts = foldl f (Right M.empty) where
+  f :: Either () RSubst -> RSubst -> Either () RSubst
   f (Left ()) _ = Left ()
-  f (Right s1) s2 = join2Substs s1 s2
+  f (Right s1) s2 = join2RSubsts s1 s2
 
-join2Substs :: Subst -> Subst -> Either () Subst
-join2Substs m n = case fromM of Left () -> Left ()
-                                Right sub -> Right $ M.union sub fromN
+join2RSubsts :: RSubst -> RSubst -> Either () RSubst
+join2RSubsts m n = case fromM of Left () -> Left ()
+                                 Right sub -> Right $ M.union sub fromN
  -- `fromM` = the result of unifying each elt of `m` with `n`.
    -- If that unification fails, we never need to find `fromN`.
  -- `fromN` = what is left in `n` that matched with nothing in `m`.
  where fromN = S.foldl f M.empty $ S.difference (M.keysSet n) (M.keysSet m)
-         where f :: Subst -> Var -> Subst
+         where f :: RSubst -> Var -> RSubst
                f sub v = M.insert v ((M.!) n v) sub
        fromM = M.foldlWithKey f (Right M.empty) m where
-         f :: Either () Subst -> Var -> Addr -> Either () Subst
+         f :: Either () RSubst -> Var -> Addr -> Either () RSubst
          f eSub v a = case eSub of
            Left () -> eSub
            Right sub -> case M.lookup v n of
@@ -50,25 +77,25 @@ join2Substs m n = case fromM of Left () -> Left ()
              _                 -> Left ()
 
 -- TODO next : RQHasInRole Role RQuery, RQVar String
--- TODO : test `searchSubst`, once cases that make nonempty `Subst`s are written
+-- TODO : test `searchRSubst`, once cases that make nonempty `RSubst`s are written
 -- TODO : `zipWith const` might help for speed.
   -- e.g. because `S.intersection (S.fromList [1]) (S.fromList [1..)) hangs
   -- https://www.reddit.com/r/haskell/comments/9zf1tj/zipwith_const_is_my_favorite_haskell_function/
-searchSubst :: Index -> RQuery -> Map Addr Subst
-searchSubst idx q@(RQImg _) = M.fromList $ S.toList
+searchRSubst :: Index -> RQuery -> Map Addr RSubst
+searchRSubst idx q@(RQImg _) = M.fromList $ S.toList
                              $ S.map (, M.empty) $ search idx q
 
-searchSubst idx qhr@(RQHasInRoles rqs) = M.empty where -- TODO : finish
+searchRSubst idx qhr@(RQHasInRoles rqs) = M.empty where -- TODO : finish
   (pos,rem)  = L.partition (isPositiveRQuery . snd) rqs
   (neg,vars) = L.partition (isNegativeRQuery . snd) rem
   (candidates :: Set Addr) = search idx $ RQHasInRoles pos
 
-searchSubst idx (RQIntersect qs) = S.foldl f M.empty inAll  where
-  (inSome :: [Map Addr Subst]) = map (searchSubst idx) qs
+searchRSubst idx (RQIntersect qs) = S.foldl f M.empty inAll  where
+  (inSome :: [Map Addr RSubst]) = map (searchRSubst idx) qs
   (inAll :: Set Addr) = foldl S.intersection S.empty
                         $ (map M.keysSet inSome :: [Set Addr])
-  f :: Map Addr Subst -> Addr -> Map Addr Subst
-  f m a = let eSub = joinSubsts $ catMaybes $ map (M.lookup a) inSome
+  f :: Map Addr RSubst -> Addr -> Map Addr RSubst
+  f m a = let eSub = joinRSubsts $ catMaybes $ map (M.lookup a) inSome
           in case eSub of Left () -> m
                           Right sub -> M.insert a sub m
 

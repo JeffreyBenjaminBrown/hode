@@ -60,34 +60,7 @@ data Index = Index {
   , positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
   }
 
-type Subst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
-
-data RQuery = RQImg ImgOfExpr
-   |  RQHasInRole Role RQuery
-   |  RQHasInRoles [(Role, RQuery)]
-   |  RQIntersect [RQuery]  |  RQUnion [RQuery]
-   |  RQNot RQuery  |  RRQVariety Expr'
-   |  RQVar String
-
--- | Positive `RQuery`s are things you can search for.
--- Non-positive `RQuery`s are too broad to search for.
--- `RQVar` is neither positive nor negative.
-isPositiveRQuery, isNegativeRQuery, isVariableRQuery :: RQuery -> Bool
-isPositiveRQuery (RQImg _)         = True
-isPositiveRQuery (RQHasInRole _ _) = True
-isPositiveRQuery (RQHasInRoles _)  = True
-isPositiveRQuery (RQIntersect _)   = True
-isPositiveRQuery (RQUnion _)       = True
-isPositiveRQuery _                = False
--- Will I need a recursive version?
-  --isPositiveRQuery (RQHasInRole _ q)  =            isPositiveRQuery q
-  --isPositiveRQuery (RQHasInRoles qrs) = or  $ map (isPositiveRQuery . snd) qrs
-  --isPositiveRQuery (RQIntersect qs)   = or  $ map  isPositiveRQuery        qs
-  --isPositiveRQuery (RQUnion qs)       = and $ map  isPositiveRQuery        qs
-
-isNegativeRQuery (RQNot _)     = True
-isNegativeRQuery (RRQVariety _) = True
-isNegativeRQuery _            = False
-
-isVariableRQuery (RQVar _) = True
-isVariableRQuery _        = False
+holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
+holdsPosition i (r,a) = case positionsIn i a of
+  Nothing -> Nothing
+  Just ps -> M.lookup r ps
