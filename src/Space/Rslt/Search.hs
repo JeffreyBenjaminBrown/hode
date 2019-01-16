@@ -20,10 +20,10 @@ holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
 
-negativeQuery :: Index -> Query -> Addr -> Bool
-negativeQuery idx (QNot q) a = not $ elem a $ search idx q
-negativeQuery idx (QVariety e) a = Just e == (fst <$> variety idx a)
-negativeQuery _ _ _ = error "negativeQuery called for a non-negative query."
+negativeRQuery :: Index -> RQuery -> Addr -> Bool
+negativeRQuery idx (RQNot q) a = not $ elem a $ search idx q
+negativeRQuery idx (RRQVariety e) a = Just e == (fst <$> variety idx a)
+negativeRQuery _ _ _ = error "negativeRQuery called for a non-negative query."
 
 joinSubsts :: [Subst] -> Either () Subst
 joinSubsts = foldl f (Right M.empty) where
@@ -49,21 +49,21 @@ join2Substs m n = case fromM of Left () -> Left ()
              Nothing           -> Right $ M.insert v a sub
              _                 -> Left ()
 
--- TODO next : QHasInRole Role Query, QVar String
+-- TODO next : RQHasInRole Role RQuery, RQVar String
 -- TODO : test `searchSubst`, once cases that make nonempty `Subst`s are written
 -- TODO : `zipWith const` might help for speed.
   -- e.g. because `S.intersection (S.fromList [1]) (S.fromList [1..)) hangs
   -- https://www.reddit.com/r/haskell/comments/9zf1tj/zipwith_const_is_my_favorite_haskell_function/
-searchSubst :: Index -> Query -> Map Addr Subst
-searchSubst idx q@(QImg _) = M.fromList $ S.toList
+searchSubst :: Index -> RQuery -> Map Addr Subst
+searchSubst idx q@(RQImg _) = M.fromList $ S.toList
                              $ S.map (, M.empty) $ search idx q
 
-searchSubst idx qhr@(QHasInRoles rqs) = M.empty where -- TODO : finish
-  (pos,rem)  = L.partition (isPositiveQuery . snd) rqs
-  (neg,vars) = L.partition (isNegativeQuery . snd) rem
-  (candidates :: Set Addr) = search idx $ QHasInRoles pos
+searchSubst idx qhr@(RQHasInRoles rqs) = M.empty where -- TODO : finish
+  (pos,rem)  = L.partition (isPositiveRQuery . snd) rqs
+  (neg,vars) = L.partition (isNegativeRQuery . snd) rem
+  (candidates :: Set Addr) = search idx $ RQHasInRoles pos
 
-searchSubst idx (QIntersect qs) = S.foldl f M.empty inAll  where
+searchSubst idx (RQIntersect qs) = S.foldl f M.empty inAll  where
   (inSome :: [Map Addr Subst]) = map (searchSubst idx) qs
   (inAll :: Set Addr) = foldl S.intersection S.empty
                         $ (map M.keysSet inSome :: [Set Addr])
@@ -72,19 +72,19 @@ searchSubst idx (QIntersect qs) = S.foldl f M.empty inAll  where
           in case eSub of Left () -> m
                           Right sub -> M.insert a sub m
 
-search :: Index -> Query -> Set Addr
-search idx (QImg im) = maybe S.empty S.singleton $ addrOf idx im
-search idx (QIntersect qs) = foldl S.intersection S.empty
+search :: Index -> RQuery -> Set Addr
+search idx (RQImg im) = maybe S.empty S.singleton $ addrOf idx im
+search idx (RQIntersect qs) = foldl S.intersection S.empty
   $ map (search idx) qs
-search idx (QUnion qs) =     foldl S.union        S.empty
+search idx (RQUnion qs) =     foldl S.union        S.empty
   $ map (search idx) qs
 
-search idx (QHasInRoles rqs) = foldl1 S.intersection lq where
+search idx (RQHasInRoles rqs) = foldl1 S.intersection lq where
   -- TODO (#fast) Find the smallest set (without evaluating the remainder
   -- of the other sets) and check if the conditions apply to all its members.
-  (lq :: [Set Addr]) = map (search idx . uncurry QHasInRole) rqs
+  (lq :: [Set Addr]) = map (search idx . uncurry RQHasInRole) rqs
 
-search idx (QHasInRole r0 q0) = selectFrom positions where
+search idx (RQHasInRole r0 q0) = selectFrom positions where
   positions :: Set (Role, Addr)
   positions = S.foldl S.union S.empty -- Since only one `Expr` fills each position, `S.foldl S.union` destroys no information.
               $ S.map (flat . positionsHeldBy idx)
@@ -96,6 +96,6 @@ search idx (QHasInRole r0 q0) = selectFrom positions where
     where f :: (Role, Addr) -> Maybe Addr
           f (r,a) = if r==r0 then Just a else Nothing
 
-search idx (QNot _)     = error "Cannot search for a QNot."
-search idx (QVariety _) = error "Cannot search for a QVariety."
-search idx (QVar _)     = error "Cannot search for a QVar."
+search idx (RQNot _)     = error "Cannot search for a RQNot."
+search idx (RRQVariety _) = error "Cannot search for a RRQVariety."
+search idx (RQVar _)     = error "Cannot search for a RQVar."

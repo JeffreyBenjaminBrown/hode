@@ -62,32 +62,32 @@ data Index = Index {
 
 type Subst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
 
-data Query = QImg ImgOfExpr
-   |  QHasInRole Role Query
-   |  QHasInRoles [(Role, Query)]
-   |  QIntersect [Query]  |  QUnion [Query]
-   |  QNot Query  |  QVariety Expr'
-   |  QVar String
+data RQuery = RQImg ImgOfExpr
+   |  RQHasInRole Role RQuery
+   |  RQHasInRoles [(Role, RQuery)]
+   |  RQIntersect [RQuery]  |  RQUnion [RQuery]
+   |  RQNot RQuery  |  RRQVariety Expr'
+   |  RQVar String
 
--- | Positive `Query`s are things you can search for.
--- Non-positive `Query`s are too broad to search for.
--- `QVar` is neither positive nor negative.
-isPositiveQuery, isNegativeQuery, isVariableQuery :: Query -> Bool
-isPositiveQuery (QImg _)         = True
-isPositiveQuery (QHasInRole _ _) = True
-isPositiveQuery (QHasInRoles _)  = True
-isPositiveQuery (QIntersect _)   = True
-isPositiveQuery (QUnion _)       = True
-isPositiveQuery _                = False
+-- | Positive `RQuery`s are things you can search for.
+-- Non-positive `RQuery`s are too broad to search for.
+-- `RQVar` is neither positive nor negative.
+isPositiveRQuery, isNegativeRQuery, isVariableRQuery :: RQuery -> Bool
+isPositiveRQuery (RQImg _)         = True
+isPositiveRQuery (RQHasInRole _ _) = True
+isPositiveRQuery (RQHasInRoles _)  = True
+isPositiveRQuery (RQIntersect _)   = True
+isPositiveRQuery (RQUnion _)       = True
+isPositiveRQuery _                = False
 -- Will I need a recursive version?
-  --isPositiveQuery (QHasInRole _ q)  =            isPositiveQuery q
-  --isPositiveQuery (QHasInRoles qrs) = or  $ map (isPositiveQuery . snd) qrs
-  --isPositiveQuery (QIntersect qs)   = or  $ map  isPositiveQuery        qs
-  --isPositiveQuery (QUnion qs)       = and $ map  isPositiveQuery        qs
+  --isPositiveRQuery (RQHasInRole _ q)  =            isPositiveRQuery q
+  --isPositiveRQuery (RQHasInRoles qrs) = or  $ map (isPositiveRQuery . snd) qrs
+  --isPositiveRQuery (RQIntersect qs)   = or  $ map  isPositiveRQuery        qs
+  --isPositiveRQuery (RQUnion qs)       = and $ map  isPositiveRQuery        qs
 
-isNegativeQuery (QNot _)     = True
-isNegativeQuery (QVariety _) = True
-isNegativeQuery _            = False
+isNegativeRQuery (RQNot _)     = True
+isNegativeRQuery (RRQVariety _) = True
+isNegativeRQuery _            = False
 
-isVariableQuery (QVar _) = True
-isVariableQuery _        = False
+isVariableRQuery (RQVar _) = True
+isVariableRQuery _        = False
