@@ -27,17 +27,23 @@ source-repository head
 
 library
   exposed-modules:
-                  Space.Graph
-                  Space.Rslt
-                , Program
+                  Program
                 , Query
                 , Query.Inspect
+                , Space.Graph
+                , Space.Rslt
+                , Space.Rslt.Index
+                , Space.Rslt.Index.ImgLookup
+                , Space.Rslt.Index.Positions
+                , Space.Rslt.Search
                 , Subst
                 , Test
                 , Test.TGraph
                 , Test.TInspect
                 , Test.TProgram
                 , Test.TQuery
+                , Test.TRslt
+                , Test.Rslt.Data
                 , Test.TSubst
                 , Test.TUtil
                 , Types

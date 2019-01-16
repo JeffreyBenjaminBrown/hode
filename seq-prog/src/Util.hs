@@ -21,6 +21,9 @@ isSubsetOfMap small big = M.foldrWithKey f True small where
   f _ _ False = False -- short-circuit (hence foldr)
   f k b True = M.lookup k big == Just b
 
+setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
+setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
+
 
 -- | = functions that use the Types module
 

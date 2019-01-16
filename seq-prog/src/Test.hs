@@ -14,8 +14,10 @@ import Test.TInspect
 import Test.TGraph
 import Test.TProgram
 import Test.TQuery
+import Test.TRslt
 import Test.TSubst
 import Test.TUtil
+
 
 import Query.Inspect
 import Types
@@ -28,5 +30,6 @@ tests = runTestTT $ TestList
   , testModuleGraph
   , test_module_Program
   , testModuleQuery
+  , test_module_rslt
   , testModuleSubst
   ]
