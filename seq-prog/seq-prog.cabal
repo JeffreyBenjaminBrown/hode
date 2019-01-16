@@ -6,11 +6,11 @@ cabal-version: 1.12
 --
 -- hash: 50c217e5504795a9a5e4f7076fe411927aff1660b9a3254c11556b640002d529
 
-name:           graph-seq
+name:           seq-prog
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/graph-seq#readme>
-homepage:       https://github.com/githubuser/graph-seq#readme
-bug-reports:    https://github.com/githubuser/graph-seq/issues
+description:    Please see the README on GitHub at <https://github.com/githubuser/seq-prog#readme>
+homepage:       https://github.com/githubuser/seq-prog#readme
+bug-reports:    https://github.com/githubuser/seq-prog/issues
 author:         Author name here
 maintainer:     example@example.com
 copyright:      2019 Author name here
@@ -23,11 +23,12 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/graph-seq
+  location: https://github.com/githubuser/seq-prog
 
 library
   exposed-modules:
-                  Graph
+                  Space.Graph
+                  Space.Rslt
                 , Program
                 , Query
                 , Query.Inspect
@@ -35,10 +36,10 @@ library
                 , Test
                 , Test.TGraph
                 , Test.TInspect
+                , Test.TProgram
                 , Test.TQuery
                 , Test.TSubst
                 , Test.TUtil
-                , Test.TProgram
                 , Types
                 , Util
   other-modules:
@@ -51,7 +52,7 @@ library
               , HUnit
   default-language: Haskell2010
 
---executable graph-seq-exe
+--executable seq-prog-exe
 --  main-is: Main.hs
 --  other-modules:
 --      Paths_graph_seq
@@ -60,10 +61,10 @@ library
 --  ghc-options: -threaded -rtsopts -with-rtsopts=-N
 --  build-depends:
 --      base >=4.7 && <5
---    , graph-seq
+--    , seq-prog
 --  default-language: Haskell2010
 --
---test-suite graph-seq-test
+--test-suite seq-prog-test
 --  type: exitcode-stdio-1.0
 --  main-is: Spec.hs
 --  other-modules:
@@ -73,5 +74,5 @@ library
 --  ghc-options: -threaded -rtsopts -with-rtsopts=-N
 --  build-depends:
 --      base >=4.7 && <5
---    , graph-seq
+--    , seq-prog
 --  default-language: Haskell2010

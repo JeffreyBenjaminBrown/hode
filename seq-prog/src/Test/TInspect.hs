@@ -9,7 +9,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import Graph
+import Space.Graph
 import Query.Inspect
 import Types
 

@@ -7,7 +7,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import Graph
+import Space.Graph
 import Program
 import Query
 import Types
@@ -21,14 +21,17 @@ test_runProgram = TestCase $ do
   let d = graph [ (0, [1,2        ] )
                 , (3, [  2,3,4    ] )
                 , (10,[11, 23     ] ) ]
+
   assertBool "1" $ runProgram d [ ("a", QFind $ findParents $ Left 2) ]
     == Right ( M.singleton "a" ( M.fromList [ (0,S.singleton M.empty)
                                             , (3,S.singleton M.empty) ] ) )
+
   assertBool "2" $ runProgram d
     [ ( "b", ( QAnd [ QFind $ findChildren $ Left 3
                     , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right (M.singleton "b" ( M.fromList [ (3, S.singleton M.empty)
                                            , (4, S.singleton M.empty) ] ) )
+
   assertBool "3" $ runProgram d
     [ ( "a", QFind $ findParents $ Left 2)
     , ( "b", ( ForSome "a1" (Source "a") $
