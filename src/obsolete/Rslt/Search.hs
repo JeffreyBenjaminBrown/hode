@@ -15,6 +15,9 @@ import Space.Rslt.Index
 import Util
 
 
+newtype Var = Var String -- ^ a variable, in the logic programming sense
+  deriving (Show, Eq, Ord)
+
 type RSubst = M.Map Var Addr -- TODO ? replace `Addr` with `Either Var Addr`
 
 data RQuery = RQImg ImgOfExpr

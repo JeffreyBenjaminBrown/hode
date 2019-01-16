@@ -8,8 +8,6 @@ import qualified Data.Set as S
 
 type Addr = Int -- ^ Address
 type Arity = Int
-newtype Var = Var String -- ^ a variable, in the logic programming sense
-  deriving (Show, Eq, Ord)
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
@@ -53,6 +51,9 @@ type Files = M.Map Int Expr -- TODO use ordinary hard-disk files
 -- | The `Index` can answer every fundamental connectivity question:
 -- What is in something, what is something in, etc.
 -- It can also find anything findable -- i.e. anything but a `Par`.
+--
+-- ^ The fields in the `Index`, plus the `holdsPosition` function,
+-- are the atomic ways to search an `Rslt`.
 data Index = Index {
   addrOf            :: ImgOfExpr -> Maybe Addr
   , variety         :: Addr      -> Maybe (Expr', Arity)
