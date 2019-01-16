@@ -7,10 +7,10 @@ import Space.Rslt
 
 
 exprVariety :: Expr -> (Expr', Arity)
-exprVariety   (Word  _) = (Word' , 0)
-exprVariety e@(Tplt  _) = (Tplt' , arity e)
-exprVariety e@(Rel _ _) = (Rel'  , arity e)
-exprVariety e@(Par _ _) = (Par'  , arity e)
+exprVariety   (Word  _) = (Word', 0)
+exprVariety e@(Tplt  _) = (Tplt', arity e)
+exprVariety e@(Rel _ _) = (Rel' , arity e)
+exprVariety e@(Par _ _) = (Par' , arity e)
 
 imgDb :: Files -> M.Map Expr Addr
 imgDb = M.fromList . catMaybes . map f . M.toList where
@@ -22,7 +22,7 @@ imgDb = M.fromList . catMaybes . map f . M.toList where
   exprImgKey e = case e of Par _ _ -> Nothing
                            _       -> Just e
 
-imgLookup :: Files -> ImgOfExpr -> Maybe Addr
+imgLookup :: Files -> (ImgOfExpr -> Maybe Addr)
 imgLookup files img = let idb = imgDb files in case img of
 
   ImgOfExpr e -> M.lookup e idb

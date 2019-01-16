@@ -1,7 +1,5 @@
-{-# LANGUAGE
-  ScopedTypeVariables
-, TupleSections
-#-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 
 module Space.Rslt.Search where
 
