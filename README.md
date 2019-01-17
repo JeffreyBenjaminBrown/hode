@@ -20,12 +20,12 @@ Here's how you would write that:
 ```
 [ ( "a", QFind $ findParents $ Left 2)
 , ( "b", ( ForSome "a1" (Source "a") $
-           QAnd [ QFind $ mkFind "children" children $ Right "a1"
+           QAnd [ QFind $ mkFindFrom "children" children $ Right "a1"
                 , QTest $ mkTest (/=) $ Right "a1"
                 , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
 ```
 
-See Test/TProgram.hs for that very program in action. (The String argument to `mkFind` is only there to make errors more intelligible.)
+See Test/TProgram.hs for that very program in action. (The String argument to `mkFindFrom` is only there to make errors more intelligible.)
 
 
 ## The full language
@@ -50,7 +50,7 @@ The `QAnd` and `QOr` constructors take a list of Queries and find their intersec
 
 The `QFind`, `QTest` and `QVarTest` constructors are defined in terms of the Find, Test and VarTest types. See the code for the full spec, but here they are in brief:
 
-A `Find` is used to find stuff in the space. You can make something of type `Find` by running `mkFind`. `mkFind` expects a function of type `(sp -> e -> Set e)`. That is, given a space sp and an element e of it, this function can produce a bunch of other elements of the space.
+A `Find` is used to find stuff in the space. You can make something of type `Find` by running `mkFindFrom`. `mkFindFrom` expects a function of type `(sp -> e -> Set e)`. That is, given a space sp and an element e of it, this function can produce a bunch of other elements of the space.
 
 A `Test` is used to filter things that have been found. You can make a `Test` by running `mkTest`, which expects a function of type `(e -> e -> Bool)`.
 

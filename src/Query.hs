@@ -60,9 +60,17 @@ mkVarTest compare eev eev' = VarTest go deps where
 
 -- | = `Find`s
 
+-- | Run a search that does not depend on the `Subst`.
 mkFind :: forall e sp. (Show e) =>
-  String -> (sp -> e -> Set e) -> (Either e Var -> Find e sp)
-mkFind findName finder eev = Find go deps where
+  String -> (sp ->      Set e) ->                 Find e sp
+-- | Run a search starting from some element of the space.
+mkFindFrom :: forall e sp. (Show e) =>
+  String -> (sp -> e -> Set e) -> Either e Var -> Find e sp
+
+mkFind findName finder = Find go S.empty where
+  go :: sp -> Subst e -> Set e
+  go g _ = finder g
+mkFindFrom findName finder eev = Find go deps where
   go :: sp -> Subst e -> Set e
   go g s = maybe err (finder g) me where
       (me, mv) = unEitherEltVar s eev :: (Maybe e, Maybe Var)

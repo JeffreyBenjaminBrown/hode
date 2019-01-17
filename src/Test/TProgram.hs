@@ -35,7 +35,7 @@ test_runProgram = TestCase $ do
   assertBool "3" $ runProgram d
     [ ( "a", QFind $ findParents $ Left 2)
     , ( "b", ( ForSome "a1" (Source "a") $
-               QAnd [ QFind $  mkFind "children" children $ Right "a1"
+               QAnd [ QFind $  mkFindFrom "children" children $ Right "a1"
                     , QTest $ mkTest (/=) $ Right "a1"
                     , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList

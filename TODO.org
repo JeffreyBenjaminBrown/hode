@@ -19,7 +19,6 @@ a map from Role to Set Addr
 a map from Addr to Set Role
   because the item in question could (although this will be rare) hold
   multiple Roles within the same Expr
-* TODO Find should not require an element of the space.
 * TODO Add a check, and amend docs: All the Vars in a Program must be distinct.
 * TODO ? test dependent variables in TProgram
 This would help me figure out how to track outputs, not just inputs, in the Possible type.
@@ -50,7 +49,7 @@ CondElts. But the simplicity might be worth it. (They are not substitutes;
 VarTests is far more expressive. varPossibilities will only let you ask
 for "some x such that it could be an input to all of the following 
 variables ...".)
-* TODO test mixed queries more
+* TODO ? test mixed queries more
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example
