@@ -21,8 +21,8 @@ type Var = String
   -- "source" is the earlier Var, and "dets" is a set of variables
   -- that were calculated based on source's earlier calculation.
 
-data Source = Source  { source :: Var }
-            | Source' { source :: Var
+data Source = Source  { sourceVar :: Var }
+            | Source' { sourceVar :: Var
                       , dets :: (Set Var) }
 
 data Find e sp = Find { findFunction          :: sp -> Subst e -> Set e
@@ -40,8 +40,11 @@ data Query e sp = QFind    (Find    e sp)
                 | QVarTest (VarTest e sp)
                 | QAnd               [Query e sp] -- ^ order not important
                 | QOr                [Query e sp] -- ^ order not important
-                | ForAll  Var Source (Query e sp)
-                | ForSome Var Source (Query e sp)
+                | QQuant (Quantifier e sp)
+
+data Quantifier e sp =
+    ForAll  { name :: Var, source :: Source, goal :: Query e sp }
+  | ForSome { name :: Var, source :: Source, goal :: Query e sp }
 
 type Subst e    = Map Var e
 type CondElts e = Map e (Set (Subst e))

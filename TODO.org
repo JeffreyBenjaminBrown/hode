@@ -13,16 +13,6 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO Query subtypes (Find etc) that expect a Maybe
-* TODO Rslt type which bundles Files and Index
-rename Files -> Exprs
-* TODO (#fast) positionsHeldBy ought to return two maps, not a set
-a map from Role to Set Addr
-  because the item in question often holds the same Role in multiple Exprs
-a map from Addr to Set Role
-  because the item in question could (although this will be rare) hold
-  multiple Roles within the same Expr
-* TODO Add a check, and amend docs: All the Vars in a Program must be distinct.
 * TODO ? test dependent variables in TProgram
 This would help me figure out how to track outputs, not just inputs, in the Possible type.
 * TODO ? refactor Query for subtypes QLeaf, Quant, Junct
@@ -33,6 +23,19 @@ This way the default definitions (the one that catches things not caught by earl
 As opposed to Var String (Set Var), this would be Var (Set String) Var,
 or Var (Set String) (Set Var).
 * TODO track outputs, not just inputs, in the Possible
+* TODO The Source for a quantifier should come in three flavors, including Find
+Rather than a separate type, Source, there should just be a new constructor, QDraw, which draws from a previous result.
+* TODO for RSLT
+** TODO Query subtypes (Find etc) that expect a Maybe (for the Rslt)
+** TODO Rslt type which bundles Files and Index
+ rename Files -> Exprs
+** TODO (#fast) positionsHeldBy ought to return two maps, not a set
+ a map from Role to Set Addr
+   because the item in question often holds the same Role in multiple Exprs
+ a map from Addr to Set Role
+   because the item in question could (although this will be rare) hold
+   multiple Roles within the same Expr
+* TODO Add a check, and amend docs: All the Vars in a Program must be distinct.
 * TODO ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.

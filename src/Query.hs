@@ -180,7 +180,7 @@ runTestlike d p (QOr qs) s ce = let
   True -> Right $ M.unionsWith S.union
            $ map (fromRight M.empty) results
 
-runTestlike d p (ForSome v src q) s ce =
+runTestlike d p (QQuant (ForSome v src q)) s ce =
   let errMsg = "runTestlike: error in callee:\n"
   in case extendPossible v src p s of
   Left s -> Left $ errMsg ++ s
@@ -193,7 +193,7 @@ runTestlike d p (ForSome v src q) s ce =
     True -> Right $ M.unionsWith S.union
             $ S.map (fromRight M.empty) res
 
-runTestlike d p (ForAll v src q) s ce = let
+runTestlike d p (QQuant (ForAll v src q)) s ce = let
   errMsg = "runTestlike: error in callee:\n"
   in case extendPossible v src p s of
   Left s -> Left $ errMsg ++ s
@@ -237,7 +237,7 @@ runFindlike d p (QOr qs) s = let
     ++ show (map (fromLeft "") lefts)
   True -> Right $ M.unionsWith S.union $ map (fromRight M.empty) ces
 
-runFindlike d p (ForSome v src q) s =
+runFindlike d p (QQuant (ForSome v src q)) s =
   case extendPossible v src p s of
   Left s -> Left $ "runFindlike: error in callee:\n" ++ s
   Right (p',ss) -> let
@@ -254,7 +254,7 @@ runFindlike d p (ForSome v src q) s =
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 
-runFindlike d p (ForAll v src q) s =
+runFindlike d p (QQuant (ForAll v src q)) s =
   case extendPossible v src p s of
   Left s -> Left $ "runFindlike: error in callee:\n" ++ s
   Right (p',ss) -> let

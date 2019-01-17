@@ -34,7 +34,7 @@ test_runProgram = TestCase $ do
 
   assertBool "3" $ runProgram d
     [ ( "a", QFind $ findParents $ Left 2)
-    , ( "b", ( ForSome "a1" (Source "a") $
+    , ( "b", ( QQuant $ ForSome "a1" (Source "a") $
                QAnd [ QFind $  mkFindFrom "children" children $ Right "a1"
                     , QTest $ mkTest (/=) $ Right "a1"
                     , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
@@ -52,8 +52,8 @@ test_runProgram = TestCase $ do
 
   assertBool "4" $ runProgram d
     [ ("a", QFind $ findChildren $ Left 0)
-    , ("b", ( ForSome "a1" (Source "a")
-              ( ForSome "a2" (Source "a")
+    , ("b", ( QQuant $ ForSome "a1" (Source "a")
+              ( QQuant $ ForSome "a2" (Source "a")
                 (QAnd [ QVarTest $ mkVarTest (<) (Right "a1") (Right "a2")
                       , QFind $ findChildren $ Right "a1"
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]

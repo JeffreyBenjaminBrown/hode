@@ -54,9 +54,9 @@ test_runFindlike_mixed = TestCase $ do
       fc v = QFind $ findChildren $ Right v
       s = M.fromList [(a,2), (b,23)] :: (Subst Int)
       q_And_Quant = let aOf_b' = aOf_b ++ "'"
-        in QAnd [ ForAll aOf_b' src_aOf_b $ isnt aOf_b'
-                , ForSome aOf_b src_aOf_b $ fc aOf_b ]
-      q_ForAll_And = ForAll aOf_b src_aOf_b $ QAnd [ fc0, isnt a ]
+        in QAnd [ QQuant $ ForAll aOf_b' src_aOf_b $ isnt aOf_b'
+                , QQuant $ ForSome aOf_b src_aOf_b $ fc aOf_b ]
+      q_ForAll_And = QQuant $ ForAll aOf_b src_aOf_b $ QAnd [ fc0, isnt a ]
 
   assertBool "2" $ runFindlike d p q_And_Quant s
     == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 3 ] ) )
@@ -88,11 +88,11 @@ testRunTestlike = TestCase $ do
       (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton M.empty)
                                     , (3, S.singleton M.empty) ]
-  assertBool "5" $
-    runTestlike d p (ForAll a (Source a) $ QTest nota) M.empty ce
-       == Right ( M.singleton 3 (S.singleton M.empty) )
+  assertBool "5" $ runTestlike d p
+    (QQuant $ ForAll a (Source a) $ QTest nota) M.empty ce
+    == Right ( M.singleton 3 (S.singleton M.empty) )
   assertBool "4" $ let
-    qfa = ForSome a (Source a) $ QAnd [QTest not3, QTest nota]
+    qfa = QQuant $ ForSome a (Source a) $ QAnd [QTest not3, QTest nota]
     ce23 = M.restrictKeys ce $ S.singleton 2
     in runTestlike d p qfa M.empty ce23
        == Right ( M.singleton 2 (S.singleton $ M.singleton a 1) )
@@ -123,19 +123,22 @@ test_runFindlike_ForAll = TestCase $ do
       qc :: Var -> (Query Int (Graph Int))
       qc v = QFind $ findChildren $ Right v
 
-  assertBool "4" $
-    runFindlike g p (ForAll aOf_c src_aOf_c $ qc aOf_c) (M.singleton c 1)
+  assertBool "4" $ runFindlike g p
+    (QQuant $ ForAll aOf_c src_aOf_c $ qc aOf_c) (M.singleton c 1)
     == Right ( M.fromList [ (12, S.singleton $ M.empty)
                           , (22, S.singleton $ M.empty) ] )
-  assertBool "3" $
-    runFindlike g p (ForAll b (Source b) $ qc b) (M.singleton x 1)
+  assertBool "3" $ runFindlike g p
+    (QQuant $ ForAll b (Source b) $ qc b) (M.singleton x 1)
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
   assertBool "3" $
-    runFindlike g p (ForAll b (Source b) $ qc b) (M.singleton x 1)
+    runFindlike g p
+    (QQuant $ ForAll b (Source b) $ qc b) (M.singleton x 1)
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
-  assertBool "2" $ runFindlike g p (ForAll b (Source b) $ qc b) M.empty
+  assertBool "2" $ runFindlike g p
+    (QQuant $ ForAll b (Source b) $ qc b) M.empty
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
-  assertBool "1" $ runFindlike g p (ForAll a (Source a) $ qc a) M.empty
+  assertBool "1" $ runFindlike g p
+    (QQuant $ ForAll a (Source a) $ qc a) M.empty
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
 test_runFindlike_ForSome = TestCase $ do
@@ -152,14 +155,17 @@ test_runFindlike_ForSome = TestCase $ do
       qc :: Var -> (Query Int (Graph Int))
       qc v = QFind $ findChildren $ Right v
 
-  assertBool "3" $
-    (runFindlike g p (ForSome aOf_b src_aOf_b $ qc aOf_b) $ M.singleton b 1)
+  assertBool "3" $ ( runFindlike g p
+                    (QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b)
+                    $ M.singleton b 1 )
     == Right (M.fromList [ (11, S.singleton $ M.fromList [ (aOf_b, 1) ] )
                          , (21, S.singleton $ M.fromList [ (aOf_b, 1) ] ) ] )
-  assertBool "2" $
-    (runFindlike g p (ForSome aOf_b src_aOf_b $ qc aOf_b) $ M.singleton b 2)
+  assertBool "2" $ ( runFindlike g p
+                     (QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b)
+                     $ M.singleton b 2)
     == Right M.empty
-  assertBool "1" $ runFindlike g p (ForSome a (Source a) $ qc a) M.empty
+  assertBool "1" $
+    runFindlike g p (QQuant $ ForSome a (Source a) $ qc a) M.empty
     == Right ( M.fromList [ (11, S.singleton $ M.singleton a 1)
                           , (21, S.singleton $ M.singleton a 1)
                           , (12, S.singleton $ M.singleton a 2)
