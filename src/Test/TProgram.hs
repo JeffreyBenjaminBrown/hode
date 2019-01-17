@@ -27,17 +27,18 @@ test_runProgram = TestCase $ do
                                             , (3,S.singleton M.empty) ] ) )
 
   assertBool "2" $ runProgram d
-    [ ( "b", ( QAnd [ QFind $ findChildren $ Left 3
-                    , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
+    [ ( "b", ( QJunct $ And [ QFind $ findChildren $ Left 3
+                             , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right (M.singleton "b" ( M.fromList [ (3, S.singleton M.empty)
                                            , (4, S.singleton M.empty) ] ) )
 
   assertBool "3" $ runProgram d
     [ ( "a", QFind $ findParents $ Left 2)
     , ( "b", ( QQuant $ ForSome "a1" (Source "a") $
-               QAnd [ QFind $  mkFindFrom "children" children $ Right "a1"
-                    , QTest $ mkTest (/=) $ Right "a1"
-                    , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
+               QJunct $ And
+               [ QFind $  mkFindFrom "children" children $ Right "a1"
+               , QTest $ mkTest (/=) $ Right "a1"
+               , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList
                [ ( "a", M.fromList [ (0, S.singleton M.empty)
                                    , (3, S.singleton M.empty) ] )
@@ -54,9 +55,10 @@ test_runProgram = TestCase $ do
     [ ("a", QFind $ findChildren $ Left 0)
     , ("b", ( QQuant $ ForSome "a1" (Source "a")
               ( QQuant $ ForSome "a2" (Source "a")
-                (QAnd [ QVarTest $ mkVarTest (<) (Right "a1") (Right "a2")
-                      , QFind $ findChildren $ Right "a1"
-                      , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
+                (QJunct $ And
+                 [ QVarTest $ mkVarTest (<) (Right "a1") (Right "a2")
+                 , QFind $ findChildren $ Right "a1"
+                 , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
     == Right ( M.fromList
                [ ( "a", M.fromList [ (1, S.singleton M.empty)
                                    , (2, S.singleton M.empty)

@@ -20,7 +20,7 @@ testModuleQuery = TestList [
   , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
   , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
   , TestLabel "testRunTestlike" testRunTestlike
-  , TestLabel "testRunQAnd" testRunQAnd
+  , TestLabel "testRunAnd" testRunAnd
   , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
   , TestLabel "test_isNot_2" test_isNot_2
   ]
@@ -54,16 +54,17 @@ test_runFindlike_mixed = TestCase $ do
       fc v = QFind $ findChildren $ Right v
       s = M.fromList [(a,2), (b,23)] :: (Subst Int)
       q_And_Quant = let aOf_b' = aOf_b ++ "'"
-        in QAnd [ QQuant $ ForAll aOf_b' src_aOf_b $ isnt aOf_b'
-                , QQuant $ ForSome aOf_b src_aOf_b $ fc aOf_b ]
-      q_ForAll_And = QQuant $ ForAll aOf_b src_aOf_b $ QAnd [ fc0, isnt a ]
+        in QJunct $ And [ QQuant $ ForAll aOf_b' src_aOf_b $ isnt aOf_b'
+                         , QQuant $ ForSome aOf_b src_aOf_b $ fc aOf_b ]
+      q_ForAll_And = QQuant $ ForAll aOf_b src_aOf_b
+                     $ QJunct $ And [ fc0, isnt a ]
 
   assertBool "2" $ runFindlike d p q_And_Quant s
     == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 3 ] ) )
   assertBool "1" $ runFindlike d p q_ForAll_And s
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
-testRunQAnd = TestCase $ do
+testRunAnd = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       (a2 :: (Subst Int)) = M.singleton a 2
       nota = QTest $ mkTest (/=) $ Right a
@@ -73,7 +74,7 @@ testRunQAnd = TestCase $ do
         M.fromList [ (1, S.singleton M.empty)
                    , (3, S.singleton M.empty) ]
       fc0 = QFind $ findChildren $ Left 0
-  assertBool "1" $ runQAnd d p [fc0, nota] a2
+  assertBool "1" $ runAnd d p [fc0, nota] a2
     == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
 testRunTestlike = TestCase $ do
@@ -92,17 +93,19 @@ testRunTestlike = TestCase $ do
     (QQuant $ ForAll a (Source a) $ QTest nota) M.empty ce
     == Right ( M.singleton 3 (S.singleton M.empty) )
   assertBool "4" $ let
-    qfa = QQuant $ ForSome a (Source a) $ QAnd [QTest not3, QTest nota]
+    qfa = QQuant $ ForSome a (Source a) $ QJunct $ And [QTest not3, QTest nota]
     ce23 = M.restrictKeys ce $ S.singleton 2
     in runTestlike d p qfa M.empty ce23
        == Right ( M.singleton 2 (S.singleton $ M.singleton a 1) )
-  assertBool "3" $ runTestlike d M.empty (QOr  [QTest not3,QTest nota]) a2 ce
+  assertBool "3" $ runTestlike d M.empty
+    (QJunct $ Or  [QTest not3,QTest nota]) a2 ce
     == Right ( M.fromList
                [ (1, S.fromList [ M.fromList [(a,2), (x,0)]
                                 , M.singleton x 0           ] )
                , (2, S.fromList [ M.empty                   ] )
                , (3, S.fromList [          M.singleton a 2  ] ) ] )
-  assertBool "2" $ runTestlike d M.empty (QAnd [QTest not3,QTest nota]) a2 ce
+  assertBool "2" $ runTestlike d M.empty
+    (QJunct $ And [QTest not3,QTest nota]) a2 ce
     == Right ( M.singleton 1 $ S.singleton $ M.fromList [(a,2), (x,0)] )
   assertBool "1" $ runTestlike d M.empty (QTest nota)                   a2 ce
     == Right ( M.fromList [ (1, S.singleton $ M.fromList [(a,2), (x,0)] )

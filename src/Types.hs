@@ -38,9 +38,11 @@ data VarTest e sp = VarTest { varTestFunction :: sp -> Subst e         -> Bool
 data Query e sp = QFind    (Find    e sp)
                 | QTest    (Test    e sp)
                 | QVarTest (VarTest e sp)
-                | QAnd               [Query e sp] -- ^ order not important
-                | QOr                [Query e sp] -- ^ order not important
-                | QQuant (Quantifier e sp)
+                | QJunct   (Junction   e sp)
+                | QQuant   (Quantifier e sp)
+
+data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
+                   | Or  {clauses :: [Query e sp] } -- ^ order not important
 
 data Quantifier e sp =
     ForAll  { name :: Var, source :: Source, goal :: Query e sp }

@@ -13,6 +13,7 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO rename QVarTest -> QVTest
 * TODO ? test dependent variables in TProgram
 This would help me figure out how to track outputs, not just inputs, in the Possible type.
 * TODO ? refactor Query for subtypes QLeaf, Quant, Junct

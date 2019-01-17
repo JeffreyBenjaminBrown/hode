@@ -112,24 +112,24 @@ runTest d s q ce = let
 
 -- | == Complex queries
 
--- | = runQAnd
+-- | = runAnd
 -- There are three types of queries: testlike, findlike, and VarTests.
--- varTests and testlike queries can only be run from a conjunction (QAnd).
+-- varTests and testlike queries can only be run from a conjunction (And).
 -- A conjunction runs all varTests first, because they are simplest: they
 -- don't require reference to the Possible, and often not the data either.
 -- If all Vars in the Subst pass all VarTests, then the findlike queries are
 -- run. Once those results are collected, they are filtered by the testlike
 -- queries.
 
-runQAnd :: forall e sp. (Ord e, Show e)
+runAnd :: forall e sp. (Ord e, Show e)
         => sp -> Possible e -> [Query e sp] -> Subst e
         -> Either String (CondElts e)
-runQAnd d p qs s = let
-  errMsg = "runQAnd: error in callee:\n"
+runAnd d p qs s = let
+  errMsg = "runAnd: error in callee:\n"
   (searches,tests') = partition findlike qs
   (varTests,tests) = partition (\case QVarTest _->True; _->False) tests'
   varTestResults = map (runVarTest d s . unwrap) varTests where
-    unwrap = \case QVarTest t->t; _->error "runQAnd: unwrap: impossible."
+    unwrap = \case QVarTest t->t; _->error "runAnd: unwrap: impossible."
   in if not $ and varTestResults then Right M.empty else let
 
     eFound :: [Either String (CondElts e)]
@@ -158,9 +158,9 @@ runTestlike _ _ (testlike -> False) _ _ =
   Left $ "runTestlike: not a testlike Query"
 runTestlike d _ (QTest t) s ce = Right $ runTest d s t ce
 runTestlike _ _ (QVarTest _) _ _ =
-  Left $ "runTestlike: VarTest should have been handled by QAnd."
+  Left $ "runTestlike: VarTest should have been handled by And."
 
-runTestlike d p (QAnd qs) s ce = let
+runTestlike d p (QJunct (And qs)) s ce = let
   results :: [Either String (CondElts e)]
   results = map (\q -> runTestlike d p q s ce) qs
   lefts = filter isLeft results
@@ -170,7 +170,7 @@ runTestlike d p (QAnd qs) s ce = let
   True -> Right $ reconcileCondElts $ S.fromList
            $ map (fromRight M.empty) results
 
-runTestlike d p (QOr qs) s ce = let
+runTestlike d p (QJunct (Or qs)) s ce = let
   results :: [Either String (CondElts e)]
   results = map (\q -> runTestlike d p q s ce) qs
   lefts = filter isLeft results
@@ -224,10 +224,10 @@ runFindlike :: forall e sp. (Ord e, Show e)
 
 runFindlike _ _ (findlike -> False) _ = Left "runFindlike: non-findlike Query"
 runFindlike d _ (QFind f) s = Right $ runFind d s f
-runFindlike d p (QAnd qs) s = runQAnd d p qs s
+runFindlike d p (QJunct (And qs)) s = runAnd d p qs s
 
-runFindlike d p (QOr qs) s = let
-  -- TODO (#fast|#hard) Fold QOr with short-circuiting.
+runFindlike d p (QJunct (Or qs)) s = let
+  -- TODO (#fast|#hard) Fold Or with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
   ces = map (flip (runFindlike d p) s) qs :: [Either String (CondElts e)]

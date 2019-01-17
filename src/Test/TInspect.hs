@@ -35,14 +35,14 @@ test_noPrematureReference = TestCase $ do
                   ++ " used before being defined.\n"
   assertBool "1" $ errMsg ["a","b"]
     == noPrematureReference
-    [ ("a", QAnd [ QFind $ findParents $ Right "a"
-                 , QFind $ findParents $ Right "b" ] :: QIGI ) ]
+    [ ("a", QJunct $ And [ QFind $ findParents $ Right "a"
+                          , QFind $ findParents $ Right "b" ] :: QIGI ) ]
   assertBool "2" $ errMsg ["a","b","d"]
     == noPrematureReference
-    [ ("c", QAnd [ QFind $ findParents $ Right "a"
-                 , QFind $ findParents $ Right "b" ] :: QIGI )
-    , ("d", QAnd [ QFind $ findParents $ Right "c"
-                 , QFind $ findParents $ Right "d" ] ) ]
+    [ ("c", QJunct $ And [ QFind $ findParents $ Right "a"
+                          , QFind $ findParents $ Right "b" ] :: QIGI )
+    , ("d", QJunct $ And [ QFind $ findParents $ Right "c"
+                          , QFind $ findParents $ Right "d" ] ) ]
   assertBool "3" $ Right ()
     == noPrematureReference [ ("a", QFind $ findParents $ Left 3 :: QIGI)
                             , ("b", QFind $ findParents $ Right "a") ]
@@ -56,7 +56,7 @@ test_internalAndExternalVars = TestCase $ do
       c_ag = QQuant $ ForSome c (Source' a $ S.singleton g)
         $ QFind $ findParents $ Right c
   assertBool "5" $ internalAndExternalVars
-    (QOr [ c_ade, c_ag ] :: QIGI)
+    (QJunct $ Or [ c_ade, c_ag ] :: QIGI)
     == (S.singleton c, S.fromList [a,d,e,g] )
   assertBool "4" $ internalAndExternalVars c_ade
     == (S.singleton c, S.fromList [a,d,e])
@@ -66,7 +66,7 @@ test_internalAndExternalVars = TestCase $ do
     (QFind $ findParents $ Right c :: QIGI)
     == (S.empty, S.singleton c)
   assertBool "1" $ internalAndExternalVars
-    ( QQuant $ ForAll a (Source b) $ QOr [ c_ade, c_ag ] )
+    ( QQuant $ ForAll a (Source b) $ QJunct $ Or [ c_ade, c_ag ] )
     == ( S.fromList [a,c ], S.fromList [b,d,e,g ] )
 
 test_disjointExistentials = TestCase $ do
@@ -76,7 +76,7 @@ test_disjointExistentials = TestCase $ do
       qy  = QQuant $ ForSome  "y" (Source y) qf
       qx1 = QQuant $ ForSome "x1" (Source x) qf
       qy1 = QQuant $ ForSome "y1" (Source y) qf
-      qxy = QOr [qx1,qy1]
+      qxy = QJunct $ Or [qx1,qy1]
   assertBool "-1" $ disjointQuantifiers (QQuant $ ForSome x (Source y) qx)
     == False
   assertBool "0" $ disjointQuantifiers  (QQuant $ ForSome x (Source x) qy)
@@ -88,25 +88,25 @@ test_disjointExistentials = TestCase $ do
   assertBool "3" $ disjointQuantifiers qx               == False
   assertBool "3.5" $ disjointQuantifiers qx1            == True
   assertBool "3.7" $ disjointQuantifiers qxy            == True
-  assertBool "4" $ disjointQuantifiers (QAnd [qx1,qxy]) == False
+  assertBool "4" $ disjointQuantifiers (QJunct $ And [qx1,qxy]) == False
 
 test_quantifies = TestCase $ do
   let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
   assertBool "1" $ quantifies (
-    QOr [ QQuant $ ForAll x (Source x) $ QTest $ error "whatever"
-        , QQuant $ ForAll y (Source y)
-          $ QAnd [ QQuant $ ForSome z (Source z)
-                   $ QTest $ error "whatever" ] ] )
+    QJunct $ Or [ QQuant $ ForAll x (Source x) $ QTest $ error "whatever"
+                , QQuant $ ForAll y (Source y)
+                  $ QJunct $ And [ QQuant $ ForSome z (Source z)
+                                   $ QTest $ error "whatever" ] ] )
     == S.fromList [x,y,z]
 
 test_findlike = TestCase $ do
   let qf = QFind $ Find (\_ _    -> S.empty) S.empty
       qc = QTest $ Test (\_ _  _ -> False  ) S.empty
-  assertBool "1" $ findlike (QAnd [qf, qc]) == True
-  assertBool "2" $ findlike (QAnd [qf]    ) == True
-  assertBool "3" $ findlike (QAnd [qc]    ) == False
-  assertBool "4" $ findlike (QAnd []      ) == False
-  assertBool "5" $ findlike (QOr  [qf, qc]) == False
-  assertBool "6" $ findlike (QOr  [qf]    ) == True
-  assertBool "7" $ findlike (QOr  [qc]    ) == False
-  assertBool "8" $ findlike (QOr  []      ) == False
+  assertBool "1" $ findlike (QJunct $ And [qf, qc]) == True
+  assertBool "2" $ findlike (QJunct $ And [qf]    ) == True
+  assertBool "3" $ findlike (QJunct $ And [qc]    ) == False
+  assertBool "4" $ findlike (QJunct $ And []      ) == False
+  assertBool "5" $ findlike (QJunct $ Or  [qf, qc]) == False
+  assertBool "6" $ findlike (QJunct $ Or  [qf]    ) == True
+  assertBool "7" $ findlike (QJunct $ Or  [qc]    ) == False
+  assertBool "8" $ findlike (QJunct $ Or  []      ) == False
