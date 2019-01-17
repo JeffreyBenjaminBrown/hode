@@ -127,9 +127,9 @@ runAnd :: forall e sp. (Ord e, Show e)
 runAnd d p qs s = let
   errMsg = "runAnd: error in callee:\n"
   (searches,tests') = partition findlike qs
-  (varTests,tests) = partition (\case QVarTest _->True; _->False) tests'
+  (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
   varTestResults = map (runVarTest d s . unwrap) varTests where
-    unwrap = \case QVarTest t->t; _->error "runAnd: unwrap: impossible."
+    unwrap = \case QVTest t->t; _->error "runAnd: unwrap: impossible."
   in if not $ and varTestResults then Right M.empty else let
 
     eFound :: [Either String (CondElts e)]
@@ -157,7 +157,7 @@ runTestlike :: forall e sp. (Ord e, Show e)
 runTestlike _ _ (testlike -> False) _ _ =
   Left $ "runTestlike: not a testlike Query"
 runTestlike d _ (QTest t) s ce = Right $ runTest d s t ce
-runTestlike _ _ (QVarTest _) _ _ =
+runTestlike _ _ (QVTest _) _ _ =
   Left $ "runTestlike: VarTest should have been handled by And."
 
 runTestlike d p (QJunct (And qs)) s ce = let

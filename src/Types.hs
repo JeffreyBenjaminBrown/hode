@@ -35,11 +35,11 @@ data VarTest e sp = VarTest { varTestFunction :: sp -> Subst e         -> Bool
                             , varTestDets     :: Set Var }
   -- ^ If `*Function` doesn't use the `Subst`, `*Dets` should be empty.
 
-data Query e sp = QFind    (Find    e sp)
-                | QTest    (Test    e sp)
-                | QVarTest (VarTest e sp)
-                | QJunct   (Junction   e sp)
-                | QQuant   (Quantifier e sp)
+data Query e sp = QFind  (Find       e sp)
+                | QTest  (Test       e sp)
+                | QVTest (VarTest    e sp)
+                | QJunct (Junction   e sp)
+                | QQuant (Quantifier e sp)
 
 data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
                    | Or  {clauses :: [Query e sp] } -- ^ order not important

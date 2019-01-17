@@ -28,10 +28,10 @@ setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 -- | = functions that use the Types module
 
 queryDets :: Query e sp -> Set Var
-queryDets (QFind f)        = findDets f
-queryDets (QTest t)        = testDets t
-queryDets (QVarTest t)     = varTestDets t
-queryDets _ = S.empty
+queryDets (QFind f)  = findDets f
+queryDets (QTest t)  = testDets t
+queryDets (QVTest t) = varTestDets t
+queryDets _          = S.empty
 
 sourceDets :: Source -> Set Var
 sourceDets (Source v) = S.singleton v

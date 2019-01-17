@@ -37,7 +37,7 @@ The `Query` type looks like this:
 ```
 data Query e sp = QFind    (Find    e sp)
                 | QTest    (Test    e sp)
-                | QVarTest (VarTest e sp)
+                | QVTest (VarTest e sp)
                 | QAnd               [Query e sp] -- ^ order not important
                 | QOr                [Query e sp] -- ^ order not important
                 | ForAll  Var Source (Query e sp)
@@ -48,7 +48,7 @@ data Query e sp = QFind    (Find    e sp)
 
 The `QAnd` and `QOr` constructors take a list of Queries and find their intersection or their union respectively. The `ForAll` and `ForSome` constructors take a variable name, the source from which to draw values of that variable, and a `Query` which can refer to the new variable.
 
-The `QFind`, `QTest` and `QVarTest` constructors are defined in terms of the Find, Test and VarTest types. See the code for the full spec, but here they are in brief:
+The `QFind`, `QTest` and `QVTest` constructors are defined in terms of the Find, Test and VarTest types. See the code for the full spec, but here they are in brief:
 
 A `Find` is used to find stuff in the space. You can make something of type `Find` by running `mkFindFrom`. `mkFindFrom` expects a function of type `(sp -> e -> Set e)`. That is, given a space sp and an element e of it, this function can produce a bunch of other elements of the space.
 
@@ -60,7 +60,7 @@ Everywhere you use a quantifier (`ForAll` or `ForSome`), a variable is bound to 
     [ ("a", QFind $ findChildren $ Left 0)
     , ("b", ( ForSome "a1" (Source "a")
               ( ForSome "a2" (Source "a")
-                (QAnd [ QVarTest $ mkVarTest (<) (Right "a1") (Right "a2")
+                (QAnd [ QVTest $ mkVarTest (<) (Right "a1") (Right "a2")
                       , QFind $ findChildren $ Right "a1"
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
 ```
@@ -86,7 +86,7 @@ A `Source` cannot be referred to before it has been defined. For instance, the f
 
 Every `QAnd` must include at least one findlike clause, and every `QOr` must contain nothing but findlike clauses. (See Inspect.hs for the precise definition of `findlike`.)
 
-`QTest` and `QVarTest`, since they are not findlike, can only be invoked as a clause in a `QAnd`. (Both are filters; it doesn't make sense to run them without first having found something to filter.)
+`QTest` and `QVTest`, since they are not findlike, can only be invoked as a clause in a `QAnd`. (Both are filters; it doesn't make sense to run them without first having found something to filter.)
 
 
 ### Not entirely natural
