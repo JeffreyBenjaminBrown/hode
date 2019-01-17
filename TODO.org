@@ -13,6 +13,9 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* TODO Query subtypes (Find etc) that expect a Maybe
+* TODO Rslt type which bundles Files and Index
+rename Files -> Exprs
 * TODO (#fast) positionsHeldBy ought to return two maps, not a set
 a map from Role to Set Addr
   because the item in question often holds the same Role in multiple Exprs

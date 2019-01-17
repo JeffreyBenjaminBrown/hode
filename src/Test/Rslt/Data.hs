@@ -18,10 +18,10 @@ files = M.fromList
   ]
 
 badFiles :: Files
-badFiles = foldl (\fm (k,v) -> M.insert k v fm) files newData where
-  newData = [ (1001, Rel [1,2] 5)
-            , (1002, Rel [1,2] (-1000))
-            ]
+badFiles = M.union files newData where
+  newData = M.fromList [ (1001, Rel [1,2] 5)
+                       , (1002, Rel [1,2] (-1000))
+                       ]
 
 index :: Index
 index = mkIndex files

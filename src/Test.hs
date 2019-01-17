@@ -15,12 +15,9 @@ import Test.TGraph
 import Test.TProgram
 import Test.TQuery
 import Test.TRslt
+import Test.Rslt.RProgram
 import Test.TSubst
 import Test.TUtil
-
-
-import Query.Inspect
-import Types
 
 
 tests :: IO Counts
@@ -31,5 +28,6 @@ tests = runTestTT $ TestList
   , test_module_Program
   , testModuleQuery
   , test_module_rslt
+  , test_module_rsltProgram
   , testModuleSubst
   ]

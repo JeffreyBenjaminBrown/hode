@@ -43,6 +43,7 @@ library
                 , Test.TQuery
                 , Test.TRslt
                 , Test.Rslt.Data
+                , Test.Rslt.RProgram
                 , Test.TSubst
                 , Test.TUtil
                 , Types

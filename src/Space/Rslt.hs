@@ -46,7 +46,7 @@ arity (Par x _) = length x
 -- The index is derived from the files.
 
 -- | The `Files` are used to retrieve the text of `Word`s and `Par`s.
-type Files = M.Map Int Expr -- TODO use ordinary hard-disk files
+type Files = M.Map Addr Expr -- TODO use ordinary hard-disk files
 
 -- | The `Index` can answer every fundamental connectivity question:
 -- What is in something, what is something in, etc.
