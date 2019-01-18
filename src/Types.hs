@@ -25,6 +25,12 @@ data Source = Source  { sourceVar :: Var }
             | Source' { sourceVar :: Var
                       , dets :: (Set Var) }
 
+data Query e sp = QFind  (Find       e sp)
+                | QTest  (Test       e sp)
+                | QVTest (VarTest    e sp)
+                | QJunct (Junction   e sp)
+                | QQuant (Quantifier e sp)
+
 data Find e sp = Find { findFunction          :: sp -> Subst e -> Set e
                       , findDets              :: Set Var }
   -- ^ If `findFunction` doesn't use the `Subst`, `findDets` should be empty.
@@ -34,12 +40,6 @@ data Test e sp = Test {  testFunction         :: sp -> Subst e ->    e -> Bool
 data VarTest e sp = VarTest { varTestFunction :: sp -> Subst e         -> Bool
                             , varTestDets     :: Set Var }
   -- ^ If `*Function` doesn't use the `Subst`, `*Dets` should be empty.
-
-data Query e sp = QFind  (Find       e sp)
-                | QTest  (Test       e sp)
-                | QVTest (VarTest    e sp)
-                | QJunct (Junction   e sp)
-                | QQuant (Quantifier e sp)
 
 data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
                    | Or  {clauses :: [Query e sp] } -- ^ order not important
@@ -57,3 +57,10 @@ type CondElts e = Map e (Set (Subst e))
   -- ^ PITFALL: If `Elt` is possible without any determining bindings, then
   -- the `Set` should include an empty `Map`. The `Set` should not be empty.
 type Possible e = Map Var (CondElts e)
+
+type InsAndOuts e = (Set (Subst e), Set (Subst e))
+inputs, outputs :: InsAndOuts e -> Set (Subst e)
+inputs = fst
+outputs = snd
+type CondElts' e  = Map e (InsAndOuts e)
+type Possible' e  = Map Var (CondElts' e)

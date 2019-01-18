@@ -13,19 +13,12 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO rename QVTest -> QVTest
 * TODO ? test dependent variables in TProgram
 This would help me figure out how to track outputs, not just inputs, in the Possible type.
-* TODO ? refactor Query for subtypes QLeaf, Quant, Junct
-This way queryDets need not be partial. (It's not technically, but in spirit.)
-This way quantifiers, and sometimes *junctions, can be handled with less code duplication.
-This way the default definitions (the one that catches things not caught by earlier definitions of the same functions) that currently catch QLeafs would be robust to refactoring the type. Currently if I added a constructor it could be caught by those same default cases when it doesn't make sense.
 * TODO ?! ask for multiple variables that determined a given one
 As opposed to Var String (Set Var), this would be Var (Set String) Var,
 or Var (Set String) (Set Var).
 * TODO track outputs, not just inputs, in the Possible
-* TODO The Source for a quantifier should come in three flavors, including Find
-Rather than a separate type, Source, there should just be a new constructor, QDraw, which draws from a previous result.
 * TODO for RSLT
 ** TODO Query subtypes (Find etc) that expect a Maybe (for the Rslt)
 ** TODO Rslt type which bundles Files and Index
@@ -125,3 +118,5 @@ variables ...".)
  In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 ** temporary user burdens: query order, dependency validity
  Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
+* DONE Possibilities for a quantifier's Source should not include Find
+because that would mean the Find is run fresh for each Subst.x
