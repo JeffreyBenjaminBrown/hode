@@ -167,12 +167,13 @@ testReconcile = TestCase $ do
       x1_x3 = S.fromList  [ M.singleton x 1
                           , M.singleton x 3 ]
   assertBool "1" $ reconcile (S.fromList [x1_x2, x1_x3]) == x1
-  let x1y1 = S.singleton ( M.fromList [(x,1), (y,2)]        )
+
+  let x1y2 = S.singleton ( M.fromList [(x,1), (y,2)]        )
       y2z3 = S.singleton ( M.fromList [(x,1),        (z,3)] )
-  assertBool "2" $ reconcile (S.fromList [x1, x1y1]) == x1y1
-  assertBool "3" $ reconcile (S.fromList [x1, x1y1, y2z3]) ==
+  assertBool "2" $ reconcile (S.fromList [x1, x1y2]) == x1y2
+  assertBool "3" $ reconcile (S.fromList [x1, x1y2, y2z3]) ==
     S.singleton ( M.fromList [(x,1), (y,2), (z,3)] )
-  assertBool "3" $ reconcile (S.fromList [x1, x1y1, y2z3, S.empty]) ==
+  assertBool "3" $ reconcile (S.fromList [x1, x1y2, y2z3, S.empty]) ==
                                                           S.empty
 
 testReconcile2sets = TestCase $ do

@@ -162,8 +162,9 @@ reconcileCondEltsAtElt e ces = do
 
 -- | = Reconciling `Subst`s
 
--- | `reconcile ss` finds every `Subst` that reconciles a `Subst`
--- from every member of ss.
+-- | `reconcile ss` finds every `Subst` that is a (maybe improper)
+-- superset of at least one `Subst` from every member of ss (and contains
+-- nothing not contained by one of them).
 reconcile :: Ord e => Set (Set (Subst e)) -> Set (Subst e)
 reconcile ss = if null ss then S.empty
                else S.foldl reconcile2sets min rest

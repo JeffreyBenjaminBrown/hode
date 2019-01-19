@@ -57,10 +57,3 @@ type CondElts e = Map e (Set (Subst e))
   -- ^ PITFALL: If `Elt` is possible without any determining bindings, then
   -- the `Set` should include an empty `Map`. The `Set` should not be empty.
 type Possible e = Map Var (CondElts e)
-
-type InsAndOuts e = (Set (Subst e), Set (Subst e))
-inputs, outputs :: InsAndOuts e -> Set (Subst e)
-inputs = fst
-outputs = snd
-type CondElts' e  = Map e (InsAndOuts e)
-type Possible' e  = Map Var (CondElts' e)
