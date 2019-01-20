@@ -10,12 +10,13 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import Test.TInspect
+import Test.Rslt.RProgram
 import Test.TGraph
+import Test.TInspect
 import Test.TProgram
 import Test.TQuery
+import Test.TRel
 import Test.TRslt
-import Test.Rslt.RProgram
 import Test.TSubst
 import Test.TUtil
 
@@ -30,4 +31,5 @@ tests = runTestTT $ TestList
   , test_module_rslt
   , test_module_rsltProgram
   , testModuleSubst
+  , test_module_Rel
   ]

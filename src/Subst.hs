@@ -26,7 +26,8 @@ extendPossible v src p s =
     s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
     in Right (p',s')
 
--- | `varPossibilities p s dv@(Var v dets)` is all values dv can take.
+-- | `varPossibilities p s dv@(Var v dets)` is all values v0 dv can take
+-- for which dv=v0 is an input into each of the dets.
 -- dv should not be bound in s or p, and every det in dets should be.
 -- If dets is null, then the CondElts returned
 -- has no determinants, and the Subst is not used.
