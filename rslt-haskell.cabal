@@ -43,6 +43,7 @@ library
                 , Test.TInspect
                 , Test.TProgram
                 , Test.TQuery
+                , Test.TRel
                 , Test.TRslt
                 , Test.Rslt.Data
                 , Test.Rslt.RProgram

@@ -82,7 +82,8 @@ reconcileDetsAcrossVars    p           s        dets
     se = S.map (inputSubsts p s) dets :: Set (Either String (Set (Subst e)))
     lefts = S.filter isLeft se
     in case null lefts of
-      False -> Left $ S.foldr (++) "" $ S.map (fromLeft "") lefts
+      False -> Left $ "reconcileDetsAcrossVars: error in callee:\n"
+               ++ (S.foldr (++) "" $ S.map (fromLeft "") lefts)
       True -> Right $ reconcile $ S.map (fromRight S.empty) se
 
 -- | `inputSubsts p s v` gives all the input sets that can lead to v --

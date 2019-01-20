@@ -52,12 +52,24 @@ data TSourcePlan = TSourcePlan {
 --    in Right $ M.map insMatch subPoss
 --    -- TODO : match outputs also
 
---insMatch :: TSource -> TSourcePlan -> CondElts e -> CondElts e
---insMatch (TSource _ ins _) t = M.filter (not . S.null)
---  . M.map ( S.filter $ M.isSubmapOf
---            $ M.mapKeys renameIn
---            $ M.restrictKeys s
---            $ S.fromList ins )
+restrictToMatchIns :: forall e. Eq e =>
+  TSource -> TSourcePlan -> Subst e
+  -> CondElts e -> Either String (CondElts e)
+
+restrictToMatchIns t pl s ce = let
+  ins = inputs t
+  sIns = M.restrictKeys s $ S.fromList ins :: Subst e
+  s_either = M.mapKeys (renameIn t pl) sIns :: Map (Either String Var) e
+  lefts = S.filter isLeft $ M.keysSet s_either :: Set (Either String Var)
+  in case null lefts of
+  False -> Left $ "insMatch: error in callee:\n"
+           ++ (S.foldr (++) "" $ S.map (fromLeft "") lefts)
+
+  True -> let
+    sRenamed :: Subst e
+    sRenamed = M.mapKeys (fromRight $ error "impossible") s_either
+    supermaps = M.map ( S.filter $ M.isSubmapOf sRenamed) ce
+    in Right $ M.filter (not . S.null) $ supermaps
 
 renameIn :: TSource -> TSourcePlan -> Var -> Either String Var
 renameIn t pl k = let ins = inputs t
