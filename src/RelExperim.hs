@@ -34,23 +34,37 @@ data TSourcePlan = TSourcePlan {
 -- should yield all values of v for which i=i0 is an input and for which
 -- o=o0 is an output.
 
---varPossibilities :: forall e. (Ord e, Show e)
---                 => Possible e -> Subst e -> TSource
---                 -> Either String (Possible e)
---varPossibilities    p           s            (TSource plans ins outs) = let
---  se, lefts :: [Either String (CondElts e)]
---  se = map (f . tSource) plans where
---    f :: Var -> Either String (CondElts e)
---    f v = maybe (Left $ keyErr "varPossibilities" v p) Right
---          $ M.lookup v p
---  lefts = filter isLeft se
---  in case null lefts of
---  False -> Left $ foldr (++) "" $ map (fromLeft "") lefts
---  True -> let
---    (subPoss :: Possible e) = M.fromList $ zip (map tName plans)
---                              $ map (fromRight mempty) se
---    in Right $ M.map insMatch subPoss
---    -- TODO : match outputs also
+varPossibilities :: forall e. (Ord e, Show e)
+                 => Possible e -> Subst e -> TSource
+                 -> Either String (Possible e)
+varPossibilities    p           s            t = let
+  (pls, ins) = (plans t, inputs t)
+  se, lefts :: [Either String (CondElts e)]
+  se = map (f . tSource) pls where
+    f :: Var -> Either String (CondElts e)
+    f v = maybe (Left $ keyErr "varPossibilities" v p) Right
+          $ M.lookup v p
+  lefts = filter isLeft se
+  in case null lefts of
+  False -> Left $ "varPossibilities: error in callee:\n"
+           ++ (foldr (++) "" $ map (fromLeft "") lefts)
+
+  True -> let
+    ces :: [CondElts e]
+    ces = map (fromRight $ error "impossible") se
+    ces_either, lefts :: [Either String (CondElts e)]
+    ces_either = map f $ zip pls ces
+      where f :: (TSourcePlan, CondElts e) -> Either String (CondElts e)
+            f (pl, ce) = restrictToMatchIns t pl s ce
+    lefts = filter isLeft ces_either
+    in case null lefts of
+    False -> Left $ "varPossibilities: error in callee:\n"
+             ++ (foldr (++) "" $ map (fromLeft "") lefts)
+
+    True -> let
+      cesRestricted = map (fromRight $ error "impossible") ces_either
+      in Right $ M.fromList $ zip (map tName pls) cesRestricted
+    -- TODO : match outputs also
 
 restrictToMatchIns :: forall e. Eq e =>
   TSource -> TSourcePlan -> Subst e
