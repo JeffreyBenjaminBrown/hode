@@ -30,6 +30,8 @@ library
                   Program
                 , Query
                 , Query.Inspect
+                , Relation
+                , RelExperim
                 , Space.Graph
                 , Space.Rslt
                 , Space.Rslt.Index

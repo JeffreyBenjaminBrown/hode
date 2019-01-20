@@ -56,15 +56,15 @@ varPossibilities    p           s        (Source' v dets) = let
 -- | `reconcileDetsAcrossVars p s dets` is every
 -- `Subst` that permits every value in `dets` specified by `s`.
 -- Each det should be bound in s.
--- The reconciliation is across dets -- that is, for each det in dets
--- and each r in the result, r is consistent with at least one Subst
--- that p assigns to det (given the value of det in s).
+-- The reconciliation is across dets -- that is, for each d in dets
+-- and each r in the result, if s binds d to the value d0, then r is
+--  consistent with at least one Subst that p assigns to the binding d=d0.
 --
--- For instance, imagine a Possible in which
+-- For instance, imagine a Possible p in which
 -- a can be 1 provided x is 1 or 2, and
 -- b can be 1 provided x is      2 or 3.
--- and we ask for reconcileDetsAcrossVars consistent with the subst (a=1,b=1).
--- THe only Subst consistent with both is a=2.
+-- and we ask for `reconcileDetsAcrossVars p (a=1,b=1) (a,b)`
+-- THe only Subst consistent with the bindings for both a and b is x=2.
 --
 -- TODO (#fast) short-circuit reconcileDetsAcrossVars.
 -- varPossibilities is so far reconcileDetsAcrossVars's only caller.
@@ -78,24 +78,25 @@ reconcileDetsAcrossVars :: forall e. (Ord e, Show e)
 reconcileDetsAcrossVars    p           s        dets
   | null dets = Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
   | True = let
-    se = S.map (impliedSubsts p s) dets :: Set (Either String (Set (Subst e)))
+    se = S.map (inputSubsts p s) dets :: Set (Either String (Set (Subst e)))
     lefts = S.filter isLeft se
     in case null lefts of
       False -> Left $ S.foldr (++) "" $ S.map (fromLeft "") lefts
       True -> Right $ reconcile $ S.map (fromRight S.empty) se
 
--- | If s maps v to e, then `impliedSubsts p s v` returns all Substs
--- that could lead to the result v=e.
+-- | `inputSubsts p s v` gives all the input sets that can lead to v --
+-- that is, the `Set` of `Subst`s that p associates with v=v0,
+-- where v0 is the value s binds to v.
 
-impliedSubsts :: forall e. (Ord e, Show e)
+inputSubsts :: forall e. (Ord e, Show e)
               => Possible e -> Subst e -> Var -> Either String (Set (Subst e))
-impliedSubsts p s v =
-  case (M.lookup v s :: Maybe e) of
-  Nothing -> Left $ keyErr "impliedSubsts / Subst" v s
+inputSubsts p s v =
+  case M.lookup v s :: Maybe e of
+  Nothing -> Left $ keyErr "inputSubsts / Subst" v s
   Just (vIs :: e) -> case M.lookup v p of
-    Nothing -> Left $ keyErr "impliedSubsts / Possible" v p
-    Just (vCouldHaveBeen :: CondElts e) -> case M.lookup vIs vCouldHaveBeen of
-      Nothing -> Left $ keyErr "impliedSubsts / CondElts" vIs vCouldHaveBeen
+    Nothing -> Left $ keyErr "inputSubsts / Possible" v p
+    Just (vCouldBe :: CondElts e) -> case M.lookup vIs vCouldBe of
+      Nothing -> Left $ keyErr "inputSubsts / CondElts" vIs vCouldBe
       Just ss -> Right ss
 
 

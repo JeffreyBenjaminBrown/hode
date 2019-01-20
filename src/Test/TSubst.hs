@@ -55,7 +55,7 @@ testVarPossibilities = TestCase $ do
     == Right ((M.!) pa a)
   assertBool "0.1" $ varPossibilities pa s_b1c1  (Source a)
     == Right ((M.!) pa a)
-    -- the Subst s_b1c1 is ignored because the dets in the Var are empty
+    -- the Subst s_b1c1 is ignored because the Source has no dets
 
   let (p :: Possible Int) = M.fromList
           [ ( a, M.fromList
@@ -78,8 +78,10 @@ testVarPossibilities = TestCase $ do
 
   assertBool "1" $ varPossibilities p s_b2 aOf_b
     == Right (M.fromList [ (2, S.singleton M.empty )
-                  , (3, S.singleton $ M.singleton x 13) ])
+                         , (3, S.singleton $ M.singleton x 13) ])
   assertBool "2" $ varPossibilities p s_b1c1 aOf_bc
+    -- (b=1 using a=4) and (c=1 using a=4) imply different bindings for x;
+    -- that's okay.
     == Right (M.fromList [ (2, S.singleton M.empty )
                          , (4, S.singleton $ M.singleton x 14) ])
 
