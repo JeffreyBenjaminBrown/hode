@@ -15,12 +15,6 @@ keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key map =  callingFunction ++ ": key "
   ++ show key ++ "not found in map " ++ show map ++ ".\n"
 
-isSubsetOfMap :: forall k b. (Ord k, Eq b)
-              => Map k b -> Map k b -> Bool
-isSubsetOfMap small big = M.foldrWithKey f True small where
-  f _ _ False = False -- short-circuit (hence foldr)
-  f k b True = M.lookup k big == Just b
-
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
