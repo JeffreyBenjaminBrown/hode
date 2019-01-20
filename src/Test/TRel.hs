@@ -20,22 +20,21 @@ test_module_Rel = TestList [
   , TestLabel "test_restrictToMatchIns" test_restrictToMatchIns
   ]
 
-thinking = let (a, b, c, x, y, z)  = ("a", "b", "c", "x", "y", "z")
-               (a1,b1,c1,x1,y1,z1) = ("a1","b1","c1","x1","y1","z1")
-               (a2,b2,c2,x2,y2,z2) = ("a2","b2","c2","x2","y2","z2")
-  in varPossibilities -- Possible e -> Subst e -> TSource
-  ( M.fromList [ (x, ( M.fromList
-                       [ ( 21, ( S.singleton
-                                 $ M.fromList [(a,1), (b,11)] ) ) ] ) )
-               , (y, ( M.fromList
-                       [ ( 31, ( S.singleton
-                                 $ M.fromList [(a,1), (b,11)] ) ) ] ) ) ] )
-  ( M.fromList [(x1,21),(y1,31)] :: Subst Int)
+thinking = let (a, b, c, i, o ) = ("a", "b", "c", "i", "o" )
+               (a1,b1,c1,i1,o1) = ("a1","b1","c1","i1","o1")
+               (a2,b2,c2,i2,o2) = ("a2","b2","c2","i2","o2")
+  in varPossibilities
+  ( M.fromList [ (a, ( M.fromList
+                       [ ( "aVal", ( S.singleton
+                                     $ M.fromList [(i,"iVal")] ) ) ] ) )
+               , (o, ( M.fromList
+                       [ ( "oVal", ( S.singleton
+                                     $ M.fromList [(a1,"aVal")] ) ) ] ) ) ] )
+  ( M.fromList [(i1,"iVal"),(o1,"oVal")] :: Subst String )
   ( TSource
-   [ ( TVarPlan a a1 [x1,y1] [] ) -- source, name, inputNames, outputNames
-   , ( TVarPlan b b1 [x2,y2] [] ) ]
-   []                                -- inputs
-   [x1, y1] )                        -- outputs
+    [ TVarPlan a a2 [i1] [a1] ]
+    [ i1 ]
+    [ (o,o1) ] )
 
 test_restrictToMatchIns = TestCase $ do
   let meh = error "whatever"

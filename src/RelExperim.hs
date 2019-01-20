@@ -20,19 +20,54 @@ type Rel = R.Relation
 type CondElts' e = Rel e (Subst e)
 type Possible' e = Map Var (CondElts' e)
 
-data TSource = TSource { plans   :: [TVarPlan]
-                       , haveInputs  :: [Var]
-                       , haveOutputs :: [Var] }
+data TSource = TSource {
+    plans       :: [TVarPlan] -- ^ new `Var`s to introduce in this `Query`
+  , haveInputs  :: [Var] -- ^ only values for which these `Var`s
+    -- (as dictated by some `Subst`) are inputs will be returned
+  , haveOutputs :: [(Var,Var)] -- ^ Each fst is a source (a key in the
+    -- Possible), and each snd is the corresponding `Var` in the `Subst`.
+  }
 
-data TVarPlan = TVarPlan { tSource             :: Var
-                         , tName               :: Var
-                         , namesItsInputs      :: [Var]
-                         , isNamedByItsOutputs :: [Var] }
+data TVarPlan = TVarPlan {
+    tSource :: Var -- ^ where in the `Possible` values are drawn from
+  , tName   :: Var -- ^ what the drawn values will be called in this `Query`
+  , namesItsInputs      :: [Var]
+  , isNamedByItsOutputs :: [Var]
+  }
 
--- | If s binds i to i0 and o to o0, calling
--- `varPossibilities p s (TSource v (S.singleton i) (S.singleton o))`,
--- should yield all values of v for which i=i0 is an input and for which
--- o=o0 is an output.
+-- TODO A TSource t is valid only if
+-- (1) The length of `haveInputs t`  matches the length of
+--    `namesItsInputs p`     for each `p` in `plans t`.
+-- (2) The length of `haveOutputs t` matches the length of
+--   `isNamedByItsOutputs p` for each `p` in `plans t`.
+
+-- | Consider `varPossibilities p s src`, where
+  -- s = M.fromList [(i1,iVal), (o1,oVal)]
+  -- `src = TSource vp [i1] [(o,o1)]`
+  -- `vp = TVarPlan "a" "a2" ["i"] ["a1"]`.
+--
+-- That says:
+--   a and o are the names of the results of two previous Queries.
+--   When a was created, it relied on an input it called i.
+--   When o was created, it relied on an input it called a1.
+--   We want:
+--     to draw values (call them aVal) from the results for a,
+--     to bind the drawn value aVal to the name a2,
+--     and to include only those values of aVal such that:
+--       i=iVal was an input to the binding a=aVal.
+--       a1=aVal was an input to the binding o=oVal.
+--
+-- We create a set of candidates for a2 by first matching inputs:
+-- we find a in the `Possible`, and then restrict
+-- its associated `CondElts` to include only `Subst`s that include
+-- the binding i=i1v.
+--
+-- Next we have to match outputs. Consider a particular candidate, a2=aVal.
+-- aVal meets the output-matching criteria if o uses a1=aVal as an input.
+-- We find the CondElts keyed by "o" in the Possible,
+-- and within that CondElts we look up oVal.
+-- If any Subst in the resulting Set Subst contains the binding
+-- a1=aVal, then aVal survives.
 
 varPossibilities :: forall e. (Ord e, Show e)
                  => Possible e -> Subst e -> TSource
