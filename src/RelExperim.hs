@@ -35,14 +35,14 @@ data TSource = TSource {
     -- (as dictated by some `Subst`) are inputs will be returned
   , haveOutputs :: [(Var,Var)] -- ^ Each fst is a source (a key in the
     -- Possible), and each snd is the corresponding `Var` in the `Subst`.
-  }
+  } deriving (Show, Eq, Ord)
 
 data TVarPlan = TVarPlan {
     tSource :: Var -- ^ where in the `Possible` values are drawn from
   , tName   :: Var -- ^ what the drawn values will be called in this `Query`
   , namesItsInputs      :: [Var]
   , isNamedByItsOutputs :: [Var]
-  }
+  } deriving (Show, Eq, Ord)
 
 -- | Consider `varPossibilities p s src`, where
   -- s = M.fromList [(i1,iVal), (o1,oVal)]
@@ -77,38 +77,45 @@ data TVarPlan = TVarPlan {
 -- If any Subst in the resulting Set Subst contains the binding
 -- a1=aVal, then aVal survives.
 
-varPossibilities :: forall e. (Ord e, Show e)
+varPossibilities' :: forall e. (Ord e, Show e)
                  => Possible e -> Subst e -> TSource
-                 -> Either String (Possible e)
-varPossibilities    p           s            t = let
-  (pls, ins) = (plans t, haveInputs t)
-  sources_either, lefts :: [Either String (CondElts e)]
-  sources_either = map (fetchFromPossible . tSource) pls where
-    fetchFromPossible :: Var -> Either String (CondElts e)
-    fetchFromPossible v = maybe (Left $ keyErr "varPossibilities" v p) Right
-                          $ M.lookup v p
+                 -> IO ( Either String (Possible e) )
+varPossibilities'   p           s            t = do
+  let (pls, ins) = (plans t, haveInputs t)
+      sources_either, lefts :: [Either String (CondElts e)]
+      sources_either = map (fetchFromPossible . tSource) pls where
+        fetchFromPossible :: Var -> Either String (CondElts e)
+        fetchFromPossible v =
+          maybe (Left $ keyErr "varPossibilities" v p) Right $ M.lookup v p
+      lefts = filter isLeft sources_either
+      show' name thing = putStrLn $ name ++ ": " ++ show thing
+  show' "pls" pls
+  show' "ins" ins
 
-  lefts = filter isLeft sources_either
-  in case null lefts of
-  False -> Left $ "varPossibilities: error in callee:\n"
-           ++ concat (map (fromLeft "") lefts)
-  True -> let
-    ces :: [CondElts e]
-    ces = map (fromRight $ error "impossible") sources_either
-
-    ces_ins_matched_either, lefts :: [Either String (CondElts e)]
-    ces_ins_matched_either = map restrict $ zip pls ces
-      where restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
-            restrict (pl, ce) = restrictToMatchIns t pl s ce
-    lefts = filter isLeft ces_ins_matched_either
-    in case null lefts of
-    False -> Left $ "varPossibilities: error in callee:\n"
+  case null lefts of
+    False -> return $ Left $ "varPossibilities: error in callee:\n"
              ++ concat (map (fromLeft "") lefts)
-    True -> let
-      ces_ins_matched =
-        map (fromRight $ error "impossible") ces_ins_matched_either
-      in Right $ M.fromList $ zip (map tName pls) ces_ins_matched
-    -- TODO : match outputs also
+    True -> do
+  
+    let sources :: [CondElts e]
+        sources = map (fromRight $ error "impossible") sources_either
+        sources_ins_matched_either, lefts :: [Either String (CondElts e)]
+        sources_ins_matched_either = map restrict $ zip pls sources
+          where
+            restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
+            restrict (pl, ce) = restrictToMatchIns t pl s ce
+        lefts = filter isLeft sources_ins_matched_either
+    show' "sources" sources
+    case null lefts of
+      False -> return $ Left $ "varPossibilities: error in callee:\n"
+               ++ concat (map (fromLeft "") lefts)
+      True -> do
+    
+        let sources_ins_matched =
+              map (fromRight $ error "impossible") sources_ins_matched_either
+        show' "sources_ins_matched" sources_ins_matched
+        return $ Right $ M.fromList $ zip (map tName pls) sources_ins_matched
+        -- TODO : match outputs also
 
 restrictToMatchIns :: forall e. Eq e =>
   TSource -> TVarPlan -> Subst e
@@ -126,9 +133,10 @@ restrictToMatchIns t pl s ce = let
            ++ (S.foldr (++) "" $ S.map (fromLeft "") lefts)
 
   True -> let
-    subst_ins_renamed :: Subst e
-    subst_ins_renamed = M.mapKeys (fromRight $ error "impossible") subst_ins_renamed_either
-    supermaps = M.map ( S.filter $ M.isSubmapOf subst_ins_renamed) ce
+    (subst_ins_renamed :: Subst e) =
+      M.mapKeys (fromRight $ error "impossible") subst_ins_renamed_either
+    (supermaps :: CondElts e) =
+      M.map ( S.filter $ M.isSubmapOf subst_ins_renamed) ce
     in Right $ M.filter (not . S.null) $ supermaps
 
 -- | The `TSource` contains a list of the inputs from the current `Subst`

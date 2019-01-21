@@ -24,7 +24,7 @@ test_module_Rel = TestList [
 thinking = let (a, b, c, i, o ) = ("a", "b", "c", "i", "o" )
                (a1,b1,c1,i1,o1) = ("a1","b1","c1","i1","o1")
                (a2,b2,c2,i2,o2) = ("a2","b2","c2","i2","o2")
-  in varPossibilities
+  in varPossibilities'
   ( M.fromList [ (a, ( M.fromList
                        [ ( "aVal", ( S.singleton
                                      $ M.fromList [(i,"iVal")] ) ) ] ) )
@@ -38,7 +38,6 @@ thinking = let (a, b, c, i, o ) = ("a", "b", "c", "i", "o" )
     [ (o,o1) ] )
 
 test_restrictToMatchIns = TestCase $ do
-  let meh = error "whatever"
   assertBool "1" $ restrictToMatchIns
     (TSource [] ["a1","b1"] [])   -- most args don't matter here
     (TVarPlan "" "" ["a","b"] []) -- most args don't matter here
@@ -51,9 +50,8 @@ test_restrictToMatchIns = TestCase $ do
                               $ M.fromList [("a",1),("b",1),("c",1)] ) ] )
 
 test_renameOut = TestCase $ do
-  let meh = error "whatev"
   assertBool "1" $ renameOut
-    (TSource meh [] [("a","a1")])
+    (TSource [] [] [("a","a1")]) -- empty args don't matter here
     "a1" == Right "a"
 
 test_renameIn = TestCase $ do
