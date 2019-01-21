@@ -78,13 +78,11 @@ reconcileDetsAcrossVars :: forall e. (Ord e, Show e)
                         -> Either String (Set (Subst e))
 reconcileDetsAcrossVars    p           s        dets
   | null dets = Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
-  | True = let
-    se = S.map (inputSubsts p s) dets :: Set (Either String (Set (Subst e)))
-    lefts = S.filter isLeft se
-    in case null lefts of
-      False -> Left $ "reconcileDetsAcrossVars: error in callee:\n"
-               ++ (S.foldr (++) "" $ S.map (fromLeft "") lefts)
-      True -> Right $ reconcile $ S.map (fromRight S.empty) se
+  | True = do
+      (se :: Set (Set (Subst e))) <-
+          hopeNoLefts_set "reconcileDetsAcrossVars: error in callee:\n"
+          $ S.map (inputSubsts p s) dets
+      return $ reconcile se
 
 -- | `inputSubsts p s v` gives all the input sets that can lead to v --
 -- that is, the `Set` of `Subst`s that p associates with v=v0,

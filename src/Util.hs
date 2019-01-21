@@ -2,6 +2,7 @@
 
 module Util where
 
+import           Data.Either
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -18,6 +19,24 @@ keyErr callingFunction key map =  callingFunction ++ ": key "
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
+hopeNoLefts :: String -> [Either String a] -> Either String [a]
+hopeNoLefts msg es = let
+  lefts = filter isLeft es
+  impossible = error "collectIfAnyLefts: impossible."
+  in case null lefts of
+       True -> Right $ map (fromRight impossible) es
+       False -> Left $ msg ++ ": "
+         ++ concat (map (fromLeft impossible) lefts)
+
+hopeNoLefts_set :: Ord a
+  => String -> Set (Either String a) -> Either String (Set a)
+hopeNoLefts_set msg es = let
+  lefts = S.filter isLeft es
+  impossible = error "collectIfAnyLefts: impossible."
+  in case null lefts of
+       True -> Right $ S.map (fromRight impossible) es
+       False -> Left $ msg ++ ": "
+         ++ concat (S.map (fromLeft impossible) lefts)
 
 -- | = functions that use the Types module
 

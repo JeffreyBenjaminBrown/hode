@@ -44,19 +44,6 @@ data TVarPlan = TVarPlan {
   , isNamedByItsOutputs :: [Var]
   } deriving (Show, Eq, Ord)
 
-eitherTest :: Either String [Int]
-eitherTest = do
-  let test1 :: Int -> Either String Int
-      test1 i = if i > 0 then Right i else Left $ show i
-      testMany :: String -> [Either String a] -> Either String [a]
-      testMany msg es = let lefts = filter isLeft es
-        in case null lefts of
-        True -> Right $ map (fromRight $ error "impossible") es
-        False -> Left $ msg ++ ": "
-          ++ concat (map (flip (++) ", " . fromLeft "impossible") lefts)
-  x <- testMany "problems" $ map test1 [-2..5]
-  return $ map (+1) x
-
 -- | Consider `varPossibilities p s src`, where
   -- s = M.fromList [(i1,iVal), (o1,oVal)]
   -- `src = TSource vp [i1] [(o,o1)]`
