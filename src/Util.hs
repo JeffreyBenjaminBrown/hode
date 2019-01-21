@@ -22,7 +22,7 @@ setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 hopeNoLefts :: String -> [Either String a] -> Either String [a]
 hopeNoLefts msg es = let
   lefts = filter isLeft es
-  impossible = error "collectIfAnyLefts: impossible."
+  impossible = error "hopeNoLefts: impossible."
   in case null lefts of
        True -> Right $ map (fromRight impossible) es
        False -> Left $ msg ++ ": "
@@ -32,11 +32,22 @@ hopeNoLefts_set :: Ord a
   => String -> Set (Either String a) -> Either String (Set a)
 hopeNoLefts_set msg es = let
   lefts = S.filter isLeft es
-  impossible = error "collectIfAnyLefts: impossible."
+  impossible = error "hopeNoLefts_set: impossible."
   in case null lefts of
        True -> Right $ S.map (fromRight impossible) es
        False -> Left $ msg ++ ": "
          ++ concat (S.map (fromLeft impossible) lefts)
+
+hopeNoLefts_mapKeys :: Ord k
+  => String -> Map (Either String k) a -> Either String (Map k a)
+hopeNoLefts_mapKeys msg m = let
+  lefts = S.filter isLeft $ M.keysSet m
+  impossible = error "hopeNoLefts_mapKeys: impossible."
+  in case null lefts of
+       True -> Right $ M.mapKeys (fromRight impossible) m
+       False -> Left $ msg ++ ": "
+         ++ concat (S.map (fromLeft impossible) lefts)
+
 
 -- | = functions that use the Types module
 

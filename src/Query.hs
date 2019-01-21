@@ -124,28 +124,23 @@ runTest d s q ce = let
 runAnd :: forall e sp. (Ord e, Show e)
         => sp -> Possible e -> [Query e sp] -> Subst e
         -> Either String (CondElts e)
-runAnd d p qs s = let
-  errMsg = "runAnd: error in callee:\n"
-  (searches,tests') = partition findlike qs
-  (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
-  varTestResults = map (runVarTest d s . unwrap) varTests where
-    unwrap = \case QVTest t->t; _->error "runAnd: unwrap: impossible."
-  in if not $ and varTestResults then Right M.empty else let
-
-    eFound :: [Either String (CondElts e)]
-    eFound = map (flip (runFindlike d p) s) searches
-    lefts = filter isLeft eFound
-    in case null lefts of
-    False -> Left $ errMsg ++ show (map (fromLeft "") lefts)
-    True -> let
-      (found      :: [CondElts e]) = map (fromRight M.empty) eFound
-      (reconciled ::  CondElts e)  = reconcileCondElts $ S.fromList found
-      tested = foldr f (Right reconciled) tests where
-        f :: Query e sp -> Either String (CondElts e)
-                        -> Either String (CondElts e)
-        f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
-        f t (Right ce) = runTestlike d p t s ce
-      in tested
+runAnd d p qs s = do
+  let errMsg = "runAnd: error in callee:\n"
+      (searches,tests') = partition findlike qs
+      (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
+      varTestResults = map (runVarTest d s . unwrap) varTests where
+        unwrap = \case QVTest t->t; _->error "runAnd: unwrap: impossible."
+  if not $ and varTestResults then Right M.empty
+  else do
+   (found :: [CondElts e]) <- hopeNoLefts errMsg
+                              $ map (flip (runFindlike d p) s) searches
+   let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
+       tested = foldr f (Right reconciled) tests where
+         f :: Query e sp -> Either String (CondElts e)
+                         -> Either String (CondElts e)
+         f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
+         f t (Right ce) = runTestlike d p t s ce
+   tested
 
 
 -- | = runTestlike
@@ -160,55 +155,42 @@ runTestlike d _ (QTest t) s ce = Right $ runTest d s t ce
 runTestlike _ _ (QVTest _) _ _ =
   Left $ "runTestlike: VarTest should have been handled by And."
 
-runTestlike d p (QJunct (And qs)) s ce = let
-  results :: [Either String (CondElts e)]
-  results = map (\q -> runTestlike d p q s ce) qs
-  lefts = filter isLeft results
-  in case null lefts of
-  False -> Left $ "runTestlike: error in callee:\n"
-          ++ show (map (fromLeft "") lefts)
-  True -> Right $ reconcileCondElts $ S.fromList
-           $ map (fromRight M.empty) results
+runTestlike d p (QJunct (And qs)) s ce = do
+  (results :: [CondElts e]) <-
+    hopeNoLefts "runTestlike: error in callee:\n"
+    $ map (\q -> runTestlike d p q s ce) qs
+  Right $ reconcileCondElts $ S.fromList results
 
-runTestlike d p (QJunct (Or qs)) s ce = let
-  results :: [Either String (CondElts e)]
-  results = map (\q -> runTestlike d p q s ce) qs
-  lefts = filter isLeft results
-  in case null lefts of
-  False -> Left $ "runTestlike: error in callee:\n"
-          ++ show (map (fromLeft "") lefts)
-  True -> Right $ M.unionsWith S.union
-           $ map (fromRight M.empty) results
+runTestlike d p (QJunct (Or qs)) s ce = do
+  (results :: [CondElts e]) <-
+    hopeNoLefts "runTestlike: error in callee:\n"
+    $ map (\q -> runTestlike d p q s ce) qs
+  Right $ M.unionsWith S.union results
 
-runTestlike d p (QQuant (ForSome v src q)) s ce =
+runTestlike d p (QQuant (ForSome v src q)) s ce = do
   let errMsg = "runTestlike: error in callee:\n"
-  in case extendPossible v src p s of
-  Left s -> Left $ errMsg ++ s
-  Right (p',ss) -> let
-    res :: Set (Either String (CondElts e))
-    res = S.map (flip (runTestlike d p' q) ce) ss
-    lefts = S.filter isLeft res
-    in case null lefts of
-    False -> Left $ errMsg ++ show (S.map (fromLeft "") lefts)
-    True -> Right $ M.unionsWith S.union
-            $ S.map (fromRight M.empty) res
+  ((p',ss) :: (Possible e, Set (Subst e))) <-
+    either (\s -> Left $ errMsg ++ s) Right
+    $ extendPossible v src p s
+  (res :: Set (CondElts e)) <-
+    hopeNoLefts_set errMsg
+    $ S.map (flip (runTestlike d p' q) ce) ss
+  Right $ M.unionsWith S.union res
 
-runTestlike d p (QQuant (ForAll v src q)) s ce = let
-  errMsg = "runTestlike: error in callee:\n"
-  in case extendPossible v src p s of
-  Left s -> Left $ errMsg ++ s
-  Right (p',ss) -> let
-    res :: Set (Either String (CondElts e))
-    res = S.map (flip (runTestlike d p' q) ce) ss
-    lefts = S.filter isLeft res
-    in case null lefts of
-    False -> Left $ errMsg ++ show (S.map (fromLeft "") lefts)
-    True -> let
-      cesWithoutV :: Set (CondElts e)
+runTestlike d p (QQuant (ForAll v src q)) s ce = do
+  let errMsg = "runTestlike: error in callee:\n"
+  ((p',ss) :: (Possible e, Set (Subst e))) <-
+    either (\s -> Left $ errMsg ++ s) Right
+    $ extendPossible v src p s
+  (res :: Set (CondElts e)) <-
+    hopeNoLefts_set errMsg
+    $ S.map (flip (runTestlike d p' q) ce) ss
+
+  let cesWithoutV :: Set (CondElts e)
       cesWithoutV = S.map f res where
         -- delete the dependency on v, so that reconciliation can work
-        f = (M.map $ S.map $ M.delete v) . (fromRight M.empty)
-      in Right $ reconcileCondElts cesWithoutV
+        f = M.map $ S.map $ M.delete v
+  Right $ reconcileCondElts cesWithoutV
          -- keep only results that obtain for every value of v
 
 
@@ -226,47 +208,38 @@ runFindlike _ _ (findlike -> False) _ = Left "runFindlike: non-findlike Query"
 runFindlike d _ (QFind f) s = Right $ runFind d s f
 runFindlike d p (QJunct (And qs)) s = runAnd d p qs s
 
-runFindlike d p (QJunct (Or qs)) s = let
+runFindlike d p (QJunct (Or qs)) s = do
   -- TODO (#fast|#hard) Fold Or with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
-  ces = map (flip (runFindlike d p) s) qs :: [Either String (CondElts e)]
-  lefts = filter isLeft ces
-  in case null lefts of
-  False -> Left $ "runFindlike: error in callee:\n"
-    ++ show (map (fromLeft "") lefts)
-  True -> Right $ M.unionsWith S.union $ map (fromRight M.empty) ces
+  (ces :: [CondElts e]) <-
+    hopeNoLefts "runFindlike: error in callee:\n"
+    $ map (flip (runFindlike d p) s) qs
+  Right $ M.unionsWith S.union ces
 
-runFindlike d p (QQuant (ForSome v src q)) s =
-  case extendPossible v src p s of
-  Left s -> Left $ "runFindlike: error in callee:\n" ++ s
-  Right (p',ss) -> let
-    res, lefts :: Set (Either String (CondElts e))
-    res = S.map (runFindlike d p' q) ss
-    lefts = S.filter isLeft res
-    in case null lefts of
-    False -> Left $ "runTestlike: error(s) in callee:\n"
-      ++ show (S.map (fromLeft "") lefts)
-    True -> Right $ M.unionsWith S.union
-            $ S.map (fromRight M.empty) res
+runFindlike d p (QQuant (ForSome v src q)) s = do
+  ((p',ss) :: (Possible e, Set (Subst e))) <-
+    either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
+    $ extendPossible v src p s
+  (res :: Set (CondElts e)) <-
+    hopeNoLefts_set "runFindlike: error(s) in callee:\n"
+    $ S.map (runFindlike d p' q) ss
+  Right $ M.unionsWith S.union res
 
   -- TODO (#fast) runFindlike: Fold ForAll with short-circuiting.
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 
-runFindlike d p (QQuant (ForAll v src q)) s =
-  case extendPossible v src p s of
-  Left s -> Left $ "runFindlike: error in callee:\n" ++ s
-  Right (p',ss) -> let
-    res, lefts :: Set (Either String (CondElts e))
-    res = S.map (runFindlike d p' q) ss
-    lefts = S.filter isLeft res
-    in case null lefts of
-    False -> Left $ "runTestlike: error(s) in callee:\n"
-      ++ show (S.map (fromLeft "") lefts)
-    True -> let
-      (cesWithoutV :: Set (CondElts e)) = S.map f res where
+runFindlike d p (QQuant (ForAll v src q)) s = do
+  ((p',ss) :: (Possible e, Set (Subst e))) <-
+    either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
+    $ extendPossible v src p s
+  (res :: Set (CondElts e)) <-
+    hopeNoLefts_set "runFindlike: error(s) in callee:\n"
+    $ S.map (runFindlike d p' q) ss
+  let (cesWithoutV :: Set (CondElts e)) =
+        S.map f res where
         -- delete the dependency on v, so that reconciliation can work
-        f = (M.map $ S.map $ M.delete v) . (fromRight M.empty)
-      in Right $ reconcileCondElts cesWithoutV
-         -- keep only results that obtain for every value of v
+        f = M.map $ S.map $ M.delete v
+  Right $ reconcileCondElts cesWithoutV
+    -- keep only results that obtain for every value of v

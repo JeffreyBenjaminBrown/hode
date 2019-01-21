@@ -80,56 +80,35 @@ data TVarPlan = TVarPlan {
 input_matched_varPossibilities' :: forall e. (Ord e, Show e)
                                 => Possible e -> Subst e -> TSource
                                 -> Either String (Possible e)
-input_matched_varPossibilities'    p           s            t = let
-  (pls, ins) = (plans t, haveInputs t)
-  sources_either, lefts :: [Either String (CondElts e)]
-  sources_either = map (fetchFromPossible . tSource) pls where
-    fetchFromPossible :: Var -> Either String (CondElts e)
-    fetchFromPossible v =
-      maybe (Left $ keyErr "fetch" v p) Right $ M.lookup v p
-  lefts = filter isLeft sources_either
-  in case null lefts of
-    False -> Left $ "input_matched_varPossibilities': error in callee:\n"
-             ++ concat (map (fromLeft "") lefts)
-    True -> let
-  
-      sources :: [CondElts e]
-      sources = map (fromRight $ error "impossible") sources_either
-      sources_ins_matched_either, lefts :: [Either String (CondElts e)]
-      sources_ins_matched_either = map restrict $ zip pls sources where
-          restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
-          restrict (pl, ce) = restrictToMatchIns t pl s ce
-      lefts = filter isLeft sources_ins_matched_either
-      in case null lefts of
-        False -> Left $ "input_matched_varPossibilities': error in callee:\n"
-                 ++ concat (map (fromLeft "") lefts)
+input_matched_varPossibilities'    p           s            t = do
+  let (pls, ins) = (plans t, haveInputs t)
+  (sources :: [CondElts e]) <-
+    let fetchFromPossible :: Var -> Either String (CondElts e)
+        fetchFromPossible v =
+          maybe (Left $ keyErr "fetch" v p) Right $ M.lookup v p
+    in hopeNoLefts "input_matched_varPossibilities': error in callee:\n"
+       $ map (fetchFromPossible . tSource) pls
 
-        True -> let
-          sources_ins_matched =
-            map (fromRight $ error "impossible") sources_ins_matched_either
-          in Right $ M.fromList $ zip (map tName pls) sources_ins_matched
+  (sources_ins_matched :: [CondElts e]) <-
+    let restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
+        restrict (pl, ce) = restrictToMatchIns t pl s ce
+    in hopeNoLefts "input_matched_varPossibilities': error in callee:\n"
+       $ map restrict $ zip pls sources
+  Right $ M.fromList $ zip (map tName pls) sources_ins_matched
 
 restrictToMatchIns :: forall e. Eq e =>
   TSource -> TVarPlan -> Subst e
   -> CondElts e -> Either String (CondElts e)
 
-restrictToMatchIns t pl s ce = let
-  ins = haveInputs t
-  subst_ins = M.restrictKeys  s  $ S.fromList ins :: Subst e
-  (subst_ins_renamed_either :: Map (Either String Var) e) =
-    M.mapKeys (renameIn t pl) subst_ins
-  (lefts :: Set (Either String Var)) =
-    S.filter isLeft $ M.keysSet subst_ins_renamed_either
-  in case null lefts of
-  False -> Left $ "insMatch: error in callee:\n"
-           ++ (S.foldr (++) "" $ S.map (fromLeft "") lefts)
-
-  True -> let
-    (subst_ins_renamed :: Subst e) =
-      M.mapKeys (fromRight $ error "impossible") subst_ins_renamed_either
-    (supermaps :: CondElts e) =
-      M.map ( S.filter $ M.isSubmapOf subst_ins_renamed) ce
-    in Right $ M.filter (not . S.null) $ supermaps
+restrictToMatchIns t pl s ce = do
+  let ins = haveInputs t
+      subst_ins = M.restrictKeys s $ S.fromList ins :: Subst e
+  (subst_ins_renamed :: Subst e) <-
+    hopeNoLefts_mapKeys "insMatch: error in callee:\n"
+    $ M.mapKeys (renameIn t pl) subst_ins
+  let (supermaps :: CondElts e) =
+        M.map ( S.filter $ M.isSubmapOf subst_ins_renamed) ce
+  Right $ M.filter (not . S.null) $ supermaps
 
 -- | The `TSource` contains a list of the inputs from the current `Subst`
 -- being used. The `TVarPlan` has a list of what the source named in

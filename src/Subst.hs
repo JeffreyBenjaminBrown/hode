@@ -15,16 +15,16 @@ import Util
 
 extendPossible :: (Ord e, Show e) => Var -> Source -> Possible e -> Subst e
                -> Either String (Possible e, Set (Subst e))
-extendPossible v src p s =
-  case varPossibilities p s src of
-  Left s -> Left $ "extendPossible: error in callee:\n" ++ s
-  Right ce -> let
+extendPossible v src p s = do
+  ce <- either (\s -> Left $ "extendPossible: error in callee:\n" ++ s)
+    Right $ varPossibilities p s src
+  let
     p' = case src of Source v -> p
                      Source' v' dets -> M.insert v ce p
       -- TODO ? Does ce need this insertion into p? It is only a subset
       -- of a the CondElts already present, keyed by v' instead of v.
     s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
-    in Right (p',s')
+  Right (p',s')
 
 -- | `varPossibilities p s dv@(Var v dets)` is all values v0 dv can take
 -- for which dv=v0 is an input into each of the dets.
@@ -45,6 +45,7 @@ varPossibilities    p           s        (Source' v dets) = let
           -- one of the dets is irrelevant, as is any such key of p.
       vAndDets = S.insert v dets
       f = M.map $ S.map $ flip M.restrictKeys vAndDets
+
   in case reconcileDetsAcrossVars pRestricted s dets of
     Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
     Right (substs :: Set (Subst e)) -> let
@@ -82,7 +83,7 @@ reconcileDetsAcrossVars    p           s        dets
       (se :: Set (Set (Subst e))) <-
           hopeNoLefts_set "reconcileDetsAcrossVars: error in callee:\n"
           $ S.map (inputSubsts p s) dets
-      return $ reconcile se
+      Right $ reconcile se
 
 -- | `inputSubsts p s v` gives all the input sets that can lead to v --
 -- that is, the `Set` of `Subst`s that p associates with v=v0,
@@ -90,14 +91,13 @@ reconcileDetsAcrossVars    p           s        dets
 
 inputSubsts :: forall e. (Ord e, Show e)
               => Possible e -> Subst e -> Var -> Either String (Set (Subst e))
-inputSubsts p s v =
-  case M.lookup v s :: Maybe e of
-  Nothing -> Left $ keyErr "inputSubsts / Subst" v s
-  Just (vIs :: e) -> case M.lookup v p of
-    Nothing -> Left $ keyErr "inputSubsts / Possible" v p
-    Just (vCouldBe :: CondElts e) -> case M.lookup vIs vCouldBe of
-      Nothing -> Left $ keyErr "inputSubsts / CondElts" vIs vCouldBe
-      Just ss -> Right ss
+inputSubsts p s v = do
+  vIs <- maybe (Left $ keyErr "inputSubsts / Subst" v s) Right
+         $ M.lookup v s
+  vCouldBe <- maybe (Left $ keyErr "inputSubsts / Possible" v p) Right
+              $ M.lookup v p
+  maybe (Left $ keyErr "inputSubsts / CondElts" vIs vCouldBe) Right
+    $ M.lookup vIs vCouldBe
 
 
 -- | = Building a `CondElts` from `Subst`s
@@ -120,7 +120,7 @@ substToCondElts :: Var -> Subst e -> Maybe (CondElts e)
 substToCondElts v subst = do
   val <- M.lookup v subst
   let subst' = M.delete v subst
-  return $ M.singleton val $ S.singleton subst'
+  Just $ M.singleton val $ S.singleton subst'
 
 
 -- | = Reconciling `CondElts`s
