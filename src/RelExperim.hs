@@ -86,13 +86,13 @@ input_matched_varPossibilities'    p           s            t = do
     let fetchFromPossible :: Var -> Either String (CondElts e)
         fetchFromPossible v =
           maybe (Left $ keyErr "fetch" v p) Right $ M.lookup v p
-    in hopeNoLefts "input_matched_varPossibilities': error in callee:\n"
+    in ifLefts "input_matched_varPossibilities': error in callee:\n"
        $ map (fetchFromPossible . tSource) pls
 
   (sources_ins_matched :: [CondElts e]) <-
     let restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
         restrict (pl, ce) = restrictToMatchIns t pl s ce
-    in hopeNoLefts "input_matched_varPossibilities': error in callee:\n"
+    in ifLefts "input_matched_varPossibilities': error in callee:\n"
        $ map restrict $ zip pls sources
   Right $ M.fromList $ zip (map tName pls) sources_ins_matched
 
@@ -104,7 +104,7 @@ restrictToMatchIns t pl s ce = do
   let ins = haveInputs t
       subst_ins = M.restrictKeys s $ S.fromList ins :: Subst e
   (subst_ins_renamed :: Subst e) <-
-    hopeNoLefts_mapKeys "insMatch: error in callee:\n"
+    ifLefts_mapKeys "insMatch: error in callee:\n"
     $ M.mapKeys (renameIn t pl) subst_ins
   let (supermaps :: CondElts e) =
         M.map ( S.filter $ M.isSubmapOf subst_ins_renamed) ce

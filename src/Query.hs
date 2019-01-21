@@ -132,7 +132,7 @@ runAnd d p qs s = do
         unwrap = \case QVTest t->t; _->error "runAnd: unwrap: impossible."
   if not $ and varTestResults then Right M.empty
   else do
-   (found :: [CondElts e]) <- hopeNoLefts errMsg
+   (found :: [CondElts e]) <- ifLefts errMsg
                               $ map (flip (runFindlike d p) s) searches
    let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
        tested = foldr f (Right reconciled) tests where
@@ -157,13 +157,13 @@ runTestlike _ _ (QVTest _) _ _ =
 
 runTestlike d p (QJunct (And qs)) s ce = do
   (results :: [CondElts e]) <-
-    hopeNoLefts "runTestlike: error in callee:\n"
+    ifLefts "runTestlike: error in callee:\n"
     $ map (\q -> runTestlike d p q s ce) qs
   Right $ reconcileCondElts $ S.fromList results
 
 runTestlike d p (QJunct (Or qs)) s ce = do
   (results :: [CondElts e]) <-
-    hopeNoLefts "runTestlike: error in callee:\n"
+    ifLefts "runTestlike: error in callee:\n"
     $ map (\q -> runTestlike d p q s ce) qs
   Right $ M.unionsWith S.union results
 
@@ -173,7 +173,7 @@ runTestlike d p (QQuant (ForSome v src q)) s ce = do
     either (\s -> Left $ errMsg ++ s) Right
     $ extendPossible v src p s
   (res :: Set (CondElts e)) <-
-    hopeNoLefts_set errMsg
+    ifLefts_set errMsg
     $ S.map (flip (runTestlike d p' q) ce) ss
   Right $ M.unionsWith S.union res
 
@@ -183,7 +183,7 @@ runTestlike d p (QQuant (ForAll v src q)) s ce = do
     either (\s -> Left $ errMsg ++ s) Right
     $ extendPossible v src p s
   (res :: Set (CondElts e)) <-
-    hopeNoLefts_set errMsg
+    ifLefts_set errMsg
     $ S.map (flip (runTestlike d p' q) ce) ss
 
   let cesWithoutV :: Set (CondElts e)
@@ -213,7 +213,7 @@ runFindlike d p (QJunct (Or qs)) s = do
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
   (ces :: [CondElts e]) <-
-    hopeNoLefts "runFindlike: error in callee:\n"
+    ifLefts "runFindlike: error in callee:\n"
     $ map (flip (runFindlike d p) s) qs
   Right $ M.unionsWith S.union ces
 
@@ -222,7 +222,7 @@ runFindlike d p (QQuant (ForSome v src q)) s = do
     either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
     $ extendPossible v src p s
   (res :: Set (CondElts e)) <-
-    hopeNoLefts_set "runFindlike: error(s) in callee:\n"
+    ifLefts_set "runFindlike: error(s) in callee:\n"
     $ S.map (runFindlike d p' q) ss
   Right $ M.unionsWith S.union res
 
@@ -235,7 +235,7 @@ runFindlike d p (QQuant (ForAll v src q)) s = do
     either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
     $ extendPossible v src p s
   (res :: Set (CondElts e)) <-
-    hopeNoLefts_set "runFindlike: error(s) in callee:\n"
+    ifLefts_set "runFindlike: error(s) in callee:\n"
     $ S.map (runFindlike d p' q) ss
   let (cesWithoutV :: Set (CondElts e)) =
         S.map f res where

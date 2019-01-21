@@ -19,30 +19,30 @@ keyErr callingFunction key map =  callingFunction ++ ": key "
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
-hopeNoLefts :: String -> [Either String a] -> Either String [a]
-hopeNoLefts msg es = let
+ifLefts :: String -> [Either String a] -> Either String [a]
+ifLefts msg es = let
   lefts = filter isLeft es
-  impossible = error "hopeNoLefts: impossible."
+  impossible = error "ifLefts: impossible."
   in case null lefts of
        True -> Right $ map (fromRight impossible) es
        False -> Left $ msg ++ ": "
          ++ concat (map (fromLeft impossible) lefts)
 
-hopeNoLefts_set :: Ord a
+ifLefts_set :: Ord a
   => String -> Set (Either String a) -> Either String (Set a)
-hopeNoLefts_set msg es = let
+ifLefts_set msg es = let
   lefts = S.filter isLeft es
-  impossible = error "hopeNoLefts_set: impossible."
+  impossible = error "ifLefts_set: impossible."
   in case null lefts of
        True -> Right $ S.map (fromRight impossible) es
        False -> Left $ msg ++ ": "
          ++ concat (S.map (fromLeft impossible) lefts)
 
-hopeNoLefts_mapKeys :: Ord k
+ifLefts_mapKeys :: Ord k
   => String -> Map (Either String k) a -> Either String (Map k a)
-hopeNoLefts_mapKeys msg m = let
+ifLefts_mapKeys msg m = let
   lefts = S.filter isLeft $ M.keysSet m
-  impossible = error "hopeNoLefts_mapKeys: impossible."
+  impossible = error "ifLefts_mapKeys: impossible."
   in case null lefts of
        True -> Right $ M.mapKeys (fromRight impossible) m
        False -> Left $ msg ++ ": "
