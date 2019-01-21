@@ -44,6 +44,19 @@ data TVarPlan = TVarPlan {
   , isNamedByItsOutputs :: [Var]
   } deriving (Show, Eq, Ord)
 
+eitherTest :: Either String [Int]
+eitherTest = do
+  let test1 :: Int -> Either String Int
+      test1 i = if i > 0 then Right i else Left $ show i
+      testMany :: String -> [Either String a] -> Either String [a]
+      testMany msg es = let lefts = filter isLeft es
+        in case null lefts of
+        True -> Right $ map (fromRight $ error "impossible") es
+        False -> Left $ msg ++ ": "
+          ++ concat (map (flip (++) ", " . fromLeft "impossible") lefts)
+  x <- testMany "problems" $ map test1 [-2..5]
+  return $ map (+1) x
+
 -- | Consider `varPossibilities p s src`, where
   -- s = M.fromList [(i1,iVal), (o1,oVal)]
   -- `src = TSource vp [i1] [(o,o1)]`
@@ -86,23 +99,22 @@ input_matched_varPossibilities'    p           s            t = let
   sources_either = map (fetchFromPossible . tSource) pls where
     fetchFromPossible :: Var -> Either String (CondElts e)
     fetchFromPossible v =
-      maybe (Left $ keyErr "varPossibilities" v p) Right $ M.lookup v p
+      maybe (Left $ keyErr "fetch" v p) Right $ M.lookup v p
   lefts = filter isLeft sources_either
   in case null lefts of
-    False -> Left $ "varPossibilities: error in callee:\n"
+    False -> Left $ "input_matched_varPossibilities': error in callee:\n"
              ++ concat (map (fromLeft "") lefts)
     True -> let
   
       sources :: [CondElts e]
       sources = map (fromRight $ error "impossible") sources_either
       sources_ins_matched_either, lefts :: [Either String (CondElts e)]
-      sources_ins_matched_either = map restrict $ zip pls sources
-        where
+      sources_ins_matched_either = map restrict $ zip pls sources where
           restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
           restrict (pl, ce) = restrictToMatchIns t pl s ce
       lefts = filter isLeft sources_ins_matched_either
       in case null lefts of
-        False -> Left $ "varPossibilities: error in callee:\n"
+        False -> Left $ "input_matched_varPossibilities': error in callee:\n"
                  ++ concat (map (fromLeft "") lefts)
 
         True -> let
