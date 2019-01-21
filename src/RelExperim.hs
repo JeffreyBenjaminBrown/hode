@@ -16,9 +16,18 @@ import Types
 import Util
 
 
+-- TODO ? use Rel, CondElts', Possible'
 type Rel = R.Relation
 type CondElts' e = Rel e (Subst e)
 type Possible' e = Map Var (CondElts' e)
+
+-- TODO A TSource t is valid only if
+-- (1) The length of `haveInputs t`  matches the length of
+--    `namesItsInputs p`     for each `p` in `plans t`.
+-- (2) The length of `haveOutputs t` matches the length of
+--   `isNamedByItsOutputs p` for each `p` in `plans t`.
+-- (Also the two lists should correspond, but the code can't check that
+-- without reading the user's mind.)
 
 data TSource = TSource {
     plans       :: [TVarPlan] -- ^ new `Var`s to introduce in this `Query`
@@ -34,12 +43,6 @@ data TVarPlan = TVarPlan {
   , namesItsInputs      :: [Var]
   , isNamedByItsOutputs :: [Var]
   }
-
--- TODO A TSource t is valid only if
--- (1) The length of `haveInputs t`  matches the length of
---    `namesItsInputs p`     for each `p` in `plans t`.
--- (2) The length of `haveOutputs t` matches the length of
---   `isNamedByItsOutputs p` for each `p` in `plans t`.
 
 -- | Consider `varPossibilities p s src`, where
   -- s = M.fromList [(i1,iVal), (o1,oVal)]
@@ -57,12 +60,17 @@ data TVarPlan = TVarPlan {
 --       i=iVal was an input to the binding a=aVal.
 --       a1=aVal was an input to the binding o=oVal.
 --
--- We create a set of candidates for a2 by first matching inputs:
--- we find a in the `Possible`, and then restrict
--- its associated `CondElts` to include only `Subst`s that include
--- the binding i=i1v.
+-- (The numbers indicate the sequence in which references were created.
+-- For instance, when a was created, it was called a. Then that set was
+-- drawn from in order to create o; the draws were called a1. Now we
+-- want to draw from it again, and call those draws a2.)
 --
--- Next we have to match outputs. Consider a particular candidate, a2=aVal.
+-- Procedure: First, create a set of candidates for a2 by matching inputs:
+-- Find a in the `Possible`, then restrict each Set Subst in that CondElts
+-- to include only `Subst`s that include the binding i=i1v. The keys of
+-- the resulting CondElts are our candidate values for a2.
+--
+-- Next we match outputs. Consider a particular candidate, a2=aVal.
 -- aVal meets the output-matching criteria if o uses a1=aVal as an input.
 -- We find the CondElts keyed by "o" in the Possible,
 -- and within that CondElts we look up oVal.
@@ -121,9 +129,26 @@ restrictToMatchIns t pl s ce = let
     supermaps = M.map ( S.filter $ M.isSubmapOf sRenamed) ce
     in Right $ M.filter (not . S.null) $ supermaps
 
+-- | The `TSource` contains a list of the inputs from the current `Subst`
+-- being used. The `TVarPlan` has a list of what the source named in
+-- that plan calls its inputs. This takes a `Var` that should be in the
+-- first list (and the `Subst`), and renames it using the second list.
 renameIn :: TSource -> TVarPlan -> Var -> Either String Var
-renameIn t pl k = let ins = haveInputs t
+renameIn t pl v = let ins = haveInputs t
                       newNames = namesItsInputs pl
                       renamer = M.fromList $ zip ins newNames
-  in maybe  (Left $ keyErr "renameInput" k renamer) Right
-     $ M.lookup k renamer
+  in maybe  (Left $ keyErr "renameInput" v renamer) Right
+     $ M.lookup v renamer
+
+-- | The `TSource` contains a list of pairs, the fst of which is a source
+-- in the `Possible`, and the snd of which is the `Var` in the `Subst`
+-- playing that role. This renames a `Var` from one of those snd elements
+-- (which should also be in the `Subst`), and renames it to the coresponding
+-- fst.
+renameOut :: TSource -> Var -> Either String Var
+renameOut t v = let
+  renamer = M.fromList $ map swap pairs
+    where pairs = haveOutputs t
+          swap (a,b) = (b,a)
+  in maybe (Left $ keyErr "renameOut" v renamer) Right
+     $ M.lookup v renamer

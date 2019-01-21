@@ -16,7 +16,8 @@ import Types
 
 
 test_module_Rel = TestList [
-  TestLabel "test_renameIn" test_renameIn
+  TestLabel "test_renameIns" test_renameIn
+  , TestLabel "test_renameOut" test_renameOut
   , TestLabel "test_restrictToMatchIns" test_restrictToMatchIns
   ]
 
@@ -48,6 +49,12 @@ test_restrictToMatchIns = TestCase $ do
       :: CondElts Int)
     == Right ( M.fromList [ ( 1, S.singleton
                               $ M.fromList [("a",1),("b",1),("c",1)] ) ] )
+
+test_renameOut = TestCase $ do
+  let meh = error "whatev"
+  assertBool "1" $ renameOut
+    (TSource meh [] [("a","a1")])
+    "a1" == Right "a"
 
 test_renameIn = TestCase $ do
   let meh = error "whatev"
