@@ -82,32 +82,32 @@ varPossibilities :: forall e. (Ord e, Show e)
                  -> Either String (Possible e)
 varPossibilities    p           s            t = let
   (pls, ins) = (plans t, haveInputs t)
-  se, lefts :: [Either String (CondElts e)]
-  se = map (f . tSource) pls where
-    f :: Var -> Either String (CondElts e)
-    f v = maybe (Left $ keyErr "varPossibilities" v p) Right
-          $ M.lookup v p
+  sources_either, lefts :: [Either String (CondElts e)]
+  sources_either = map (fetchFromPossible . tSource) pls where
+    fetchFromPossible :: Var -> Either String (CondElts e)
+    fetchFromPossible v = maybe (Left $ keyErr "varPossibilities" v p) Right
+                          $ M.lookup v p
 
-  lefts = filter isLeft se
+  lefts = filter isLeft sources_either
   in case null lefts of
   False -> Left $ "varPossibilities: error in callee:\n"
-           ++ (foldr (++) "" $ map (fromLeft "") lefts)
+           ++ concat (map (fromLeft "") lefts)
   True -> let
     ces :: [CondElts e]
-    ces = map (fromRight $ error "impossible") se
+    ces = map (fromRight $ error "impossible") sources_either
 
-    ces_either, lefts :: [Either String (CondElts e)]
-    ces_either = map f $ zip pls ces
-      where f :: (TVarPlan, CondElts e) -> Either String (CondElts e)
-            f (pl, ce) = restrictToMatchIns t pl s ce
-    lefts = filter isLeft ces_either
+    ces_ins_matched_either, lefts :: [Either String (CondElts e)]
+    ces_ins_matched_either = map restrict $ zip pls ces
+      where restrict :: (TVarPlan, CondElts e) -> Either String (CondElts e)
+            restrict (pl, ce) = restrictToMatchIns t pl s ce
+    lefts = filter isLeft ces_ins_matched_either
     in case null lefts of
     False -> Left $ "varPossibilities: error in callee:\n"
-             ++ (foldr (++) "" $ map (fromLeft "") lefts)
+             ++ concat (map (fromLeft "") lefts)
     True -> let
-      cesRestricted = map (fromRight $ error "impossible") ces_either
-
-      in Right $ M.fromList $ zip (map tName pls) cesRestricted
+      ces_ins_matched =
+        map (fromRight $ error "impossible") ces_ins_matched_either
+      in Right $ M.fromList $ zip (map tName pls) ces_ins_matched
     -- TODO : match outputs also
 
 restrictToMatchIns :: forall e. Eq e =>
@@ -116,17 +116,19 @@ restrictToMatchIns :: forall e. Eq e =>
 
 restrictToMatchIns t pl s ce = let
   ins = haveInputs t
-  sIns = M.restrictKeys s $ S.fromList ins :: Subst e
-  s_either = M.mapKeys (renameIn t pl) sIns :: Map (Either String Var) e
-  lefts = S.filter isLeft $ M.keysSet s_either :: Set (Either String Var)
+  subst_ins = M.restrictKeys  s  $ S.fromList ins :: Subst e
+  (subst_ins_renamed_either :: Map (Either String Var) e) =
+    M.mapKeys (renameIn t pl) subst_ins
+  (lefts :: Set (Either String Var)) =
+    S.filter isLeft $ M.keysSet subst_ins_renamed_either
   in case null lefts of
   False -> Left $ "insMatch: error in callee:\n"
            ++ (S.foldr (++) "" $ S.map (fromLeft "") lefts)
 
   True -> let
-    sRenamed :: Subst e
-    sRenamed = M.mapKeys (fromRight $ error "impossible") s_either
-    supermaps = M.map ( S.filter $ M.isSubmapOf sRenamed) ce
+    subst_ins_renamed :: Subst e
+    subst_ins_renamed = M.mapKeys (fromRight $ error "impossible") subst_ins_renamed_either
+    supermaps = M.map ( S.filter $ M.isSubmapOf subst_ins_renamed) ce
     in Right $ M.filter (not . S.null) $ supermaps
 
 -- | The `TSource` contains a list of the inputs from the current `Subst`
@@ -134,9 +136,10 @@ restrictToMatchIns t pl s ce = let
 -- that plan calls its inputs. This takes a `Var` that should be in the
 -- first list (and the `Subst`), and renames it using the second list.
 renameIn :: TSource -> TVarPlan -> Var -> Either String Var
-renameIn t pl v = let ins = haveInputs t
-                      newNames = namesItsInputs pl
-                      renamer = M.fromList $ zip ins newNames
+renameIn t pl v = let
+  renamer = M.fromList $ zip ins newNames
+    where ins = haveInputs t
+          newNames = namesItsInputs pl
   in maybe  (Left $ keyErr "renameInput" v renamer) Right
      $ M.lookup v renamer
 
