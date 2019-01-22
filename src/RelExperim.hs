@@ -70,12 +70,31 @@ data TVarPlan = TVarPlan {
 -- to include only `Subst`s that include the binding i=i1v. The keys of
 -- the resulting CondElts are our candidate values for a2.
 --
--- Next we match outputs. Consider a particular candidate, a2=aVal.
+-- Next we filter those results by matching outputs.
+-- Consider a particular candidate, a2=aVal.
 -- aVal meets the output-matching criteria if o uses a1=aVal as an input.
 -- We find the CondElts keyed by "o" in the Possible,
 -- and within that CondElts we look up oVal.
 -- If any Subst in the resulting Set Subst contains the binding
 -- a1=aVal, then aVal survives.
+
+outputs_use_candidate :: forall e. (Ord e, Show e)
+                      => Possible e -> Subst e -> TSource -> TVarPlan
+                      -> e -> Either String Bool
+outputs_use_candidate p s src pl e = do
+  let (outsInPossible  :: [Var])   = map fst $ haveOutputs src
+      (outsInSubst     :: [Var])   = map snd $ haveOutputs src
+      (substRestricted :: Subst e) = M.restrictKeys s $ S.fromList outsInSubst
+  (presentCondition    :: Subst e) <-
+    ifLefts_mapKeys "outputs_use_candidate: error in callee:\n"
+    $ M.mapKeys (renameOut src) substRestricted
+  (ce :: CondElts e) <-
+    maybe (Left $ keyErr "outputs_use_candidate" (tSource pl) p) Right
+    $ M.lookup (tSource pl) p
+  (feasibleConditions :: Set (Subst e)) <-
+    maybe (Left $ keyErr "outputs_use_candidate" e ce) Right
+    $ M.lookup e ce
+  Right $ any (M.isSubmapOf presentCondition) feasibleConditions
 
 input_matched_varPossibilities' :: forall e. (Ord e, Show e)
                                 => Possible e -> Subst e -> TSource
