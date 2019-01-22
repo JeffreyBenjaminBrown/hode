@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Test.TRel where
 
+import           Data.Either
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Maybe
@@ -21,7 +22,27 @@ test_module_Rel = TestList [
   , TestLabel "test_restrictToMatchIns" test_restrictToMatchIns
   , TestLabel "test_input_matched_varPossibilities'"
     test_input_matched_varPossibilities'
+--  , TestLabel "test_outputs_use_candidate" test_outputs_use_candidate
   ]
+
+--test_outputs_use_candidate = TestCase $ do
+--  let (a, b, c, i, o ) = ("a", "b", "c", "i", "o" )
+--      (a1,b1,c1,i1,o1) = ("a1","b1","c1","i1","o1")
+--      (a2,b2,c2,i2,o2) = ("a2","b2","c2","i2","o2")
+--  assertBool "1" $ isRight $ outputs_use_candidate
+--    ( M.fromList [ (a, ( M.fromList
+--                         [ ( "aVal", ( S.singleton
+--                                       $ M.fromList [(i,"iVal")] ) ) ] ) )
+--                 , (o, ( M.fromList
+--                         [ ( "oVal", ( S.singleton
+--                                       $ M.fromList [(a1,"aVal")] ) ) ] ) ) ]
+--    )
+--    ( M.fromList [(i1,"iVal"),(o1,"oVal")] :: Subst String )
+--    ( TSource
+--      [ TVarPlan a a2 [i] [a1] ]
+--      [ i1 ]
+--      [ (o,o1) ] )
+--    ( TVarPlan a a2 [i] [a1] )x
 
 test_input_matched_varPossibilities' = TestCase $ do
   let (a, b, c, i, o ) = ("a", "b", "c", "i", "o" )

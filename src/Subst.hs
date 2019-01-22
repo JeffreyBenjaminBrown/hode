@@ -13,14 +13,21 @@ import Types
 import Util
 
 
+drawVar :: (Ord e, Show e) =>
+  Possible e -> Subst e -> Var -> Var -> Either String (Set (Subst e))
+drawVar p s src res = do
+  ce <- maybe (Left $ keyErr "drawVar" src p) Right
+       $ M.lookup src p
+  Right $ S.map (flip (M.insert res) s) $ M.keysSet ce
+
 extendPossible :: (Ord e, Show e) => Var -> Source -> Possible e -> Subst e
                -> Either String (Possible e, Set (Subst e))
 extendPossible v src p s = do
-  ce <- either (\s -> Left $ "extendPossible: error in callee:\n" ++ s)
+  ce <- either (\msg -> Left $ "extendPossible: error in callee:\n" ++ msg)
     Right $ varPossibilities p s src
   let
-    p' = case src of Source v -> p
-                     Source' v' dets -> M.insert v ce p
+    p' = case src of Source _ -> p
+                     Source' _ _ -> M.insert v ce p
       -- TODO ? Does ce need this insertion into p? It is only a subset
       -- of a the CondElts already present, keyed by v' instead of v.
     s' = S.map (\k -> M.insert v k s) $ M.keysSet ce
@@ -35,7 +42,7 @@ extendPossible v src p s = do
 varPossibilities :: forall e. (Ord e, Show e)
                  => Possible e -> Subst e -> Source
                  -> Either String (CondElts e)
-varPossibilities    p           s        (Source v) =
+varPossibilities    p           _        (Source v) =
   maybe (Left $ keyErr "varPossibilities" v p) Right $ M.lookup v p
 
 varPossibilities    p           s        (Source' v dets) = let
@@ -47,7 +54,7 @@ varPossibilities    p           s        (Source' v dets) = let
       f = M.map $ S.map $ flip M.restrictKeys vAndDets
 
   in case reconcileDetsAcrossVars pRestricted s dets of
-    Left s -> Left $ "varPossibilities: error in callee:\n" ++ s
+    Left msg -> Left $ "varPossibilities: error in callee:\n" ++ msg
     Right (substs :: Set (Subst e)) -> let
       (possible :: Set e) = M.keysSet $ setSubstToCondElts v substs
       (mce_v :: Maybe (CondElts e)) = M.lookup v p

@@ -45,16 +45,22 @@ data TVarPlan = TVarPlan {
   } deriving (Show, Eq, Ord)
 
 -- | Consider `varPossibilities p s src`, where
-  -- s = M.fromList [(i1,iVal), (o1,oVal)]
-  -- `src = TSource vp [i1] [(o,o1)]`
-  -- `vp = TVarPlan "a" "a2" ["i"] ["a1"]`.
+--   s = M.fromList [(i1,iVal), (o1,oVal)]
+--   `src = TSource vp [i1] [(o,o1)]`
+--   `vp = TVarPlan "a" "a2" ["i"] ["a1"]`.
 --
 -- That says:
 --   a and o are the names of the results of two previous Queries.
 --   When a was created, it relied on an input it called i.
+--     (To specify a second such input, make a variable like i, called say j
+--     (and j1, and jVal, etc.))
 --   When o was created, it relied on an input it called a1.
+--     (To specify a second output, make another variable like o, called say n
+--     (and n1, and nVal, etc.))
 --   We want:
 --     to draw values (call them aVal) from the results for a,
+--       (To specify another var to bind under the same conditions,
+--       make a variable like a, say b, and b1, b2, bVal, etc.)
 --     to bind the drawn value aVal to the name a2,
 --     and to include only those values of aVal such that:
 --       i=iVal was an input to the binding a=aVal.
@@ -63,7 +69,8 @@ data TVarPlan = TVarPlan {
 -- (The numbers indicate the sequence in which references were created.
 -- For instance, when a was created, it was called a. Then that set was
 -- drawn from in order to create o; the draws were called a1. Now we
--- want to draw from it again, and call those draws a2.)
+-- want to draw from it again, and call those draws a2. Actual calls do
+-- not have to follow that convention.)
 --
 -- Procedure: First, create a set of candidates for a2 by matching inputs:
 -- Find a in the `Possible`, then restrict each Set Subst in that CondElts
@@ -78,33 +85,39 @@ data TVarPlan = TVarPlan {
 -- If any Subst in the resulting Set Subst contains the binding
 -- a1=aVal, then aVal survives.
 
-outputs_use_candidate :: forall e. (Ord e, Show e)
-                      => Possible e -> Subst e -> TSource -> TVarPlan
-                      -> e -> Either String Bool
-outputs_use_candidate p s src pl e = do
-  let (outsInPossible  :: [Var])   = map fst $ haveOutputs src
-      (outsInSubst     :: [Var])   = map snd $ haveOutputs src
-      (substRestricted :: Subst e) = M.restrictKeys s $ S.fromList outsInSubst
-  (presentCondition    :: Subst e) <-
-    ifLefts_mapKeys "outputs_use_candidate: error in callee:\n"
-    $ M.mapKeys (renameOut src) substRestricted
-  (ce :: CondElts e) <-
-    maybe (Left $ keyErr "outputs_use_candidate" (tSource pl) p) Right
-    $ M.lookup (tSource pl) p
-  (feasibleConditions :: Set (Subst e)) <-
-    maybe (Left $ keyErr "outputs_use_candidate" e ce) Right
-    $ M.lookup e ce
-  Right $ any (M.isSubmapOf presentCondition) feasibleConditions
+--outputs_use_candidate :: forall e. (Ord e, Show e)
+--                      => Possible e -> Subst e -> TSource -> TVarPlan
+--                      -> e
+--                      -> Either String
+--                        ([Var], [Var], Subst e, Subst e
+--                        , CondElts e, Set (Subst e), Bool)
+--                      -- -> Either String Bool
+--
+--outputs_use_candidate p s src pl e = do
+--  let (outsInPossible  :: [Var])   = map fst $ haveOutputs src
+--      (outsInSubst     :: [Var])   = map snd $ haveOutputs src
+--      (substRestricted :: Subst e) = M.restrictKeys s $ S.fromList outsInSubst
+--  (presentCondition    :: Subst e) <-
+--    ifLefts_mapKeys "outputs_use_candidate: error in callee:\n"
+--    $ M.mapKeys (renameOut src) substRestricted
+--  (outputCes :: [CondElts e]) <-
+--    maybe (Left $ keyErr "outputs_use_candidate" (tSource pl) p) Right
+--    $ map (flip M.lookup p) outsInPossible
+--  (couldHaveLedHere :: [Set (Subst e)]) <-
+--    ifLefts "outputs_use_candidate"
+--    $ map (uncurry M.lookup) $ zip outsInSubst outputCes
+--  let result = any (M.isSubmapOf presentCondition) feasibleConditions
+--  Right $ ( outsInPossible, outsInSubst, substRestricted, presentCondition
+--          , ce, feasibleConditions, result )
 
 input_matched_varPossibilities' :: forall e. (Ord e, Show e)
                                 => Possible e -> Subst e -> TSource
                                 -> Either String (Possible e)
 input_matched_varPossibilities'    p           s            t = do
-  let (pls, ins) = (plans t, haveInputs t)
+  let pls = plans t -- TODO ? I don't need haveInputs?
   (sources :: [CondElts e]) <-
-    let fetchFromPossible :: Var -> Either String (CondElts e)
-        fetchFromPossible v =
-          maybe (Left $ keyErr "fetch" v p) Right $ M.lookup v p
+    let (fetchFromPossible :: Var -> Either String (CondElts e)) =
+          \v -> maybe (Left $ keyErr "fetch" v p) Right $ M.lookup v p
     in ifLefts "input_matched_varPossibilities': error in callee:\n"
        $ map (fetchFromPossible . tSource) pls
 
@@ -138,7 +151,7 @@ renameIn t pl v = let
   renamer = M.fromList $ zip ins newNames
     where ins = haveInputs t
           newNames = namesItsInputs pl
-  in maybe  (Left $ keyErr "renameInput" v renamer) Right
+  in maybe (Left $ keyErr "renameInput" v renamer) Right
      $ M.lookup v renamer
 
 -- | The `TSource` contains a list of pairs, the fst of which is a source

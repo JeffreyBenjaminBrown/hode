@@ -231,12 +231,14 @@ runFindlike d p (QQuant (ForSome v src q)) s = do
   -- don't search for it using any remaining value of v.
 
 runFindlike d p (QQuant (ForAll v src q)) s = do
-  ((p',ss) :: (Possible e, Set (Subst e))) <-
-    either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
-    $ extendPossible v src p s
+--  ((p',ss) :: (Possible e, Set (Subst e))) <-
+--    either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
+--    $ extendPossible v src p s
+  ss <- either (\msg -> Left $ "runFindlike:\n" ++ msg) Right
+    $ drawVar p s (sourceVar src) v
   (res :: Set (CondElts e)) <-
     ifLefts_set "runFindlike: error(s) in callee:\n"
-    $ S.map (runFindlike d p' q) ss
+    $ S.map (runFindlike d p q) ss
   let (cesWithoutV :: Set (CondElts e)) =
         S.map f res where
         -- delete the dependency on v, so that reconciliation can work

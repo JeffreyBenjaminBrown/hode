@@ -13,56 +13,27 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* TODO Bipartite graph type
+* Bipartite graph type
 because I keep wanting to invert things like CondElts
-* TODO ? test dependent variables in TProgram
+* ? test dependent variables in TProgram
 This would help me figure out how to track outputs, not just inputs, in the Possible type.
 * TODO ?! ask for multiple variables that determined a given one
-As opposed to Var String (Set Var), this would be Var (Set String) Var,
-or Var (Set String) (Set Var).
-* TODO track outputs, not just inputs, in the Possible
-** Possible' = Map Var (Rel e (Subst e), Map Var (Rel e (Subst e)))
-When a Query binds a name in a Possible to a set of Elts, it is able to attach to each Elt a Set of Substs. That's because, for each Elt it found, the Query saw which Subst(s) was|were in effect.
-
-So what about tracking outputs? Suppose a Program finds a set called "a", and then another called "b", and then a third called "c" that depends on "a" and "b". ("a" and "b" both depend on nothing.) Suppose the pair of bindings (a=a1,b=b1) can lead to the binding c=c1.
-
-Under the Possible at "a" is a CondElts that includes the value a1, and an empty set of inputs Substs associated with a1. We would like to include more information there: The binding a=a1 can lead to the binding c=c1, conditional on b=b1.
-
-So it seems like the Possible should map "a" (and every other Var) not just to a CondElts=(Map e (Set (Subst e))), but to this kind of pair:
-(Map e (Set (Subst e)), Map Var (Map e (Set (Subst e))).
-** IMPORTANT: inputs and outputs are never the names of results
-For instance, if the first (Var,Query) pair creates a set called "a", Vars that bind into "a" will be called "a1" or something, but not "a".
-** Kinds of lookup I'll want
-*** simple (one dependency) input- and output-dependent lookup
-Find a.
-Find b that depends on a.
-
-Ask for every b.
-  Conditional on a b value, ask for the a values that could lead there.
-  << If I have recorded, for each b, every Subst associated with it, I can do this. It would be faster to index those Substs more cleverly but this seems enough. >>
-
-Ask for every a.
-  Conditional on an a value, ask for the b values it could lead to.
-  << If I have recorded, for each a, all the bs it could lead to, this is done. >>
-
-*** a, b(a), c(b)
-The same solution will work.
-*** a, b(a), c(a, b'(a))
-Setup: Create a
-       Create b dependent on a.
-       Create c such that a' takes bindings in a, and b' takes those bindings in b for which a' is an input.
-
-Use "a' <- a" to mean "a' takes bindings from the set a".
-
-Now suppose I create d as a function of
-a' <- a
-b' <- b(a=a')
-c' <- c(a=a', b=b').
-This is computable even without tracking outputs, if we track inputs. It's computable faster if we track outputs, even without associating Substs with each output. But if we do associate each output with a Subst, it's faster still, and easier to code: Choose any of the inputs, find those Substs from that input which include the desired value, and then reduce those Substs to the ones that include any other value.
-For instance, to find all the possible values of c', consider what a is bound to currently. Among the possible outputs of a, consider c-values. Among those c-values (each of which is associated with a set of Substs), select those Substs which include b' as a b-value. The outputs from b' never need to be searched.
-*** a,b, and c(a,b)
-*** a, b(a), c(a,b)
-* TODO for RSLT
+** TODO ! simplify
+For varPossibilities, just use the unconditional found values.
+For the input-output criteria, just use VarTest.
+*** for more speed, while still pretty simple
+(*much* simpler than the input-output-matching varPossibilities strategy I was working on)
+Track inputs and outputs. Then, to cut down on the number of varPossibilities tried, allow the user to ask for one flavor (variable name) of input or output to one found Query result. Any additional input-output-matching criteria are imposed via VarTest.
+How inputs are tracked (already true):
+  Look up a result Var in the Possible.
+  In the resulting CondElts, look up a value for the same Var.
+  This produces all the possible Substs that could lead there.
+How outputs could be tracked:
+  Look up an input Var in the Possible.
+  In the resulting [?], Look up a value of that Var.
+  In the resulting [?], look up the output Var.
+  This produces all the possible values that input value could cause in the output.
+* for RSLT
 ** TODO Query subtypes (Find etc) that expect a Maybe (for the Rslt)
 ** TODO Rslt type which bundles Files and Index
  rename Files -> Exprs
@@ -72,19 +43,19 @@ For instance, to find all the possible values of c', consider what a is bound to
  a map from Addr to Set Role
    because the item in question could (although this will be rare) hold
    multiple Roles within the same Expr
-* TODO Add a check, and amend docs: All the Vars in a Program must be distinct.
-* TODO ? how to make variable collision avoidance easier?
+* Add a check, and amend docs: All the Vars in a Program must be distinct.
+* ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * What expressivity do I lose by requiring sequentiality?
-* TODO ? safety, speed
+* ? safety, speed
 ** speed|space optimization
 *** skip recording unneeded dependent bindings
 You can tell from reading a Program's [ (VarFunc, Query) ] argument which elements of the Substs will never be referred to; those would not have to be recorded.
 ** todo ? safety : check that every Set in a CondElts is nonempty
-* TODO ? simplicity
+* ? simplicity
 ** VarTests render much of varPossibilities redundant.
 varPossibilities is probably faster, because it does not cause a
 lot of pointless Substs to reach runQAnd, where they generate an empty
@@ -92,7 +63,7 @@ CondElts. But the simplicity might be worth it. (They are not substitutes;
 VarTests is far more expressive. varPossibilities will only let you ask
 for "some x such that it could be an input to all of the following
 variables ...".)
-* TODO ? test mixed queries more
+* ? test mixed queries more
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example
