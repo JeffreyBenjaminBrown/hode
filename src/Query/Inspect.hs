@@ -128,12 +128,21 @@ internalAndExternalVars q = f (S.empty,S.empty) q where
   f (i,e) q = (i, S.union e notInInt)
     where notInInt = S.filter (not . flip S.member i) $ queryDets q
 
+-- | `refersToVars q` returns the set of all variables that q expects
+-- to have been defined by previous `Query`s. It uses these as sources
+-- from which to define local variables.
+--refersToVars :: Query e sp -> Set Var
+--refersToVars (
 
-
+-- | `usesVars q` returns the union of all the `Vars` uses by the atomic
+-- queries ("leaves") of q -- that is, the `VarTest`s, `Test`s and `Find`s.
 usesVars :: Query e sp -> Set Var
-usesVars (QQuant w) = usesVars $ goal w
+usesVars (QQuant w) = S.union (usesVars $ goal w) conditionVars
+  where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions w
 usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
-usesVars q = queryDets q
+usesVars (QVTest x@(VarTest _ _)) = varTestDets x
+usesVars (QTest  x@(Test    _ _)) = testDets    x
+usesVars (QFind  x@(Find    _ _)) = findDets    x
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces the `Var`
 -- "v". And every `Query` introduces whatever its subqueries introduce.

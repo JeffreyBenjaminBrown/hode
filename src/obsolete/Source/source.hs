@@ -53,3 +53,10 @@ varPossibilities    p           s        (Source' v dets) = let
          (Right . flip M.restrictKeys possible) mce_v
 
 
+-- | = functions that use the Types module
+
+queryDets :: Query e sp -> Set Var
+queryDets (QFind f)  = findDets f
+queryDets (QTest t)  = testDets t
+queryDets (QVTest t) = varTestDets t
+queryDets _          = S.empty

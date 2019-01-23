@@ -47,12 +47,3 @@ ifLefts_mapKeys msg m = let
        True -> Right $ M.mapKeys (fromRight impossible) m
        False -> Left $ msg ++ ": "
          ++ concat (S.map (fromLeft impossible) lefts)
-
-
--- | = functions that use the Types module
-
-queryDets :: Query e sp -> Set Var
-queryDets (QFind f)  = findDets f
-queryDets (QTest t)  = testDets t
-queryDets (QVTest t) = varTestDets t
-queryDets _          = S.empty
