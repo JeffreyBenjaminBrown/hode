@@ -87,7 +87,6 @@ findlike _                       = False
 -- They rule out no expressivity, but they can require the use of what
 -- might seem like too many variable names.
 
-
 disjointQuantifiers :: Query e sp -> Bool
 disjointQuantifiers (QQuant w) = disjointQuantifiers $ goal w
 disjointQuantifiers (QJunct (Or qs))  =  and $ map disjointQuantifiers qs
@@ -100,6 +99,15 @@ disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
                      then (S.union vs $ introducesVars q, True)
                      else (S.empty, False)
 disjointQuantifiers _ = True
+
+noIntroducedVarMasked :: Query e sp -> Bool
+noIntroducedVarMasked = f S.empty where
+  f :: Set Var -> Query e sp -> Bool
+  f vs (QQuant w) = let v = name w
+                        vs' = S.insert v vs
+                    in not (elem v vs) && f vs' (goal w)
+  f vs (QJunct j) = and $ map (f vs) $ clauses j
+  f vs _ = True
 
 -- | `noAndCollisions` makes sure that a variable introduced in one
 -- clause of a conjunction is never introduced in another clause.
