@@ -41,8 +41,14 @@ data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
                    | Or  {clauses :: [Query e sp] } -- ^ order not important
 
 data Quantifier e sp =
-    ForAll  { name :: Var, source :: Var, goal :: Query e sp }
-  | ForSome { name :: Var, source :: Var, goal :: Query e sp }
+    ForSome { name :: Var, source :: Var, goal :: Query e sp }
+  | ForAll  { name :: Var, source :: Var, goal :: Query e sp
+            , conditions :: [VarTest e sp] }
+  -- ^ The `conditions` field lets you narrow the possibilities considered.
+  -- Rather than requiring all x to satisfy y, you might want to require
+  -- that all x which satisfy y also satisfy z. In that case, you would
+  -- put y in the `conditions` field. That would be a testlike query, but
+  -- the same method applies to findlike ones.
 
 type Subst e    = Map Var e
 type CondElts e = Map e (Set (Subst e))

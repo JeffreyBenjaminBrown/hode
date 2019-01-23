@@ -94,8 +94,8 @@ disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
   where -- `f` verifies that no Var is quantified in two clauses of the And
     f :: Query e sp -> (Set Var, Bool) -> (Set Var, Bool)
     f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
-    f q (vs, True) = if S.disjoint vs $ quantifies q
-                     then (S.union vs $ quantifies q, True)
+    f q (vs, True) = if S.disjoint vs $ introducesVars q
+                     then (S.union vs $ introducesVars q, True)
                      else (S.empty, False)
 disjointQuantifiers _ = True
 
@@ -108,21 +108,36 @@ findsAndTestsOnlyQuantifiedVars q = f S.empty q where
   f vs (QJunct j) = and $ map (f vs) $ clauses j
   f vs _          = S.isSubsetOf (queryDets q) vs
 
--- | `internalAndExternalVars` checks Sources and quantifiers.
+-- | A `Var`  internal to a `Query` is one defined (somewhere) within that
+-- `Query` but not recorded in the `Possible` that remains after the `Query`
+-- is run. A `Var` external to a `Query` is one that was (hopefully)
+-- defined by a `Query` earlier in the program, referred to by the
+-- current one.
+
 internalAndExternalVars :: Query e sp -> (Set Var, Set Var)
 internalAndExternalVars q = f (S.empty,S.empty) q where
-  merge :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
-  merge (s,s') (t,t') = (S.union s t, S.union s' t')
+  union2 :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
+  union2 (s,s') (t,t') = (S.union s t, S.union s' t')
 
   f :: (Set Var, Set Var) -> Query e sp -> (Set Var, Set Var)
-  f ie (QJunct j) = S.foldr merge (S.empty, S.empty)
+  f ie (QJunct j) = S.foldr union2 (S.empty, S.empty)
     $ S.fromList $ map (f ie) $ clauses j
+  f (i,e) (QQuant w) = f ( S.insert (name w) i
+                         , S.union e $ quantifierExternalRefs w )
+                       $ goal w
   f (i,e) q = (i, S.union e notInInt)
     where notInInt = S.filter (not . flip S.member i) $ queryDets q
 
--- | A `Query`, if it is `ForSome v _` or `ForAll v _`, quantifies `v`.
--- And every `Query` quantifies whatever its subqueries quantifies.
-quantifies :: Query e sp -> Set Var
-quantifies (QJunct j) = S.unions $ map quantifies $ clauses j
-quantifies (QQuant w) = S.insert (name w) $     quantifies (goal w)
-quantifies _          = S.empty
+
+
+usesVars :: Query e sp -> Set Var
+usesVars (QQuant w) = usesVars $ goal w
+usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
+usesVars q = queryDets q
+
+-- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces the `Var`
+-- "v". And every `Query` introduces whatever its subqueries introduce.
+introducesVars :: Query e sp -> Set Var
+introducesVars (QJunct j) = S.unions $ map      introducesVars $ clauses j
+introducesVars (QQuant w) = S.insert (name w) $ introducesVars $ goal w
+introducesVars _          = S.empty
