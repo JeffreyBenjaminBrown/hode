@@ -31,5 +31,5 @@ tests = runTestTT $ TestList
   , test_module_rslt
 --  , test_module_rsltProgram
   , testModuleSubst
-  , test_module_Rel
+--  , test_module_Rel
   ]
