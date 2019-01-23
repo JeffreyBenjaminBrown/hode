@@ -100,45 +100,31 @@ disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
 disjointQuantifiers _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
--- if it has first been introduced by a ForAll or ForSome.
+-- if it has first been introduced by a ForAll or a ForSome.
 findsAndTestsOnlyQuantifiedVars :: Query e sp -> Bool
 findsAndTestsOnlyQuantifiedVars q = f S.empty q where
   f :: Set Var -> Query e sp -> Bool
-  f vs (QQuant w) = f (S.insert (name w) vs) $ goal w
+  -- The `Set Var` is those Vars that have been introduces so far --
+  -- i.e. by the current query or any superquery.
+  f vs (QQuant w) = okConditions && f vs' (goal w)
+    where vs' = S.insert (name w) vs
+          okConditions = and $ map (f vs' . QVTest) $ conditions' w
   f vs (QJunct j) = and $ map (f vs) $ clauses j
-  f vs _          = S.isSubsetOf (queryDets q) vs
+  f vs _          = S.isSubsetOf (usesVars q) vs
 
--- | A `Var`  internal to a `Query` is one defined (somewhere) within that
--- `Query` but not recorded in the `Possible` that remains after the `Query`
--- is run. A `Var` external to a `Query` is one that was (hopefully)
--- defined by a `Query` earlier in the program, referred to by the
--- current one.
-
-internalAndExternalVars :: Query e sp -> (Set Var, Set Var)
-internalAndExternalVars q = f (S.empty,S.empty) q where
-  union2 :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
-  union2 (s,s') (t,t') = (S.union s t, S.union s' t')
-
-  f :: (Set Var, Set Var) -> Query e sp -> (Set Var, Set Var)
-  f ie (QJunct j) = S.foldr union2 (S.empty, S.empty)
-    $ S.fromList $ map (f ie) $ clauses j
-  f (i,e) (QQuant w) = f ( S.insert (name w) i
-                         , S.union e $ quantifierExternalRefs w )
-                       $ goal w
-  f (i,e) q = (i, S.union e notInInt)
-    where notInInt = S.filter (not . flip S.member i) $ queryDets q
-
--- | `refersToVars q` returns the set of all variables that q expects
+-- | `drawsFromVars q` returns the set of all variables that q expects
 -- to have been defined by previous `Query`s. It uses these as sources
 -- from which to define local variables.
---refersToVars :: Query e sp -> Set Var
---refersToVars (
+drawsFromVars :: Query e sp -> Set Var
+drawsFromVars (QJunct j) = S.unions $ map drawsFromVars $ clauses j
+drawsFromVars (QQuant q) = S.insert (source q) $ drawsFromVars $ goal q
+drawsFromVars _ = S.empty
 
 -- | `usesVars q` returns the union of all the `Vars` uses by the atomic
 -- queries ("leaves") of q -- that is, the `VarTest`s, `Test`s and `Find`s.
 usesVars :: Query e sp -> Set Var
 usesVars (QQuant w) = S.union (usesVars $ goal w) conditionVars
-  where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions w
+  where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions' w
 usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
 usesVars (QVTest x@(VarTest _ _)) = varTestDets x
 usesVars (QTest  x@(Test    _ _)) = testDets    x

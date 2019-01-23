@@ -50,6 +50,10 @@ data Quantifier e sp =
   -- put y in the `conditions` field. That would be a testlike query, but
   -- the same method applies to findlike ones.
 
+conditions' :: Quantifier e sp -> [VarTest e sp]
+conditions'   (ForSome _ _ _)  = []
+conditions' q@(ForAll _ _ _ _) = conditions q
+
 type Subst e    = Map Var e
 type CondElts e = Map e (Set (Subst e))
   -- ^ The set of solutions to a query: which `Elts` solve it, and which

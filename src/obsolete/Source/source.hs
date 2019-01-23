@@ -60,3 +60,25 @@ queryDets (QFind f)  = findDets f
 queryDets (QTest t)  = testDets t
 queryDets (QVTest t) = varTestDets t
 queryDets _          = S.empty
+
+
+
+-- | A `Var`  internal to a `Query` is one defined (somewhere) within that
+-- `Query` but not recorded in the `Possible` that remains after the `Query`
+-- is run. A `Var` external to a `Query` is one that was (hopefully)
+-- defined by a `Query` earlier in the program, referred to by the
+-- current one.
+
+internalAndExternalVars :: Query e sp -> (Set Var, Set Var)
+internalAndExternalVars q = f (S.empty,S.empty) q where
+  union2 :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
+  union2 (s,s') (t,t') = (S.union s t, S.union s' t')
+
+  f :: (Set Var, Set Var) -> Query e sp -> (Set Var, Set Var)
+  f ie (QJunct j) = S.foldr union2 (S.empty, S.empty)
+    $ S.fromList $ map (f ie) $ clauses j
+  f (i,e) (QQuant w) = f ( S.insert (name w) i
+                         , S.union e $ quantifierExternalRefs w )
+                       $ goal w
+  f (i,e) q = (i, S.union e notInInt)
+    where notInInt = S.filter (not . flip S.member i) $ queryDets q
