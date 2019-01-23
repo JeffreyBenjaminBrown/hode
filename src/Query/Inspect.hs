@@ -80,14 +80,16 @@ findlike _                       = False
 -- | = Ensuring the Vars used in a Query make sense
 
 -- | `disjointQuantifiers` tests that no quantifier is masked by
--- a quantifier in a subquery, that no quantifier masks part of its Source,
+-- a quantifier in a subquery
 -- and that no two clauses of an `And` introduce the same variable.
 --
 -- TODO ? Those conditions are stricter than necessary, but hard to relax.
+-- They rule out no expressivity, but they can require the use of what
+-- might seem like too many variable names.
+
 
 disjointQuantifiers :: Query e sp -> Bool
-disjointQuantifiers (QQuant w) = let (v,s,q) = (name w, source w, goal w)
-                                                in disjointQuantifiers q
+disjointQuantifiers (QQuant w) = disjointQuantifiers $ goal w
 disjointQuantifiers (QJunct (Or qs))  =  and $ map disjointQuantifiers qs
 disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
                                          && (snd $ foldr f (S.empty, True) qs)
@@ -98,6 +100,23 @@ disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
                      then (S.union vs $ introducesVars q, True)
                      else (S.empty, False)
 disjointQuantifiers _ = True
+
+-- | `noAndCollisions` makes sure that a variable introduced in one
+-- clause of a conjunction is never introduced in another clause.
+noAndCollisions :: Query e sp -> Bool
+noAndCollisions (QJunct (And qs)) =
+  and (map noAndCollisions qs)
+  && snd (foldr f (S.empty, True) qs)
+  where
+    f :: Query e sp -> (Set Var, Bool) -> (Set Var, Bool)
+    f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
+    f q (vs, True) = if S.disjoint vs $ introducesVars q
+                     then (S.union vs $ introducesVars q, True)
+                     else (S.empty                      , False)
+noAndCollisions (QJunct (Or qs)) =
+  and (map noAndCollisions qs)
+noAndCollisions (QQuant w) = noAndCollisions $ goal w
+noAndCollisions _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.

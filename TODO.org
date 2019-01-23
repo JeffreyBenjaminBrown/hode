@@ -16,27 +16,11 @@ type CondElts = Map Elt (Set Subst)
 * TODO Quantifiers must include a VarTests section
 Must be able to say, "for all x such that p(x), q(x)".
 (Could say it as "for all x, either not p(x) or p(x) and q(x)", but that's cumbersome.)
-** divide internalAndExternalVars
-internal vars = introducesVars
-external vars = yet to write
-** rename usesOnlyIntroducedVars -> usesOnlyIntroducedVars
-** internalAndExternalVars: replace the sourceRefs check
-   f (i,e) (QQuant w) = f (S.insert v i, S.union e notInInt) q
-     where (v,s,q) = (name w, source w, goal w)
-           notInInt = S.filter (not . flip S.member i) $ sourceRefs s
-
-where sourceRefs meant
-  sourceRefs :: Source -> Set Var
-  sourceRefs (Source v) = S.singleton v
-  sourceRefs (Source' v dets) = S.insert v dets
-(it was around in commit # 1c9007aa45167c7c2aee409b7ed58f6e78f77880 )
-** disjointQuantifiers: replace the sourceRefs check
-It had this clause:
-disjointQuantifiers (QQuant w) = let (v,s,q) = (name w, source w, goal w)
-  in (not $ S.member v $ S.union (quantifies q) $ sourceRefs s)
-                                                 && disjointQuantifiers q
-** disjointQuantifiers ? make sure internal and external vars don't overlap
-It seems conceivable that a var could play one role in one clause of a junction, and the other in another.
+** divide disjointQuantifiers
+*** no quantifier masks a quantifier in a subquery
+*** DONE no two clauses of an `And` introduce the same variable
+*** internal and external vars don't overlap
+ This used to be part of disjointQuantifiers.
 ** the `conditions` field of a ForAll should permit *junctions
 => it should be [Query], not [VarTest]
 * TODO replace error with Either
