@@ -23,7 +23,7 @@ testModuleQueryClassify = TestList [
   -- these seem too easy to bother testing:
     -- validQuery
     -- feasible'Junctions
-    -- findsAndTestsOnlyQuantifiedVars
+    -- usesOnlyIntroducedVars
   ]
 
 type QIGI = Query Int (Graph Int)

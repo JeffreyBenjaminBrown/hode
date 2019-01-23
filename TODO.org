@@ -19,7 +19,7 @@ Must be able to say, "for all x such that p(x), q(x)".
 ** divide internalAndExternalVars
 internal vars = introducesVars
 external vars = yet to write
-** rename findsAndTestsOnlyQuantifiedVars -> usesOnlyIntroducedVars
+** rename usesOnlyIntroducedVars -> usesOnlyIntroducedVars
 ** internalAndExternalVars: replace the sourceRefs check
    f (i,e) (QQuant w) = f (S.insert v i, S.union e notInInt) q
      where (v,s,q) = (name w, source w, goal w)

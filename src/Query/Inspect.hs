@@ -47,7 +47,7 @@ validQuery q =
   False -> Left $ "Infeasible junction in Query."
   True -> case disjointQuantifiers q of
     False -> Left $ "Existentials not disjoint in Query."
-    True -> case findsAndTestsOnlyQuantifiedVars q of
+    True -> case usesOnlyIntroducedVars q of
       False -> Left $ "Variable referred to before quantification."
       True -> Right ()
 
@@ -101,8 +101,8 @@ disjointQuantifiers _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.
-findsAndTestsOnlyQuantifiedVars :: Query e sp -> Bool
-findsAndTestsOnlyQuantifiedVars q = f S.empty q where
+usesOnlyIntroducedVars :: Query e sp -> Bool
+usesOnlyIntroducedVars q = f S.empty q where
   f :: Set Var -> Query e sp -> Bool
   -- The `Set Var` is those Vars that have been introduces so far --
   -- i.e. by the current query or any superquery.
