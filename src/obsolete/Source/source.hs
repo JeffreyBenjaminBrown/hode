@@ -82,3 +82,25 @@ internalAndExternalVars q = f (S.empty,S.empty) q where
                        $ goal w
   f (i,e) q = (i, S.union e notInInt)
     where notInInt = S.filter (not . flip S.member i) $ queryDets q
+
+
+-- | `disjointQuantifiers` tests that no quantifier is masked by
+-- a quantifier in a subquery
+-- and that no two clauses of an `And` introduce the same variable.
+--
+-- TODO ? Those conditions are stricter than necessary, but hard to relax.
+-- They rule out no expressivity, but they can require the use of what
+-- might seem like too many variable names.
+
+disjointQuantifiers :: Query e sp -> Bool
+disjointQuantifiers (QQuant w) = disjointQuantifiers $ goal w
+disjointQuantifiers (QJunct (Or qs))  =  and $ map disjointQuantifiers qs
+disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
+                                         && (snd $ foldr f (S.empty, True) qs)
+  where -- `f` verifies that no Var is quantified in two clauses of the And
+    f :: Query e sp -> (Set Var, Bool) -> (Set Var, Bool)
+    f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
+    f q (vs, True) = if S.disjoint vs $ introducesVars q
+                     then (S.union vs $ introducesVars q, True)
+                     else (S.empty, False)
+disjointQuantifiers _ = True

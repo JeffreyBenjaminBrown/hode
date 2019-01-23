@@ -14,17 +14,12 @@ import Util
 
 
 validProgram :: [(Var,Query e sp)] -> Either String ()
-validProgram vqs = let
-  wholeProgramTest, individualQueryTests :: Either String ()
-  wholeProgramTest     = noPrematureReference vqs
-  individualQueryTests = foldl f (Right ()) vqs
-    where
-      f :: Either String () -> (Var, Query e sp) -> Either String ()
+validProgram vqs = do
+  (wholeProgramTest :: ()) <- noPrematureReference vqs
+  let f :: Either String () -> (Var, Query e sp) -> Either String ()
       f e@(Left _) _     = e
       f (Right ()) (_,q) = validQuery q
-  in case wholeProgramTest of
-  e@(Left _) -> e
-  Right () -> individualQueryTests
+  foldl f (Right ()) vqs
 
 noPrematureReference :: forall e sp. [(Var,Query e sp)] -> Either String ()
 noPrematureReference vqs = case null bad of
@@ -37,19 +32,22 @@ noPrematureReference vqs = case null bad of
   f (defined,bad) (v,q) =
     -- "defined" are variables defined by previous Queries.
     -- "bad" are variables used before being defined.
-    let (_,ext) = internalAndExternalVars q
+    let ext = drawsFromVars q
         moreBad = S.filter (not . flip S.member defined) ext
     in (S.insert v defined, S.union bad moreBad)
 
 validQuery :: Query e sp -> Either String ()
-validQuery q =
-  case feasible'Junctions q of
-  False -> Left $ "Infeasible junction in Query."
-  True -> case disjointQuantifiers q of
-    False -> Left $ "Existentials not disjoint in Query."
-    True -> case usesOnlyIntroducedVars q of
-      False -> Left $ "Variable referred to before quantification."
-      True -> Right ()
+validQuery q = do
+  if usesOnlyIntroducedVars q then Right ()
+    else Left $ "Query uses a Var before introducing it."
+  if noAndCollisions q then Right ()
+    else Left $ "Variable defined in multiple clauses of a conjunction."
+  if noIntroducedVarMasked q then Right ()
+    else Left $ "One variable definition masks another."
+  if feasible'Junctions q then Right ()
+    else Left $ "Infeasible junction in Query."
+  if null $ S.intersection (introducesVars q) (drawsFromVars q) then Right ()
+    else Left $ "Names shared between internally-defined and externally-drawn-from variables."
 
 feasible'Junctions :: Query e sp -> Bool
 feasible'Junctions = recursive where
@@ -78,27 +76,6 @@ findlike _                       = False
 
 
 -- | = Ensuring the Vars used in a Query make sense
-
--- | `disjointQuantifiers` tests that no quantifier is masked by
--- a quantifier in a subquery
--- and that no two clauses of an `And` introduce the same variable.
---
--- TODO ? Those conditions are stricter than necessary, but hard to relax.
--- They rule out no expressivity, but they can require the use of what
--- might seem like too many variable names.
-
-disjointQuantifiers :: Query e sp -> Bool
-disjointQuantifiers (QQuant w) = disjointQuantifiers $ goal w
-disjointQuantifiers (QJunct (Or qs))  =  and $ map disjointQuantifiers qs
-disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
-                                         && (snd $ foldr f (S.empty, True) qs)
-  where -- `f` verifies that no Var is quantified in two clauses of the And
-    f :: Query e sp -> (Set Var, Bool) -> (Set Var, Bool)
-    f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
-    f q (vs, True) = if S.disjoint vs $ introducesVars q
-                     then (S.union vs $ introducesVars q, True)
-                     else (S.empty, False)
-disjointQuantifiers _ = True
 
 noIntroducedVarMasked :: Query e sp -> Bool
 noIntroducedVarMasked = f S.empty where

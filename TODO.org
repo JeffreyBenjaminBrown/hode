@@ -17,9 +17,9 @@ type CondElts = Map Elt (Set Subst)
 Must be able to say, "for all x such that p(x), q(x)".
 (Could say it as "for all x, either not p(x) or p(x) and q(x)", but that's cumbersome.)
 ** divide disjointQuantifiers
-*** no quantifier masks a quantifier in a subquery
+*** DONE no quantifier masks a quantifier in a subquery
 *** DONE no two clauses of an `And` introduce the same variable
-*** internal and external vars don't overlap
+*** DONE internal and external vars don't overlap
  This used to be part of disjointQuantifiers.
 ** the `conditions` field of a ForAll should permit *junctions
 => it should be [Query], not [VarTest]
