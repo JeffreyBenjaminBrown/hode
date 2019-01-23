@@ -87,8 +87,7 @@ findlike _                       = False
 
 disjointQuantifiers :: Query e sp -> Bool
 disjointQuantifiers (QQuant w) = let (v,s,q) = (name w, source w, goal w)
-  in (not $ S.member v $ S.union (quantifies q) $ sourceRefs s)
-                                                 && disjointQuantifiers q
+                                                in disjointQuantifiers q
 disjointQuantifiers (QJunct (Or qs))  =  and $ map disjointQuantifiers qs
 disjointQuantifiers (QJunct (And qs)) = (and $ map disjointQuantifiers qs)
                                          && (snd $ foldr f (S.empty, True) qs)
@@ -110,7 +109,6 @@ findsAndTestsOnlyQuantifiedVars q = f S.empty q where
   f vs _          = S.isSubsetOf (queryDets q) vs
 
 -- | `internalAndExternalVars` checks Sources and quantifiers.
-
 internalAndExternalVars :: Query e sp -> (Set Var, Set Var)
 internalAndExternalVars q = f (S.empty,S.empty) q where
   merge :: (Set Var, Set Var) -> (Set Var, Set Var) -> (Set Var, Set Var)
@@ -119,9 +117,6 @@ internalAndExternalVars q = f (S.empty,S.empty) q where
   f :: (Set Var, Set Var) -> Query e sp -> (Set Var, Set Var)
   f ie (QJunct j) = S.foldr merge (S.empty, S.empty)
     $ S.fromList $ map (f ie) $ clauses j
-  f (i,e) (QQuant w) = f (S.insert v i, S.union e notInInt) q
-    where (v,s,q) = (name w, source w, goal w)
-          notInInt = S.filter (not . flip S.member i) $ sourceRefs s
   f (i,e) q = (i, S.union e notInInt)
     where notInInt = S.filter (not . flip S.member i) $ queryDets q
 

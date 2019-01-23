@@ -16,7 +16,22 @@ type CondElts = Map Elt (Set Subst)
 * TODO Quantifiers must include a VarTests section
 Must be able to say, "for all x such that p(x), q(x)".
 (Could say it as "for all x, either not p(x) or p(x) and q(x)", but that's cumbersome.)
-* TODO Ditch the Source type
+** internalAndExternalVars: replace the sourceRefs check
+   f (i,e) (QQuant w) = f (S.insert v i, S.union e notInInt) q
+     where (v,s,q) = (name w, source w, goal w)
+           notInInt = S.filter (not . flip S.member i) $ sourceRefs s
+
+where sourceRefs meant
+  sourceRefs :: Source -> Set Var
+  sourceRefs (Source v) = S.singleton v
+  sourceRefs (Source' v dets) = S.insert v dets
+(it was around in commit # 1c9007aa45167c7c2aee409b7ed58f6e78f77880 )
+** disjointQuantifiers: replace the sourceRefs check
+It had this clause:
+disjointQuantifiers (QQuant w) = let (v,s,q) = (name w, source w, goal w)
+  in (not $ S.member v $ S.union (quantifies q) $ sourceRefs s)
+                                                 && disjointQuantifiers q
+
 * TODO replace error with Either
 so far only used in Query.hs
 * Bipartite graph type

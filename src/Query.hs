@@ -34,7 +34,7 @@ mkTest :: forall e sp. (Eq e, Show e)
 mkTest compare eev = Test go deps where
   go :: sp -> Subst e -> e -> Bool
   go _ s = let (me, mv) = unEitherEltVar s eev :: (Maybe e, Maybe Var)
-               err = error $ keyErr "isNot_1" (fromJust mv) s
+               err = error $ keyErr "mkTest" (fromJust mv) s
            in maybe err compare me
   deps :: Set Var
   deps = S.fromList $ catMaybes $ map (either (const Nothing) Just) [eev]
@@ -48,10 +48,9 @@ mkVarTest compare eev eev' = VarTest go deps where
   go :: sp -> Subst e -> Bool
   go _ s = let (me , mv ) = unEitherEltVar s eev  :: (Maybe e, Maybe Var)
                (me', mv') = unEitherEltVar s eev' :: (Maybe e, Maybe Var)
-               err  = error $ keyErr "isNot_2" (fromJust mv ) s
-               err' = error $ keyErr "isNot_2" (fromJust mv') s
-    in case me of Nothing -> err
-                  Just e -> case me' of Nothing -> err'
+               err v = error $ keyErr "mkVarTest" (fromJust v) s
+    in case me of Nothing -> err mv
+                  Just e -> case me' of Nothing -> err mv'
                                         Just e' -> compare e e'
   deps :: Set Var
   deps = S.fromList $ catMaybes
@@ -169,22 +168,20 @@ runTestlike d p (QJunct (Or qs)) s ce = do
 
 runTestlike d p (QQuant (ForSome v src q)) s ce = do
   let errMsg = "runTestlike: error in callee:\n"
-  ((p',ss) :: (Possible e, Set (Subst e))) <-
-    either (\s -> Left $ errMsg ++ s) Right
-    $ extendPossible v src p s
+  ss <- either (\msg -> Left $ "runTestlike:\n" ++ msg) Right
+    $ drawVar p s src v
   (res :: Set (CondElts e)) <-
     ifLefts_set errMsg
-    $ S.map (flip (runTestlike d p' q) ce) ss
+    $ S.map (flip (runTestlike d p q) ce) ss
   Right $ M.unionsWith S.union res
 
 runTestlike d p (QQuant (ForAll v src q)) s ce = do
   let errMsg = "runTestlike: error in callee:\n"
-  ((p',ss) :: (Possible e, Set (Subst e))) <-
-    either (\s -> Left $ errMsg ++ s) Right
-    $ extendPossible v src p s
+  ss <- either (\msg -> Left $ "runTestLike:\n" ++ msg) Right
+    $ drawVar p s src v
   (res :: Set (CondElts e)) <-
     ifLefts_set errMsg
-    $ S.map (flip (runTestlike d p' q) ce) ss
+    $ S.map (flip (runTestlike d p q) ce) ss
 
   let cesWithoutV :: Set (CondElts e)
       cesWithoutV = S.map f res where
@@ -218,12 +215,11 @@ runFindlike d p (QJunct (Or qs)) s = do
   Right $ M.unionsWith S.union ces
 
 runFindlike d p (QQuant (ForSome v src q)) s = do
-  ((p',ss) :: (Possible e, Set (Subst e))) <-
-    either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
-    $ extendPossible v src p s
+  ss <- either (\msg -> Left $ "runFindlike:\n" ++ msg) Right
+    $ drawVar p s src v
   (res :: Set (CondElts e)) <-
     ifLefts_set "runFindlike: error(s) in callee:\n"
-    $ S.map (runFindlike d p' q) ss
+    $ S.map (runFindlike d p q) ss
   Right $ M.unionsWith S.union res
 
   -- TODO (#fast) runFindlike: Fold ForAll with short-circuiting.
@@ -231,11 +227,8 @@ runFindlike d p (QQuant (ForSome v src q)) s = do
   -- don't search for it using any remaining value of v.
 
 runFindlike d p (QQuant (ForAll v src q)) s = do
---  ((p',ss) :: (Possible e, Set (Subst e))) <-
---    either (\s -> Left $ "runFindlike: error in callee:\n" ++ s) Right
---    $ extendPossible v src p s
   ss <- either (\msg -> Left $ "runFindlike:\n" ++ msg) Right
-    $ drawVar p s (sourceVar src) v
+    $ drawVar p s src v
   (res :: Set (CondElts e)) <-
     ifLefts_set "runFindlike: error(s) in callee:\n"
     $ S.map (runFindlike d p q) ss

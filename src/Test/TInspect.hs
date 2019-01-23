@@ -51,9 +51,9 @@ test_internalAndExternalVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       -- These queries are named for their internal and external variables.
       c_ade, c_ag :: QIGI
-      c_ade = QQuant $ ForSome c (Source' d $ S.singleton a)
+      c_ade = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
         $ QFind $ findParents $ Right e
-      c_ag = QQuant $ ForSome c (Source' a $ S.singleton g)
+      c_ag = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
         $ QFind $ findParents $ Right c
   assertBool "5" $ internalAndExternalVars
     (QJunct $ Or [ c_ade, c_ag ] :: QIGI)
@@ -66,24 +66,24 @@ test_internalAndExternalVars = TestCase $ do
     (QFind $ findParents $ Right c :: QIGI)
     == (S.empty, S.singleton c)
   assertBool "1" $ internalAndExternalVars
-    ( QQuant $ ForAll a (Source b) $ QJunct $ Or [ c_ade, c_ag ] )
+    ( QQuant $ ForAll a b $ QJunct $ Or [ c_ade, c_ag ] )
     == ( S.fromList [a,c ], S.fromList [b,d,e,g ] )
 
 test_disjointExistentials = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
       [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
-      qx  = QQuant $ ForSome  "x" (Source x) qf
-      qy  = QQuant $ ForSome  "y" (Source y) qf
-      qx1 = QQuant $ ForSome "x1" (Source x) qf
-      qy1 = QQuant $ ForSome "y1" (Source y) qf
+      qx  = QQuant $ ForSome  "x" x qf
+      qy  = QQuant $ ForSome  "y" y qf
+      qx1 = QQuant $ ForSome "x1" x qf
+      qy1 = QQuant $ ForSome "y1" y qf
       qxy = QJunct $ Or [qx1,qy1]
-  assertBool "-1" $ disjointQuantifiers (QQuant $ ForSome x (Source y) qx)
+  assertBool "-1" $ disjointQuantifiers (QQuant $ ForSome x y qx)
     == False
-  assertBool "0" $ disjointQuantifiers  (QQuant $ ForSome x (Source x) qy)
+  assertBool "0" $ disjointQuantifiers  (QQuant $ ForSome x x qy)
     == False
-  assertBool "1" $ disjointQuantifiers  (QQuant $ ForSome x2 (Source y) qx1)
+  assertBool "1" $ disjointQuantifiers  (QQuant $ ForSome x2 y qx1)
     == True
-  assertBool "2" $ disjointQuantifiers  (QQuant $ ForSome y (Source x) qx1)
+  assertBool "2" $ disjointQuantifiers  (QQuant $ ForSome y x qx1)
     == True
   assertBool "3" $ disjointQuantifiers qx               == False
   assertBool "3.5" $ disjointQuantifiers qx1            == True
@@ -93,9 +93,9 @@ test_disjointExistentials = TestCase $ do
 test_quantifies = TestCase $ do
   let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
   assertBool "1" $ quantifies (
-    QJunct $ Or [ QQuant $ ForAll x (Source x) $ QTest $ error "whatever"
-                , QQuant $ ForAll y (Source y)
-                  $ QJunct $ And [ QQuant $ ForSome z (Source z)
+    QJunct $ Or [ QQuant $ ForAll x x $ QTest $ error "whatever"
+                , QQuant $ ForAll y y
+                  $ QJunct $ And [ QQuant $ ForSome z z
                                    $ QTest $ error "whatever" ] ] )
     == S.fromList [x,y,z]
 

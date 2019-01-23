@@ -21,10 +21,6 @@ type Var = String
   -- "source" is the earlier Var, and "dets" is a set of variables
   -- that were calculated based on source's earlier calculation.
 
-data Source = Source  { sourceVar :: Var }
-            | Source' { sourceVar :: Var
-                      , dets :: (Set Var) }
-
 data Query e sp = QFind  (Find       e sp)
                 | QTest  (Test       e sp)
                 | QVTest (VarTest    e sp)
@@ -45,8 +41,8 @@ data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
                    | Or  {clauses :: [Query e sp] } -- ^ order not important
 
 data Quantifier e sp =
-    ForAll  { name :: Var, source :: Source, goal :: Query e sp }
-  | ForSome { name :: Var, source :: Source, goal :: Query e sp }
+    ForAll  { name :: Var, source :: Var, goal :: Query e sp }
+  | ForSome { name :: Var, source :: Var, goal :: Query e sp }
 
 type Subst e    = Map Var e
 type CondElts e = Map e (Set (Subst e))

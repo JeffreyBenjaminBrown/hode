@@ -56,11 +56,3 @@ queryDets (QFind f)  = findDets f
 queryDets (QTest t)  = testDets t
 queryDets (QVTest t) = varTestDets t
 queryDets _          = S.empty
-
-sourceDets :: Source -> Set Var
-sourceDets (Source v) = S.singleton v
-sourceDets (Source' v dets) = dets
-
-sourceRefs :: Source -> Set Var
-sourceRefs (Source v) = S.singleton v
-sourceRefs (Source' v dets) = S.insert v dets
