@@ -13,6 +13,8 @@ import Types
 import Util
 
 
+-- | `drawVar p s src res` binds the name res to each e
+-- that p indicates src can take.
 drawVar :: (Ord e, Show e) =>
   Possible e -> Subst e -> Var -> Var -> Either String (Set (Subst e))
 drawVar p s src res = do

@@ -27,6 +27,7 @@ This would help me figure out how to track outputs, not just inputs, in the Poss
 ** TODO ! simplify
 For varPossibilities, just use the unconditional found values.
 For the input-output criteria, just use VarTest.
+*** once that's complete, ditch some unused functions in Subst.hs
 *** for more speed, while still pretty simple
 (*much* simpler than the input-output-matching varPossibilities strategy I was working on)
 Track inputs and outputs. Then, to cut down on the number of varPossibilities tried, allow the user to ask for one flavor (variable name) of input or output to one found Query result. Any additional input-output-matching criteria are imposed via VarTest.

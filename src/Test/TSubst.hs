@@ -2,6 +2,7 @@
 
 module Test.TSubst where
 
+import           Data.Either
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -23,7 +24,18 @@ testModuleSubst = TestList
   , TestLabel "testVarPossibilities" testVarPossibilities
   , TestLabel "testSubstToCondElts" testSubstToCondElts
   , TestLabel "testSetSubstToCondElts" testSetSubstToCondElts
+  , TestLabel "test_drawVar" test_drawVar
   ]
+
+test_drawVar = TestCase $ do
+  let p = M.fromList [ ("a", M.fromList [ (1, error "meh") ] )
+                     , ("b", M.fromList [ (2, error "meh")
+                                        , (3, error "meh") ] ) ]
+      s = M.singleton "x" 10 :: Subst Int
+  assertBool "1" $ drawVar p s "b" "b1"
+    == Right (S.fromList [ M.insert "b1" 2 s
+                         , M.insert "b1" 3 s ] )
+  assertBool "1" $ isLeft $ drawVar p s "b1" "b"
 
 testSetSubstToCondElts = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]

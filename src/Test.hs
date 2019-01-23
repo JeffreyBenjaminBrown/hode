@@ -14,7 +14,7 @@ import Test.Rslt.RProgram
 import Test.TGraph
 import Test.TInspect
 import Test.TProgram
-import Test.TQuery
+--import Test.TQuery
 import Test.TRel
 import Test.TRslt
 import Test.TSubst
@@ -27,7 +27,7 @@ tests = runTestTT $ TestList
   , testModuleQueryClassify
   , testModuleGraph
   , test_module_Program
-  , testModuleQuery
+--  , testModuleQuery
   , test_module_rslt
   , test_module_rsltProgram
   , testModuleSubst

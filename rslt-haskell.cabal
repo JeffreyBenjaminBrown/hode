@@ -42,7 +42,7 @@ library
                 , Test.TGraph
                 , Test.TInspect
                 , Test.TProgram
-                , Test.TQuery
+--                , Test.TQuery
                 , Test.TRel
                 , Test.TRslt
                 , Test.Rslt.Data
