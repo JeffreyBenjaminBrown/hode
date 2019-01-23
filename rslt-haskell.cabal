@@ -27,26 +27,26 @@ source-repository head
 
 library
   exposed-modules:
-                  Program
-                , Query
-                , Query.Inspect
+--                  Program
+--                , Query
+                Query.Inspect
                 , Relation
                 , RelExperim
-                , Space.Graph
+--                , Space.Graph
                 , Space.Rslt
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
                 , Space.Rslt.Index.Positions
                 , Subst
                 , Test
-                , Test.TGraph
+--                , Test.TGraph
                 , Test.TInspect
-                , Test.TProgram
+--                , Test.TProgram
 --                , Test.TQuery
-                , Test.TRel
+--                , Test.TRel
                 , Test.TRslt
                 , Test.Rslt.Data
-                , Test.Rslt.RProgram
+--                , Test.Rslt.RProgram
                 , Test.TSubst
                 , Test.TUtil
                 , Types

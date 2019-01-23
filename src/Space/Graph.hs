@@ -8,7 +8,6 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Query
 import Types
 import Util
 
@@ -45,11 +44,3 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
         ->        a
         -> M.Map  a (S.Set a)
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
-
-
--- | == for building `Query`s
-
-findChildren, findParents :: (Ord e, Show e)
-                          => Either e Var -> Find e (Graph e)
-findChildren = mkFindFrom "findChildren" children
-findParents  = mkFindFrom "findParents"  parents
