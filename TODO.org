@@ -13,6 +13,8 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
+* rename findDets, testDets etc. to findUses, testUses etc.
+for congruence with Query.Inspect.usesVars
 * TODO Quantifiers must include a VarTests section
 Must be able to say, "for all x such that p(x), q(x)".
 (Could say it as "for all x, either not p(x) or p(x) and q(x)", but that's cumbersome.)

@@ -10,15 +10,18 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Space.Graph
+import Space.Graph.GQuery
 import Query.Inspect
+import Query.Leaf
 import Types
 
 
 testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_introducesVars" test_introducesVars
---  , TestLabel "test_disjointExistentials" test_disjointExistentials
+  , TestLabel "test_usesVars" test_usesVars
 --  , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
+--  , TestLabel "test_disjointExistentials" test_disjointExistentials
 --  , TestLabel "test_noPrematureReference" test_noPrematureReference
   -- these seem too easy to bother testing:
     -- validQuery
@@ -47,6 +50,8 @@ type QIGI = Query Int (Graph Int)
 --    == noPrematureReference [ ("a", QFind $ findParents $ Left 3 :: QIGI)
 --                            , ("b", QFind $ findParents $ Right "a") ]
 
+-- COPY the block below to test multiple functions in Inspect.hs
+
 --test_internalAndExternalVars = TestCase $ do
 --  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
 --      -- These queries are named for their internal and external variables.
@@ -69,6 +74,8 @@ type QIGI = Query Int (Graph Int)
 --    ( QQuant $ ForAll a b $ QJunct $ Or [ c_ade, c_ag ] )
 --    == ( S.fromList [a,c ], S.fromList [b,d,e,g ] )
 
+-- COPY the block above to test multiple functions in Inspect.hs
+
 --test_disjointExistentials = TestCase $ do
 --  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
 --      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
@@ -90,6 +97,26 @@ type QIGI = Query Int (Graph Int)
 --  assertBool "3.7" $ disjointQuantifiers qxy            == True
 --  assertBool "4" $ disjointQuantifiers (QJunct $ And [qx1,qxy]) == False
 
+test_usesVars = TestCase $ do
+  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
+      -- These queries are named for their internal and external variables.
+      c_ade, c_ag :: QIGI
+      c_ade = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
+        $ QFind $ findParents $ Right e
+      c_ag = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
+        $ QFind $ findParents $ Right c
+  assertBool "5" $ usesVars
+    (QJunct $ Or [ c_ade, c_ag ] :: QIGI)
+    == S.fromList [c,e]
+  assertBool "4" $ usesVars c_ade
+    == S.singleton e
+  assertBool "3" $ usesVars c_ag
+    == S.singleton c
+  assertBool "1" $ usesVars
+    ( QQuant $ ( ForAll a b ( QJunct $ Or [ c_ade, c_ag ] )
+                 [ mkVarTest (>) (Left 1) (Right f) ] ) )
+    == S.fromList [c,e,f]
+
 test_introducesVars = TestCase $ do
   let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
       q = QFind $ Find (\_ _ -> S.singleton 1) S.empty
@@ -98,7 +125,7 @@ test_introducesVars = TestCase $ do
     QJunct $ Or [ QQuant $ ForAll x x q []
                 , QQuant $ ForAll y y
                   (QJunct $ And [ QQuant $ ForSome z z q ] )
-                  meh ] )
+                  [] ] )
     == S.fromList [x,y,z]
 
 test_findlike = TestCase $ do
