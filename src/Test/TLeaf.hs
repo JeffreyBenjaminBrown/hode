@@ -19,7 +19,24 @@ import Types
 test_modules_leaf = TestList [
     TestLabel "test_runVarTest" test_runVarTest
   , TestLabel "test_runFind" test_runFind
+  , TestLabel "test_runTest" test_runTest
   ]
+
+test_runTest = TestCase $ do
+  let (a,b,c) = ("a","b","c")
+      g = graph [ (1, [2,3] )
+                , (2, [1,3] ) ]
+      s = M.fromList [(a, 1), (b, 2)]
+  assertBool "1" $ runTest g s
+    ( mkTest (>) (Left 1) )
+    (  M.fromList [ (0, S.singleton $ M.singleton c 1)
+                  , (2, S.singleton $ M.singleton c 1) ] )
+    == M.fromList [ (0, S.singleton $ M.singleton c 1) ]
+  assertBool "2" $ runTest g s
+    ( mkTest (<) (Right a) )
+    (  M.fromList [ (0, S.singleton $ M.singleton c 1)
+                  , (2, S.singleton $ M.singleton c 1) ] )
+    == M.fromList [ (2, S.singleton $ M.fromList [ (a,1), (c,1) ] ) ]
 
 test_runFind = TestCase $ do
   let (a,b,c) = ("a","b","c")
