@@ -11,7 +11,7 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 --import Test.Rslt.RProgram
---import Test.TGraph
+import Test.TGraph
 import Test.TInspect
 --import Test.TProgram
 --import Test.TQuery
@@ -25,7 +25,7 @@ tests :: IO Counts
 tests = runTestTT $ TestList
   [ testModuleUtil
   , testModuleQueryClassify
---  , testModuleGraph
+  , testModuleGraph
 --  , test_module_Program
 --  , testModuleQuery
   , test_module_rslt

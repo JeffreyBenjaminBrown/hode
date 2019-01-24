@@ -32,14 +32,14 @@ library
                 Query.Inspect
                 , Relation
                 , RelExperim
---                , Space.Graph
+                , Space.Graph
                 , Space.Rslt
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
                 , Space.Rslt.Index.Positions
                 , Subst
                 , Test
---                , Test.TGraph
+                , Test.TGraph
                 , Test.TInspect
 --                , Test.TProgram
 --                , Test.TQuery
