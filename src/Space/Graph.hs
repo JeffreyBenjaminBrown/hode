@@ -21,6 +21,8 @@ data Graph e = Graph {
 
 -- | Building and reading graphs
 
+-- | Given a list of (parent, [child]) pairs, this produces a graph.
+-- It can only create graphs with no isolated nodes.
 graph :: Ord e => [( e, [e] )] -> Graph e
 graph pairs = Graph nodes children $ invertMapToSet children where
   children = M.fromList $ map f pairs

@@ -26,7 +26,7 @@ Must be able to say, "for all x such that p(x), q(x)".
 ** the `conditions` field of a ForAll should permit *junctions
 => it should be [Query], not [VarTest]
 * TODO replace error with Either
-so far only used in Query.hs
+so far only used in Query.MkLeaf
 * Bipartite graph type
 because I keep wanting to invert things like CondElts
 * ? test dependent variables in TProgram

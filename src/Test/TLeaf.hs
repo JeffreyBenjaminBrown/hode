@@ -12,12 +12,26 @@ import Query.Inspect
 import Query.MkLeaf
 import Query.RunLeaf
 import Space.Graph
+import Space.Graph.GQuery
 import Types
 
 
 test_modules_leaf = TestList [
     TestLabel "test_runVarTest" test_runVarTest
+  , TestLabel "test_runFind" test_runFind
   ]
+
+test_runFind = TestCase $ do
+  let (a,b,c) = ("a","b","c")
+      g = graph [ (1, [2,3] ) ]
+      s = M.fromList [(a, 1), (b, 2)]
+  assertBool "1" $ runFind g s (findChildren $ Left 1)  ==
+    M.fromList [ (2, S.singleton M.empty)
+               , (3, S.singleton M.empty) ]
+  assertBool "2" $ runFind g s (findChildren $ Right a) ==
+    M.fromList [ (2, S.singleton $ M.singleton a 1)
+               , (3, S.singleton $ M.singleton a 1) ]
+  assertBool "2" $ runFind g s (findChildren $ Right b) == M.empty
 
 test_runVarTest = TestCase $ do
   --runVarTest :: sp -> Subst e -> VarTest e sp -> Bool
