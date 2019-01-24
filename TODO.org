@@ -48,6 +48,7 @@ How outputs could be tracked:
   In the resulting [?], Look up a value of that Var.
   In the resulting [?], look up the output Var.
   This produces all the possible values that input value could cause in the output.
+* VarTests might need access to the Possible
 * for RSLT
 ** TODO Query subtypes (Find etc) that expect a Maybe (for the Rslt)
 ** TODO Rslt type which bundles Files and Index

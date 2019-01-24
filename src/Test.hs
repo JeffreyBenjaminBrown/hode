@@ -28,7 +28,7 @@ tests = runTestTT $ TestList
   , testModuleQueryClassify
   , testModuleGraph
 --  , test_module_Program
---  , test_modules_leaf
+  , test_modules_leaf
 --  , testModuleQuery
   , test_module_rslt
 --  , test_module_rsltProgram
