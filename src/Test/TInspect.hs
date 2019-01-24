@@ -20,6 +20,7 @@ testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_introducesVars" test_introducesVars
   , TestLabel "test_usesVars" test_usesVars
+  , TestLabel "test_noAndCollisions" test_noAndCollisions
 --  , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
 --  , TestLabel "test_disjointExistentials" test_disjointExistentials
 --  , TestLabel "test_noPrematureReference" test_noPrematureReference
@@ -52,30 +53,6 @@ type QIGI = Query Int (Graph Int)
 
 -- COPY the block below to test multiple functions in Inspect.hs
 
---test_internalAndExternalVars = TestCase $ do
---  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
---      -- These queries are named for their internal and external variables.
---      c_de, c_a :: QIGI
---      c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
---        $ QFind $ findParents $ Right e
---      c_a = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
---        $ QFind $ findParents $ Right c
---  assertBool "5" $ internalAndExternalVars
---    (QJunct $ Or [ c_de, c_a ] :: QIGI)
---    == (S.singleton c, S.fromList [a,d,e,g] )
---  assertBool "4" $ internalAndExternalVars c_de
---    == (S.singleton c, S.fromList [a,d,e])
---  assertBool "3" $ internalAndExternalVars c_a
---    == (S.singleton c, S.fromList [a,g])
---  assertBool "2" $ internalAndExternalVars
---    (QFind $ findParents $ Right c :: QIGI)
---    == (S.empty, S.singleton c)
---  assertBool "1" $ internalAndExternalVars
---    ( QQuant $ ForAll a b $ QJunct $ Or [ c_de, c_a ] )
---    == ( S.fromList [a,c ], S.fromList [b,d,e,g ] )
-
--- COPY the block above to test multiple functions in Inspect.hs
-
 --test_disjointExistentials = TestCase $ do
 --  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
 --      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
@@ -96,6 +73,31 @@ type QIGI = Query Int (Graph Int)
 --  assertBool "3.5" $ disjointQuantifiers qx1            == True
 --  assertBool "3.7" $ disjointQuantifiers qxy            == True
 --  assertBool "4" $ disjointQuantifiers (QJunct $ And [qx1,qxy]) == False
+
+-- COPY the block above to test multiple functions in Inspect.hs
+
+
+test_noAndCollisions = TestCase $ do
+  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
+      [x,x1,x2,y,y1,y2,z] = ["x","x1","x2","y","y1","y2","z"]
+      qx  = QQuant $ ForSome  x x qf
+      qy  = QQuant $ ForSome  y y qf
+      qx1 = QQuant $ ForSome x1 x qf
+      qy1 = QQuant $ ForSome y1 y qf
+      qxy = QJunct $ Or [qx1,qy1]
+
+  assertBool "-1" $ noAndCollisions (QQuant $ ForSome x y qx)
+    == True
+  assertBool "0" $ noAndCollisions  (QQuant $ ForSome x x qy)
+    == True
+
+  assertBool "3" $ noAndCollisions qx               == True
+  assertBool "3.5" $ noAndCollisions qx1            == True
+  assertBool "3.7" $ noAndCollisions qxy            == True
+  assertBool "4" $ noAndCollisions (QQuant $ ForSome z z
+                                    $ QJunct $ And [qx1,qxy]) == False
+  assertBool "4" $ noAndCollisions (QJunct $ And [qx1,qxy]) == False
+  assertBool "4" $ noAndCollisions (QJunct $ Or [qx1,qxy]) == True
 
 test_drawsFromVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
