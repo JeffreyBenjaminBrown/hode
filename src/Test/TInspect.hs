@@ -97,6 +97,24 @@ type QIGI = Query Int (Graph Int)
 --  assertBool "3.7" $ disjointQuantifiers qxy            == True
 --  assertBool "4" $ disjointQuantifiers (QJunct $ And [qx1,qxy]) == False
 
+test_drawsFromVars = TestCase $ do
+  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
+      -- These queries are named for their internal and external variables.
+      c_de, c_a :: QIGI
+      c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
+        $ QFind $ findParents $ Right e
+      c_a = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
+        $ QFind $ findParents $ Right c
+
+  assertBool "5" $ drawsFromVars (QJunct $ Or [ c_de, c_a ] :: QIGI)
+                                      == S.fromList [d,a]
+  assertBool "4" $ drawsFromVars c_de == S.singleton d
+  assertBool "3" $ drawsFromVars c_a  == S.singleton a
+  assertBool "2" $ drawsFromVars (QFind $ findParents $ Right c :: QIGI)
+                                      == S.empty
+  assertBool "1" $ drawsFromVars ( QQuant $ ForAll a b ( QJunct $ Or [ c_de, c_a ] ) [] )
+                                      == S.fromList [b, d, a]
+
 test_usesVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       -- These queries are named for their internal and external variables.
