@@ -55,23 +55,23 @@ type QIGI = Query Int (Graph Int)
 --test_internalAndExternalVars = TestCase $ do
 --  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
 --      -- These queries are named for their internal and external variables.
---      c_ade, c_ag :: QIGI
---      c_ade = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
+--      c_de, c_a :: QIGI
+--      c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
 --        $ QFind $ findParents $ Right e
---      c_ag = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
+--      c_a = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
 --        $ QFind $ findParents $ Right c
 --  assertBool "5" $ internalAndExternalVars
---    (QJunct $ Or [ c_ade, c_ag ] :: QIGI)
+--    (QJunct $ Or [ c_de, c_a ] :: QIGI)
 --    == (S.singleton c, S.fromList [a,d,e,g] )
---  assertBool "4" $ internalAndExternalVars c_ade
+--  assertBool "4" $ internalAndExternalVars c_de
 --    == (S.singleton c, S.fromList [a,d,e])
---  assertBool "3" $ internalAndExternalVars c_ag
+--  assertBool "3" $ internalAndExternalVars c_a
 --    == (S.singleton c, S.fromList [a,g])
 --  assertBool "2" $ internalAndExternalVars
 --    (QFind $ findParents $ Right c :: QIGI)
 --    == (S.empty, S.singleton c)
 --  assertBool "1" $ internalAndExternalVars
---    ( QQuant $ ForAll a b $ QJunct $ Or [ c_ade, c_ag ] )
+--    ( QQuant $ ForAll a b $ QJunct $ Or [ c_de, c_a ] )
 --    == ( S.fromList [a,c ], S.fromList [b,d,e,g ] )
 
 -- COPY the block above to test multiple functions in Inspect.hs
@@ -100,20 +100,20 @@ type QIGI = Query Int (Graph Int)
 test_usesVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
       -- These queries are named for their internal and external variables.
-      c_ade, c_ag :: QIGI
-      c_ade = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
+      c_de, c_a :: QIGI
+      c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
         $ QFind $ findParents $ Right e
-      c_ag = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
+      c_a = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
         $ QFind $ findParents $ Right c
   assertBool "5" $ usesVars
-    (QJunct $ Or [ c_ade, c_ag ] :: QIGI)
+    (QJunct $ Or [ c_de, c_a ] :: QIGI)
     == S.fromList [c,e]
-  assertBool "4" $ usesVars c_ade
+  assertBool "4" $ usesVars c_de
     == S.singleton e
-  assertBool "3" $ usesVars c_ag
+  assertBool "3" $ usesVars c_a
     == S.singleton c
   assertBool "1" $ usesVars
-    ( QQuant $ ( ForAll a b ( QJunct $ Or [ c_ade, c_ag ] )
+    ( QQuant $ ( ForAll a b ( QJunct $ Or [ c_de, c_a ] )
                  [ mkVarTest (>) (Left 1) (Right f) ] ) )
     == S.fromList [c,e,f]
 
