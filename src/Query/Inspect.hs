@@ -15,14 +15,14 @@ import Util
 
 validProgram :: [(Var,Query e sp)] -> Either String ()
 validProgram vqs = do
-  (wholeProgramTest :: ()) <- noPrematureReference vqs
+  (wholeProgramTest :: ()) <- usesNoSourceBeforeItExists vqs
   let f :: Either String () -> (Var, Query e sp) -> Either String ()
       f e@(Left _) _     = e
       f (Right ()) (_,q) = validQuery q
   foldl f (Right ()) vqs
 
-noPrematureReference :: forall e sp. [(Var,Query e sp)] -> Either String ()
-noPrematureReference vqs = case null bad of
+usesNoSourceBeforeItExists :: forall e sp. [(Var,Query e sp)] -> Either String ()
+usesNoSourceBeforeItExists vqs = case null bad of
   True -> Right ()
   False -> Left $ "validProgram: variables used before being defined: "
     ++ show bad ++ ".\n"

@@ -25,30 +25,34 @@ testModuleQueryClassify = TestList [
   , TestLabel "test_noAndCollisions" test_noAndCollisions
   , TestLabel "test_noIntroducedVarMasked" test_noIntroducedVarMasked
   , TestLabel "test_usesOnlyIntroducedVars" test_usesOnlyIntroducedVars
---  , TestLabel "test_noPrematureReference" test_noPrematureReference
+  , TestLabel "test_usesNoSourceBeforeItExists"
+    test_usesNoSourceBeforeItExists
   -- these seem too easy to bother testing:
     -- validQuery
     -- feasible'Junctions
   ]
 
---test_noPrematureReference = TestCase $ do
---  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
---      errMsg :: [Var] -> Either String ()
---      errMsg vs = Left $ "validProgram: variables " ++ show (S.fromList vs)
---                  ++ " used before being defined.\n"
---  assertBool "1" $ errMsg ["a","b"]
---    == noPrematureReference
---    [ ("a", QJunct $ And [ QFind $ findParents $ Right "a"
---                         , QFind $ findParents $ Right "b" ] :: QIGI ) ]
---  assertBool "2" $ errMsg ["a","b","d"]
---    == noPrematureReference
---    [ ("c", QJunct $ And [ QFind $ findParents $ Right "a"
---                          , QFind $ findParents $ Right "b" ] :: QIGI )
---    , ("d", QJunct $ And [ QFind $ findParents $ Right "c"
---                          , QFind $ findParents $ Right "d" ] ) ]
---  assertBool "3" $ Right ()
---    == noPrematureReference [ ("a", QFind $ findParents $ Left 3 :: QIGI)
---                            , ("b", QFind $ findParents $ Right "a") ]
+test_usesNoSourceBeforeItExists = TestCase $ do
+  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
+      errMsg :: [Var] -> Either String ()
+      errMsg vs = Left $ "validProgram: variables " ++ show (S.fromList vs)
+                  ++ " used before being defined.\n"
+  assertBool "no sources. (use is different from sourcing.)" $ Right ()
+    == usesNoSourceBeforeItExists
+    [ ("c", QJunct $ And [ QFind $ findParents $ Right "a"
+                          , QFind $ findParents $ Right "b" ] :: QIGI )
+    , ("d", QJunct $ And [ QFind $ findParents $ Right "c"
+                          , QFind $ findParents $ Right "d" ] ) ]
+  assertBool "3" $ Right ()
+    == usesNoSourceBeforeItExists
+    [ ("a", QFind $ findParents $ Left 3 :: QIGI)
+    , ("b", QQuant $ ForSome "a1" "a" $ QFind $ findParents $ Right "a") ]
+  assertBool "3" $ Left (
+    "validProgram: variables used before being defined: "
+    ++ show (S.singleton "x") ++ ".\n" )
+    == usesNoSourceBeforeItExists
+    [ ("a", QFind $ findParents $ Left 3 :: QIGI)
+    , ("b", QQuant $ ForSome "y" "x" $ QFind $ findParents $ Right "a") ]
 
 test_usesOnlyIntroducedVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
