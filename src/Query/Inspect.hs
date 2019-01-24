@@ -24,8 +24,8 @@ validProgram vqs = do
 noPrematureReference :: forall e sp. [(Var,Query e sp)] -> Either String ()
 noPrematureReference vqs = case null bad of
   True -> Right ()
-  False -> Left $ "validProgram: variables " ++ show bad
-           ++ " used before being defined.\n"
+  False -> Left $ "validProgram: variables used before being defined: "
+    ++ show bad ++ ".\n"
   where
   (_,bad) = foldl f (S.empty, S.empty) vqs :: (Set Var, Set Var)
   f :: (Set Var, Set Var) -> (Var, Query e sp) -> (Set Var, Set Var)
@@ -47,6 +47,7 @@ validQuery q = do
   if feasible'Junctions q then Right ()
     else Left $ "Infeasible junction in Query."
   if null $ S.intersection (introducesVars q) (drawsFromVars q) then Right ()
+    -- introducesVars and drawsFromVars are recursive, so this needn't be.
     else Left $ "Names shared between internally-defined and externally-drawn-from variables."
 
 feasible'Junctions :: Query e sp -> Bool

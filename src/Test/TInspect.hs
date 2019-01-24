@@ -16,21 +16,20 @@ import Query.Leaf
 import Types
 
 
+type QIGI = Query Int (Graph Int)
+
 testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_introducesVars" test_introducesVars
   , TestLabel "test_usesVars" test_usesVars
   , TestLabel "test_noAndCollisions" test_noAndCollisions
---  , TestLabel "test_internalAndExternalVars" test_internalAndExternalVars
---  , TestLabel "test_disjointExistentials" test_disjointExistentials
+  , TestLabel "test_noIntroducedVarMasked" test_noIntroducedVarMasked
+  , TestLabel "test_usesOnlyIntroducedVars" test_usesOnlyIntroducedVars
 --  , TestLabel "test_noPrematureReference" test_noPrematureReference
   -- these seem too easy to bother testing:
     -- validQuery
     -- feasible'Junctions
-    -- usesOnlyIntroducedVars
   ]
-
-type QIGI = Query Int (Graph Int)
 
 --test_noPrematureReference = TestCase $ do
 --  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
@@ -40,7 +39,7 @@ type QIGI = Query Int (Graph Int)
 --  assertBool "1" $ errMsg ["a","b"]
 --    == noPrematureReference
 --    [ ("a", QJunct $ And [ QFind $ findParents $ Right "a"
---                          , QFind $ findParents $ Right "b" ] :: QIGI ) ]
+--                         , QFind $ findParents $ Right "b" ] :: QIGI ) ]
 --  assertBool "2" $ errMsg ["a","b","d"]
 --    == noPrematureReference
 --    [ ("c", QJunct $ And [ QFind $ findParents $ Right "a"
@@ -51,30 +50,37 @@ type QIGI = Query Int (Graph Int)
 --    == noPrematureReference [ ("a", QFind $ findParents $ Left 3 :: QIGI)
 --                            , ("b", QFind $ findParents $ Right "a") ]
 
--- COPY the block below to test multiple functions in Inspect.hs
+test_usesOnlyIntroducedVars = TestCase $ do
+  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
 
---test_disjointExistentials = TestCase $ do
---  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
---      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
---      qx  = QQuant $ ForSome  "x" x qf
---      qy  = QQuant $ ForSome  "y" y qf
---      qx1 = QQuant $ ForSome "x1" x qf
---      qy1 = QQuant $ ForSome "y1" y qf
---      qxy = QJunct $ Or [qx1,qy1]
---  assertBool "-1" $ disjointQuantifiers (QQuant $ ForSome x y qx)
---    == False
---  assertBool "0" $ disjointQuantifiers  (QQuant $ ForSome x x qy)
---    == False
---  assertBool "1" $ disjointQuantifiers  (QQuant $ ForSome x2 y qx1)
---    == True
---  assertBool "2" $ disjointQuantifiers  (QQuant $ ForSome y x qx1)
---    == True
---  assertBool "3" $ disjointQuantifiers qx               == False
---  assertBool "3.5" $ disjointQuantifiers qx1            == True
---  assertBool "3.7" $ disjointQuantifiers qxy            == True
---  assertBool "4" $ disjointQuantifiers (QJunct $ And [qx1,qxy]) == False
+  assertBool "1" $ False
+    == usesOnlyIntroducedVars
+    ( QJunct $ And [ QFind $ findParents $ Right "a"
+                   , QFind $ findParents $ Right "b" ] :: QIGI )
+  assertBool "3" $ True
+    == usesOnlyIntroducedVars
+    ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "a1" :: QIGI ) )
+  assertBool "3" $ False
+    == usesOnlyIntroducedVars
+    ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "b" :: QIGI ) )
 
--- COPY the block above to test multiple functions in Inspect.hs
+test_noIntroducedVarMasked = TestCase $ do
+  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
+      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
+      qx  = QQuant $ ForSome  "x" x qf
+      qy  = QQuant $ ForSome  "y" y qf
+      qx1 = QQuant $ ForSome "x1" x qf
+      qy1 = QQuant $ ForSome "y1" y qf
+      qxy = QJunct $ Or [qx1,qy1]
+      t = noIntroducedVarMasked
+
+  assertBool "-1"  $ t (QQuant $ ForSome x y qx)   == False
+  assertBool "0"   $ t (QQuant $ ForSome x x qy)   == True
+  assertBool "1"   $ t (QQuant $ ForSome x2 y qx1) == True
+  assertBool "2"   $ t (QQuant $ ForSome y x qx1)  == True
+  assertBool "3"   $ t qx                          == True
+  assertBool "3.7" $ t qxy                         == True
+  assertBool "4"   $ t (QJunct $ And [qx1,qxy])    == True
 
 
 test_noAndCollisions = TestCase $ do

@@ -42,3 +42,24 @@ testVarPossibilities = TestCase $ do
     == Right (M.fromList [ (2, S.singleton M.empty )
                          , (4, S.singleton $ M.singleton x 14) ])
 
+test_disjointExistentials = TestCase $ do
+  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
+      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
+      qx  = QQuant $ ForSome  "x" x qf
+      qy  = QQuant $ ForSome  "y" y qf
+      qx1 = QQuant $ ForSome "x1" x qf
+      qy1 = QQuant $ ForSome "y1" y qf
+      qxy = QJunct $ Or [qx1,qy1]
+  assertBool "-1" $ disjointQuantifiers (QQuant $ ForSome x y qx)
+    == False
+  assertBool "0" $ disjointQuantifiers  (QQuant $ ForSome x x qy)
+    == False
+  assertBool "1" $ disjointQuantifiers  (QQuant $ ForSome x2 y qx1)
+    == True
+  assertBool "2" $ disjointQuantifiers  (QQuant $ ForSome y x qx1)
+    == True
+  assertBool "3" $ disjointQuantifiers qx               == False
+  assertBool "3.5" $ disjointQuantifiers qx1            == True
+  assertBool "3.7" $ disjointQuantifiers qxy            == True
+  assertBool "4" $ disjointQuantifiers (QJunct $ And [qx1,qxy]) == False
+
