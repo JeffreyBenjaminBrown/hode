@@ -18,37 +18,6 @@ import Types
 import Util
 
 
--- | = Running atomic queries
-
-runVarTest :: sp -> Subst e -> VarTest e sp -> Bool
-runVarTest d s t = (varTestFunction t) d s
-
-runFind :: forall e sp. sp -> Subst e -> Find e sp -> CondElts e
-runFind d s (Find find deps) =
-  M.fromSet (const $ S.singleton used) found
-  where
-    found = find d s             :: Set e
-    used = M.restrictKeys s deps :: Subst e
-
-runTestOnElt :: forall e sp.
-                sp -> Subst e -> Test e sp -> e -> (Bool, Subst e)
-runTestOnElt d s (Test test deps) e = (passes, used)
-  where
-    passes = test d s e          :: Bool
-    used = M.restrictKeys s deps :: Subst e
-
-runTest :: forall e sp. Ord e
-        => sp -> Subst e -> Test e sp -> CondElts e -> CondElts e
-runTest d s q ce = let
-  passed :: Map e (Bool, Subst e)
-  passed = M.filter fst tested where
-    tested = M.mapWithKey (\k v -> runTestOnElt d s q k) ce
-  f ::  e -> (Bool, Subst e) -> Set (Subst e)
-  f k (_,s) = let ss = (M.!) ce k :: Set (Subst e)
-              in S.map (M.union s) ss
-  in M.mapWithKey f passed
-
-
 -- | == Complex queries
 
 -- | = runAnd
@@ -166,7 +135,7 @@ runFindlike d p (QQuant (ForSome v src q)) s = do
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 
-runFindlike d p (QQuant (ForAll v src q)) s = do
+runFindlike d p (QQuant (ForAll v src q vts)) s = do
   ss <- either (\msg -> Left $ "runFindlike:\n" ++ msg) Right
     $ drawVar p s src v
   (res :: Set (CondElts e)) <-

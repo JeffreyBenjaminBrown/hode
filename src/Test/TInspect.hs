@@ -12,7 +12,7 @@ import           Test.HUnit hiding (Test)
 import Space.Graph
 import Space.Graph.GQuery
 import Query.Inspect
-import Query.Leaf
+import Query.MkLeaf
 import Types
 
 

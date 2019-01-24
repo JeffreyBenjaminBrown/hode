@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Query.Leaf where
+module Query.MkLeaf where
 
 import           Data.Either
 import           Data.List

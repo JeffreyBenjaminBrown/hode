@@ -8,7 +8,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Query.Leaf
+import Query.MkLeaf
 import Space.Graph
 import Types
 import Util

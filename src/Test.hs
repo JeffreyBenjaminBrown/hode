@@ -13,6 +13,7 @@ import           Test.HUnit hiding (Test)
 --import Test.Rslt.RProgram
 import Test.TGraph
 import Test.TInspect
+import Test.TLeaf
 --import Test.TProgram
 --import Test.TQuery
 --import Test.TRel
@@ -27,6 +28,7 @@ tests = runTestTT $ TestList
   , testModuleQueryClassify
   , testModuleGraph
 --  , test_module_Program
+--  , test_modules_leaf
 --  , testModuleQuery
   , test_module_rslt
 --  , test_module_rsltProgram

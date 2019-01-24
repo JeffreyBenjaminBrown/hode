@@ -28,8 +28,10 @@ source-repository head
 library
   exposed-modules:
 --                  Program
---                , Query
+--                  Query
                 Query.Inspect
+                , Query.MkLeaf
+                , Query.RunLeaf
                 , Relation
                 , RelExperim
                 , Space.Graph
@@ -43,6 +45,7 @@ library
                 , Test.TInspect
 --                , Test.TProgram
 --                , Test.TQuery
+                , Test.TLeaf
 --                , Test.TRel
                 , Test.TRslt
                 , Test.Rslt.Data
