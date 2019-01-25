@@ -28,8 +28,8 @@ source-repository head
 library
   exposed-modules:
 --                  Program
---                  Query
-                Query.Inspect
+                  Query
+                , Query.Inspect
                 , Query.MkLeaf
                 , Query.RunLeaf
                 , Relation
@@ -44,7 +44,7 @@ library
                 , Test.TGraph
                 , Test.TInspect
 --                , Test.TProgram
---                , Test.TQuery
+                , Test.TQuery
                 , Test.TLeaf
 --                , Test.TRel
                 , Test.TRslt

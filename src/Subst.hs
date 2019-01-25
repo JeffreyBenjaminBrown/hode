@@ -99,7 +99,6 @@ substToCondElts v subst = do
 -- `CondElt` ce in ces, s is consistent with at least one `Subst` in ces.
 --
 -- ASSUMES all input `CondElts` condition for `Elt` values of the same `Var`.
--- (Each determinant of a VarFunc implies a separate CondElts for it.)
 
 reconcileCondElts :: forall e. Ord e => Set (CondElts e) -> CondElts e
 reconcileCondElts ces = let
