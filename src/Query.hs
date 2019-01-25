@@ -95,11 +95,14 @@ runTestlike d p s ce (QQuant (ForAll v src q vtests)) = do
   (ss :: Set (Subst e)) <-
     either (\msg -> Left $ errMsg ++ msg) Right
     $ drawVar p s src v
-  (res :: Set (CondElts e)) <-
+  let (varTested :: Set (Subst e)) =
+        S.filter passesAllVarTests ss where
+        passesAllVarTests :: Subst e -> Bool
+        passesAllVarTests s = and $ map (runVarTest d s) vtests
+  (tested :: Set (CondElts e)) <-
     ifLefts_set errMsg
-    $ S.map (\s -> runTestlike d p s ce q) ss
-
-  let (cesWithoutV :: Set (CondElts e)) = S.map f res where
+    $ S.map (\s -> runTestlike d p s ce q) varTested
+  let (cesWithoutV :: Set (CondElts e)) = S.map f tested where
         -- delete the dependency on v, so that reconciliation can work
         f = M.map $ S.map $ M.delete v
   Right $ reconcileCondElts cesWithoutV

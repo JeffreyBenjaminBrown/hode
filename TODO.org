@@ -23,7 +23,7 @@ Must be able to say, "for all x such that p(x), q(x)".
 *** DONE no two clauses of an `And` introduce the same variable
 *** DONE internal and external vars don't overlap
  This used to be part of disjointQuantifiers.
-** the `conditions` field of a ForAll should permit *junctions
+** TODO the `conditions` field of a ForAll should permit *junctions
 => it should be [Query], not [VarTest]
 * TODO replace error with Either
 so far only used in Query.MkLeaf

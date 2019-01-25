@@ -93,6 +93,12 @@ test_runTestlike = TestCase $ do
                                           , (2, S.singleton M.empty)
                                           , (3, S.singleton M.empty) ]
 
+  assertBool "6" $ runTestlike d p (M.empty :: Subst Int) ce
+    ( QQuant $ ForAll a1 a (QTest nota1)
+      [ mkVarTest (<) (Left 1) (Right a1) ] )
+    == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
+                          , (3, S.singleton M.empty) ] )
+
   assertBool "5" $ runTestlike d p (M.empty :: Subst Int) ce
     (QQuant $ ForAll a1 a (QTest nota1) [])
     == Right ( M.singleton 3 (S.singleton M.empty) )
