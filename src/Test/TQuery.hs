@@ -6,7 +6,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit hiding (Test, test)
 
 import Space.Graph
 import Space.Graph.GQuery
@@ -31,7 +31,7 @@ test_module_query = TestList [
 --      aOf_b = "aOf_b"
 --      src_aOf_b = Source' a $ S.singleton b
 --
---      isnt v = QTest $ mkTest (/=) $ Right v
+--      isnt v = QTest $ test (/=) $ Right v
 --      d = graph [ (0, [1,2        ] )
 --                , (3, [  2,3,4    ] )
 --                , (10,[11, 23     ] ) ]
@@ -59,7 +59,7 @@ test_module_query = TestList [
 --testRunAnd = TestCase $ do
 --  let [a,b,c,x,y] = ["a","b","c","x","y"]
 --      (a2 :: (Subst Int)) = M.singleton a 2
---      nota = QTest $ mkTest (/=) $ Right a
+--      nota = QTest $ test (/=) $ Right a
 --      d = graph [ (0, [1,2    ] )
 --                , (3, [  2,3,4] ) ]
 --      (p :: (Possible Int)) = M.singleton a $
@@ -73,9 +73,9 @@ test_runTestlike = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
       (a2 :: (Subst Int)) = M.singleton a 2
-      (not3 :: Test Int (Graph Int)) = mkTest (/=) $ Left 3
-      (nota :: Test Int (Graph Int)) = mkTest (/=) $ Right a
-      (nota1 :: Test Int (Graph Int)) = mkTest (/=) $ Right a1
+      (not3 :: Test Int (Graph Int)) = test (/=) $ Left 3
+      (nota :: Test Int (Graph Int)) = test (/=) $ Right a
+      (nota1 :: Test Int (Graph Int)) = test (/=) $ Right a1
       d = graph $ map (,[]) [1..3]
       (p :: (Possible Int)) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
@@ -86,7 +86,7 @@ test_runTestlike = TestCase $ do
 
   assertBool "6" $ runTestlike d p (M.empty :: Subst Int) ce
     ( QQuant $ ForAll a1 a (QTest nota1)
-      [ mkVarCompare (<) (Left 1) (Right a1) ] )
+      [ varTestCompare (<) (Left 1) (Right a1) ] )
     == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
                           , (3, S.singleton M.empty) ] )
 

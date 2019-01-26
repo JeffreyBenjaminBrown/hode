@@ -20,12 +20,12 @@ Here's how you would write that:
 ```
 [ ( "a", QFind $ findParents $ Left 2)
 , ( "b", ( ForSome "a1" (Source "a") $
-           QAnd [ QFind $ mkFindFrom "children" children $ Right "a1"
-                , QTest $ mkTest (/=) $ Right "a1"
-                , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
+           QAnd [ QFind $ findFrom "children" children $ Right "a1"
+                , QTest $ test (/=) $ Right "a1"
+                , QTest $ test (/=) $ Left 2 ] ) ) ]
 ```
 
-See Test/TProgram.hs for that very program in action. (The String argument to `mkFindFrom` is only there to make errors more intelligible.)
+See Test/TProgram.hs for that very program in action. (The String argument to `findFrom` is only there to make errors more intelligible.)
 
 
 ## The full language
@@ -50,17 +50,17 @@ The `QAnd` and `QOr` constructors take a list of Queries and find their intersec
 
 The `QFind`, `QTest` and `QVTest` constructors are defined in terms of the Find, Test and VarTest types. See the code for the full spec, but here they are in brief:
 
-A `Find` is used to find stuff in the space. You can make something of type `Find` by running `mkFindFrom`. `mkFindFrom` expects a function of type `(sp -> e -> Set e)`. That is, given a space sp and an element e of it, this function can produce a bunch of other elements of the space.
+A `Find` is used to find stuff in the space. You can make something of type `Find` by running `findFrom`. `findFrom` expects a function of type `(sp -> e -> Set e)`. That is, given a space sp and an element e of it, this function can produce a bunch of other elements of the space.
 
-A `Test` is used to filter things that have been found. You can make a `Test` by running `mkTest`, which expects a function of type `(e -> e -> Bool)`.
+A `Test` is used to filter things that have been found. You can make a `Test` by running `test`, which expects a function of type `(e -> e -> Bool)`.
 
-Everywhere you use a quantifier (`ForAll` or `ForSome`), a variable is bound to every possible value of that quantifier's `Source`. A `VarTest` is used to reduce the combinations of variables tried. You can make `VarTests` with `mkVarCompare`. Here's an example:
+Everywhere you use a quantifier (`ForAll` or `ForSome`), a variable is bound to every possible value of that quantifier's `Source`. A `VarTest` is used to reduce the combinations of variables tried. You can make `VarTests` with `varTestCompare`. Here's an example:
 
 ```
     [ ("a", QFind $ findChildren $ Left 0)
     , ("b", ( ForSome "a1" (Source "a")
               ( ForSome "a2" (Source "a")
-                (QAnd [ QVTest $ mkVarCompare (<) (Right "a1") (Right "a2")
+                (QAnd [ QVTest $ varTestCompare (<) (Right "a1") (Right "a2")
                       , QFind $ findChildren $ Right "a1"
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
 ```

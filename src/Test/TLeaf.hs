@@ -6,7 +6,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit hiding (Test, test)
 
 import Query.Inspect
 import Query.MkLeaf
@@ -18,6 +18,7 @@ import Types
 
 test_modules_leaf = TestList [
     TestLabel "test_runVarTest_compare" test_runVarTest_compare
+  , TestLabel "test_runVarTest_ioTest" test_runVarTest_ioTest
   , TestLabel "test_runFind" test_runFind
   , TestLabel "test_runTest" test_runTest
   ]
@@ -31,9 +32,9 @@ test_runTest = TestCase $ do
       (a2 :: (Subst Int)) = M.singleton a 2
       (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton $ M.empty) ]
-  assertBool "1" $ runTest g a2 (mkTest (/=) $ Left 1) ce
+  assertBool "1" $ runTest g a2 (test (/=) $ Left 1) ce
     == M.singleton 2 (S.singleton M.empty)
-  assertBool "2" $ runTest g a2 (mkTest (/=) $ Right a) ce
+  assertBool "2" $ runTest g a2 (test (/=) $ Right a) ce
     == M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] )
 
   let (a,b,c) = ("a","b","c")
@@ -41,12 +42,12 @@ test_runTest = TestCase $ do
                 , (2, [1,3] ) ]
       s = M.fromList [(a, 1), (b, 2)]
   assertBool "1" $ runTest g s
-    ( mkTest (>) (Left 1) )
+    ( test (>) (Left 1) )
     (  M.fromList [ (0, S.singleton $ M.singleton c 1)
                   , (2, S.singleton $ M.singleton c 1) ] )
     == M.fromList [ (0, S.singleton $ M.singleton c 1) ]
   assertBool "2" $ runTest g s
-    ( mkTest (<) (Right a) )
+    ( test (<) (Right a) )
     (  M.fromList [ (0, S.singleton $ M.singleton c 1)
                   , (2, S.singleton $ M.singleton c 1) ] )
     == M.fromList [ (2, S.singleton $ M.fromList [ (a,1), (c,1) ] ) ]
@@ -63,11 +64,23 @@ test_runFind = TestCase $ do
                , (3, S.singleton $ M.singleton a 1) ]
   assertBool "2" $ runFind g s (findChildren $ Right b) == M.empty
 
+test_runVarTest_ioTest = TestCase $ do
+  let g = graph [] :: Graph Int
+      [a,b,c,x,y] = ["a","b","c","x","y"]
+      (p :: Possible Int) = M.fromList
+        [ (a, M.fromList [ ( 1, S.singleton M.empty)
+                         , ( 2, S.singleton M.empty)] )
+        , (b, M.fromList [ ( 1, S.fromList [ M.singleton a 1
+                                           , M.singleton a 2 ] )
+                         , ( 2, S.singleton M.empty)] ) ]
+      go = runVarTest p g :: Subst Int -> VarTest Int (Graph Int) -> Bool
+  assertBool "in progress" $ False
+
 test_runVarTest_compare = TestCase $ do
-  let a_lt_1 = mkVarCompare (>) (Left 1)    $ Right "a"
-      b_lt_1 = mkVarCompare (>) (Left 1)    $ Right "b"
-      a_gt_b = mkVarCompare (>) (Right "a") $ Right "b"
-      b_gt_a = mkVarCompare (>) (Right "b") $ Right "a"
+  let a_lt_1 = varTestCompare (>) (Left 1)    $ Right "a"
+      b_lt_1 = varTestCompare (>) (Left 1)    $ Right "b"
+      a_gt_b = varTestCompare (>) (Right "a") $ Right "b"
+      b_gt_a = varTestCompare (>) (Right "b") $ Right "a"
       subst = M.fromList [("a",0),("b",2)] :: Subst Int
       meh = error "whatever"
   assertBool "1" $ True  == runVarTest meh meh subst a_lt_1

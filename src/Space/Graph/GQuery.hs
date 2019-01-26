@@ -18,5 +18,5 @@ import Util
 
 findChildren, findParents :: (Ord e, Show e)
                           => Either e Var -> Find e (Graph e)
-findChildren = mkFindFrom "findChildren" children
-findParents  = mkFindFrom "findParents"  parents
+findChildren = findFrom "findChildren" children
+findParents  = findFrom "findParents"  parents
