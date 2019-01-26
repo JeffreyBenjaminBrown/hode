@@ -37,7 +37,7 @@ runAnd d p qs s = do
   let errMsg = "runAnd: error in callee:\n"
       (searches,tests') = partition findlike qs
       (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
-      varTestResults = map (runVarTest d s . unwrap) varTests where
+      varTestResults = map (runVarTest p d s . unwrap) varTests where
         unwrap = \case QVTest t->t; _->error "runAnd: unwrap: impossible."
   if not $ and varTestResults then Right M.empty
   else do
@@ -98,7 +98,7 @@ runTestlike d p s ce (QQuant (ForAll v src q vtests)) = do
   let (varTested :: Set (Subst e)) =
         S.filter passesAllVarTests ss where
         passesAllVarTests :: Subst e -> Bool
-        passesAllVarTests s = and $ map (runVarTest d s) vtests
+        passesAllVarTests s = and $ map (runVarTest p d s) vtests
   (tested :: Set (CondElts e)) <-
     ifLefts_set errMsg
     $ S.map (\s -> runTestlike d p s ce q) varTested
@@ -152,7 +152,7 @@ runFindlike d p s (QQuant (ForAll v src q vtests)) = do
   let (varTested :: Set (Subst e)) =
         S.filter passesAllVarTests ss where
         passesAllVarTests :: Subst e -> Bool
-        passesAllVarTests s = and $ map (runVarTest d s) vtests
+        passesAllVarTests s = and $ map (runVarTest p d s) vtests
   (found :: Set (CondElts e)) <-
     ifLefts_set "runFindlike: error(s) in callee:\n"
     $ S.map (flip (runFindlike d p) q) varTested

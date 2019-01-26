@@ -40,19 +40,46 @@ mkTest compare eev = Test go deps where
 
 -- | = `VarTest`s
 
+-- | `mkVarIOTest iVar oVar` creates a `VarTest` that returns `True`
+-- if and only if the "current" (bound according to the `Subst` argument
+-- to `runVarTest`) value of iVar could have led to the current value of oVar.
+-- (abbrevations: i=input, o=output.)
+mkVarIOTest :: forall e sp. (Ord e, Show e)
+  => Var -> Var -> VarTest e sp
+mkVarIOTest iVar oVar = VarTest go deps where
+  (deps :: Set Var) = S.fromList [iVar,oVar]
+  go :: Possible e -> sp -> Subst e -> Bool
+  go p _ s = let
+    iVal, oVal :: e
+    oVal = maybe (error $ keyErr "mkVarIOTest" oVar p) id
+           $ M.lookup oVar s
+    iVal = maybe (error $ keyErr "mkVarIOTest" iVar p) id
+           $ M.lookup iVar s
+
+    (ce :: CondElts e) =
+      maybe (error $ keyErr "mkVarIOTest" oVar p) id
+      $ M.lookup oVar p
+    (ss :: Set (Subst e)) =
+      maybe (error $ keyErr "mkVarIOTest" oVal ce) id
+      $ M.lookup oVal ce
+    in or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
+
 mkVarCompare :: forall e sp. (Eq e, Show e)
         => (e -> e -> Bool) -> Either e Var -> Either e Var -> VarTest e sp
 mkVarCompare compare eev eev' = VarTest go deps where
-  go :: sp -> Subst e -> Bool
-  go _ s = let (me , mv ) = unEitherEltVar s eev  :: (Maybe e, Maybe Var)
-               (me', mv') = unEitherEltVar s eev' :: (Maybe e, Maybe Var)
-               err v = error $ keyErr "mkVarCompare" (fromJust v) s
-    in case me of Nothing -> err mv
-                  Just e -> case me' of Nothing -> err mv'
-                                        Just e' -> compare e e'
   deps :: Set Var
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev,eev']
+
+  go :: Possible e -> sp -> Subst e -> Bool
+  go _ _ s = let
+    (me , mv ) = unEitherEltVar s eev  :: (Maybe e, Maybe Var)
+    (me', mv') = unEitherEltVar s eev' :: (Maybe e, Maybe Var)
+    err v = error $ keyErr "mkVarCompare" (fromJust v) s
+    in case me of
+         Nothing -> err mv
+         Just e -> case me' of Nothing -> err mv'
+                               Just e' -> compare e e'
 
 
 -- | = `Find`s

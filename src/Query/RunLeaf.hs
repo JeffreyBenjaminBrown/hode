@@ -20,8 +20,8 @@ import Util
 
 -- | = Running atomic queries
 
-runVarTest :: sp -> Subst e -> VarTest e sp -> Bool
-runVarTest d s t = (varTestFunction t) d s
+runVarTest :: Possible e -> sp -> Subst e -> VarTest e sp -> Bool
+runVarTest p d s t = (varTestFunction t) p d s
 
 runFind :: forall e sp.
            sp -> Subst e -> Find e sp -> CondElts e

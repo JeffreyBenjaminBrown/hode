@@ -155,7 +155,7 @@ test_runTestlike = TestCase $ do
 --                , (2, [12, 22] ) ]
 --      [a,b,x,y] = ["a","b","x","y"]
 --      aOf_b = "aOf_b"
---      src_aOf_b = Source' a $ S.singleton b
+--      --src_aOf_b = Source' a $ S.singleton b
 --      (p:: Possible Int) = M.fromList
 --          [ ( a, M.fromList [ (1, S.singleton   M.empty)
 --                            , (2, S.singleton   M.empty) ] )
@@ -179,7 +179,7 @@ test_runTestlike = TestCase $ do
 --                          , (21, S.singleton $ M.singleton a 1)
 --                          , (12, S.singleton $ M.singleton a 2)
 --                          , (22, S.singleton $ M.singleton a 2) ] )
-
+--
 test_runFindlike_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]

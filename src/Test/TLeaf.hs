@@ -30,9 +30,11 @@ test_mkVarCompare = TestCase $ do
       t_ab = mkVarCompare (/=) (Right "a") (Right "b")
       a1b1 = M.fromList [(a,1),(b,1)]
       a1b2 = M.fromList [(a,1),(b,2)]
-  assertBool "1" $ True  == varTestFunction t_34 (graph []) M.empty
-  assertBool "2" $ False == varTestFunction t_ab (graph []) a1b1
-  assertBool "3" $ True  == varTestFunction t_ab (graph []) a1b2
+      meh = error "whatever"
+  assertBool "1" $ True  == varTestFunction t_34 meh (graph []) M.empty
+  assertBool "2" $ False == varTestFunction t_ab meh (graph []) a1b1
+  assertBool "3" $ True  == varTestFunction t_ab meh (graph []) a1b2
+
 
 test_runTest = TestCase $ do
   -- I wrote tests for this function twice by accident. They are collected
@@ -81,7 +83,8 @@ test_runVarTest = TestCase $ do
       a_gt_b = mkVarCompare (>) (Right "a") $ Right "b"
       b_gt_a = mkVarCompare (>) (Right "b") $ Right "a"
       subst = M.fromList [("a",0),("b",2)] :: Subst Int
-  assertBool "1" $ True  == runVarTest (error "whatever") subst a_lt_1
-  assertBool "2" $ False == runVarTest (error "whatever") subst b_lt_1
-  assertBool "3" $ False == runVarTest (error "whatever") subst a_gt_b
-  assertBool "4" $ True == runVarTest (error "whatever") subst b_gt_a
+      meh = error "whatever"
+  assertBool "1" $ True  == runVarTest meh meh subst a_lt_1
+  assertBool "2" $ False == runVarTest meh meh subst b_lt_1
+  assertBool "3" $ False == runVarTest meh meh subst a_gt_b
+  assertBool "4" $ True  == runVarTest meh meh subst b_gt_a
