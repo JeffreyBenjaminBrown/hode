@@ -17,24 +17,10 @@ import Types
 
 
 test_modules_leaf = TestList [
-    TestLabel "test_runVarTest" test_runVarTest
+    TestLabel "test_runVarTest_compare" test_runVarTest_compare
   , TestLabel "test_runFind" test_runFind
   , TestLabel "test_runTest" test_runTest
-  , TestLabel "test_mkVarCompare" test_mkVarCompare
   ]
-
-test_mkVarCompare = TestCase $ do
-  let (a,b) = ("a","b")
-      t_34, t_ab :: VarTest Int (Graph Int)
-      t_34 = mkVarCompare (/=) (Left 3)    (Left 4)
-      t_ab = mkVarCompare (/=) (Right "a") (Right "b")
-      a1b1 = M.fromList [(a,1),(b,1)]
-      a1b2 = M.fromList [(a,1),(b,2)]
-      meh = error "whatever"
-  assertBool "1" $ True  == varTestFunction t_34 meh (graph []) M.empty
-  assertBool "2" $ False == varTestFunction t_ab meh (graph []) a1b1
-  assertBool "3" $ True  == varTestFunction t_ab meh (graph []) a1b2
-
 
 test_runTest = TestCase $ do
   -- I wrote tests for this function twice by accident. They are collected
@@ -77,7 +63,7 @@ test_runFind = TestCase $ do
                , (3, S.singleton $ M.singleton a 1) ]
   assertBool "2" $ runFind g s (findChildren $ Right b) == M.empty
 
-test_runVarTest = TestCase $ do
+test_runVarTest_compare = TestCase $ do
   let a_lt_1 = mkVarCompare (>) (Left 1)    $ Right "a"
       b_lt_1 = mkVarCompare (>) (Left 1)    $ Right "b"
       a_gt_b = mkVarCompare (>) (Right "a") $ Right "b"
