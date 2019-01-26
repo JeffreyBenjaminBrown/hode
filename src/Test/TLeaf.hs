@@ -76,7 +76,6 @@ test_runFind = TestCase $ do
   assertBool "2" $ runFind g s (findChildren $ Right b) == M.empty
 
 test_runVarTest = TestCase $ do
-  --runVarTest :: sp -> Subst e -> VarTest e sp -> Bool
   let a_lt_1 = mkVarTest (>) (Left 1)    $ Right "a"
       b_lt_1 = mkVarTest (>) (Left 1)    $ Right "b"
       a_gt_b = mkVarTest (>) (Right "a") $ Right "b"

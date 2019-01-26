@@ -9,6 +9,7 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Space.Graph
+import Space.Graph.GQuery
 import Query
 import Query.Inspect
 import Query.MkLeaf
@@ -17,10 +18,10 @@ import Types
 
 
 test_module_query = TestList [
---    TestLabel "test_runFindlike_Find" test_runFindlike_Find
+    TestLabel "test_runFindlike_Find" test_runFindlike_Find
 --  , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
 --  , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
-    TestLabel "test_runTestlike" test_runTestlike
+  , TestLabel "test_runTestlike" test_runTestlike
 --  , TestLabel "testRunAnd" testRunAnd
 --  , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
   ]
@@ -179,17 +180,16 @@ test_runTestlike = TestCase $ do
 --                          , (12, S.singleton $ M.singleton a 2)
 --                          , (22, S.singleton $ M.singleton a 2) ] )
 
---test_runFindlike_Find = TestCase $ do
---  let g = graph [ (1, [11, 21] )
---                , (2, [12, 22] ) ]
---      [x,y] = ["x","y"]
---      f1 = QFind $ findChildren $ Left 1
---      fy = QFind $ findChildren $ Right y
---      s = M.fromList [(x,1), (y,2)] :: Subst Int
---  assertBool "1" $ runFindlike g M.empty f1 M.empty
---    == Right ( M.fromList [ (11, S.singleton M.empty)
---                  , (21, S.singleton M.empty) ] )
---  assertBool "2" $ runFindlike g M.empty fy s
---    == Right ( M.fromList [ (12, S.singleton $ M.singleton y 2)
---                          , (22, S.singleton $ M.singleton y 2) ] )
---
+test_runFindlike_Find = TestCase $ do
+  let g = graph [ (1, [11, 21] )
+                , (2, [12, 22] ) ]
+      [x,y] = ["x","y"]
+      f1 = QFind $ findChildren $ Left 1
+      fy = QFind $ findChildren $ Right y
+      s = M.fromList [(x,1), (y,2)] :: Subst Int
+  assertBool "1" $ runFindlike g M.empty M.empty f1
+    == Right ( M.fromList [ (11, S.singleton M.empty)
+                  , (21, S.singleton M.empty) ] )
+  assertBool "2" $ runFindlike g M.empty s fy
+    == Right ( M.fromList [ (12, S.singleton $ M.singleton y 2)
+                          , (22, S.singleton $ M.singleton y 2) ] )
