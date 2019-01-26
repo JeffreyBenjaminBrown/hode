@@ -12,31 +12,19 @@ import Space.Graph
 import Query
 import Query.Inspect
 import Query.MkLeaf
+import Query.RunLeaf
 import Types
 
 
 test_module_query = TestList [
 --    TestLabel "test_runFindlike_Find" test_runFindlike_Find
---  , TestLabel "testRunTest" testRunTest
 --  , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
 --  , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
-  TestLabel "test_runTestlike" test_runTestlike
+    TestLabel "test_runTestlike" test_runTestlike
 --  , TestLabel "testRunAnd" testRunAnd
 --  , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
---  , TestLabel "test_isNot_2" test_isNot_2
   ]
 
---test_isNot_2 = TestCase $ do
---  let (a,b) = ("a","b")
---      t_34, t_ab :: VarTest Int (Graph Int)
---      t_34 = mkVarTest (/=) (Left 3)    (Left 4)
---      t_ab = mkVarTest (/=) (Right "a") (Right "b")
---      a1b1 = M.fromList [(a,1),(b,1)]
---      a1b2 = M.fromList [(a,1),(b,2)]
---  assertBool "1" $ True  == varTestFunction t_34 (graph []) M.empty
---  assertBool "2" $ False == varTestFunction t_ab (graph []) a1b1
---  assertBool "3" $ True  == varTestFunction t_ab (graph []) a1b2
---
 --test_runFindlike_mixed = TestCase $ do
 --  let [a,b,c,x,y] = ["a","b","c","x","y"]
 --      aOf_b = "aOf_b"
@@ -55,16 +43,18 @@ test_module_query = TestList [
 --      fc v = QFind $ findChildren $ Right v
 --      s = M.fromList [(a,2), (b,23)] :: (Subst Int)
 --      q_And_Quant = let aOf_b' = aOf_b ++ "'"
---        in QJunct $ And [ QQuant $ ForAll aOf_b' src_aOf_b $ isnt aOf_b'
---                         , QQuant $ ForSome aOf_b src_aOf_b $ fc aOf_b ]
+--        in QJunct $ And
+--           [ QQuant $ ForAll aOf_b' src_aOf_b $ isnt aOf_b' []
+--           , QQuant $ ForSome aOf_b src_aOf_b $ fc aOf_b ]
 --      q_ForAll_And = QQuant $ ForAll aOf_b src_aOf_b
---                     $ QJunct $ And [ fc0, isnt a ]
+--                     ( QJunct $ And [ fc0, isnt a ] )
+--                     []
 --
 --  assertBool "2" $ runFindlike d p q_And_Quant s
 --    == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 3 ] ) )
 --  assertBool "1" $ runFindlike d p q_ForAll_And s
 --    == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
---
+
 --testRunAnd = TestCase $ do
 --  let [a,b,c,x,y] = ["a","b","c","x","y"]
 --      (a2 :: (Subst Int)) = M.singleton a 2
@@ -188,19 +178,7 @@ test_runTestlike = TestCase $ do
 --                          , (21, S.singleton $ M.singleton a 1)
 --                          , (12, S.singleton $ M.singleton a 2)
 --                          , (22, S.singleton $ M.singleton a 2) ] )
---
---testRunTest = TestCase $ do
---  let [a,b,c,x,y] = ["a","b","c","x","y"]
---      g = graph [ (1, [11, 12    ] )
---                , (2, [    12, 22] ) ]
---      (a2 :: (Subst Int)) = M.singleton a 2
---      (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
---                                    , (2, S.singleton $ M.empty) ]
---  assertBool "1" $ runTest g a2 (mkTest (/=) $ Left 1) ce
---    == M.singleton 2 (S.singleton M.empty)
---  assertBool "2" $ runTest g a2 (mkTest (/=) $ Right a) ce
---    == M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] )
---
+
 --test_runFindlike_Find = TestCase $ do
 --  let g = graph [ (1, [11, 21] )
 --                , (2, [12, 22] ) ]
