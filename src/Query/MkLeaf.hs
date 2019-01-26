@@ -40,13 +40,13 @@ mkTest compare eev = Test go deps where
 
 -- | = `VarTest`s
 
-mkVarTest :: forall e sp. (Eq e, Show e)
+mkVarCompare :: forall e sp. (Eq e, Show e)
         => (e -> e -> Bool) -> Either e Var -> Either e Var -> VarTest e sp
-mkVarTest compare eev eev' = VarTest go deps where
+mkVarCompare compare eev eev' = VarTest go deps where
   go :: sp -> Subst e -> Bool
   go _ s = let (me , mv ) = unEitherEltVar s eev  :: (Maybe e, Maybe Var)
                (me', mv') = unEitherEltVar s eev' :: (Maybe e, Maybe Var)
-               err v = error $ keyErr "mkVarTest" (fromJust v) s
+               err v = error $ keyErr "mkVarCompare" (fromJust v) s
     in case me of Nothing -> err mv
                   Just e -> case me' of Nothing -> err mv'
                                         Just e' -> compare e e'

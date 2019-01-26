@@ -144,7 +144,7 @@ test_usesVars = TestCase $ do
     == S.singleton c
   assertBool "1" $ usesVars
     ( QQuant $ ( ForAll a b ( QJunct $ Or [ c_de, c_a ] )
-                 [ mkVarTest (>) (Left 1) (Right f) ] ) )
+                 [ mkVarCompare (>) (Left 1) (Right f) ] ) )
     == S.fromList [c,e,f]
 
 test_introducesVars = TestCase $ do

@@ -86,7 +86,7 @@ test_runTestlike = TestCase $ do
 
   assertBool "6" $ runTestlike d p (M.empty :: Subst Int) ce
     ( QQuant $ ForAll a1 a (QTest nota1)
-      [ mkVarTest (<) (Left 1) (Right a1) ] )
+      [ mkVarCompare (<) (Left 1) (Right a1) ] )
     == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
                           , (3, S.singleton M.empty) ] )
 
@@ -149,7 +149,7 @@ test_runTestlike = TestCase $ do
 --  assertBool "1" $ runFindlike g p
 --    (QQuant $ ForAll a (Source a) $ qc a) M.empty
 --    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
---
+
 --test_runFindlike_ForSome = TestCase $ do
 --  let g = graph [ (1, [11, 21] )
 --                , (2, [12, 22] ) ]

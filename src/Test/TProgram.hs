@@ -61,7 +61,7 @@ test_runProgram = TestCase $ do
     , (b, ( QQuant $ ForSome a1 a
               ( QQuant $ ForSome a2 a
                 (QJunct $ And
-                 [ QVTest $ mkVarTest (<) (Right a1) (Right a2)
+                 [ QVTest $ mkVarCompare (<) (Right a1) (Right a2)
                  , QFind $ findChildren $ Right a1
                  , QFind $ findChildren $ Right a2 ] ) ) ) ) ]
     == Right ( M.fromList

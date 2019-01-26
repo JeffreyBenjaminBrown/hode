@@ -20,14 +20,14 @@ test_modules_leaf = TestList [
     TestLabel "test_runVarTest" test_runVarTest
   , TestLabel "test_runFind" test_runFind
   , TestLabel "test_runTest" test_runTest
-  , TestLabel "test_mkVarTest" test_mkVarTest
+  , TestLabel "test_mkVarCompare" test_mkVarCompare
   ]
 
-test_mkVarTest = TestCase $ do
+test_mkVarCompare = TestCase $ do
   let (a,b) = ("a","b")
       t_34, t_ab :: VarTest Int (Graph Int)
-      t_34 = mkVarTest (/=) (Left 3)    (Left 4)
-      t_ab = mkVarTest (/=) (Right "a") (Right "b")
+      t_34 = mkVarCompare (/=) (Left 3)    (Left 4)
+      t_ab = mkVarCompare (/=) (Right "a") (Right "b")
       a1b1 = M.fromList [(a,1),(b,1)]
       a1b2 = M.fromList [(a,1),(b,2)]
   assertBool "1" $ True  == varTestFunction t_34 (graph []) M.empty
@@ -76,10 +76,10 @@ test_runFind = TestCase $ do
   assertBool "2" $ runFind g s (findChildren $ Right b) == M.empty
 
 test_runVarTest = TestCase $ do
-  let a_lt_1 = mkVarTest (>) (Left 1)    $ Right "a"
-      b_lt_1 = mkVarTest (>) (Left 1)    $ Right "b"
-      a_gt_b = mkVarTest (>) (Right "a") $ Right "b"
-      b_gt_a = mkVarTest (>) (Right "b") $ Right "a"
+  let a_lt_1 = mkVarCompare (>) (Left 1)    $ Right "a"
+      b_lt_1 = mkVarCompare (>) (Left 1)    $ Right "b"
+      a_gt_b = mkVarCompare (>) (Right "a") $ Right "b"
+      b_gt_a = mkVarCompare (>) (Right "b") $ Right "a"
       subst = M.fromList [("a",0),("b",2)] :: Subst Int
   assertBool "1" $ True  == runVarTest (error "whatever") subst a_lt_1
   assertBool "2" $ False == runVarTest (error "whatever") subst b_lt_1
