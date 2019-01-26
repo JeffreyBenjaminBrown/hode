@@ -84,13 +84,13 @@ test_runTestlike = TestCase $ do
                                           , (2, S.singleton M.empty)
                                           , (3, S.singleton M.empty) ]
 
-  assertBool "6" $ runTestlike d p (M.empty :: Subst Int) ce
+  assertBool "6" $ runTestlike d p ce (M.empty :: Subst Int)
     ( QQuant $ ForAll a1 a (QTest nota1)
       [ varTestCompare (<) (Left 1) (Right a1) ] )
     == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
                           , (3, S.singleton M.empty) ] )
 
-  assertBool "5" $ runTestlike d p (M.empty :: Subst Int) ce
+  assertBool "5" $ runTestlike d p ce (M.empty :: Subst Int)
     (QQuant $ ForAll a1 a (QTest nota1) [])
     == Right ( M.singleton 3 (S.singleton M.empty) )
 
@@ -98,10 +98,10 @@ test_runTestlike = TestCase $ do
     qfa = QQuant $ ForSome a1 a
           $ QJunct $ And [QTest not3, QTest nota1]
     ce23 = M.restrictKeys ce $ S.singleton 2
-    in runTestlike d p (M.empty :: Subst Int) ce23 qfa 
+    in runTestlike d p ce23 (M.empty :: Subst Int) qfa
        == Right ( M.singleton 2 (S.singleton $ M.singleton a1 1) )
 
-  assertBool "3" $ runTestlike d (M.empty :: Possible Int) a2 ce
+  assertBool "3" $ runTestlike d (M.empty :: Possible Int) ce a2
     (QJunct $ Or [QTest not3, QTest nota])
     == Right ( M.fromList
                [ (1, S.fromList [ M.fromList [(a,2), (x,0)]
@@ -109,11 +109,11 @@ test_runTestlike = TestCase $ do
                , (2, S.fromList [ M.empty                   ] )
                , (3, S.fromList [          M.singleton a 2  ] ) ] )
 
-  assertBool "2" $ runTestlike d (M.empty :: Possible Int) a2 ce
+  assertBool "2" $ runTestlike d (M.empty :: Possible Int) ce a2
     (QJunct $ And [QTest not3, QTest nota])
     == Right ( M.singleton 1 $ S.singleton $ M.fromList [(a,2), (x,0)] )
 
-  assertBool "1" $ runTestlike d M.empty a2 ce (QTest nota)
+  assertBool "1" $ runTestlike d M.empty ce a2 (QTest nota)
     == Right ( M.fromList [ (1, S.singleton $ M.fromList [(a,2), (x,0)] )
                           , (3, S.singleton $ M.singleton a 2) ] )
 
@@ -179,7 +179,7 @@ test_runTestlike = TestCase $ do
 --                          , (21, S.singleton $ M.singleton a 1)
 --                          , (12, S.singleton $ M.singleton a 2)
 --                          , (22, S.singleton $ M.singleton a 2) ] )
---
+
 test_runFindlike_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
                 , (2, [12, 22] ) ]

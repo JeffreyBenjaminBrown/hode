@@ -31,9 +31,9 @@ import Util
 -- queries.
 
 runAnd :: forall e sp. (Ord e, Show e)
-        => sp -> Possible e -> [Query e sp] -> Subst e
+        => sp -> Possible e -> Subst e -> [Query e sp]
         -> Either String (CondElts e)
-runAnd d p qs s = do
+runAnd d p s qs = do
   let errMsg = "runAnd: error in callee:\n"
       (searches,tests') = partition findlike qs
       (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
@@ -48,7 +48,7 @@ runAnd d p qs s = do
          f :: Query e sp -> Either String (CondElts e)
                          -> Either String (CondElts e)
          f _ (Left s) = Left $ errMsg ++ s -- collect no further errors
-         f t (Right ce) = runTestlike d p s ce t
+         f t (Right ce) = runTestlike d p ce s t
    tested
 
 
@@ -58,39 +58,39 @@ runAnd d p qs s = do
 runTestlike :: forall e sp. (Ord e, Show e)
             => sp
             -> Possible e
-            -> Subst e
             -> CondElts e
+            -> Subst e
             -> Query e sp
             -> Either String (CondElts e)
 
 runTestlike _ _ _ _ (testlike -> False) =
   Left $ "runTestlike: not a testlike Query"
-runTestlike d _ s ce (QTest t) = Right $ runTest d s t ce
+runTestlike d _ ce s (QTest t) = Right $ runTest d s t ce
 runTestlike _ _ _ _ (QVTest _) =
   Left $ "runTestlike: VarTest should have been handled by And."
 
-runTestlike d p s ce (QJunct (And qs)) = do
+runTestlike d p ce s (QJunct (And qs)) = do
   (results :: [CondElts e]) <-
     ifLefts "runTestlike: error in callee:\n"
-    $ map (runTestlike d p s ce) qs
+    $ map (runTestlike d p ce s) qs
   Right $ reconcileCondElts $ S.fromList results
 
-runTestlike d p s ce (QJunct (Or qs)) = do
+runTestlike d p ce s (QJunct (Or qs)) = do
   (results :: [CondElts e]) <-
     ifLefts "runTestlike: error in callee:\n"
-    $ map (runTestlike d p s ce) qs
+    $ map (runTestlike d p ce s) qs
   Right $ M.unionsWith S.union results
 
-runTestlike d p s ce (QQuant (ForSome v src q)) = do
+runTestlike d p ce s (QQuant (ForSome v src q)) = do
   let errMsg = "runTestlike: error in callee:\n"
   ss <- either (\msg -> Left $ errMsg ++ msg) Right
     $ drawVar p s src v
   (res :: Set (CondElts e)) <-
     ifLefts_set errMsg
-    $ S.map (\s -> runTestlike d p s ce q) ss
+    $ S.map (flip (runTestlike d p ce) q) ss
   Right $ M.unionsWith S.union res
 
-runTestlike d p s ce (QQuant (ForAll v src q vtests)) = do
+runTestlike d p ce s (QQuant (ForAll v src q vtests)) = do
   let errMsg = "runTestlike: error in callee:\n"
   (ss :: Set (Subst e)) <-
     either (\msg -> Left $ errMsg ++ msg) Right
@@ -101,7 +101,7 @@ runTestlike d p s ce (QQuant (ForAll v src q vtests)) = do
         passesAllVarTests s = and $ map (runVarTest p d s) vtests
   (tested :: Set (CondElts e)) <-
     ifLefts_set errMsg
-    $ S.map (\s -> runTestlike d p s ce q) varTested
+    $ S.map (flip (runTestlike d p ce) q) varTested
   let (cesWithoutV :: Set (CondElts e)) = S.map f tested where
         -- delete the dependency on v, so that reconciliation can work
         f = M.map $ S.map $ M.delete v
@@ -122,7 +122,7 @@ runFindlike :: forall e sp. (Ord e, Show e)
 runFindlike _ _ _ (findlike -> False) = Left "runFindlike: non-findlike Query"
 runFindlike d _ s (QFind f) = Right $ runFind d s f
 
-runFindlike d p s (QJunct (And qs)) = runAnd d p qs s
+runFindlike d p s (QJunct (And qs)) = runAnd d p s qs
 
 runFindlike d p s (QJunct (Or qs)) = do
   -- TODO (#fast|#hard) Fold Or with short-circuiting.
