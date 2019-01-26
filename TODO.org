@@ -15,6 +15,10 @@ type CondElts = Map Elt (Set Subst)
   -- it is as if that `Elt` is not in the `Map`.
 * rename findDets, testDets etc. to findUses, testUses etc.
 for congruence with Query.Inspect.usesVars
+* PITFALL ? a VarTest's deps record Vars in the Subst, not the Possible, right?
+That's necessarily how varTestCompare is written (unless it has no deps),
+and that's how varTestIO' is currently written, but it could go either way.
+(varTestIO could be interpreting as doing both.)
 * TODO Quantifiers must include a VarTests section
 Must be able to say, "for all x such that p(x), q(x)".
 (Could say it as "for all x, either not p(x) or p(x) and q(x)", but that's cumbersome.)

@@ -19,7 +19,7 @@ import Types
 
 test_module_query = TestList [
     TestLabel "test_runFindlike_Find" test_runFindlike_Find
---  , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
+  , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
 --  , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
   , TestLabel "test_runTestlike" test_runTestlike
 --  , TestLabel "testRunAnd" testRunAnd
@@ -150,25 +150,31 @@ test_runTestlike = TestCase $ do
 --    (QQuant $ ForAll a (Source a) $ qc a) M.empty
 --    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
---test_runFindlike_ForSome = TestCase $ do
---  let g = graph [ (1, [11, 21] )
---                , (2, [12, 22] ) ]
---      [a,b,x,y] = ["a","b","x","y"]
---      aOf_b = "aOf_b"
---      --src_aOf_b = Source' a $ S.singleton b
---      (p:: Possible Int) = M.fromList
---          [ ( a, M.fromList [ (1, S.singleton   M.empty)
---                            , (2, S.singleton   M.empty) ] )
---          , ( b, M.fromList [ (1, S.singleton $ M.singleton a 1)
---                            , (2, S.singleton   M.empty) ] ) ]
---      qc :: Var -> (Query Int (Graph Int))
---      qc v = QFind $ findChildren $ Right v
---
---  assertBool "3" $ ( runFindlike g p
---                    (QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b)
---                    $ M.singleton b 1 )
---    == Right (M.fromList [ (11, S.singleton $ M.fromList [ (aOf_b, 1) ] )
---                         , (21, S.singleton $ M.fromList [ (aOf_b, 1) ] ) ] )
+test_runFindlike_ForSome = TestCase $ do
+  let g = graph [ (1, [11, 21] )
+                , (2, [12, 22] ) ]
+      [a,b,x,y] = ["a","b","x","y"]
+      [a1,b1,x1,y1] = ["a1","b1","x1","y1"]
+      aOf_b = "aOf_b"
+      --src_aOf_b = Source' a $ S.singleton b
+      (p:: Possible Int) = M.fromList
+          [ ( a, M.fromList [ (1, S.singleton   M.empty)
+                            , (2, S.singleton   M.empty) ] )
+          , ( b, M.fromList [ (1, S.singleton $ M.singleton a 1)
+                            , (2, S.singleton   M.empty) ] ) ]
+      qc :: Var -> (Query Int (Graph Int))
+      qc v = QFind $ findChildren $ Right v
+
+  assertBool "3" $
+    ( runFindlike g p
+      ( M.singleton b 1 )
+      -- $ QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b
+      $ QQuant $ ForSome a1 a $ QJunct
+      $ And [ QVTest $ varTestIO a b
+            , qc a1 ] )
+    == Right (M.fromList [ (11, S.singleton $ M.fromList [ (aOf_b, 1) ] )
+                         , (21, S.singleton $ M.fromList [ (aOf_b, 1) ] ) ] )
+
 --  assertBool "2" $ ( runFindlike g p
 --                     (QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b)
 --                     $ M.singleton b 2)

@@ -49,20 +49,53 @@ varTestIO :: forall e sp. (Ord e, Show e)
 varTestIO iVar oVar = VarTest go deps where
   (deps :: Set Var) = S.fromList [iVar,oVar]
   go :: Possible e -> sp -> Subst e -> Bool
-  go p _ s = let
+  go poss space subst =
+    checkIORel (iVar,iVal) (oVar,oVal) poss
+    where
     iVal, oVal :: e
-    oVal = maybe (error $ keyErr "varTestIO" oVar p) id
-           $ M.lookup oVar s
-    iVal = maybe (error $ keyErr "varTestIO" iVar p) id
-           $ M.lookup iVar s
+    iVal = maybe (error $ keyErr "varTestIO" iVar poss) id
+           $ M.lookup iVar subst
+    oVal = maybe (error $ keyErr "varTestIO" oVar poss) id
+           $ M.lookup oVar subst
 
-    (ce :: CondElts e) =
-      maybe (error $ keyErr "varTestIO" oVar p) id
-      $ M.lookup oVar p
-    (ss :: Set (Subst e)) =
-      maybe (error $ keyErr "varTestIO" oVal ce) id
-      $ M.lookup oVal ce
-    in or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
+-- | `varTestIO'` is like `varTestIO`, but takes into account the fact
+-- that the name used (i.e. the `Var`) in the `Subst` might differ from
+-- the corresponding name in the `Possible`.
+varTestIO' :: forall e sp. (Ord e, Show e)
+  => (Var,Var) -- ^ name of the input  in Subst and Possible, resp.
+  -> (Var,Var) -- ^ name of the output in Subst and Possible, resp.
+  -> VarTest e sp
+varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
+  VarTest go deps where
+  (deps :: Set Var) = S.fromList [iInSubst, oInSubst]
+
+  go :: Possible e -> sp -> Subst e -> Bool
+  go poss space subst =
+    checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
+    where
+    iVal, oVal :: e
+    iVal = maybe (error $ keyErr "varTestIO" iInSubst poss) id
+           $ M.lookup iInSubst subst
+    oVal = maybe (error $ keyErr "varTestIO" oInSubst poss) id
+           $ M.lookup oInSubst subst
+
+-- | `checkIORel iVar oVar poss subst` determines whether, in poss, iVar
+-- is an input that could generate oVar as an output, given
+-- their values iVal and oVal.
+checkIORel :: forall e sp. (Ord e, Show e)
+  => (Var,e) -> (Var,e) -> Possible e -> Bool
+checkIORel (iVar,iVal) (oVar,oVal) p = let
+  (ce :: CondElts e) =
+    maybe (error $ keyErr "varTestIO" oVar p) id
+    $ M.lookup oVar p
+  (ss :: Set (Subst e)) =
+    maybe (error $ keyErr "varTestIO" oVal ce) id
+    $ M.lookup oVal ce
+  in or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
+
+--varTestIO' :: forall e sp. (Ord e, Show e)
+--  => (Var,Var) -> (Var,Var) -> VarTest e sp
+--varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
 
 varTestCompare :: forall e sp. (Eq e, Show e)
         => (e -> e -> Bool) -> Either e Var -> Either e Var -> VarTest e sp
