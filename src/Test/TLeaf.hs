@@ -74,7 +74,13 @@ test_runVarTest_ioTest = TestCase $ do
                                            , M.singleton a 2 ] )
                          , ( 2, S.singleton M.empty)] ) ]
       go = runVarTest p g :: Subst Int -> VarTest Int (Graph Int) -> Bool
-  assertBool "in progress" $ False
+
+  assertBool "in progress" $ go (M.fromList [(a,1),(b,1)]) (varTestIO a b)
+    == True
+  assertBool "in progress" $ go (M.fromList [(a,1),(b,2)]) (varTestIO a b)
+    == False
+  assertBool "in progress" $ go (M.fromList [(a,3),(b,1)]) (varTestIO a b)
+    == False
 
 test_runVarTest_compare = TestCase $ do
   let a_lt_1 = varTestCompare (>) (Left 1)    $ Right "a"
