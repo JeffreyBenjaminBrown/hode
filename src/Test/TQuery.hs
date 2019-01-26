@@ -155,7 +155,7 @@ test_runFindlike_ForSome = TestCase $ do
                 , (2, [12, 22] ) ]
       [a,b,x,y] = ["a","b","x","y"]
       [a1,b1,x1,y1] = ["a1","b1","x1","y1"]
-      aOf_b = "aOf_b"
+      --aOf_b = "aOf_b"
       --src_aOf_b = Source' a $ S.singleton b
       (p:: Possible Int) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
@@ -165,26 +165,29 @@ test_runFindlike_ForSome = TestCase $ do
       qc :: Var -> (Query Int (Graph Int))
       qc v = QFind $ findChildren $ Right v
 
-  assertBool "3" $
-    ( runFindlike g p
-      ( M.singleton b 1 )
-      -- $ QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b
-      $ QQuant $ ForSome a1 a $ QJunct
-      $ And [ QVTest $ varTestIO a b
-            , qc a1 ] )
-    == Right (M.fromList [ (11, S.singleton $ M.fromList [ (aOf_b, 1) ] )
-                         , (21, S.singleton $ M.fromList [ (aOf_b, 1) ] ) ] )
+  assertBool "3" $ ( runFindlike g p
+                     ( M.singleton b1 1 )
+                     -- $ QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b
+                     $ QQuant $ ForSome a1 a $ QJunct
+                     $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
+                           , qc a1 ] )
+    == Right (M.fromList [ (11, S.singleton $ M.fromList [ (a1, 1) ] )
+                         , (21, S.singleton $ M.fromList [ (a1, 1) ] ) ] )
 
---  assertBool "2" $ ( runFindlike g p
---                     (QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b)
---                     $ M.singleton b 2)
---    == Right M.empty
---  assertBool "1" $
---    runFindlike g p (QQuant $ ForSome a (Source a) $ qc a) M.empty
---    == Right ( M.fromList [ (11, S.singleton $ M.singleton a 1)
---                          , (21, S.singleton $ M.singleton a 1)
---                          , (12, S.singleton $ M.singleton a 2)
---                          , (22, S.singleton $ M.singleton a 2) ] )
+  assertBool "2" $ ( runFindlike g p
+                     ( M.singleton b1 2 ) -- the difference
+                     -- $ QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b
+                     $ QQuant $ ForSome a1 a $ QJunct
+                     $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
+                           , qc a1 ] )
+    == Right M.empty
+
+  assertBool "1" $ ( runFindlike g p M.empty
+                     $ QQuant $ ForSome a1 a $ qc a1)
+    == Right ( M.fromList [ (11, S.singleton $ M.singleton a1 1)
+                          , (21, S.singleton $ M.singleton a1 1)
+                          , (12, S.singleton $ M.singleton a1 2)
+                          , (22, S.singleton $ M.singleton a1 2) ] )
 
 test_runFindlike_Find = TestCase $ do
   let g = graph [ (1, [11, 21] )
