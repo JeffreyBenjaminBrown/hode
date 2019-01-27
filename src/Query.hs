@@ -64,24 +64,38 @@ runVarTestlike :: forall e sp. (Ord e, Show e)
 runVarTestlike _ _ _ (varTestlike -> False) =
   Left "runVarTestlike: not a varTestlike Query"
 
-runVarTestlike _ _ _ _ = error "todo: write runVarTestlike"
+runVarTestlike sp p s (QVTest vtest) =
+  Right $ runVarTest p sp s vtest
 
+runVarTestlike sp p s (QJunct (And vtests)) =
+  and <$>
+  ( ifLefts "runVarTestlike: error(s) in callee:\n"
+    $ map (runVarTestlike sp p s) vtests )
+
+runVarTestlike sp p s (QJunct (Or vtests)) =
+  or <$>
+  ( ifLefts "runVarTestlike: error(s) in callee:\n"
+    $ map (runVarTestlike sp p s) vtests )
+
+runVarTestlike _ _ _ (QQuant _) =
+  error "todo ? write runVarTestlike for the QQuant case."
 
 substsThatPassAllVarTests :: (Ord e, Show e) =>
   sp -> Possible e -> [Query e sp] -> [Subst e]
   -> Either String [Subst e]
 substsThatPassAllVarTests sp p vtests ss = do
+
+  let passesAllVarTests :: (Ord e, Show e) =>
+        sp -> Possible e -> [Query e sp] -> Subst e -> Either String Bool
+      passesAllVarTests sp p vtests s = do
+        (bs :: [Bool]) <- ifLefts "passesAllVarTests: error(s) in callee:\n"
+          $ map (runVarTestlike sp p s) vtests
+        Right $ and bs
+
   whetherEachPasses <-
     ifLefts "substsThatPassAllVarTests: error(s) in callee:\n"
     $ map (passesAllVarTests sp p vtests) ss
   Right $ map fst $ filter snd $ zip ss whetherEachPasses
-
-passesAllVarTests :: (Ord e, Show e) =>
-  sp -> Possible e -> [Query e sp] -> Subst e -> Either String Bool
-passesAllVarTests sp p vtests s = do
-  (bs :: [Bool]) <- ifLefts "passesAllVarTests: error(s) in callee:\n"
-    $ map (runVarTestlike sp p s) vtests
-  Right $ and bs
 
 
 -- | = runTestlike

@@ -17,7 +17,8 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
-* TODO test varTestLike, substsThatPassAllVarTests
+* TODO test complex VarTests
+and maybe substsThatPassAllVarTests
 * TODO add check: the Query in a _conditions field should be varTestlike
 * TODO the `conditions` field of a ForAll should permit *junctions
 => it should be [Query], not [VarTest]
@@ -42,6 +43,7 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** maybe VarTest ought to be SubstTest
 ** clarity: _conditions should just be Query, not [Query]
 Currently the list is equivalent to an And.
 For this I've got to be able to make the empty VarTest, which always returns True.

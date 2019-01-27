@@ -21,29 +21,29 @@ import Util
 -- | = Running atomic queries
 
 runVarTest :: Possible e -> sp -> Subst e -> VarTest e sp -> Bool
-runVarTest p d s t = (varTestFunction t) p d s
+runVarTest p sp s t = (varTestFunction t) p sp s
 
 runFind :: forall e sp.
            sp -> Subst e -> Find e sp -> CondElts e
-runFind d s (Find find deps) =
+runFind sp s (Find find deps) =
   M.fromSet (const $ S.singleton used) found
   where
-    found = find d s             :: Set e
+    found = find sp s             :: Set e
     used = M.restrictKeys s deps :: Subst e
 
 runTestOnElt :: forall e sp.
                 sp -> Subst e -> Test e sp -> e -> (Bool, Subst e)
-runTestOnElt d s (Test test deps) e = (passes, used)
+runTestOnElt sp s (Test test deps) e = (passes, used)
   where
-    passes = test d s e          :: Bool
+    passes = test sp s e          :: Bool
     used = M.restrictKeys s deps :: Subst e
 
 runTest :: forall e sp. Ord e
         => sp -> Subst e -> Test e sp -> CondElts e -> CondElts e
-runTest d s q ce = let
+runTest sp s q ce = let
   passed :: Map e (Bool, Subst e)
   passed = M.filter fst tested where
-    tested = M.mapWithKey (\k v -> runTestOnElt d s q k) ce
+    tested = M.mapWithKey (\k v -> runTestOnElt sp s q k) ce
   f ::  e -> (Bool, Subst e) -> Set (Subst e)
   f k (_,s) = let ss = (M.!) ce k :: Set (Subst e)
               in S.map (M.union s) ss
