@@ -1,4 +1,4 @@
-module Test.Rslt.Data where
+module Test.Rslt.RData where
 
 import qualified Data.Map as M
 

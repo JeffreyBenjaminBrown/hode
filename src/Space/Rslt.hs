@@ -50,7 +50,8 @@ type Files = M.Map Addr Expr -- TODO use ordinary hard-disk files
 
 -- | The `Index` can answer every fundamental connectivity question:
 -- What is in something, what is something in, etc.
--- It can also find anything findable -- i.e. anything but a `Par`.
+-- It can also find anything findable -- i.e. anything but a `Par` --
+-- via `addrOf`.
 --
 -- ^ The fields in the `Index`, plus the `holdsPosition` function,
 -- are the atomic ways to search an `Rslt`.
@@ -65,3 +66,5 @@ holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
 holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
+
+type Rslt = (Files, Index)

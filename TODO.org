@@ -17,16 +17,9 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
-* TODO test complex VarTests
-and maybe substsThatPassAllVarTests
-* TODO add check: the Query in a _conditions field should be varTestlike
-* TODO the `conditions` field of a ForAll should permit *junctions
-=> it should be [Query], not [VarTest]
 * TODO replace error with Either
 so far only used in Query.MkLeaf
-* Bipartite graph type
-because I keep wanting to invert things like CondElts
-* for RSLT
+* TODO for RSLT
 ** TODO Query subtypes (Find etc) that expect a Maybe (for the Rslt)
 ** TODO Rslt type which bundles Files and Index
  rename Files -> Exprs
@@ -70,7 +63,9 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
 ** ? test mixed queries more
 ** ? test dependent variables in TProgram
   This would help me figure out how to track outputs, not just inputs, in the Possible type.
-
+* DONE ? overly cautious
+** add check ? the Query in a _conditions field should be varTestlike
+Seems like it should get caught when something tries to run runVarTestlike on it.
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example
@@ -139,5 +134,3 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
  In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 ** temporary user burdens: query order, dependency validity
  Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
-* DONE Possibilities for a quantifier's Source should not include Find
-because that would mean the Find is run fresh for each Subst.x
