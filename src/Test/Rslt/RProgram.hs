@@ -11,14 +11,11 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import           Program
-import           Query
 import           Query.MkLeaf
 import           Space.Rslt
 import           Space.Rslt.RTypes
-import           Space.Rslt.Index
 import qualified Test.Rslt.RData as D
 import           Types
-import           Util
 
 
 test_module_rsltProgram = TestList [

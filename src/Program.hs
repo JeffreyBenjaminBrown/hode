@@ -10,7 +10,6 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Subst
 import Types
 import Query
 import Query.Inspect

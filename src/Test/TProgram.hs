@@ -8,7 +8,6 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
 import Program
-import Query
 import Query.MkLeaf
 import Space.Graph
 import Space.Graph.GQuery
@@ -31,7 +30,8 @@ test_runProgram = TestCase $ do
 
   assertBool "1" $ runProgram d [ (a, QFind $ findParents $ Left 2) ]
     == Right ( M.singleton a ( M.fromList [ (0, S.singleton M.empty)
-                                          , (3, S.singleton M.empty) ] ) )
+                                          , (3, S.singleton M.empty) ] )
+             :: Possible Int )
 
   assertBool "2" $ runProgram d
     [ ( b, ( QJunct $ And [ QFind $ findChildren $ Left 3
@@ -72,4 +72,4 @@ test_runProgram = TestCase $ do
                                    , (3, S.singleton M.empty) ] )
                , ( b, M.fromList [ (12, ( S.singleton
                                             $ M.fromList [(a1,1),(a2,2)]
-                                          ) ) ] ) ] )
+                                          ) ) ] ) ] :: Possible Int )

@@ -14,7 +14,6 @@ import           Space.Rslt.Index
 import           Space.Rslt.Index.Positions
 import           Space.Rslt.Index.ImgLookup
 import qualified Test.Rslt.RData as D
-import           Util
 
 
 test_module_rslt = TestList [
