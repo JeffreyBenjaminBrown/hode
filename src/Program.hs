@@ -17,9 +17,9 @@ import Query.Inspect
 
 
 runProgram :: forall e sp. (Ord e, Show e)
-           => sp
-           -> [(Var,Query e sp)] -- ^ queries can depend on earlier ones
-           -> Either String (Possible e)
+  => sp
+  -> [(Var,Query e sp)] -- ^ ordered: `Query`s can depend on earlier ones
+  -> Either String (Possible e)
 
 runProgram d vqs = case validProgram vqs of
   Left s -> Left s
@@ -29,9 +29,7 @@ runProgram d vqs = case validProgram vqs of
        -> Either String (Possible e)
     go (Left s) _ = Left s
     go (Right p) (v,q) =
-      case runFindlike d p q (M.empty :: Subst e)
+      case runFindlike d p (M.empty :: Subst e) q
            :: Either String (CondElts e)
       of Left s -> Left $ "runProgram: error in callee:\n" ++ s
          Right ec -> Right $ M.insert v ec p
-
-

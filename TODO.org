@@ -1,6 +1,6 @@
 * PIFALLs
 ** PITFALL: Each mapping in a CondElts can be represented many ways, depending on whether they key is included.
-You could describe a CondElts this way:
+The current idiom is to leave the key out. But -- you could describe a CondElts this way:
  x=1 if (a=1    ) or (b=1    )
 or equivalently, this way:
  x=1 if (a=1,x=1) or (b=1,x=1)
@@ -13,44 +13,16 @@ type CondElts = Map Elt (Set Subst)
   -- PITFALL: If Elt is possible without any other bindings, then
   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
   -- it is as if that `Elt` is not in the `Map`.
-* PITFALL ? a VarTest's deps record Vars in the Subst, not the Possible, right?
-That's necessarily how varTestCompare is written (unless it has no deps),
-and that's how varTestIO' is currently written, but it could go either way.
-(varTestIO could be interpreting as doing both.)
-* TODO Quantifiers must include a VarTests section
-Must be able to say, "for all x such that p(x), q(x)".
-(Could say it as "for all x, either not p(x) or p(x) and q(x)", but that's cumbersome.)
-** divide disjointQuantifiers
-*** DONE no quantifier masks a quantifier in a subquery
-*** DONE no two clauses of an `And` introduce the same variable
-*** DONE internal and external vars don't overlap
- This used to be part of disjointQuantifiers.
-** TODO the `conditions` field of a ForAll should permit *junctions
+** PITFALL ? a VarTest's deps record Vars in the Subst, not the Possible, right?
+ That's necessarily how varTestCompare is written (unless it has no deps),
+ and that's how varTestIO' is currently written, but it could go either way.
+ (varTestIO could be interpreting as doing both.)
+* TODO the `conditions` field of a ForAll should permit *junctions
 => it should be [Query], not [VarTest]
 * TODO replace error with Either
 so far only used in Query.MkLeaf
 * Bipartite graph type
 because I keep wanting to invert things like CondElts
-* ? test dependent variables in TProgram
-This would help me figure out how to track outputs, not just inputs, in the Possible type.
-* TODO ?! ask for multiple variables that determined a given one
-** TODO ! simplify
-For varPossibilities, just use the unconditional found values.
-For the input-output criteria, just use VarTest.
-*** once that's complete, ditch some unused functions in Subst.hs
-*** for more speed, while still pretty simple
-(*much* simpler than the input-output-matching varPossibilities strategy I was working on)
-Track inputs and outputs. Then, to cut down on the number of varPossibilities tried, allow the user to ask for one flavor (variable name) of input or output to one found Query result. Any additional input-output-matching criteria are imposed via VarTest.
-How inputs are tracked (already true):
-  Look up a result Var in the Possible.
-  In the resulting CondElts, look up a value for the same Var.
-  This produces all the possible Substs that could lead there.
-How outputs could be tracked:
-  Look up an input Var in the Possible.
-  In the resulting [?], Look up a value of that Var.
-  In the resulting [?], look up the output Var.
-  This produces all the possible values that input value could cause in the output.
-* VarTests might need access to the Possible
 * for RSLT
 ** TODO Query subtypes (Find etc) that expect a Maybe (for the Rslt)
 ** TODO Rslt type which bundles Files and Index
@@ -67,21 +39,31 @@ Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
-* What expressivity do I lose by requiring sequentiality?
 * ? safety, speed
+** speed when asking for multiple variables that determined a given one
+ For varPossibilities, just use the unconditional found values.
+ For the input-output criteria, just use VarTest.
+*** once that's complete, ditch some unused functions in Subst.hs
+*** for more speed, while still pretty simple
+(*much* simpler than the input-output-matching varPossibilities strategy I was working on)
+Track inputs and outputs. Then, to cut down on the number of varPossibilities tried, allow the user to ask for one flavor (variable name) of input or output to one found Query result. Any additional input-output-matching criteria are imposed via VarTest.
+How inputs are tracked (already true):
+  Look up a result Var in the Possible.
+  In the resulting CondElts, look up a value for the same Var.
+  This produces all the possible Substs that could lead there.
+How outputs could be tracked:
+  Look up an input Var in the Possible.
+  In the resulting [?], Look up a value of that Var.
+  In the resulting [?], look up the output Var.
+  This produces all the possible values that input value could cause in the output.
 ** speed|space optimization
 *** skip recording unneeded dependent bindings
 You can tell from reading a Program's [ (VarFunc, Query) ] argument which elements of the Substs will never be referred to; those would not have to be recorded.
 ** todo ? safety : check that every Set in a CondElts is nonempty
-* ? simplicity
-** VarTests render much of varPossibilities redundant.
-varPossibilities is probably faster, because it does not cause a
-lot of pointless Substs to reach runQAnd, where they generate an empty
-CondElts. But the simplicity might be worth it. (They are not substitutes;
-VarTests is far more expressive. varPossibilities will only let you ask
-for "some x such that it could be an input to all of the following
-variables ...".)
-* ? test mixed queries more
+** ? test mixed queries more
+** ? test dependent variables in TProgram
+  This would help me figure out how to track outputs, not just inputs, in the Possible type.
+
 * DONE ? obvious
 ** forall and exists clauses for variable functions of variables
 *** Example

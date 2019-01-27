@@ -5,11 +5,13 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit hiding (Test, test)
 
-import Space.Graph
 import Program
 import Query
+import Query.MkLeaf
+import Space.Graph
+import Space.Graph.GQuery
 import Types
 
 
@@ -28,8 +30,8 @@ test_runProgram = TestCase $ do
                 , (10,[11, 23     ] ) ]
 
   assertBool "1" $ runProgram d [ (a, QFind $ findParents $ Left 2) ]
-    == Right ( M.singleton a ( M.fromList [ (0,S.singleton M.empty)
-                                            , (3,S.singleton M.empty) ] ) )
+    == Right ( M.singleton a ( M.fromList [ (0, S.singleton M.empty)
+                                          , (3, S.singleton M.empty) ] ) )
 
   assertBool "2" $ runProgram d
     [ ( b, ( QJunct $ And [ QFind $ findChildren $ Left 3
@@ -41,7 +43,7 @@ test_runProgram = TestCase $ do
     [ ( a, QFind $ findParents $ Left 2)
     , ( b, ( QQuant $ ForSome a1 a $
                QJunct $ And
-               [ QFind $  findFrom "children" children $ Right a1
+               [ QFind $ findFrom "children" children $ Right a1
                , QTest $ test (/=) $ Right a1
                , QTest $ test (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList

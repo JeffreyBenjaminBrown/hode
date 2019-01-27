@@ -27,8 +27,8 @@ source-repository head
 
 library
   exposed-modules:
---                  Program
-                  Query
+                  Program
+                , Query
                 , Query.Inspect
                 , Query.MkLeaf
                 , Query.RunLeaf
@@ -44,10 +44,9 @@ library
                 , Test
                 , Test.TGraph
                 , Test.TInspect
---                , Test.TProgram
+                , Test.TProgram
                 , Test.TQuery
                 , Test.TLeaf
---                , Test.TRel
                 , Test.TRslt
                 , Test.Rslt.Data
 --                , Test.Rslt.RProgram

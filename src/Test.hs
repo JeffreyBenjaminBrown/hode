@@ -14,7 +14,7 @@ import           Test.HUnit hiding (Test)
 import Test.TGraph
 import Test.TInspect
 import Test.TLeaf
---import Test.TProgram
+import Test.TProgram
 import Test.TQuery
 --import Test.TRel
 import Test.TRslt
@@ -27,7 +27,7 @@ tests = runTestTT $ TestList
   [ testModuleUtil
   , testModuleQueryClassify
   , testModuleGraph
---  , test_module_Program
+  , test_module_Program
   , test_modules_leaf
   , test_module_query
   , test_module_rslt
