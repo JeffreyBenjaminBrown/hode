@@ -19,6 +19,13 @@ keyErr callingFunction key map =  callingFunction ++ ": key "
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
+ifNothings :: [Maybe a] -> Maybe [a]
+ifNothings ms = let
+  nothings = filter isNothing ms
+  in case null nothings of
+       True -> Just $ map fromJust ms
+       False -> Nothing
+
 ifLefts :: String -> [Either String a] -> Either String [a]
 ifLefts msg es = let
   lefts = filter isLeft es

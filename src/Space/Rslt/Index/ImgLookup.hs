@@ -1,9 +1,10 @@
 module Space.Rslt.Index.ImgLookup where
 
-import           Data.Maybe (catMaybes, isNothing, fromJust)
+import           Data.Maybe
 import qualified Data.Map as M
 
 import Space.Rslt.RTypes
+import Util
 
 
 exprVariety :: Expr -> (ExprCtr, Arity)
@@ -19,20 +20,16 @@ imgDb = M.fromList . catMaybes . map f . M.toList where
     _       -> Just (expr, addr)
 
 imgLookup :: Exprs -> (ImgOfExpr -> Maybe Addr)
-imgLookup files img = let idb = imgDb files in case img of
+imgLookup exprs img = let idb = imgDb exprs in case img of
 
   ImgOfExpr e -> M.lookup e idb
-  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a files
+  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a exprs
 
-  ImgOfTplt is ->
-    let mas = map (imgLookup files) is
-    in case or $ map isNothing $ mas of
-         True  -> Nothing
-         False -> M.lookup (Tplt $ catMaybes mas) idb
+  ImgOfTplt is -> do
+    mas <- ifNothings $ map (imgLookup exprs) is
+    M.lookup (Tplt mas) idb
 
-  ImgOfRel is i ->
-    let mas = map (imgLookup files) is
-        ma = imgLookup files i
-    in case or (map isNothing mas) || isNothing ma of
-         True  -> Nothing
-         False -> M.lookup (Rel (catMaybes mas) $ fromJust ma) idb
+  ImgOfRel is i -> do
+    mas <- ifNothings $ map (imgLookup exprs) is
+    ma <- imgLookup exprs i
+    M.lookup (Rel mas ma) idb
