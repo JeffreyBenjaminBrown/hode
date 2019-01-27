@@ -15,18 +15,18 @@ import Space.Rslt.Index.ImgLookup
 
 -- TODO (#strict) Evaluate `Index` completely at start of program.
 mkIndex :: Exprs -> Index
-mkIndex files = Index { _addrOf          = imgLookup files
+mkIndex exprs = Index { _addrOf          = imgLookup exprs
                       , _variety         = _variety'
                       , _positionsIn     = _positionsIn'
                       , _positionsHeldBy = _positionsHeldBy'
                       }
  where
-  fps = positionsWithinAll files :: [(Addr, [(Role, Addr)])]
+  fps = positionsWithinAll exprs :: [(Addr, [(Role, Addr)])]
 
   _variety' :: Addr -> Maybe (ExprCtr, Arity)
   _variety' = flip M.lookup varieties where
     -- (#strict) Build `varieties` completely first.
-    varieties = M.map exprVariety files
+    varieties = M.map exprVariety exprs
 
   _positionsIn' :: Addr -> Maybe (Map Role Addr)
   _positionsIn' = flip M.lookup positions where
@@ -42,7 +42,7 @@ mkIndex files = Index { _addrOf          = imgLookup files
 -- | == Check the database
 
 collectionsWithAbsentAddrs :: Exprs -> Index -> Map Addr [Addr]
-collectionsWithAbsentAddrs files index = res where
+collectionsWithAbsentAddrs exprs index = res where
   res = M.filter (not . null)
         $ M.map (filter absent . involved) collections
 
@@ -56,12 +56,12 @@ collectionsWithAbsentAddrs files index = res where
   involved (Par sas _) = map snd sas
 
   collections :: Exprs
-  collections = M.filter isCollection files where
+  collections = M.filter isCollection exprs where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
 relsWithoutMatchingTplts :: Exprs -> Index -> Exprs
-relsWithoutMatchingTplts files index = res where
+relsWithoutMatchingTplts exprs index = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: Expr -> Bool
@@ -72,6 +72,6 @@ relsWithoutMatchingTplts files index = res where
       _         -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
-  rels = M.filter isRel files where
+  rels = M.filter isRel exprs where
     isRel (Rel _ _) = True
     isRel _         = False

@@ -31,7 +31,7 @@ exprPositions expr =
 
 positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
                    -> Map Addr (Set (Role, Addr))
-positionsHeldByAll aras = foldl addInvertedPosition M.empty aras where
+positionsHeldByAll aras = foldl addInvertedPosition M.empty aras
 
 addInvertedPosition :: Map Addr (Set (Role, Addr))
                     -> (Addr,       [(Role, Addr)])
