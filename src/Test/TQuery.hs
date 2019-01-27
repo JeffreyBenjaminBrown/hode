@@ -23,38 +23,40 @@ test_module_query = TestList [
   , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
   , TestLabel "test_runTestlike" test_runTestlike
   , TestLabel "testRunAnd" testRunAnd
---  , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
+  , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
   ]
 
---test_runFindlike_mixed = TestCase $ do
---  let [a,b,c,x,y] = ["a","b","c","x","y"]
---      aOf_b = "aOf_b"
---      src_aOf_b = Source' a $ S.singleton b
---
---      isnt v = QTest $ test (/=) $ Right v
---      d = graph [ (0, [1,2        ] )
---                , (3, [  2,3,4    ] )
---                , (10,[11, 23     ] ) ]
---      (p :: (Possible Int)) = M.fromList
---        [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
---        , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
---                         , (23, S.fromList [ M.singleton a 2
---                                           , M.singleton a 3 ] ) ] ) ]
---      fc0 = QFind $ findChildren $ Left 0
---      fc v = QFind $ findChildren $ Right v
---      s = M.fromList [(a,2), (b,23)] :: (Subst Int)
---      q_And_Quant = let aOf_b' = aOf_b ++ "'"
---        in QJunct $ And
---           [ QQuant $ ForAll aOf_b' src_aOf_b $ isnt aOf_b' []
---           , QQuant $ ForSome aOf_b src_aOf_b $ fc aOf_b ]
---      q_ForAll_And = QQuant $ ForAll aOf_b src_aOf_b
---                     ( QJunct $ And [ fc0, isnt a ] )
---                     []
---
---  assertBool "2" $ runFindlike d p q_And_Quant s
---    == Right ( M.singleton 4 (S.fromList [ M.singleton aOf_b 3 ] ) )
---  assertBool "1" $ runFindlike d p q_ForAll_And s
---    == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
+test_runFindlike_mixed = TestCase $ do
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
+      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+      [a2,b2,c2,x2,y2] = ["a2","b2","c2","x2","y2"]
+      isnt v = QTest $ test (/=) $ Right v
+      d = graph [ (0, [1,2        ] )
+                , (3, [  2,3,4    ] )
+                , (10,[11, 23     ] ) ]
+      (p :: (Possible Int)) = M.fromList
+        [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
+        , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
+                         , (23, S.fromList [ M.singleton a 2
+                                           , M.singleton a 3 ] ) ] ) ]
+      fc3 = QFind $ findChildren $ Left 3
+      fc v = QFind $ findChildren $ Right v
+      s = M.fromList [(a1,2), (b1,23)] :: (Subst Int)
+
+  assertBool "2" $ runFindlike d p s
+        ( QJunct $ And
+             [ QQuant $ ForAll a2 a ( isnt a2 )
+               [ varTestIO' (a2,a) (b1,b) ]
+             , QQuant $ ForSome a1 a $ QJunct $ And
+               [ fc a1
+               , QVTest $ varTestIO' (a1,a) (b1,b) ] ] )
+    == Right ( M.singleton 4 (S.fromList [ M.singleton a1 3 ] ) )
+
+  assertBool "1" $ runFindlike d p s
+    ( QQuant $ ForAll a1 a
+      ( QJunct $ And [ fc3, isnt a1 ] )
+      [] )
+    == Right ( M.singleton 4 $ S.singleton $ M.empty )
 
 testRunAnd = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
