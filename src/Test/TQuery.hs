@@ -24,7 +24,42 @@ test_module_query = TestList [
   , TestLabel "test_runTestlike" test_runTestlike
   , TestLabel "testRunAnd" testRunAnd
   , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
+  , TestLabel "test_runVarTestlike_complex" test_runVarTestlike_complex
   ]
+
+test_runVarTestlike_complex = TestCase $ do
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
+      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+      (p :: Possible Int) = M.fromList
+        [ (a, M.fromList [ (1, S.singleton M.empty)
+                         , (2, S.singleton M.empty) ] )
+        , (b, M.fromList [ (1, S.fromList [ M.singleton a 1
+                                          , M.singleton a 2 ] )
+                         , (2, S.fromList [ M.singleton a 1 ] )
+                         , (3, S.fromList [ M.singleton a 1 ] ) ] )
+        , (c, M.fromList [ (1, S.singleton M.empty)
+                         , (2, S.fromList [ M.singleton b 2 ] ) ] ) ]
+
+  assertBool "and" $
+    substsThatPassAllVarTests (graph [] :: Graph Int) p
+    [ QJunct $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
+                   , QVTest $ varTestIO' (b1,b) (c1,c) ] ]
+    ( [ M.fromList [ (a1,1), (b1,1), (c1,1) ]
+      , M.fromList [ (a1,1), (b1,1), (c1,2) ]
+      , M.fromList [ (a1,1), (b1,2), (c1,2) ]
+      ] )
+    == Right [ M.fromList [ (a1,1), (b1,2), (c1,2) ] ]
+
+  assertBool "or" $
+    substsThatPassAllVarTests (graph [] :: Graph Int) p
+    [ QJunct $ Or [ QVTest $ varTestIO' (a1,a) (b1,b)
+                  , QVTest $ varTestIO' (b1,b) (c1,c) ] ]
+    ( [ M.fromList [ (a1,1), (b1,3), (c1,0) ]
+      , M.fromList [ (a1,0), (b1,1), (c1,2) ]
+      , M.fromList [ (a1,0), (b1,2), (c1,2) ]
+      ] )
+    == Right [ M.fromList [ (a1,1), (b1,3), (c1,0) ]
+             , M.fromList [ (a1,0), (b1,2), (c1,2) ] ]
 
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
