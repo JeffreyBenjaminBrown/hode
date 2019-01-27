@@ -46,7 +46,7 @@ data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
 data Quantifier e sp =
     ForSome { name :: Var, source :: Var, goal :: Query e sp }
   | ForAll  { name :: Var, source :: Var, goal :: Query e sp
-            , _conditions :: [VarTest e sp] -- ^ PITFALL: partial function.
+            , _conditions :: [Query e sp] -- ^ PITFALL: partial function.
               -- `conditions` is a total version.
             }
   -- ^ The `conditions` field lets you narrow the possibilities considered.
@@ -55,7 +55,7 @@ data Quantifier e sp =
   -- put y in the `conditions` field. That would be a testlike query, but
   -- the same method applies to findlike ones.
 
-conditions :: Quantifier e sp -> [VarTest e sp]
+conditions :: Quantifier e sp -> [Query e sp]
 conditions   (ForSome _ _ _)  = []
 conditions q@(ForAll _ _ _ _) = _conditions q
 

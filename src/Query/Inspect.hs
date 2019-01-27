@@ -65,15 +65,20 @@ feasible'Junctions = recursive where
 
 -- | = Classifying Queries as findlike or testlike
 
-findlike, testlike :: Query e sp -> Bool
+findlike, varTestlike, testlike :: Query e sp -> Bool
 
-testlike = not . findlike
-
-findlike (QFind _)                = True
+findlike (QFind _)               = True
 findlike (QJunct (And qs))       = or  $ map findlike qs
 findlike (QJunct (Or  qs@(_:_))) = and $ map findlike qs
 findlike (QQuant w)              =           findlike $ goal w
 findlike _                       = False
+
+varTestlike (QVTest _)  = True
+varTestlike (QJunct qs) = and $ map varTestlike $ clauses qs
+varTestlike (QQuant w)  = varTestlike $ goal w
+varTestlike _           = False
+
+testlike q = not (findlike q || varTestlike q)
 
 
 -- | = Ensuring the Vars used in a Query make sense
@@ -111,9 +116,10 @@ usesOnlyIntroducedVars q = f S.empty q where
   f :: Set Var -> Query e sp -> Bool
   -- The `Set Var` is those Vars that have been introduces so far --
   -- i.e. by the current query or any superquery.
+
   f vs (QQuant w) = okConditions && f vs' (goal w)
-    where vs' = S.insert (name w) vs
-          okConditions = and $ map (f vs' . QVTest) $ conditions w
+    where okConditions = and $ map (f vs') $ conditions w
+          vs' = S.insert (name w) vs
   f vs (QJunct j) = and $ map (f vs) $ clauses j
   f vs _          = S.isSubsetOf (usesVars q) vs
 
@@ -129,7 +135,7 @@ drawsFromVars _ = S.empty
 -- queries ("leaves") of q -- that is, the `VarTest`s, `Test`s and `Find`s.
 usesVars :: Query e sp -> Set Var
 usesVars (QQuant w) = S.union (usesVars $ goal w) conditionVars
-  where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions w
+  where conditionVars = S.unions $ map usesVars $ conditions w
 usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
 usesVars (QVTest x@(VarTest _ _)) = varTestUses x
 usesVars (QTest  x@(Test    _ _)) = testUses    x

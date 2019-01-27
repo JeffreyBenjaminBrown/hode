@@ -46,7 +46,7 @@ test_runFindlike_mixed = TestCase $ do
   assertBool "2" $ runFindlike d p s
         ( QJunct $ And
              [ QQuant $ ForAll a2 a ( isnt a2 )
-               [ varTestIO' (a2,a) (b1,b) ]
+               [ QVTest $ varTestIO' (a2,a) (b1,b) ]
              , QQuant $ ForSome a1 a $ QJunct $ And
                [ fc a1
                , QVTest $ varTestIO' (a1,a) (b1,b) ] ] )
@@ -91,7 +91,7 @@ test_runTestlike = TestCase $ do
 
   assertBool "6" $ runTestlike d p ce (M.empty :: Subst Int)
     ( QQuant $ ForAll a1 a (QTest nota1)
-      [ varTestCompare (<) (Left 1) (Right a1) ] )
+      [ QVTest $ varTestCompare (<) (Left 1) (Right a1) ] )
     == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
                           , (3, S.singleton M.empty) ] )
 
@@ -139,7 +139,7 @@ test_runFindlike_ForAll = TestCase $ do
   assertBool "4" $ runFindlike g p
     (M.singleton c1 1)
     ( QQuant $ ForAll a1 a (qc a1)
-      [ varTestIO' (a1,a) (c1,c) ] )
+      [ QVTest $ varTestIO' (a1,a) (c1,c) ] )
     == Right ( M.fromList [ (12, S.singleton $ M.empty)
                           , (22, S.singleton $ M.empty) ] )
 

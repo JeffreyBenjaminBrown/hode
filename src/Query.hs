@@ -52,6 +52,38 @@ runAnd d p s qs = do
    tested
 
 
+-- | = runVarTestlike
+
+runVarTestlike :: forall e sp. (Ord e, Show e)
+  => sp
+  -> Possible e
+  -> Subst e
+  -> Query e sp
+  -> Either String Bool
+
+runVarTestlike _ _ _ (varTestlike -> False) =
+  Left "runVarTestlike: not a varTestlike Query"
+
+runVarTestlike _ _ _ _ = error "todo: write runVarTestlike"
+
+
+substsThatPassAllVarTests :: (Ord e, Show e) =>
+  sp -> Possible e -> [Query e sp] -> [Subst e]
+  -> Either String [Subst e]
+substsThatPassAllVarTests sp p vtests ss = do
+  whetherEachPasses <-
+    ifLefts "substsThatPassAllVarTests: error(s) in callee:\n"
+    $ map (passesAllVarTests sp p vtests) ss
+  Right $ map fst $ filter snd $ zip ss whetherEachPasses
+
+passesAllVarTests :: (Ord e, Show e) =>
+  sp -> Possible e -> [Query e sp] -> Subst e -> Either String Bool
+passesAllVarTests sp p vtests s = do
+  (bs :: [Bool]) <- ifLefts "passesAllVarTests: error(s) in callee:\n"
+    $ map (runVarTestlike sp p s) vtests
+  Right $ and bs
+
+
 -- | = runTestlike
 
 -- TODO (#fast) runTestlike: foldr with short-circuiting.
@@ -95,10 +127,8 @@ runTestlike d p ce s (QQuant (ForAll v src q vtests)) = do
   (ss :: Set (Subst e)) <-
     either (\msg -> Left $ errMsg ++ msg) Right
     $ drawVar p s src v
-  let (varTested :: Set (Subst e)) =
-        S.filter passesAllVarTests ss where
-        passesAllVarTests :: Subst e -> Bool
-        passesAllVarTests s = and $ map (runVarTest p d s) vtests
+  (varTested :: Set (Subst e)) <-
+    S.fromList <$> substsThatPassAllVarTests d p vtests (S.toList ss)
   (tested :: Set (CondElts e)) <-
     ifLefts_set errMsg
     $ S.map (flip (runTestlike d p ce) q) varTested
@@ -149,10 +179,8 @@ runFindlike d p s (QQuant (ForAll v src q vtests)) = do
   (ss :: Set (Subst e)) <-
     either (\msg -> Left $ "runFindlike:\n" ++ msg) Right
     $ drawVar p s src v
-  let (varTested :: Set (Subst e)) =
-        S.filter passesAllVarTests ss where
-        passesAllVarTests :: Subst e -> Bool
-        passesAllVarTests s = and $ map (runVarTest p d s) vtests
+  (varTested :: Set (Subst e)) <-
+    S.fromList <$> substsThatPassAllVarTests d p vtests (S.toList ss)
   (found :: Set (CondElts e)) <-
     ifLefts_set "runFindlike: error(s) in callee:\n"
     $ S.map (flip (runFindlike d p) q) varTested
