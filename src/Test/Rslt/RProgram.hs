@@ -1,6 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Test.Rslt.RProgram where
 
-import           Data.List
+import           Data.List hiding (find)
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Maybe
@@ -10,6 +12,7 @@ import           Test.HUnit hiding (Test)
 
 import           Program
 import           Query
+import           Query.MkLeaf
 import           Space.Rslt
 import           Space.Rslt.Index
 import qualified Test.Rslt.RData as D
@@ -22,9 +25,10 @@ test_module_rsltProgram = TestList [
   ]
 
 test_rsltProgram = TestCase $ do
+
   assertBool "1" $ runProgram D.index
-    [ ("a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton $ addrOf sp $ ImgOfAddr 0) ]
+    [ ( "a", QFind $ find
+        $ \sp -> maybe S.empty S.singleton $ addrOf sp $ ImgOfAddr 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 

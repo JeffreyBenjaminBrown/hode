@@ -49,7 +49,7 @@ library
                 , Test.TLeaf
                 , Test.TRslt
                 , Test.Rslt.RData
---                , Test.Rslt.RProgram
+                , Test.Rslt.RProgram
                 , Test.TSubst
                 , Test.TUtil
                 , Types
