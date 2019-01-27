@@ -32,7 +32,9 @@ positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
                    -> M.Map Addr (S.Set (Role, Addr))
   takes the kind of map given by positionsWithinAll, and inverts it,
   producing a map from each Addr to positions it holds in other Exprs
-*** TODO rename addrOf -> imgLookup
+*** TODO rename
+addrOf -> imgLookup
+imgDb -> addrs
 ** features
 *** TODO next : edit rslt
 To do this, I'll have to understand how Rslts are constructed.

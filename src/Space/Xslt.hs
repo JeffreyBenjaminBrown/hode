@@ -11,6 +11,7 @@ import qualified Data.Set       as S
 import Space.Rslt.Index.ImgLookup
 import Space.Rslt.Index.Positions
 import Space.Rslt.RTypes
+import Util
 
 
 data Xslt = Xslt {
@@ -35,3 +36,18 @@ mkRslt es = let
   , xIsIn = foldl addInvertedPosition M.empty
             $ M.toList $ M.map M.toList hasMap
   }
+
+xImgLookup :: Xslt -> (ImgOfExpr -> Maybe Addr)
+xImgLookup x img = case img of
+
+  ImgOfExpr e -> M.lookup e $ xImgDb x
+  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a $ xExprs x
+
+  ImgOfTplt is -> do
+    mas <- ifNothings $ map (xImgLookup x) is
+    M.lookup (Tplt mas) $ xImgDb x
+
+  ImgOfRel is i -> do
+    mas <- ifNothings $ map (xImgLookup x) is
+    ma <- imgLookup (xExprs x) i
+    M.lookup (Rel mas ma) $ xImgDb x
