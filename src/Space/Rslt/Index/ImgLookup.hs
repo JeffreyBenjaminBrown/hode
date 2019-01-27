@@ -14,13 +14,9 @@ exprVariety e@(Par _ _) = (Par' , arity e)
 
 imgDb :: Exprs -> M.Map Expr Addr
 imgDb = M.fromList . catMaybes . map f . M.toList where
-  f (addr, expr) = case exprImgKey expr of
-    Nothing -> Nothing
+  f (addr, expr) = case expr of
+    Par _ _ -> Nothing
     _       -> Just (expr, addr)
-
-  exprImgKey :: Expr -> Maybe Expr
-  exprImgKey e = case e of Par _ _ -> Nothing
-                           _       -> Just e
 
 imgLookup :: Exprs -> (ImgOfExpr -> Maybe Addr)
 imgLookup files img = let idb = imgDb files in case img of
