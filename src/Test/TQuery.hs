@@ -121,8 +121,8 @@ test_runTestlike = TestCase $ do
 --  let g = graph [ (1, [11, 12    ] )
 --                , (2, [    12, 22] ) ]
 --      [a,b,c,x,y] = ["a","b","c","x","y"]
---      aOf_c = "aOf_c"
---      src_aOf_c = Source' a $ S.singleton c
+--      -- aOf_c = "aOf_c"
+--      -- src_aOf_c = Source' a $ S.singleton c
 --      (p :: (Possible Int)) = M.fromList
 --          [ ( a, M.fromList [ (1, S.singleton   M.empty)
 --                            , (2, S.singleton   M.empty) ] )
@@ -155,8 +155,6 @@ test_runFindlike_ForSome = TestCase $ do
                 , (2, [12, 22] ) ]
       [a,b,x,y] = ["a","b","x","y"]
       [a1,b1,x1,y1] = ["a1","b1","x1","y1"]
-      --aOf_b = "aOf_b"
-      --src_aOf_b = Source' a $ S.singleton b
       (p:: Possible Int) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton   M.empty) ] )
@@ -167,7 +165,6 @@ test_runFindlike_ForSome = TestCase $ do
 
   assertBool "3" $ ( runFindlike g p
                      ( M.singleton b1 1 )
-                     -- $ QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b
                      $ QQuant $ ForSome a1 a $ QJunct
                      $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
                            , qc a1 ] )
@@ -176,7 +173,6 @@ test_runFindlike_ForSome = TestCase $ do
 
   assertBool "2" $ ( runFindlike g p
                      ( M.singleton b1 2 ) -- the difference
-                     -- $ QQuant $ ForSome aOf_b src_aOf_b $ qc aOf_b
                      $ QQuant $ ForSome a1 a $ QJunct
                      $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
                            , qc a1 ] )

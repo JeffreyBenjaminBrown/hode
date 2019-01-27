@@ -113,7 +113,7 @@ usesOnlyIntroducedVars q = f S.empty q where
   -- i.e. by the current query or any superquery.
   f vs (QQuant w) = okConditions && f vs' (goal w)
     where vs' = S.insert (name w) vs
-          okConditions = and $ map (f vs' . QVTest) $ conditions' w
+          okConditions = and $ map (f vs' . QVTest) $ conditions w
   f vs (QJunct j) = and $ map (f vs) $ clauses j
   f vs _          = S.isSubsetOf (usesVars q) vs
 
@@ -129,7 +129,7 @@ drawsFromVars _ = S.empty
 -- queries ("leaves") of q -- that is, the `VarTest`s, `Test`s and `Find`s.
 usesVars :: Query e sp -> Set Var
 usesVars (QQuant w) = S.union (usesVars $ goal w) conditionVars
-  where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions' w
+  where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions w
 usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
 usesVars (QVTest x@(VarTest _ _)) = varTestDets x
 usesVars (QTest  x@(Test    _ _)) = testDets    x
