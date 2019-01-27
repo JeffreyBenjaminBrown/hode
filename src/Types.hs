@@ -29,16 +29,16 @@ data Query e sp = QFind  (Find       e sp)
 
 data Find e sp    = Find {
     findFunction    ::               sp -> Subst e -> Set e
-  , findDets        :: Set Var }
-  -- ^ If `findFunction` doesn't use the `Subst`, `findDets` should be empty.
+  , findUses        :: Set Var }
+  -- ^ If `findFunction` doesn't use the `Subst`, `findUses` should be empty.
 data Test e sp    = Test {
     testFunction    ::               sp -> Subst e ->     e -> Bool
-  , testDets        :: Set Var }
+  , testUses        :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`,`condDeps` should be empty.
 data VarTest e sp = VarTest {
     varTestFunction :: Possible e -> sp -> Subst e          -> Bool
-  , varTestDets     :: Set Var }
-  -- ^ If `*Function` doesn't use the `Subst`, `varTestDets` should be empty.
+  , varTestUses     :: Set Var }
+  -- ^ If `*Function` doesn't use the `Subst`, `varTestUses` should be empty.
 
 data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
                    | Or  {clauses :: [Query e sp] } -- ^ order not important

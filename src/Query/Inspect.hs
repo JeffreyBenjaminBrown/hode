@@ -131,9 +131,9 @@ usesVars :: Query e sp -> Set Var
 usesVars (QQuant w) = S.union (usesVars $ goal w) conditionVars
   where conditionVars = S.unions $ map (usesVars . QVTest) $ conditions w
 usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
-usesVars (QVTest x@(VarTest _ _)) = varTestDets x
-usesVars (QTest  x@(Test    _ _)) = testDets    x
-usesVars (QFind  x@(Find    _ _)) = findDets    x
+usesVars (QVTest x@(VarTest _ _)) = varTestUses x
+usesVars (QTest  x@(Test    _ _)) = testUses    x
+usesVars (QFind  x@(Find    _ _)) = findUses    x
 
 -- | A `Query`, if it is `ForSome v _` or `ForAll v _`, introduces the `Var`
 -- "v". And every `Query` introduces whatever its subqueries introduce.

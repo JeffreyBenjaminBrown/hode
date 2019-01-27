@@ -56,9 +56,9 @@ varPossibilities    p           s        (Source' v dets) = let
 -- | = functions that use the Types module
 
 queryDets :: Query e sp -> Set Var
-queryDets (QFind f)  = findDets f
-queryDets (QTest t)  = testDets t
-queryDets (QVTest t) = varTestDets t
+queryDets (QFind f)  = findUses f
+queryDets (QTest t)  = testUses t
+queryDets (QVTest t) = varTestUses t
 queryDets _          = S.empty
 
 
