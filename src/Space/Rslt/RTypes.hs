@@ -48,7 +48,7 @@ arity (Par x _) = length x
 -- The index is derived from the files.
 
 -- | The `Exprs` are used to retrieve the text of `Word`s and `Par`s.
-type Exprs = M.Map Addr Expr -- TODO use ordinary hard-disk files
+type Exprs = Map Addr Expr -- TODO use ordinary hard-disk files
 
 -- | The `Index` can answer every fundamental connectivity question:
 -- What is in something, what is something in, etc.
@@ -60,8 +60,8 @@ type Exprs = M.Map Addr Expr -- TODO use ordinary hard-disk files
 data Index = Index {
     _addrOf          :: ImgOfExpr -> Maybe Addr
   , _variety         :: Addr      -> Maybe (ExprCtr, Arity)
-  , _positionsIn     :: Addr      -> Maybe (M.Map Role Addr)
-  , _positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
+  , _positionsIn     :: Addr      -> Maybe (Map Role Addr)
+  , _positionsHeldBy :: Addr      -> Maybe (Set (Role, Addr))
   }
 
 _holdsPosition :: Index -> (Role, Addr) -> Maybe Addr

@@ -40,6 +40,7 @@ library
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
                 , Space.Rslt.Index.Positions
+                , Space.Xslt
                 , Subst
                 , Test
                 , Test.TGraph
