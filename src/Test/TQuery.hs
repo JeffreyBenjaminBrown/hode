@@ -22,7 +22,7 @@ test_module_query = TestList [
   , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
   , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
   , TestLabel "test_runTestlike" test_runTestlike
---  , TestLabel "testRunAnd" testRunAnd
+  , TestLabel "testRunAnd" testRunAnd
 --  , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
   ]
 
@@ -56,18 +56,21 @@ test_module_query = TestList [
 --  assertBool "1" $ runFindlike d p q_ForAll_And s
 --    == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
 
---testRunAnd = TestCase $ do
---  let [a,b,c,x,y] = ["a","b","c","x","y"]
---      (a2 :: (Subst Int)) = M.singleton a 2
---      nota = QTest $ test (/=) $ Right a
---      d = graph [ (0, [1,2    ] )
---                , (3, [  2,3,4] ) ]
---      (p :: (Possible Int)) = M.singleton a $
---        M.fromList [ (1, S.singleton M.empty)
---                   , (3, S.singleton M.empty) ]
---      fc0 = QFind $ findChildren $ Left 0
---  assertBool "1" $ runAnd d p [fc0, nota] a2
---    == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
+testRunAnd = TestCase $ do
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
+      nota = QTest $ test (/=) $ Right a
+      d = graph [ (0, [1,2    ] )
+                , (3, [  2,3,4] ) ]
+      (p :: (Possible Int)) = M.singleton a $
+        M.fromList [ (1, S.singleton M.empty)
+                   , (3, S.singleton M.empty) ]
+      fc0 = QFind $ findChildren $ Left 0
+  assertBool "1" $ ( runAnd d p (M.singleton a 2 :: Subst Int)
+                     [fc0, nota] )
+    == Right ( M.singleton 1 (S.singleton $ M.singleton a 2) )
+  assertBool "2" $ ( runAnd d p (M.singleton a 1 :: Subst Int)
+                     [fc0, nota] )
+    == Right ( M.singleton 2 (S.singleton $ M.singleton a 1) )
 
 test_runTestlike = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
