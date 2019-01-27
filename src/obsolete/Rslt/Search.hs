@@ -24,7 +24,7 @@ data RQuery = RQImg ImgOfExpr
    |  RQHasInRole Role RQuery
    |  RQHasInRoles [(Role, RQuery)]
    |  RQIntersect [RQuery]  |  RQUnion [RQuery]
-   |  RQNot RQuery  |  RRQVariety Expr'
+   |  RQNot RQuery  |  RRQVariety ExprCtr
    |  RQVar String
 
 -- | Positive `RQuery`s are things you can search for.

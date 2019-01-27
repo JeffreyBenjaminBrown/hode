@@ -1,5 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-
 module Space.Rslt where
 
 import qualified Data.Map as M
@@ -23,7 +21,8 @@ data Expr = Word String -- ^ (Could be a phrase too.)
     -- `Par` is the only kind of `Expr` not in the `Index`.
   deriving (Show, Eq, Ord)
 
-data Expr' = Word' | Rel' | Tplt' | Par'
+-- | The constructor that an `Expr` uses.
+data ExprCtr = Word' | Rel' | Tplt' | Par'
   deriving (Show, Eq, Ord)
 
 data Role = RoleTplt | RoleMember Int deriving (Show, Eq, Ord)
@@ -42,11 +41,11 @@ arity (Tplt x)  = length x - 1
 arity (Par x _) = length x
 
 
--- | = A "database" = one `Files` + one `Index`.
+-- | = An Rslt = one `Exprs` + one `Index`.
 -- The index is derived from the files.
 
--- | The `Files` are used to retrieve the text of `Word`s and `Par`s.
-type Files = M.Map Addr Expr -- TODO use ordinary hard-disk files
+-- | The `Exprs` are used to retrieve the text of `Word`s and `Par`s.
+type Exprs = M.Map Addr Expr -- TODO use ordinary hard-disk files
 
 -- | The `Index` can answer every fundamental connectivity question:
 -- What is in something, what is something in, etc.
@@ -56,8 +55,8 @@ type Files = M.Map Addr Expr -- TODO use ordinary hard-disk files
 -- ^ The fields in the `Index`, plus the `holdsPosition` function,
 -- are the atomic ways to search an `Rslt`.
 data Index = Index {
-  addrOf            :: ImgOfExpr -> Maybe Addr
-  , variety         :: Addr      -> Maybe (Expr', Arity)
+    addrOf          :: ImgOfExpr -> Maybe Addr
+  , variety         :: Addr      -> Maybe (ExprCtr, Arity)
   , positionsIn     :: Addr      -> Maybe (M.Map Role Addr)
   , positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
   }
@@ -67,4 +66,4 @@ holdsPosition i (r,a) = case positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
 
-type Rslt = (Files, Index)
+type Rslt = (Exprs, Index)

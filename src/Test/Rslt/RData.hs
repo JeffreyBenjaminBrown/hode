@@ -6,7 +6,7 @@ import Space.Rslt
 import Space.Rslt.Index
 
 
-files :: Files
+files :: Exprs
 files = M.fromList
   [ (0, Word "")
   , (1, Word "dog")
@@ -17,8 +17,8 @@ files = M.fromList
   , (6, Par [("The first relationship in this graph is ", 5)] ".")
   ]
 
-badFiles :: Files
-badFiles = M.union files newData where
+badExprs :: Exprs
+badExprs = M.union files newData where
   newData = M.fromList [ (1001, Rel [1,2] 5)
                        , (1002, Rel [1,2] (-1000))
                        ]

@@ -12,7 +12,7 @@ import Space.Rslt.Index.ImgLookup
 -- | == Build the database
 
 -- TODO (#strict) Evaluate `Index` completely at start of program.
-mkIndex :: Files -> Index
+mkIndex :: Exprs -> Index
 mkIndex files = Index { addrOf          = imgLookup files
                       , variety         = variety'
                       , positionsIn     = positionsIn'
@@ -21,7 +21,7 @@ mkIndex files = Index { addrOf          = imgLookup files
  where
   fps = positionsWithinAll files :: [(Addr, [(Role, Addr)])]
 
-  variety' :: Addr -> Maybe (Expr', Arity)
+  variety' :: Addr -> Maybe (ExprCtr, Arity)
   variety' = flip M.lookup varieties where
     -- (#strict) Build `varieties` completely first.
     varieties = M.map exprVariety files
@@ -39,7 +39,7 @@ mkIndex files = Index { addrOf          = imgLookup files
 
 -- | == Check the database
 
-collectionsWithAbsentAddrs :: Files -> Index -> M.Map Addr [Addr]
+collectionsWithAbsentAddrs :: Exprs -> Index -> M.Map Addr [Addr]
 collectionsWithAbsentAddrs files index = res where
   res = M.filter (not . null)
         $ M.map (filter absent . involved) collections
@@ -53,12 +53,12 @@ collectionsWithAbsentAddrs files index = res where
   involved (Rel as a)  = a : as
   involved (Par sas _) = map snd sas
 
-  collections :: Files
+  collections :: Exprs
   collections = M.filter isCollection files where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
-relsWithoutMatchingTplts :: Files -> Index -> Files
+relsWithoutMatchingTplts :: Exprs -> Index -> Exprs
 relsWithoutMatchingTplts files index = res where
   res = M.filter (not . relMatchesTpltArity) rels
 

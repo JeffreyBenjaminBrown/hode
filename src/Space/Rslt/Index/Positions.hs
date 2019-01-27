@@ -12,7 +12,7 @@ import Space.Rslt
 -- `positionsHeldByAll`          is a map from `Addr`es to
 -- the positions  *that contain*  the `Expr` at the key `Addr`.
 
-positionsWithinAll :: Files -> [(Addr, [(Role, Addr)])]
+positionsWithinAll :: Exprs -> [(Addr, [(Role, Addr)])]
 positionsWithinAll = filter (not . null . snd) . map f . M.toList where
   f :: (Addr, Expr) -> (Addr, [(Role,Addr)])
   f (a, expr) = (a, exprPositions expr)
