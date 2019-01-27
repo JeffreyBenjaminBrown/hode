@@ -1,8 +1,10 @@
 module Space.Rslt.RTypes where
 
 import           Data.Maybe (isNothing)
-import qualified Data.Map as M
-import qualified Data.Set as S
+import           Data.Map (Map)
+import qualified Data.Map       as M
+import           Data.Set (Set)
+import qualified Data.Set       as S
 
 
 type Addr = Int -- ^ Address

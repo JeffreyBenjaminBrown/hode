@@ -1,7 +1,9 @@
 module Space.Rslt.Index.Positions where
 
-import qualified Data.Map as M
-import qualified Data.Set as S
+import           Data.Map (Map)
+import qualified Data.Map       as M
+import           Data.Set (Set)
+import qualified Data.Set       as S
 
 import Space.Rslt.RTypes
 
@@ -27,17 +29,17 @@ positionsWithinAll = filter (not . null . snd) . map f . M.toList where
       Rel mas ta -> (RoleTplt,ta) : map r (zip [1..]           mas)
       Par sas _  ->                 map r (zip [1..] $ map snd sas)
 
-positionsHeldByAll :: [( Addr,         [( Role, Addr)] )]
-                   -> M.Map Addr (S.Set ( Role, Addr))
+positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
+                   -> Map Addr (Set (Role, Addr))
 positionsHeldByAll aras = foldl addInvertedPosition M.empty aras where
 
-  addInvertedPosition :: M.Map Addr (S.Set (Role, Addr))
-                      -> (Addr,           [(Role, Addr)])
-                      -> M.Map Addr (S.Set (Role, Addr))
+  addInvertedPosition :: Map Addr (Set (Role, Addr))
+                      -> (Addr,       [(Role, Addr)])
+                      -> Map Addr (Set (Role, Addr))
   addInvertedPosition fm (a1, ras) = foldl f fm ras where
-    f :: M.Map Addr (S.Set (Role, Addr))
-      ->                   (Role, Addr)
-      -> M.Map Addr (S.Set (Role, Addr))
+    f :: Map Addr (Set (Role, Addr))
+      ->               (Role, Addr)
+      -> Map Addr (Set (Role, Addr))
     f fm (r,a) = M.insertWith S.union a newData fm
-      where newData :: S.Set (Role, Addr)
+      where newData :: Set (Role, Addr)
             newData = S.singleton (r,a1)

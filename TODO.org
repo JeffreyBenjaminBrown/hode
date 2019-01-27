@@ -24,7 +24,12 @@ so far only used in Query.MkLeaf
 *** TODO next: rslt from functions to data
 imgDb :: Exprs -> M.Map Expr Addr
 imgLookup: uses the imgDb
-
+positionsWithinAll :: Exprs -> [(Addr, [(Role, Addr)])]
+  gives (in list form) a map from each Addr to its contents
+positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
+                   -> M.Map Addr (S.Set (Role, Addr))
+  takes the kind of map given by positionsWithinAll, and inverts it,
+  producing a map from each Addr to positions it holds in other Exprs
 *** TODO next : edit rslt
 To do this, I'll have to understand how Rslts are constructed.
 Then I'll need to make the Rslt fields data, not functions.

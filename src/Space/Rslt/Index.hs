@@ -1,8 +1,10 @@
 module Space.Rslt.Index where
 
-import           Data.Maybe (isNothing)
-import qualified Data.Map as M
-import qualified Data.Set as S
+import           Data.Maybe
+import           Data.Map (Map)
+import qualified Data.Map       as M
+import           Data.Set (Set)
+import qualified Data.Set       as S
 
 import Space.Rslt.RTypes
 import Space.Rslt.Index.Positions
@@ -14,32 +16,32 @@ import Space.Rslt.Index.ImgLookup
 -- TODO (#strict) Evaluate `Index` completely at start of program.
 mkIndex :: Exprs -> Index
 mkIndex files = Index { _addrOf          = imgLookup files
-                      , _variety         = variety'
-                      , _positionsIn     = positionsIn'
-                      , _positionsHeldBy = positionsHeldBy'
+                      , _variety         = _variety'
+                      , _positionsIn     = _positionsIn'
+                      , _positionsHeldBy = _positionsHeldBy'
                       }
  where
   fps = positionsWithinAll files :: [(Addr, [(Role, Addr)])]
 
-  variety' :: Addr -> Maybe (ExprCtr, Arity)
-  variety' = flip M.lookup varieties where
+  _variety' :: Addr -> Maybe (ExprCtr, Arity)
+  _variety' = flip M.lookup varieties where
     -- (#strict) Build `varieties` completely first.
     varieties = M.map exprVariety files
 
-  positionsIn' :: Addr -> Maybe (M.Map Role Addr)
-  positionsIn' = flip M.lookup positions where
+  _positionsIn' :: Addr -> Maybe (Map Role Addr)
+  _positionsIn' = flip M.lookup positions where
     -- (#strict) Build `positions` completely first.
-    positions :: M.Map Addr (M.Map Role Addr)
+    positions :: Map Addr (Map Role Addr)
     positions = M.map M.fromList $ M.fromList fps
 
-  positionsHeldBy' :: Addr -> Maybe (S.Set (Role, Addr))
-  positionsHeldBy' = flip M.lookup $ positionsHeldByAll fps
+  _positionsHeldBy' :: Addr -> Maybe (Set (Role, Addr))
+  _positionsHeldBy' = flip M.lookup $ positionsHeldByAll fps
     -- (#strict) Build `positionsHeldByAll fps` completely first.
 
 
 -- | == Check the database
 
-collectionsWithAbsentAddrs :: Exprs -> Index -> M.Map Addr [Addr]
+collectionsWithAbsentAddrs :: Exprs -> Index -> Map Addr [Addr]
 collectionsWithAbsentAddrs files index = res where
   res = M.filter (not . null)
         $ M.map (filter absent . involved) collections
@@ -62,13 +64,13 @@ relsWithoutMatchingTplts :: Exprs -> Index -> Exprs
 relsWithoutMatchingTplts files index = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
-  -- PITFALL: Intentionally partial (only Rels).
   relMatchesTpltArity :: Expr -> Bool
   relMatchesTpltArity e@(Rel _ t) = case _variety index t of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
       Tplt' -> arity e == art
       _         -> False
+  relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
   rels = M.filter isRel files where
     isRel (Rel _ _) = True
