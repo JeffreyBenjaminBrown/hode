@@ -20,7 +20,7 @@ import Types
 test_module_query = TestList [
     TestLabel "test_runFindlike_Find" test_runFindlike_Find
   , TestLabel "test_runFindlike_ForSome" test_runFindlike_ForSome
---  , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
+  , TestLabel "test_runFindlike_ForAll" test_runFindlike_ForAll
   , TestLabel "test_runTestlike" test_runTestlike
 --  , TestLabel "testRunAnd" testRunAnd
 --  , TestLabel "test_runFindlike_mixed" test_runFindlike_mixed
@@ -117,38 +117,45 @@ test_runTestlike = TestCase $ do
     == Right ( M.fromList [ (1, S.singleton $ M.fromList [(a,2), (x,0)] )
                           , (3, S.singleton $ M.singleton a 2) ] )
 
---test_runFindlike_ForAll = TestCase $ do
---  let g = graph [ (1, [11, 12    ] )
---                , (2, [    12, 22] ) ]
---      [a,b,c,x,y] = ["a","b","c","x","y"]
---      -- aOf_c = "aOf_c"
---      -- src_aOf_c = Source' a $ S.singleton c
---      (p :: (Possible Int)) = M.fromList
---          [ ( a, M.fromList [ (1, S.singleton   M.empty)
---                            , (2, S.singleton   M.empty) ] )
---          , ( b, M.fromList [ (1, S.singleton   M.empty)
---                            , (2, S.singleton $ M.singleton x 1) ] )
---          , ( c, M.fromList [ (1, S.singleton $ M.singleton a 2) ] ) ]
---      qc :: Var -> (Query Int (Graph Int))
---      qc v = QFind $ findChildren $ Right v
---
---  assertBool "4" $ runFindlike g p
---    (QQuant $ ForAll aOf_c src_aOf_c $ qc aOf_c) (M.singleton c 1)
---    == Right ( M.fromList [ (12, S.singleton $ M.empty)
---                          , (22, S.singleton $ M.empty) ] )
---  assertBool "3" $ runFindlike g p
---    (QQuant $ ForAll b (Source b) $ qc b) (M.singleton x 1)
---    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
---  assertBool "3" $
---    runFindlike g p
---    (QQuant $ ForAll b (Source b) $ qc b) (M.singleton x 1)
---    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
---  assertBool "2" $ runFindlike g p
---    (QQuant $ ForAll b (Source b) $ qc b) M.empty
---    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
---  assertBool "1" $ runFindlike g p
---    (QQuant $ ForAll a (Source a) $ qc a) M.empty
---    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
+test_runFindlike_ForAll = TestCase $ do
+  let g = graph [ (1, [11, 12    ] )
+                , (2, [    12, 22] ) ]
+      [a,b,c,x,y] = ["a","b","c","x","y"]
+      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+      (p :: (Possible Int)) = M.fromList
+          [ ( a, M.fromList [ (1, S.singleton   M.empty)
+                            , (2, S.singleton   M.empty) ] )
+          , ( b, M.fromList [ (1, S.singleton   M.empty)
+                            , (2, S.singleton $ M.singleton x 1) ] )
+          , ( c, M.fromList [ (1, S.singleton $ M.singleton a 2) ] ) ]
+      qc :: Var -> (Query Int (Graph Int))
+      qc v = QFind $ findChildren $ Right v
+
+  assertBool "4" $ runFindlike g p
+    (M.singleton c1 1)
+    ( QQuant $ ForAll a1 a (qc a1)
+      [ varTestIO' (a1,a) (c1,c) ] )
+    == Right ( M.fromList [ (12, S.singleton $ M.empty)
+                          , (22, S.singleton $ M.empty) ] )
+
+  assertBool "3" $ runFindlike g p
+    ( M.singleton x 1 )
+    ( QQuant $ ForAll b1 b ( qc b1 ) [] )
+    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
+
+  assertBool "3.5" $
+    runFindlike g p
+    ( M.singleton x 1 )
+    ( QQuant $ ForAll b1 b (qc b1) [] )
+    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
+
+  assertBool "2" $ runFindlike g p M.empty
+    (QQuant $ ForAll b1 b (qc b1) [])
+    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
+
+  assertBool "1" $ runFindlike g p M.empty
+    (QQuant $ ForAll a1 a (qc a1) [])
+    == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
 test_runFindlike_ForSome = TestCase $ do
   let g = graph [ (1, [11, 21] )

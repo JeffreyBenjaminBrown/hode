@@ -35,6 +35,7 @@ library
                 , Relation
                 , RelExperim
                 , Space.Graph
+                , Space.Graph.GQuery
                 , Space.Rslt
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
