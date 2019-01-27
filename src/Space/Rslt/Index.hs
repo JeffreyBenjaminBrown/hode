@@ -11,6 +11,10 @@ import Space.Rslt.Index.ImgLookup
 
 -- | == Build the database
 
+mkRslt :: [(Addr, Expr)] -> Rslt
+mkRslt pairs = (exprs, mkIndex exprs)
+  where exprs = M.fromList pairs
+
 -- TODO (#strict) Evaluate `Index` completely at start of program.
 mkIndex :: Exprs -> Index
 mkIndex files = Index { _addrOf          = imgLookup files
