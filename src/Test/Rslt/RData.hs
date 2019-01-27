@@ -6,8 +6,8 @@ import Space.Rslt
 import Space.Rslt.Index
 
 
-files :: Exprs
-files = M.fromList
+exprs :: Exprs
+exprs = M.fromList
   [ (0, Word "")
   , (1, Word "dog")
   , (2, Word "oxygen")
@@ -18,10 +18,13 @@ files = M.fromList
   ]
 
 badExprs :: Exprs
-badExprs = M.union files newData where
+badExprs = M.union exprs newData where
   newData = M.fromList [ (1001, Rel [1,2] 5)
                        , (1002, Rel [1,2] (-1000))
                        ]
 
 index :: Index
-index = mkIndex files
+index = mkIndex exprs
+
+rslt :: Rslt
+rslt = (exprs, index)

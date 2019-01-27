@@ -26,14 +26,14 @@ test_module_rsltProgram = TestList [
 
 test_rsltProgram = TestCase $ do
 
-  assertBool "1" $ runProgram D.index
+  assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ find
         $ \sp -> maybe S.empty S.singleton $ addrOf sp $ ImgOfAddr 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 
-  assertBool "2" $ runProgram D.files
+  assertBool "2" $ runProgram D.rslt
     [ ("a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton $ M.lookup 0 sp) ]
+        $ \sp -> maybe S.empty S.singleton $ exprAt sp 0) ]
     == Right ( M.singleton "a"
                $ M.singleton (Word "") $ S.singleton M.empty )

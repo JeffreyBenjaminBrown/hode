@@ -13,10 +13,10 @@ import Space.Rslt.Index.ImgLookup
 
 -- TODO (#strict) Evaluate `Index` completely at start of program.
 mkIndex :: Exprs -> Index
-mkIndex files = Index { addrOf          = imgLookup files
-                      , variety         = variety'
-                      , positionsIn     = positionsIn'
-                      , positionsHeldBy = positionsHeldBy'
+mkIndex files = Index { _addrOf          = imgLookup files
+                      , _variety         = variety'
+                      , _positionsIn     = positionsIn'
+                      , _positionsHeldBy = positionsHeldBy'
                       }
  where
   fps = positionsWithinAll files :: [(Addr, [(Role, Addr)])]
@@ -45,7 +45,7 @@ collectionsWithAbsentAddrs files index = res where
         $ M.map (filter absent . involved) collections
 
   absent :: Addr -> Bool
-  absent = isNothing . variety index
+  absent = isNothing . _variety index
 
   involved :: Expr -> [Addr]
   involved (Word _)    = error "impossible"
@@ -64,7 +64,7 @@ relsWithoutMatchingTplts files index = res where
 
   -- PITFALL: Intentionally partial (only Rels).
   relMatchesTpltArity :: Expr -> Bool
-  relMatchesTpltArity e@(Rel _ t) = case variety index t of
+  relMatchesTpltArity e@(Rel _ t) = case _variety index t of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
       Tplt' -> arity e == art

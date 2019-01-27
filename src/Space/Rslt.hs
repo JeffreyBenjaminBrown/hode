@@ -1,7 +1,10 @@
 module Space.Rslt where
 
-import qualified Data.Map as M
-import qualified Data.Set as S
+import           Data.Map (Map)
+import qualified Data.Map       as M
+import           Data.Maybe
+import           Data.Set (Set)
+import qualified Data.Set       as S
 
 
 type Addr = Int -- ^ Address
@@ -55,15 +58,28 @@ type Exprs = M.Map Addr Expr -- TODO use ordinary hard-disk files
 -- ^ The fields in the `Index`, plus the `holdsPosition` function,
 -- are the atomic ways to search an `Rslt`.
 data Index = Index {
-    addrOf          :: ImgOfExpr -> Maybe Addr
-  , variety         :: Addr      -> Maybe (ExprCtr, Arity)
-  , positionsIn     :: Addr      -> Maybe (M.Map Role Addr)
-  , positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
+    _addrOf          :: ImgOfExpr -> Maybe Addr
+  , _variety         :: Addr      -> Maybe (ExprCtr, Arity)
+  , _positionsIn     :: Addr      -> Maybe (M.Map Role Addr)
+  , _positionsHeldBy :: Addr      -> Maybe (S.Set (Role, Addr))
   }
 
-holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
-holdsPosition i (r,a) = case positionsIn i a of
+_holdsPosition :: Index -> (Role, Addr) -> Maybe Addr
+_holdsPosition i (r,a) = case _positionsIn i a of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
 
 type Rslt = (Exprs, Index)
+
+exprAt          :: Rslt -> Addr        -> Maybe Expr
+exprAt           r a = M.lookup a       $ fst r
+addrOf          :: Rslt -> ImgOfExpr   -> Maybe Addr
+addrOf           r   = _addrOf          $ snd r
+variety         :: Rslt -> Addr        -> Maybe (ExprCtr, Arity)
+variety          r   = _variety         $ snd r
+positionsIn     :: Rslt -> Addr        -> Maybe (Map Role Addr)
+positionsIn      r   = _positionsIn     $ snd r
+positionsHeldBy :: Rslt -> Addr        -> Maybe (Set (Role,Addr))
+positionsHeldBy  r   = _positionsHeldBy $ snd r
+holdsPosition   :: Rslt -> (Role,Addr) -> Maybe Addr
+holdsPosition    r   = _holdsPosition   $ snd r
