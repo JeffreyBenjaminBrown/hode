@@ -14,6 +14,7 @@ import           Program
 import           Query
 import           Query.MkLeaf
 import           Space.Rslt
+import           Space.Rslt.RTypes
 import           Space.Rslt.Index
 import qualified Test.Rslt.RData as D
 import           Types

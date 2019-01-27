@@ -4,16 +4,12 @@ import           Data.Maybe (isNothing)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Space.Rslt
+import Space.Rslt.RTypes
 import Space.Rslt.Index.Positions
 import Space.Rslt.Index.ImgLookup
 
 
 -- | == Build the database
-
-mkRslt :: [(Addr, Expr)] -> Rslt
-mkRslt pairs = (exprs, mkIndex exprs)
-  where exprs = M.fromList pairs
 
 -- TODO (#strict) Evaluate `Index` completely at start of program.
 mkIndex :: Exprs -> Index

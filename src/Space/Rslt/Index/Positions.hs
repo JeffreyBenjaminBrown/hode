@@ -3,7 +3,7 @@ module Space.Rslt.Index.Positions where
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Space.Rslt
+import Space.Rslt.RTypes
 
 
 -- | = `positionsWithinAll` and `positionsHeldByAll` are roughly inverses:

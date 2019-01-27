@@ -3,7 +3,7 @@ module Space.Rslt.Index.ImgLookup where
 import           Data.Maybe (catMaybes, isNothing, fromJust)
 import qualified Data.Map as M
 
-import Space.Rslt
+import Space.Rslt.RTypes
 
 
 exprVariety :: Expr -> (ExprCtr, Arity)
