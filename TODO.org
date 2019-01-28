@@ -22,8 +22,6 @@ so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
 *** TODO next : edit rslt
-To do this, I'll have to understand how Rslts are constructed.
-Then I'll need to make the Rslt fields data, not functions.
 **** add expr
 **** modify expr
 **** ? delete expr
