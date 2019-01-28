@@ -20,7 +20,7 @@ collectionsWithAbsentAddrs exprs r = res where
         $ M.map (filter absent . involved) collections
 
   absent :: Addr -> Bool
-  absent = isNothing . flip M.lookup (xVarieties r)
+  absent = isNothing . flip M.lookup (_varieties r)
 
   involved :: Expr -> [Addr]
   involved (Word _)    = error "impossible"
@@ -38,7 +38,7 @@ relsWithoutMatchingTplts exprs r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: Expr -> Bool
-  relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ xVarieties r of
+  relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ _varieties r of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
       Tplt' -> arity e == art

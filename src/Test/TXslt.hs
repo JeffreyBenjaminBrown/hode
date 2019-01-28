@@ -40,10 +40,10 @@ test_imgLookup = TestCase $ do
                         $ ImgOfAddr 6 )
 
 test_isIn = TestCase $ do
-  assertBool "1" $ M.lookup 0 (xIsIn D.rslt)
+  assertBool "1" $ M.lookup 0 (__rIsIn D.rslt)
     == Just ( S.fromList [ (RoleMember 1, 4)
                          , (RoleMember 3, 4) ] )
-  assertBool "1" $ M.lookup 4 (xIsIn D.rslt)
+  assertBool "1" $ M.lookup 4 (__rIsIn D.rslt)
     == Just ( S.fromList [ (RoleTplt, 5) ] )
 
 test_isIn1 = TestCase $ do
@@ -55,8 +55,8 @@ test_isIn1 = TestCase $ do
   assertBool "6" $ isIn1 D.rslt (RoleTplt, 6)     == Nothing
 
 test_variety = TestCase $ do
-  assertBool "1" $ M.lookup 3      (xVarieties D.rslt) == Just (Word',0)
-  assertBool "2" $ M.lookup 4      (xVarieties D.rslt) == Just (Tplt',2)
-  assertBool "3" $ M.lookup 5      (xVarieties D.rslt) == Just (Rel',2)
-  assertBool "4" $ M.lookup 6      (xVarieties D.rslt) == Just (Par',1)
-  assertBool "5" $ M.lookup (-133) (xVarieties D.rslt) == Nothing
+  assertBool "1" $ M.lookup 3      (_varieties D.rslt) == Just (Word',0)
+  assertBool "2" $ M.lookup 4      (_varieties D.rslt) == Just (Tplt',2)
+  assertBool "3" $ M.lookup 5      (_varieties D.rslt) == Just (Rel',2)
+  assertBool "4" $ M.lookup 6      (_varieties D.rslt) == Just (Par',1)
+  assertBool "5" $ M.lookup (-133) (_varieties D.rslt) == Nothing

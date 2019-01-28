@@ -36,10 +36,11 @@ library
                 , RelExperim
                 , Space.Graph
                 , Space.Graph.GQuery
+                , Space.Rslt
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
                 , Space.Rslt.Index.Positions
-                , Space.Rslt
+                , Space.Rslt.RTypes
                 , Subst
                 , Test
                 , Test.TGraph

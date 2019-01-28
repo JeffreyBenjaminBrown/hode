@@ -15,11 +15,11 @@ import Util
 
 
 data Rslt = Rslt {
-    xExprs     :: Exprs
-  , xImgDb     :: Map Expr Addr
-  , xVarieties :: Map Addr (ExprCtr, Arity)
-  , xHas       :: Map Addr (Map Role Addr)
-  , xIsIn      :: Map Addr (Set (Role, Addr))
+    _exprAt    :: Map Addr Expr
+  , _addrOf    :: Map Expr Addr
+  , _varieties :: Map Addr (ExprCtr, Arity)
+  , _rHas      :: Map Addr (Map Role Addr)
+  , __rIsIn    :: Map Addr (Set (Role, Addr))
   } deriving (Show, Eq, Ord)
 
 mkRslt :: Exprs -> Rslt
@@ -29,29 +29,29 @@ mkRslt es = let
     $ M.map (M.fromList . exprPositions)
     $ es
   in Rslt {
-    xExprs = es
-  , xImgDb = imgDb es
-  , xVarieties = M.map exprVariety es
-  , xHas = hasMap
-  , xIsIn = foldl addInvertedPosition M.empty
+    _exprAt = es
+  , _addrOf = imgDb es
+  , _varieties = M.map exprVariety es
+  , _rHas = hasMap
+  , __rIsIn = foldl addInvertedPosition M.empty
             $ M.toList $ M.map M.toList hasMap
   }
 
 xImgLookup :: Rslt -> ImgOfExpr -> Maybe Addr
 xImgLookup x img = case img of
-  ImgOfExpr e -> M.lookup e $ xImgDb x
-  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a $ xExprs x
+  ImgOfExpr e -> M.lookup e $ _addrOf x
+  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a $ _exprAt x
 
   ImgOfTplt is -> do
     mas <- ifNothings $ map (xImgLookup x) is
-    M.lookup (Tplt mas) $ xImgDb x
+    M.lookup (Tplt mas) $ _addrOf x
 
   ImgOfRel is i -> do
     mas <- ifNothings $ map (xImgLookup x) is
     ma <- xImgLookup x i
-    M.lookup (Rel mas ma) $ xImgDb x
+    M.lookup (Rel mas ma) $ _addrOf x
 
 isIn1 :: Rslt -> (Role, Addr) -> Maybe Addr
-isIn1 x (r,a) = case M.lookup a $ xHas x of
+isIn1 x (r,a) = case M.lookup a $ _rHas x of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
