@@ -37,7 +37,7 @@ mkXslt es = let
             $ M.toList $ M.map M.toList hasMap
   }
 
-xImgLookup :: Xslt -> (ImgOfExpr -> Maybe Addr)
+xImgLookup :: Xslt -> ImgOfExpr -> Maybe Addr
 xImgLookup x img = case img of
 
   ImgOfExpr e -> M.lookup e $ xImgDb x

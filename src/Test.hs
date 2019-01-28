@@ -11,15 +11,16 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Test.Rslt.RProgram
+import Test.Rslt.XProgram
 import Test.TGraph
 import Test.TInspect
 import Test.TLeaf
 import Test.TProgram
 import Test.TQuery
 import Test.TRslt
-import Test.TXslt
 import Test.TSubst
 import Test.TUtil
+import Test.TXslt
 
 
 tests :: IO Counts
@@ -33,5 +34,6 @@ tests = runTestTT $ TestList
   , test_module_rslt
   , test_module_xslt
   , test_module_rsltProgram
+  , test_module_xsltProgram
   , testModuleSubst
   ]
