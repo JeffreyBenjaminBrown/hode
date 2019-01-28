@@ -6,6 +6,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Space.Rslt
 import Space.Rslt.RTypes
 import Space.Rslt.Index.Positions
 import Space.Rslt.Index.ImgLookup
@@ -13,13 +14,13 @@ import Space.Rslt.Index.ImgLookup
 
 -- | == Check the database
 
-collectionsWithAbsentAddrs :: Exprs -> Index -> Map Addr [Addr]
-collectionsWithAbsentAddrs exprs index = res where
+collectionsWithAbsentAddrs :: Exprs -> Rslt -> Map Addr [Addr]
+collectionsWithAbsentAddrs exprs r = res where
   res = M.filter (not . null)
         $ M.map (filter absent . involved) collections
 
   absent :: Addr -> Bool
-  absent = isNothing . _variety index
+  absent = isNothing . flip M.lookup (xVarieties r)
 
   involved :: Expr -> [Addr]
   involved (Word _)    = error "impossible"
@@ -32,12 +33,12 @@ collectionsWithAbsentAddrs exprs index = res where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
-relsWithoutMatchingTplts :: Exprs -> Index -> Exprs
-relsWithoutMatchingTplts exprs index = res where
+relsWithoutMatchingTplts :: Exprs -> Rslt -> Exprs
+relsWithoutMatchingTplts exprs r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: Expr -> Bool
-  relMatchesTpltArity e@(Rel _ t) = case _variety index t of
+  relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ xVarieties r of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
       Tplt' -> arity e == art

@@ -26,12 +26,14 @@ test_rsltProgram = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton $ addrOf sp $ ImgOfAddr 0 ) ]
+        $ \sp -> maybe S.empty S.singleton
+                 $ xImgLookup sp $ ImgOfAddr 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 
   assertBool "2" $ runProgram D.rslt
     [ ("a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton $ exprAt sp 0) ]
+        $ \sp -> maybe S.empty S.singleton
+                 $ M.lookup 0 $ xExprs sp ) ]
     == Right ( M.singleton "a"
                $ M.singleton (Word "") $ S.singleton M.empty )

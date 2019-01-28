@@ -2,8 +2,9 @@ module Test.Rslt.RData where
 
 import qualified Data.Map as M
 
-import Space.Rslt.RTypes
+import Space.Rslt
 import Space.Rslt.Index
+import Space.Rslt.RTypes
 
 
 exprs :: Exprs
@@ -23,8 +24,10 @@ badExprs = M.union exprs newData where
                        , (1002, Rel [1,2] (-1000))
                        ]
 
-index :: Index
-index = mkIndex exprs
+rslt = mkRslt exprs
 
-rslt :: Rslt
-rslt = (exprs, index)
+--index :: Index
+--index = mkIndex exprs
+--
+--rslt :: Rslt
+--rslt = (exprs, index)

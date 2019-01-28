@@ -39,7 +39,7 @@ library
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
                 , Space.Rslt.Index.Positions
-                , Space.Xslt
+                , Space.Rslt
                 , Subst
                 , Test
                 , Test.TGraph
@@ -47,8 +47,8 @@ library
                 , Test.TProgram
                 , Test.TQuery
                 , Test.TLeaf
-                , Test.TXslt
-                , Test.Rslt.XData
+                , Test.TRslt
+                , Test.Rslt.RData
                 , Test.TSubst
                 , Test.TUtil
                 , Types

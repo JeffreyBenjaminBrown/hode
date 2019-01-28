@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Rslt.XProgram where
+module Test.Rslt.RProgram where
 
 import           Data.List hiding (find)
 import           Data.Map (Map)
@@ -12,28 +12,26 @@ import           Test.HUnit hiding (Test)
 
 import           Program
 import           Query.MkLeaf
-import           Space.Xslt
+import           Space.Rslt
 import           Space.Rslt.RTypes
-import qualified Test.Rslt.XData as D
+import qualified Test.Rslt.RData as D
 import           Types
 
 
-test_module_xsltProgram = TestList [
-  TestLabel "test_xsltProgram" test_xsltProgram
+test_module_rsltProgram = TestList [
+  TestLabel "test_rsltProgram" test_rsltProgram
   ]
 
-test_xsltProgram = TestCase $ do
+test_rsltProgram = TestCase $ do
 
-  assertBool "1" $ runProgram D.xslt
+  assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton
-                 $ xImgLookup sp $ ImgOfAddr 0 ) ]
+        $ \sp -> maybe S.empty S.singleton $ addrOf sp $ ImgOfAddr 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 
-  assertBool "2" $ runProgram D.xslt
+  assertBool "2" $ runProgram D.rslt
     [ ("a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton
-                 $ M.lookup 0 $ xExprs sp ) ]
+        $ \sp -> maybe S.empty S.singleton $ exprAt sp 0) ]
     == Right ( M.singleton "a"
                $ M.singleton (Word "") $ S.singleton M.empty )

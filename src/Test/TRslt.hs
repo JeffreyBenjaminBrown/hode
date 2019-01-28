@@ -22,9 +22,9 @@ test_module_rslt = TestList [
   ]
 
 test_checkDb = TestCase $ do
-  assertBool "1" $ M.toList (relsWithoutMatchingTplts   D.badExprs D.index)
+  assertBool "1" $ M.toList (relsWithoutMatchingTplts D.badExprs D.rslt)
     == [(1001, Rel [1,2] 5), (1002, Rel [1, 2] $ -1000)]
-  assertBool "2" $ M.toList (collectionsWithAbsentAddrs D.badExprs D.index)
+  assertBool "2" $ M.toList (collectionsWithAbsentAddrs D.badExprs D.rslt)
     == [(1002, [-1000])]
 
 test_invertPositions = TestCase $ do

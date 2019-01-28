@@ -21,7 +21,7 @@ type CondElts = Map Elt (Set Subst)
 so far only used in Query.MkLeaf
 * TODO for RSLT
 ** next
-*** TODO next: rslt from functions to data (Space.Xslt)
+*** TODO next: rslt from functions to data (Space.Rslt)
 **** ImgLookup.hs
 imgDb :: Exprs -> M.Map Expr Addr
 imgLookup: uses the imgDb
