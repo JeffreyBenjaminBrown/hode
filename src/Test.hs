@@ -17,6 +17,7 @@ import Test.TLeaf
 import Test.TProgram
 import Test.TQuery
 import Test.TRslt
+import Test.TXslt
 import Test.TSubst
 import Test.TUtil
 
@@ -30,6 +31,7 @@ tests = runTestTT $ TestList
   , test_modules_leaf
   , test_module_query
   , test_module_rslt
+  , test_module_xslt
   , test_module_rsltProgram
   , testModuleSubst
   ]

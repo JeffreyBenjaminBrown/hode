@@ -49,7 +49,9 @@ library
                 , Test.TQuery
                 , Test.TLeaf
                 , Test.TRslt
+                , Test.TXslt
                 , Test.Rslt.RData
+                , Test.Rslt.XData
                 , Test.Rslt.RProgram
                 , Test.TSubst
                 , Test.TUtil

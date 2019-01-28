@@ -22,8 +22,8 @@ data Xslt = Xslt {
   , xIsIn      :: Map Addr (Set (Role, Addr))
   } deriving (Show, Eq, Ord)
 
-mkRslt :: Exprs -> Xslt
-mkRslt es = let
+mkXslt :: Exprs -> Xslt
+mkXslt es = let
   (hasMap :: Map Addr (Map Role Addr)) =
     M.filter (not . M.null)
     $ M.map (M.fromList . exprPositions)
@@ -51,3 +51,8 @@ xImgLookup x img = case img of
     mas <- ifNothings $ map (xImgLookup x) is
     ma <- imgLookup (xExprs x) i
     M.lookup (Rel mas ma) $ xImgDb x
+
+isIn1 :: Xslt -> (Role, Addr) -> Maybe Addr
+isIn1 x (r,a) = case M.lookup a $ xHas x of
+  Nothing -> Nothing
+  Just ps -> M.lookup r ps
