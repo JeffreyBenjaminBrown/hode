@@ -19,7 +19,7 @@ data Rslt = Rslt {
   , _addrOf    :: Map Expr Addr
   , _varieties :: Map Addr (ExprCtr, Arity)
   , _rHas      :: Map Addr (Map Role Addr)
-  , _rIsIn    :: Map Addr (Set (Role, Addr))
+  , _rIsIn     :: Map Addr (Set (Role, Addr))
   } deriving (Show, Eq, Ord)
 
 mkRslt :: Exprs -> Rslt
@@ -51,7 +51,22 @@ imgLookup x img = case img of
     ma <- imgLookup x i
     M.lookup (Rel mas ma) $ _addrOf x
 
-isIn1 :: Rslt -> (Role, Addr) -> Maybe Addr
-isIn1 x (r,a) = case M.lookup a $ _rHas x of
+exprAt :: Rslt -> Addr -> Maybe Expr
+exprAt = flip M.lookup . _exprAt
+
+addrOf :: Rslt -> Expr -> Maybe Addr
+addrOf = flip M.lookup . _addrOf
+
+varieties :: Rslt -> Addr -> Maybe (ExprCtr, Arity)
+varieties = flip M.lookup . _varieties
+
+rHas :: Rslt -> Addr -> Maybe (Map Role Addr)
+rHas = flip M.lookup . _rHas
+
+rIsIn :: Rslt -> Addr -> Maybe (Set (Role,Addr))
+rIsIn = flip M.lookup . _rIsIn
+
+rIsIn1 :: Rslt -> (Role, Addr) -> Maybe Addr
+rIsIn1 x (r,a) = case M.lookup a $ _rHas x of
   Nothing -> Nothing
   Just ps -> M.lookup r ps

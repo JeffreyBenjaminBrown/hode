@@ -10,32 +10,53 @@ import           Test.HUnit hiding (Test)
 
 import           Space.Rslt
 import           Space.Rslt.RTypes
-import           Space.Rslt.Index
-import           Space.Rslt.Index.Positions
-import           Space.Rslt.Index.ImgLookup
 import qualified Test.Rslt.RData as D
 
 
 test_module_rslt = TestList [
-    TestLabel "test_invertPositions" test_invertPositions
-  , TestLabel "test_checkDb" test_checkDb
+  TestLabel "test_variety" test_variety
+  , TestLabel "test_rIsIn1" test_rIsIn1
+  , TestLabel "test_rIsIn" test_rIsIn
+  , TestLabel "test_imgLookup" test_imgLookup
   ]
 
-test_checkDb = TestCase $ do
-  assertBool "1" $ M.toList (relsWithoutMatchingTplts D.badExprs D.rslt)
-    == [(1001, Rel [1,2] 5), (1002, Rel [1, 2] $ -1000)]
-  assertBool "2" $ M.toList (collectionsWithAbsentAddrs D.badExprs D.rslt)
-    == [(1002, [-1000])]
+test_imgLookup = TestCase $ do
+  assertBool "1" $ (imgLookup D.rslt $ ImgOfAddr 0)              == Just 0
+  assertBool "2" $ (imgLookup D.rslt $ ImgOfAddr $ -10000)       == Nothing
+  assertBool "3" $ (imgLookup D.rslt $ ImgOfExpr $ Word "needs") == Just 3
+  assertBool "4" $ (imgLookup D.rslt $ ImgOfExpr $ Tplt [0,3,0]) == Just 4
+  assertBool "5" $ Just 4 ==
+    imgLookup D.rslt ( ImgOfTplt [ ImgOfAddr 0
+                                  , ImgOfExpr $ Word "needs"
+                                  , ImgOfExpr $ Word ""] )
 
-test_invertPositions = TestCase $ do
-  let ips = positionsHeldByAll [ (1,  [ (RoleMember 1, 11 )
-                                      , (RoleMember 2, 22 ) ] )
-                               , (11, [ (RoleMember 1, 1  )
-                                      , (RoleMember 2, 22 ) ] )
-                               , (3,  [ (RoleMember 1, 1  ) ] )
-                               ]
-  assertBool "1" $ ips == M.fromList [(1,  S.fromList [(RoleMember 1,3  )
-                                                      ,(RoleMember 1,11 )])
-                                     ,(11, S.fromList [(RoleMember 1,1  )])
-                                     ,(22, S.fromList [(RoleMember 2,1  )
-                                                      ,(RoleMember 2,11 )])]
+  assertBool "6" $ Just 5 ==
+    imgLookup D.rslt ( ImgOfRel [ ImgOfAddr 1
+                                 , ImgOfExpr $ Word "oxygen"]
+                        $ ImgOfAddr 4 )
+  assertBool "7" $ Nothing ==
+    imgLookup D.rslt ( ImgOfRel [ ImgOfAddr 1
+                                 , ImgOfExpr $ Word "oxygen"]
+                        $ ImgOfAddr 6 )
+
+test_rIsIn = TestCase $ do
+  assertBool "1" $ M.lookup 0 (_rIsIn D.rslt)
+    == Just ( S.fromList [ (RoleMember 1, 4)
+                         , (RoleMember 3, 4) ] )
+  assertBool "1" $ M.lookup 4 (_rIsIn D.rslt)
+    == Just ( S.fromList [ (RoleTplt, 5) ] )
+
+test_rIsIn1 = TestCase $ do
+  assertBool "1" $ rIsIn1 D.rslt (RoleMember 1, 4) == Just 0
+  assertBool "2" $ rIsIn1 D.rslt (RoleMember 2, 4) == Just 3
+  assertBool "3" $ rIsIn1 D.rslt (RoleMember 2, 5) == Just 2
+  assertBool "4" $ rIsIn1 D.rslt (RoleMember 1, 5) == Just 1
+  assertBool "5" $ rIsIn1 D.rslt (RoleTplt, 5)     == Just 4
+  assertBool "6" $ rIsIn1 D.rslt (RoleTplt, 6)     == Nothing
+
+test_variety = TestCase $ do
+  assertBool "1" $ M.lookup 3      (_varieties D.rslt) == Just (Word',0)
+  assertBool "2" $ M.lookup 4      (_varieties D.rslt) == Just (Tplt',2)
+  assertBool "3" $ M.lookup 5      (_varieties D.rslt) == Just (Rel',2)
+  assertBool "4" $ M.lookup 6      (_varieties D.rslt) == Just (Par',1)
+  assertBool "5" $ M.lookup (-133) (_varieties D.rslt) == Nothing

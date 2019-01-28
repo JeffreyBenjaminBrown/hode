@@ -18,6 +18,7 @@ import Test.TProgram
 import Test.TQuery
 import Test.TSubst
 import Test.TUtil
+import Test.Rslt.TIndex
 import Test.TRslt
 
 
@@ -30,6 +31,7 @@ tests = runTestTT $ TestList
   , test_modules_leaf
   , test_module_query
   , test_module_rslt
+  , test_module_rslt_index
   , test_module_rsltProgram
   , testModuleSubst
   ]
