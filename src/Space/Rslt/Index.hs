@@ -11,34 +11,6 @@ import Space.Rslt.Index.Positions
 import Space.Rslt.Index.ImgLookup
 
 
--- | == Build the database
-
--- TODO (#strict) Evaluate `Index` completely at start of program.
-mkIndex :: Exprs -> Index
-mkIndex exprs = Index { _addrOf          = imgLookup exprs
-                      , _variety         = _variety'
-                      , _positionsIn     = _positionsIn'
-                      , _positionsHeldBy = _positionsHeldBy'
-                      }
- where
-  fps = positionsWithinAll exprs :: [(Addr, [(Role, Addr)])]
-
-  _variety' :: Addr -> Maybe (ExprCtr, Arity)
-  _variety' = flip M.lookup varieties where
-    -- (#strict) Build `varieties` completely first.
-    varieties = M.map exprVariety exprs
-
-  _positionsIn' :: Addr -> Maybe (Map Role Addr)
-  _positionsIn' = flip M.lookup positions where
-    -- (#strict) Build `positions` completely first.
-    positions :: Map Addr (Map Role Addr)
-    positions = M.map M.fromList $ M.fromList fps
-
-  _positionsHeldBy' :: Addr -> Maybe (Set (Role, Addr))
-  _positionsHeldBy' = flip M.lookup $ positionsHeldByAll fps
-    -- (#strict) Build `positionsHeldByAll fps` completely first.
-
-
 -- | == Check the database
 
 collectionsWithAbsentAddrs :: Exprs -> Index -> Map Addr [Addr]

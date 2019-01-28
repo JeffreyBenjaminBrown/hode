@@ -36,7 +36,6 @@ library
                 , RelExperim
                 , Space.Graph
                 , Space.Graph.GQuery
-                , Space.Rslt
                 , Space.Rslt.Index
                 , Space.Rslt.Index.ImgLookup
                 , Space.Rslt.Index.Positions
@@ -48,11 +47,8 @@ library
                 , Test.TProgram
                 , Test.TQuery
                 , Test.TLeaf
-                , Test.TRslt
                 , Test.TXslt
-                , Test.Rslt.RData
                 , Test.Rslt.XData
-                , Test.Rslt.RProgram
                 , Test.TSubst
                 , Test.TUtil
                 , Types

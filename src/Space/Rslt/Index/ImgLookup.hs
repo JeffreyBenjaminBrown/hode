@@ -21,18 +21,3 @@ imgDb = M.fromList . catMaybes . map f . M.toList where
   f (addr, expr) = case expr of
     Par _ _ -> Nothing
     _       -> Just (expr, addr)
-
-imgLookup :: Exprs -> (ImgOfExpr -> Maybe Addr)
-imgLookup exprs img = let idb = imgDb exprs in case img of
-
-  ImgOfExpr e -> M.lookup e idb
-  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a exprs
-
-  ImgOfTplt is -> do
-    mas <- ifNothings $ map (imgLookup exprs) is
-    M.lookup (Tplt mas) idb
-
-  ImgOfRel is i -> do
-    mas <- ifNothings $ map (imgLookup exprs) is
-    ma <- imgLookup exprs i
-    M.lookup (Rel mas ma) idb

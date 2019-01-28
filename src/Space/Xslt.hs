@@ -49,7 +49,7 @@ xImgLookup x img = case img of
 
   ImgOfRel is i -> do
     mas <- ifNothings $ map (xImgLookup x) is
-    ma <- imgLookup (xExprs x) i
+    ma <- xImgLookup x i
     M.lookup (Rel mas ma) $ xImgDb x
 
 isIn1 :: Xslt -> (Role, Addr) -> Maybe Addr
