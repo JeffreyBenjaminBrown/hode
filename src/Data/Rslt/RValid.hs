@@ -15,13 +15,15 @@ import Util
 
 -- | == Check an Expr
 
---validExpr :: Rslt -> Expr ->
+validExpr :: Rslt -> Expr -> Either String ()
+validExpr r e = do tpltMatches r e
+                   allReferencesExist r e
 
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
-validIfRel :: Rslt -> Expr -> Either String ()
-validIfRel r (Rel aMembers aTplt) = do
+tpltMatches :: Rslt -> Expr -> Either String ()
+tpltMatches r (Rel aMembers aTplt) = do
   (ctr,ar) <- let
     msg = "validIfRel: nothing (hence no template) at " ++ show aTplt ++ ".\n"
     in maybe (Left msg) Right $ varieties r aTplt
@@ -30,7 +32,7 @@ validIfRel r (Rel aMembers aTplt) = do
   if ar == length aMembers then Right ()
     else Left $ "validIfRel: expr at " ++ show aTplt
     ++ " does not match arity of " ++ show aMembers ++ ".\n"
-validIfRel _ _ = Right ()
+tpltMatches _ _ = Right ()
 
 allReferencesExist :: Rslt -> Expr -> Either String ()
 allReferencesExist _ (Word _) = Right ()
@@ -51,6 +53,7 @@ _allReferencesExist r as =
       nothings = filter (isNothing . snd) lookups
   in if null nothings then Right ()
      else Left $ map fst nothings
+
 
 -- | == Check the database
 
