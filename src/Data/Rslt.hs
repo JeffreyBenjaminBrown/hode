@@ -32,6 +32,23 @@ mkRslt es = let
 
 -- | Edit
 
+replaceReferent :: Addr -> Role -> Addr -> Rslt -> Either String Rslt
+replaceReferent new spot host r = do
+  let msg = "changeReferent: Addr " ++ show new ++ " not present.\n"
+    in maybe (Left msg) Right $ exprAt r new
+  let msg = "changeReferent: Addr " ++ show host ++ " not present.\n"
+    in maybe (Left msg) Right $ exprAt r host
+  let (h :: Map Role Addr) =
+        maybe (error "impossible") id $ has r host
+  if elem spot $ M.keysSet h then Right ()
+    else Left $ "changeReferent: Expr at "
+         ++ show host ++ " includes no position " ++ show spot ++ "\n."
+  let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot h
+  Right $ r { _has  = M.adjust (M.insert spot new) host $ _has r
+            , _isIn = M.adjust (S.delete (spot, host)) old
+                    . M.adjust (S.insert (spot, host)) new
+                    $ _isIn r }
+
 insert :: Addr -> Expr -> Rslt -> Rslt
 insert a e r = Rslt {
     _exprAt = M.insert a e $ _exprAt r
@@ -44,6 +61,9 @@ insert a e r = Rslt {
   , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
   }
 
+-- | PITFALL: You could put the Rslt into an invalid state by running this
+-- on an Expr that appears in other Exprs. This only deletes mentions in
+-- which it is the container, not the contained.
 _deleteAllMentionOf :: Addr -> Rslt -> Rslt
 _deleteAllMentionOf a r = let
   (aHas   :: Maybe (Map Role Addr))       = has r a
@@ -69,7 +89,8 @@ _deleteAllMentionOf a r = let
 deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
 deleteUnusedExpr a r = case isIn r a of
   Nothing -> Left $ "deleteUnused: Addr " ++ show a ++ " not present.\n"
-  Just s -> if null s then Right $ _deleteAllMentionOf a r
+  Just s -> if null s
+    then Right $ _deleteAllMentionOf a r
     else Left $ "deleteUnused: Addr " ++ show a ++ " is used in other Exprs.\n"
 
 

@@ -22,9 +22,8 @@ so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
 *** TODO next : edit rslt
-**** delete unused expr
 **** substitute expression: Addr -> Addr -> Rslt -> Rslt
-the first Addr stops being used; the second, used wherever the first was
+The first Addr stops being used; the second, used wherever the first was.
 **** modify expr
 Create a new one like the old, then substitute the new one wherever the old one was, then delete the old.
 *** read, write rslt
