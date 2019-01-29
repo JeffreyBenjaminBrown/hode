@@ -1,5 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Test.TRslt where
 
+import           Data.Either
 import           Data.List
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -21,7 +24,17 @@ test_module_rslt = TestList [
   , TestLabel "test_has" test_has
   , TestLabel "test_lookup" test_lookup
   , TestLabel "test_insert" test_insert
+  , TestLabel "test_deleteUnusedExpr" test_deleteUnusedExpr
   ]
+
+test_deleteUnusedExpr = TestCase $ do
+  -- deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
+  let (e_without_6 :: Exprs) = M.delete 6 D.exprs
+      (without_6   :: Rslt)  = mkRslt e_without_6
+      (without_5_6 :: Rslt)  = either (error "wut") id $ deleteUnusedExpr 5 without_6
+  assertBool "1" $ isLeft $ deleteUnusedExpr 5 D.rslt
+  assertBool "2" $ exprAt without_5_6 5 == Nothing
+  assertBool "in progress" False
 
 test_insert = TestCase $ do
   let r2 = R.insert 7 (Rel [1,1] 4) D.rslt
@@ -80,7 +93,7 @@ test_isIn1 = TestCase $ do
   assertBool "2nd in tplt"                 $ isIn1 D.rslt (RoleMember 2, 4) == Just 3
   assertBool "1st in rel"                  $ isIn1 D.rslt (RoleMember 2, 5) == Just 2
   assertBool "2nd in rel"                  $ isIn1 D.rslt (RoleMember 1, 5) == Just 1
-  assertBool "nonexistent (3rd in binary)" $ isIn1 D.rslt (RoleMember 3, 5) == Just 1
+  assertBool "nonexistent (3rd in binary)" $ isIn1 D.rslt (RoleMember 3, 5) == Nothing
   assertBool "tplt in rel"                 $ isIn1 D.rslt (RoleTplt    , 5) == Just 4
   assertBool "nonexistent (tplt in par)"   $ isIn1 D.rslt (RoleTplt    , 6) == Nothing
   assertBool "first in par"                $ isIn1 D.rslt (RoleMember 1, 6) == Just 5

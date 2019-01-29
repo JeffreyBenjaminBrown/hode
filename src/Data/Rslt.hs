@@ -67,12 +67,10 @@ _deleteAllMentionOf a r = let
        }
 
 deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
-deleteUnusedExpr a r = do
-  let msg = "deleteUnused: Addr " ++ show a ++ " not present.\n"
-    in maybe (Left msg) Right $ exprAt r a
-  let msg = "deleteUnused: Addr " ++ show a ++ " is used in other Exprs.\n"
-    in maybe (Right ()) (const $ Left msg) $ isIn r a
-  Right $ _deleteAllMentionOf a r
+deleteUnusedExpr a r = case isIn r a of
+  Nothing -> Left $ "deleteUnused: Addr " ++ show a ++ " not present.\n"
+  Just s -> if null s then Right $ _deleteAllMentionOf a r
+    else Left $ "deleteUnused: Addr " ++ show a ++ " is used in other Exprs.\n"
 
 
 -- | = Search
