@@ -45,7 +45,7 @@ library
                 , Test.Rslt.RData
                 , Test.Rslt.TIndex_and_Valid
                 , Test.TGraph
-                , Test.TInspect
+                , Test.TValid
                 , Test.TLeaf
                 , Test.TProgram
                 , Test.TQuery

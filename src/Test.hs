@@ -11,15 +11,15 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Test.Rslt.RProgram
+import Test.Rslt.TIndex_and_Valid
 import Test.TGraph
-import Test.TInspect
 import Test.TLeaf
 import Test.TProgram
 import Test.TQuery
+import Test.TRslt
 import Test.TSubst
 import Test.TUtil
-import Test.Rslt.TIndex_and_Valid
-import Test.TRslt
+import Test.TValid
 
 
 tests :: IO Counts

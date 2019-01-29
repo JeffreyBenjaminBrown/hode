@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Test.TInspect where
+module Test.TValid where
 
 import           Data.List
 import           Data.Map (Map)

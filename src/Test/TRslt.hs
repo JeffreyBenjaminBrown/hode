@@ -56,8 +56,8 @@ test_isIn1 = TestCase $ do
   assertBool "6" $ isIn1 D.rslt (RoleTplt, 6)     == Nothing
 
 test_variety = TestCase $ do
-  assertBool "1" $ M.lookup 3      (_varieties D.rslt) == Just (Word',0)
-  assertBool "2" $ M.lookup 4      (_varieties D.rslt) == Just (Tplt',2)
-  assertBool "3" $ M.lookup 5      (_varieties D.rslt) == Just (Rel',2)
-  assertBool "4" $ M.lookup 6      (_varieties D.rslt) == Just (Par',1)
-  assertBool "5" $ M.lookup (-133) (_varieties D.rslt) == Nothing
+  assertBool "1" $ M.lookup 3      (_variety D.rslt) == Just (Word',0)
+  assertBool "2" $ M.lookup 4      (_variety D.rslt) == Just (Tplt',2)
+  assertBool "3" $ M.lookup 5      (_variety D.rslt) == Just (Rel',2)
+  assertBool "4" $ M.lookup 6      (_variety D.rslt) == Just (Par',1)
+  assertBool "5" $ M.lookup (-133) (_variety D.rslt) == Nothing

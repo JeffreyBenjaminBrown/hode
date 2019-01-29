@@ -23,7 +23,7 @@ mkRslt es = let
   in Rslt {
     _exprAt = es
   , _addrOf = imgDb es
-  , _varieties = M.map exprVariety es
+  , _variety = M.map exprVariety es
   , _has = hasMap
   , _isIn = foldl addInvertedPosition M.empty
             $ M.toList $ M.map M.toList hasMap
@@ -56,8 +56,8 @@ exprAt = flip M.lookup . _exprAt
 addrOf :: Rslt -> Expr -> Maybe Addr
 addrOf = flip M.lookup . _addrOf
 
-varieties :: Rslt -> Addr -> Maybe (ExprCtr, Arity)
-varieties = flip M.lookup . _varieties
+variety :: Rslt -> Addr -> Maybe (ExprCtr, Arity)
+variety = flip M.lookup . _variety
 
 -- | `has r a` finds the expression e at a in r, and returns
 -- every position contained in e.

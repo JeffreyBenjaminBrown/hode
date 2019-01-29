@@ -13,7 +13,7 @@ type Arity = Int
 data Rslt = Rslt {
     _exprAt    :: Map Addr Expr
   , _addrOf    :: Map Expr Addr
-  , _varieties :: Map Addr (ExprCtr, Arity)
+  , _variety :: Map Addr (ExprCtr, Arity)
   , _has      :: Map Addr (Map Role Addr)
   , _isIn     :: Map Addr (Set (Role, Addr))
   } deriving (Show, Eq, Ord)

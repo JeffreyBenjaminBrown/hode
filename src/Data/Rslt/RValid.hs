@@ -16,23 +16,23 @@ import Util
 -- | == Check an Expr
 
 validExpr :: Rslt -> Expr -> Either String ()
-validExpr r e = do tpltMatches r e
+validExpr r e = do validTplt r e
                    allReferencesExist r e
 
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
-tpltMatches :: Rslt -> Expr -> Either String ()
-tpltMatches r (Rel aMembers aTplt) = do
+validTplt :: Rslt -> Expr -> Either String ()
+validTplt r (Rel aMembers aTplt) = do
   (ctr,ar) <- let
-    msg = "validIfRel: nothing (hence no template) at " ++ show aTplt ++ ".\n"
-    in maybe (Left msg) Right $ varieties r aTplt
+    msg = "validTplt: nothing (hence no template) at " ++ show aTplt ++ ".\n"
+    in maybe (Left msg) Right $ variety r aTplt
   if ctr == Tplt' then Right ()
-    else Left $ "validIfRel: expr at " ++ show aTplt ++ " not a Tplt.\n"
+    else Left $ "validTplt: expr at " ++ show aTplt ++ " not a Tplt.\n"
   if ar == length aMembers then Right ()
-    else Left $ "validIfRel: expr at " ++ show aTplt
+    else Left $ "validTplt: expr at " ++ show aTplt
     ++ " does not match arity of " ++ show aMembers ++ ".\n"
-tpltMatches _ _ = Right ()
+validTplt _ _ = Right ()
 
 allReferencesExist :: Rslt -> Expr -> Either String ()
 allReferencesExist _ (Word _) = Right ()
@@ -63,7 +63,7 @@ collectionsWithAbsentAddrs exprs r = res where
         $ M.map (filter absent . involved) collections
 
   absent :: Addr -> Bool
-  absent = isNothing . flip M.lookup (_varieties r)
+  absent = isNothing . flip M.lookup (_variety r)
 
   involved :: Expr -> [Addr]
   involved (Word _)    = error "impossible"
@@ -81,7 +81,7 @@ relsWithoutMatchingTplts exprs r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: Expr -> Bool
-  relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ _varieties r of
+  relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ _variety r of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
       Tplt' -> arity e == art

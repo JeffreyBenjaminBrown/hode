@@ -1,5 +1,6 @@
 module Test.Rslt.TIndex_and_Valid where
 
+import           Data.Either
 import           Data.List
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -18,7 +19,20 @@ import qualified Test.Rslt.RData as D
 test_module_rslt_index_and_valid = TestList [
     TestLabel "test_invertPositions" test_invertPositions
   , TestLabel "test_checkDb" test_checkDb
+  , TestLabel "test_validExpr" test_validExpr
   ]
+
+test_validExpr = TestCase $ do
+  -- TODO : test for what kind of Left, not just whether it is Left.
+  -- Could do in a future-proof manner by using enum error types rather
+  -- than strings, (But I checked by hand in GHCI; each `validExpr ...`
+  -- expression below produces the correct kind of complaint.)
+  assertBool "good Rel" $ isRight $ validExpr D.rslt (Rel [1,2] $ 4)
+  assertBool "absent members" $ isLeft $ validExpr D.rslt (Rel [100,200] $ 4)
+  assertBool "absent template" $ isLeft $ validExpr D.rslt (Rel [1,2] $ 44)
+  assertBool "arity mismatch" $ isLeft $ validExpr D.rslt (Rel [] $ 4)
+  assertBool "tplt not a tplt" $ isLeft $ validExpr D.rslt (Rel [4] $ 0)
+  assertBool "word" $ isRight $ validExpr D.rslt (Word "meh")
 
 test_checkDb = TestCase $ do
   assertBool "1" $ M.toList (relsWithoutMatchingTplts D.badExprs D.rslt)

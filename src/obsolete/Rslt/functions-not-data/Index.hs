@@ -24,9 +24,9 @@ mkIndex exprs = Index { _addrOf          = imgLookup exprs
   fps = positionsWithinAll exprs :: [(Addr, [(Role, Addr)])]
 
   _variety' :: Addr -> Maybe (ExprCtr, Arity)
-  _variety' = flip M.lookup varieties where
-    -- (#strict) Build `varieties` completely first.
-    varieties = M.map exprVariety exprs
+  _variety' = flip M.lookup variety where
+    -- (#strict) Build `variety` completely first.
+    variety = M.map exprVariety exprs
 
   _positionsIn' :: Addr -> Maybe (Map Role Addr)
   _positionsIn' = flip M.lookup positions where
