@@ -41,7 +41,7 @@ test_checkDb = TestCase $ do
     == [(1002, [-1000])]
 
 test_invertPositions = TestCase $ do
-  let ips = foldl addInvertedPosition M.empty
+  let ips = foldl invertAndAddPositions M.empty
         [ (1,  [ (RoleMember 1, 11 )
                , (RoleMember 2, 22 ) ] )
         , (11, [ (RoleMember 1, 1  )

@@ -25,7 +25,7 @@ mkRslt es = let
   , _addrOf = imgDb es
   , _variety = M.map exprVariety es
   , _has = hasMap
-  , _isIn = foldl addInvertedPosition M.empty
+  , _isIn = foldl invertAndAddPositions M.empty
             $ M.toList $ M.map M.toList hasMap
   }
 
@@ -40,8 +40,7 @@ insert a e r = Rslt {
       (positions :: Map Role Addr) = M.fromList $ exprPositions e
       in if null positions then _has r
          else M.insert a positions $ _has r
-  , _isIn = error
-    $ "todo: first rewrite addInvertedPosition to work with maps"
+  , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
   }
 
 -- | = Search

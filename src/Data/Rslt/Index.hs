@@ -37,20 +37,17 @@ exprPositions expr =
     Par sas _  ->                 map r (zip [1..] $ map snd sas)
 
 
--- | `addInvertedPosition m (a, ras)` is meant for the case where m is a map
+-- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map
 -- from addresses to the set of roles they play in other expressions, ras is
--- the set of roles played by a, and a is not a key of m. The function merges
--- (a, ras) into m; that is, it produces a map which incorporates the information
--- from both arguments.
+-- the set of roles in a, and a is not a key of m. 
 
-addInvertedPosition :: Map Addr (Set (Role, Addr))
+invertAndAddPositions :: Map Addr (Set (Role, Addr))
                     -> (Addr,       [(Role, Addr)])
                     -> Map Addr (Set (Role, Addr))
-addInvertedPosition fm (a1, ras) = foldl f fm ras where
+invertAndAddPositions fm (a1, ras) = foldl f fm ras where
   f :: Map Addr (Set (Role, Addr))
     ->               (Role, Addr)
     -> Map Addr (Set (Role, Addr))
   f fm (r,a) = M.insertWith S.union a newData fm
     where newData :: Set (Role, Addr)
           newData = S.singleton (r,a1)
-

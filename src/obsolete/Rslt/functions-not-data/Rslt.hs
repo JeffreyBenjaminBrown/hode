@@ -57,4 +57,4 @@ positionsWithinAll = filter (not . null . snd) . map f . M.toList where
 
 positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
                    -> Map Addr (Set (Role, Addr))
-positionsHeldByAll aras = foldl addInvertedPosition M.empty aras
+positionsHeldByAll aras = foldl invertAndAddPositions M.empty aras
