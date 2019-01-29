@@ -23,12 +23,6 @@ so far only used in Query.MkLeaf
 ** features
 *** TODO next : edit rslt
 **** delete unused expr
-deleteUnused :: Addr -> Rslt -> Either String Rslt
-deleteUnused a r = do
-  let msg = "deleteUnused: Addr " ++ show a ++ " not present.\n"
-    in maybe (Left msg) Right $ exprAt r a
-  let msg = "deleteUnused: Addr " ++ show a ++ " is used in other Exprs.\n"
-    in maybe (Right ()) (const $ Left msg) $ isIn r a
 **** substitute expression: Addr -> Addr -> Rslt -> Rslt
 the first Addr stops being used; the second, used wherever the first was
 **** modify expr
