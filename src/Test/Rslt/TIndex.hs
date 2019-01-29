@@ -26,12 +26,13 @@ test_checkDb = TestCase $ do
     == [(1002, [-1000])]
 
 test_invertPositions = TestCase $ do
-  let ips = positionsHeldByAll [ (1,  [ (RoleMember 1, 11 )
-                                      , (RoleMember 2, 22 ) ] )
-                               , (11, [ (RoleMember 1, 1  )
-                                      , (RoleMember 2, 22 ) ] )
-                               , (3,  [ (RoleMember 1, 1  ) ] )
-                               ]
+  let ips = foldl addInvertedPosition M.empty
+        [ (1,  [ (RoleMember 1, 11 )
+               , (RoleMember 2, 22 ) ] )
+        , (11, [ (RoleMember 1, 1  )
+               , (RoleMember 2, 22 ) ] )
+        , (3,  [ (RoleMember 1, 1  ) ] )
+        ]
   assertBool "1" $ ips == M.fromList [(1,  S.fromList [(RoleMember 1,3  )
                                                       ,(RoleMember 1,11 )])
                                      ,(11, S.fromList [(RoleMember 1,1  )])

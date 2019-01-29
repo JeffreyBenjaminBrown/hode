@@ -21,17 +21,10 @@ imgDb = M.fromList . catMaybes . map f . M.toList where
 
 
 -- | == Given an address, look up what it's connected to.
+-- The following two functions are in a sense inverses.
 
--- | = `positionsWithinAll` and `positionsHeldByAll` are roughly inverses:
--- `listToFM positionsWithinAll` is a map from `Addr`es to
--- the positions  *contained by*  the `Expr` at the key `Addr`.
--- `positionsHeldByAll`          is a map from `Addr`es to
--- the positions  *that contain*  the `Expr` at the key `Addr`.
-
-positionsWithinAll :: Exprs -> [(Addr, [(Role, Addr)])]
-positionsWithinAll = filter (not . null . snd) . map f . M.toList where
-  f :: (Addr, Expr) -> (Addr, [(Role,Addr)])
-  f (a, expr) = (a, exprPositions expr)
+-- | `exprPositions e` gives every pair `(r,a)` such that a plays the role
+-- r in e.
 
 exprPositions :: Expr -> [(Role,Addr)]
 exprPositions expr =
@@ -43,9 +36,12 @@ exprPositions expr =
     Rel mas ta -> (RoleTplt,ta) : map r (zip [1..]           mas)
     Par sas _  ->                 map r (zip [1..] $ map snd sas)
 
-positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
-                   -> Map Addr (Set (Role, Addr))
-positionsHeldByAll aras = foldl addInvertedPosition M.empty aras
+
+-- | `addInvertedPosition m (a, ras)` is meant for the case where m is a map
+-- from addresses to the set of roles they play in other expressions, ras is
+-- the set of roles played by a, and a is not a key of m. The function merges
+-- (a, ras) into m; that is, it produces a map which incorporates the information
+-- from both arguments.
 
 addInvertedPosition :: Map Addr (Set (Role, Addr))
                     -> (Addr,       [(Role, Addr)])

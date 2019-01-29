@@ -48,3 +48,13 @@ positionsHeldBy :: Rslt -> Addr        -> Maybe (Set (Role,Addr))
 positionsHeldBy  r   = _positionsHeldBy $ snd r
 holdsPosition   :: Rslt -> (Role,Addr) -> Maybe Addr
 holdsPosition    r   = _holdsPosition   $ snd r
+
+
+positionsWithinAll :: Exprs -> [(Addr, [(Role, Addr)])]
+positionsWithinAll = filter (not . null . snd) . map f . M.toList where
+  f :: (Addr, Expr) -> (Addr, [(Role,Addr)])
+  f (a, expr) = (a, exprPositions expr)
+
+positionsHeldByAll :: [( Addr,         [(Role, Addr)] )]
+                   -> Map Addr (Set (Role, Addr))
+positionsHeldByAll aras = foldl addInvertedPosition M.empty aras
