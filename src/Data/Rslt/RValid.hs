@@ -20,18 +20,37 @@ import Util
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
-validIfRel :: Rslt -> Expr -> Maybe Bool
+validIfRel :: Rslt -> Expr -> Either String ()
 validIfRel r (Rel aMembers aTplt) = do
-  (ctr,ar) <- varieties r aTplt
-  return $ ctr == Tplt' && ar == length aMembers
-validIfRel _ _ = Just True
+  (ctr,ar) <- let
+    msg = "validIfRel: nothing (hence no template) at " ++ show aTplt ++ ".\n"
+    in maybe (Left msg) Right $ varieties r aTplt
+  if ctr == Tplt' then Right ()
+    else Left $ "validIfRel: expr at " ++ show aTplt ++ " not a Tplt.\n"
+  if ar == length aMembers then Right ()
+    else Left $ "validIfRel: expr at " ++ show aTplt
+    ++ " does not match arity of " ++ show aMembers ++ ".\n"
+validIfRel _ _ = Right ()
 
-allReferencesExist :: Rslt -> Expr -> Bool
-allReferencesExist _ (Word _) = True
-allReferencesExist r (Rel aMembers aTplt) =
-  maybe False (const True)
-  $ ifNothings $ map (exprAt r) $ aTplt : aMembers
+allReferencesExist :: Rslt -> Expr -> Either String ()
+allReferencesExist _ (Word _) = Right ()
+allReferencesExist r e = let
+  f :: [Addr] -> Either String ()
+  f as = case _allReferencesExist r as of
+    Right () -> Right ()
+    Left as -> Left $ "allReferencesExist: Addr values not present in Rslt: "
+               ++ show as
+  in case e of
+       Rel aMembers aTplt -> f $ aTplt : aMembers
+       Tplt as            -> f as
+       Par sas _          -> f $ map snd sas
 
+_allReferencesExist :: Rslt -> [Addr] -> Either [Addr] ()
+_allReferencesExist r as =
+  let lookups = zip as $ map (exprAt r) as
+      nothings = filter (isNothing . snd) lookups
+  in if null nothings then Right ()
+     else Left $ map fst nothings
 
 -- | == Check the database
 
