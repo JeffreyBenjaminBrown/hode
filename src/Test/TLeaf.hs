@@ -11,8 +11,8 @@ import           Test.HUnit hiding (Test, test)
 import Query.Inspect
 import Query.MkLeaf
 import Query.RunLeaf
-import Space.Graph
-import Space.Graph.GQuery
+import Data.Graph
+import Data.Graph.GQuery
 import Types
 
 

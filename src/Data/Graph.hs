@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Space.Graph where
+module Data.Graph where
 
 import           Data.Maybe
 import           Data.Map (Map)

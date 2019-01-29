@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Space.Graph.GQuery where
+module Data.Graph.GQuery where
 
 import           Data.Maybe
 import           Data.Map (Map)
@@ -9,7 +9,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Query.MkLeaf
-import Space.Graph
+import Data.Graph
 import Types
 import Util
 

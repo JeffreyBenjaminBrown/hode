@@ -2,9 +2,9 @@ module Test.Rslt.RData where
 
 import qualified Data.Map as M
 
-import Space.Rslt
-import Space.Rslt.Index
-import Space.Rslt.RTypes
+import Data.Rslt
+import Data.Rslt.Index
+import Data.Rslt.RTypes
 
 
 exprs :: Exprs

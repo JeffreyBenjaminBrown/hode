@@ -1,4 +1,4 @@
-module Space.Rslt.RTypes where
+module Data.Rslt.RTypes where
 
 import           Data.Maybe (isNothing)
 import           Data.Map (Map)

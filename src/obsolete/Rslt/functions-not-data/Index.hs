@@ -1,4 +1,4 @@
-module Space.Rslt.Index where
+module Data.Rslt.Index where
 
 import           Data.Maybe
 import           Data.Map (Map)
@@ -6,9 +6,9 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Space.Rslt.RTypes
-import Space.Rslt.Index.Positions
-import Space.Rslt.Index.ImgLookup
+import Data.Rslt.RTypes
+import Data.Rslt.Index.Positions
+import Data.Rslt.Index.ImgLookup
 
 
 -- | == Build the database

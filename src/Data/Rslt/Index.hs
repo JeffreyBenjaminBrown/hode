@@ -1,6 +1,6 @@
 -- | Gory details, not part of the Rslt interface.
 
-module Space.Rslt.Index where
+module Data.Rslt.Index where
 
 import           Data.Maybe
 import           Data.Map (Map)
@@ -8,7 +8,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Space.Rslt.RTypes
+import Data.Rslt.RTypes
 
 
 -- | == Given an expression, look up an address.

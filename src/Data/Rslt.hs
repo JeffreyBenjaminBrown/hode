@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Space.Rslt where
+module Data.Rslt where
 
 import           Prelude hiding (lookup)
 import           Data.Maybe
@@ -9,8 +9,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Space.Rslt.Index
-import Space.Rslt.RTypes
+import Data.Rslt.Index
+import Data.Rslt.RTypes
 import Util
 
 

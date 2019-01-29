@@ -12,9 +12,9 @@ import           Test.HUnit hiding (Test)
 
 import           Program
 import           Query.MkLeaf
-import           Space.Rslt hiding (lookup)
-import qualified Space.Rslt as R
-import           Space.Rslt.RTypes
+import           Data.Rslt hiding (lookup)
+import qualified Data.Rslt as R
+import           Data.Rslt.RTypes
 import qualified Test.Rslt.RData as D
 import           Types
 

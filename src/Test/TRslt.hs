@@ -8,9 +8,9 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Space.Rslt hiding (lookup)
-import qualified Space.Rslt as R
-import           Space.Rslt.RTypes
+import           Data.Rslt hiding (lookup)
+import qualified Data.Rslt as R
+import           Data.Rslt.RTypes
 import qualified Test.Rslt.RData as D
 
 

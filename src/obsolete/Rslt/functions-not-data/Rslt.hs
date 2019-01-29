@@ -1,4 +1,4 @@
-module Space.Rslt where
+module Data.Rslt where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -6,8 +6,8 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Space.Rslt.Index
-import Space.Rslt.RTypes
+import Data.Rslt.Index
+import Data.Rslt.RTypes
 
 
 -- | The `Index` can answer every fundamental connectivity question:

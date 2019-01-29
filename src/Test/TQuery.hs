@@ -8,8 +8,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import Space.Graph
-import Space.Graph.GQuery
+import Data.Graph
+import Data.Graph.GQuery
 import Query
 import Query.MkLeaf
 import Types

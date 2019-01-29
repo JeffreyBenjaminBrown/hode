@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
-module Space.Rslt.Search where
+module Data.Rslt.Search where
 
 import qualified Data.List as L
 import           Data.Maybe (isNothing, catMaybes)
@@ -10,8 +10,8 @@ import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
 
-import Space.Rslt
-import Space.Rslt.Index
+import Data.Rslt
+import Data.Rslt.Index
 import Util
 
 

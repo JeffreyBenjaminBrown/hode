@@ -9,8 +9,8 @@ import           Test.HUnit hiding (Test, test)
 
 import Program
 import Query.MkLeaf
-import Space.Graph
-import Space.Graph.GQuery
+import Data.Graph
+import Data.Graph.GQuery
 import Types
 
 
