@@ -44,6 +44,21 @@ insert a e r = Rslt {
   , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
   }
 
+_deleteMembershipsWithin :: Addr -> Rslt -> Rslt
+_deleteMembershipsWithin a r = let
+  (_has1  :: Map Addr (Map Role Addr))    = _has r
+  (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r
+  (aHas   :: Maybe (Map Role Addr))       = has r a
+  (_has2  :: Map Addr (Map Role Addr))    = M.delete a _has1
+  (_isIn2 :: Map Addr (Set (Role, Addr))) =
+    maybe _isIn1 (M.foldlWithKey f _isIn1) aHas
+    where
+    f :: Map Addr (Set (Role, Addr)) -> Role -> Addr
+      -> Map Addr (Set (Role, Addr))
+    f ii rl ad = M.adjust (S.delete (rl,a)) ad ii
+  in r { _has  = _has2
+       , _isIn = _isIn2 }
+
 
 -- | = Search
 
