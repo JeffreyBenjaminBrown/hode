@@ -22,8 +22,6 @@ so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
 *** TODO next : edit rslt
-**** delete memberships in expr
-
 **** delete unused expr
 deleteUnused :: Addr -> Rslt -> Either String Rslt
 deleteUnused a r = do
