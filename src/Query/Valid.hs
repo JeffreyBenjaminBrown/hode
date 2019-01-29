@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
-module Query.Inspect where
+module Query.Valid where
 
 import           Data.List
 import           Data.Map (Map)

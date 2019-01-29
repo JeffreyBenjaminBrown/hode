@@ -12,7 +12,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Query.Inspect
+import Query.Valid
 import Subst
 import Types
 import Util

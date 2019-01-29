@@ -27,27 +27,29 @@ source-repository head
 
 library
   exposed-modules:
-                  Program
-                , Query
-                , Query.Inspect
-                , Query.MkLeaf
-                , Query.RunLeaf
-                , Relation
-                , RelExperim
-                , Data.Graph
+                  Data.Graph
                 , Data.Graph.GQuery
                 , Data.Rslt
                 , Data.Rslt.Index
                 , Data.Rslt.RTypes
+                , Data.Rslt.RValid
+                , Program
+                , Query
+                , Query.MkLeaf
+                , Query.RunLeaf
+                , Query.Valid
+                , RelExperim
+                , Relation
                 , Subst
                 , Test
+                , Test.Rslt.RData
+                , Test.Rslt.TIndex_and_Valid
                 , Test.TGraph
                 , Test.TInspect
+                , Test.TLeaf
                 , Test.TProgram
                 , Test.TQuery
-                , Test.TLeaf
                 , Test.TRslt
-                , Test.Rslt.RData
                 , Test.TSubst
                 , Test.TUtil
                 , Types

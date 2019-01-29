@@ -12,7 +12,7 @@ import qualified Data.Set       as S
 
 import Types
 import Query
-import Query.Inspect
+import Query.Valid
 
 
 runProgram :: forall e sp. (Ord e, Show e)

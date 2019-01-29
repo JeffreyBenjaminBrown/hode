@@ -8,7 +8,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import Query.Inspect
+import Query.Valid
 import Query.MkLeaf
 import Query.RunLeaf
 import Data.Graph

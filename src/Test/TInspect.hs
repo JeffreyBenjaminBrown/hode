@@ -11,7 +11,7 @@ import           Test.HUnit hiding (Test)
 
 import Data.Graph
 import Data.Graph.GQuery
-import Query.Inspect
+import Query.Valid
 import Query.MkLeaf
 import Types
 

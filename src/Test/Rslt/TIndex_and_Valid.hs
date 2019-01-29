@@ -1,4 +1,4 @@
-module Test.Rslt.TIndex where
+module Test.Rslt.TIndex_and_Valid where
 
 import           Data.List
 import           Data.Map (Map)
@@ -11,10 +11,11 @@ import           Test.HUnit hiding (Test)
 import           Data.Rslt
 import           Data.Rslt.RTypes
 import           Data.Rslt.Index
+import           Data.Rslt.RValid
 import qualified Test.Rslt.RData as D
 
 
-test_module_rslt_index = TestList [
+test_module_rslt_index_and_valid = TestList [
     TestLabel "test_invertPositions" test_invertPositions
   , TestLabel "test_checkDb" test_checkDb
   ]

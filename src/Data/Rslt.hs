@@ -29,6 +29,13 @@ mkRslt es = let
             $ M.toList $ M.map M.toList hasMap
   }
 
+---- | Edit
+--
+--insert :: Expr -> Rslt -> Rslt
+--insert
+
+-- | = Search
+
 lookup :: Rslt -> ImgOfExpr -> Maybe Addr
 lookup x img = case img of
   ImgOfExpr e -> M.lookup e $ _addrOf x
