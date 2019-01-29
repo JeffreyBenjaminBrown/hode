@@ -8,7 +8,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Data.Rslt hiding (lookup)
+import           Data.Rslt hiding (insert, lookup)
 import qualified Data.Rslt as R
 import           Data.Rslt.RTypes
 import qualified Test.Rslt.RData as D
@@ -19,7 +19,21 @@ test_module_rslt = TestList [
   , TestLabel "test_isIn1" test_isIn1
   , TestLabel "test_isIn" test_isIn
   , TestLabel "test_lookup" test_lookup
+  , TestLabel "test_insert" test_insert
   ]
+
+test_insert = TestCase $ do
+  let r2 = R.insert 7 (Rel [1,1] 4) D.rslt
+  assertBool "1" $ isIn r2 4 == Just (S.fromList [ (RoleTplt    , 7     )
+                                                 , (RoleTplt    , 5     ) ] )
+  assertBool "2" $ isIn r2 1 == Just (S.fromList [ (RoleMember 1, 7     )
+                                                 , (RoleMember 2, 7     )
+                                                 , (RoleMember 1, 5     ) ] )
+  assertBool "3" $ has r2 7 == Just ( M.fromList [ (RoleMember 1, 1     )
+                                                 , (RoleMember 2, 1     )
+                                                 , (RoleTplt    , 4     ) ] )
+  assertBool "4" $ map (has D.rslt) [1..6] == map (has r2) [1..6]
+  assertBool "5" $      has D.rslt  7      == Nothing
 
 test_lookup = TestCase $ do
   assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)              == Just 0
