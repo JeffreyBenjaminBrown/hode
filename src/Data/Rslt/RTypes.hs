@@ -23,7 +23,7 @@ data Expr = Word String -- ^ (Could be a phrase too.)
     -- The last `Addr` (the one not in the list) should be to a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | Tplt [Addr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
-                -- The `Addr`s are probably to `Word`s.
+                -- The `Addr`s should probably be `Word`s.
   | Par [(String, Addr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
