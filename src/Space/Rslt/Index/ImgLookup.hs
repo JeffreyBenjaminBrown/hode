@@ -9,15 +9,3 @@ import qualified Data.Set       as S
 import Space.Rslt.RTypes
 import Util
 
-
-exprVariety :: Expr -> (ExprCtr, Arity)
-exprVariety   (Word  _) = (Word', 0)
-exprVariety e@(Tplt  _) = (Tplt', arity e)
-exprVariety e@(Rel _ _) = (Rel' , arity e)
-exprVariety e@(Par _ _) = (Par' , arity e)
-
-imgDb :: Exprs -> Map Expr Addr
-imgDb = M.fromList . catMaybes . map f . M.toList where
-  f (addr, expr) = case expr of
-    Par _ _ -> Nothing
-    _       -> Just (expr, addr)

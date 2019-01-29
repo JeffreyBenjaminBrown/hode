@@ -38,8 +38,6 @@ library
                 , Space.Graph.GQuery
                 , Space.Rslt
                 , Space.Rslt.Index
-                , Space.Rslt.Index.ImgLookup
-                , Space.Rslt.Index.Positions
                 , Space.Rslt.RTypes
                 , Subst
                 , Test

@@ -10,6 +10,14 @@ import qualified Data.Set       as S
 type Addr = Int -- ^ Address
 type Arity = Int
 
+data Rslt = Rslt {
+    _exprAt    :: Map Addr Expr
+  , _addrOf    :: Map Expr Addr
+  , _varieties :: Map Addr (ExprCtr, Arity)
+  , _rHas      :: Map Addr (Map Role Addr)
+  , _rIsIn     :: Map Addr (Set (Role, Addr))
+  } deriving (Show, Eq, Ord)
+
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be to a `Tplt`.
@@ -27,6 +35,12 @@ data Expr = Word String -- ^ (Could be a phrase too.)
 -- | The constructor that an `Expr` uses.
 data ExprCtr = Word' | Rel' | Tplt' | Par'
   deriving (Show, Eq, Ord)
+
+exprVariety :: Expr -> (ExprCtr, Arity)
+exprVariety   (Word  _) = (Word', 0)
+exprVariety e@(Tplt  _) = (Tplt', arity e)
+exprVariety e@(Rel _ _) = (Rel' , arity e)
+exprVariety e@(Par _ _) = (Par' , arity e)
 
 data Role = RoleTplt | RoleMember Int deriving (Show, Eq, Ord)
 

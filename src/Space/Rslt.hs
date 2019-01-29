@@ -8,19 +8,10 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Space.Rslt.Index.ImgLookup
-import Space.Rslt.Index.Positions
+import Space.Rslt.Index
 import Space.Rslt.RTypes
 import Util
 
-
-data Rslt = Rslt {
-    _exprAt    :: Map Addr Expr
-  , _addrOf    :: Map Expr Addr
-  , _varieties :: Map Addr (ExprCtr, Arity)
-  , _rHas      :: Map Addr (Map Role Addr)
-  , _rIsIn     :: Map Addr (Set (Role, Addr))
-  } deriving (Show, Eq, Ord)
 
 mkRslt :: Exprs -> Rslt
 mkRslt es = let
