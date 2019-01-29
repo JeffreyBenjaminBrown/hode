@@ -3,6 +3,7 @@
 module Data.Rslt where
 
 import           Prelude hiding (lookup)
+import qualified Data.List      as L
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -44,7 +45,8 @@ replaceReferent new spot host r = do
     else Left $ "changeReferent: Expr at "
          ++ show host ++ " includes no position " ++ show spot ++ "\n."
   let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot h
-  Right $ r { _has  = M.adjust (M.insert spot new) host $ _has r
+  Right $ r { _exprAt = error "todo: M.insert host $ ..."
+            , _has  = M.adjust (M.insert spot new) host $ _has r
             , _isIn = M.adjust (S.delete (spot, host)) old
                     . M.adjust (S.insert (spot, host)) new
                     $ _isIn r }

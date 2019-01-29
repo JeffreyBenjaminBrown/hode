@@ -25,7 +25,15 @@ test_module_rslt = TestList [
   , TestLabel "test_lookup" test_lookup
   , TestLabel "test_insert" test_insert
   , TestLabel "test_deleteUnusedExpr" test_deleteUnusedExpr
+  , TestLabel "test_replaceReferent" test_replaceReferent
   ]
+
+test_replaceReferent = TestCase $ do
+  let r         = either (error "wut") id $ replaceReferent 1 (RoleMember 2) 5 D.rslt
+      unchanged = either (error "wut") id $ replaceReferent 2 (RoleMember 2) 5 D.rslt
+  assertBool "identity" $ D.rslt == unchanged
+
+--replaceReferent :: Addr -> Role -> Addr -> Rslt -> Either String Rslt
 
 test_deleteUnusedExpr = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel 5)

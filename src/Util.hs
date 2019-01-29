@@ -12,6 +12,16 @@ import qualified Data.Set       as S
 import Types
 
 
+
+replaceNth :: a -> Int -> [a] -> Either String [a]
+replaceNth a n as = do
+  if not $ n < 1 then Right ()
+    else Left $ "replaceNth: index " ++ show n ++ " not a natural number.\n"
+  if not $ n > length as then Right ()
+    else Left $ "replaceNth: index " ++ show n ++ " greater than list length.\n"
+  let (before, _:after) = splitAt (n-1) as
+  Right $ before ++ a : after
+
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key map =  callingFunction ++ ": key "
   ++ show key ++ "not found in map " ++ show map ++ ".\n"
