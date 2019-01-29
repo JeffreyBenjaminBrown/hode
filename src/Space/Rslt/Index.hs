@@ -1,4 +1,4 @@
--- | This is some gory detail, not intended to be part of the Rslt interface.
+-- | Gory details, not part of the Rslt interface.
 
 module Space.Rslt.Index where
 

@@ -12,7 +12,8 @@ import           Test.HUnit hiding (Test)
 
 import           Program
 import           Query.MkLeaf
-import           Space.Rslt
+import           Space.Rslt hiding (lookup)
+import qualified Space.Rslt as R
 import           Space.Rslt.RTypes
 import qualified Test.Rslt.RData as D
 import           Types
@@ -27,7 +28,7 @@ test_rsltProgram = TestCase $ do
   assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ find
         $ \sp -> maybe S.empty S.singleton
-                 $ imgLookup sp $ ImgOfAddr 0 ) ]
+                 $ R.lookup sp $ ImgOfAddr 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 

@@ -14,8 +14,8 @@ data Rslt = Rslt {
     _exprAt    :: Map Addr Expr
   , _addrOf    :: Map Expr Addr
   , _varieties :: Map Addr (ExprCtr, Arity)
-  , _rHas      :: Map Addr (Map Role Addr)
-  , _rIsIn     :: Map Addr (Set (Role, Addr))
+  , _has      :: Map Addr (Map Role Addr)
+  , _isIn     :: Map Addr (Set (Role, Addr))
   } deriving (Show, Eq, Ord)
 
 data Expr = Word String -- ^ (Could be a phrase too.)
