@@ -20,11 +20,18 @@ type CondElts = Map Elt (Set Subst)
 * TODO replace error with Either
 so far only used in Query.MkLeaf
 * TODO for RSLT
+** TODO fix : handle null lookups
+the helpers like has should return Nothing only if the thing is not found; otherwise they should return Just mempty
 ** features
 *** TODO next : edit rslt
-**** add expr
+**** delete unused expr
+deleteUnused :: Addr -> Rslt -> Either String Rslt
+deleteUnused a r = let
+-- isIn :: Rslt -> Addr -> Maybe (Set (Role,Addr))
+**** substitute expression: Addr -> Addr -> Rslt -> Rslt
+the first Addr stops being used; the second, used wherever the first was
 **** modify expr
-**** ? delete expr
+Create a new one like the old, then substitute the new one wherever the old one was, then delete the old.
 *** read, write rslt
 *** view exprs
 *** DSL for exprs

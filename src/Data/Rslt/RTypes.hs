@@ -11,11 +11,11 @@ type Addr = Int -- ^ Address
 type Arity = Int
 
 data Rslt = Rslt {
-    _exprAt    :: Map Addr Expr
-  , _addrOf    :: Map Expr Addr
+    _exprAt  :: Map Addr Expr
+  , _addrOf  :: Map Expr Addr
   , _variety :: Map Addr (ExprCtr, Arity)
-  , _has      :: Map Addr (Map Role Addr)
-  , _isIn     :: Map Addr (Set (Role, Addr))
+  , _has     :: Map Addr (Map Role Addr)
+  , _isIn    :: Map Addr (Set (Role, Addr))
   } deriving (Show, Eq, Ord)
 
 data Expr = Word String -- ^ (Could be a phrase too.)

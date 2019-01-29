@@ -29,6 +29,7 @@ mkRslt es = let
             $ M.toList $ M.map M.toList hasMap
   }
 
+
 -- | Edit
 
 insert :: Addr -> Expr -> Rslt -> Rslt
@@ -42,6 +43,7 @@ insert a e r = Rslt {
          else M.insert a positions $ _has r
   , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
   }
+
 
 -- | = Search
 
@@ -76,7 +78,9 @@ has = flip M.lookup . _has
 -- | `isIn r a` finds the expression e at a in r, and returns
 -- every position that e occupies.
 isIn :: Rslt -> Addr -> Maybe (Set (Role,Addr))
-isIn = flip M.lookup . _isIn
+isIn r a = do
+  exprAt r a
+  maybe (Just S.empty) Just $ M.lookup a $ _isIn r
 
 -- | `isIn1 r (role,a)` finds the expression that occupies
 -- role in a.

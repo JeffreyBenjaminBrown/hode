@@ -58,8 +58,10 @@ test_isIn = TestCase $ do
   assertBool "1" $ M.lookup 0 (_isIn D.rslt)
     == Just ( S.fromList [ (RoleMember 1, 4)
                          , (RoleMember 3, 4) ] )
-  assertBool "1" $ M.lookup 4 (_isIn D.rslt)
+  assertBool "2" $ M.lookup 4 (_isIn D.rslt)
     == Just ( S.fromList [ (RoleTplt, 5) ] )
+  assertBool "3" $ isIn (R.insert 7 (Word "pizza") D.rslt) 7
+    == Just S.empty
 
 test_isIn1 = TestCase $ do
   assertBool "1" $ isIn1 D.rslt (RoleMember 1, 4) == Just 0
