@@ -76,12 +76,14 @@ test_isIn = TestCase $ do
     == Just S.empty
 
 test_isIn1 = TestCase $ do
-  assertBool "1" $ isIn1 D.rslt (RoleMember 1, 4) == Just 0
-  assertBool "2" $ isIn1 D.rslt (RoleMember 2, 4) == Just 3
-  assertBool "3" $ isIn1 D.rslt (RoleMember 2, 5) == Just 2
-  assertBool "4" $ isIn1 D.rslt (RoleMember 1, 5) == Just 1
-  assertBool "5" $ isIn1 D.rslt (RoleTplt, 5)     == Just 4
-  assertBool "6" $ isIn1 D.rslt (RoleTplt, 6)     == Nothing
+  assertBool "1st in tplt"                 $ isIn1 D.rslt (RoleMember 1, 4) == Just 0
+  assertBool "2nd in tplt"                 $ isIn1 D.rslt (RoleMember 2, 4) == Just 3
+  assertBool "1st in rel"                  $ isIn1 D.rslt (RoleMember 2, 5) == Just 2
+  assertBool "2nd in rel"                  $ isIn1 D.rslt (RoleMember 1, 5) == Just 1
+  assertBool "nonexistent (3rd in binary)" $ isIn1 D.rslt (RoleMember 3, 5) == Just 1
+  assertBool "tplt in rel"                 $ isIn1 D.rslt (RoleTplt    , 5) == Just 4
+  assertBool "nonexistent (tplt in par)"   $ isIn1 D.rslt (RoleTplt    , 6) == Nothing
+  assertBool "first in par"                $ isIn1 D.rslt (RoleMember 1, 6) == Just 5
 
 test_variety = TestCase $ do
   assertBool "1" $ M.lookup 3      (_variety D.rslt) == Just (Word',0)
