@@ -28,13 +28,26 @@ test_module_rslt = TestList [
   ]
 
 test_deleteUnusedExpr = TestCase $ do
-  -- deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
-  let (e_without_6 :: Exprs) = M.delete 6 D.exprs
-      (without_6   :: Rslt)  = mkRslt e_without_6
-      (without_5_6 :: Rslt)  = either (error "wut") id $ deleteUnusedExpr 5 without_6
+  -- from D.rslt, remove the Par called 6 (because it uses the Rel 5)
+  -- and insert at 6 (Rel [1,1] 4), before deleting at 5 (Rel (1,2) 4).
+  -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
+  let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.exprs
+      (with_new_rel :: Rslt) = R.insert 6 (Rel [1,1] 4) without_6
+      (r            :: Rslt) = either (error "wut") id
+                               $ deleteUnusedExpr 5 with_new_rel
   assertBool "1" $ isLeft $ deleteUnusedExpr 5 D.rslt
-  assertBool "2" $ exprAt without_5_6 5 == Nothing
-  assertBool "in progress" False
+  assertBool "exprAt of deleted" $ Nothing == exprAt r 5
+  assertBool "addrOf missing"    $ Nothing ==
+    maybe (error "wut") (addrOf r) (exprAt D.rslt 5)
+  assertBool "variety missing"   $ Nothing == variety r 5
+  assertBool "has missing"       $ Nothing == has r 5
+  assertBool "isIn missing"      $ Nothing == isIn r 5
+  assertBool "isIn $ former member of missing" $
+    isIn r 1 == Just ( S.fromList [ (RoleMember 1, 6)
+                                  , (RoleMember 2, 6) ] )
+  assertBool "isIn $ another former member of missing" $
+    isIn r 2 == Just S.empty
+
 
 test_insert = TestCase $ do
   let r2 = R.insert 7 (Rel [1,1] 4) D.rslt
