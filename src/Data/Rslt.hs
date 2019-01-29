@@ -29,10 +29,20 @@ mkRslt es = let
             $ M.toList $ M.map M.toList hasMap
   }
 
----- | Edit
---
---insert :: Expr -> Rslt -> Rslt
---insert
+-- | Edit
+
+insert :: Addr -> Expr -> Rslt -> Rslt
+insert a e r = Rslt {
+    _exprAt = M.insert a e $ _exprAt r
+  , _addrOf = M.insert e a $ _addrOf r
+  , _variety = M.insert a (exprVariety e) $ _variety r
+  , _has = let
+      (positions :: Map Role Addr) = M.fromList $ exprPositions e
+      in if null positions then _has r
+         else M.insert a positions $ _has r
+  , _isIn = error
+    $ "todo: first rewrite addInvertedPosition to work with maps"
+  }
 
 -- | = Search
 
