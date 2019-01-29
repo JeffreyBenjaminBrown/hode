@@ -73,7 +73,8 @@ variety = flip M.lookup . _variety
 -- | `has r a` finds the expression e at a in r, and returns
 -- every position contained in e.
 has :: Rslt -> Addr -> Maybe (Map Role Addr)
-has = flip M.lookup . _has
+has r a = do exprAt r a
+             maybe (Just M.empty) Just $ M.lookup a $ _has r
 
 -- | `isIn r a` finds the expression e at a in r, and returns
 -- every position that e occupies.

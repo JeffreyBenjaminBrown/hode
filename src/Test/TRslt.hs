@@ -18,6 +18,7 @@ test_module_rslt = TestList [
   TestLabel "test_variety" test_variety
   , TestLabel "test_isIn1" test_isIn1
   , TestLabel "test_isIn" test_isIn
+  , TestLabel "test_has" test_has
   , TestLabel "test_lookup" test_lookup
   , TestLabel "test_insert" test_insert
   ]
@@ -53,6 +54,17 @@ test_lookup = TestCase $ do
     R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
                                , ImgOfExpr $ Word "oxygen"]
                       $ ImgOfAddr 6 )
+
+test_has = TestCase $ do
+  assertBool "tplt" $ has D.rslt 4 == Just ( M.fromList [ ( RoleMember 1, 0 )
+                                                        , ( RoleMember 2, 3 )
+                                                        , ( RoleMember 3, 0 ) ] )
+  assertBool "rel" $ has D.rslt 5 == Just ( M.fromList [ ( RoleMember 1, 1 )
+                                                       , ( RoleMember 2, 2 )
+                                                       , ( RoleTplt    , 4 ) ] )
+  assertBool "par" $ has D.rslt 6 == Just ( M.fromList [ ( RoleMember 1, 5 ) ] )
+  assertBool "no content" $ has D.rslt 0 == Just M.empty
+  assertBool "absent" $ has D.rslt 7 == Nothing
 
 test_isIn = TestCase $ do
   assertBool "1" $ M.lookup 0 (_isIn D.rslt)
