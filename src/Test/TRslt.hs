@@ -25,12 +25,12 @@ test_module_rslt = TestList [
   , TestLabel "test_lookup" test_lookup
   , TestLabel "test_insert" test_insert
   , TestLabel "test_deleteUnusedExpr" test_deleteUnusedExpr
-  , TestLabel "test_replaceReferent" test_replaceReferent
+  , TestLabel "test_replaceInRole" test_replaceInRole
   ]
 
-test_replaceReferent = TestCase $ do
-  let r         = either (error "wut") id $ replaceReferent (RoleMember 2) 1 5 D.rslt
-      unchanged = either (error "wut") id $ replaceReferent (RoleMember 2) 2 5 D.rslt
+test_replaceInRole = TestCase $ do
+  let r         = either (error "wut") id $ replaceInRole (RoleMember 2) 1 5 D.rslt
+      unchanged = either (error "wut") id $ replaceInRole (RoleMember 2) 2 5 D.rslt
   assertBool "identity" $ D.rslt == unchanged
   assertBool "1" $ isIn r 1 == Just ( S.fromList [ (RoleMember 1, 5)
                                                    , (RoleMember 2, 5) ] )

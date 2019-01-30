@@ -25,9 +25,3 @@ badExprs = M.union exprs newData where
                        ]
 
 rslt = mkRslt exprs
-
---index :: Index
---index = mkIndex exprs
---
---rslt :: Rslt
---rslt = (exprs, index)

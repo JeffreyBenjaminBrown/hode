@@ -33,8 +33,8 @@ mkRslt es = let
 
 -- | Edit
 
-_replaceInExpr :: Role -> Addr -> Expr -> Rslt -> Either String Expr
-_replaceInExpr spot new host r = do
+_replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr
+_replaceInExpr r spot new host = do
   let msg = "_replaceInExpr: Addr " ++ show new ++ " not present.\n"
     in maybe (Left msg) Right $ exprAt r new
 
@@ -67,23 +67,22 @@ _replaceInExpr spot new host r = do
         _ -> Left $ "_replaceInExpr: Expr " ++ show host
              ++ " has no members.\n"
 
-replaceReferent :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
-replaceReferent spot new host r = do
-
-  _           <- let msg = "replaceReferent: Addr " ++ show new ++ " not present.\n"
-                 in maybe (Left msg) Right $ exprAt r new
-  oldHostExpr <- let msg = "replaceReferent: Addr " ++ show host ++ " not present.\n"
-                 in maybe (Left msg) Right $ exprAt r host
+replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
+replaceInRole spot new host r = do
+  let (errorAbsent :: Addr -> String) = \addr ->
+        "replaceInRole: Addr " ++ show addr ++ " not present.\n"
+  _           <- maybe (Left $ errorAbsent new)  Right $ exprAt r new
+  oldHostExpr <- maybe (Left $ errorAbsent host) Right $ exprAt r host
   let (h :: Map Role Addr) =
         maybe (error "impossible") id $ has r host
   if elem spot $ M.keysSet h then Right ()
-    else Left $ "replaceReferent: Expr at "
+    else Left $ "replaceInRole: Expr at "
          ++ show host ++ " includes no position " ++ show spot ++ "\n."
   let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot h
 
   (newHostExpr :: Expr) <-
-    either (\s -> Left $ "replaceReferent: error in callee:\n" ++ s) Right
-    $ _replaceInExpr spot new oldHostExpr r
+    either (\s -> Left $ "replaceInRole: error in callee:\n" ++ s) Right
+    $ _replaceInExpr r spot new oldHostExpr
   Right $ r {
       _exprAt = M.insert host newHostExpr $ _exprAt r
     , _addrOf = M.insert newHostExpr host $ _addrOf r
