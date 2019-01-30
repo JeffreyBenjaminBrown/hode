@@ -33,8 +33,42 @@ mkRslt es = let
 
 -- | Edit
 
-replaceReferent :: Addr -> Role -> Addr -> Rslt -> Either String Rslt
-replaceReferent new spot host r = do
+_replaceInExpr :: Role -> Addr -> Expr -> Rslt -> Either String Expr
+_replaceInExpr spot a host r = do
+  let msg = "_replaceInExpr: Addr " ++ show a ++ " not present.\n"
+    in maybe (Left msg) Right $ exprAt r a
+
+  case spot of
+    RoleTplt -> case host of
+      Rel as _ -> do
+        if variety r a == Just (Tplt', length as)
+          then Right $ Rel as a
+          else Left $ "_replaceInExpr: Expr at " ++ show a
+               ++ " not a valid Tplt in " ++ show host
+      _ -> Left $ "_replaceInExpr: nothing plays the role of Tplt in "
+           ++ show host ++ ".\n"
+
+    RoleMember k -> do
+      let errFunc s = Left $ "_replaceInExpr: error in callee:\n" ++ s
+      case host of
+
+        Rel as a -> do
+          as' <- either errFunc Right $ replaceNth a k as
+          Right $ Rel as' a
+
+        Tplt as -> do
+          as' <- either errFunc Right $ replaceNth a k as
+          Right $ Tplt as'
+
+        Par sas s -> do
+          let (ss,as) = unzip sas
+          as' <- either errFunc Right $ replaceNth a k as
+          Right $ Par (zip ss as') s
+        _ -> Left $ "_replaceInExpr: Expr " ++ show host
+             ++ " has no members.\n"
+
+replaceReferent :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
+replaceReferent spot new host r = do
   let msg = "changeReferent: Addr " ++ show new ++ " not present.\n"
     in maybe (Left msg) Right $ exprAt r new
   let msg = "changeReferent: Addr " ++ show host ++ " not present.\n"
