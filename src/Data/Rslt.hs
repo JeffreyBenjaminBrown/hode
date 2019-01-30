@@ -33,6 +33,16 @@ mkRslt es = let
 
 -- | Edit
 
+_substitute :: Addr -> Addr -> Rslt -> Either String Rslt
+_substitute new old r = do
+  (roles :: Set (Role, Addr)) <-
+    let errMsg = "_substitute: Addr " ++ show old ++ " not present.\n"
+    in maybe (Left errMsg) Right $ isIn r old
+  let f :: Either String Rslt -> (Role, Addr) -> Either String Rslt
+      f e@(Left _) _ = e
+      f (Right r) (role,host) = replaceInRole role new host r
+  S.foldl f (Right r) roles
+
 _replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr
 _replaceInExpr r spot new host = do
   let msg = "_replaceInExpr: Addr " ++ show new ++ " not present.\n"
@@ -44,7 +54,7 @@ _replaceInExpr r spot new host = do
         if variety r new == Just (Tplt', length as)
           then Right $ Rel as new
           else Left $ "_replaceInExpr: Expr at " ++ show new
-               ++ " not a valid Tplt in " ++ show host
+               ++ " is not a valid Tplt in " ++ show host ++ ".\n"
       _ -> Left $ "_replaceInExpr: nothing plays the role of Tplt in "
            ++ show host ++ ".\n"
 
@@ -106,7 +116,7 @@ insert a e r = Rslt {
   , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
   }
 
--- | PITFALL: You could put the Rslt into an invalid state by running this
+-- | PITFALL: One could put the Rslt into an invalid state by running this
 -- on an Expr that appears in other Exprs. This only deletes mentions in
 -- which it is the container, not the contained.
 _deleteAllMentionOf :: Addr -> Rslt -> Rslt

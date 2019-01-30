@@ -22,6 +22,14 @@ so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
 *** TODO next : edit rslt
+**** DONE
+_replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr
+replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
+insert :: Addr -> Expr -> Rslt -> Rslt
+_deleteAllMentionOf :: Addr -> Rslt -> Rslt
+deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
+**** untested
++_substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 **** substitute expression: Addr -> Addr -> Rslt -> Rslt
 The first Addr stops being used; the second, used wherever the first was.
 **** modify expr
