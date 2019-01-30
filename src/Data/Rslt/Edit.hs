@@ -13,6 +13,7 @@ import qualified Data.Set       as S
 import Data.Rslt.Index
 import Data.Rslt.Lookup
 import Data.Rslt.RTypes
+import Data.Rslt.RValid
 import Util
 
 
@@ -89,8 +90,19 @@ replaceInRole spot new host r = do
                 . M.adjust (S.delete (spot, host)) old
                 $ _isIn r }
 
-insert :: Addr -> Expr -> Rslt -> Rslt
-insert a e r = Rslt {
+insert :: Addr -> Expr -> Rslt -> Either String Rslt
+insert a e r = do
+  either (\s -> Left $ "insert: invalid Expr:\n" ++ s) Right
+    $ validExpr r e
+  let errMsg = "insert: Addr " ++ show a ++ " already occupied.\n"
+      in maybe (Right ()) (const $ Left errMsg)
+         $ exprAt r a
+  Right $ _insert a e r
+
+-- | PITFALL: Unsafe. Checks neither that the Expr is valid, nor that
+-- the Addr collides with nothing already present.
+_insert :: Addr -> Expr -> Rslt -> Rslt
+_insert a e r = Rslt {
     _exprAt = M.insert a e $ _exprAt r
   , _addrOf = M.insert e a $ _addrOf r
   , _variety = M.insert a (exprVariety e) $ _variety r

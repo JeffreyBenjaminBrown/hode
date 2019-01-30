@@ -48,7 +48,8 @@ test_deleteUnusedExpr = TestCase $ do
   -- and insert at 6 (Rel [1,1] 4), before deleting at 5 (Rel (1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
   let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.exprs
-      (with_new_rel :: Rslt) = R.insert 6 (Rel [1,1] 4) without_6
+      (with_new_rel :: Rslt) = either (error "wut") id
+                               $ R.insert 6 (Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
                                $ R.deleteUnusedExpr 5 with_new_rel
   assertBool "1" $ isLeft $ R.deleteUnusedExpr 5 D.rslt
@@ -65,7 +66,8 @@ test_deleteUnusedExpr = TestCase $ do
     isIn r 2 == Just S.empty
 
 test_insert = TestCase $ do
-  let r2 = R.insert 7 (Rel [1,1] 4) D.rslt
+  let r2 = either (error "wut") id
+           $ R.insert 7 (Rel [1,1] 4) D.rslt
   assertBool "1" $ isIn r2 4 == Just (S.fromList [ (RoleTplt    , 7     )
                                                  , (RoleTplt    , 5     ) ] )
   assertBool "2" $ isIn r2 1 == Just (S.fromList [ (RoleMember 1, 7     )
@@ -76,6 +78,13 @@ test_insert = TestCase $ do
                                                  , (RoleTplt    , 4     ) ] )
   assertBool "4" $ map (has D.rslt) [1..6] == map (has r2) [1..6]
   assertBool "5" $      has D.rslt  7      == Nothing
+
+  assertBool "address collision" $ isLeft $
+    R.insert 1 (Word "nuyck") D.rslt
+  assertBool "non-matching template" $ isLeft $
+    R.insert 1 (Rel [1,2,3] 4) D.rslt
+  assertBool "nonexistent references" $ isLeft $
+    R.insert 1 (Rel [11,22] 4) D.rslt
 
 test_lookup = TestCase $ do
   assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)              == Just 0
@@ -116,8 +125,9 @@ test_isIn = TestCase $ do
                          , (RoleMember 3, 4) ] )
   assertBool "2" $ M.lookup 4 (_isIn D.rslt)
     == Just ( S.fromList [ (RoleTplt, 5) ] )
-  assertBool "3" $ isIn (R.insert 7 (Word "pizza") D.rslt) 7
-    == Just S.empty
+  assertBool "3" $ let r' = either (error "wut") id
+                            $ R.insert 7 (Word "pizza") D.rslt
+                   in isIn r' 7 == Just S.empty
 
 test_isIn1 = TestCase $ do
   assertBool "1st in tplt"                 $ isIn1 D.rslt (RoleMember 1, 4) == Just 0

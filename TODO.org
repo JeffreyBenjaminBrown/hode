@@ -22,7 +22,6 @@ so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
 *** TODO refine
-does insert call validExpr?
 are the Rslt validators okay with every Rslt-producing function?
 the Rslt-validators need not take an Exprs argument
 make an Rslt validator that checks the max
