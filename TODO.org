@@ -21,6 +21,12 @@ type CondElts = Map Elt (Set Subst)
 so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
+*** TODO refine
+does insert call validExpr?
+are the Rslt validators okay with every Rslt-producing function?
+the Rslt-validators need not take an Exprs argument
+make an Rslt validator that checks the max
+make a single Rslt validator that calls the others
 *** TODO next : edit rslt
 **** DONE
 _replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr

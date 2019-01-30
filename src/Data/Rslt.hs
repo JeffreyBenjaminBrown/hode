@@ -28,6 +28,8 @@ mkRslt es = let
   , _has = hasMap
   , _isIn = foldl invertAndAddPositions M.empty
             $ M.toList $ M.map M.toList hasMap
+  , maxAddr = maybe 0 id
+              $ S.lookupMax $ M.keysSet es
   }
 
 
@@ -114,13 +116,15 @@ insert a e r = Rslt {
       in if null positions then _has r
          else M.insert a positions $ _has r
   , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
+  , maxAddr = if a > maxAddr r then a
+              else maxAddr r
   }
 
 -- | PITFALL: One could put the Rslt into an invalid state by running this
 -- on an Expr that appears in other Exprs. This only deletes mentions in
--- which it is the container, not the contained.
-_deleteAllMentionOf :: Addr -> Rslt -> Rslt
-_deleteAllMentionOf a r = let
+-- which it is the container or "the thing", but not the contained.
+_deleteInternalMentionsOf :: Addr -> Rslt -> Rslt
+_deleteInternalMentionsOf a r = let
   (aHas   :: Maybe (Map Role Addr))       = has r a
   (_has2  :: Map Addr (Map Role Addr))    = M.delete a $ _has r
 
@@ -139,13 +143,16 @@ _deleteAllMentionOf a r = let
           , _addrOf = let
               e = maybe (error "imposible") id $ exprAt r a
               in M.delete e $ _addrOf r
+          , maxAddr = if a == maxAddr r
+                      then maybe 0 id $ S.lookupMax $ M.keysSet $ _exprAt r
+                      else maxAddr r
        }
 
 deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
 deleteUnusedExpr a r = case isIn r a of
   Nothing -> Left $ "deleteUnused: Addr " ++ show a ++ " not present.\n"
   Just s -> if null s
-    then Right $ _deleteAllMentionOf a r
+    then Right $ _deleteInternalMentionsOf a r
     else Left $ "deleteUnused: Addr " ++ show a ++ " is used in other Exprs.\n"
 
 

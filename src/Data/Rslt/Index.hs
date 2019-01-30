@@ -42,8 +42,8 @@ exprPositions expr =
 -- the set of roles in a, and a is not a key of m. 
 
 invertAndAddPositions :: Map Addr (Set (Role, Addr))
-                    -> (Addr,       [(Role, Addr)])
-                    -> Map Addr (Set (Role, Addr))
+                      -> (Addr,       [(Role, Addr)])
+                      -> Map Addr (Set (Role, Addr))
 invertAndAddPositions fm (a1, ras) = foldl f fm ras where
   f :: Map Addr (Set (Role, Addr))
     ->               (Role, Addr)
