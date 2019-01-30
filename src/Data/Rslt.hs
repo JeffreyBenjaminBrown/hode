@@ -69,21 +69,27 @@ _replaceInExpr spot a host r = do
 
 replaceReferent :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceReferent spot new host r = do
-  let msg = "changeReferent: Addr " ++ show new ++ " not present.\n"
-    in maybe (Left msg) Right $ exprAt r new
-  let msg = "changeReferent: Addr " ++ show host ++ " not present.\n"
-    in maybe (Left msg) Right $ exprAt r host
+
+  _           <- let msg = "changeReferent: Addr " ++ show new ++ " not present.\n"
+                 in maybe (Left msg) Right $ exprAt r new
+  oldHostExpr <- let msg = "changeReferent: Addr " ++ show host ++ " not present.\n"
+                 in maybe (Left msg) Right $ exprAt r host
   let (h :: Map Role Addr) =
         maybe (error "impossible") id $ has r host
   if elem spot $ M.keysSet h then Right ()
     else Left $ "changeReferent: Expr at "
          ++ show host ++ " includes no position " ++ show spot ++ "\n."
   let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot h
-  Right $ r { _exprAt = error "todo: M.insert host $ ..."
-            , _has  = M.adjust (M.insert spot new) host $ _has r
-            , _isIn = M.adjust (S.delete (spot, host)) old
-                    . M.adjust (S.insert (spot, host)) new
-                    $ _isIn r }
+
+  (newHostExpr :: Expr) <-
+    either (\s -> Left $ "replaceReferent: error in callee:\n" ++ s) Right
+    $ _replaceInExpr spot new oldHostExpr r
+  Right $ r {
+      _exprAt = M.insert host newHostExpr $ _exprAt r
+    , _has    = M.adjust (M.insert spot new) host $ _has r
+    , _isIn   = M.adjust (S.delete (spot, host)) old
+                . M.adjust (S.insert (spot, host)) new
+                $ _isIn r }
 
 insert :: Addr -> Expr -> Rslt -> Rslt
 insert a e r = Rslt {
