@@ -32,8 +32,12 @@ test_replaceReferent = TestCase $ do
   let r         = either (error "wut") id $ replaceReferent (RoleMember 2) 1 5 D.rslt
       unchanged = either (error "wut") id $ replaceReferent (RoleMember 2) 2 5 D.rslt
   assertBool "identity" $ D.rslt == unchanged
-
---replaceReferent :: Addr -> Role -> Addr -> Rslt -> Either String Rslt
+  assertBool "1" $ isIn r 1 == Just ( S.fromList [ (RoleMember 1, 5)
+                                                   , (RoleMember 2, 5) ] )
+  assertBool "2" $ isIn r 2 == Just S.empty
+  assertBool "3" $ has r 5 == Just ( M.fromList [ (RoleMember 1, 1)
+                                                , (RoleMember 2, 1)
+                                                , (RoleTplt    , 4) ] )
 
 test_deleteUnusedExpr = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel 5)

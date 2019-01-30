@@ -34,16 +34,16 @@ mkRslt es = let
 -- | Edit
 
 _replaceInExpr :: Role -> Addr -> Expr -> Rslt -> Either String Expr
-_replaceInExpr spot a host r = do
-  let msg = "_replaceInExpr: Addr " ++ show a ++ " not present.\n"
-    in maybe (Left msg) Right $ exprAt r a
+_replaceInExpr spot new host r = do
+  let msg = "_replaceInExpr: Addr " ++ show new ++ " not present.\n"
+    in maybe (Left msg) Right $ exprAt r new
 
   case spot of
     RoleTplt -> case host of
       Rel as _ -> do
-        if variety r a == Just (Tplt', length as)
-          then Right $ Rel as a
-          else Left $ "_replaceInExpr: Expr at " ++ show a
+        if variety r new == Just (Tplt', length as)
+          then Right $ Rel as new
+          else Left $ "_replaceInExpr: Expr at " ++ show new
                ++ " not a valid Tplt in " ++ show host
       _ -> Left $ "_replaceInExpr: nothing plays the role of Tplt in "
            ++ show host ++ ".\n"
@@ -53,16 +53,16 @@ _replaceInExpr spot a host r = do
       case host of
 
         Rel as a -> do
-          as' <- either errFunc Right $ replaceNth a k as
+          as' <- either errFunc Right $ replaceNth new k as
           Right $ Rel as' a
 
         Tplt as -> do
-          as' <- either errFunc Right $ replaceNth a k as
+          as' <- either errFunc Right $ replaceNth new k as
           Right $ Tplt as'
 
         Par sas s -> do
           let (ss,as) = unzip sas
-          as' <- either errFunc Right $ replaceNth a k as
+          as' <- either errFunc Right $ replaceNth new k as
           Right $ Par (zip ss as') s
         _ -> Left $ "_replaceInExpr: Expr " ++ show host
              ++ " has no members.\n"
@@ -70,14 +70,14 @@ _replaceInExpr spot a host r = do
 replaceReferent :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceReferent spot new host r = do
 
-  _           <- let msg = "changeReferent: Addr " ++ show new ++ " not present.\n"
+  _           <- let msg = "replaceReferent: Addr " ++ show new ++ " not present.\n"
                  in maybe (Left msg) Right $ exprAt r new
-  oldHostExpr <- let msg = "changeReferent: Addr " ++ show host ++ " not present.\n"
+  oldHostExpr <- let msg = "replaceReferent: Addr " ++ show host ++ " not present.\n"
                  in maybe (Left msg) Right $ exprAt r host
   let (h :: Map Role Addr) =
         maybe (error "impossible") id $ has r host
   if elem spot $ M.keysSet h then Right ()
-    else Left $ "changeReferent: Expr at "
+    else Left $ "replaceReferent: Expr at "
          ++ show host ++ " includes no position " ++ show spot ++ "\n."
   let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot h
 
@@ -86,9 +86,13 @@ replaceReferent spot new host r = do
     $ _replaceInExpr spot new oldHostExpr r
   Right $ r {
       _exprAt = M.insert host newHostExpr $ _exprAt r
+    , _addrOf = M.insert newHostExpr host $ _addrOf r
     , _has    = M.adjust (M.insert spot new) host $ _has r
-    , _isIn   = M.adjust (S.delete (spot, host)) old
+    , _isIn   = M.filter (not . null)
+      -- PITFALL: delete before inserting. Otherwise replacing something with itself
+      -- is not the identity operation
                 . M.adjust (S.insert (spot, host)) new
+                . M.adjust (S.delete (spot, host)) old
                 $ _isIn r }
 
 insert :: Addr -> Expr -> Rslt -> Rslt
