@@ -9,7 +9,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Data.Rslt.RTypes
-import Data.Rslt
+import Data.Rslt.Lookup
 import Util
 
 

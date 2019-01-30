@@ -11,8 +11,10 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Data.Rslt hiding (insert, lookup)
-import qualified Data.Rslt as R
+import           Data.Rslt.Lookup hiding (insert, lookup)
+import qualified Data.Rslt.Edit as R
+import           Data.Rslt.Index
+import qualified Data.Rslt.Lookup as R
 import           Data.Rslt.RTypes
 import qualified Test.Rslt.RData as D
 
@@ -29,8 +31,10 @@ test_module_rslt = TestList [
   ]
 
 test_replaceInRole = TestCase $ do
-  let r         = either (error "wut") id $ replaceInRole (RoleMember 2) 1 5 D.rslt
-      unchanged = either (error "wut") id $ replaceInRole (RoleMember 2) 2 5 D.rslt
+  let r         = either (error "wut") id $
+                  R.replaceInRole (RoleMember 2) 1 5 D.rslt
+      unchanged = either (error "wut") id $
+                  R.replaceInRole (RoleMember 2) 2 5 D.rslt
   assertBool "identity" $ D.rslt == unchanged
   assertBool "1" $ isIn r 1 == Just ( S.fromList [ (RoleMember 1, 5)
                                                    , (RoleMember 2, 5) ] )
@@ -46,8 +50,8 @@ test_deleteUnusedExpr = TestCase $ do
   let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.exprs
       (with_new_rel :: Rslt) = R.insert 6 (Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
-                               $ deleteUnusedExpr 5 with_new_rel
-  assertBool "1" $ isLeft $ deleteUnusedExpr 5 D.rslt
+                               $ R.deleteUnusedExpr 5 with_new_rel
+  assertBool "1" $ isLeft $ R.deleteUnusedExpr 5 D.rslt
   assertBool "exprAt of deleted" $ Nothing == exprAt r 5
   assertBool "addrOf missing"    $ Nothing ==
     maybe (error "wut") (addrOf r) (exprAt D.rslt 5)
@@ -59,7 +63,6 @@ test_deleteUnusedExpr = TestCase $ do
                                   , (RoleMember 2, 6) ] )
   assertBool "isIn $ another former member of missing" $
     isIn r 2 == Just S.empty
-
 
 test_insert = TestCase $ do
   let r2 = R.insert 7 (Rel [1,1] 4) D.rslt
@@ -94,13 +97,16 @@ test_lookup = TestCase $ do
                       $ ImgOfAddr 6 )
 
 test_has = TestCase $ do
-  assertBool "tplt" $ has D.rslt 4 == Just ( M.fromList [ ( RoleMember 1, 0 )
-                                                        , ( RoleMember 2, 3 )
-                                                        , ( RoleMember 3, 0 ) ] )
-  assertBool "rel" $ has D.rslt 5 == Just ( M.fromList [ ( RoleMember 1, 1 )
-                                                       , ( RoleMember 2, 2 )
-                                                       , ( RoleTplt    , 4 ) ] )
-  assertBool "par" $ has D.rslt 6 == Just ( M.fromList [ ( RoleMember 1, 5 ) ] )
+  assertBool "tplt" $ has D.rslt 4
+    == Just ( M.fromList [ ( RoleMember 1, 0 )
+                         , ( RoleMember 2, 3 )
+                         , ( RoleMember 3, 0 ) ] )
+  assertBool "rel" $ has D.rslt 5
+    == Just ( M.fromList [ ( RoleMember 1, 1 )
+                         , ( RoleMember 2, 2 )
+                         , ( RoleTplt    , 4 ) ] )
+  assertBool "par" $ has D.rslt 6
+    == Just ( M.fromList [ ( RoleMember 1, 5 ) ] )
   assertBool "no content" $ has D.rslt 0 == Just M.empty
   assertBool "absent" $ has D.rslt 7 == Nothing
 

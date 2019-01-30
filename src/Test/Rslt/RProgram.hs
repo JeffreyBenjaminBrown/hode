@@ -12,8 +12,8 @@ import           Test.HUnit hiding (Test)
 
 import           Program
 import           Query.MkLeaf
-import           Data.Rslt hiding (lookup)
-import qualified Data.Rslt as R
+import           Data.Rslt.Lookup hiding (lookup)
+import qualified Data.Rslt.Lookup as R
 import           Data.Rslt.RTypes
 import qualified Test.Rslt.RData as D
 import           Types

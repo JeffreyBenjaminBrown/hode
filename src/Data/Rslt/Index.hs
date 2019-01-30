@@ -1,4 +1,7 @@
--- | Gory details, not part of the Rslt interface.
+-- | Minus mkRslt, these gory details are not
+-- part of the Rslt interface.
+
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.Rslt.Index where
 
@@ -9,6 +12,24 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Data.Rslt.RTypes
+
+
+mkRslt :: Exprs -> Rslt
+mkRslt es = let
+  (hasMap :: Map Addr (Map Role Addr)) =
+    M.filter (not . M.null)
+    $ M.map (M.fromList . exprPositions)
+    $ es
+  in Rslt {
+    _exprAt = es
+  , _addrOf = imgDb es
+  , _variety = M.map exprVariety es
+  , _has = hasMap
+  , _isIn = foldl invertAndAddPositions M.empty
+            $ M.toList $ M.map M.toList hasMap
+  , maxAddr = maybe 0 id
+              $ S.lookupMax $ M.keysSet es
+  }
 
 
 -- | == Given an expression, look up an address.

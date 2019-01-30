@@ -29,8 +29,9 @@ library
   exposed-modules:
                   Data.Graph
                 , Data.Graph.GQuery
-                , Data.Rslt
+                , Data.Rslt.Edit
                 , Data.Rslt.Index
+                , Data.Rslt.Lookup
                 , Data.Rslt.RTypes
                 , Data.Rslt.RValid
                 , Program
