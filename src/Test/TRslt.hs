@@ -16,6 +16,7 @@ import qualified Data.Rslt.Edit as R
 import           Data.Rslt.Index
 import qualified Data.Rslt.Lookup as R
 import           Data.Rslt.RTypes
+import           Data.Rslt.RValid
 import qualified Test.Rslt.RData as D
 
 
@@ -35,6 +36,8 @@ test_replaceInRole = TestCase $ do
                   R.replaceInRole (RoleMember 2) 1 5 D.rslt
       unchanged = either (error "wut") id $
                   R.replaceInRole (RoleMember 2) 2 5 D.rslt
+  assertBool "valid 1" $ isRight $ validRslt r
+  assertBool "valid 2" $ isRight $ validRslt unchanged
   assertBool "identity" $ D.rslt == unchanged
   assertBool "1" $ isIn r 1 == Just ( S.fromList [ (RoleMember 1, 5)
                                                    , (RoleMember 2, 5) ] )
@@ -52,6 +55,10 @@ test_deleteUnusedExpr = TestCase $ do
                                $ R.insert 6 (Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
                                $ R.deleteUnusedExpr 5 with_new_rel
+  assertBool "valid 1" $ isRight $ validRslt without_6
+  assertBool "valid 2" $ isRight $ validRslt with_new_rel
+  assertBool "valid 3" $ isRight $ validRslt r
+
   assertBool "1" $ isLeft $ R.deleteUnusedExpr 5 D.rslt
   assertBool "exprAt of deleted" $ Nothing == exprAt r 5
   assertBool "addrOf missing"    $ Nothing ==
@@ -68,6 +75,8 @@ test_deleteUnusedExpr = TestCase $ do
 test_insert = TestCase $ do
   let r2 = either (error "wut") id
            $ R.insert 7 (Rel [1,1] 4) D.rslt
+  assertBool "valid 1" $ isRight $ validRslt r2
+
   assertBool "1" $ isIn r2 4 == Just (S.fromList [ (RoleTplt    , 7     )
                                                  , (RoleTplt    , 5     ) ] )
   assertBool "2" $ isIn r2 1 == Just (S.fromList [ (RoleMember 1, 7     )

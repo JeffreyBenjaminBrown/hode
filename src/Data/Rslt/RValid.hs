@@ -57,6 +57,27 @@ _allReferencesExist r as =
 
 -- | == Check the database
 
+validRslt :: Rslt -> Either String ()
+validRslt r = do
+  let unmatched = relsWithoutMatchingTplts r
+      in if null unmatched then Right ()
+         else Left $ "validRslt: rels without matching templates:\n"
+              ++ show unmatched ++ ".\n"
+  let unfillable = collectionsWithAbsentAddrs r
+      in if null unfillable then Right ()
+         else Left $ "validRslt: collections with absent Addrs:\n"
+              ++ show unfillable
+  either (\s -> Left $ "validRslt: " ++ s) Right
+    $ maxAddrValid r
+
+maxAddrValid :: Rslt -> Either String ()
+maxAddrValid r =
+  let recorded = maxAddr r
+      found = maybe 0 id $ S.lookupMax $ M.keysSet $ _exprAt r
+  in if found == recorded then Right ()
+     else Left $ "maxAddrValid: recorded " ++ show recorded
+          ++ ", but found " ++ show found ++ ".\n"
+
 collectionsWithAbsentAddrs :: Rslt -> Map Addr [Addr]
 collectionsWithAbsentAddrs r = res where
   res = M.filter (not . null)
