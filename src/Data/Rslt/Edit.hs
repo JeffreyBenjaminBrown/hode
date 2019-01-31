@@ -88,18 +88,24 @@ replaceInRole spot new host r = do
   (newHostExpr :: Expr) <-
     either (\s -> Left $ "replaceInRole: error in callee:\n" ++ s) Right
     $ _replaceInExpr r spot new oldHostExpr
+  let (newIsAlreadyIn :: Set (Role,Addr)) =
+        maybe S.empty id $ isIn r new
+
   Right $ r {
       _exprAt = M.insert host newHostExpr $ _exprAt r
     , _addrOf =   M.insert newHostExpr host
                 . M.delete oldHostExpr
                 $ _addrOf r
     , _has    = M.adjust (M.insert spot new) host $ _has r
-    , _isIn   = M.filter (not . null)
-      -- PITFALL: delete before inserting. Otherwise replacing something
-      --  with itself is not the identity operation
-                . M.adjust (S.insert (spot, host)) new
+
+    , _isIn   =   M.filter (not . null)
+      -- PITFALL: delete before inserting. Otherwise, replacing something
+      -- with itself is not the identity operation.
+                . M.insert new (S.insert (spot, host) newIsAlreadyIn)
+      -- PITFALL: We can't adjust the value at new; it might not exist.
                 . M.adjust (S.delete (spot, host)) old
-                $ _isIn r }
+                $ _isIn r
+    }
 
 insert :: Expr -> Rslt -> Either String Rslt
 insert e r = insertAt (maxAddr r + 1) e r
