@@ -52,7 +52,7 @@ test_deleteUnusedExpr = TestCase $ do
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
   let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.exprs
       (with_new_rel :: Rslt) = either (error "wut") id
-                               $ R.insert 6 (Rel [1,1] 4) without_6
+                               $ R.insertAt 6 (Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
                                $ R.deleteUnusedExpr 5 with_new_rel
   assertBool "valid 1" $ isRight $ validRslt without_6
@@ -74,7 +74,7 @@ test_deleteUnusedExpr = TestCase $ do
 
 test_insert = TestCase $ do
   let r2 = either (error "wut") id
-           $ R.insert 7 (Rel [1,1] 4) D.rslt
+           $ R.insertAt 7 (Rel [1,1] 4) D.rslt
   assertBool "valid 1" $ isRight $ validRslt r2
 
   assertBool "1" $ isIn r2 4 == Just (S.fromList [ (RoleTplt    , 7     )
@@ -89,11 +89,11 @@ test_insert = TestCase $ do
   assertBool "5" $      has D.rslt  7      == Nothing
 
   assertBool "address collision" $ isLeft $
-    R.insert 1 (Word "nuyck") D.rslt
+    R.insertAt 1 (Word "nuyck") D.rslt
   assertBool "non-matching template" $ isLeft $
-    R.insert 1 (Rel [1,2,3] 4) D.rslt
+    R.insertAt 1 (Rel [1,2,3] 4) D.rslt
   assertBool "nonexistent references" $ isLeft $
-    R.insert 1 (Rel [11,22] 4) D.rslt
+    R.insertAt 1 (Rel [11,22] 4) D.rslt
 
 test_lookup = TestCase $ do
   assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)              == Just 0
@@ -135,7 +135,7 @@ test_isIn = TestCase $ do
   assertBool "2" $ M.lookup 4 (_isIn D.rslt)
     == Just ( S.fromList [ (RoleTplt, 5) ] )
   assertBool "3" $ let r' = either (error "wut") id
-                            $ R.insert 7 (Word "pizza") D.rslt
+                            $ R.insertAt 7 (Word "pizza") D.rslt
                    in isIn r' 7 == Just S.empty
 
 test_isIn1 = TestCase $ do

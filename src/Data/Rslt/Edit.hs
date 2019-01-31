@@ -90,9 +90,12 @@ replaceInRole spot new host r = do
                 . M.adjust (S.delete (spot, host)) old
                 $ _isIn r }
 
-insert :: Addr -> Expr -> Rslt -> Either String Rslt
-insert a e r = do
-  either (\s -> Left $ "insert: invalid Expr:\n" ++ s) Right
+insert :: Expr -> Rslt -> Either String Rslt
+insert e r = insertAt (maxAddr r + 1) e r
+
+insertAt :: Addr -> Expr -> Rslt -> Either String Rslt
+insertAt a e r = do
+  either (\s -> Left $ "insert: " ++ s) Right
     $ validExpr r e
   let errMsg = "insert: Addr " ++ show a ++ " already occupied.\n"
       in maybe (Right ()) (const $ Left errMsg)
