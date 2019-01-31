@@ -17,12 +17,18 @@ import Data.Rslt.Index
 import Util
 
 
+-- | PITFALL: Tested only by hand:
+-- > import qualified Test.Rslt.RData as D
+-- > writeRslt "test-io" D.rslt
+-- > x <- readRslt "test-io"
+-- > x == D.rslt
+
 readRslt :: FilePath -> IO (Rslt)
 readRslt p0 = do
   files <- filter (\f -> takeExtension f == ".rslt")
            <$> listDirectory p0
   (es :: [(Addr, Expr)]) <- let
-      f p = do (e :: Expr) <- read <$> readFile p
+      f p = do (e :: Expr) <- read <$> readFile (p0 ++ "/" ++ p)
                let (a :: Addr) = read $ dropExtension p
                return (a,e)
       in mapM f files
