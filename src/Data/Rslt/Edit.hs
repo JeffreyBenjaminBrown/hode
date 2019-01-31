@@ -26,8 +26,7 @@ replace e oldAddr r = do
   _ <-     prependEither $ validExpr r e
   r <-     prependEither $ insertAt newAddr e r
   r <-     prependEither $ _substitute newAddr oldAddr r
-  let r' = _deleteInternalMentionsOf oldAddr r
-  id $     prependEither $ deleteUnusedExpr oldAddr r'
+  id $     prependEither $ deleteUnusedExpr oldAddr r
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
@@ -79,19 +78,21 @@ replaceInRole spot new host r = do
         "replaceInRole: Addr " ++ show addr ++ " not present.\n"
   _           <- maybe (Left $ errorAbsent new)  Right $ exprAt r new
   oldHostExpr <- maybe (Left $ errorAbsent host) Right $ exprAt r host
-  let (h :: Map Role Addr) =
+  let (hostHas :: Map Role Addr) =
         maybe (error "impossible") id $ has r host
-  if elem spot $ M.keysSet h then Right ()
+  if elem spot $ M.keysSet hostHas then Right ()
     else Left $ "replaceInRole: Expr at "
          ++ show host ++ " includes no position " ++ show spot ++ "\n."
-  let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot h
+  let (old :: Addr) = maybe (error "impossible") id $ M.lookup spot hostHas
 
   (newHostExpr :: Expr) <-
     either (\s -> Left $ "replaceInRole: error in callee:\n" ++ s) Right
     $ _replaceInExpr r spot new oldHostExpr
   Right $ r {
       _exprAt = M.insert host newHostExpr $ _exprAt r
-    , _addrOf = M.insert newHostExpr host $ _addrOf r
+    , _addrOf =   M.insert newHostExpr host
+                . M.delete oldHostExpr
+                $ _addrOf r
     , _has    = M.adjust (M.insert spot new) host $ _has r
     , _isIn   = M.filter (not . null)
       -- PITFALL: delete before inserting. Otherwise replacing something

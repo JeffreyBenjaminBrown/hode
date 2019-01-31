@@ -36,11 +36,18 @@ test_module_rslt = TestList [
 test_replace = TestCase $ do
   let newRslt :: Expr -> Addr -> Rslt
       newRslt e a = mkRslt $ M.fromList
-                    $ either (error "wut 0") id
-                    $ replaceNth (a,e) (a+1) $ M.toList D.exprs
--- replace :: Expr -> Addr -> Rslt -> Either String Rslt
-  assertBool "1" $ newRslt (Word "foo") 1
-    == either (error "wut 1") id (R.replace (Word "foo") 1 D.rslt)
+                    $ either (error "wut") id
+                    $ replaceNth (7,e) (a+1) $ M.toList D.exprs
+  assertBool "1" $ either (error "wut") id (R.replace (Word "foo") 1 D.rslt)
+    == mkRslt ( M.fromList
+    [ (0, Word "")
+    , (2, Word "oxygen")
+    , (3, Word "needs")
+    , (4, Tplt [0,3,0])
+    , (5, Rel [7,1] 4)
+    , (6, Par [("The first relationship in this graph is ", 5)] ".")
+    , (7, Word "foo")
+    ] )
 
 test_replaceInRole = TestCase $ do
   let r         = either (error "wut") id $
@@ -56,6 +63,12 @@ test_replaceInRole = TestCase $ do
   assertBool "3" $ has r 5 == Just ( M.fromList [ (RoleMember 1, 1)
                                                 , (RoleMember 2, 1)
                                                 , (RoleTplt    , 4) ] )
+
+  let r2 = either (error "wut") id
+           $ R.replaceInRole (RoleMember 2) 8 5
+           $ either (error "wut") id
+           $ R.insertAt 8 (Word "foo") D.rslt
+  assertBool "4" $ isIn r2 8 == Just (S.singleton (RoleMember 2, 5))
 
 test_deleteUnusedExpr = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel 5)
