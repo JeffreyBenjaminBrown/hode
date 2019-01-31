@@ -63,6 +63,8 @@ library
   build-depends:
                 base
               , containers
+              , directory
+              , filepath
               , HUnit
   default-language: Haskell2010
 
