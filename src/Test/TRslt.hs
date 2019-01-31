@@ -18,6 +18,7 @@ import qualified Data.Rslt.Lookup as R
 import           Data.Rslt.RTypes
 import           Data.Rslt.RValid
 import qualified Test.Rslt.RData as D
+import           Util
 
 
 test_module_rslt = TestList [
@@ -29,7 +30,17 @@ test_module_rslt = TestList [
   , TestLabel "test_insert" test_insert
   , TestLabel "test_deleteUnusedExpr" test_deleteUnusedExpr
   , TestLabel "test_replaceInRole" test_replaceInRole
+  , TestLabel "test_replace" test_replace
   ]
+
+test_replace = TestCase $ do
+  let newRslt :: Expr -> Addr -> Rslt
+      newRslt e a = mkRslt $ M.fromList
+                    $ either (error "wut 0") id
+                    $ replaceNth (a,e) (a+1) $ M.toList D.exprs
+-- replace :: Expr -> Addr -> Rslt -> Either String Rslt
+  assertBool "1" $ newRslt (Word "foo") 1
+    == either (error "wut 1") id (R.replace (Word "foo") 1 D.rslt)
 
 test_replaceInRole = TestCase $ do
   let r         = either (error "wut") id $

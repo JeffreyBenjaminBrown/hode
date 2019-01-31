@@ -19,6 +19,16 @@ import Util
 
 -- | Edit
 
+replace :: Expr -> Addr -> Rslt -> Either String Rslt
+replace e oldAddr r = do
+  let newAddr = maxAddr r + 1
+      prependEither = either (\s -> Left $ "substitute: " ++ s) Right
+  _ <-     prependEither $ validExpr r e
+  r <-     prependEither $ insertAt newAddr e r
+  r <-     prependEither $ _substitute newAddr oldAddr r
+  let r' = _deleteInternalMentionsOf oldAddr r
+  id $     prependEither $ deleteUnusedExpr oldAddr r'
+
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
   (roles :: Set (Role, Addr)) <-
@@ -84,8 +94,8 @@ replaceInRole spot new host r = do
     , _addrOf = M.insert newHostExpr host $ _addrOf r
     , _has    = M.adjust (M.insert spot new) host $ _has r
     , _isIn   = M.filter (not . null)
-      -- PITFALL: delete before inserting. Otherwise replacing something with itself
-      -- is not the identity operation
+      -- PITFALL: delete before inserting. Otherwise replacing something
+      --  with itself is not the identity operation
                 . M.adjust (S.insert (spot, host)) new
                 . M.adjust (S.delete (spot, host)) old
                 $ _isIn r }
@@ -151,5 +161,6 @@ deleteUnusedExpr a r = case isIn r a of
   Nothing -> Left $ "deleteUnused: Addr " ++ show a ++ " not present.\n"
   Just s -> if null s
     then Right $ _deleteInternalMentionsOf a r
-    else Left $ "deleteUnused: Addr " ++ show a ++ " is used in other Exprs.\n"
+    else Left $ "deleteUnused: Addr " ++ show a
+         ++ " is used in other Exprs.\n"
 
