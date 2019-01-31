@@ -27,8 +27,6 @@ mkRslt es = let
   , _has = hasMap
   , _isIn = foldl invertAndAddPositions M.empty
             $ M.toList $ M.map M.toList hasMap
-  , maxAddr = maybe 0 id
-              $ S.lookupMax $ M.keysSet es
   }
 
 

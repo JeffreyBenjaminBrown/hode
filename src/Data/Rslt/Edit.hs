@@ -22,12 +22,12 @@ import Util
 
 replace :: Expr -> Addr -> Rslt -> Either String Rslt
 replace e oldAddr r = do
-  let newAddr = maxAddr r + 1
-      prependEither = either (\s -> Left $ "substitute: " ++ s) Right
-  _ <-     prependEither $ validExpr r e
-  r <-     prependEither $ insertAt newAddr e r
-  r <-     prependEither $ _substitute newAddr oldAddr r
-  id $     prependEither $ deleteUnusedExpr oldAddr r
+  let prependEither = either (\s -> Left $ "substitute: " ++ s) Right
+  newAddr <- (+1) <$> prependEither (maxAddr r)
+  _       <-          prependEither $ validExpr r e
+  r       <-          prependEither $ insertAt newAddr e r
+  r       <-          prependEither $ _substitute newAddr oldAddr r
+  id      $           prependEither $ deleteUnusedExpr oldAddr r
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
@@ -111,7 +111,10 @@ replaceInRole spot new host r = do
     }
 
 insert :: Expr -> Rslt -> Either String Rslt
-insert e r = insertAt (maxAddr r + 1) e r
+insert e r = do
+  newAddr <- let errMsg s = Left $ "insert: " ++ s
+             in (+1) <$> either errMsg Right (maxAddr r)
+  insertAt newAddr e r
 
 insertAt :: Addr -> Expr -> Rslt -> Either String Rslt
 insertAt a e r = do
@@ -134,8 +137,6 @@ _insert a e r = Rslt {
       in if null positions then _has r
          else M.insert a positions $ _has r
   , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
-  , maxAddr = if a > maxAddr r then a
-              else maxAddr r
   }
 
 -- | PITFALL: One could put the Rslt into an invalid state by running this
@@ -162,9 +163,6 @@ _deleteInternalMentionsOf a r = let
           , _addrOf = let
               e = maybe (error "imposible") id $ exprAt r a
               in M.delete e $ _addrOf r
-          , maxAddr = if a == maxAddr r
-                      then maybe 0 id $ S.lookupMax $ M.keysSet $ _exprAt r
-                      else maxAddr r
        }
 
 deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt

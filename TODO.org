@@ -20,11 +20,7 @@ type CondElts = Map Elt (Set Subst)
 * TODO replace error with Either
 so far only used in Query.MkLeaf
 * TODO for RSLT
-** ditch the maxAddr field
-It's a premature optimization. The speed-limiting factor is Queries, not
-insertion into an Rslt.
 ** features
-*** read, write rslt
 *** view exprs
 *** DSL for exprs
 *** DSL for queries

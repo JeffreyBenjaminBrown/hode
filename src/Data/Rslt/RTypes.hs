@@ -16,8 +16,11 @@ data Rslt = Rslt {
   , _variety :: Map Addr (ExprCtr, Arity)
   , _has     :: Map Addr (Map Role Addr)
   , _isIn    :: Map Addr (Set (Role, Addr))
-  , maxAddr  :: Addr
   } deriving (Eq, Ord, Read, Show)
+
+maxAddr :: Rslt -> Either String Addr
+maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _exprAt
+  where errMsg = Left $ "maxAddr: empty Rslt.\n"
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
