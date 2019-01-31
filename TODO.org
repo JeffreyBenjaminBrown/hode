@@ -20,6 +20,8 @@ type CondElts = Map Elt (Set Subst)
 * TODO replace error with Either
 so far only used in Query.MkLeaf
 * TODO for RSLT
+** bugs to fix
+Should not be able to insert an expr if already present.
 ** features
 *** TODO next : edit rslt
 **** DONE

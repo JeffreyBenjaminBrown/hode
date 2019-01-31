@@ -34,20 +34,64 @@ test_module_rslt = TestList [
   ]
 
 test_replace = TestCase $ do
-  let newRslt :: Expr -> Addr -> Rslt
-      newRslt e a = mkRslt $ M.fromList
-                    $ either (error "wut") id
-                    $ replaceNth (7,e) (a+1) $ M.toList D.exprs
-  assertBool "1" $ either (error "wut") id (R.replace (Word "foo") 1 D.rslt)
+  assertBool "replace word in rel" $
+    either (error "wut") id (R.replace (Word "foo") 1 D.rslt)
     == mkRslt ( M.fromList
-    [ (0, Word "")
-    , (2, Word "oxygen")
-    , (3, Word "needs")
-    , (4, Tplt [0,3,0])
-    , (5, Rel [7,1] 4)
-    , (6, Par [("The first relationship in this graph is ", 5)] ".")
-    , (7, Word "foo")
-    ] )
+          [ (0, Word "")
+          , (2, Word "oxygen")
+          , (3, Word "needs")
+          , (4, Tplt [0,3,0])
+          , (5, Rel [7,2] 4) -- all changes involve address 7
+          , (6, Par [("The first relationship in this graph is ", 5)] ".")
+          , (7, Word "foo")
+          ] )
+
+  assertBool "replace word in template" $
+    either (error "wut") id (R.replace (Word "foo") 0 D.rslt)
+    == mkRslt ( M.fromList
+         [ (7, Word "foo")
+         , (1, Word "dog")
+         , (2, Word "oxygen")
+         , (3, Word "needs")
+         , (4, Tplt [7,3,7]) -- all changes involve address 7
+         , (5, Rel [1,2] 4)
+         , (6, Par [("The first relationship in this graph is ", 5)] ".")
+         ] )
+
+  assertBool "replace rel" $
+    either (error "wut") id (R.replace (Rel [2,1] 4) 5 D.rslt)
+    == mkRslt ( M.fromList
+         [ (0, Word "")
+         , (1, Word "dog")
+         , (2, Word "oxygen")
+         , (3, Word "needs")
+         , (4, Tplt [0,3,0])
+         , (7, Rel [2,1] 4) -- all changes involve address 7
+         , (6, Par [("The first relationship in this graph is ", 7)] ".")
+         ] )
+
+  assertBool "todo : replace tplt" $
+    either (error "wut") id (R.replace (Tplt [2,2,2]) 4 D.rslt)
+    == mkRslt ( M.fromList
+         [ (0, Word "")
+         , (1, Word "dog")
+         , (2, Word "oxygen")
+         , (3, Word "needs")
+         , (7, Tplt [2,2,2])
+         , (5, Rel [1,2] 7) -- all changes involve address 7
+         , (6, Par [("The first relationship in this graph is ", 5)] ".")
+         ] )
+
+repRel = either (error "wut") id (R.replace (Tplt [2,2,2]) 4 D.rslt)
+repList = mkRslt ( M.fromList
+         [ (0, Word "")
+         , (1, Word "dog")
+         , (2, Word "oxygen")
+         , (3, Word "needs")
+         , (7, Tplt [2,2,2])
+         , (5, Rel [1,2] 7) -- all changes involve address 7
+         , (6, Par [("The first relationship in this graph is ", 5)] ".")
+         ] )
 
 test_replaceInRole = TestCase $ do
   let r         = either (error "wut") id $

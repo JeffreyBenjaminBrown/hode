@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Data.Rslt.Edit where
 
@@ -93,9 +94,11 @@ replaceInRole spot new host r = do
 
   Right $ r {
       _exprAt = M.insert host newHostExpr $ _exprAt r
-    , _addrOf =   M.insert newHostExpr host
-                . M.delete oldHostExpr
-                $ _addrOf r
+    , _addrOf = let f = case newHostExpr of
+                          Par _ _ -> id
+                          _       -> M.insert newHostExpr host
+                in f $ M.delete oldHostExpr $ _addrOf r
+
     , _has    = M.adjust (M.insert spot new) host $ _has r
 
     , _isIn   =   M.filter (not . null)
@@ -145,7 +148,8 @@ _deleteInternalMentionsOf a r = let
 
   (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r
   (_isIn2 :: Map Addr (Set (Role, Addr))) =
-    maybe _isIn1 (M.foldlWithKey f _isIn1) aHas
+    M.filter (not . null)
+    $ maybe _isIn1 (M.foldlWithKey f _isIn1) aHas
     where
       f :: Map Addr (Set (Role, Addr)) -> Role -> Addr
         -> Map Addr (Set (Role, Addr))
