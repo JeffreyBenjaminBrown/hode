@@ -30,6 +30,7 @@ library
                   Data.Graph
                 , Data.Graph.GQuery
                 , Data.Rslt.Edit
+                , Data.Rslt.Files
                 , Data.Rslt.Index
                 , Data.Rslt.Lookup
                 , Data.Rslt.RTypes

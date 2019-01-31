@@ -17,7 +17,7 @@ data Rslt = Rslt {
   , _has     :: Map Addr (Map Role Addr)
   , _isIn    :: Map Addr (Set (Role, Addr))
   , maxAddr  :: Addr
-  } deriving (Show, Eq, Ord)
+  } deriving (Eq, Ord, Read, Show)
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
@@ -31,11 +31,11 @@ data Expr = Word String -- ^ (Could be a phrase too.)
     -- `Par`s are like `Tplt`s, in that |Members| + 1 = |`String`s|.
     -- `Par`s are like lists, in that the weird bit comes last.
     -- `Par` is the only kind of `Expr` not in the `Index`.
-  deriving (Show, Eq, Ord)
+  deriving (Eq, Ord, Read, Show)
 
 -- | The constructor that an `Expr` uses.
 data ExprCtr = Word' | Rel' | Tplt' | Par'
-  deriving (Show, Eq, Ord)
+  deriving (Eq, Ord, Read, Show)
 
 exprVariety :: Expr -> (ExprCtr, Arity)
 exprVariety   (Word  _) = (Word', 0)
@@ -43,14 +43,14 @@ exprVariety e@(Tplt  _) = (Tplt', arity e)
 exprVariety e@(Rel _ _) = (Rel' , arity e)
 exprVariety e@(Par _ _) = (Par' , arity e)
 
-data Role = RoleTplt | RoleMember Int deriving (Show, Eq, Ord)
+data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 
 -- | Something used to locate an `Expr` in an `Index`,
 -- given varying degrees of identifying information.
 data ImgOfExpr = ImgOfExpr Expr
                | ImgOfAddr Addr
                | ImgOfRel  [ImgOfExpr] ImgOfExpr
-               | ImgOfTplt [ImgOfExpr] deriving (Show, Eq, Ord)
+               | ImgOfTplt [ImgOfExpr] deriving (Eq, Ord, Read, Show)
 
 arity :: Expr -> Arity
 arity (Word _)  = 0

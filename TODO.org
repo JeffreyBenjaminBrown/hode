@@ -20,22 +20,10 @@ type CondElts = Map Elt (Set Subst)
 * TODO replace error with Either
 so far only used in Query.MkLeaf
 * TODO for RSLT
-** bugs to fix
-Should not be able to insert an expr if already present.
+** ditch the maxAddr field
+It's a premature optimization. The speed-limiting factor is Queries, not
+insertion into an Rslt.
 ** features
-*** TODO next : edit rslt
-**** DONE
-_replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr
-replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
-insert :: Addr -> Expr -> Rslt -> Rslt
-_deleteAllMentionOf :: Addr -> Rslt -> Rslt
-deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
-**** untested
-+_substitute :: Addr -> Addr -> Rslt -> Either String Rslt
-**** substitute expression: Addr -> Addr -> Rslt -> Rslt
-The first Addr stops being used; the second, used wherever the first was.
-**** modify expr
-Create a new one like the old, then substitute the new one wherever the old one was, then delete the old.
 *** read, write rslt
 *** view exprs
 *** DSL for exprs
