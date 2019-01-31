@@ -22,8 +22,7 @@ so far only used in Query.MkLeaf
 * TODO for RSLT
 ** features
 *** TODO refine
-are the Rslt validators okay with every Rslt-producing function?
-the Rslt-validators need not take an Exprs argument
+are the Rslt validators okay with every Rslt-producing|modifying function?
 make an Rslt validator that checks the max
 make a single Rslt validator that calls the others
 *** TODO next : edit rslt

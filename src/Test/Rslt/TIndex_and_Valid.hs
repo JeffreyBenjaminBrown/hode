@@ -35,9 +35,9 @@ test_validExpr = TestCase $ do
   assertBool "word" $ isRight $ validExpr D.rslt (Word "meh")
 
 test_checkDb = TestCase $ do
-  assertBool "1" $ M.toList (relsWithoutMatchingTplts D.badExprs D.rslt)
+  assertBool "1" $ M.toList (relsWithoutMatchingTplts $ mkRslt D.badExprs)
     == [(1001, Rel [1,2] 5), (1002, Rel [1, 2] $ -1000)]
-  assertBool "2" $ M.toList (collectionsWithAbsentAddrs D.badExprs D.rslt)
+  assertBool "2" $ M.toList (collectionsWithAbsentAddrs $ mkRslt D.badExprs)
     == [(1002, [-1000])]
 
 test_invertPositions = TestCase $ do

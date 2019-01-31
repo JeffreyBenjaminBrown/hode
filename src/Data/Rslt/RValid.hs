@@ -57,8 +57,8 @@ _allReferencesExist r as =
 
 -- | == Check the database
 
-collectionsWithAbsentAddrs :: Exprs -> Rslt -> Map Addr [Addr]
-collectionsWithAbsentAddrs exprs r = res where
+collectionsWithAbsentAddrs :: Rslt -> Map Addr [Addr]
+collectionsWithAbsentAddrs r = res where
   res = M.filter (not . null)
         $ M.map (filter absent . involved) collections
 
@@ -72,12 +72,12 @@ collectionsWithAbsentAddrs exprs r = res where
   involved (Par sas _) = map snd sas
 
   collections :: Exprs
-  collections = M.filter isCollection exprs where
+  collections = M.filter isCollection $ _exprAt r where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
-relsWithoutMatchingTplts :: Exprs -> Rslt -> Exprs
-relsWithoutMatchingTplts exprs r = res where
+relsWithoutMatchingTplts :: Rslt -> Exprs
+relsWithoutMatchingTplts r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: Expr -> Bool
@@ -88,6 +88,6 @@ relsWithoutMatchingTplts exprs r = res where
       _         -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
-  rels = M.filter isRel exprs where
+  rels = M.filter isRel $ _exprAt r where
     isRel (Rel _ _) = True
     isRel _         = False
