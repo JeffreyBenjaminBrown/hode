@@ -27,7 +27,7 @@ test_rsltProgram = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton
+        $ \sp -> either (const S.empty) S.singleton
                  $ R.lookup sp $ ImgOfAddr 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )

@@ -3,8 +3,6 @@
 module Data.Rslt.Lookup where
 
 import           Prelude hiding (lookup)
-import qualified Data.List      as L
-import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -17,19 +15,22 @@ import Util
 
 -- | = Search
 
-lookup :: Rslt -> ImgOfExpr -> Maybe Addr
-lookup x img = case img of
-  ImgOfExpr e -> M.lookup e $ _addrOf x
-  ImgOfAddr a -> maybe Nothing (const $ Just a) $ M.lookup a $ _exprAt x
+lookup :: Rslt -> ImgOfExpr -> Either String Addr
+lookup x img =
+  let pel = prependEither "lookup"
+  in case img of
+  ImgOfExpr e -> pel $ addrOf x e
+
+  ImgOfAddr a -> pel (exprAt x a) >>= const (Right a)
 
   ImgOfTplt is -> do
-    mas <- ifNothings $ map (lookup x) is
-    M.lookup (Tplt mas) $ _addrOf x
+    mas <- ifLefts "lookup" $ map (lookup x) is
+    pel $ addrOf x $ Tplt mas
 
   ImgOfRel is i -> do
-    mas <- ifNothings $ map (lookup x) is
-    ma <- lookup x i
-    M.lookup (Rel mas ma) $ _addrOf x
+    mas <- ifLefts "lookup" $ map (lookup x) is
+    ma <- pel $ lookup x i
+    pel $ addrOf x (Rel mas ma)
 
 exprAt :: Rslt -> Addr -> Either String Expr
 exprAt r a =

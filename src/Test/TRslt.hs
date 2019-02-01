@@ -164,20 +164,21 @@ test_insert = TestCase $ do
     R.insertAt 1 (Rel [11,22] 4) D.rslt
 
 test_lookup = TestCase $ do
-  assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)              == Just 0
-  assertBool "2" $ (R.lookup D.rslt $ ImgOfAddr $ -10000)       == Nothing
-  assertBool "3" $ (R.lookup D.rslt $ ImgOfExpr $ Word "needs") == Just 3
-  assertBool "4" $ (R.lookup D.rslt $ ImgOfExpr $ Tplt [0,3,0]) == Just 4
-  assertBool "5" $ Just 4 ==
+  assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)              == Right 0
+  assertBool "2" $ isLeft
+                 $ (R.lookup D.rslt $ ImgOfAddr $ -10000)
+  assertBool "3" $ (R.lookup D.rslt $ ImgOfExpr $ Word "needs") == Right 3
+  assertBool "4" $ (R.lookup D.rslt $ ImgOfExpr $ Tplt [0,3,0]) == Right 4
+  assertBool "5" $ Right 4 ==
     R.lookup D.rslt ( ImgOfTplt [ ImgOfAddr 0
                                 , ImgOfExpr $ Word "needs"
                                 , ImgOfExpr $ Word ""] )
 
-  assertBool "6" $ Just 5 ==
+  assertBool "6" $ Right 5 ==
     R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
                                , ImgOfExpr $ Word "oxygen"]
                       $ ImgOfAddr 4 )
-  assertBool "7" $ Nothing ==
+  assertBool "7" $ isLeft $
     R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
                                , ImgOfExpr $ Word "oxygen"]
                       $ ImgOfAddr 6 )
