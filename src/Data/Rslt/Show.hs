@@ -17,6 +17,12 @@ import Data.Rslt.Lookup
 import Util
 
 
+bracket_big_left_angle = '❬' -- C-x 8 Ret 276C
+bracket_big_right_angle = '❭' -- C-x 8 Ret 276D
+bracket_small_left_double = '«' -- C-x 8 <
+bracket_small_right_double = '»' -- C-x 8 >
+
+
 depth :: ImgOfExpr -> Int
 depth (ImgOfWord _) = 0
 depth (ImgOfAddr _) = 0
@@ -46,5 +52,28 @@ imgOfExpr r (Par sas s) = do
   Right $ ImgOfPar (zip ss eis) s
 
 
---eShow :: Rslt -> ImgOfExpr -> Either String String
---eShow r 
+eShow :: Rslt -> ImgOfExpr -> Either String String
+eShow r (ImgOfWord w) = Right w
+eShow r (ImgOfAddr a) = Right $ bracket_small_left_double
+                        : show a ++ [bracket_small_right_double]
+
+eShow r (ImgOfTplt js) = do
+  ss <- ifLefts "eShow" $ map (eShow r) js
+  Right $ concat $ L.intersperse " _ " ss
+
+eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
+  let d = depth i
+  mss <- ifLefts "eShow" $ map (eShow r) ms
+  jss <- ifLefts "eShow" $ map (eShow r) js
+  Right $ concat $ map (\(m,j) -> m ++ " " ++ replicate d '#' ++ j)
+    $ zip ("" : mss) jss
+eShow r i@(ImgOfRel _ _) =
+  Left $ "eShow: ImgOfRel with non-Tplt in Tplt position: " ++ show i
+
+eShow r (ImgOfPar ps s) = do
+  let (ss,ms) = unzip ps
+  (mis :: [String]) <- ifLefts "eShow" $ map (eShow r) ms
+  let showPair :: (String, String) -> String
+      showPair (s,mi) = s ++ " " ++ [bracket_big_left_angle]
+        ++ mi ++ [bracket_big_right_angle]
+  Right $ concat (map showPair $ zip ss mis) ++ " " ++ s
