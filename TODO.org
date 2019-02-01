@@ -25,10 +25,10 @@ or more alternatives:
 * TODO for RSLT
 ** features
 *** view exprs
-modify ExprImg to cover Pars
-  not for lookup in _exprAt, but for showing
-exprImg :: Rslt -> Expr -> ExprImg
 eShow :: Rslt -> ExprImg -> Either String String
+**** DONE
+exprImg :: Rslt -> Expr -> ExprImg
+modify ExprImg to cover Pars
 depth :: ExprImg -> Int
 **** later
 ***** rename types
