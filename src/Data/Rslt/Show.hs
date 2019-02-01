@@ -32,19 +32,24 @@ depth (ImgOfPar sis _) = 1 + maximum (map (depth . snd) sis)
 
 
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
-hashUnlessEmptyStartOrEnd k joints = let
+hashUnlessEmptyStartOrEnd k joints = case joints of
+  [] -> []
+  s : ss ->   hashUnlessEmpty    k s
+            : hashUnlessEmptyEnd k ss
+
+  where
+  hash :: Int -> String -> String
+  hash k s = replicate k '#' ++ s
+
   hashUnlessEmpty :: Int -> String -> String
   hashUnlessEmpty _ "" = ""
-  hashUnlessEmpty k s = replicate k '#' ++ s
+  hashUnlessEmpty k s = hash k s
 
   hashUnlessEmptyEnd :: Int -> [String] -> [String]
   hashUnlessEmptyEnd k [] = []
-  hashUnlessEmptyEnd k [s] = [hashUnlessEmpty k s]
-  hashUnlessEmptyEnd k (s : ss) = s : hashUnlessEmptyEnd k ss
-
-  in case joints of
-       [] -> []
-       s : ss -> hashUnlessEmpty k s : hashUnlessEmptyEnd k ss
+  hashUnlessEmptyEnd k [s] =       [hashUnlessEmpty k s]
+  hashUnlessEmptyEnd k (s : ss) =   hash               k s
+                                  : hashUnlessEmptyEnd k ss
 
 
 imgOfExpr :: Rslt -> Expr -> Either String ImgOfExpr
