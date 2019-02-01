@@ -51,9 +51,12 @@ data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 -- | Something used to locate an `Expr` in an `Index`,
 -- given varying degrees of identifying information.
 data ImgOfExpr = ImgOfExpr Expr
-               | ImgOfAddr Addr
+               | ImgOfAddr Addr -- ^ Silly on its own, but useful
+                                -- when nested within another ImgOfExpr.
                | ImgOfRel  [ImgOfExpr] ImgOfExpr
-               | ImgOfTplt [ImgOfExpr] deriving (Eq, Ord, Read, Show)
+               | ImgOfTplt [ImgOfExpr]
+               | ImgOfPar [(String, ImgOfExpr)] String
+  deriving (Eq, Ord, Read, Show)
 
 arity :: Expr -> Arity
 arity (Word _)  = 0

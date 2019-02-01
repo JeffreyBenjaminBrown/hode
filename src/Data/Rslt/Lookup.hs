@@ -13,7 +13,12 @@ import Data.Rslt.RTypes
 import Util
 
 
--- | = Search
+depth :: ImgOfExpr -> Int
+depth (ImgOfExpr (Word _)) = 0
+depth (ImgOfAddr _) = 0
+depth (ImgOfRel mems _) = 1 + maximum (map depth mems)
+depth (ImgOfTplt mems) = 0 -- ^ TODO ? consider Tplts with non-Word members
+
 
 lookup :: Rslt -> ImgOfExpr -> Either String Addr
 lookup x img =
@@ -31,6 +36,9 @@ lookup x img =
     mas <- ifLefts "lookup" $ map (lookup x) is
     ma <- pel $ lookup x i
     pel $ addrOf x (Rel mas ma)
+
+  ImgOfPar _ _ -> Left $ "lookup: Pars are not in index, "
+    ++ "cannot be looked up.\n"
 
 exprAt :: Rslt -> Addr -> Either String Expr
 exprAt r a =

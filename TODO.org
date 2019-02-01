@@ -17,6 +17,11 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
+* TODO banish error for Either
+or use Matt Parsons's magic generic-lens strategy:
+  https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
+or more alternatives:
+  https://www.fpcomplete.com/blog/defining-exceptions-in-haskell
 * TODO for RSLT
 ** features
 *** view exprs
@@ -25,7 +30,11 @@ modify ExprImg to cover Pars
 exprImg :: Rslt -> Expr -> ExprImg
 eShow :: Rslt -> ExprImg -> Either String String
 depth :: ExprImg -> Int
-**** later, add type ExprImg' = ExprImg' ExprImg | Bracket
+**** later
+***** rename types
+   ExprImg -> Expr
+   Expr -> Expr'
+***** add type ExprImg = ExprImg Expr | Bracket
 *** DSL for exprs
 *** DSL for queries
 *** GUI
@@ -35,7 +44,10 @@ depth :: ExprImg -> Int
  a map from Addr to Set Role
    because the item in question could (although this will be rare) hold
    multiple Roles within the same Expr
+* ? To avoid redundant tree-climbing
+Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
 * Add a check, and amend docs: All the Vars in a Program must be distinct.
+Relax ? I can't think of a reason that the name of a drawn variable has to be distinct from the name of the set it is drawn from.
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
