@@ -198,11 +198,11 @@ test_has = TestCase $ do
   assertBool "absent" $ isLeft $ has D.rslt 7
 
 test_isIn = TestCase $ do
-  assertBool "1" $ M.lookup 0 (_isIn D.rslt)
-    == Just ( S.fromList [ (RoleMember 1, 4)
-                         , (RoleMember 3, 4) ] )
-  assertBool "2" $ M.lookup 4 (_isIn D.rslt)
-    == Just ( S.fromList [ (RoleTplt, 5) ] )
+  assertBool "1" $ isIn D.rslt 0
+    == Right ( S.fromList [ (RoleMember 1, 4)
+                          , (RoleMember 3, 4) ] )
+  assertBool "2" $ isIn D.rslt 4
+    == Right ( S.fromList [ (RoleTplt, 5) ] )
   assertBool "3" $ let r' = either (error "wut") id
                             $ R.insertAt 7 (Word "pizza") D.rslt
                    in isIn r' 7 == Right S.empty
@@ -226,8 +226,9 @@ test_fills = TestCase $ do
     $ fills D.rslt (RoleMember 1, 6) == Right 5
 
 test_variety = TestCase $ do
-  assertBool "1" $ M.lookup 3      (_variety D.rslt) == Just (Word',0)
-  assertBool "2" $ M.lookup 4      (_variety D.rslt) == Just (Tplt',2)
-  assertBool "3" $ M.lookup 5      (_variety D.rslt) == Just (Rel',2)
-  assertBool "4" $ M.lookup 6      (_variety D.rslt) == Just (Par',1)
-  assertBool "5" $ M.lookup (-133) (_variety D.rslt) == Nothing
+  assertBool "1" $ variety D.rslt 3 == Right (Word',0)
+  assertBool "2" $ variety D.rslt 4 == Right (Tplt',2)
+  assertBool "3" $ variety D.rslt 5 == Right (Rel',2)
+  assertBool "4" $ variety D.rslt 6 == Right (Par',1)
+  assertBool "5" $ isLeft
+                 $ variety D.rslt (-133)

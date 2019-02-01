@@ -34,7 +34,7 @@ test_rsltProgram = TestCase $ do
 
   assertBool "2" $ runProgram D.rslt
     [ ("a", QFind $ find
-        $ \sp -> maybe S.empty S.singleton
-                 $ M.lookup 0 $ _exprAt sp ) ]
+        $ \sp -> either (const S.empty) S.singleton
+                 $ exprAt sp 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton (Word "") $ S.singleton M.empty )

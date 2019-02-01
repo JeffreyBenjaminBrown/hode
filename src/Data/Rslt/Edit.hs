@@ -79,11 +79,9 @@ replaceInRole spot new host r = do
   _                          <- pel $ exprAt r new
   oldHostExpr                <- pel $ exprAt r host
   (hostHas :: Map Role Addr) <- pel $ has r host
-  if elem spot $ M.keysSet hostHas then Right ()
-    else Left $ "replaceInRole: Expr at "
-         ++ show host ++ " includes no position " ++ show spot ++ "\n."
-  let (old :: Addr) = maybe (error "impossible") id
-                      $ M.lookup spot hostHas
+  (old :: Addr) <- let err = Left $ "replaceInRole: Expr at " ++ show host
+                         ++ " includes no position " ++ show spot ++ "\n."
+    in maybe err Right $ M.lookup spot hostHas
 
   (newHostExpr :: Expr) <- pel $ _replaceInExpr r spot new oldHostExpr
   (newIsAlreadyIn :: Set (Role,Addr)) <- pel $ isIn r new
