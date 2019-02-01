@@ -36,8 +36,9 @@ exprAt r a =
   maybe (Left $ "addrOf: Addr " ++ show a ++ " absent.\n") Right
   $ M.lookup a $ _exprAt r
 
-addrOf :: Rslt -> Expr -> Maybe Addr
-addrOf r e = M.lookup e $ _addrOf r
+addrOf :: Rslt -> Expr -> Either String Addr
+addrOf r e = maybe err Right $ M.lookup e $ _addrOf r
+  where err = Left $ "addrOf: Expr " ++ show e ++ " not found.\n"
 
 variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
 variety r a = maybe err Right $ M.lookup a $ _variety r
