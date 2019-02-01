@@ -31,6 +31,22 @@ depth (ImgOfTplt mems) = 0 -- ^ TODO ? consider Tplts with non-Word members
 depth (ImgOfPar sis _) = 1 + maximum (map (depth . snd) sis)
 
 
+hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
+hashUnlessEmptyStartOrEnd k joints = let
+  hashUnlessEmpty :: Int -> String -> String
+  hashUnlessEmpty _ "" = ""
+  hashUnlessEmpty k s = replicate k '#' ++ s
+
+  hashUnlessEmptyEnd :: Int -> [String] -> [String]
+  hashUnlessEmptyEnd k [] = []
+  hashUnlessEmptyEnd k [s] = [hashUnlessEmpty k s]
+  hashUnlessEmptyEnd k (s : ss) = s : hashUnlessEmptyEnd k ss
+
+  in case joints of
+       [] -> []
+       s : ss -> hashUnlessEmpty k s : hashUnlessEmptyEnd k ss
+
+
 imgOfExpr :: Rslt -> Expr -> Either String ImgOfExpr
 imgOfExpr _ (Word w) = Right $ ImgOfWord w
 imgOfExpr r (Tplt jointAs) = do
@@ -65,7 +81,7 @@ eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
   let d = depth i
   mss <- ifLefts "eShow" $ map (eShow r) ms
   jss <- ifLefts "eShow" $ map (eShow r) js
-  Right $ concat $ map (\(m,j) -> m ++ " " ++ replicate d '#' ++ j)
+  Right $ concat $ map (\(m,j) -> m ++ " " ++ replicate d '#' ++ j ++ " ")
     $ zip ("" : mss) jss
 eShow r i@(ImgOfRel _ _) =
   Left $ "eShow: ImgOfRel with non-Tplt in Tplt position: " ++ show i
