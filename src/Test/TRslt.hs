@@ -101,18 +101,18 @@ test_replaceInRole = TestCase $ do
   assertBool "valid 1" $ isRight $ validRslt r
   assertBool "valid 2" $ isRight $ validRslt unchanged
   assertBool "identity" $ D.rslt == unchanged
-  assertBool "1" $ isIn r 1 == Just ( S.fromList [ (RoleMember 1, 5)
-                                                   , (RoleMember 2, 5) ] )
-  assertBool "2" $ isIn r 2 == Just S.empty
-  assertBool "3" $ has r 5 == Just ( M.fromList [ (RoleMember 1, 1)
-                                                , (RoleMember 2, 1)
-                                                , (RoleTplt    , 4) ] )
+  assertBool "1" $ isIn r 1 == Right ( S.fromList [ (RoleMember 1, 5)
+                                                  , (RoleMember 2, 5) ] )
+  assertBool "2" $ isIn r 2 == Right S.empty
+  assertBool "3" $ has r 5 == Right ( M.fromList [ (RoleMember 1, 1)
+                                                 , (RoleMember 2, 1)
+                                                 , (RoleTplt    , 4) ] )
 
   let r2 = either (error "wut") id
            $ R.replaceInRole (RoleMember 2) 8 5
            $ either (error "wut") id
            $ R.insertAt 8 (Word "foo") D.rslt
-  assertBool "4" $ isIn r2 8 == Just (S.singleton (RoleMember 2, 5))
+  assertBool "4" $ isIn r2 8 == Right (S.singleton (RoleMember 2, 5))
 
 test_deleteUnusedExpr = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel 5)
@@ -128,33 +128,33 @@ test_deleteUnusedExpr = TestCase $ do
   assertBool "valid 3" $ isRight $ validRslt r
 
   assertBool "1" $ isLeft $ R.deleteUnusedExpr 5 D.rslt
-  assertBool "exprAt of deleted" $ Nothing == exprAt r 5
+  assertBool "exprAt of deleted" $ isLeft $ exprAt r 5
   assertBool "addrOf missing"    $ Nothing ==
-    maybe (error "wut") (addrOf r) (exprAt D.rslt 5)
+    either (error "wut") (addrOf r) (exprAt D.rslt 5)
   assertBool "variety missing"   $ Nothing == variety r 5
-  assertBool "has missing"       $ Nothing == has r 5
-  assertBool "isIn missing"      $ Nothing == isIn r 5
+  assertBool "has missing"       $ isLeft $ has r 5
+  assertBool "isIn missing"      $ isLeft $ isIn r 5
   assertBool "isIn $ former member of missing" $
-    isIn r 1 == Just ( S.fromList [ (RoleMember 1, 6)
-                                  , (RoleMember 2, 6) ] )
+    isIn r 1 == Right ( S.fromList [ (RoleMember 1, 6)
+                                   , (RoleMember 2, 6) ] )
   assertBool "isIn $ another former member of missing" $
-    isIn r 2 == Just S.empty
+    isIn r 2 == Right S.empty
 
 test_insert = TestCase $ do
   let r2 = either (error "wut") id
            $ R.insertAt 7 (Rel [1,1] 4) D.rslt
   assertBool "valid 1" $ isRight $ validRslt r2
 
-  assertBool "1" $ isIn r2 4 == Just (S.fromList [ (RoleTplt    , 7     )
-                                                 , (RoleTplt    , 5     ) ] )
-  assertBool "2" $ isIn r2 1 == Just (S.fromList [ (RoleMember 1, 7     )
-                                                 , (RoleMember 2, 7     )
-                                                 , (RoleMember 1, 5     ) ] )
-  assertBool "3" $ has r2 7 == Just ( M.fromList [ (RoleMember 1, 1     )
-                                                 , (RoleMember 2, 1     )
-                                                 , (RoleTplt    , 4     ) ] )
+  assertBool "1" $ isIn r2 4 == Right (S.fromList [ (RoleTplt    , 7     )
+                                                  , (RoleTplt    , 5     ) ] )
+  assertBool "2" $ isIn r2 1 == Right (S.fromList [ (RoleMember 1, 7     )
+                                                  , (RoleMember 2, 7     )
+                                                  , (RoleMember 1, 5     ) ] )
+  assertBool "3" $ has r2 7 == Right ( M.fromList [ (RoleMember 1, 1     )
+                                                  , (RoleMember 2, 1     )
+                                                  , (RoleTplt    , 4     ) ] )
   assertBool "4" $ map (has D.rslt) [1..6] == map (has r2) [1..6]
-  assertBool "5" $      has D.rslt  7      == Nothing
+  assertBool "5" $ isLeft $ has D.rslt  7
 
   assertBool "address collision" $ isLeft $
     R.insertAt 1 (Word "nuyck") D.rslt
@@ -184,17 +184,17 @@ test_lookup = TestCase $ do
 
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
-    == Just ( M.fromList [ ( RoleMember 1, 0 )
+    == Right ( M.fromList [ ( RoleMember 1, 0 )
                          , ( RoleMember 2, 3 )
                          , ( RoleMember 3, 0 ) ] )
   assertBool "rel" $ has D.rslt 5
-    == Just ( M.fromList [ ( RoleMember 1, 1 )
+    == Right ( M.fromList [ ( RoleMember 1, 1 )
                          , ( RoleMember 2, 2 )
                          , ( RoleTplt    , 4 ) ] )
   assertBool "par" $ has D.rslt 6
-    == Just ( M.fromList [ ( RoleMember 1, 5 ) ] )
-  assertBool "no content" $ has D.rslt 0 == Just M.empty
-  assertBool "absent" $ has D.rslt 7 == Nothing
+    == Right ( M.fromList [ ( RoleMember 1, 5 ) ] )
+  assertBool "no content" $ has D.rslt 0 == Right M.empty
+  assertBool "absent" $ isLeft $ has D.rslt 7
 
 test_isIn = TestCase $ do
   assertBool "1" $ M.lookup 0 (_isIn D.rslt)
@@ -204,7 +204,7 @@ test_isIn = TestCase $ do
     == Just ( S.fromList [ (RoleTplt, 5) ] )
   assertBool "3" $ let r' = either (error "wut") id
                             $ R.insertAt 7 (Word "pizza") D.rslt
-                   in isIn r' 7 == Just S.empty
+                   in isIn r' 7 == Right S.empty
 
 test_fills = TestCase $ do
   assertBool "1st in tplt"                 $ fills D.rslt (RoleMember 1, 4) == Just 0
