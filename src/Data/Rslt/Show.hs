@@ -17,6 +17,35 @@ import Data.Rslt.Lookup
 import Util
 
 
+depth :: ImgOfExpr -> Int
+depth (ImgOfExpr (Word _)) = 0
+depth (ImgOfAddr _) = 0
+depth (ImgOfRel mems _) = 1 + maximum (map depth mems)
+depth (ImgOfTplt mems) = 0 -- ^ TODO ? consider Tplts with non-Word members
+depth (ImgOfPar sis _) = 1 + maximum (map (depth . snd) sis)
+
+
+imgOfExpr :: Rslt -> Expr -> Either String ImgOfExpr
+imgOfExpr _ w@(Word _) = Right $ ImgOfExpr w
+imgOfExpr r (Tplt jointAs) = do
+  (jointEs  :: [Expr])      <- ifLefts "imgOfExpr" $ map (exprAt r) jointAs
+  (jointEis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
+  Right $ ImgOfTplt jointEis
+
+imgOfExpr r (Rel memAs tA) = do
+  (memEs  :: [Expr])      <- ifLefts    "imgOfExpr" $ map (exprAt r) memAs
+  (memEis :: [ImgOfExpr]) <- ifLefts    "imgOfExpr" $ map (imgOfExpr r) memEs
+  (tE     :: Expr)        <- prefixLeft "imgOfExpr" $ exprAt r tA
+  (tEi    :: ImgOfExpr)   <- prefixLeft "imgOfExpr" $ imgOfExpr r tE
+  Right $ ImgOfRel memEis tEi
+
+imgOfExpr r (Par sas s) = do
+  let ((ss, as) :: ([String],[Addr])) = unzip sas
+  (es  :: [Expr])      <- ifLefts "imgOfExpr" $ map (exprAt r) as
+  (eis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) es
+  Right $ ImgOfPar (zip ss eis) s
+
+
 -- | TODO : This strategy is bad. Instead of showing an Expr,
 -- show an ExprImg. Those are something the depth of which is easy
 -- to compute.
