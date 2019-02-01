@@ -17,7 +17,7 @@ import Util
 
 lookup :: Rslt -> ImgOfExpr -> Either String Addr
 lookup x img =
-  let pel = prependEither "lookup"
+  let pel = prefixLeft "lookup"
   in case img of
   ImgOfExpr e -> pel $ addrOf x e
 
@@ -64,7 +64,7 @@ isIn r a = do
 fills :: Rslt -> (Role, Addr) -> Either String Addr
 fills x (r,a) = do
   (positions :: Map Role Addr) <-
-    prependEither "fills" $ has x a
+    prefixLeft "fills" $ has x a
   let err = Left $ "fills: role " ++ show r
             ++ " not among positions in Expr at " ++ show a
   maybe err Right $ M.lookup r positions

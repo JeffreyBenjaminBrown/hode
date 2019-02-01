@@ -29,8 +29,8 @@ keyErr callingFunction key map =  callingFunction ++ ": key "
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
-prependEither :: String -> Either String a -> Either String a
-prependEither prefix =
+prefixLeft :: String -> Either String a -> Either String a
+prefixLeft prefix =
   either (\s -> Left $ prefix ++ ": " ++ s) Right
 
 ifNothings :: [Maybe a] -> Maybe [a]

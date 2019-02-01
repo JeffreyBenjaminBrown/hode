@@ -24,7 +24,7 @@ validExpr r e = do validTplt r e
 -- has the right Arity.
 validTplt :: Rslt -> Expr -> Either String ()
 validTplt r (Rel aMembers aTplt) = do
-  (ctr,ar) <- prependEither "validTplt" $ variety r aTplt
+  (ctr,ar) <- prefixLeft "validTplt" $ variety r aTplt
   if ctr == Tplt'          then Right ()
     else Left $ "validTplt: expr at " ++ show aTplt ++ " not a Tplt.\n"
   if ar == length aMembers then Right ()

@@ -23,7 +23,7 @@ import Util
 
 replace :: Expr -> Addr -> Rslt -> Either String Rslt
 replace e oldAddr r = do
-  let pel = prependEither "replace"
+  let pel = prefixLeft "replace"
   newAddr <- (+1) <$> pel (maxAddr r)
   _       <-          pel $ validExpr r e
   r       <-          pel $ insertAt newAddr e r
@@ -32,7 +32,7 @@ replace e oldAddr r = do
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
-  (roles :: Set (Role, Addr)) <- prependEither "_substitute"
+  (roles :: Set (Role, Addr)) <- prefixLeft "_substitute"
                                  $ isIn r old
   let f :: Either String Rslt -> (Role, Addr) -> Either String Rslt
       f e@(Left _) _ = e
@@ -41,7 +41,7 @@ _substitute new old r = do
 
 _replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr
 _replaceInExpr r spot new host = do
-  let pel = prependEither "_replaceInExpr"
+  let pel = prefixLeft "_replaceInExpr"
   pel $ exprAt r new
 
   case spot of
@@ -75,7 +75,7 @@ _replaceInExpr r spot new host = do
 
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceInRole spot new host r = do
-  let pel = prependEither "replaceInRole"
+  let pel = prefixLeft "replaceInRole"
   _                          <- pel $ exprAt r new
   oldHostExpr                <- pel $ exprAt r host
   (hostHas :: Map Role Addr) <- pel $ has r host
@@ -106,12 +106,12 @@ replaceInRole spot new host r = do
 
 insert :: Expr -> Rslt -> Either String Rslt
 insert e r = do
-  newAddr <- (+1) <$> prependEither "insert" (maxAddr r)
+  newAddr <- (+1) <$> prefixLeft "insert" (maxAddr r)
   insertAt newAddr e r
 
 insertAt :: Addr -> Expr -> Rslt -> Either String Rslt
 insertAt a e r = do
-  prependEither "insertAt" $ validExpr r e
+  prefixLeft "insertAt" $ validExpr r e
   let errMsg = "insertAt: Addr " ++ show a ++ " already occupied.\n"
       in either Right (const $ Left errMsg)
          $ exprAt r a
@@ -137,7 +137,7 @@ _insert a e r = Rslt {
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r = do
   (aHas       ::           Map Role Addr) <-
-    prependEither "_deleteInternalMentionsOf" $ has r a
+    prefixLeft "_deleteInternalMentionsOf" $ has r a
   let (_has2  :: Map Addr (Map Role Addr)) = M.delete a $ _has r
       (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r
       (_isIn2 :: Map Addr (Set (Role, Addr))) =
@@ -149,7 +149,7 @@ _deleteInternalMentionsOf a r = do
           f ii rl ad = M.adjust (S.delete (rl,a)) ad ii
 
   _addrOf2 <- do
-    e <- prependEither "_deleteInternalMentionsOf" $ exprAt r a
+    e <- prefixLeft "_deleteInternalMentionsOf" $ exprAt r a
     Right $ M.delete e $ _addrOf r
 
   Right $ Rslt {
@@ -162,7 +162,7 @@ _deleteInternalMentionsOf a r = do
 
 deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
 deleteUnusedExpr a r = do
-  users <- prependEither "deleteUnusedExpr: " $ isIn r a
+  users <- prefixLeft "deleteUnusedExpr: " $ isIn r a
   if null users
     then _deleteInternalMentionsOf a r
     else Left $ "deleteUnused: Addr " ++ show a
