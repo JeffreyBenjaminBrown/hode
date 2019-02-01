@@ -18,7 +18,7 @@ import Util
 
 
 depth :: ImgOfExpr -> Int
-depth (ImgOfExpr (Word _)) = 0
+depth (ImgOfWord _) = 0
 depth (ImgOfAddr _) = 0
 depth (ImgOfRel mems _) = 1 + maximum (map depth mems)
 depth (ImgOfTplt mems) = 0 -- ^ TODO ? consider Tplts with non-Word members
@@ -26,7 +26,7 @@ depth (ImgOfPar sis _) = 1 + maximum (map (depth . snd) sis)
 
 
 imgOfExpr :: Rslt -> Expr -> Either String ImgOfExpr
-imgOfExpr _ w@(Word _) = Right $ ImgOfExpr w
+imgOfExpr _ (Word w) = Right $ ImgOfWord w
 imgOfExpr r (Tplt jointAs) = do
   (jointEs  :: [Expr])      <- ifLefts "imgOfExpr" $ map (exprAt r) jointAs
   (jointEis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
@@ -46,27 +46,5 @@ imgOfExpr r (Par sas s) = do
   Right $ ImgOfPar (zip ss eis) s
 
 
--- | TODO : This strategy is bad. Instead of showing an Expr,
--- show an ExprImg. Those are something the depth of which is easy
--- to compute.
-eShow :: Rslt -> Expr -> Either String String
-eShow _ (Word s) = Right s
-
-eShow r (Tplt as) = do
-  es <- ifLefts "eShow" $ map (exprAt r) as
-  ss <- ifLefts "eShow" $ map (eShow r) es
-  Right $ concat $ L.intersperse " _ " ss
-
-eShow r rel@(Rel memAs tpltA) = do
-  (memEs :: [Expr]) <- ifLefts "eShow" $ map (exprAt r) memAs
-  memSs <- ifLefts "eShow" $ map (eShow r) memEs
-  tpltE <- prefixLeft "eShow" $ exprAt r tpltA
-  case tpltE of
-
-    Tplt jointAs -> do
-      jointEs <- ifLefts "eShow" $ map (exprAt r) jointAs
-      jointSs <- ifLefts "eShow" $ map (eShow r) jointEs
-      Right $ concat $ map (\(j,m) -> j ++ " " ++ m)
-        $ zip jointSs memSs
-    _ -> Left $ "eShow: in " ++ show rel ++ ", " ++ show tpltA
-         ++ " is not the Addr of a Tplt.\n"
+--eShow :: Rslt -> ImgOfExpr -> Either String String
+--eShow r 

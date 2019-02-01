@@ -50,7 +50,7 @@ data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 
 -- | Something used to locate an `Expr` in an `Index`,
 -- given varying degrees of identifying information.
-data ImgOfExpr = ImgOfExpr Expr
+data ImgOfExpr = ImgOfWord String
                | ImgOfAddr Addr -- ^ Silly on its own, but useful
                                 -- when nested within another ImgOfExpr.
                | ImgOfRel  [ImgOfExpr] ImgOfExpr

@@ -19,7 +19,7 @@ lookup :: Rslt -> ImgOfExpr -> Either String Addr
 lookup x img =
   let pel = prefixLeft "lookup"
   in case img of
-  ImgOfExpr e -> pel $ addrOf x e
+  ImgOfWord w -> pel $ addrOf x $ Word w
 
   ImgOfAddr a -> pel (exprAt x a) >>= const (Right a)
 

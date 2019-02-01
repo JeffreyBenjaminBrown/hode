@@ -17,6 +17,7 @@ import           Data.Rslt.Index
 import qualified Data.Rslt.Lookup as R
 import           Data.Rslt.RTypes
 import           Data.Rslt.RValid
+import           Data.Rslt.Show
 import qualified Test.Rslt.RData as D
 import           Util
 
@@ -164,23 +165,24 @@ test_insert = TestCase $ do
     R.insertAt 1 (Rel [11,22] 4) D.rslt
 
 test_lookup = TestCase $ do
-  assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)              == Right 0
+  assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)       == Right 0
   assertBool "2" $ isLeft
                  $ (R.lookup D.rslt $ ImgOfAddr $ -10000)
-  assertBool "3" $ (R.lookup D.rslt $ ImgOfExpr $ Word "needs") == Right 3
-  assertBool "4" $ (R.lookup D.rslt $ ImgOfExpr $ Tplt [0,3,0]) == Right 4
+  assertBool "3" $ (R.lookup D.rslt $ ImgOfWord "needs") == Right 3
+  assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
+                    $ imgOfExpr D.rslt $ Tplt [0,3,0])   == Right 4
   assertBool "5" $ Right 4 ==
     R.lookup D.rslt ( ImgOfTplt [ ImgOfAddr 0
-                                , ImgOfExpr $ Word "needs"
-                                , ImgOfExpr $ Word ""] )
+                                , ImgOfWord "needs"
+                                , ImgOfWord ""] )
 
   assertBool "6" $ Right 5 ==
     R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
-                               , ImgOfExpr $ Word "oxygen"]
+                               , ImgOfWord "oxygen"]
                       $ ImgOfAddr 4 )
   assertBool "7" $ isLeft $
     R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
-                               , ImgOfExpr $ Word "oxygen"]
+                               , ImgOfWord "oxygen"]
                       $ ImgOfAddr 6 )
 
 test_has = TestCase $ do
