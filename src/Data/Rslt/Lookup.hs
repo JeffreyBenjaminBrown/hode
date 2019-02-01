@@ -58,7 +58,10 @@ isIn r a = do
 
 -- | `fills r (role,a)` finds the expression that occupies
 -- role in a.
-fills :: Rslt -> (Role, Addr) -> Maybe Addr
-fills x (r,a) = case M.lookup a $ _has x of
-  Nothing -> Nothing
-  Just ps -> M.lookup r ps
+fills :: Rslt -> (Role, Addr) -> Either String Addr
+fills x (r,a) = do
+  (positions :: Map Role Addr) <-
+    prependEither "fills" $ has x a
+  let err = Left $ "fills: role " ++ show r
+            ++ " not among positions in Expr at " ++ show a
+  maybe err Right $ M.lookup r positions

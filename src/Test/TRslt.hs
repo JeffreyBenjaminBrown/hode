@@ -207,14 +207,22 @@ test_isIn = TestCase $ do
                    in isIn r' 7 == Right S.empty
 
 test_fills = TestCase $ do
-  assertBool "1st in tplt"                 $ fills D.rslt (RoleMember 1, 4) == Just 0
-  assertBool "2nd in tplt"                 $ fills D.rslt (RoleMember 2, 4) == Just 3
-  assertBool "1st in rel"                  $ fills D.rslt (RoleMember 2, 5) == Just 2
-  assertBool "2nd in rel"                  $ fills D.rslt (RoleMember 1, 5) == Just 1
-  assertBool "nonexistent (3rd in binary)" $ fills D.rslt (RoleMember 3, 5) == Nothing
-  assertBool "tplt in rel"                 $ fills D.rslt (RoleTplt    , 5) == Just 4
-  assertBool "nonexistent (tplt in par)"   $ fills D.rslt (RoleTplt    , 6) == Nothing
-  assertBool "first in par"                $ fills D.rslt (RoleMember 1, 6) == Just 5
+  assertBool "1st in tplt"
+    $ fills D.rslt (RoleMember 1, 4) == Right 0
+  assertBool "2nd in tplt"
+    $ fills D.rslt (RoleMember 2, 4) == Right 3
+  assertBool "1st in rel"
+    $ fills D.rslt (RoleMember 2, 5) == Right 2
+  assertBool "2nd in rel"
+    $ fills D.rslt (RoleMember 1, 5) == Right 1
+  assertBool "nonexistent (3rd in binary)" $ isLeft
+    $ fills D.rslt (RoleMember 3, 5)
+  assertBool "tplt in rel"
+    $ fills D.rslt (RoleTplt    , 5) == Right 4
+  assertBool "nonexistent (tplt in par)" $ isLeft
+    $ fills D.rslt (RoleTplt    , 6)
+  assertBool "first in par"
+    $ fills D.rslt (RoleMember 1, 6) == Right 5
 
 test_variety = TestCase $ do
   assertBool "1" $ M.lookup 3      (_variety D.rslt) == Just (Word',0)
