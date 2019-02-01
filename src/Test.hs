@@ -11,6 +11,7 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Test.Rslt.RProgram
+import Test.Rslt.TShow
 import Test.Rslt.TIndex_and_Valid
 import Test.TGraph
 import Test.TLeaf
@@ -33,5 +34,6 @@ tests = runTestTT $ TestList
   , test_module_rslt
   , test_module_rslt_index_and_valid
   , test_module_rsltProgram
+  , test_module_rslt_show
   , testModuleSubst
   ]

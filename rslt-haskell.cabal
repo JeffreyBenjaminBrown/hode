@@ -47,6 +47,7 @@ library
                 , Test
                 , Test.Rslt.RData
                 , Test.Rslt.TIndex_and_Valid
+                , Test.Rslt.TShow
                 , Test.TGraph
                 , Test.TValid
                 , Test.TLeaf

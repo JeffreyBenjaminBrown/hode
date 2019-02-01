@@ -25,11 +25,10 @@ or more alternatives:
 * TODO for RSLT
 ** features
 *** view exprs
-eShow :: Rslt -> ExprImg -> Either String String
+just test now
 **** DONE
+eShow :: Rslt -> ExprImg -> Either String String
 exprImg :: Rslt -> Expr -> ExprImg
-modify ExprImg to cover Pars
-depth :: ExprImg -> Int
 **** later
 ***** rename types
    ExprImg -> Expr
