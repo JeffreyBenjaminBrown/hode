@@ -19,7 +19,24 @@ import qualified Test.Rslt.RData as D
 test_module_rslt_show = TestList [
   TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
   , TestLabel "test_imgOfExpr" test_imgOfExpr
+  , TestLabel "test_eShow" test_eShow
   ]
+
+test_eShow = TestCase $ do
+  assertBool "1" $ eShow D.rslt (ImgOfWord "hello") == Right "hello"
+  assertBool "2" $ eShow D.rslt (ImgOfTplt $ map ImgOfWord ["a","b","c"] )
+    == Right "a _ b _ c"
+  assertBool "3" $ eShow D.rslt ( ImgOfRel ( map ImgOfWord ["a","b"] )
+                                     $ ImgOfTplt $ map ImgOfWord ["","=",""] )
+    == Right "a #= b"
+  assertBool "4" $ eShow D.rslt ( ImgOfPar [ ("Hello", ImgOfWord "cat")
+                                           , (", hello", ImgOfAddr 2) ]
+                                  ", nice to meet you both." )
+    == Right "Hello ⦑cat⦒, hello ⦑«2»⦒ , nice to meet you both."
+
+x = eShow D.rslt ( ImgOfPar [ ("Hello", ImgOfWord "cat")
+                                           , (", hello", ImgOfAddr 2) ]
+                                  ", nice to meet you both." )
 
 test_imgOfExpr = TestCase $ do
   assertBool "tplt" $ Right ( ImgOfTplt [ ImgOfWord ""
@@ -52,9 +69,3 @@ test_hashUnlessEmptyStartOrEnd = TestCase $ do
     == ["##a","##b",""]
   assertBool "6" $ hashUnlessEmptyStartOrEnd 2 ["","b","c"]
     == ["","##b","##c"]
-
-a = eShow D.rslt (ImgOfWord "hello") == Right "hello"
-a1 = eShow D.rslt (ImgOfTplt $ map ImgOfWord ["a","b","c"] )
-  == Right "a _ b _ c"
-a2 = eShow D.rslt ( ImgOfRel ( map ImgOfWord ["a","b"] )
-                    $ ImgOfTplt $ map ImgOfWord ["","=",""] )

@@ -9,6 +9,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
+import           Data.Text (strip, pack, unpack)
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
 
@@ -16,11 +17,11 @@ import Data.Rslt.RTypes
 import Data.Rslt.Lookup
 import Util
 
-
-bracket_big_left_angle = '❬' -- C-x 8 Ret 276C
-bracket_big_right_angle = '❭' -- C-x 8 Ret 276D
-bracket_small_left_double = '«' -- C-x 8 <
-bracket_small_right_double = '»' -- C-x 8 >
+-- https://unicode-search.net/unicode-namesearch.pl?term=bracket
+bracket_angle_big_left = '⦑' -- C-x 8 Ret 2991
+bracket_angle_big_right = '⦒' -- C-x 8 Ret 2992
+bracket_angle_small_left = '«' -- C-x 8 <
+bracket_angle_small_right = '»' -- C-x 8 >
 
 
 depth :: ImgOfExpr -> Int
@@ -75,18 +76,19 @@ imgOfExpr r (Par sas s) = do
 
 eShow :: Rslt -> ImgOfExpr -> Either String String
 eShow r (ImgOfWord w) = Right w
-eShow r (ImgOfAddr a) = Right $ bracket_small_left_double
-                        : show a ++ [bracket_small_right_double]
+eShow r (ImgOfAddr a) = Right $ bracket_angle_small_left
+                        : show a ++ [bracket_angle_small_right]
 
 eShow r (ImgOfTplt js) = do
   ss <- ifLefts "eShow" $ map (eShow r) js
   Right $ concat $ L.intersperse " _ " ss
 
 eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
-  let d = depth i
-  mss <- ifLefts "eShow" $ map (eShow r) ms
-  jss <- ifLefts "eShow" $ map (eShow r) js
-  Right $ concat $ map (\(m,j) -> m ++ " " ++ replicate d '#' ++ j ++ " ")
+  mss <-     ifLefts "eShow" $ map (eShow r) ms
+  jss <- hashUnlessEmptyStartOrEnd (depth i)
+         <$> ifLefts "eShow" ( map (eShow r) js )
+  Right $ unpack . strip . pack $ concat
+    $ map (\(m,j) -> m ++ " " ++ j ++ " ")
     $ zip ("" : mss) jss
 eShow r i@(ImgOfRel _ _) =
   Left $ "eShow: ImgOfRel with non-Tplt in Tplt position: " ++ show i
@@ -95,6 +97,6 @@ eShow r (ImgOfPar ps s) = do
   let (ss,ms) = unzip ps
   (mis :: [String]) <- ifLefts "eShow" $ map (eShow r) ms
   let showPair :: (String, String) -> String
-      showPair (s,mi) = s ++ " " ++ [bracket_big_left_angle]
-        ++ mi ++ [bracket_big_right_angle]
+      showPair (s,mi) = s ++ " " ++ [bracket_angle_big_left]
+        ++ mi ++ [bracket_angle_big_right]
   Right $ concat (map showPair $ zip ss mis) ++ " " ++ s
