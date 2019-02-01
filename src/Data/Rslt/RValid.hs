@@ -24,10 +24,8 @@ validExpr r e = do validTplt r e
 -- has the right Arity.
 validTplt :: Rslt -> Expr -> Either String ()
 validTplt r (Rel aMembers aTplt) = do
-  (ctr,ar) <- let
-    msg = "validTplt: nothing (hence no template) at " ++ show aTplt ++ ".\n"
-    in maybe (Left msg) Right $ variety r aTplt
-  if ctr == Tplt' then Right ()
+  (ctr,ar) <- prependEither "validTplt" $ variety r aTplt
+  if ctr == Tplt'          then Right ()
     else Left $ "validTplt: expr at " ++ show aTplt ++ " not a Tplt.\n"
   if ar == length aMembers then Right ()
     else Left $ "validTplt: expr at " ++ show aTplt

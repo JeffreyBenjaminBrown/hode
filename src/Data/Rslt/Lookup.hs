@@ -39,8 +39,9 @@ exprAt r a =
 addrOf :: Rslt -> Expr -> Maybe Addr
 addrOf r e = M.lookup e $ _addrOf r
 
-variety :: Rslt -> Addr -> Maybe (ExprCtr, Arity)
-variety = flip M.lookup . _variety
+variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
+variety r a = maybe err Right $ M.lookup a $ _variety r
+  where err = Left $ "variety: Addr " ++ show a ++ " not found.\n"
 
 -- | `has r a` finds the expression e at a in r, and returns
 -- every position contained in e.

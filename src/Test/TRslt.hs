@@ -131,7 +131,7 @@ test_deleteUnusedExpr = TestCase $ do
   assertBool "exprAt of deleted" $ isLeft $ exprAt r 5
   assertBool "addrOf missing"    $ Nothing ==
     either (error "wut") (addrOf r) (exprAt D.rslt 5)
-  assertBool "variety missing"   $ Nothing == variety r 5
+  assertBool "variety missing"   $ isLeft $ variety r 5
   assertBool "has missing"       $ isLeft $ has r 5
   assertBool "isIn missing"      $ isLeft $ isIn r 5
   assertBool "isIn $ former member of missing" $

@@ -47,7 +47,7 @@ _replaceInExpr r spot new host = do
   case spot of
     RoleTplt -> case host of
       Rel as _ -> do
-        if variety r new == Just (Tplt', length as)
+        if variety r new == Right (Tplt', length as)
           then Right $ Rel as new
           else Left $ "_replaceInExpr: Expr at " ++ show new
                ++ " is not a valid Tplt in " ++ show host ++ ".\n"
