@@ -47,12 +47,10 @@ allReferencesExist r e = let
        Tplt as            -> f as
        Par sas _          -> f $ map snd sas
 
-_allReferencesExist :: Rslt -> [Addr] -> Either [Addr] ()
-_allReferencesExist r as =
-  let lookups = zip as $ map (exprAt r) as
-      nothings = filter (isNothing . snd) lookups
-  in if null nothings then Right ()
-     else Left $ map fst nothings
+_allReferencesExist :: Rslt -> [Addr] -> Either String ()
+_allReferencesExist r as = do
+  ifLefts "_allReferencesExist: " $ map (exprAt r) as
+  Right ()
 
 
 -- | == Check the database

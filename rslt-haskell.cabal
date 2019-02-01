@@ -35,6 +35,7 @@ library
                 , Data.Rslt.Lookup
                 , Data.Rslt.RTypes
                 , Data.Rslt.RValid
+                , Data.Rslt.Show
                 , Program
                 , Query
                 , Query.MkLeaf

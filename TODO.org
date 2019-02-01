@@ -17,6 +17,7 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
+* TODO rename prependEither -> prefixLeft
 * TODO replace error with Either
 so far only used in Query.MkLeaf
 ** Matt Parsons's generic-lens magic solution to the error problem

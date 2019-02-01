@@ -31,27 +31,30 @@ lookup x img = case img of
     ma <- lookup x i
     M.lookup (Rel mas ma) $ _addrOf x
 
-exprAt :: Rslt -> Addr -> Maybe Expr
-exprAt = flip M.lookup . _exprAt
+exprAt :: Rslt -> Addr -> Either String Expr
+exprAt r a =
+  maybe (Left $ "addrOf: Addr " ++ show a ++ " absent.\n") Right
+  $ M.lookup a $ _exprAt r
 
 addrOf :: Rslt -> Expr -> Maybe Addr
-addrOf = flip M.lookup . _addrOf
+addrOf r e = M.lookup e $ _addrOf r
 
 variety :: Rslt -> Addr -> Maybe (ExprCtr, Arity)
 variety = flip M.lookup . _variety
 
 -- | `has r a` finds the expression e at a in r, and returns
 -- every position contained in e.
-has :: Rslt -> Addr -> Maybe (Map Role Addr)
-has r a = do exprAt r a
-             maybe (Just M.empty) Just $ M.lookup a $ _has r
+has :: Rslt -> Addr -> Either String (Map Role Addr)
+has r a = do
+  either (\s -> Left $ "has: " ++ s) Right $ exprAt r a
+  maybe (Right M.empty) Right $ M.lookup a $ _has r
 
 -- | `isIn r a` finds the expression e at a in r, and returns
 -- every position that e occupies.
-isIn :: Rslt -> Addr -> Maybe (Set (Role,Addr))
+isIn :: Rslt -> Addr -> Either String (Set (Role,Addr))
 isIn r a = do
-  exprAt r a
-  maybe (Just S.empty) Just $ M.lookup a $ _isIn r
+  either (\s -> Left $ "isIn: " ++ s) Right $ exprAt r a
+  maybe (Right S.empty) Right $ M.lookup a $ _isIn r
 
 -- | `fills r (role,a)` finds the expression that occupies
 -- role in a.
