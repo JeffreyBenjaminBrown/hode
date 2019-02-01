@@ -147,10 +147,10 @@ _deleteInternalMentionsOf a r = let
   (aHas   :: Maybe (Map Role Addr))       = has r a
   (_has2  :: Map Addr (Map Role Addr))    = M.delete a $ _has r
 
-  (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r
+  (_fills :: Map Addr (Set (Role, Addr))) = _isIn r
   (_isIn2 :: Map Addr (Set (Role, Addr))) =
     M.filter (not . null)
-    $ maybe _isIn1 (M.foldlWithKey f _isIn1) aHas
+    $ maybe _fills (M.foldlWithKey f _fills) aHas
     where
       f :: Map Addr (Set (Role, Addr)) -> Role -> Addr
         -> Map Addr (Set (Role, Addr))

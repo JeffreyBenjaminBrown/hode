@@ -19,6 +19,8 @@ type CondElts = Map Elt (Set Subst)
  (varTestIO could be interpreting as doing both.)
 * TODO replace error with Either
 so far only used in Query.MkLeaf
+** Matt Parsons's generic-lens magic solution to the error problem
+https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
 * TODO for RSLT
 ** features
 *** view exprs

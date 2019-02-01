@@ -53,9 +53,9 @@ isIn r a = do
   exprAt r a
   maybe (Just S.empty) Just $ M.lookup a $ _isIn r
 
--- | `isIn1 r (role,a)` finds the expression that occupies
+-- | `fills r (role,a)` finds the expression that occupies
 -- role in a.
-isIn1 :: Rslt -> (Role, Addr) -> Maybe Addr
-isIn1 x (r,a) = case M.lookup a $ _has x of
+fills :: Rslt -> (Role, Addr) -> Maybe Addr
+fills x (r,a) = case M.lookup a $ _has x of
   Nothing -> Nothing
   Just ps -> M.lookup r ps
