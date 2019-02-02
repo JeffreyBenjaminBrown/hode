@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Query where
+module Search.Query where
 
 import           Data.Either
 import           Data.List
@@ -12,10 +12,10 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Query.Valid
-import Query.RunLeaf
-import Subst
-import Types
+import Search.Query.Valid
+import Search.Query.RunLeaf
+import Search.Subst
+import Search.Types
 import Util
 
 

@@ -10,10 +10,10 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Data.Graph
-import Program
-import Query
+import Search.Program
+import Search.Query
 import RelExperim
-import Types
+import Search.Types
 
 
 test_module_Rel = TestList [

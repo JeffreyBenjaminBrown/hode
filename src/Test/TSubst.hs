@@ -9,8 +9,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import Test.HUnit
 
-import Subst
-import Types
+import Search.Subst
+import Search.Types
 
 
 testModuleSubst = TestList

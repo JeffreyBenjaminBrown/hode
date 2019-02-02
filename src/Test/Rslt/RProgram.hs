@@ -10,13 +10,13 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Program
-import           Query.MkLeaf
 import           Data.Rslt.Lookup hiding (lookup)
 import qualified Data.Rslt.Lookup as R
 import           Data.Rslt.RTypes
+import           Search.Program
+import           Search.Query.MkLeaf
+import           Search.Types
 import qualified Test.Rslt.RData as D
-import           Types
 
 
 test_module_rsltProgram = TestList [

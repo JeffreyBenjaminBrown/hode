@@ -11,8 +11,8 @@ import qualified Data.Relation  as R
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Subst
-import Types
+import Search.Subst
+import Search.Types
 import Util
 
 

@@ -29,6 +29,7 @@ library
   exposed-modules:
                   Data.Graph
                 , Data.Graph.GQuery
+                , Data.Relation
                 , Data.Rslt.Edit
                 , Data.Rslt.Files
                 , Data.Rslt.Index
@@ -36,14 +37,13 @@ library
                 , Data.Rslt.RTypes
                 , Data.Rslt.RValid
                 , Data.Rslt.Show
-                , Program
-                , Query
-                , Query.MkLeaf
-                , Query.RunLeaf
-                , Query.Valid
-                , RelExperim
-                , Relation
-                , Subst
+                , Search.Program
+                , Search.Query
+                , Search.Query.MkLeaf
+                , Search.Query.RunLeaf
+                , Search.Query.Valid
+                , Search.Subst
+                , Search.Types
                 , Test
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
@@ -52,14 +52,13 @@ library
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow
                 , Test.TGraph
-                , Test.TValid
                 , Test.TLeaf
                 , Test.TProgram
                 , Test.TQuery
                 , Test.TRslt
                 , Test.TSubst
                 , Test.TUtil
-                , Types
+                , Test.TValid
                 , Util
   other-modules:
       Paths_graph_seq

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
-module Query.Valid where
+module Search.Query.Valid where
 
 import           Data.List
 import           Data.Map (Map)
@@ -9,7 +9,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Types
+import Search.Types
 import Util
 
 

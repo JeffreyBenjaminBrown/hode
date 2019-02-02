@@ -8,12 +8,12 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import Query.Valid
-import Query.MkLeaf
-import Query.RunLeaf
+import Search.Query.Valid
+import Search.Query.MkLeaf
+import Search.Query.RunLeaf
 import Data.Graph
 import Data.Graph.GQuery
-import Types
+import Search.Types
 
 
 test_modules_leaf = TestList [

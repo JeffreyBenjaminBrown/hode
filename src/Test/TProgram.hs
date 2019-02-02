@@ -7,11 +7,11 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import Program
-import Query.MkLeaf
+import Search.Program
+import Search.Query.MkLeaf
 import Data.Graph
 import Data.Graph.GQuery
-import Types
+import Search.Types
 
 
 test_module_Program = TestList [

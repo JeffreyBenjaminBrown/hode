@@ -10,9 +10,9 @@ import           Test.HUnit hiding (Test, test)
 
 import Data.Graph
 import Data.Graph.GQuery
-import Query
-import Query.MkLeaf
-import Types
+import Search.Query
+import Search.Query.MkLeaf
+import Search.Types
 
 
 test_module_query = TestList [

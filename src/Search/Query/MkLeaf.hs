@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Query.MkLeaf where
+module Search.Query.MkLeaf where
 
 import           Data.Either
 import           Data.List
@@ -12,9 +12,9 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Query.Valid
-import Subst
-import Types
+import Search.Query.Valid
+import Search.Subst
+import Search.Types
 import Util
 
 

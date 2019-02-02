@@ -9,9 +9,6 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Types
-
-
 
 replaceNth :: a -> Int -> [a] -> Either String [a]
 replaceNth a n as = do

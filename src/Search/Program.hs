@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Program where
+module Search.Program where
 
 import           Data.Either
 import           Data.List
@@ -10,9 +10,9 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Types
-import Query
-import Query.Valid
+import Search.Types
+import Search.Query
+import Search.Query.Valid
 
 
 runProgram :: forall e sp. (Ord e, Show e)

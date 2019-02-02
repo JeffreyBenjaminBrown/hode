@@ -8,7 +8,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import Test.HUnit
 
-import Types
+import Search.Types
 import Util
 
 

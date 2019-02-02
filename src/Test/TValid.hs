@@ -11,9 +11,9 @@ import           Test.HUnit hiding (Test)
 
 import Data.Graph
 import Data.Graph.GQuery
-import Query.Valid
-import Query.MkLeaf
-import Types
+import Search.Query.Valid
+import Search.Query.MkLeaf
+import Search.Types
 
 
 type QIGI = Query Int (Graph Int)
