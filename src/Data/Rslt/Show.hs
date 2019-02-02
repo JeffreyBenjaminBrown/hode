@@ -54,24 +54,30 @@ hashUnlessEmptyStartOrEnd k joints = case joints of
                                   : hashUnlessEmptyEnd k ss
 
 
-imgOfExpr :: Rslt -> RefExpr -> Either String Expr
-imgOfExpr _ (Word' w) = Right $ Word w
-imgOfExpr r (Tplt' jointAs) = do
-  (jointEs  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (refExprAt r) jointAs
-  (jointEis :: [Expr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
+exprFromRefExpr :: Rslt -> RefExpr -> Either String Expr
+exprFromRefExpr _ (Word' w) = Right $ Word w
+exprFromRefExpr r (Tplt' jointAs) = do
+  (jointEs  :: [RefExpr])   <-
+    ifLefts "exprFromRefExpr" $ map (refExprAt r) jointAs
+  (jointEis :: [Expr]) <-
+    ifLefts "exprFromRefExpr" $ map (exprFromRefExpr r) jointEs
   Right $ Tplt jointEis
 
-imgOfExpr r (Rel' memAs tA) = do
-  (memEs  :: [RefExpr])   <- ifLefts    "imgOfExpr" $ map (refExprAt r) memAs
-  (memEis :: [Expr]) <- ifLefts    "imgOfExpr" $ map (imgOfExpr r) memEs
-  (tE     :: RefExpr)     <- prefixLeft "imgOfExpr" $ refExprAt r tA
-  (tEi    :: Expr)   <- prefixLeft "imgOfExpr" $ imgOfExpr r tE
+exprFromRefExpr r (Rel' memAs tA) = do
+  (memEs  :: [RefExpr]) <- ifLefts    "exprFromRefExpr"
+                          $ map (refExprAt r) memAs
+  (memEis :: [Expr])    <- ifLefts    "exprFromRefExpr"
+                           $ map (exprFromRefExpr r) memEs
+  (tE     :: RefExpr)   <- prefixLeft "exprFromRefExpr"
+                           $ refExprAt r tA
+  (tEi    :: Expr)      <- prefixLeft "exprFromRefExpr"
+                           $ exprFromRefExpr r tE
   Right $ Rel memEis tEi
 
-imgOfExpr r (Par' sas s) = do
+exprFromRefExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
-  (es  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (refExprAt r) as
-  (eis :: [Expr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) es
+  (es  :: [RefExpr]) <- ifLefts "exprFromRefExpr" $ map (refExprAt r) as
+  (eis :: [Expr])    <- ifLefts "exprFromRefExpr" $ map (exprFromRefExpr r) es
   Right $ Par (zip ss eis) s
 
 
@@ -92,7 +98,7 @@ eShow r (Tplt js) = do
   Right $ concat $ L.intersperse " _ " ss
 
 eShow r i@(Rel ms (Tplt js)) = do
-  mss <- ifLefts     "eShow" $ map (eShow r) ms
+  mss <-     ifLefts "eShow" $ map (eShow r) ms
   jss <- hashUnlessEmptyStartOrEnd (depth i)
          <$> ifLefts "eShow" ( map (eShow r) js )
   Right $ unpack . strip . pack $ concat
@@ -100,8 +106,8 @@ eShow r i@(Rel ms (Tplt js)) = do
     $ zip ("" : mss) jss
 
 eShow r (Rel ms (ExprAddr a)) = do
-  (te :: RefExpr)   <- prefixLeft "eShow" $ refExprAt r a
-  (ti :: Expr) <- prefixLeft "eShow" $ imgOfExpr r te
+  (te :: RefExpr) <- prefixLeft "eShow" $ refExprAt r a
+  (ti :: Expr)    <- prefixLeft "eShow" $ exprFromRefExpr r te
   eShow r $ Rel ms ti
 eShow r i@(Rel _ _) =
   Left $ "eShow: Rel with non-Tplt in Tplt position: " ++ show i

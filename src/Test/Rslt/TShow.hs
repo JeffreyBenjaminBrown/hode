@@ -18,7 +18,7 @@ import qualified Test.Rslt.RData as D
 
 test_module_rslt_show = TestList [
   TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
-  , TestLabel "test_imgOfExpr" test_imgOfExpr
+  , TestLabel "test_exprFromRefExpr" test_exprFromRefExpr
   , TestLabel "test_eShow" test_eShow
   ]
 
@@ -34,16 +34,16 @@ test_eShow = TestCase $ do
                                   ", nice to meet you both." )
     == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
 
-test_imgOfExpr = TestCase $ do
+test_exprFromRefExpr = TestCase $ do
   assertBool "tplt" $ Right ( Tplt [ Word ""
                                            , Word "needs"
                                            , Word "" ] )
-    == imgOfExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
+    == exprFromRefExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
   assertBool "par" $ Right ( Par [ ( "You can't eat"
                                         , Word "oxygen" ) ]
                              "silly" )
-    == imgOfExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
+    == exprFromRefExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
 
   assertBool "rel, recursive" $
     let ti = Tplt [ Word ""
@@ -54,7 +54,7 @@ test_imgOfExpr = TestCase $ do
                                    , Word "oxygen" ]
                           ti ]
                ti )
-    == imgOfExpr D.rslt ( Rel' [1,5] 4 )
+    == exprFromRefExpr D.rslt ( Rel' [1,5] 4 )
 
 test_hashUnlessEmptyStartOrEnd = TestCase $ do
   assertBool "1" $ hashUnlessEmptyStartOrEnd 2 [] == []

@@ -24,7 +24,7 @@ import           Util
 
 test_module_rslt_edit = TestList [
     TestLabel "test_insert" test_insert
-  , TestLabel "test_deleteUnusedRefExpr" test_deleteUnusedRefExpr
+  , TestLabel "test_deleteUnused" test_deleteUnused
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
   , TestLabel "test_lookupInsert" test_lookupInsert
@@ -74,7 +74,7 @@ test_lookupInsert = TestCase $ do
                                 , Word "does"
                                 , ExprAddr 0 ] ) )
     (n16 :: Expr) =
-      either (error "wut") id $ refExprAt r a >>= imgOfExpr r
+      either (error "wut") id $ refExprAt r a >>= exprFromRefExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 
 test_replace = TestCase $ do
@@ -147,7 +147,7 @@ test_replaceInRole = TestCase $ do
            $ R.insertAt 8 (Word' "foo") D.rslt
   assertBool "4" $ isIn r2 8 == Right (S.singleton (RoleMember 2, 5))
 
-test_deleteUnusedRefExpr = TestCase $ do
+test_deleteUnused = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel'5)
   -- and insert at 6 (Rel' [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
@@ -155,12 +155,12 @@ test_deleteUnusedRefExpr = TestCase $ do
       (with_new_rel :: Rslt) = either (error "wut") id
                                $ R.insertAt 6 (Rel' [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
-                               $ R.deleteUnusedRefExpr 5 with_new_rel
+                               $ R.deleteUnused 5 with_new_rel
   assertBool "valid 1" $ isRight $ validRslt without_6
   assertBool "valid 2" $ isRight $ validRslt with_new_rel
   assertBool "valid 3" $ isRight $ validRslt r
 
-  assertBool "1" $ isLeft $ R.deleteUnusedRefExpr 5 D.rslt
+  assertBool "1" $ isLeft $ R.deleteUnused 5 D.rslt
   assertBool "refExprAt of deleted" $ isLeft $ refExprAt r 5
   assertBool "addrOf missing"    $ isLeft $
     either (error "wut") (addrOf r) (refExprAt D.rslt 5)

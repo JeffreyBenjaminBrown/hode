@@ -94,7 +94,7 @@ replace e oldAddr r = do
   _       <- pel $ validRefExpr r e
   r       <- pel $ insertAt newAddr e r
   r       <- pel $ _substitute newAddr oldAddr r
-  id      $  pel $ deleteUnusedRefExpr oldAddr r
+  id      $  pel $ deleteUnused oldAddr r
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
@@ -227,9 +227,9 @@ _deleteInternalMentionsOf a r = do
     , _addrOf = _addrOf2
     }
 
-deleteUnusedRefExpr :: Addr -> Rslt -> Either String Rslt
-deleteUnusedRefExpr a r = do
-  users <- prefixLeft "deleteUnusedRefExpr: " $ isIn r a
+deleteUnused :: Addr -> Rslt -> Either String Rslt
+deleteUnused a r = do
+  users <- prefixLeft "deleteUnused: " $ isIn r a
   if null users
     then _deleteInternalMentionsOf a r
     else Left $ "deleteUnused: Addr " ++ show a

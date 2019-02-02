@@ -36,7 +36,7 @@ test_lookup = TestCase $ do
                  $ (R.lookup D.rslt $ ExprAddr $ -10000)
   assertBool "3" $ (R.lookup D.rslt $ Word "needs") == Right 3
   assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
-                    $ imgOfExpr D.rslt $ Tplt' [0,3,0])  == Right 4
+                    $ exprFromRefExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
     R.lookup D.rslt ( Tplt [ ExprAddr 0
                                 , Word "needs"
