@@ -36,9 +36,10 @@ runAnd :: forall e sp. (Ord e, Show e)
 runAnd d p s qs = do
   let (searches,tests') = partition findlike qs
       (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
-      varTestResults = map (runVarTest p d s . unwrap) varTests where
-        unwrap = \case QVTest t -> t
+  (varTestResults :: [Bool]) <- do
+    let unwrap = \case QVTest t -> t
                        _        -> error "runAnd: unwrap: impossible."
+    ifLefts "runAnd" $ map (runVarTest p d s . unwrap) varTests
   if not $ and varTestResults then Right M.empty
   else do
    (found :: [CondElts e]) <- ifLefts "runAnd"
@@ -65,7 +66,7 @@ runVarTestlike _ _ _ (varTestlike -> False) =
   Left "runVarTestlike: not a varTestlike Query"
 
 runVarTestlike sp p s (QVTest vtest) =
-  Right $ runVarTest p sp s vtest
+  runVarTest p sp s vtest
 
 runVarTestlike sp p s (QJunct (And vtests)) =
   and <$>
@@ -110,7 +111,7 @@ runTestlike :: forall e sp. (Ord e, Show e)
 
 runTestlike _ _ _ _ (testlike -> False) =
   Left $ "runTestlike: not a testlike Query"
-runTestlike d _ ce s (QTest t) = Right $ runTest d s t ce
+runTestlike d _ ce s (QTest t) = runTest d s t ce
 runTestlike _ _ _ _ (QVTest _) =
   Left $ "runTestlike: VarTest should have been handled by And."
 
@@ -157,7 +158,7 @@ runFindlike :: forall e sp. (Ord e, Show e)
          -> Either String (CondElts e)
 
 runFindlike _ _ _ (findlike -> False) = Left "runFindlike: non-findlike Query"
-runFindlike d _ s (QFind f) = Right $ runFind d s f
+runFindlike d _ s (QFind f) = runFind d s f
 
 runFindlike d p s (QJunct (And qs)) = runAnd d p s qs
 

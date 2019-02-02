@@ -69,7 +69,7 @@ test_usesOnlyIntroducedVars = TestCase $ do
     ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "b" :: QIGI ) )
 
 test_noIntroducedVarMasked = TestCase $ do
-  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
+  let qf  = QFind $ Find (\_ _ -> Right S.empty) S.empty
       [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
       qx  = QQuant $ ForSome  "x" x qf
       qy  = QQuant $ ForSome  "y" y qf
@@ -88,7 +88,7 @@ test_noIntroducedVarMasked = TestCase $ do
 
 
 test_noAndCollisions = TestCase $ do
-  let qf  = QFind $ Find (\_ _ -> S.empty) S.empty
+  let qf  = QFind $ Find (\_ _ -> Right S.empty) S.empty
       [x,x1,x2,y,y1,y2,z] = ["x","x1","x2","y","y1","y2","z"]
       qx  = QQuant $ ForSome  x x qf
       qy  = QQuant $ ForSome  y y qf
@@ -149,7 +149,7 @@ test_usesVars = TestCase $ do
 
 test_introducesVars = TestCase $ do
   let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
-      q = QFind $ Find (\_ _ -> S.singleton 1) S.empty
+      q = QFind $ Find (\_ _ -> Right $ S.singleton 1) S.empty
       meh = error "whatever"
   assertBool "1" $ introducesVars (
     QJunct $ Or [ QQuant $ ForAll x x q []
@@ -159,8 +159,8 @@ test_introducesVars = TestCase $ do
     == S.fromList [x,y,z]
 
 test_findlike = TestCase $ do
-  let qf = QFind $ Find (\_ _    -> S.empty) S.empty
-      qc = QTest $ Test (\_ _  _ -> False  ) S.empty
+  let qf = QFind $ Find (\_ _    -> Right S.empty) S.empty
+      qc = QTest $ Test (\_ _  _ -> Right False  ) S.empty
   assertBool "1" $ findlike (QJunct $ And [qf, qc]) == True
   assertBool "2" $ findlike (QJunct $ And [qf]    ) == True
   assertBool "3" $ findlike (QJunct $ And [qc]    ) == False

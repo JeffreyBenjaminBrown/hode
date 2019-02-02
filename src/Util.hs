@@ -65,3 +65,13 @@ ifLefts_mapKeys msg m = let
        True -> Right $ M.mapKeys (fromRight impossible) m
        False -> Left $ msg ++ ": "
          ++ concat (S.map (fromLeft impossible) lefts)
+
+ifLefts_map :: Ord k
+  => String -> Map k (Either String a) -> Either String (Map k a)
+ifLefts_map msg m = let
+  lefts = filter isLeft $ M.elems m
+  impossible = error "ifLefts_map: impossible."
+  in case null lefts of
+       True -> Right $ M.map (fromRight impossible) m
+       False -> Left $ msg ++ ": "
+         ++ concat (map (fromLeft impossible) lefts)

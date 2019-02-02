@@ -33,9 +33,9 @@ test_runTest = TestCase $ do
       (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton $ M.empty) ]
   assertBool "1" $ runTest g a2 (test (/=) $ Left 1) ce
-    == M.singleton 2 (S.singleton M.empty)
+    == Right ( M.singleton 2 (S.singleton M.empty) )
   assertBool "2" $ runTest g a2 (test (/=) $ Right a) ce
-    == M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] )
+    == Right ( M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] ) )
 
   let (a,b,c) = ("a","b","c")
       g = graph [ (1, [2,3] )
@@ -45,24 +45,25 @@ test_runTest = TestCase $ do
     ( test (>) (Left 1) )
     (  M.fromList [ (0, S.singleton $ M.singleton c 1)
                   , (2, S.singleton $ M.singleton c 1) ] )
-    == M.fromList [ (0, S.singleton $ M.singleton c 1) ]
+    == Right ( M.fromList [ (0, S.singleton $ M.singleton c 1) ] )
   assertBool "2" $ runTest g s
     ( test (<) (Right a) )
     (  M.fromList [ (0, S.singleton $ M.singleton c 1)
                   , (2, S.singleton $ M.singleton c 1) ] )
-    == M.fromList [ (2, S.singleton $ M.fromList [ (a,1), (c,1) ] ) ]
+    == Right ( M.fromList
+               [ (2, S.singleton $ M.fromList [ (a,1), (c,1) ] ) ] )
 
 test_runFind = TestCase $ do
   let (a,b,c) = ("a","b","c")
       g = graph [ (1, [2,3] ) ]
       s = M.fromList [(a, 1), (b, 2)]
   assertBool "1" $ runFind g s (findChildren $ Left 1)  ==
-    M.fromList [ (2, S.singleton M.empty)
-               , (3, S.singleton M.empty) ]
+    Right ( M.fromList [ (2, S.singleton M.empty)
+                       , (3, S.singleton M.empty) ] )
   assertBool "2" $ runFind g s (findChildren $ Right a) ==
-    M.fromList [ (2, S.singleton $ M.singleton a 1)
-               , (3, S.singleton $ M.singleton a 1) ]
-  assertBool "2" $ runFind g s (findChildren $ Right b) == M.empty
+    Right ( M.fromList [ (2, S.singleton $ M.singleton a 1)
+                       , (3, S.singleton $ M.singleton a 1) ] )
+  assertBool "2" $ runFind g s (findChildren $ Right b) == Right M.empty
 
 test_runVarTest_ioTest = TestCase $ do
   let g = graph [] :: Graph Int
@@ -73,14 +74,15 @@ test_runVarTest_ioTest = TestCase $ do
         , (b, M.fromList [ ( 1, S.fromList [ M.singleton a 1
                                            , M.singleton a 2 ] )
                          , ( 2, S.singleton M.empty)] ) ]
-      go = runVarTest p g :: Subst Int -> VarTest Int (Graph Int) -> Bool
+      go = runVarTest p g :: Subst Int -> VarTest Int (Graph Int)
+                          -> Either String Bool
 
   assertBool "in progress" $ go (M.fromList [(a,1),(b,1)]) (varTestIO a b)
-    == True
+    == Right True
   assertBool "in progress" $ go (M.fromList [(a,1),(b,2)]) (varTestIO a b)
-    == False
+    == Right False
   assertBool "in progress" $ go (M.fromList [(a,3),(b,1)]) (varTestIO a b)
-    == False
+    == Right False
 
 test_runVarTest_compare = TestCase $ do
   let a_lt_1 = varTestCompare (>) (Left 1)    $ Right "a"
@@ -89,7 +91,7 @@ test_runVarTest_compare = TestCase $ do
       b_gt_a = varTestCompare (>) (Right "b") $ Right "a"
       subst = M.fromList [("a",0),("b",2)] :: Subst Int
       meh = error "whatever"
-  assertBool "1" $ True  == runVarTest meh meh subst a_lt_1
-  assertBool "2" $ False == runVarTest meh meh subst b_lt_1
-  assertBool "3" $ False == runVarTest meh meh subst a_gt_b
-  assertBool "4" $ True  == runVarTest meh meh subst b_gt_a
+  assertBool "1" $ Right True  == runVarTest meh meh subst a_lt_1
+  assertBool "2" $ Right False == runVarTest meh meh subst b_lt_1
+  assertBool "3" $ Right False == runVarTest meh meh subst a_gt_b
+  assertBool "4" $ Right True  == runVarTest meh meh subst b_gt_a
