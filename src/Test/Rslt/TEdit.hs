@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.TRslt where
+module Test.Rslt.TEdit where
 
 import           Data.Either
 import           Data.List
@@ -22,13 +22,8 @@ import qualified Test.Rslt.RData as D
 import           Util
 
 
-test_module_rslt = TestList [
-  TestLabel "test_variety" test_variety
-  , TestLabel "test_fills" test_fills
-  , TestLabel "test_isIn" test_isIn
-  , TestLabel "test_has" test_has
-  , TestLabel "test_lookup" test_lookup
-  , TestLabel "test_insert" test_insert
+test_module_rslt_edit = TestList [
+    TestLabel "test_insert" test_insert
   , TestLabel "test_deleteUnusedExpr" test_deleteUnusedExpr
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
@@ -74,17 +69,6 @@ test_replace = TestCase $ do
   assertBool "todo : replace tplt" $
     either (error "wut") id (R.replace (Tplt [2,2,2]) 4 D.rslt)
     == mkRslt ( M.fromList
-         [ (0, Word "")
-         , (1, Word "dog")
-         , (2, Word "oxygen")
-         , (3, Word "needs")
-         , (7, Tplt [2,2,2])
-         , (5, Rel [1,2] 7) -- all changes involve address 7
-         , (6, Par [("The first relationship in this graph is ", 5)] ".")
-         ] )
-
-repRel = either (error "wut") id (R.replace (Tplt [2,2,2]) 4 D.rslt)
-repList = mkRslt ( M.fromList
          [ (0, Word "")
          , (1, Word "dog")
          , (2, Word "oxygen")
@@ -163,74 +147,3 @@ test_insert = TestCase $ do
     R.insertAt 1 (Rel [1,2,3] 4) D.rslt
   assertBool "nonexistent references" $ isLeft $
     R.insertAt 1 (Rel [11,22] 4) D.rslt
-
-test_lookup = TestCase $ do
-  assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)       == Right 0
-  assertBool "2" $ isLeft
-                 $ (R.lookup D.rslt $ ImgOfAddr $ -10000)
-  assertBool "3" $ (R.lookup D.rslt $ ImgOfWord "needs") == Right 3
-  assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
-                    $ imgOfExpr D.rslt $ Tplt [0,3,0])   == Right 4
-  assertBool "5" $ Right 4 ==
-    R.lookup D.rslt ( ImgOfTplt [ ImgOfAddr 0
-                                , ImgOfWord "needs"
-                                , ImgOfWord ""] )
-
-  assertBool "6" $ Right 5 ==
-    R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
-                               , ImgOfWord "oxygen"]
-                      $ ImgOfAddr 4 )
-  assertBool "7" $ isLeft $
-    R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
-                               , ImgOfWord "oxygen"]
-                      $ ImgOfAddr 6 )
-
-test_has = TestCase $ do
-  assertBool "tplt" $ has D.rslt 4
-    == Right ( M.fromList [ ( RoleMember 1, 0 )
-                         , ( RoleMember 2, 3 )
-                         , ( RoleMember 3, 0 ) ] )
-  assertBool "rel" $ has D.rslt 5
-    == Right ( M.fromList [ ( RoleMember 1, 1 )
-                         , ( RoleMember 2, 2 )
-                         , ( RoleTplt    , 4 ) ] )
-  assertBool "par" $ has D.rslt 6
-    == Right ( M.fromList [ ( RoleMember 1, 5 ) ] )
-  assertBool "no content" $ has D.rslt 0 == Right M.empty
-  assertBool "absent" $ isLeft $ has D.rslt 7
-
-test_isIn = TestCase $ do
-  assertBool "1" $ isIn D.rslt 0
-    == Right ( S.fromList [ (RoleMember 1, 4)
-                          , (RoleMember 3, 4) ] )
-  assertBool "2" $ isIn D.rslt 4
-    == Right ( S.fromList [ (RoleTplt, 5) ] )
-  assertBool "3" $ let r' = either (error "wut") id
-                            $ R.insertAt 7 (Word "pizza") D.rslt
-                   in isIn r' 7 == Right S.empty
-
-test_fills = TestCase $ do
-  assertBool "1st in tplt"
-    $ fills D.rslt (RoleMember 1, 4) == Right 0
-  assertBool "2nd in tplt"
-    $ fills D.rslt (RoleMember 2, 4) == Right 3
-  assertBool "1st in rel"
-    $ fills D.rslt (RoleMember 2, 5) == Right 2
-  assertBool "2nd in rel"
-    $ fills D.rslt (RoleMember 1, 5) == Right 1
-  assertBool "nonexistent (3rd in binary)" $ isLeft
-    $ fills D.rslt (RoleMember 3, 5)
-  assertBool "tplt in rel"
-    $ fills D.rslt (RoleTplt    , 5) == Right 4
-  assertBool "nonexistent (tplt in par)" $ isLeft
-    $ fills D.rslt (RoleTplt    , 6)
-  assertBool "first in par"
-    $ fills D.rslt (RoleMember 1, 6) == Right 5
-
-test_variety = TestCase $ do
-  assertBool "1" $ variety D.rslt 3 == Right (Word',0)
-  assertBool "2" $ variety D.rslt 4 == Right (Tplt',2)
-  assertBool "3" $ variety D.rslt 5 == Right (Rel',2)
-  assertBool "4" $ variety D.rslt 6 == Right (Par',1)
-  assertBool "5" $ isLeft
-                 $ variety D.rslt (-133)
