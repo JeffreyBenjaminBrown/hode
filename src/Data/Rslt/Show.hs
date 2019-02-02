@@ -17,6 +17,7 @@ import Data.Rslt.RTypes
 import Data.Rslt.Lookup
 import Util
 
+
 -- https://unicode-search.net/unicode-namesearch.pl?term=bracket
 bracket_angle_big_left = '⦑' -- C-x 8 Ret 2991
 bracket_angle_big_right = '⦒' -- C-x 8 Ret 2992

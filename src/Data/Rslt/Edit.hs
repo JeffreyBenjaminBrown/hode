@@ -19,7 +19,41 @@ import Data.Rslt.RValid
 import Util
 
 
--- | Edit
+-- | = Edit + search
+
+-- | `lookupInsert r ei` returns the `Addr` containing ei, if present.
+-- If not, it inserts ei, and then returns the `Addr` containing it.
+-- Since it might modify the `Rslt`, it also returns that.
+lookupInsert :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
+lookupInsert r ei = do
+  let (mra :: Maybe Addr) = either (const Nothing) Just
+                            $ lookup r ei
+  case mra of
+    Just a -> Right (r, a)
+    Nothing -> do
+
+    a <- (+1) <$> prefixLeft "insert" (maxAddr r)
+    lookupInsert_rootNotFound r a ei
+
+
+-- | `lookupInsert_rootNotFound` is like `lookupInsert`,
+-- for the case that the root `Expr` has been determined not to be present,
+-- but the others still might be.
+lookupInsert_rootNotFound :: Rslt -> Addr -> ImgOfExpr
+                         -> Either String (Rslt, Addr)
+lookupInsert_rootNotFound r _ (ImgOfAddr a) =
+  Left $ "lookupInsert: Addr " ++ show a ++ "not found.\n"
+
+lookupInsert_rootNotFound r a (ImgOfWord w) = do
+  r <- insertAt a (Word w) r
+  Right (r,a)
+
+lookupInsert_rootNotFound r a (ImgOfTplt js) = do
+  error "todo : finish >>>"
+  -- let as = lookupInsert
+
+
+-- | = Pure editing
 
 replace :: Expr -> Addr -> Rslt -> Either String Rslt
 replace e oldAddr r = do
