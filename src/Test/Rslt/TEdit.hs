@@ -62,19 +62,20 @@ test_lookupInsert = TestCase $ do
                $ R.insertAt 7 (Word "taxi") D.rslt
              , 8 )
 
->>>
---  assertBool "5" $ let
-Right (r,a) = R.lookupInsert D.rslt
-        ( ImgOfRel [ ImgOfRel [ ImgOfWord "space"
-                              , ImgOfWord "empty" ]
-                     ( ImgOfTplt [ ImgOfWord ""
-                                 , ImgOfWord "is"
-                                 , ImgOfAddr 0 ] )
-                   , ImgOfWord "suck" ]
-          ( ImgOfTplt [ ImgOfWord "That"
-                      , ImgOfWord "does"
-                      , ImgOfAddr 0 ] ) )
-handTest = eShow r (ImgOfAddr a)
+  assertBool "5" $ let
+    Right (r,a) = R.lookupInsert D.rslt
+                  ( ImgOfRel [ ImgOfRel [ ImgOfWord "space"
+                                        , ImgOfWord "empty" ]
+                               ( ImgOfTplt [ ImgOfWord ""
+                                           , ImgOfWord "is"
+                                           , ImgOfAddr 0 ] )
+                             , ImgOfWord "suck" ]
+                    ( ImgOfTplt [ ImgOfWord "That"
+                                , ImgOfWord "does"
+                                , ImgOfAddr 0 ] ) )
+    (n16 :: ImgOfExpr) =
+      either (error "wut") id $ exprAt r a >>= imgOfExpr r
+    in eShow r n16 == Right "##That space #is empty ##does suck"
 
 test_replace = TestCase $ do
   assertBool "replace word in rel" $

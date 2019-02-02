@@ -98,7 +98,11 @@ eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
   Right $ unpack . strip . pack $ concat
     $ map (\(m,j) -> m ++ " " ++ j ++ " ")
     $ zip ("" : mss) jss
-eShow r i@(ImgOfRel ms (ImgOfAddr a)) = error "unfinished"
+
+eShow r (ImgOfRel ms (ImgOfAddr a)) = do
+  (te :: Expr)      <- prefixLeft "eShow" $ exprAt r a
+  (ti :: ImgOfExpr) <- prefixLeft "eShow" $ imgOfExpr r te
+  eShow r $ ImgOfRel ms ti
 eShow r i@(ImgOfRel _ _) =
   Left $ "eShow: ImgOfRel with non-Tplt in Tplt position: " ++ show i
 
