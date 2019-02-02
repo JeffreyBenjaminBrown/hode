@@ -20,7 +20,6 @@ type CondElts = Map Elt (Set Subst)
 * Show addresses as numbers?
 eShow r (ImgOfAddr a) = Right $ bracket_angle_small_left
                         : show a ++ [bracket_angle_small_right]
-
 * TODO banish error for Either
 or use Matt Parsons's magic generic-lens strategy:
   https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
