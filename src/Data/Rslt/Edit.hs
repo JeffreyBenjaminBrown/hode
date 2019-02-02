@@ -32,25 +32,34 @@ lookupInsert r ei = do
     Just a -> Right (r, a)
     Nothing -> do
 
-    a <- nextAddr r
-    lookupInsert_rootNotFound r a ei
+    lookupInsert_rootNotFound r ei
 
 
 -- | `lookupInsert_rootNotFound` is like `lookupInsert`,
 -- for the case that the root `Expr` has been determined not to be present,
 -- but the others still might be.
-lookupInsert_rootNotFound :: Rslt -> Addr -> ImgOfExpr
-                         -> Either String (Rslt, Addr)
-lookupInsert_rootNotFound r _ (ImgOfAddr a) =
+lookupInsert_rootNotFound :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
+lookupInsert_rootNotFound r (ImgOfAddr a) =
   Left $ "lookupInsert: Addr " ++ show a ++ "not found.\n"
 
-lookupInsert_rootNotFound r a (ImgOfWord w) = do
+lookupInsert_rootNotFound r (ImgOfWord w) = do
+  a <- nextAddr r
   r <- insertAt a (Word w) r
   Right (r,a)
 
-lookupInsert_rootNotFound r a (ImgOfTplt js) = do
-  error "todo : finish >>>"
-  -- let as = lookupInsert
+lookupInsert_rootNotFound r (ImgOfTplt js) = do
+  let ((er, jas) :: (Either String Rslt, [Addr])) =
+        L.mapAccumL f (Right r) js where
+        f :: Either String Rslt -> ImgOfExpr -> (Either String Rslt, Addr)
+        f (Left s) ei = (Left s, error "irrelevant")
+        f (Right r) ei = case lookupInsert r ei of
+          Left s -> (Left s, error "irrelevant")
+          Right (r,a) -> (Right r, a)
+
+  r <- prefixLeft "lookupInsert_rootNotFound" er
+  a <- nextAddr r
+  r <- insertAt a (Tplt $ jas) r
+  Right (r, a)
 
 
 -- | = Pure editing
