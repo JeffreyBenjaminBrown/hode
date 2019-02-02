@@ -31,25 +31,25 @@ test_module_rslt_lookup = TestList [
   ]
 
 test_lookup = TestCase $ do
-  assertBool "1" $ (R.lookup D.rslt $ ImgOfAddr 0)       == Right 0
+  assertBool "1" $ (R.lookup D.rslt $ ExprAddr 0)       == Right 0
   assertBool "2" $ isLeft
-                 $ (R.lookup D.rslt $ ImgOfAddr $ -10000)
-  assertBool "3" $ (R.lookup D.rslt $ ImgOfWord "needs") == Right 3
+                 $ (R.lookup D.rslt $ ExprAddr $ -10000)
+  assertBool "3" $ (R.lookup D.rslt $ Word "needs") == Right 3
   assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
                     $ imgOfExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
-    R.lookup D.rslt ( ImgOfTplt [ ImgOfAddr 0
-                                , ImgOfWord "needs"
-                                , ImgOfWord ""] )
+    R.lookup D.rslt ( Tplt [ ExprAddr 0
+                                , Word "needs"
+                                , Word ""] )
 
   assertBool "6" $ Right 5 ==
-    R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
-                               , ImgOfWord "oxygen"]
-                      $ ImgOfAddr 4 )
+    R.lookup D.rslt ( Rel [ ExprAddr 1
+                               , Word "oxygen"]
+                      $ ExprAddr 4 )
   assertBool "7" $ isLeft $
-    R.lookup D.rslt ( ImgOfRel [ ImgOfAddr 1
-                               , ImgOfWord "oxygen"]
-                      $ ImgOfAddr 6 )
+    R.lookup D.rslt ( Rel [ ExprAddr 1
+                               , Word "oxygen"]
+                      $ ExprAddr 6 )
 
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4

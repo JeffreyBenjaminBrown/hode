@@ -13,26 +13,26 @@ import Data.Rslt.RTypes
 import Util
 
 
--- | = Lookup from `ImgOfExpr`s
+-- | = Lookup from `Expr`s
 
-lookup :: Rslt -> ImgOfExpr -> Either String Addr
+lookup :: Rslt -> Expr -> Either String Addr
 lookup x img =
   let pel = prefixLeft "lookup"
   in case img of
-  ImgOfWord w -> pel $ addrOf x $ Word' w
+  Word w -> pel $ addrOf x $ Word' w
 
-  ImgOfAddr a -> pel (refExprAt x a) >>= const (Right a)
+  ExprAddr a -> pel (refExprAt x a) >>= const (Right a)
 
-  ImgOfTplt is -> do
+  Tplt is -> do
     mas <- ifLefts "lookup" $ map (lookup x) is
     pel $ addrOf x $ Tplt' mas
 
-  ImgOfRel is i -> do
+  Rel is i -> do
     mas <- ifLefts "lookup" $ map (lookup x) is
     ma <- pel $ lookup x i
     pel $ addrOf x (Rel' mas ma)
 
-  ImgOfPar _ _ -> Left $ "lookup: Pars are not in index, "
+  Par _ _ -> Left $ "lookup: Pars are not in index, "
     ++ "cannot be looked up.\n"
 
 

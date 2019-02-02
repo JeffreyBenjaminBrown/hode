@@ -18,7 +18,7 @@ type CondElts = Map Elt (Set Subst)
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
 * Show addresses as numbers?
-eShow r (ImgOfAddr a) = Right $ bracket_angle_small_left
+eShow r (ExprAddr a) = Right $ bracket_angle_small_left
                         : show a ++ [bracket_angle_small_right]
 * TODO banish error for Either
 or use Matt Parsons's magic generic-lens strategy:
@@ -37,7 +37,7 @@ b <- everything that needs something in a
 ** TODO ? searches that take both Subst and Possible arguments
 ** TODO ? "nested spot", "anything", other types
 Nested spot: To describe an RSLT, it might be useful to be able to say "the second member of its first member".
-Anything: In searching for an ImgOfExpr, it would be useful to be able to say "in this position can be anything".
+Anything: In searching for an Expr, it would be useful to be able to say "in this position can be anything".
 ** features
 *** DSL for exprs
 *** DSL for queries

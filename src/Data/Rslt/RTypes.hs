@@ -13,11 +13,11 @@ type Addr = Int -- ^ Address
 type Arity = Int
 
 data Rslt = Rslt {
-    _refExprAt  :: Map Addr RefExpr
-  , _addrOf  :: Map RefExpr Addr
-  , _variety :: Map Addr (ExprCtr, Arity)
-  , _has     :: Map Addr (Map Role Addr)
-  , _isIn    :: Map Addr (Set (Role, Addr))
+    _refExprAt :: Map Addr RefExpr
+  , _addrOf    :: Map RefExpr Addr
+  , _variety   :: Map Addr (ExprCtr, Arity)
+  , _has       :: Map Addr (Map Role Addr)
+  , _isIn      :: Map Addr (Set (Role, Addr))
   } deriving (Eq, Ord, Read, Show)
 
 maxAddr :: Rslt -> Either String Addr
@@ -34,7 +34,7 @@ data RefExpr =
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | Tplt' [Addr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
-                -- The `Addr`s should probably be `Word`s.
+                 -- The `Addr`s should probably be `Word`s.
   | Par' [(String, Addr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
@@ -57,12 +57,12 @@ data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 
 -- | Something used to locate an `RefExpr` in an `Index`,
 -- given varying degrees of identifying information.
-data ImgOfExpr = ImgOfWord String
-               | ImgOfAddr Addr -- ^ Silly on its own, but useful
-                                -- when nested within another ImgOfExpr.
-               | ImgOfRel  [ImgOfExpr] ImgOfExpr
-               | ImgOfTplt [ImgOfExpr]
-               | ImgOfPar [(String, ImgOfExpr)] String
+data Expr = Word String
+               | ExprAddr Addr -- ^ Silly on its own, but useful
+                                -- when nested within another Expr.
+               | Rel  [Expr] Expr
+               | Tplt [Expr]
+               | Par [(String, Expr)] String
   deriving (Eq, Ord, Read, Show)
 
 arity :: RefExpr -> Arity

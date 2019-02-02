@@ -25,12 +25,12 @@ bracket_angle_small_left  = '«' -- C-x 8 <
 bracket_angle_small_right = '»' -- C-x 8 >
 
 
-depth :: ImgOfExpr -> Int
-depth (ImgOfWord _)     = 0
-depth (ImgOfAddr _)     = 0
-depth (ImgOfRel mems _) = 1 + maximum (map depth mems)
-depth (ImgOfTplt mems)  = 0 -- ^ TODO ? consider Tplts with non-Word members
-depth (ImgOfPar sis _)  = 1 + maximum (map (depth . snd) sis)
+depth :: Expr -> Int
+depth (Word _)     = 0
+depth (ExprAddr _) = 0
+depth (Rel mems _) = 1 + maximum (map depth mems)
+depth (Tplt mems)  = 0 -- ^ TODO ? consider Tplts with non-Word members
+depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)
 
 
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
@@ -54,44 +54,44 @@ hashUnlessEmptyStartOrEnd k joints = case joints of
                                   : hashUnlessEmptyEnd k ss
 
 
-imgOfExpr :: Rslt -> RefExpr -> Either String ImgOfExpr
-imgOfExpr _ (Word' w) = Right $ ImgOfWord w
+imgOfExpr :: Rslt -> RefExpr -> Either String Expr
+imgOfExpr _ (Word' w) = Right $ Word w
 imgOfExpr r (Tplt' jointAs) = do
   (jointEs  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (refExprAt r) jointAs
-  (jointEis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
-  Right $ ImgOfTplt jointEis
+  (jointEis :: [Expr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
+  Right $ Tplt jointEis
 
 imgOfExpr r (Rel' memAs tA) = do
   (memEs  :: [RefExpr])   <- ifLefts    "imgOfExpr" $ map (refExprAt r) memAs
-  (memEis :: [ImgOfExpr]) <- ifLefts    "imgOfExpr" $ map (imgOfExpr r) memEs
+  (memEis :: [Expr]) <- ifLefts    "imgOfExpr" $ map (imgOfExpr r) memEs
   (tE     :: RefExpr)     <- prefixLeft "imgOfExpr" $ refExprAt r tA
-  (tEi    :: ImgOfExpr)   <- prefixLeft "imgOfExpr" $ imgOfExpr r tE
-  Right $ ImgOfRel memEis tEi
+  (tEi    :: Expr)   <- prefixLeft "imgOfExpr" $ imgOfExpr r tE
+  Right $ Rel memEis tEi
 
 imgOfExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
   (es  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (refExprAt r) as
-  (eis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) es
-  Right $ ImgOfPar (zip ss eis) s
+  (eis :: [Expr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) es
+  Right $ Par (zip ss eis) s
 
 
-eShow :: Rslt -> ImgOfExpr -> Either String String
-eShow r (ImgOfAddr a) = do
+eShow :: Rslt -> Expr -> Either String String
+eShow r (ExprAddr a) = do
   e <- refExprAt r a
   case e of
-    Word' w    ->    eShow r $ ImgOfWord w
-    Tplt' js   ->    eShow r $ ImgOfTplt $ map ImgOfAddr js
-    Rel' ms t  ->    eShow r $ ImgOfRel (map ImgOfAddr ms) $ ImgOfAddr t
+    Word' w    ->    eShow r $ Word w
+    Tplt' js   ->    eShow r $ Tplt $ map ExprAddr js
+    Rel' ms t  ->    eShow r $ Rel (map ExprAddr ms) $ ExprAddr t
     Par' sas s -> let (ss, as) = unzip sas
-                  in eShow r $ ImgOfPar (zip ss $ map ImgOfAddr as) s
+                  in eShow r $ Par (zip ss $ map ExprAddr as) s
 
-eShow r (ImgOfWord w) = Right w
+eShow r (Word w) = Right w
 
-eShow r (ImgOfTplt js) = do
+eShow r (Tplt js) = do
   ss <- ifLefts "eShow" $ map (eShow r) js
   Right $ concat $ L.intersperse " _ " ss
 
-eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
+eShow r i@(Rel ms (Tplt js)) = do
   mss <- ifLefts     "eShow" $ map (eShow r) ms
   jss <- hashUnlessEmptyStartOrEnd (depth i)
          <$> ifLefts "eShow" ( map (eShow r) js )
@@ -99,14 +99,14 @@ eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
     $ map (\(m,j) -> m ++ " " ++ j ++ " ")
     $ zip ("" : mss) jss
 
-eShow r (ImgOfRel ms (ImgOfAddr a)) = do
+eShow r (Rel ms (ExprAddr a)) = do
   (te :: RefExpr)   <- prefixLeft "eShow" $ refExprAt r a
-  (ti :: ImgOfExpr) <- prefixLeft "eShow" $ imgOfExpr r te
-  eShow r $ ImgOfRel ms ti
-eShow r i@(ImgOfRel _ _) =
-  Left $ "eShow: ImgOfRel with non-Tplt in Tplt position: " ++ show i
+  (ti :: Expr) <- prefixLeft "eShow" $ imgOfExpr r te
+  eShow r $ Rel ms ti
+eShow r i@(Rel _ _) =
+  Left $ "eShow: Rel with non-Tplt in Tplt position: " ++ show i
 
-eShow r (ImgOfPar ps s) = do
+eShow r (Par ps s) = do
   let (ss,ms) = unzip ps
   (mis :: [String]) <- ifLefts "eShow" $ map (eShow r) ms
   let showPair :: (String, String) -> String

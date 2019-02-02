@@ -31,19 +31,19 @@ test_module_rslt_edit = TestList [
   ]
 
 test_lookupInsert = TestCase $ do
-  assertBool "1" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
-                                                     , ImgOfAddr 3
-                                                     , ImgOfAddr 0 ] )
+  assertBool "1" $ R.lookupInsert D.rslt ( Tplt [ ExprAddr 0
+                                                     , ExprAddr 3
+                                                     , ExprAddr 0 ] )
     == Right (D.rslt, 4)
-  assertBool "2" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
-                                                     , ImgOfAddr 1
-                                                     , ImgOfAddr 0 ] )
+  assertBool "2" $ R.lookupInsert D.rslt ( Tplt [ ExprAddr 0
+                                                     , ExprAddr 1
+                                                     , ExprAddr 0 ] )
     == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt' [0,1,0]) D.rslt
              , 7 )
 
-  assertBool "3" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfWord "bar"
-                                                     , ImgOfWord ""
-                                                     , ImgOfWord "foo" ] )
+  assertBool "3" $ R.lookupInsert D.rslt ( Tplt [ Word "bar"
+                                                     , Word ""
+                                                     , Word "foo" ] )
     == Right ( fromRight (error "wut")
                $ R.insertAt 9 (Tplt' [7,0,8])
                $ fromRight (error "wut")
@@ -53,8 +53,8 @@ test_lookupInsert = TestCase $ do
              , 9 )
 
   assertBool "4" $ R.lookupInsert D.rslt
-    ( ImgOfPar [ ("The template", ImgOfTplt $ map ImgOfAddr [0,3,0])
-               , ("could use a", ImgOfWord "taxi") ] "" )
+    ( Par [ ("The template", Tplt $ map ExprAddr [0,3,0])
+               , ("could use a", Word "taxi") ] "" )
     == Right ( fromRight (error "wut")
                $ R.insertAt 8 (Par' [ ("The template", 4)
                                    , ("could use a", 7) ] "")
@@ -64,16 +64,16 @@ test_lookupInsert = TestCase $ do
 
   assertBool "5" $ let
     Right (r,a) = R.lookupInsert D.rslt
-                  ( ImgOfRel [ ImgOfRel [ ImgOfWord "space"
-                                        , ImgOfWord "empty" ]
-                               ( ImgOfTplt [ ImgOfWord ""
-                                           , ImgOfWord "is"
-                                           , ImgOfAddr 0 ] )
-                             , ImgOfWord "suck" ]
-                    ( ImgOfTplt [ ImgOfWord "That"
-                                , ImgOfWord "does"
-                                , ImgOfAddr 0 ] ) )
-    (n16 :: ImgOfExpr) =
+                  ( Rel [ Rel [ Word "space"
+                                        , Word "empty" ]
+                               ( Tplt [ Word ""
+                                           , Word "is"
+                                           , ExprAddr 0 ] )
+                             , Word "suck" ]
+                    ( Tplt [ Word "That"
+                                , Word "does"
+                                , ExprAddr 0 ] ) )
+    (n16 :: Expr) =
       either (error "wut") id $ refExprAt r a >>= imgOfExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 

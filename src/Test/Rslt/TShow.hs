@@ -23,35 +23,35 @@ test_module_rslt_show = TestList [
   ]
 
 test_eShow = TestCase $ do
-  assertBool "1" $ eShow D.rslt (ImgOfWord "hello") == Right "hello"
-  assertBool "2" $ eShow D.rslt (ImgOfTplt $ map ImgOfWord ["a","b","c"] )
+  assertBool "1" $ eShow D.rslt (Word "hello") == Right "hello"
+  assertBool "2" $ eShow D.rslt (Tplt $ map Word ["a","b","c"] )
     == Right "a _ b _ c"
-  assertBool "3" $ eShow D.rslt ( ImgOfRel ( map ImgOfWord ["a","b"] )
-                                     $ ImgOfTplt $ map ImgOfWord ["","=",""] )
+  assertBool "3" $ eShow D.rslt ( Rel ( map Word ["a","b"] )
+                                     $ Tplt $ map Word ["","=",""] )
     == Right "a #= b"
-  assertBool "4" $ eShow D.rslt ( ImgOfPar [ ("Hello", ImgOfWord "cat")
-                                           , (", hello", ImgOfAddr 1) ]
+  assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Word "cat")
+                                           , (", hello", ExprAddr 1) ]
                                   ", nice to meet you both." )
     == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
 
 test_imgOfExpr = TestCase $ do
-  assertBool "tplt" $ Right ( ImgOfTplt [ ImgOfWord ""
-                                           , ImgOfWord "needs"
-                                           , ImgOfWord "" ] )
+  assertBool "tplt" $ Right ( Tplt [ Word ""
+                                           , Word "needs"
+                                           , Word "" ] )
     == imgOfExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
-  assertBool "par" $ Right ( ImgOfPar [ ( "You can't eat"
-                                        , ImgOfWord "oxygen" ) ]
+  assertBool "par" $ Right ( Par [ ( "You can't eat"
+                                        , Word "oxygen" ) ]
                              "silly" )
     == imgOfExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
 
   assertBool "rel, recursive" $
-    let ti = ImgOfTplt [ ImgOfWord ""
-                                                      , ImgOfWord "needs"
-                                                      , ImgOfWord "" ]
-    in Right ( ImgOfRel [ ImgOfWord "dog"
-                        , ImgOfRel [ ImgOfWord "dog"
-                                   , ImgOfWord "oxygen" ]
+    let ti = Tplt [ Word ""
+                                                      , Word "needs"
+                                                      , Word "" ]
+    in Right ( Rel [ Word "dog"
+                        , Rel [ Word "dog"
+                                   , Word "oxygen" ]
                           ti ]
                ti )
     == imgOfExpr D.rslt ( Rel' [1,5] 4 )

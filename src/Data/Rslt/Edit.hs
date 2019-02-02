@@ -24,7 +24,7 @@ import Util
 -- | `lookupInsert r ei` returns the `Addr` containing ei, if present.
 -- If not, it inserts ei, and then returns the `Addr` containing it.
 -- Since it might modify the `Rslt`, it also returns that.
-lookupInsert :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
+lookupInsert :: Rslt -> Expr -> Either String (Rslt, Addr)
 lookupInsert r ei = do
   let (mra :: Maybe Addr) = either (const Nothing) Just
                             $ lookup r ei
@@ -38,23 +38,23 @@ lookupInsert r ei = do
 -- | `lookupInsert_rootNotFound` is like `lookupInsert`,
 -- for the case that the root `RefExpr` has been determined not to be present,
 -- but the others still might be.
-lookupInsert_rootNotFound :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
-lookupInsert_rootNotFound r (ImgOfAddr a) =
+lookupInsert_rootNotFound :: Rslt -> Expr -> Either String (Rslt, Addr)
+lookupInsert_rootNotFound r (ExprAddr a) =
   Left $ "lookupInsert: Addr " ++ show a ++ "not found.\n"
 
-lookupInsert_rootNotFound r (ImgOfWord w) = do
+lookupInsert_rootNotFound r (Word w) = do
   a <- nextAddr r
   r <- insertAt a (Word' w) r
   Right (r,a)
 
-lookupInsert_rootNotFound r (ImgOfTplt js) = do
+lookupInsert_rootNotFound r (Tplt js) = do
   (r,as) <- prefixLeft "lookupInsert_rootNotFound"
             $ lookupInsert_list r js
   a <- nextAddr r
   r <- insertAt a (Tplt' $ as) r
   Right (r, a)
 
-lookupInsert_rootNotFound r (ImgOfRel ms t) = do
+lookupInsert_rootNotFound r (Rel ms t) = do
   (r,ta)  <- prefixLeft "lookupInsert_rootNotFound"
             $ lookupInsert r t
   (r,mas) <- prefixLeft "lookupInsert_rootNotFound"
@@ -63,7 +63,7 @@ lookupInsert_rootNotFound r (ImgOfRel ms t) = do
   r <- insertAt a (Rel' mas ta) r
   Right (r,a)
 
-lookupInsert_rootNotFound r (ImgOfPar ps s) = do
+lookupInsert_rootNotFound r (Par ps s) = do
   let (ss, is) = unzip ps
   (r,as) <- prefixLeft "lookupInsert_rootNotFound"
             $ lookupInsert_list r is
@@ -72,11 +72,11 @@ lookupInsert_rootNotFound r (ImgOfPar ps s) = do
   Right (r,a)
 
 
-lookupInsert_list :: Rslt -> [ImgOfExpr] -> Either String (Rslt, [Addr])
+lookupInsert_list :: Rslt -> [Expr] -> Either String (Rslt, [Addr])
 lookupInsert_list r is = do
   let ((er, as) :: (Either String Rslt, [Addr])) =
         L.mapAccumL f (Right r) is where
-        f :: Either String Rslt -> ImgOfExpr -> (Either String Rslt, Addr)
+        f :: Either String Rslt -> Expr -> (Either String Rslt, Addr)
         f (Left s) ei = (Left s, error "irrelevant")
         f (Right r) ei = case lookupInsert r ei of
           Left s -> (Left s, error "irrelevant")
