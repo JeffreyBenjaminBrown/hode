@@ -17,6 +17,10 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
+* Show addresses as numbers?
+eShow r (ImgOfAddr a) = Right $ bracket_angle_small_left
+                        : show a ++ [bracket_angle_small_right]
+
 * TODO banish error for Either
 or use Matt Parsons's magic generic-lens strategy:
   https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html

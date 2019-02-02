@@ -31,7 +31,6 @@ test_module_rslt_edit = TestList [
   ]
 
 test_lookupInsert = TestCase $ do
--- lookupInsert :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
   assertBool "1" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
                                                      , ImgOfAddr 3
                                                      , ImgOfAddr 0 ] )
@@ -41,14 +40,41 @@ test_lookupInsert = TestCase $ do
                                                      , ImgOfAddr 0 ] )
     == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt [0,1,0]) D.rslt
              , 7 )
-  assertBool "3" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
-                                                     , ImgOfWord "foo"
-                                                     , ImgOfAddr 0 ] )
+
+  assertBool "3" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfWord "bar"
+                                                     , ImgOfWord ""
+                                                     , ImgOfWord "foo" ] )
     == Right ( fromRight (error "wut")
-               $ R.insertAt 8 (Tplt [0,7,0])
+               $ R.insertAt 9 (Tplt [7,0,8])
                $ fromRight (error "wut")
-               $ R.insertAt 7 (Word "foo") D.rslt
+               $ R.insertAt 8 (Word "foo")
+               $ fromRight (error "wut")
+               $ R.insertAt 7 (Word "bar") D.rslt
+             , 9 )
+
+  assertBool "4" $ R.lookupInsert D.rslt
+    ( ImgOfPar [ ("The template", ImgOfTplt $ map ImgOfAddr [0,3,0])
+               , ("could use a", ImgOfWord "taxi") ] "" )
+    == Right ( fromRight (error "wut")
+               $ R.insertAt 8 (Par [ ("The template", 4)
+                                   , ("could use a", 7) ] "")
+               $ fromRight (error "wut")
+               $ R.insertAt 7 (Word "taxi") D.rslt
              , 8 )
+
+>>>
+--  assertBool "5" $ let
+Right (r,a) = R.lookupInsert D.rslt
+        ( ImgOfRel [ ImgOfRel [ ImgOfWord "space"
+                              , ImgOfWord "empty" ]
+                     ( ImgOfTplt [ ImgOfWord ""
+                                 , ImgOfWord "is"
+                                 , ImgOfAddr 0 ] )
+                   , ImgOfWord "suck" ]
+          ( ImgOfTplt [ ImgOfWord "That"
+                      , ImgOfWord "does"
+                      , ImgOfAddr 0 ] ) )
+handTest = eShow r (ImgOfAddr a)
 
 test_replace = TestCase $ do
   assertBool "replace word in rel" $

@@ -76,9 +76,16 @@ imgOfExpr r (Par sas s) = do
 
 
 eShow :: Rslt -> ImgOfExpr -> Either String String
+eShow r (ImgOfAddr a) = do
+  e <- exprAt r a
+  case e of
+    Word w    ->    eShow r $ ImgOfWord w
+    Rel ms t  ->    eShow r $ ImgOfRel (map ImgOfAddr ms) $ ImgOfAddr t
+    Tplt js   ->    eShow r $ ImgOfTplt $ map ImgOfAddr js
+    Par sas s -> let (ss, as) = unzip sas
+                 in eShow r $ ImgOfPar (zip ss $ map ImgOfAddr as) s
+
 eShow r (ImgOfWord w) = Right w
-eShow r (ImgOfAddr a) = Right $ bracket_angle_small_left
-                        : show a ++ [bracket_angle_small_right]
 
 eShow r (ImgOfTplt js) = do
   ss <- ifLefts "eShow" $ map (eShow r) js
@@ -91,6 +98,7 @@ eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
   Right $ unpack . strip . pack $ concat
     $ map (\(m,j) -> m ++ " " ++ j ++ " ")
     $ zip ("" : mss) jss
+eShow r i@(ImgOfRel ms (ImgOfAddr a)) = error "unfinished"
 eShow r i@(ImgOfRel _ _) =
   Left $ "eShow: ImgOfRel with non-Tplt in Tplt position: " ++ show i
 
@@ -99,5 +107,5 @@ eShow r (ImgOfPar ps s) = do
   (mis :: [String]) <- ifLefts "eShow" $ map (eShow r) ms
   let showPair :: (String, String) -> String
       showPair (s,mi) = s ++ " " ++ [bracket_angle_big_left]
-        ++ mi ++ [bracket_angle_big_right]
+        ++ mi ++ [bracket_angle_big_right] ++ " "
   Right $ concat (map showPair $ zip ss mis) ++ " " ++ s

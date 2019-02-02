@@ -46,7 +46,10 @@ library
                 , Subst
                 , Test
                 , Test.Rslt.RData
+                , Test.Rslt.RProgram
+                , Test.Rslt.TEdit
                 , Test.Rslt.TIndex_and_Valid
+                , Test.Rslt.TLookup
                 , Test.Rslt.TShow
                 , Test.TGraph
                 , Test.TValid

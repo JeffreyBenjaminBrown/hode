@@ -30,13 +30,9 @@ test_eShow = TestCase $ do
                                      $ ImgOfTplt $ map ImgOfWord ["","=",""] )
     == Right "a #= b"
   assertBool "4" $ eShow D.rslt ( ImgOfPar [ ("Hello", ImgOfWord "cat")
-                                           , (", hello", ImgOfAddr 2) ]
+                                           , (", hello", ImgOfAddr 1) ]
                                   ", nice to meet you both." )
-    == Right "Hello ⦑cat⦒, hello ⦑«2»⦒ , nice to meet you both."
-
-x = eShow D.rslt ( ImgOfPar [ ("Hello", ImgOfWord "cat")
-                                           , (", hello", ImgOfAddr 2) ]
-                                  ", nice to meet you both." )
+    == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
 
 test_imgOfExpr = TestCase $ do
   assertBool "tplt" $ Right ( ImgOfTplt [ ImgOfWord ""
