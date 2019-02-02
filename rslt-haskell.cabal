@@ -44,21 +44,20 @@ library
                 , Search.Query.Valid
                 , Search.Subst
                 , Search.Types
-                , Test
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
                 , Test.Rslt.TEdit
                 , Test.Rslt.TIndex_and_Valid
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow
+                , Test.Search.TLeaf
+                , Test.Search.TProgram
+                , Test.Search.TQuery
+                , Test.Search.TSubst
+                , Test.Search.TValid
                 , Test.TGraph
-                , Test.TLeaf
-                , Test.TProgram
-                , Test.TQuery
-                , Test.TRslt
-                , Test.TSubst
+                , Test.TMain
                 , Test.TUtil
-                , Test.TValid
                 , Util
   other-modules:
       Paths_graph_seq

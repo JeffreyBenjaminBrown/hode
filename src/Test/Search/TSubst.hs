@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.TSubst where
+module Test.Search.TSubst where
 
 import           Data.Either
 import           Data.Map (Map)

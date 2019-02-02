@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
-module Test.TLeaf where
+module Test.Search.TLeaf where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M

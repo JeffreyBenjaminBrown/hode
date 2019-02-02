@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Test.TProgram where
+module Test.Search.TProgram where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
-module Test.TQuery where
+module Test.Search.TQuery where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M

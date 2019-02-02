@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test where
+module Test.TMain where
 
 import           Data.List hiding (find)
 import           Data.Map (Map)
@@ -15,13 +15,13 @@ import Test.Rslt.TEdit
 import Test.Rslt.TIndex_and_Valid
 import Test.Rslt.TLookup
 import Test.Rslt.TShow
+import Test.Search.TLeaf
+import Test.Search.TProgram
+import Test.Search.TQuery
+import Test.Search.TSubst
+import Test.Search.TValid
 import Test.TGraph
-import Test.TLeaf
-import Test.TProgram
-import Test.TQuery
-import Test.TSubst
 import Test.TUtil
-import Test.TValid
 
 
 tests :: IO Counts
