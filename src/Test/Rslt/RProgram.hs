@@ -37,4 +37,4 @@ test_rsltProgram = TestCase $ do
         $ \sp -> either (const S.empty) S.singleton
                  $ refExprAt sp 0 ) ]
     == Right ( M.singleton "a"
-               $ M.singleton (Word "") $ S.singleton M.empty )
+               $ M.singleton (Word' "") $ S.singleton M.empty )

@@ -19,18 +19,18 @@ lookup :: Rslt -> ImgOfExpr -> Either String Addr
 lookup x img =
   let pel = prefixLeft "lookup"
   in case img of
-  ImgOfWord w -> pel $ addrOf x $ Word w
+  ImgOfWord w -> pel $ addrOf x $ Word' w
 
   ImgOfAddr a -> pel (refExprAt x a) >>= const (Right a)
 
   ImgOfTplt is -> do
     mas <- ifLefts "lookup" $ map (lookup x) is
-    pel $ addrOf x $ Tplt mas
+    pel $ addrOf x $ Tplt' mas
 
   ImgOfRel is i -> do
     mas <- ifLefts "lookup" $ map (lookup x) is
     ma <- pel $ lookup x i
-    pel $ addrOf x (Rel mas ma)
+    pel $ addrOf x (Rel' mas ma)
 
   ImgOfPar _ _ -> Left $ "lookup: Pars are not in index, "
     ++ "cannot be looked up.\n"

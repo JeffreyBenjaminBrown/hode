@@ -29,13 +29,13 @@ nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
 
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.
 data RefExpr =
-    Word String     -- ^ (Could be a phrase too.)
-  | Rel [Addr] Addr -- ^ "Relationship".
+    Word' String     -- ^ (Could be a phrase too.)
+  | Rel' [Addr] Addr -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
-  | Tplt [Addr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
+  | Tplt' [Addr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
                 -- The `Addr`s should probably be `Word`s.
-  | Par [(String, Addr)] String -- ^ "Paragraph".
+  | Par' [(String, Addr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
     -- `Par`s are like `Tplt`s, in that |Members| + 1 = |`String`s|.
@@ -44,14 +44,14 @@ data RefExpr =
   deriving (Eq, Ord, Read, Show)
 
 -- | The constructor that an `RefExpr` uses.
-data ExprCtr = Word' | Rel' | Tplt' | Par'
+data ExprCtr = WordCtr | RelCtr | TpltCtr | ParCtr
   deriving (Eq, Ord, Read, Show)
 
 refExprVariety :: RefExpr -> (ExprCtr, Arity)
-refExprVariety   (Word  _) = (Word', 0)
-refExprVariety e@(Tplt  _) = (Tplt', arity e)
-refExprVariety e@(Rel _ _) = (Rel' , arity e)
-refExprVariety e@(Par _ _) = (Par' , arity e)
+refExprVariety   (Word'  _) = (WordCtr, 0)
+refExprVariety e@(Tplt'  _) = (TpltCtr, arity e)
+refExprVariety e@(Rel' _ _) = (RelCtr , arity e)
+refExprVariety e@(Par' _ _) = (ParCtr , arity e)
 
 data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 
@@ -66,10 +66,10 @@ data ImgOfExpr = ImgOfWord String
   deriving (Eq, Ord, Read, Show)
 
 arity :: RefExpr -> Arity
-arity (Word _)  = 0
-arity (Rel x _) = length x
-arity (Tplt x)  = length x - 1
-arity (Par x _) = length x
+arity (Word' _)  = 0
+arity (Rel' x _) = length x
+arity (Tplt' x)  = length x - 1
+arity (Par' x _) = length x
 
 -- | A `RefExprs` is used to retrieve the text of `Word`s and `Par`s.
 type RefExprs = Map Addr RefExpr -- TODO use ordinary hard-disk files

@@ -38,12 +38,12 @@ test_imgOfExpr = TestCase $ do
   assertBool "tplt" $ Right ( ImgOfTplt [ ImgOfWord ""
                                            , ImgOfWord "needs"
                                            , ImgOfWord "" ] )
-    == imgOfExpr D.rslt ( Tplt [ 0, 3, 0 ] )
+    == imgOfExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
   assertBool "par" $ Right ( ImgOfPar [ ( "You can't eat"
                                         , ImgOfWord "oxygen" ) ]
                              "silly" )
-    == imgOfExpr D.rslt ( Par [("You can't eat", 2)] "silly" )
+    == imgOfExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
 
   assertBool "rel, recursive" $
     let ti = ImgOfTplt [ ImgOfWord ""
@@ -54,7 +54,7 @@ test_imgOfExpr = TestCase $ do
                                    , ImgOfWord "oxygen" ]
                           ti ]
                ti )
-    == imgOfExpr D.rslt ( Rel [1,5] 4 )
+    == imgOfExpr D.rslt ( Rel' [1,5] 4 )
 
 test_hashUnlessEmptyStartOrEnd = TestCase $ do
   assertBool "1" $ hashUnlessEmptyStartOrEnd 2 [] == []

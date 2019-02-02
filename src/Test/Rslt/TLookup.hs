@@ -36,7 +36,7 @@ test_lookup = TestCase $ do
                  $ (R.lookup D.rslt $ ImgOfAddr $ -10000)
   assertBool "3" $ (R.lookup D.rslt $ ImgOfWord "needs") == Right 3
   assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
-                    $ imgOfExpr D.rslt $ Tplt [0,3,0])   == Right 4
+                    $ imgOfExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
     R.lookup D.rslt ( ImgOfTplt [ ImgOfAddr 0
                                 , ImgOfWord "needs"
@@ -72,7 +72,7 @@ test_isIn = TestCase $ do
   assertBool "2" $ isIn D.rslt 4
     == Right ( S.fromList [ (RoleTplt, 5) ] )
   assertBool "3" $ let r' = either (error "wut") id
-                            $ R.insertAt 7 (Word "pizza") D.rslt
+                            $ R.insertAt 7 (Word' "pizza") D.rslt
                    in isIn r' 7 == Right S.empty
 
 test_fills = TestCase $ do
@@ -94,9 +94,9 @@ test_fills = TestCase $ do
     $ fills D.rslt (RoleMember 1, 6) == Right 5
 
 test_variety = TestCase $ do
-  assertBool "1" $ variety D.rslt 3 == Right (Word',0)
-  assertBool "2" $ variety D.rslt 4 == Right (Tplt',2)
-  assertBool "3" $ variety D.rslt 5 == Right (Rel',2)
-  assertBool "4" $ variety D.rslt 6 == Right (Par',1)
+  assertBool "1" $ variety D.rslt 3 == Right (WordCtr,0)
+  assertBool "2" $ variety D.rslt 4 == Right (TpltCtr,2)
+  assertBool "3" $ variety D.rslt 5 == Right (RelCtr,2)
+  assertBool "4" $ variety D.rslt 6 == Right (ParCtr,1)
   assertBool "5" $ isLeft
                  $ variety D.rslt (-133)

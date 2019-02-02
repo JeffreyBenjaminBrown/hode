@@ -44,14 +44,14 @@ lookupInsert_rootNotFound r (ImgOfAddr a) =
 
 lookupInsert_rootNotFound r (ImgOfWord w) = do
   a <- nextAddr r
-  r <- insertAt a (Word w) r
+  r <- insertAt a (Word' w) r
   Right (r,a)
 
 lookupInsert_rootNotFound r (ImgOfTplt js) = do
   (r,as) <- prefixLeft "lookupInsert_rootNotFound"
             $ lookupInsert_list r js
   a <- nextAddr r
-  r <- insertAt a (Tplt $ as) r
+  r <- insertAt a (Tplt' $ as) r
   Right (r, a)
 
 lookupInsert_rootNotFound r (ImgOfRel ms t) = do
@@ -60,7 +60,7 @@ lookupInsert_rootNotFound r (ImgOfRel ms t) = do
   (r,mas) <- prefixLeft "lookupInsert_rootNotFound"
              $ lookupInsert_list r ms
   a <- nextAddr r
-  r <- insertAt a (Rel mas ta) r
+  r <- insertAt a (Rel' mas ta) r
   Right (r,a)
 
 lookupInsert_rootNotFound r (ImgOfPar ps s) = do
@@ -68,7 +68,7 @@ lookupInsert_rootNotFound r (ImgOfPar ps s) = do
   (r,as) <- prefixLeft "lookupInsert_rootNotFound"
             $ lookupInsert_list r is
   a <- nextAddr r
-  r <- insertAt a (Par (zip ss as) s) r
+  r <- insertAt a (Par' (zip ss as) s) r
   Right (r,a)
 
 
@@ -112,9 +112,9 @@ _replaceInRefExpr r spot new host = do
 
   case spot of
     RoleTplt -> case host of
-      Rel as _ -> do
-        if variety r new == Right (Tplt', length as)
-          then Right $ Rel as new
+      Rel' as _ -> do
+        if variety r new == Right (TpltCtr, length as)
+          then Right $ Rel' as new
           else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
                 ++ " is not a valid Tplt in " ++ show host ++ ".\n"
       _ -> Left $ "_replaceInRefExpr: nothing plays the role of Tplt in "
@@ -123,18 +123,18 @@ _replaceInRefExpr r spot new host = do
     RoleMember k -> do
       case host of
 
-        Rel as a -> do
+        Rel' as a -> do
           as' <- pel $ replaceNth new k as
-          Right $ Rel as' a
+          Right $ Rel' as' a
 
-        Tplt as -> do
+        Tplt' as -> do
           as' <- pel $ replaceNth new k as
-          Right $ Tplt as'
+          Right $ Tplt' as'
 
-        Par sas s -> do
+        Par' sas s -> do
           let (ss,as) = unzip sas
           as' <- pel $ replaceNth new k as
-          Right $ Par (zip ss as') s
+          Right $ Par' (zip ss as') s
 
         _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
              ++ " has no members.\n"
@@ -156,8 +156,8 @@ replaceInRole spot new host r = do
   Right $ r {
       _refExprAt = M.insert host newHostRefExpr $ _refExprAt r
     , _addrOf = let f = case newHostRefExpr of
-                          Par _ _ -> id
-                          _       -> M.insert newHostRefExpr host
+                          Par' _ _ -> id
+                          _        -> M.insert newHostRefExpr host
                 in f $ M.delete oldHostRefExpr $ _addrOf r
 
     , _has    = M.adjust (M.insert spot new) host $ _has r

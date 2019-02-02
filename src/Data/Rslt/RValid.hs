@@ -23,9 +23,9 @@ validRefExpr r e = do validTplt r e
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
 validTplt :: Rslt -> RefExpr -> Either String ()
-validTplt r (Rel aMembers aTplt) = do
+validTplt r (Rel' aMembers aTplt) = do
   (ctr,ar) <- prefixLeft "validTplt" $ variety r aTplt
-  if ctr == Tplt'          then Right ()
+  if ctr == TpltCtr        then Right ()
     else Left $ "validTplt: expr at " ++ show aTplt ++ " not a Tplt.\n"
   if ar == length aMembers then Right ()
     else Left $ "validTplt: expr at " ++ show aTplt
@@ -33,7 +33,7 @@ validTplt r (Rel aMembers aTplt) = do
 validTplt _ _ = Right ()
 
 allReferencesExist :: Rslt -> RefExpr -> Either String ()
-allReferencesExist _ (Word _) = Right ()
+allReferencesExist _ (Word' _) = Right ()
 allReferencesExist r e = let
   f :: [Addr] -> Either String ()
   f as = case _allReferencesExist r as of
@@ -41,9 +41,9 @@ allReferencesExist r e = let
     Left as -> Left $ "allReferencesExist: Addr values not present in Rslt: "
                ++ show as
   in case e of
-       Rel aMembers aTplt -> f $ aTplt : aMembers
-       Tplt as            -> f as
-       Par sas _          -> f $ map snd sas
+       Rel' aMembers aTplt -> f $ aTplt : aMembers
+       Tplt' as            -> f as
+       Par' sas _          -> f $ map snd sas
 
 _allReferencesExist :: Rslt -> [Addr] -> Either String ()
 _allReferencesExist r as = do
@@ -73,28 +73,28 @@ collectionsWithAbsentAddrs r = res where
   absent = isNothing . flip M.lookup (_variety r)
 
   involved :: RefExpr -> [Addr]
-  involved (Word _)    = error "impossible"
-  involved (Tplt as)   = as
-  involved (Rel as a)  = a : as
-  involved (Par sas _) = map snd sas
+  involved (Word' _)    = error "impossible"
+  involved (Tplt' as)   = as
+  involved (Rel' as a)  = a : as
+  involved (Par' sas _) = map snd sas
 
   collections :: RefExprs
   collections = M.filter isCollection $ _refExprAt r where
-    isCollection expr = case expr of Word _ -> False
-                                     _      -> True
+    isCollection expr = case expr of Word' _ -> False
+                                     _       -> True
 
 relsWithoutMatchingTplts :: Rslt -> RefExprs
 relsWithoutMatchingTplts r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: RefExpr -> Bool
-  relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ _variety r of
+  relMatchesTpltArity e@(Rel' _ t) = case M.lookup t $ _variety r of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
-      Tplt' -> arity e == art
-      _         -> False
+      TpltCtr -> arity e == art
+      _       -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
   rels = M.filter isRel $ _refExprAt r where
-    isRel (Rel _ _) = True
+    isRel (Rel' _ _) = True
     isRel _         = False
