@@ -48,18 +48,41 @@ lookupInsert_rootNotFound r (ImgOfWord w) = do
   Right (r,a)
 
 lookupInsert_rootNotFound r (ImgOfTplt js) = do
-  let ((er, jas) :: (Either String Rslt, [Addr])) =
-        L.mapAccumL f (Right r) js where
+  (r,as) <- prefixLeft "lookupInsert_rootNotFound"
+            $ lookupInsert_list r js
+  a <- nextAddr r
+  r <- insertAt a (Tplt $ as) r
+  Right (r, a)
+
+lookupInsert_rootNotFound r (ImgOfRel ms t) = do
+  (r,ta)  <- prefixLeft "lookupInsert_rootNotFound"
+            $ lookupInsert r t
+  (r,mas) <- prefixLeft "lookupInsert_rootNotFound"
+             $ lookupInsert_list r ms
+  a <- nextAddr r
+  r <- insertAt a (Rel mas ta) r
+  Right (r,a)
+
+lookupInsert_rootNotFound r (ImgOfPar ps s) = do
+  let (ss, is) = unzip ps
+  (r,as) <- prefixLeft "lookupInsert_rootNotFound"
+            $ lookupInsert_list r is
+  a <- nextAddr r
+  r <- insertAt a (Par (zip ss as) s) r
+  Right (r,a)
+
+
+lookupInsert_list :: Rslt -> [ImgOfExpr] -> Either String (Rslt, [Addr])
+lookupInsert_list r is = do
+  let ((er, as) :: (Either String Rslt, [Addr])) =
+        L.mapAccumL f (Right r) is where
         f :: Either String Rslt -> ImgOfExpr -> (Either String Rslt, Addr)
         f (Left s) ei = (Left s, error "irrelevant")
         f (Right r) ei = case lookupInsert r ei of
           Left s -> (Left s, error "irrelevant")
           Right (r,a) -> (Right r, a)
-
-  r <- prefixLeft "lookupInsert_rootNotFound" er
-  a <- nextAddr r
-  r <- insertAt a (Tplt $ jas) r
-  Right (r, a)
+  r <- prefixLeft "lookupInsert_list" er
+  Right $ (r, as)
 
 
 -- | = Pure editing
