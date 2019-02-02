@@ -26,6 +26,18 @@ or use Matt Parsons's magic generic-lens strategy:
 or more alternatives:
   https://www.fpcomplete.com/blog/defining-exceptions-in-haskell
 * TODO for RSLT
+** TODO : recursive "is", using "is a kind of"
+If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
+** TODO explore : can I run these queries
+*** a <- everything that needs something
+*** a <- everything that needs something and isn't dog
+*** a <- everything that needs something
+b <- everything that needs something in a
+*** a <- eveyrthing that needs some x and helps some y, such that x != y
+** TODO ? searches that take both Subst and Possible arguments
+** TODO ? "nested spot", "anything", other types
+Nested spot: To describe an RSLT, it might be useful to be able to say "the second member of its first member".
+Anything: In searching for an ImgOfExpr, it would be useful to be able to say "in this position can be anything".
 ** features
 *** DSL for exprs
 *** DSL for queries

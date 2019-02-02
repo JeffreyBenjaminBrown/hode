@@ -27,8 +27,8 @@ readRslt :: FilePath -> IO (Rslt)
 readRslt p0 = do
   files <- filter (\f -> takeExtension f == ".rslt")
            <$> listDirectory p0
-  (es :: [(Addr, Expr)]) <- let
-      f p = do (e :: Expr) <- read <$> readFile (p0 ++ "/" ++ p)
+  (es :: [(Addr, RefExpr)]) <- let
+      f p = do (e :: RefExpr) <- read <$> readFile (p0 ++ "/" ++ p)
                let (a :: Addr) = read $ dropExtension p
                return (a,e)
       in mapM f files
@@ -36,8 +36,8 @@ readRslt p0 = do
 
 writeRslt :: FilePath -> Rslt -> IO ()
 writeRslt p r = let
-  writeExpr :: (Addr, Expr) -> IO ()
-  writeExpr (a,e) =
+  writeRefExpr :: (Addr, RefExpr) -> IO ()
+  writeRefExpr (a,e) =
     writeFile name $ show e
     where name = p ++ "/" ++ show a ++ ".rslt"
-  in mapM_ writeExpr $ M.toList $ _exprAt r
+  in mapM_ writeRefExpr $ M.toList $ _exprAt r

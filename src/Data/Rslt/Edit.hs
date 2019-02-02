@@ -36,7 +36,7 @@ lookupInsert r ei = do
 
 
 -- | `lookupInsert_rootNotFound` is like `lookupInsert`,
--- for the case that the root `Expr` has been determined not to be present,
+-- for the case that the root `RefExpr` has been determined not to be present,
 -- but the others still might be.
 lookupInsert_rootNotFound :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
 lookupInsert_rootNotFound r (ImgOfAddr a) =
@@ -87,14 +87,14 @@ lookupInsert_list r is = do
 
 -- | = Pure editing
 
-replace :: Expr -> Addr -> Rslt -> Either String Rslt
+replace :: RefExpr -> Addr -> Rslt -> Either String Rslt
 replace e oldAddr r = do
   let pel = prefixLeft "replace"
   newAddr <- pel $ nextAddr r
-  _       <- pel $ validExpr r e
+  _       <- pel $ validRefExpr r e
   r       <- pel $ insertAt newAddr e r
   r       <- pel $ _substitute newAddr oldAddr r
-  id      $  pel $ deleteUnusedExpr oldAddr r
+  id      $  pel $ deleteUnusedRefExpr oldAddr r
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
@@ -105,9 +105,9 @@ _substitute new old r = do
       f (Right r) (role,host) = replaceInRole role new host r
   S.foldl f (Right r) roles
 
-_replaceInExpr :: Rslt -> Role -> Addr -> Expr -> Either String Expr
-_replaceInExpr r spot new host = do
-  let pel = prefixLeft "_replaceInExpr"
+_replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
+_replaceInRefExpr r spot new host = do
+  let pel = prefixLeft "_replaceInRefExpr"
   pel $ exprAt r new
 
   case spot of
@@ -115,10 +115,10 @@ _replaceInExpr r spot new host = do
       Rel as _ -> do
         if variety r new == Right (Tplt', length as)
           then Right $ Rel as new
-          else Left $ "_replaceInExpr: Expr at " ++ show new
-               ++ " is not a valid Tplt in " ++ show host ++ ".\n"
-      _ -> Left $ "_replaceInExpr: nothing plays the role of Tplt in "
-           ++ show host ++ ".\n"
+          else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
+                ++ " is not a valid Tplt in " ++ show host ++ ".\n"
+      _ -> Left $ "_replaceInRefExpr: nothing plays the role of Tplt in "
+                ++ show host ++ ".\n"
 
     RoleMember k -> do
       case host of
@@ -136,28 +136,29 @@ _replaceInExpr r spot new host = do
           as' <- pel $ replaceNth new k as
           Right $ Par (zip ss as') s
 
-        _ -> Left $ "_replaceInExpr: Expr " ++ show host
+        _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
              ++ " has no members.\n"
 
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceInRole spot new host r = do
   let pel = prefixLeft "replaceInRole"
   _                          <- pel $ exprAt r new
-  oldHostExpr                <- pel $ exprAt r host
+  oldHostRefExpr             <- pel $ exprAt r host
   (hostHas :: Map Role Addr) <- pel $ has r host
-  (old :: Addr) <- let err = Left $ "replaceInRole: Expr at " ++ show host
-                         ++ " includes no position " ++ show spot ++ "\n."
+  (old :: Addr) <- let err = Left $ "replaceInRole: RefExpr at " ++ show host
+                             ++ " includes no position " ++ show spot ++ "\n."
     in maybe err Right $ M.lookup spot hostHas
 
-  (newHostExpr :: Expr) <- pel $ _replaceInExpr r spot new oldHostExpr
+  (newHostRefExpr :: RefExpr) <-
+    pel $ _replaceInRefExpr r spot new oldHostRefExpr
   (newIsAlreadyIn :: Set (Role,Addr)) <- pel $ isIn r new
 
   Right $ r {
-      _exprAt = M.insert host newHostExpr $ _exprAt r
-    , _addrOf = let f = case newHostExpr of
+      _exprAt = M.insert host newHostRefExpr $ _exprAt r
+    , _addrOf = let f = case newHostRefExpr of
                           Par _ _ -> id
-                          _       -> M.insert newHostExpr host
-                in f $ M.delete oldHostExpr $ _addrOf r
+                          _       -> M.insert newHostRefExpr host
+                in f $ M.delete oldHostRefExpr $ _addrOf r
 
     , _has    = M.adjust (M.insert spot new) host $ _has r
 
@@ -170,22 +171,22 @@ replaceInRole spot new host r = do
                 $ _isIn r
     }
 
-insert :: Expr -> Rslt -> Either String Rslt
+insert :: RefExpr -> Rslt -> Either String Rslt
 insert e r = do
   a <- prefixLeft "insert" $ nextAddr r
   insertAt a e r
 
-insertAt :: Addr -> Expr -> Rslt -> Either String Rslt
+insertAt :: Addr -> RefExpr -> Rslt -> Either String Rslt
 insertAt a e r = do
-  prefixLeft "insertAt" $ validExpr r e
+  prefixLeft "insertAt" $ validRefExpr r e
   let errMsg = "insertAt: Addr " ++ show a ++ " already occupied.\n"
       in either Right (const $ Left errMsg)
          $ exprAt r a
   Right $ _insert a e r
 
--- | PITFALL: Unsafe. Checks neither that the Expr is valid, nor that
+-- | PITFALL: Unsafe. Checks neither that the RefExpr is valid, nor that
 -- the Addr collides with nothing already present.
-_insert :: Addr -> Expr -> Rslt -> Rslt
+_insert :: Addr -> RefExpr -> Rslt -> Rslt
 _insert a e r = Rslt {
     _exprAt = M.insert a e $ _exprAt r
   , _addrOf = M.insert e a $ _addrOf r
@@ -198,7 +199,7 @@ _insert a e r = Rslt {
   }
 
 -- | PITFALL: One could put the Rslt into an invalid state by running this
--- on an Expr that appears in other Exprs. This only deletes mentions in
+-- on an RefExpr that appears in other RefExprs. This only deletes mentions in
 -- which it is the container or "the thing", but not the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r = do
@@ -226,10 +227,10 @@ _deleteInternalMentionsOf a r = do
     , _addrOf = _addrOf2
     }
 
-deleteUnusedExpr :: Addr -> Rslt -> Either String Rslt
-deleteUnusedExpr a r = do
-  users <- prefixLeft "deleteUnusedExpr: " $ isIn r a
+deleteUnusedRefExpr :: Addr -> Rslt -> Either String Rslt
+deleteUnusedRefExpr a r = do
+  users <- prefixLeft "deleteUnusedRefExpr: " $ isIn r a
   if null users
     then _deleteInternalMentionsOf a r
     else Left $ "deleteUnused: Addr " ++ show a
-         ++ " is used in other Exprs.\n"
+         ++ " is used in other RefExprs.\n"

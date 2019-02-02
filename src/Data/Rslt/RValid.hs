@@ -13,16 +13,16 @@ import Data.Rslt.Lookup
 import Util
 
 
--- | == Check an Expr
+-- | == Check a `RefExpr`
 
-validExpr :: Rslt -> Expr -> Either String ()
-validExpr r e = do validTplt r e
-                   allReferencesExist r e
+validRefExpr :: Rslt -> RefExpr -> Either String ()
+validRefExpr r e = do validTplt r e
+                      allReferencesExist r e
 
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
-validTplt :: Rslt -> Expr -> Either String ()
+validTplt :: Rslt -> RefExpr -> Either String ()
 validTplt r (Rel aMembers aTplt) = do
   (ctr,ar) <- prefixLeft "validTplt" $ variety r aTplt
   if ctr == Tplt'          then Right ()
@@ -32,7 +32,7 @@ validTplt r (Rel aMembers aTplt) = do
     ++ " does not match arity of " ++ show aMembers ++ ".\n"
 validTplt _ _ = Right ()
 
-allReferencesExist :: Rslt -> Expr -> Either String ()
+allReferencesExist :: Rslt -> RefExpr -> Either String ()
 allReferencesExist _ (Word _) = Right ()
 allReferencesExist r e = let
   f :: [Addr] -> Either String ()
@@ -72,22 +72,22 @@ collectionsWithAbsentAddrs r = res where
   absent :: Addr -> Bool
   absent = isNothing . flip M.lookup (_variety r)
 
-  involved :: Expr -> [Addr]
+  involved :: RefExpr -> [Addr]
   involved (Word _)    = error "impossible"
   involved (Tplt as)   = as
   involved (Rel as a)  = a : as
   involved (Par sas _) = map snd sas
 
-  collections :: Exprs
+  collections :: RefExprs
   collections = M.filter isCollection $ _exprAt r where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
-relsWithoutMatchingTplts :: Rslt -> Exprs
+relsWithoutMatchingTplts :: Rslt -> RefExprs
 relsWithoutMatchingTplts r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
-  relMatchesTpltArity :: Expr -> Bool
+  relMatchesTpltArity :: RefExpr -> Bool
   relMatchesTpltArity e@(Rel _ t) = case M.lookup t $ _variety r of
     Nothing         -> False
     Just (ctr, art) -> case ctr of

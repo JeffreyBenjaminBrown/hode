@@ -36,16 +36,16 @@ lookup x img =
     ++ "cannot be looked up.\n"
 
 
--- | = Lookup from `Addr`s or `Expr`s
+-- | = Lookup from `Addr`s or `RefExpr`s
 
-exprAt :: Rslt -> Addr -> Either String Expr
+exprAt :: Rslt -> Addr -> Either String RefExpr
 exprAt r a =
   maybe (Left $ "addrOf: Addr " ++ show a ++ " absent.\n") Right
   $ M.lookup a $ _exprAt r
 
-addrOf :: Rslt -> Expr -> Either String Addr
+addrOf :: Rslt -> RefExpr -> Either String Addr
 addrOf r e = maybe err Right $ M.lookup e $ _addrOf r
-  where err = Left $ "addrOf: Expr " ++ show e ++ " not found.\n"
+  where err = Left $ "addrOf: RefExpr " ++ show e ++ " not found.\n"
 
 variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
 variety r a = maybe err Right $ M.lookup a $ _variety r
@@ -72,5 +72,5 @@ fills x (r,a) = do
   (positions :: Map Role Addr) <-
     prefixLeft "fills" $ has x a
   let err = Left $ "fills: role " ++ show r
-            ++ " not among positions in Expr at " ++ show a
+            ++ " not among positions in RefExpr at " ++ show a
   maybe err Right $ M.lookup r positions

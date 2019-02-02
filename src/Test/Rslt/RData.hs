@@ -6,7 +6,7 @@ import Data.Rslt.Index
 import Data.Rslt.RTypes
 
 
-exprs :: Exprs
+exprs :: RefExprs
 exprs = M.fromList
   [ (0, Word "")
   , (1, Word "dog")
@@ -17,8 +17,8 @@ exprs = M.fromList
   , (6, Par [("The first relationship in this graph is ", 5)] ".")
   ]
 
-badExprs :: Exprs
-badExprs = M.union exprs newData where
+badRefExprs :: RefExprs
+badRefExprs = M.union exprs newData where
   newData = M.fromList [ (1001, Rel [1,2] 5)
                        , (1002, Rel [1,2] (-1000))
                        ]

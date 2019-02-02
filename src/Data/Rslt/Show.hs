@@ -19,18 +19,18 @@ import Util
 
 
 -- https://unicode-search.net/unicode-namesearch.pl?term=bracket
-bracket_angle_big_left = '⦑' -- C-x 8 Ret 2991
-bracket_angle_big_right = '⦒' -- C-x 8 Ret 2992
-bracket_angle_small_left = '«' -- C-x 8 <
+bracket_angle_big_left    = '⦑' -- C-x 8 Ret 2991
+bracket_angle_big_right   = '⦒' -- C-x 8 Ret 2992
+bracket_angle_small_left  = '«' -- C-x 8 <
 bracket_angle_small_right = '»' -- C-x 8 >
 
 
 depth :: ImgOfExpr -> Int
-depth (ImgOfWord _) = 0
-depth (ImgOfAddr _) = 0
+depth (ImgOfWord _)     = 0
+depth (ImgOfAddr _)     = 0
 depth (ImgOfRel mems _) = 1 + maximum (map depth mems)
-depth (ImgOfTplt mems) = 0 -- ^ TODO ? consider Tplts with non-Word members
-depth (ImgOfPar sis _) = 1 + maximum (map (depth . snd) sis)
+depth (ImgOfTplt mems)  = 0 -- ^ TODO ? consider Tplts with non-Word members
+depth (ImgOfPar sis _)  = 1 + maximum (map (depth . snd) sis)
 
 
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
@@ -49,28 +49,28 @@ hashUnlessEmptyStartOrEnd k joints = case joints of
 
   hashUnlessEmptyEnd :: Int -> [String] -> [String]
   hashUnlessEmptyEnd k [] = []
-  hashUnlessEmptyEnd k [s] =       [hashUnlessEmpty k s]
+  hashUnlessEmptyEnd k [s]      =  [hashUnlessEmpty k s]
   hashUnlessEmptyEnd k (s : ss) =   hash               k s
                                   : hashUnlessEmptyEnd k ss
 
 
-imgOfExpr :: Rslt -> Expr -> Either String ImgOfExpr
+imgOfExpr :: Rslt -> RefExpr -> Either String ImgOfExpr
 imgOfExpr _ (Word w) = Right $ ImgOfWord w
 imgOfExpr r (Tplt jointAs) = do
-  (jointEs  :: [Expr])      <- ifLefts "imgOfExpr" $ map (exprAt r) jointAs
+  (jointEs  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (exprAt r) jointAs
   (jointEis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
   Right $ ImgOfTplt jointEis
 
 imgOfExpr r (Rel memAs tA) = do
-  (memEs  :: [Expr])      <- ifLefts    "imgOfExpr" $ map (exprAt r) memAs
+  (memEs  :: [RefExpr])   <- ifLefts    "imgOfExpr" $ map (exprAt r) memAs
   (memEis :: [ImgOfExpr]) <- ifLefts    "imgOfExpr" $ map (imgOfExpr r) memEs
-  (tE     :: Expr)        <- prefixLeft "imgOfExpr" $ exprAt r tA
+  (tE     :: RefExpr)     <- prefixLeft "imgOfExpr" $ exprAt r tA
   (tEi    :: ImgOfExpr)   <- prefixLeft "imgOfExpr" $ imgOfExpr r tE
   Right $ ImgOfRel memEis tEi
 
 imgOfExpr r (Par sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
-  (es  :: [Expr])      <- ifLefts "imgOfExpr" $ map (exprAt r) as
+  (es  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (exprAt r) as
   (eis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) es
   Right $ ImgOfPar (zip ss eis) s
 
@@ -92,7 +92,7 @@ eShow r (ImgOfTplt js) = do
   Right $ concat $ L.intersperse " _ " ss
 
 eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
-  mss <-     ifLefts "eShow" $ map (eShow r) ms
+  mss <- ifLefts     "eShow" $ map (eShow r) ms
   jss <- hashUnlessEmptyStartOrEnd (depth i)
          <$> ifLefts "eShow" ( map (eShow r) js )
   Right $ unpack . strip . pack $ concat
@@ -100,7 +100,7 @@ eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
     $ zip ("" : mss) jss
 
 eShow r (ImgOfRel ms (ImgOfAddr a)) = do
-  (te :: Expr)      <- prefixLeft "eShow" $ exprAt r a
+  (te :: RefExpr)   <- prefixLeft "eShow" $ exprAt r a
   (ti :: ImgOfExpr) <- prefixLeft "eShow" $ imgOfExpr r te
   eShow r $ ImgOfRel ms ti
 eShow r i@(ImgOfRel _ _) =

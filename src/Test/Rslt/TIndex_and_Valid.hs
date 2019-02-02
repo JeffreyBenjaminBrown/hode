@@ -19,25 +19,25 @@ import qualified Test.Rslt.RData as D
 test_module_rslt_index_and_valid = TestList [
     TestLabel "test_invertPositions" test_invertPositions
   , TestLabel "test_checkDb" test_checkDb
-  , TestLabel "test_validExpr" test_validExpr
+  , TestLabel "test_validRefExpr" test_validRefExpr
   ]
 
-test_validExpr = TestCase $ do
+test_validRefExpr = TestCase $ do
   -- TODO : test for what kind of Left, not just whether it is Left.
   -- Could do in a future-proof manner by using enum error types rather
-  -- than strings, (But I checked by hand in GHCI; each `validExpr ...`
+  -- than strings, (But I checked by hand in GHCI; each `validRefExpr ...`
   -- expression below produces the correct kind of complaint.)
-  assertBool "good Rel" $ isRight $ validExpr D.rslt (Rel [1,2] $ 4)
-  assertBool "absent members" $ isLeft $ validExpr D.rslt (Rel [100,200] $ 4)
-  assertBool "absent template" $ isLeft $ validExpr D.rslt (Rel [1,2] $ 44)
-  assertBool "arity mismatch" $ isLeft $ validExpr D.rslt (Rel [] $ 4)
-  assertBool "tplt not a tplt" $ isLeft $ validExpr D.rslt (Rel [4] $ 0)
-  assertBool "word" $ isRight $ validExpr D.rslt (Word "meh")
+  assertBool "good Rel" $ isRight $ validRefExpr D.rslt (Rel [1,2] $ 4)
+  assertBool "absent members" $ isLeft $ validRefExpr D.rslt (Rel [100,200] $ 4)
+  assertBool "absent template" $ isLeft $ validRefExpr D.rslt (Rel [1,2] $ 44)
+  assertBool "arity mismatch" $ isLeft $ validRefExpr D.rslt (Rel [] $ 4)
+  assertBool "tplt not a tplt" $ isLeft $ validRefExpr D.rslt (Rel [4] $ 0)
+  assertBool "word" $ isRight $ validRefExpr D.rslt (Word "meh")
 
 test_checkDb = TestCase $ do
-  assertBool "1" $ M.toList (relsWithoutMatchingTplts $ mkRslt D.badExprs)
+  assertBool "1" $ M.toList (relsWithoutMatchingTplts $ mkRslt D.badRefExprs)
     == [(1001, Rel [1,2] 5), (1002, Rel [1, 2] $ -1000)]
-  assertBool "2" $ M.toList (collectionsWithAbsentAddrs $ mkRslt D.badExprs)
+  assertBool "2" $ M.toList (collectionsWithAbsentAddrs $ mkRslt D.badRefExprs)
     == [(1002, [-1000])]
 
 test_invertPositions = TestCase $ do

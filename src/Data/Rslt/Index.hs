@@ -14,7 +14,7 @@ import qualified Data.Set       as S
 import Data.Rslt.RTypes
 
 
-mkRslt :: Exprs -> Rslt
+mkRslt :: RefExprs -> Rslt
 mkRslt es = let
   (hasMap :: Map Addr (Map Role Addr)) =
     M.filter (not . M.null)
@@ -32,7 +32,7 @@ mkRslt es = let
 
 -- | == Given an expression, look up an address.
 
-imgDb :: Exprs -> Map Expr Addr
+imgDb :: RefExprs -> Map RefExpr Addr
 imgDb = M.fromList . catMaybes . map f . M.toList where
   f (addr, expr) = case expr of
     Par _ _ -> Nothing
@@ -45,7 +45,7 @@ imgDb = M.fromList . catMaybes . map f . M.toList where
 -- | `exprPositions e` gives every pair `(r,a)` such that a plays the role
 -- r in e.
 
-exprPositions :: Expr -> [(Role,Addr)]
+exprPositions :: RefExpr -> [(Role,Addr)]
 exprPositions expr =
   let r :: (Int, Addr) -> (Role, Addr)
       r (n,a) = (RoleMember n, a)
