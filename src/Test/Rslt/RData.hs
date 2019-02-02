@@ -6,8 +6,8 @@ import Data.Rslt.Index
 import Data.Rslt.RTypes
 
 
-exprs :: RefExprs
-exprs = M.fromList
+refExprs :: RefExprs
+refExprs = M.fromList
   [ (0, Word "")
   , (1, Word "dog")
   , (2, Word "oxygen")
@@ -18,9 +18,9 @@ exprs = M.fromList
   ]
 
 badRefExprs :: RefExprs
-badRefExprs = M.union exprs newData where
+badRefExprs = M.union refExprs newData where
   newData = M.fromList [ (1001, Rel [1,2] 5)
                        , (1002, Rel [1,2] (-1000))
                        ]
 
-rslt = mkRslt exprs
+rslt = mkRslt refExprs

@@ -47,7 +47,7 @@ allReferencesExist r e = let
 
 _allReferencesExist :: Rslt -> [Addr] -> Either String ()
 _allReferencesExist r as = do
-  ifLefts "_allReferencesExist: " $ map (exprAt r) as
+  ifLefts "_allReferencesExist: " $ map (refExprAt r) as
   Right ()
 
 
@@ -79,7 +79,7 @@ collectionsWithAbsentAddrs r = res where
   involved (Par sas _) = map snd sas
 
   collections :: RefExprs
-  collections = M.filter isCollection $ _exprAt r where
+  collections = M.filter isCollection $ _refExprAt r where
     isCollection expr = case expr of Word _ -> False
                                      _      -> True
 
@@ -95,6 +95,6 @@ relsWithoutMatchingTplts r = res where
       _         -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
-  rels = M.filter isRel $ _exprAt r where
+  rels = M.filter isRel $ _refExprAt r where
     isRel (Rel _ _) = True
     isRel _         = False

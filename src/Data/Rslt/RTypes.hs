@@ -13,7 +13,7 @@ type Addr = Int -- ^ Address
 type Arity = Int
 
 data Rslt = Rslt {
-    _exprAt  :: Map Addr RefExpr
+    _refExprAt  :: Map Addr RefExpr
   , _addrOf  :: Map RefExpr Addr
   , _variety :: Map Addr (ExprCtr, Arity)
   , _has     :: Map Addr (Map Role Addr)
@@ -21,15 +21,17 @@ data Rslt = Rslt {
   } deriving (Eq, Ord, Read, Show)
 
 maxAddr :: Rslt -> Either String Addr
-maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _exprAt
+maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _refExprAt
   where errMsg = Left $ "maxAddr: empty Rslt.\n"
 
 nextAddr :: Rslt -> Either String Addr
 nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
 
-data RefExpr = Word String -- ^ (Could be a phrase too.)
+-- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.
+data RefExpr =
+    Word String     -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".
-    -- The last `Addr` (the one not in the list) should be to a `Tplt`.
+    -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | Tplt [Addr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
                 -- The `Addr`s should probably be `Word`s.
@@ -45,11 +47,11 @@ data RefExpr = Word String -- ^ (Could be a phrase too.)
 data ExprCtr = Word' | Rel' | Tplt' | Par'
   deriving (Eq, Ord, Read, Show)
 
-exprVariety :: RefExpr -> (ExprCtr, Arity)
-exprVariety   (Word  _) = (Word', 0)
-exprVariety e@(Tplt  _) = (Tplt', arity e)
-exprVariety e@(Rel _ _) = (Rel' , arity e)
-exprVariety e@(Par _ _) = (Par' , arity e)
+refExprVariety :: RefExpr -> (ExprCtr, Arity)
+refExprVariety   (Word  _) = (Word', 0)
+refExprVariety e@(Tplt  _) = (Tplt', arity e)
+refExprVariety e@(Rel _ _) = (Rel' , arity e)
+refExprVariety e@(Par _ _) = (Par' , arity e)
 
 data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 

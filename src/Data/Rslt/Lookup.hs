@@ -21,7 +21,7 @@ lookup x img =
   in case img of
   ImgOfWord w -> pel $ addrOf x $ Word w
 
-  ImgOfAddr a -> pel (exprAt x a) >>= const (Right a)
+  ImgOfAddr a -> pel (refExprAt x a) >>= const (Right a)
 
   ImgOfTplt is -> do
     mas <- ifLefts "lookup" $ map (lookup x) is
@@ -38,10 +38,10 @@ lookup x img =
 
 -- | = Lookup from `Addr`s or `RefExpr`s
 
-exprAt :: Rslt -> Addr -> Either String RefExpr
-exprAt r a =
+refExprAt :: Rslt -> Addr -> Either String RefExpr
+refExprAt r a =
   maybe (Left $ "addrOf: Addr " ++ show a ++ " absent.\n") Right
-  $ M.lookup a $ _exprAt r
+  $ M.lookup a $ _refExprAt r
 
 addrOf :: Rslt -> RefExpr -> Either String Addr
 addrOf r e = maybe err Right $ M.lookup e $ _addrOf r
@@ -55,14 +55,14 @@ variety r a = maybe err Right $ M.lookup a $ _variety r
 -- every position contained in e.
 has :: Rslt -> Addr -> Either String (Map Role Addr)
 has r a = do
-  either (\s -> Left $ "has: " ++ s) Right $ exprAt r a
+  either (\s -> Left $ "has: " ++ s) Right $ refExprAt r a
   maybe (Right M.empty) Right $ M.lookup a $ _has r
 
 -- | `isIn r a` finds the expression e at a in r, and returns
 -- every position that e occupies.
 isIn :: Rslt -> Addr -> Either String (Set (Role,Addr))
 isIn r a = do
-  either (\s -> Left $ "isIn: " ++ s) Right $ exprAt r a
+  either (\s -> Left $ "isIn: " ++ s) Right $ refExprAt r a
   maybe (Right S.empty) Right $ M.lookup a $ _isIn r
 
 -- | `fills r (role,a)` finds the expression that occupies

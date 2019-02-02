@@ -57,27 +57,27 @@ hashUnlessEmptyStartOrEnd k joints = case joints of
 imgOfExpr :: Rslt -> RefExpr -> Either String ImgOfExpr
 imgOfExpr _ (Word w) = Right $ ImgOfWord w
 imgOfExpr r (Tplt jointAs) = do
-  (jointEs  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (exprAt r) jointAs
+  (jointEs  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (refExprAt r) jointAs
   (jointEis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) jointEs
   Right $ ImgOfTplt jointEis
 
 imgOfExpr r (Rel memAs tA) = do
-  (memEs  :: [RefExpr])   <- ifLefts    "imgOfExpr" $ map (exprAt r) memAs
+  (memEs  :: [RefExpr])   <- ifLefts    "imgOfExpr" $ map (refExprAt r) memAs
   (memEis :: [ImgOfExpr]) <- ifLefts    "imgOfExpr" $ map (imgOfExpr r) memEs
-  (tE     :: RefExpr)     <- prefixLeft "imgOfExpr" $ exprAt r tA
+  (tE     :: RefExpr)     <- prefixLeft "imgOfExpr" $ refExprAt r tA
   (tEi    :: ImgOfExpr)   <- prefixLeft "imgOfExpr" $ imgOfExpr r tE
   Right $ ImgOfRel memEis tEi
 
 imgOfExpr r (Par sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
-  (es  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (exprAt r) as
+  (es  :: [RefExpr])   <- ifLefts "imgOfExpr" $ map (refExprAt r) as
   (eis :: [ImgOfExpr]) <- ifLefts "imgOfExpr" $ map (imgOfExpr r) es
   Right $ ImgOfPar (zip ss eis) s
 
 
 eShow :: Rslt -> ImgOfExpr -> Either String String
 eShow r (ImgOfAddr a) = do
-  e <- exprAt r a
+  e <- refExprAt r a
   case e of
     Word w    ->    eShow r $ ImgOfWord w
     Rel ms t  ->    eShow r $ ImgOfRel (map ImgOfAddr ms) $ ImgOfAddr t
@@ -100,7 +100,7 @@ eShow r i@(ImgOfRel ms (ImgOfTplt js)) = do
     $ zip ("" : mss) jss
 
 eShow r (ImgOfRel ms (ImgOfAddr a)) = do
-  (te :: RefExpr)   <- prefixLeft "eShow" $ exprAt r a
+  (te :: RefExpr)   <- prefixLeft "eShow" $ refExprAt r a
   (ti :: ImgOfExpr) <- prefixLeft "eShow" $ imgOfExpr r te
   eShow r $ ImgOfRel ms ti
 eShow r i@(ImgOfRel _ _) =

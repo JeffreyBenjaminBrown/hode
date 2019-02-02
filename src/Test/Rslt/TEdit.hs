@@ -74,7 +74,7 @@ test_lookupInsert = TestCase $ do
                                 , ImgOfWord "does"
                                 , ImgOfAddr 0 ] ) )
     (n16 :: ImgOfExpr) =
-      either (error "wut") id $ exprAt r a >>= imgOfExpr r
+      either (error "wut") id $ refExprAt r a >>= imgOfExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 
 test_replace = TestCase $ do
@@ -151,7 +151,7 @@ test_deleteUnusedRefExpr = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel 5)
   -- and insert at 6 (Rel [1,1] 4), before deleting at 5 (Rel (1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
-  let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.exprs
+  let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.refExprs
       (with_new_rel :: Rslt) = either (error "wut") id
                                $ R.insertAt 6 (Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
@@ -161,9 +161,9 @@ test_deleteUnusedRefExpr = TestCase $ do
   assertBool "valid 3" $ isRight $ validRslt r
 
   assertBool "1" $ isLeft $ R.deleteUnusedRefExpr 5 D.rslt
-  assertBool "exprAt of deleted" $ isLeft $ exprAt r 5
+  assertBool "refExprAt of deleted" $ isLeft $ refExprAt r 5
   assertBool "addrOf missing"    $ isLeft $
-    either (error "wut") (addrOf r) (exprAt D.rslt 5)
+    either (error "wut") (addrOf r) (refExprAt D.rslt 5)
   assertBool "variety missing"   $ isLeft $ variety r 5
   assertBool "has missing"       $ isLeft $ has r 5
   assertBool "isIn missing"      $ isLeft $ isIn r 5

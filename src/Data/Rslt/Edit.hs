@@ -108,7 +108,7 @@ _substitute new old r = do
 _replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
 _replaceInRefExpr r spot new host = do
   let pel = prefixLeft "_replaceInRefExpr"
-  pel $ exprAt r new
+  pel $ refExprAt r new
 
   case spot of
     RoleTplt -> case host of
@@ -142,8 +142,8 @@ _replaceInRefExpr r spot new host = do
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceInRole spot new host r = do
   let pel = prefixLeft "replaceInRole"
-  _                          <- pel $ exprAt r new
-  oldHostRefExpr             <- pel $ exprAt r host
+  _                          <- pel $ refExprAt r new
+  oldHostRefExpr             <- pel $ refExprAt r host
   (hostHas :: Map Role Addr) <- pel $ has r host
   (old :: Addr) <- let err = Left $ "replaceInRole: RefExpr at " ++ show host
                              ++ " includes no position " ++ show spot ++ "\n."
@@ -154,7 +154,7 @@ replaceInRole spot new host r = do
   (newIsAlreadyIn :: Set (Role,Addr)) <- pel $ isIn r new
 
   Right $ r {
-      _exprAt = M.insert host newHostRefExpr $ _exprAt r
+      _refExprAt = M.insert host newHostRefExpr $ _refExprAt r
     , _addrOf = let f = case newHostRefExpr of
                           Par _ _ -> id
                           _       -> M.insert newHostRefExpr host
@@ -181,21 +181,21 @@ insertAt a e r = do
   prefixLeft "insertAt" $ validRefExpr r e
   let errMsg = "insertAt: Addr " ++ show a ++ " already occupied.\n"
       in either Right (const $ Left errMsg)
-         $ exprAt r a
+         $ refExprAt r a
   Right $ _insert a e r
 
 -- | PITFALL: Unsafe. Checks neither that the RefExpr is valid, nor that
 -- the Addr collides with nothing already present.
 _insert :: Addr -> RefExpr -> Rslt -> Rslt
 _insert a e r = Rslt {
-    _exprAt = M.insert a e $ _exprAt r
+    _refExprAt = M.insert a e $ _refExprAt r
   , _addrOf = M.insert e a $ _addrOf r
-  , _variety = M.insert a (exprVariety e) $ _variety r
+  , _variety = M.insert a (refExprVariety e) $ _variety r
   , _has = let
-      (positions :: Map Role Addr) = M.fromList $ exprPositions e
+      (positions :: Map Role Addr) = M.fromList $ refExprPositions e
       in if null positions then _has r
          else M.insert a positions $ _has r
-  , _isIn = invertAndAddPositions (_isIn r) (a, exprPositions e)
+  , _isIn = invertAndAddPositions (_isIn r) (a, refExprPositions e)
   }
 
 -- | PITFALL: One could put the Rslt into an invalid state by running this
@@ -216,14 +216,14 @@ _deleteInternalMentionsOf a r = do
           f ii rl ad = M.adjust (S.delete (rl,a)) ad ii
 
   _addrOf2 <- do
-    e <- prefixLeft "_deleteInternalMentionsOf" $ exprAt r a
+    e <- prefixLeft "_deleteInternalMentionsOf" $ refExprAt r a
     Right $ M.delete e $ _addrOf r
 
   Right $ Rslt {
     _has  = _has2
     , _isIn = _isIn2
     , _variety = M.delete a $ _variety r
-    , _exprAt = M.delete a $ _exprAt r
+    , _refExprAt = M.delete a $ _refExprAt r
     , _addrOf = _addrOf2
     }
 

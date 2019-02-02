@@ -18,12 +18,12 @@ mkRslt :: RefExprs -> Rslt
 mkRslt es = let
   (hasMap :: Map Addr (Map Role Addr)) =
     M.filter (not . M.null)
-    $ M.map (M.fromList . exprPositions)
+    $ M.map (M.fromList . refExprPositions)
     $ es
   in Rslt {
-    _exprAt = es
+    _refExprAt = es
   , _addrOf = imgDb es
-  , _variety = M.map exprVariety es
+  , _variety = M.map refExprVariety es
   , _has = hasMap
   , _isIn = foldl invertAndAddPositions M.empty
             $ M.toList $ M.map M.toList hasMap
@@ -42,11 +42,11 @@ imgDb = M.fromList . catMaybes . map f . M.toList where
 -- | == Given an address, look up what it's connected to.
 -- The following two functions are in a sense inverses.
 
--- | `exprPositions e` gives every pair `(r,a)` such that a plays the role
+-- | `refExprPositions e` gives every pair `(r,a)` such that a plays the role
 -- r in e.
 
-exprPositions :: RefExpr -> [(Role,Addr)]
-exprPositions expr =
+refExprPositions :: RefExpr -> [(Role,Addr)]
+refExprPositions expr =
   let r :: (Int, Addr) -> (Role, Addr)
       r (n,a) = (RoleMember n, a)
   in case expr of
