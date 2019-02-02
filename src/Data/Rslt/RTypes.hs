@@ -6,6 +6,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Util
+
 
 type Addr = Int -- ^ Address
 type Arity = Int
@@ -21,6 +23,9 @@ data Rslt = Rslt {
 maxAddr :: Rslt -> Either String Addr
 maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _exprAt
   where errMsg = Left $ "maxAddr: empty Rslt.\n"
+
+nextAddr :: Rslt -> Either String Addr
+nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
 
 data Expr = Word String -- ^ (Could be a phrase too.)
   | Rel [Addr] Addr -- ^ "Relationship".

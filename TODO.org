@@ -22,7 +22,6 @@ or use Matt Parsons's magic generic-lens strategy:
   https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
 or more alternatives:
   https://www.fpcomplete.com/blog/defining-exceptions-in-haskell
-* TODO write, use nextAddr = (+1) <$> prefixLeft "insert" (maxAddr r)
 * TODO for RSLT
 ** features
 *** DSL for exprs

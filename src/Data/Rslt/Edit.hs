@@ -32,7 +32,7 @@ lookupInsert r ei = do
     Just a -> Right (r, a)
     Nothing -> do
 
-    a <- (+1) <$> prefixLeft "insert" (maxAddr r)
+    a <- nextAddr r
     lookupInsert_rootNotFound r a ei
 
 
@@ -58,11 +58,11 @@ lookupInsert_rootNotFound r a (ImgOfTplt js) = do
 replace :: Expr -> Addr -> Rslt -> Either String Rslt
 replace e oldAddr r = do
   let pel = prefixLeft "replace"
-  newAddr <- (+1) <$> pel (maxAddr r)
-  _       <-          pel $ validExpr r e
-  r       <-          pel $ insertAt newAddr e r
-  r       <-          pel $ _substitute newAddr oldAddr r
-  id      $           pel $ deleteUnusedExpr oldAddr r
+  newAddr <- pel $ nextAddr r
+  _       <- pel $ validExpr r e
+  r       <- pel $ insertAt newAddr e r
+  r       <- pel $ _substitute newAddr oldAddr r
+  id      $  pel $ deleteUnusedExpr oldAddr r
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r = do
@@ -140,8 +140,8 @@ replaceInRole spot new host r = do
 
 insert :: Expr -> Rslt -> Either String Rslt
 insert e r = do
-  newAddr <- (+1) <$> prefixLeft "insert" (maxAddr r)
-  insertAt newAddr e r
+  a <- prefixLeft "insert" $ nextAddr r
+  insertAt a e r
 
 insertAt :: Addr -> Expr -> Rslt -> Either String Rslt
 insertAt a e r = do
