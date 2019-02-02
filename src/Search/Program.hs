@@ -10,9 +10,10 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Search.Types
 import Search.Query
 import Search.Query.Valid
+import Search.Types
+import Util
 
 
 runProgram :: forall e sp. (Ord e, Show e)
@@ -27,8 +28,7 @@ runProgram d vqs = case validProgram vqs of
     go :: Either String (Possible e) -> (Var, Query e sp)
        -> Either String (Possible e)
     go (Left s) _ = Left s
-    go (Right p) (v,q) =
-      case runFindlike d p (M.empty :: Subst e) q
-           :: Either String (CondElts e)
-      of Left s -> Left $ "runProgram: error in callee:\n" ++ s
-         Right ec -> Right $ M.insert v ec p
+    go (Right p) (v,q) = do
+      (ec :: CondElts e) <- prefixLeft "runProgram"
+                            $ runFindlike d p (M.empty :: Subst e) q
+      Right $ M.insert v ec p

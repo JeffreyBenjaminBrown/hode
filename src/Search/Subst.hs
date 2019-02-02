@@ -48,9 +48,8 @@ reconcileDetsAcrossVars :: forall e. (Ord e, Show e)
 reconcileDetsAcrossVars    p           s        dets
   | null dets = Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
   | True = do
-      (se :: Set (Set (Subst e))) <-
-          ifLefts_set "reconcileDetsAcrossVars: error in callee:\n"
-          $ S.map (inputSubsts p s) dets
+      (se :: Set (Set (Subst e))) <- ifLefts_set "reconcileDetsAcrossVars"
+                                     $ S.map (inputSubsts p s) dets
       Right $ reconcile se
 
 -- | `inputSubsts p s v` gives all the input sets that can lead to v --
@@ -60,12 +59,12 @@ reconcileDetsAcrossVars    p           s        dets
 inputSubsts :: forall e. (Ord e, Show e)
               => Possible e -> Subst e -> Var -> Either String (Set (Subst e))
 inputSubsts p s v = do
-  vIs <- maybe (Left $ keyErr "inputSubsts / Subst" v s) Right
-         $ M.lookup v s
-  vCouldBe <- maybe (Left $ keyErr "inputSubsts / Possible" v p) Right
-              $ M.lookup v p
-  maybe (Left $ keyErr "inputSubsts / CondElts" vIs vCouldBe) Right
-    $ M.lookup vIs vCouldBe
+  vIs      <- maybe (Left $ keyErr "inputSubsts / Subst" v s)
+              Right $ M.lookup v s
+  vCouldBe <- maybe (Left $ keyErr "inputSubsts / Possible" v p)
+              Right $ M.lookup v p
+  id        $ maybe (Left $ keyErr "inputSubsts / CondElts" vIs vCouldBe)
+              Right $ M.lookup vIs vCouldBe
 
 
 -- | = Building a `CondElts` from `Subst`s
