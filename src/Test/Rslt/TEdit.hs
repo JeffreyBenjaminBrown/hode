@@ -27,7 +27,28 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_deleteUnusedExpr" test_deleteUnusedExpr
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
+  , TestLabel "test_lookupInsert" test_lookupInsert
   ]
+
+test_lookupInsert = TestCase $ do
+-- lookupInsert :: Rslt -> ImgOfExpr -> Either String (Rslt, Addr)
+  assertBool "1" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
+                                                     , ImgOfAddr 3
+                                                     , ImgOfAddr 0 ] )
+    == Right (D.rslt, 4)
+  assertBool "2" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
+                                                     , ImgOfAddr 1
+                                                     , ImgOfAddr 0 ] )
+    == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt [0,1,0]) D.rslt
+             , 7 )
+  assertBool "3" $ R.lookupInsert D.rslt ( ImgOfTplt [ ImgOfAddr 0
+                                                     , ImgOfWord "foo"
+                                                     , ImgOfAddr 0 ] )
+    == Right ( fromRight (error "wut")
+               $ R.insertAt 8 (Tplt [0,7,0])
+               $ fromRight (error "wut")
+               $ R.insertAt 7 (Word "foo") D.rslt
+             , 8 )
 
 test_replace = TestCase $ do
   assertBool "replace word in rel" $
