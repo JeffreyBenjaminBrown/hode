@@ -22,7 +22,7 @@ import Util
 
 runVarTest :: Possible e -> sp -> Subst e -> VarTest e sp
            -> Either String Bool
-runVarTest p sp s t = (varTestFunction t) p sp s
+runVarTest p sp s t = (varTestFunction t) sp p s
 
 runFind :: forall e sp.
            sp -> Subst e -> Find e sp -> Either String (CondElts e)

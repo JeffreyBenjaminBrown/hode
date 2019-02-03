@@ -50,8 +50,8 @@ varTestIO :: forall e sp. (Ord e, Show e)
   => Var -> Var -> VarTest e sp
 varTestIO iVar oVar = VarTest go deps where
   (deps :: Set Var) = S.fromList [iVar,oVar]
-  go :: Possible e -> sp -> Subst e -> Either String Bool
-  go poss space subst = do
+  go :: sp -> Possible e -> Subst e -> Either String Bool
+  go space poss subst = do
     iVal <- maybe (Left $ keyErr "varTestIO" iVar subst) Right
             $ M.lookup iVar subst
     oVal <- maybe (Left $ keyErr "varTestIO" oVar subst) Right
@@ -70,8 +70,8 @@ varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
   VarTest go deps where
   (deps :: Set Var) = S.fromList [iInSubst, oInSubst]
 
-  go :: Possible e -> sp -> Subst e -> Either String Bool
-  go poss space subst = do
+  go :: sp -> Possible e -> Subst e -> Either String Bool
+  go space poss subst = do
     iVal <- maybe (Left $ keyErr "varTestIO'" iInSubst subst) Right
            $ M.lookup iInSubst subst
     oVal <- maybe (Left $ keyErr "varTestIO'" oInSubst subst) Right
@@ -98,7 +98,7 @@ varTestCompare compare eev eev' = VarTest go deps where
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev,eev']
 
-  go :: Possible e -> sp -> Subst e -> Either String Bool
+  go :: sp -> Possible e -> Subst e -> Either String Bool
   go _ _ s = do
     (e  :: e) <- prefixLeft "varTestCompare" $ either_varToElt s eev
     (e' :: e) <- prefixLeft "varTestCompare" $ either_varToElt s eev'

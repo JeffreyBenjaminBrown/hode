@@ -56,15 +56,15 @@ data Query e sp = QFind  (Find       e sp)
 -- are found by the `Find` and pass the `Test`, are the `Query`'s results.
 
 data Find e sp    = Find {
-    findFunction    :: sp -> Subst e -> Either String (Set e)
+    findFunction    :: sp ->               Subst e ->    Either String (Set e)
   , findUses        :: Set Var }
   -- ^ If `findFunction` doesn't use the `Subst`, `findUses` should be empty.
 data Test e sp    = Test {
-    testFunction    :: sp -> Subst e -> e -> Either String Bool
+    testFunction    :: sp ->               Subst e -> e -> Either String Bool
   , testUses        :: Set Var }
   -- ^ If `condFunction` doesn't use the `Subst`,`condDeps` should be empty.
 data VarTest e sp = VarTest {
-    varTestFunction :: Possible e -> sp -> Subst e -> Either String Bool
+    varTestFunction :: sp -> Possible e -> Subst e ->      Either String Bool
   , varTestUses     :: Set Var }
   -- ^ If `*Function` doesn't use the `Subst`, `varTestUses` should be empty.
 
