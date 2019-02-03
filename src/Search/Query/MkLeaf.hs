@@ -51,14 +51,12 @@ varTestIO :: forall e sp. (Ord e, Show e)
 varTestIO iVar oVar = VarTest go deps where
   (deps :: Set Var) = S.fromList [iVar,oVar]
   go :: Possible e -> sp -> Subst e -> Either String Bool
-  go poss space subst =
-    Right $ checkIORel (iVar,iVal) (oVar,oVal) poss
-    where
-    iVal, oVal :: e
-    iVal = maybe (error $ keyErr "varTestIO" iVar poss) id
-           $ M.lookup iVar subst
-    oVal = maybe (error $ keyErr "varTestIO" oVar poss) id
-           $ M.lookup oVar subst
+  go poss space subst = do
+    iVal <- maybe (Left $ keyErr "varTestIO" iVar subst) Right
+            $ M.lookup iVar subst
+    oVal <- maybe (Left $ keyErr "varTestIO" oVar subst) Right
+            $ M.lookup oVar subst
+    checkIORel (iVar,iVal) (oVar,oVal) poss
 
 -- | `varTestIO'` is like `varTestIO`, but takes into account the fact
 -- that the name used (i.e. the `Var`) in the `Subst` might differ from
@@ -72,28 +70,25 @@ varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
   (deps :: Set Var) = S.fromList [iInSubst, oInSubst]
 
   go :: Possible e -> sp -> Subst e -> Either String Bool
-  go poss space subst =
-    Right $ checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
-    where
-    iVal, oVal :: e
-    iVal = maybe (error $ keyErr "varTestIO" iInSubst poss) id
+  go poss space subst = do
+    iVal <- maybe (Left $ keyErr "varTestIO'" iInSubst subst) Right
            $ M.lookup iInSubst subst
-    oVal = maybe (error $ keyErr "varTestIO" oInSubst poss) id
+    oVal <- maybe (Left $ keyErr "varTestIO'" oInSubst subst) Right
            $ M.lookup oInSubst subst
+    checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
+
 
 -- | `checkIORel iVar oVar poss subst` determines whether, in poss, iVar
 -- is an input that could generate oVar as an output, given
 -- their values iVal and oVal.
 checkIORel :: forall e sp. (Ord e, Show e)
-  => (Var,e) -> (Var,e) -> Possible e -> Bool
-checkIORel (iVar,iVal) (oVar,oVal) p = let
-  (ce :: CondElts e) =
-    maybe (error $ keyErr "varTestIO" oVar p) id
+  => (Var,e) -> (Var,e) -> Possible e -> Either String Bool
+checkIORel (iVar,iVal) (oVar,oVal) p = do
+  (ce :: CondElts e) <-
+    maybe (Left $ keyErr "checkIORel: key not in Possible" oVar p) Right
     $ M.lookup oVar p
-  (ss :: Set (Subst e)) =
-    maybe (error $ keyErr "varTestIO" oVal ce) id
-    $ M.lookup oVal ce
-  in or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
+  let (ss :: Set (Subst e)) = maybe S.empty id $ M.lookup oVal ce
+  Right $ or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
 
 --varTestIO' :: forall e sp. (Ord e, Show e)
 --  => (Var,Var) -> (Var,Var) -> VarTest e sp
