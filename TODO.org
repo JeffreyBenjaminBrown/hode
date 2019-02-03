@@ -17,14 +17,26 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
-* TODO for RSLT
+* TODO re. Search
+** TODO ? define not just sets, but set-valued functions of Substs
+Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
+* TODO re. Rslt
 ** TODO : recursive "is", using "is a kind of"
 If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
 ** TODO explore : can I run these queries
 *** a <- everything that needs something
+as <- everything that "_ needs _" is in, in the template role
+bs <- everything that, for some a in as, is in a, as the first member
 *** a <- everything that needs something and isn't dog
-*** a <- everything that needs something
-b <- everything that needs something in a
+as <- everything that "_ needs _" is in, in the template role
+bs <- everything that
+  (1) for some a in as, is in a, as the first member
+  (2) is not dog
+*** a <- everything that needs something and is needed by something
+as <- everything that "_ needs _" is in, in the template role
+bs <- everything such that
+      (1) for some a in as, it is the first member
+      (2) for some a in as, it is the second member
 *** a <- eveyrthing that needs some x and helps some y, such that x != y
 ** TODO ? searches that take both Subst and Possible arguments
 ** TODO ? "nested spot", "anything", other types

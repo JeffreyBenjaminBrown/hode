@@ -27,6 +27,34 @@ data Query e sp = QFind  (Find       e sp)
                 | QJunct (Junction   e sp)
                 | QQuant (Quantifier e sp)
 
+
+-- | `Find`, `Test` and `VarTest` are the atomic `Query`s,
+-- of which more complex ones are made.
+--
+-- A `Find e sp` returns a `Set e` from a space of type sp.
+-- A `Test e sp` filters the results of a `Find`.
+-- A `VarTest e sp` filters the `Set (Subst e)` produced by some
+-- super-`QQuant` (in the sense of superset).
+--
+-- Every `Query` must have at least one `Find`, but it needs neither
+-- `Test`s nor `VarTest`s.
+--
+-- Any `VarTest`s are run first.
+-- Then `Find`s are run using the surviving `Subst`s.
+-- Finally, `Test`s are run to filter the results of the `Find`s.
+--
+-- For instance, in the following `Query`:
+-- > QQuant $ ( ForAll "a" "as"
+-- >            ( QJunct $ And [ QFind $ findChildren $ Right "a"
+-- >                           , QTest $ test (<) $ Left 5 ] )
+-- >            [ QVTest $ varTestCompare (<) (Left 0) (Right "a") ] )
+-- the `Subst` mapping a to aVal is tried for all values of aVal in as,
+-- and then filtered so that only values of a greater than 0 survive.
+-- For those remaining `Subst`s, all the children of "a" are retrieved,
+-- and then filtered to include only values greater than 5.
+-- Those children which, for *all* values of a which pass the `VarTest`,
+-- are found by the `Find` and pass the `Test`, are the `Query`'s results.
+
 data Find e sp    = Find {
     findFunction    :: sp -> Subst e -> Either String (Set e)
   , findUses        :: Set Var }
@@ -49,11 +77,12 @@ data Quantifier e sp =
             , _conditions :: [Query e sp] -- ^ PITFALL: partial function.
               -- `conditions` is a total version.
             }
-  -- ^ The `conditions` field lets you narrow the possibilities considered.
-  -- Rather than requiring all x to satisfy y, you might want to require
-  -- that all x which satisfy y also satisfy z. In that case, you would
-  -- put y in the `conditions` field. That would be a testlike query, but
-  -- the same method applies to findlike ones.
+  -- ^ The `_conditions` field lets you narrow the possibilities considered.
+  -- Rather than requiring all x to satisfy z, you might want to require
+  -- the less strict condition that all x which satisfy y satisfy z.
+  --  In that case, you would put y in the `conditions` field. 
+  -- TODO : the `_conditions` list is currently treated like an And.
+  -- It ought simply to be a (`varTestLike`) `Query`, not a list of them.
 
 conditions :: Quantifier e sp -> [Query e sp]
 conditions   (ForSome _ _ _)  = []

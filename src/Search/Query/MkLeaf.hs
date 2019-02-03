@@ -18,8 +18,6 @@ import Search.Types
 import Util
 
 
--- | == Atomic queries. Bigger queries are made of junctions and quantifiers over these.
-
 either_varToElt :: Show e
                => Subst e -> Either e Var -> Either String e
 either_varToElt _ (Left e) = Right e
@@ -27,6 +25,8 @@ either_varToElt s (Right v) =
   maybe err Right $ M.lookup v s
   where err = Left $ keyErr "either_varToElt" v s
 
+
+-- | == Atomic queries. Bigger queries are made of junctions and quantifiers over these.
 
 -- | = `Test`s
 
@@ -58,6 +58,7 @@ varTestIO iVar oVar = VarTest go deps where
             $ M.lookup oVar subst
     checkIORel (iVar,iVal) (oVar,oVal) poss
 
+
 -- | `varTestIO'` is like `varTestIO`, but takes into account the fact
 -- that the name used (i.e. the `Var`) in the `Subst` might differ from
 -- the corresponding name in the `Possible`.
@@ -88,10 +89,6 @@ checkIORel (iVar,iVal) (oVar,oVal) p = do
     $ M.lookup oVar p
   let (ss :: Set (Subst e)) = maybe S.empty id $ M.lookup oVal ce
   Right $ or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
-
---varTestIO' :: forall e sp. (Ord e, Show e)
---  => (Var,Var) -> (Var,Var) -> VarTest e sp
---varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
 
 varTestCompare :: forall e sp. (Eq e, Show e)
   => (e -> e -> Bool) -> Either e Var -> Either e Var
