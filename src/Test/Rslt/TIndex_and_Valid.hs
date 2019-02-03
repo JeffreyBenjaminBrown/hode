@@ -9,10 +9,10 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Data.Rslt.Lookup
-import           Data.Rslt.RTypes
-import           Data.Rslt.Index
-import           Data.Rslt.RValid
+import           Rslt.Lookup
+import           Rslt.RTypes
+import           Rslt.Index
+import           Rslt.RValid
 import qualified Test.Rslt.RData as D
 
 

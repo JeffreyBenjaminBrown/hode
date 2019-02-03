@@ -11,8 +11,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Data.Rslt.RTypes
-import           Data.Rslt.Show
+import           Rslt.RTypes
+import           Rslt.Show
 import qualified Test.Rslt.RData as D
 
 

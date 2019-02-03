@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Rslt.Lookup where
+module Rslt.Lookup where
 
 import           Prelude hiding (lookup)
 import           Data.Map (Map)
@@ -8,8 +8,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Data.Rslt.Index
-import Data.Rslt.RTypes
+import Rslt.Index
+import Rslt.RTypes
 import Util
 
 

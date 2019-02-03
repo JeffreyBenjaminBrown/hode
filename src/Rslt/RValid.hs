@@ -1,6 +1,6 @@
 -- | Gory details, not part of the Rslt interface.
 
-module Data.Rslt.RValid where
+module Rslt.RValid where
 
 import           Data.Maybe
 import           Data.Map (Map)
@@ -8,8 +8,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Data.Rslt.RTypes
-import Data.Rslt.Lookup
+import Rslt.RTypes
+import Rslt.Lookup
 import Util
 
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Rslt.Files where
+module Rslt.Files where
 
 import           Prelude hiding (lookup)
 import qualified Data.List      as L
@@ -12,8 +12,8 @@ import qualified Data.Set       as S
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
 
-import Data.Rslt.RTypes
-import Data.Rslt.Index
+import Rslt.RTypes
+import Rslt.Index
 import Util
 
 

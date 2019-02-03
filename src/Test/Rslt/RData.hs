@@ -2,8 +2,8 @@ module Test.Rslt.RData where
 
 import qualified Data.Map as M
 
-import Data.Rslt.Index
-import Data.Rslt.RTypes
+import Rslt.Index
+import Rslt.RTypes
 
 
 refExprs :: RefExprs

@@ -1,4 +1,4 @@
-module Data.Rslt.RTypes where
+module Rslt.RTypes where
 
 import           Data.Maybe (isNothing)
 import           Data.Map (Map)
@@ -43,7 +43,7 @@ data RefExpr =
     -- `Par` is the only kind of `RefExpr` not in the `Index`.
   deriving (Eq, Ord, Read, Show)
 
--- | The constructor that an `RefExpr` uses.
+-- | The constructor that a `RefExpr` uses.
 data ExprCtr = WordCtr | RelCtr | TpltCtr | ParCtr
   deriving (Eq, Ord, Read, Show)
 
@@ -55,14 +55,15 @@ refExprVariety e@(Par' _ _) = (ParCtr , arity e)
 
 data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 
--- | Something used to locate an `RefExpr` in an `Index`,
+-- | Something used to locate a `RefExpr` in an `Index`,
 -- given varying degrees of identifying information.
-data Expr = Word String
-               | ExprAddr Addr -- ^ Silly on its own, but useful
-                                -- when nested within another Expr.
-               | Rel  [Expr] Expr
-               | Tplt [Expr]
-               | Par [(String, Expr)] String
+data Expr =
+    ExprAddr Addr -- ^ Silly on its own, but useful
+                  -- when nested within another Expr.
+  | Word String
+  | Rel  [Expr] Expr
+  | Tplt [Expr]
+  | Par [(String, Expr)] String
   deriving (Eq, Ord, Read, Show)
 
 arity :: RefExpr -> Arity

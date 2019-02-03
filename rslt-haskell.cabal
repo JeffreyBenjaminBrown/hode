@@ -30,13 +30,13 @@ library
                   Data.Graph
                 , Data.Graph.GQuery
                 , Data.Relation
-                , Data.Rslt.Edit
-                , Data.Rslt.Files
-                , Data.Rslt.Index
-                , Data.Rslt.Lookup
-                , Data.Rslt.RTypes
-                , Data.Rslt.RValid
-                , Data.Rslt.Show
+                , Rslt.Edit
+                , Rslt.Files
+                , Rslt.Index
+                , Rslt.Lookup
+                , Rslt.RTypes
+                , Rslt.RValid
+                , Rslt.Show
                 , Search.Program
                 , Search.Query
                 , Search.Query.MkLeaf

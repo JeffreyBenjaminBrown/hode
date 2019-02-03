@@ -10,9 +10,9 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Data.Rslt.Lookup hiding (lookup)
-import qualified Data.Rslt.Lookup as R
-import           Data.Rslt.RTypes
+import           Rslt.Lookup hiding (lookup)
+import qualified Rslt.Lookup as R
+import           Rslt.RTypes
 import           Search.Program
 import           Search.Query.MkLeaf
 import           Search.Types

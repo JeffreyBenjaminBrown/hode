@@ -11,13 +11,13 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
-import           Data.Rslt.Lookup hiding (insert, lookup)
-import qualified Data.Rslt.Edit as R
-import           Data.Rslt.Index
-import qualified Data.Rslt.Lookup as R
-import           Data.Rslt.RTypes
-import           Data.Rslt.RValid
-import           Data.Rslt.Show
+import           Rslt.Lookup hiding (insert, lookup)
+import qualified Rslt.Edit as R
+import           Rslt.Index
+import qualified Rslt.Lookup as R
+import           Rslt.RTypes
+import           Rslt.RValid
+import           Rslt.Show
 import qualified Test.Rslt.RData as D
 import           Util
 

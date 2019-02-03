@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Rslt.Show where
+module Rslt.Show where
 
 import           Prelude hiding (lookup)
 import qualified Data.List      as L
@@ -13,8 +13,8 @@ import           Data.Text (strip, pack, unpack)
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
 
-import Data.Rslt.RTypes
-import Data.Rslt.Lookup
+import Rslt.RTypes
+import Rslt.Lookup
 import Util
 
 

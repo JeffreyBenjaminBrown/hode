@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Data.Rslt.Edit where
+module Rslt.Edit where
 
 import           Prelude hiding (lookup)
 import           Data.Either
@@ -12,10 +12,10 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Data.Rslt.Index
-import Data.Rslt.Lookup
-import Data.Rslt.RTypes
-import Data.Rslt.RValid
+import Rslt.Index
+import Rslt.Lookup
+import Rslt.RTypes
+import Rslt.RValid
 import Util
 
 

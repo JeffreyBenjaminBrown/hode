@@ -470,8 +470,6 @@ r |> t =  fromList $ concatMap
 --    the @fromList@ constructor and @toList@ flattener:
 --    It is enough to know one half of the Relation (the domain or
 --    the range) to create to other half.
---
---
 
 
    -- ** Maps and filters
