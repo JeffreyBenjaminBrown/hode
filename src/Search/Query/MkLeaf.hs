@@ -77,7 +77,6 @@ varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
            $ M.lookup oInSubst subst
     checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
 
-
 -- | `checkIORel iVar oVar poss subst` determines whether, in poss, iVar
 -- is an input that could generate oVar as an output, given
 -- their values iVal and oVal.
