@@ -21,7 +21,7 @@ replaceNth a n as = do
 
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key map =  callingFunction ++ ": key "
-  ++ show key ++ "not found in map " ++ show map ++ ".\n"
+  ++ show key ++ " not found in map " ++ show map ++ ".\n"
 
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)

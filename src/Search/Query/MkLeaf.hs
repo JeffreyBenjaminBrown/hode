@@ -20,9 +20,12 @@ import Util
 
 -- | == Atomic queries. Bigger queries are made of junctions and quantifiers over these.
 
-unEitherEltVar :: Subst e -> Either e Var -> (Maybe e, Maybe Var)
-unEitherEltVar _ (Left e) = (Just e, Nothing)
-unEitherEltVar s (Right v) = (M.lookup v s, Just v)
+either_varToElt :: Show e
+               => Subst e -> Either e Var -> Either String e
+either_varToElt _ (Left e) = Right e
+either_varToElt s (Right v) =
+  maybe err Right $ M.lookup v s
+  where err = Left $ keyErr "either_varToElt" v s
 
 
 -- | = `Test`s
@@ -31,10 +34,8 @@ test :: forall e sp. (Eq e, Show e)
         => (e -> e -> Bool) -> Either e Var -> Test e sp
 test compare eev = Test go deps where
   go :: sp -> Subst e -> e -> Either String Bool
-  go _ s e = let
-    ((me, mv) :: (Maybe e, Maybe Var)) = unEitherEltVar s eev
-    err = error $ keyErr "test" (fromJust mv) s
-    in Right $ (maybe err compare me) e
+  go _ s e = do e0 <- either_varToElt s eev
+                Right $ compare e0 e
   deps :: Set Var
   deps = S.fromList $ catMaybes $ map (either (const Nothing) Just) [eev]
 
@@ -107,15 +108,10 @@ varTestCompare compare eev eev' = VarTest go deps where
     $ map (either (const Nothing) Just) [eev,eev']
 
   go :: Possible e -> sp -> Subst e -> Either String Bool
-  go _ _ s = let
-    (me , mv ) = unEitherEltVar s eev  :: (Maybe e, Maybe Var)
-    (me', mv') = unEitherEltVar s eev' :: (Maybe e, Maybe Var)
-    err v = error $ keyErr "varTestCompare" (fromJust v) s
-    in case me of
-         Nothing -> err mv
-         Just e -> case me' of
-           Nothing -> err mv'
-           Just e' -> Right $ compare e e'
+  go _ _ s = do
+    (e  :: e) <- prefixLeft "varTestCompare" $ either_varToElt s eev
+    (e' :: e) <- prefixLeft "varTestCompare" $ either_varToElt s eev'
+    Right $ compare e e'
 
 
 -- | = `Find`s
@@ -131,8 +127,6 @@ findFrom :: forall e sp. (Show e) =>
   String -> (sp -> e -> Set e) -> Either e Var -> Find e sp
 findFrom findName finder eev = Find go deps where
   go :: sp -> Subst e -> Either String (Set e)
-  go g s = Right $ maybe err (finder g) me where
-      (me, mv) = unEitherEltVar s eev :: (Maybe e, Maybe Var)
-      err = error $ keyErr findName (fromJust mv) s
+  go g s = either_varToElt s eev >>= Right . finder g
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev]
