@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Rslt.Hash.Hash where
 
 import           Prelude hiding (lookup)
@@ -17,6 +19,20 @@ hExprToExpr :: HExpr -> Either String Expr
 hExprToExpr (HExpr e) = Right e
 hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr constructor can be converted to an Expr.\n"
+
+
+pathsToIts :: HMap -> [[Role]]
+pathsToIts hm = x3 where
+
+  go :: Either HIt HExpr -> [[Role]]
+  go (Left HIt)        = [[]] -- This lists the unique
+    -- way to descend to an `HIt` from here, which is to stay still.
+  go (Right (HMap hm)) = pathsToIts hm
+  go (Right _)         = [] -- Empty: One cannot descend to an HIt from here.
+
+  (x1 :: Map Role [[Role]]) = M.map go hm
+  (x2 :: Map Role [[Role]]) = M.mapWithKey (\k a -> map (k:) a) x1
+  (x3 ::          [[Role]]) = concat $ M.elems x2
 
 
 hFind :: Rslt -> HExpr -> Either String (Set Addr)

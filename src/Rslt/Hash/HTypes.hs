@@ -12,8 +12,8 @@ import Rslt.RTypes
 -- | An expression in the Hash language.
 -- Describes a (possibly empty) collection of `Expr`s in a `Rslt`.
 data HExpr =
-    HExpr Expr -- ^ When you want just one `Expr`. Note that the
-  -- `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
+    HExpr Expr -- ^ When you want exactly one `Expr`, and know which.
+  -- The `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
   | HMap  HMap -- ^ The search workhorse.
   -- Must specify an HExpr to match at least one Role.
   | HEval HMap -- ^ Evaluates the `It`(s) in its `HMap`.
