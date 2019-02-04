@@ -1,3 +1,4 @@
+{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Util where
@@ -9,6 +10,12 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+
+-- | PITFALL: In math, the intersection of the empty set is the entire
+-- universe, just like `and [] == True`. But that's impractical.
+intersections :: Ord a => Set (Set a) -> Set a
+intersections s | null s    = S.empty
+                | otherwise = foldl1 S.intersection $ S.toList s
 
 replaceNth :: a -> Int -> [a] -> Either String [a]
 replaceNth a n as = do
