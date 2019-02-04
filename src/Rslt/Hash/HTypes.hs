@@ -15,11 +15,11 @@ data HExpr =
     HMap  HMap -- ^ The search workhorse.
   | HEval HMap -- ^ Evaluates the `It`(s) in its `HMap`.
   -- (Including multiple `It`s in an `HMap` is legal, if kind of weird.)
-  | HExpr Expr -- ^ When you want exactly one `Expr`, and know which.
+  | HExpr  Expr   -- ^ When you want exactly one `Expr`, and know which.
   -- The `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
+  | HDiff HExpr HExpr -- ^ Set difference.
   | HAnd [HExpr]      -- ^ Intersection.
   | HOr  [HExpr]      -- ^ Union. Pronounced "a chore".
-  | HDiff HExpr HExpr -- ^ Set difference.
   deriving (Eq, Ord, Show)
 
 -- | An `HMap` m is used to request all expressions x such that for each
