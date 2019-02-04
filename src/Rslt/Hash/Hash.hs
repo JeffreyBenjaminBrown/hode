@@ -36,16 +36,23 @@ pathsToIts hm = x3 where
   (x3 ::          [[Role]]) = concat $ M.elems x2
 
 
-retrieveIts :: Rslt -> [Role] -> Addr -> Either String Addr
-retrieveIts _ [] a = Right a
-retrieveIts r (rl : rls) a = do
+retrieveIts :: Rslt -> [[Role]] -> Addr -> Either String [Addr]
+retrieveIts r rls a =
+  ifLefts "retrieveIts" its
+  where its :: [Either String Addr]
+        its = map (retrieveIts1 r a) rls
+
+retrieveIts1 :: Rslt -> Addr -> [Role] -> Either String Addr
+retrieveIts1 _ a [] = Right a
+retrieveIts1 r a (rl : rls) = do
   (aHas :: Map Role Addr) <-
-    prefixLeft ("retrieveIts, looking up Addr" ++ show a)
+    prefixLeft ("retrieveIts1, looking up Addr" ++ show a)
     $ has r a
   (member_of_a :: Addr) <-
-    maybe (Left $ "retrieveIts, looking up Role " ++ show rl ++ ".") Right
+    maybe (Left $ "retrieveIts1, looking up Role " ++ show rl ++ ".") Right
     $ M.lookup rl aHas
-  retrieveIts r rls member_of_a
+  retrieveIts1 r member_of_a rls
+
 
 hFind :: Rslt -> HExpr -> Either String (Set Addr)
 
@@ -72,6 +79,15 @@ hFind r (HMap m) = do
     ifLefts_map "hFind called on HMap calculating hosts"
     $ M.mapWithKey roleHostCandidates found
   Right $ foldl1 S.intersection $ M.elems hosts
+
+hFind r (HEval hm) = do
+  (hosts :: Set Addr) <-
+    hFind r $ HMap hm
+  let (ps :: [[Role]]) = pathsToIts hm
+  (its :: Set [Addr]) <-
+    ( ifLefts_set "hFind called on HEval, mapping over hosts"
+      $ S.map (retrieveIts r ps) hosts )
+  Right $ S.unions . S.map S.fromList $ its
 
 -- | TRICK: For speed, put the most selective searches first in the list.
 hFind r (HAnd hs) = foldr1 S.intersection <$>
