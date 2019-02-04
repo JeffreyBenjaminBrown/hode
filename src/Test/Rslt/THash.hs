@@ -27,21 +27,53 @@ test_module_rslt_hash = TestList [
   ]
 
 test_hFind = TestCase $ do
-  assertBool "1" $ hFind D.rslt ( HMap ( M.singleton (RoleMember 1)
-                                         $ Right $ HExpr $ Word "" ) )
-    == Right ( S.fromList [4] )
+  assertBool "9 is the only Expr with 2 as member 1"
+    $ hFind D.big
+    ( HMap $ M.fromList [ ( RoleMember 1, Right $ HExpr $ ExprAddr 2) ] )
+    == Right ( S.fromList [9] )
 
-  assertBool "2" $ hFind D.big
-    -- The HEval asks to find the 1st member of everything whose
-    -- first member is 2. (There's only one answer, 2.)
-    -- The outer HMap asks to find something whose
-    -- second member matches some result of the HEval.
-    -- Again there's only one answer, 7.
-    ( HMap ( M.singleton (RoleMember 2)
-             $ Right $ HEval
-             $ M.fromList [ (RoleMember 1, Right $ HExpr $ ExprAddr 2)
-                          , (RoleMember 1, Left HIt ) ] ) )
-    == Right ( S.fromList [7] )
+  assertBool "Adding an HIt should not affect the previous result"
+    $ hFind D.big
+    ( HMap $ M.fromList [ ( RoleMember 1, Right $ HExpr $ ExprAddr 2)
+                        , ( RoleMember 1, Left HIt ) ] )
+    == Right ( S.fromList [9] )
+
+  assertBool "3" $ hFind D.big
+    ( HEval $ M.fromList [ (RoleMember 1, Right $ HExpr $ ExprAddr 2)
+                         , (RoleMember 1, Left HIt ) ] )
+    == Right ( S.fromList [2] )
+
+--  assertBool "1" $ hFind D.big ( HMap ( M.singleton (RoleMember 2)
+--                                        $ Right $ HExpr $ Word "3" ) )
+--    -- 9 is the only Expr in D.big whose 2nd member is 3.
+--    == Right ( S.fromList [9] )
+--
+--  assertBool "1.5" $ hFind D.big
+--    ( HExpr $ ExprAddr 2)
+--    == Right ( S.fromList [2] )
+--
+--  assertBool "2" $ hFind D.big
+--    -- 9 is the only Expr whose first member is 2.
+--    ( HMap $ M.fromList [ (RoleMember 1, Right $ HExpr $ ExprAddr 2) ] )
+--    == Right ( S.fromList [9] )
+--
+--  assertBool "3" $ hFind D.big
+--    -- This finds 9 as above, then returns its first member, 2.
+--    ( HEval $ M.fromList [ (RoleMember 1, Right $ HExpr $ ExprAddr 2)
+--                         , (RoleMember 1, Left HIt ) ] )
+--    == Right ( S.fromList [2] )
+--
+--  assertBool "4" $ hFind D.big
+--    -- The HEval asks to find the 1st member of everything whose
+--    -- first member is 2. (There's only one answer, 2.)
+--    -- The outer HMap asks to find something whose
+--    -- second member matches some result of the HEval.
+--    -- Again there's only one answer, 7.
+--    ( HMap ( M.singleton (RoleMember 2)
+--             $ Right $ HEval
+--             $ M.fromList [ (RoleMember 1, Right $ HExpr $ ExprAddr 2)
+--                          , (RoleMember 1, Left HIt ) ] ) )
+--    == Right ( S.fromList [7] )
 
 test_retrieveIts = TestCase $ do
   let r = fromRight (error "wut") $ insertAt 7 (Rel' [5,5] 4) D.rslt
@@ -73,4 +105,3 @@ test_pathsToIts = TestCase $ do
       , ( RoleMember 3
         , Right $ HAnd $ error "irrelevant" ) ]
     in pathsToIts x == [ [ RoleMember 1, RoleMember 2 ] ]
-

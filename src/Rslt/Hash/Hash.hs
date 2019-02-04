@@ -79,7 +79,9 @@ hFind r (HMap m) = do
   (hosts :: Map Role (Set Addr)) <-
     ifLefts_map "hFind called on HMap calculating hosts"
     $ M.mapWithKey roleHostCandidates found
-  Right $ foldl1 S.intersection $ M.elems hosts
+  case null hosts of
+    True -> Right S.empty
+    False -> Right $ foldl1 S.intersection $ M.elems hosts
 
 hFind r (HEval hm) = do
   (hosts :: Set Addr) <-
