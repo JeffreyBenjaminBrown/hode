@@ -12,6 +12,7 @@ import           Test.HUnit hiding (Test)
 
 import Test.Rslt.RProgram
 import Test.Rslt.TEdit
+import Test.Rslt.THash
 import Test.Rslt.TIndex_and_Valid
 import Test.Rslt.TLookup
 import Test.Rslt.TShow
@@ -34,6 +35,7 @@ tests = runTestTT $ TestList
   , test_module_query
   , test_module_rsltProgram
   , test_module_rslt_edit
+  , test_module_rslt_hash
   , test_module_rslt_index_and_valid
   , test_module_rslt_lookup
   , test_module_rslt_show

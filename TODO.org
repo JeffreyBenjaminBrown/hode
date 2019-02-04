@@ -22,11 +22,6 @@ If HExpr and Query were both of type Searchable, then there could even be
 abstract intersection, union and difference functions.
 * TODO re. Hash
 ** Find an HMap
-** write pathToIts
-It's already in dwt:
-pathsToIts ::
-  QNode -> Either DwtErr (Data.Set.Internal.Set PathInExpr)
-        -- Defined at /home/jeff/logic/dwt/src/Dwt/Query/Main.hs:75:1
 ** write hFind HExpr
 ** the rest of hFind seems easy
 It can't be called on Any or It; those only make sense in an HMap.
