@@ -37,9 +37,9 @@ pathsToIts hm = x3 where
   (x3 ::          [[Role]]) = concat $ M.elems x2
 
 
-retrieveIts :: Rslt -> [[Role]] -> Addr -> Either String [Addr]
+retrieveIts :: Rslt -> [[Role]] -> Addr -> Either String (Set Addr)
 retrieveIts r rls a =
-  L.nub <$> ifLefts "retrieveIts" its
+  S.fromList <$> ifLefts "retrieveIts" its
   where its :: [Either String Addr]
         its = map (retrieveIts1 r a) rls
 
@@ -85,10 +85,10 @@ hFind r (HEval hm) = do
   (hosts :: Set Addr) <-
     hFind r $ HMap hm
   let (ps :: [[Role]]) = pathsToIts hm
-  (its :: Set [Addr]) <-
+  (its :: Set (Set Addr)) <-
     ( ifLefts_set "hFind called on HEval, mapping over hosts"
       $ S.map (retrieveIts r ps) hosts )
-  Right $ S.unions . S.map S.fromList $ its
+  Right $ S.unions its
 
 -- | TRICK: For speed, put the most selective searches first in the list.
 hFind r (HAnd hs) = foldr1 S.intersection <$>

@@ -21,11 +21,7 @@ type CondElts = Map Elt (Set Subst)
 If HExpr and Query were both of type Searchable, then there could even be
 abstract intersection, union and difference functions.
 * TODO Hash
-** retrieveIts: seems like it shsould return a set
-It gets converted to one by its only callee anyway.
-It would be faster (I think?) than calling Data.List.nub.
 ** Test
-retrieveIts
 hFind
 * TODO re. Search
 ** TODO ? define not just sets, but set-valued functions of Substs

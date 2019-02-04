@@ -28,24 +28,24 @@ test_module_rslt_hash = TestList [
 test_retrieveIts = TestCase $ do
   let r = fromRight (error "wut") $ insertAt 7 (Rel' [5,5] 4) D.rslt
   assertBool "1" $ retrieveIts r [ [RoleMember 1, RoleMember 1] ] 7
-    == Right [1]
+    == Right (S.fromList [1])
   assertBool "2" $ retrieveIts r [ [RoleMember 2, RoleMember 2] ] 7
-    == Right [2]
+    == Right (S.fromList [2])
   assertBool "3" $ retrieveIts r [ [RoleMember 2, RoleMember 1] ] 7
-    == Right [1]
+    == Right (S.fromList [1])
   assertBool "3" $ retrieveIts r [ [RoleMember 2, RoleMember 1]
                                  , [RoleMember 1]
                                  ] 7
-    == Right [1,5]
+    == Right (S.fromList [1,5])
   assertBool "4" $ retrieveIts r [ [RoleMember 2, RoleMember 1]
                                  , [RoleMember 1, RoleMember 1]
                                  ] 7
-    == Right [1]
+    == Right (S.fromList [1])
   assertBool "5" $ retrieveIts r [ [RoleMember 1, RoleMember 1]
                                  , [RoleMember 1, RoleMember 2]
                                  , [RoleMember 2, RoleMember 2]
                                  ] 7
-    == Right [1,2]
+    == Right (S.fromList [1,2])
 
 test_pathsToIts = TestCase $ do
   assertBool "1" $ let
