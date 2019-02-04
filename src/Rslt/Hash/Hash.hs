@@ -36,6 +36,17 @@ pathsToIts hm = x3 where
   (x3 ::          [[Role]]) = concat $ M.elems x2
 
 
+retrieveIts :: Rslt -> [Role] -> Addr -> Either String Addr
+retrieveIts _ [] a = Right a
+retrieveIts r (rl : rls) a = do
+  (aHas :: Map Role Addr) <-
+    prefixLeft ("retrieveIts, looking up Addr" ++ show a)
+    $ has r a
+  (member_of_a :: Addr) <-
+    maybe (Left $ "retrieveIts, looking up Role " ++ show rl ++ ".") Right
+    $ M.lookup rl aHas
+  retrieveIts r rls member_of_a
+
 hFind :: Rslt -> HExpr -> Either String (Set Addr)
 
 hFind r (HMap m) = do
