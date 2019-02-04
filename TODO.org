@@ -20,7 +20,11 @@ type CondElts = Map Elt (Set Subst)
 * TODO ? Make SetOp an abstract type, used for both HExpr and Query.
 If HExpr and Query were both of type Searchable, then there could even be
 abstract intersection, union and difference functions.
-* TODO test in Hash
+* TODO Hash
+** retrieveIts: seems like it shsould return a set
+It gets converted to one by its only callee anyway.
+It would be faster (I think?) than calling Data.List.nub.
+** Test
 retrieveIts
 hFind
 * TODO re. Search

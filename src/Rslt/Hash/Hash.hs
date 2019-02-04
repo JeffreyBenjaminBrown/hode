@@ -4,6 +4,7 @@ module Rslt.Hash.Hash where
 
 import           Prelude hiding (lookup)
 import           Data.Either
+import qualified Data.List as L
 import           Data.Maybe (isNothing)
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -38,7 +39,7 @@ pathsToIts hm = x3 where
 
 retrieveIts :: Rslt -> [[Role]] -> Addr -> Either String [Addr]
 retrieveIts r rls a =
-  ifLefts "retrieveIts" its
+  L.nub <$> ifLefts "retrieveIts" its
   where its :: [Either String Addr]
         its = map (retrieveIts1 r a) rls
 

@@ -50,6 +50,7 @@ library
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
                 , Test.Rslt.TEdit
+                , Test.Rslt.THash
                 , Test.Rslt.TIndex_and_Valid
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow
