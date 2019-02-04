@@ -32,6 +32,7 @@ library
                 , Data.Relation
                 , Rslt.Edit
                 , Rslt.Files
+                , Rslt.Hash.Hash
                 , Rslt.Hash.HTypes
                 , Rslt.Index
                 , Rslt.Lookup

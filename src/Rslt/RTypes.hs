@@ -55,11 +55,10 @@ refExprVariety e@(Par' _ _) = (ParCtr , arity e)
 
 data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 
--- | Something used to locate a `RefExpr` in an `Index`,
--- given varying degrees of identifying information.
+-- | `Expr` can be used to, among other things, locate a `RefExpr` in
+-- an `Index`, given varying degrees of identifying information.
 data Expr =
-    ExprAddr Addr -- ^ Silly on its own, but useful
-                  -- when nested within another Expr.
+    ExprAddr Addr
   | Word String
   | Rel  [Expr] Expr
   | Tplt [Expr]

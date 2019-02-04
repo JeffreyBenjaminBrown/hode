@@ -18,6 +18,18 @@ type CondElts = Map Elt (Set Subst)
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
 * TODO ? Make SetOp an abstract type, used for both HExpr and Query.
+If HExpr and Query were both of type Searchable, then there could even be
+abstract intersection, union and difference functions.
+* TODO re. Hash
+** Find an HMap
+** write pathToIts
+It's already in dwt:
+pathsToIts ::
+  QNode -> Either DwtErr (Data.Set.Internal.Set PathInExpr)
+        -- Defined at /home/jeff/logic/dwt/src/Dwt/Query/Main.hs:75:1
+** write hFind HExpr
+** the rest of hFind seems easy
+It can't be called on Any or It; those only make sense in an HMap.
 * TODO re. Search
 ** TODO ? define not just sets, but set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
@@ -58,6 +70,7 @@ ExprImg = ExprImg Expr | Bracket
  a map from Addr to Set Role
    because the item in question could (although this will be rare) hold
    multiple Roles within the same Expr
+* rename Search -> SeekSeq
 * ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
 * Add a check, and amend docs: All the Vars in a Program must be distinct.
