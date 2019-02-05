@@ -13,8 +13,9 @@ import Rslt.RTypes
 -- Describes a (possibly empty) collection of `Expr`s in a `Rslt`.
 data HExpr =
     HMap  HMap -- ^ The search workhorse.
-  | HEval HMap -- ^ Evaluates the `It`(s) in its `HMap`.
-  -- (Including multiple `It`s in an `HMap` is legal, if kind of weird.)
+  | HEval HMap [[Role]] -- ^ Finds matches to the `HMap`, then retrieves
+  -- from each match the subexpression each `[Role]` arrives at. (Inclduing
+  -- more than one `[Role]` in the `[[Role]]` is weird but legal.)
   | HExpr  Expr   -- ^ When you want exactly one `Expr`, and know which.
   -- The `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
   | HDiff HExpr HExpr -- ^ Set difference.
@@ -32,10 +33,4 @@ data HExpr =
 --
 -- The `Left HIt` values are ignored when evaluating the `HMap`;
 -- they come into play when the `HMap` is a subexpression of some `HEval`.
-type HMap = Map Role (Either HIt HExpr)
-
-
--- | Indicates what sub-expression the host `HMap` is searching for.
--- An `HExpr` with no `HIt` returns whatever matches the top-level expression.
-data HIt = HIt
-  deriving (Eq, Ord, Show)
+type HMap = Map Role HExpr

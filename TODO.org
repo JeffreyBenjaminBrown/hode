@@ -17,11 +17,6 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
-* TODO bugfix: collisions in the HMap type
-example:
-    ( HMap $ M.fromList [ ( RoleMember 1, Right $ HExpr $ ExprAddr 2)
-                        , ( RoleMember 1, Left HIt ) ] )
-Solution: redefine HMap = Map Role (Set (Either HIt HExpr))
 * TODO ? Make SetOp an abstract type, used for both HExpr and Query.
 If HExpr and Query were both of type Searchable, then there could even be
 abstract intersection, union and difference functions.

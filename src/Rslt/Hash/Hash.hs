@@ -22,21 +22,6 @@ hExprToExpr (HExpr e) = Right e
 hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr constructor can be converted to an Expr.\n"
 
-
-pathsToIts :: HMap -> [[Role]]
-pathsToIts hm = x3 where
-
-  go :: Either HIt HExpr -> [[Role]]
-  go (Left HIt)        = [[]] -- This lists the unique
-    -- way to descend to an `HIt` from here, which is to stay still.
-  go (Right (HMap hm)) = pathsToIts hm
-  go (Right _)         = [] -- Empty: One cannot descend to an HIt from here.
-
-  (x1 :: Map Role [[Role]]) = M.map go hm
-  (x2 :: Map Role [[Role]]) = M.mapWithKey (\k a -> map (k:) a) x1
-  (x3 ::          [[Role]]) = concat $ M.elems x2
-
-
 retrieveIts :: Rslt -> [[Role]] -> Addr -> Either String (Set Addr)
 retrieveIts r rls a =
   S.fromList <$> ifLefts "retrieveIts" its
@@ -59,9 +44,7 @@ hFind :: Rslt -> HExpr -> Either String (Set Addr)
 
 hFind r (HMap m) = do
   let found :: Map Role (Either String (Set Addr))
-      found = M.map ( hFind r
-                      . fromRight (error "HFind: impossible."))
-              $ M.filter isRight m
+      found = M.map (hFind r) m
   (found :: Map Role (Set Addr)) <-
     ifLefts_map "hFind called on HMap calculating found" found
 
@@ -83,13 +66,12 @@ hFind r (HMap m) = do
     True -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hosts
 
-hFind r (HEval hm) = do
+hFind r (HEval hm paths) = do
   (hosts :: Set Addr) <-
     hFind r $ HMap hm
-  let (ps :: [[Role]]) = pathsToIts hm
   (its :: Set (Set Addr)) <-
     ( ifLefts_set "hFind called on HEval, mapping over hosts"
-      $ S.map (retrieveIts r ps) hosts )
+      $ S.map (retrieveIts r paths) hosts )
   Right $ S.unions its
 
 -- | TRICK: For speed, put the most selective searches first in the list.
