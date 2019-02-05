@@ -28,7 +28,7 @@ source-repository head
 library
   exposed-modules:
                   Data.Graph
-                , Data.Graph.GQuery
+                , Data.Graph.GSeekSeq
                 , Data.Relation
                 , Rslt.Edit
                 , Rslt.Files

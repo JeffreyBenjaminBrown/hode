@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Graph.GQuery where
+module Data.Graph.GSeekSeq where
 
 import           Data.Maybe
 import           Data.Map (Map)

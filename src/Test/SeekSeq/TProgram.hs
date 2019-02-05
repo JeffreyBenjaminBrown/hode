@@ -10,7 +10,7 @@ import           Test.HUnit hiding (Test, test)
 import SeekSeq.Program
 import SeekSeq.Query.MkLeaf
 import Data.Graph
-import Data.Graph.GQuery
+import Data.Graph.GSeekSeq
 import SeekSeq.Types
 
 

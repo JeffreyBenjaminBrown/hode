@@ -12,7 +12,7 @@ import SeekSeq.Query.Valid
 import SeekSeq.Query.MkLeaf
 import SeekSeq.Query.RunLeaf
 import Data.Graph
-import Data.Graph.GQuery
+import Data.Graph.GSeekSeq
 import SeekSeq.Types
 
 
