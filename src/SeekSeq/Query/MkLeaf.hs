@@ -108,16 +108,18 @@ varTestCompare compare eev eev' = VarTest go deps where
 -- | = `Find`s
 
 -- | Run a search that does not depend on the `Subst`.
-find :: forall e sp. (Show e) => (sp -> Set e) -> Find e sp
+find :: forall e sp. (Show e) =>
+            (sp -> Either String (Set e)) -> Find e sp
 find finder = Find go S.empty where
   go :: sp -> Subst e -> Either String (Set e)
-  go g _ = Right $ finder g
+  go g _ = finder g
 
--- | Run a search starting from some element of the space.
+-- | Run a search starting from some element of the space -- maybe
+-- from a constant element, or maybe from one drawn from the `Subst`.
 findFrom :: forall e sp. (Show e) =>
-  String -> (sp -> e -> Set e) -> Either e Var -> Find e sp
+  String -> (sp -> e -> Either String (Set e)) -> Either e Var -> Find e sp
 findFrom findName finder eev = Find go deps where
   go :: sp -> Subst e -> Either String (Set e)
-  go g s = either_varToElt s eev >>= Right . finder g
+  go g s = either_varToElt s eev >>= finder g
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev]

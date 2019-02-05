@@ -36,6 +36,7 @@ library
                 , Rslt.Hash.HTypes
                 , Rslt.Index
                 , Rslt.Lookup
+                , Rslt.RSeekSeq
                 , Rslt.RTypes
                 , Rslt.RValid
                 , Rslt.Show

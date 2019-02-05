@@ -43,7 +43,7 @@ test_runProgram = TestCase $ do
     [ ( a, QFind $ findParents $ Left 2)
     , ( b, ( QQuant $ ForSome a1 a $
                QJunct $ And
-               [ QFind $ findFrom "children" children $ Right a1
+               [ QFind $ findChildren $ Right a1
                , QTest $ test (/=) $ Right a1
                , QTest $ test (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList

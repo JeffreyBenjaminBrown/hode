@@ -40,13 +40,13 @@ retrieveIts1 r a (rl : rls) = do
   retrieveIts1 r member_of_a rls
 
 
-hFind :: Rslt -> HExpr -> Either String (Set Addr)
+hLookup :: Rslt -> HExpr -> Either String (Set Addr)
 
-hFind r (HMap m) = do
+hLookup r (HMap m) = do
   let found :: Map Role (Either String (Set Addr))
-      found = M.map (hFind r) m
+      found = M.map (hLookup r) m
   (found :: Map Role (Set Addr)) <-
-    ifLefts_map "hFind called on HMap calculating found" found
+    ifLefts_map "hLookup called on HMap calculating found" found
 
   let roleHostCandidates :: Role -> Set Addr -> Either String (Set Addr)
       roleHostCandidates role as = do
@@ -54,38 +54,38 @@ hFind r (HMap m) = do
         -- This returns all those hosts.
         (roleHostPairs :: Set (Role, Addr)) <-
           S.unions <$>
-          ( ifLefts_set "hFind on HMap / f"
+          ( ifLefts_set "hLookup on HMap / f"
             $ S.map (isIn r) as )
         Right $ S.map snd
           $ S.filter ((==) role . fst) roleHostPairs
 
   (hosts :: Map Role (Set Addr)) <-
-    ifLefts_map "hFind called on HMap calculating hosts"
+    ifLefts_map "hLookup called on HMap calculating hosts"
     $ M.mapWithKey roleHostCandidates found
   case null hosts of
     True -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hosts
 
-hFind r (HEval hm paths) = do
+hLookup r (HEval hm paths) = do
   (hosts :: Set Addr) <-
-    hFind r $ HMap hm
+    hLookup r $ HMap hm
   (its :: Set (Set Addr)) <-
-    ( ifLefts_set "hFind called on HEval, mapping over hosts"
+    ( ifLefts_set "hLookup called on HEval, mapping over hosts"
       $ S.map (retrieveIts r paths) hosts )
   Right $ S.unions its
 
 -- | TRICK: For speed, put the most selective searches first in the list.
-hFind r (HAnd hs) = foldr1 S.intersection <$>
-                    ( ifLefts "hFind called on HAnd" $ map (hFind r) hs )
+hLookup r (HAnd hs) = foldr1 S.intersection <$>
+                    ( ifLefts "hLookup called on HAnd" $ map (hLookup r) hs )
 
-hFind r (HOr hs) = foldr1 S.union <$>
-                   ( ifLefts "hFind called on HOr" $ map (hFind r) hs )
+hLookup r (HOr hs) = foldr1 S.union <$>
+                   ( ifLefts "hLookup called on HOr" $ map (hLookup r) hs )
 
-hFind r (HDiff base exclude) = do
-  b <- prefixLeft "hFind called on HDiff calculating base"
-       $ hFind r base
-  e <- prefixLeft "hFind called on HDiff calculating exclude"
-       $ hFind r exclude
+hLookup r (HDiff base exclude) = do
+  b <- prefixLeft "hLookup called on HDiff calculating base"
+       $ hLookup r base
+  e <- prefixLeft "hLookup called on HDiff calculating exclude"
+       $ hLookup r exclude
   Right $ S.difference b e
 
-hFind r (HExpr e) = S.singleton <$> lookup r e
+hLookup r (HExpr e) = S.singleton <$> lookup r e
