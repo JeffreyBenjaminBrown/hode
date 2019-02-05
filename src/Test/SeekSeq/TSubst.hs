@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Search.TSubst where
+module Test.SeekSeq.TSubst where
 
 import           Data.Either
 import           Data.Map (Map)
@@ -9,8 +9,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import Test.HUnit
 
-import Search.Subst
-import Search.Types
+import SeekSeq.Subst
+import SeekSeq.Types
 
 
 testModuleSubst = TestList

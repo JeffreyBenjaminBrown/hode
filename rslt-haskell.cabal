@@ -39,13 +39,13 @@ library
                 , Rslt.RTypes
                 , Rslt.RValid
                 , Rslt.Show
-                , Search.Program
-                , Search.Query
-                , Search.Query.MkLeaf
-                , Search.Query.RunLeaf
-                , Search.Query.Valid
-                , Search.Subst
-                , Search.Types
+                , SeekSeq.Program
+                , SeekSeq.Query
+                , SeekSeq.Query.MkLeaf
+                , SeekSeq.Query.RunLeaf
+                , SeekSeq.Query.Valid
+                , SeekSeq.Subst
+                , SeekSeq.Types
                 , Test.Rslt.ByHand
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
@@ -54,11 +54,11 @@ library
                 , Test.Rslt.TIndex_and_Valid
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow
-                , Test.Search.TLeaf
-                , Test.Search.TProgram
-                , Test.Search.TQuery
-                , Test.Search.TSubst
-                , Test.Search.TValid
+                , Test.SeekSeq.TLeaf
+                , Test.SeekSeq.TProgram
+                , Test.SeekSeq.TQuery
+                , Test.SeekSeq.TSubst
+                , Test.SeekSeq.TValid
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil

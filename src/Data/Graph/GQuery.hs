@@ -8,9 +8,9 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Search.Query.MkLeaf
+import SeekSeq.Query.MkLeaf
 import Data.Graph
-import Search.Types
+import SeekSeq.Types
 import Util
 
 

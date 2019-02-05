@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Test.Search.TValid where
+module Test.SeekSeq.TValid where
 
 import           Data.List
 import           Data.Map (Map)
@@ -11,9 +11,9 @@ import           Test.HUnit hiding (Test)
 
 import Data.Graph
 import Data.Graph.GQuery
-import Search.Query.Valid
-import Search.Query.MkLeaf
-import Search.Types
+import SeekSeq.Query.Valid
+import SeekSeq.Query.MkLeaf
+import SeekSeq.Types
 
 
 type QIGI = Query Int (Graph Int)

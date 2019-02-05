@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Search.Subst where
+module SeekSeq.Subst where
 
 import           Data.Either
 import           Data.Map (Map)
@@ -9,7 +9,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Search.Types
+import SeekSeq.Types
 import Util
 
 

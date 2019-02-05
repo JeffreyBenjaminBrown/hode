@@ -9,7 +9,7 @@ import qualified Data.Set       as S
 import Test.HUnit
 
 import Data.Graph
-import Search.Types
+import SeekSeq.Types
 
 
 testModuleGraph = TestList [

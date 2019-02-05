@@ -17,12 +17,6 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
-* TODO ? Make SetOp an abstract type, used for both HExpr and Query.
-If HExpr and Query were both of type Searchable, then there could even be
-abstract intersection, union and difference functions.
-* TODO Hash
-** Test
-hFind
 * TODO re. Search
 ** TODO ? define not just sets, but set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
@@ -60,9 +54,6 @@ ExprImg = ExprImg Expr | Bracket
  a map from Addr to Set Role
    because the item in question could (although this will be rare) hold
    multiple Roles within the same Expr
-* maybe rename
-Search -> SeekSeq (more specific)
-It -> Target      (less confusing)
 * ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
 * Add a check, and amend docs: All the Vars in a Program must be distinct.

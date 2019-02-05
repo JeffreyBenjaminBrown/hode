@@ -1,4 +1,4 @@
-module Search.Types where
+module SeekSeq.Types where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M

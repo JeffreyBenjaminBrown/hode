@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
-module Search.Query.Valid where
+module SeekSeq.Query.Valid where
 
 import           Data.List
 import           Data.Map (Map)
@@ -9,7 +9,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Search.Types
+import SeekSeq.Types
 import Util
 
 

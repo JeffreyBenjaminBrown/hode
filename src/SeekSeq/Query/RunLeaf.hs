@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Search.Query.RunLeaf where
+module SeekSeq.Query.RunLeaf where
 
 import           Data.Either
 import           Data.List
@@ -12,9 +12,9 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Search.Query.Valid
-import Search.Subst
-import Search.Types
+import SeekSeq.Query.Valid
+import SeekSeq.Subst
+import SeekSeq.Types
 import Util
 
 

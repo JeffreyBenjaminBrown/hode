@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
-module Test.Search.TLeaf where
+module Test.SeekSeq.TLeaf where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -8,12 +8,12 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import Search.Query.Valid
-import Search.Query.MkLeaf
-import Search.Query.RunLeaf
+import SeekSeq.Query.Valid
+import SeekSeq.Query.MkLeaf
+import SeekSeq.Query.RunLeaf
 import Data.Graph
 import Data.Graph.GQuery
-import Search.Types
+import SeekSeq.Types
 
 
 test_modules_leaf = TestList [

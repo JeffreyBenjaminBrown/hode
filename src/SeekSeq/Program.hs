@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Search.Program where
+module SeekSeq.Program where
 
 import           Data.Either
 import           Data.List
@@ -10,9 +10,9 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Search.Query
-import Search.Query.Valid
-import Search.Types
+import SeekSeq.Query
+import SeekSeq.Query.Valid
+import SeekSeq.Types
 import Util
 
 
