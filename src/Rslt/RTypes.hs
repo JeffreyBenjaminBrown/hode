@@ -37,13 +37,6 @@ data Rslt = Rslt {
   , _isIn      :: Map Addr (Set (Role, Addr))
   } deriving (Eq, Ord, Read, Show)
 
-maxAddr :: Rslt -> Either String Addr
-maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _refExprAt
-  where errMsg = Left $ "maxAddr: empty Rslt.\n"
-
-nextAddr :: Rslt -> Either String Addr
-nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
-
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.
 -- Unlike an `Expr`, a `RefExpr` is not meaningful on its own;
 -- it requires the context of an `Rslt`.
@@ -66,19 +59,7 @@ data RefExpr =
 data ExprCtr = WordCtr | RelCtr | TpltCtr | ParCtr
   deriving (Eq, Ord, Read, Show)
 
-refExprVariety :: RefExpr -> (ExprCtr, Arity)
-refExprVariety   (Word'  _) = (WordCtr, 0)
-refExprVariety e@(Tplt'  _) = (TpltCtr, arity e)
-refExprVariety e@(Rel' _ _) = (RelCtr , arity e)
-refExprVariety e@(Par' _ _) = (ParCtr , arity e)
-
 data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
-
-arity :: RefExpr -> Arity
-arity (Word' _)  = 0
-arity (Rel' x _) = length x
-arity (Tplt' x)  = length x - 1
-arity (Par' x _) = length x
 
 -- | A `RefExprs` is used to retrieve the text of `Word`s and `Par`s.
 type RefExprs = Map Addr RefExpr -- TODO use ordinary hard-disk files

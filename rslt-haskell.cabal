@@ -34,6 +34,7 @@ library
                 , Rslt.Index
                 , Rslt.Lookup
                 , Rslt.RTypes
+                , Rslt.RUtil
                 , Rslt.RValid
                 , Rslt.Show
                 , SeekSeq.Query

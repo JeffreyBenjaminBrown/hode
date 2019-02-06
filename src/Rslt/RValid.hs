@@ -8,8 +8,9 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Rslt.RTypes
 import Rslt.Lookup
+import Rslt.RTypes
+import Rslt.RUtil
 import Util
 
 

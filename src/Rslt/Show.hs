@@ -13,8 +13,9 @@ import           Data.Text (strip, pack, unpack)
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
 
-import Rslt.RTypes
 import Rslt.Lookup
+import Rslt.RTypes
+import Rslt.RUtil
 import Util
 
 
@@ -23,14 +24,6 @@ bracket_angle_big_left    = '⦑' -- C-x 8 Ret 2991
 bracket_angle_big_right   = '⦒' -- C-x 8 Ret 2992
 bracket_angle_small_left  = '«' -- C-x 8 <
 bracket_angle_small_right = '»' -- C-x 8 >
-
-
-depth :: Expr -> Int
-depth (Word _)     = 0
-depth (ExprAddr _) = 0
-depth (Rel mems _) = 1 + maximum (map depth mems)
-depth (Tplt mems)  = 0 -- ^ TODO ? consider Tplts with non-Word members
-depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)
 
 
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]

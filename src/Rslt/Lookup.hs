@@ -15,13 +15,7 @@ import SeekSeq.Types
 import Util
 
 
-hExprToExpr :: HExpr -> Either String Expr
-hExprToExpr (HExpr e) = Right e
-hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
-  ++ ", but only the HExpr constructor can be converted to an Expr.\n"
-
-
--- | == for building `Query`s
+-- | == build `Query`s for `Rslt`s
 
 hFind :: HExpr -> Find Addr Rslt
 hFind he = find $ flip hLookup he
@@ -85,7 +79,7 @@ hLookup r (HDiff base exclude) = do
 hLookup r (HExpr e) = S.singleton <$> lookup r e
 
 
--- | = Some utilities
+-- | = Find sub-`Expr`s of an `Expr`
 
 subExprs :: Rslt -> [[Role]] -> Addr -> Either String (Set Addr)
 subExprs r rls a =
@@ -105,7 +99,7 @@ subExpr r a (rl : rls) = do
   subExpr r member_of_a rls
 
 
--- | == Lookup from `Expr`s
+-- | == Lookup from an `Expr`
 
 lookup :: Rslt -> Expr -> Either String Addr
 lookup x img =

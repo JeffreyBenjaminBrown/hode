@@ -12,6 +12,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Rslt.RTypes
+import Rslt.RUtil
 
 
 mkRslt :: RefExprs -> Rslt
