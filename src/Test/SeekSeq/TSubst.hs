@@ -10,7 +10,7 @@ import qualified Data.Set       as S
 import Test.HUnit
 
 import SeekSeq.Subst
-import SeekSeq.Types
+import SeekSeq.STypes
 
 
 testModuleSubst = TestList

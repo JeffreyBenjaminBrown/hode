@@ -11,7 +11,7 @@ import qualified Data.Set       as S
 import Rslt.Index
 import Rslt.RTypes
 import SeekSeq.Query.MkLeaf
-import SeekSeq.Types
+import SeekSeq.STypes
 import Util
 
 

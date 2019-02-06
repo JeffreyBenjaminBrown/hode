@@ -12,7 +12,7 @@ import           Test.HUnit hiding (Test)
 import Data.Graph
 import SeekSeq.Query.Valid
 import SeekSeq.Query.MkLeaf
-import SeekSeq.Types
+import SeekSeq.STypes
 
 
 type QIGI = Query Int (Graph Int)

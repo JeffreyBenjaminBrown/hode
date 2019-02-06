@@ -9,7 +9,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import SeekSeq.Types
+import SeekSeq.STypes
 import Util
 
 

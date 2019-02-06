@@ -42,7 +42,7 @@ library
                 , SeekSeq.Query.RunLeaf
                 , SeekSeq.Query.Valid
                 , SeekSeq.Subst
-                , SeekSeq.Types
+                , SeekSeq.STypes
                 , Test.Rslt.ByHand
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram

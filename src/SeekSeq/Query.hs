@@ -15,7 +15,7 @@ import qualified Data.Set       as S
 import SeekSeq.Query.Valid
 import SeekSeq.Query.RunLeaf
 import SeekSeq.Subst
-import SeekSeq.Types
+import SeekSeq.STypes
 import Util
 
 

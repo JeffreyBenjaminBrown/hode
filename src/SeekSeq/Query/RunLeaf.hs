@@ -14,7 +14,7 @@ import qualified Data.Set       as S
 
 import SeekSeq.Query.Valid
 import SeekSeq.Subst
-import SeekSeq.Types
+import SeekSeq.STypes
 import Util
 
 

@@ -11,7 +11,7 @@ import           Test.HUnit hiding (Test, test)
 import Data.Graph
 import SeekSeq.Query
 import SeekSeq.Query.MkLeaf
-import SeekSeq.Types
+import SeekSeq.STypes
 
 
 test_module_query = TestList [

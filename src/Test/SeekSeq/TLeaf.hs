@@ -12,7 +12,7 @@ import SeekSeq.Query.Valid
 import SeekSeq.Query.MkLeaf
 import SeekSeq.Query.RunLeaf
 import Data.Graph
-import SeekSeq.Types
+import SeekSeq.STypes
 
 
 test_modules_leaf = TestList [
