@@ -28,19 +28,14 @@ source-repository head
 library
   exposed-modules:
                   Data.Graph
-                , Data.Graph.GSeekSeq
                 , Data.Relation
                 , Rslt.Edit
                 , Rslt.Files
-                , Rslt.Hash.Hash
-                , Rslt.Hash.HTypes
                 , Rslt.Index
                 , Rslt.Lookup
-                , Rslt.RSeekSeq
                 , Rslt.RTypes
                 , Rslt.RValid
                 , Rslt.Show
-                , SeekSeq.Program
                 , SeekSeq.Query
                 , SeekSeq.Query.MkLeaf
                 , SeekSeq.Query.RunLeaf

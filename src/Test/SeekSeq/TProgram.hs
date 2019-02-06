@@ -7,10 +7,9 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import SeekSeq.Program
+import SeekSeq.Query
 import SeekSeq.Query.MkLeaf
 import Data.Graph
-import Data.Graph.GSeekSeq
 import SeekSeq.Types
 
 

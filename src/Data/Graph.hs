@@ -8,6 +8,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import SeekSeq.Query.MkLeaf
 import SeekSeq.Types
 import Util
 
@@ -46,3 +47,13 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
         ->        a
         -> M.Map  a (S.Set a)
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
+
+
+-- | == building `Query`s to search a `Graph`
+
+findChildren, findParents :: (Ord e, Show e)
+                          => Either e Var -> Find e (Graph e)
+findChildren = findFrom "findChildren"
+  $ \g e -> Right $ children g e
+findParents  = findFrom "findParents"
+  $ \g e -> Right $ parents g e

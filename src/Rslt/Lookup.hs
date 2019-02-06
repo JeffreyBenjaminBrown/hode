@@ -10,6 +10,8 @@ import qualified Data.Set       as S
 
 import Rslt.Index
 import Rslt.RTypes
+import SeekSeq.Query.MkLeaf
+import SeekSeq.Types
 import Util
 
 
@@ -17,6 +19,12 @@ hExprToExpr :: HExpr -> Either String Expr
 hExprToExpr (HExpr e) = Right e
 hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr constructor can be converted to an Expr.\n"
+
+
+-- | == for building `Query`s
+
+hFind :: HExpr -> Find Addr Rslt
+hFind he = find $ flip hLookup he
 
 
 -- | == `hLookup`: Lookup via the Hash language.

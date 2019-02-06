@@ -13,7 +13,7 @@ import           Test.HUnit hiding (Test)
 import           Rslt.Lookup hiding (lookup)
 import qualified Rslt.Lookup as R
 import           Rslt.RTypes
-import           SeekSeq.Program
+import           SeekSeq.Query
 import           SeekSeq.Query.MkLeaf
 import           SeekSeq.Types
 import qualified Test.Rslt.RData as D

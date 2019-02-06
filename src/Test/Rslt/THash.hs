@@ -14,8 +14,6 @@ import           Test.HUnit hiding (Test)
 import Rslt.Edit
 import Rslt.RTypes
 import Rslt.Lookup
-import Rslt.Hash.HTypes
-import Rslt.Hash.Hash
 import qualified Test.Rslt.RData as D
 import Util
 
