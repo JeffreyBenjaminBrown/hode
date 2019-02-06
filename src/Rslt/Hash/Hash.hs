@@ -22,22 +22,22 @@ hExprToExpr (HExpr e) = Right e
 hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr constructor can be converted to an Expr.\n"
 
-retrieveIts :: Rslt -> [[Role]] -> Addr -> Either String (Set Addr)
-retrieveIts r rls a =
-  S.fromList <$> ifLefts "retrieveIts" its
+subExprs :: Rslt -> [[Role]] -> Addr -> Either String (Set Addr)
+subExprs r rls a =
+  S.fromList <$> ifLefts "subExprs" its
   where its :: [Either String Addr]
-        its = map (retrieveIts1 r a) rls
+        its = map (subExpr r a) rls
 
-retrieveIts1 :: Rslt -> Addr -> [Role] -> Either String Addr
-retrieveIts1 _ a [] = Right a
-retrieveIts1 r a (rl : rls) = do
+subExpr :: Rslt -> Addr -> [Role] -> Either String Addr
+subExpr _ a [] = Right a
+subExpr r a (rl : rls) = do
   (aHas :: Map Role Addr) <-
-    prefixLeft ("retrieveIts1, looking up Addr" ++ show a)
+    prefixLeft ("subExpr, looking up Addr" ++ show a)
     $ has r a
   (member_of_a :: Addr) <-
-    maybe (Left $ "retrieveIts1, looking up Role " ++ show rl ++ ".") Right
+    maybe (Left $ "subExpr, looking up Role " ++ show rl ++ ".") Right
     $ M.lookup rl aHas
-  retrieveIts1 r member_of_a rls
+  subExpr r member_of_a rls
 
 
 hLookup :: Rslt -> HExpr -> Either String (Set Addr)
@@ -71,7 +71,7 @@ hLookup r (HEval hm paths) = do
     hLookup r $ HMap hm
   (its :: Set (Set Addr)) <-
     ( ifLefts_set "hLookup called on HEval, mapping over hosts"
-      $ S.map (retrieveIts r paths) hosts )
+      $ S.map (subExprs r paths) hosts )
   Right $ S.unions its
 
 -- | TRICK: For speed, put the most selective searches first in the list.

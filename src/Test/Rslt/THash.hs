@@ -21,7 +21,7 @@ import Util
 
 
 test_module_rslt_hash = TestList [
-    TestLabel "test_retrieveIts" test_retrieveIts
+    TestLabel "test_subExprs" test_subExprs
   , TestLabel "test_hLookup" test_hLookup
   ]
 
@@ -68,23 +68,23 @@ test_hLookup = TestCase $ do
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 
-test_retrieveIts = TestCase $ do
+test_subExprs = TestCase $ do
   let r = fromRight (error "wut") $ insertAt 7 (Rel' [5,5] 4) D.rslt
-  assertBool "1" $ retrieveIts r [ [RoleMember 1, RoleMember 1] ] 7
+  assertBool "1" $ subExprs r [ [RoleMember 1, RoleMember 1] ] 7
     == Right (S.fromList [1])
-  assertBool "2" $ retrieveIts r [ [RoleMember 2, RoleMember 2] ] 7
+  assertBool "2" $ subExprs r [ [RoleMember 2, RoleMember 2] ] 7
     == Right (S.fromList [2])
-  assertBool "3" $ retrieveIts r [ [RoleMember 2, RoleMember 1] ] 7
+  assertBool "3" $ subExprs r [ [RoleMember 2, RoleMember 1] ] 7
     == Right (S.fromList [1])
-  assertBool "3" $ retrieveIts r [ [RoleMember 2, RoleMember 1]
+  assertBool "3" $ subExprs r [ [RoleMember 2, RoleMember 1]
                                  , [RoleMember 1]
                                  ] 7
     == Right (S.fromList [1,5])
-  assertBool "4" $ retrieveIts r [ [RoleMember 2, RoleMember 1]
+  assertBool "4" $ subExprs r [ [RoleMember 2, RoleMember 1]
                                  , [RoleMember 1, RoleMember 1]
                                  ] 7
     == Right (S.fromList [1])
-  assertBool "5" $ retrieveIts r [ [RoleMember 1, RoleMember 1]
+  assertBool "5" $ subExprs r [ [RoleMember 1, RoleMember 1]
                                  , [RoleMember 1, RoleMember 2]
                                  , [RoleMember 2, RoleMember 2]
                                  ] 7
