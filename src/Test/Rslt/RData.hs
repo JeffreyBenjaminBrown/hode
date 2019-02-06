@@ -28,7 +28,7 @@ badRefExprs = M.union refExprs newData where
 rslt = mkRslt refExprs
 
 
--- | A bigger one
+-- | A big, abstract one
 
 big :: Rslt
 big = mkRslt $ M.fromList
@@ -43,4 +43,23 @@ big = mkRslt $ M.fromList
   , (  8, Rel' [6,7] 5)
   , (  9, Rel' [2,3] 5)
   , ( 10, Rel' [7,8] 5)
+  ]
+
+
+-- | = A bigger, concrete one
+
+b2 :: Rslt
+b2 = mkRslt $ M.fromList
+  [ ( 1, Word' "")
+  , ( 2, Word' "fish")
+  , ( 3, Word' "water")
+  , ( 4, Word' "need")
+  , ( 5, Word' "like")
+  , ( 6, Word' "jumping")
+  , ( 7, Tplt' [0,4,0] ) -- _ need _
+  , ( 8, Tplt' [0,5,0] ) -- _ like _
+  , ( 9, Rel' [2,3] 4) -- fish #need water
+  , (10, Rel' [2,6] 5) -- fish #like jumping
+  , (11, Word' "horses")
+  , (12, Rel' [11,6] 5) -- horses #like jumping
   ]

@@ -20,10 +20,29 @@ import qualified Test.Rslt.RData as D
 
 
 test_module_rsltProgram = TestList [
-  TestLabel "test_rsltProgram" test_rsltProgram
+  TestLabel "test_rslt_seekSeq" test_rslt_seekSeq
+  , TestLabel "test_rslt_hash_seekSeq" test_rslt_hash_seekSeq
   ]
 
-test_rsltProgram = TestCase $ do
+
+test_rslt_hash_seekSeq = TestCase $ do
+  assertBool "<any> #like <any>" $ runProgram D.b2
+    [ ( "a", QFind $ hFind $ HMap $ M.fromList
+             [ ( RoleTplt, HExpr $ ExprAddr 5 ) ] ) ]
+    == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty)
+                                            , (12, S.singleton M.empty) ] )
+
+  assertBool "fish #like <any>" $ runProgram D.b2
+    [ ( "a", QFind $ hFind $ HMap $ M.fromList
+             [ ( RoleTplt, HExpr $ ExprAddr 5 )
+             , ( RoleMember 1, HExpr $ ExprAddr 2 )
+             ] ) ]
+    == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty) ] )
+
+  assertBool "todo: more" False
+
+
+test_rslt_seekSeq = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ find
