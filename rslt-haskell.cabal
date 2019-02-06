@@ -43,7 +43,7 @@ library
                 , SeekSeq.Query.Valid
                 , SeekSeq.Subst
                 , SeekSeq.STypes
-                , Test.Rslt.ByHand
+--                , Test.Rslt.ByHand
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
                 , Test.Rslt.TEdit

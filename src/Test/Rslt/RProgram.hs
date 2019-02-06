@@ -39,6 +39,32 @@ test_rslt_hash_seekSeq = TestCase $ do
              ] ) ]
     == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty) ] )
 
+  assertBool "<any> #like (<it> #is exercise)" $ runProgram D.b2
+    [ ( "a", QFind $ hFind $ HMap $ M.fromList
+             [ ( RoleTplt, HExpr $ ExprAddr 5 )
+             , ( RoleMember 2
+               , HEval ( M.fromList
+                         [ ( RoleTplt, HExpr $ ExprAddr 15)
+                         , ( RoleMember 2, HExpr $ Word "exercise") ] )
+                 $ [[ RoleMember 1 ]]
+               ) ] ) ]
+    == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty)
+                                            , (12, S.singleton M.empty) ] )
+
+  assertBool "<it> #like (<it> #is exercise)" $ runProgram D.b2
+    [ ( "a", QFind $ hFind $
+        HEval ( M.fromList
+                [ ( RoleTplt, HExpr $ ExprAddr 5 )
+                , ( RoleMember 2
+                  , HEval ( M.fromList
+                            [ ( RoleTplt, HExpr $ ExprAddr 15)
+                            , ( RoleMember 2, HExpr $ Word "exercise") ] )
+                    $ [[ RoleMember 1 ]]
+                  ) ] )
+        [[ RoleMember 1 ]] ) ]
+    == Right ( M.singleton "a" $ M.fromList [ (2, S.singleton M.empty)
+                                            , (11, S.singleton M.empty) ] )
+
   assertBool "todo: more" False
 
 
