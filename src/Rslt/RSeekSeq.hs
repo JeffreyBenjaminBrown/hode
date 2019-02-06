@@ -8,8 +8,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Rslt.Hash.Hash
-import Rslt.Hash.HTypes
+import Rslt.Lookup
 import Rslt.RTypes
 import SeekSeq.Query.MkLeaf
 import SeekSeq.Types
