@@ -26,6 +26,11 @@ hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
 hFind :: HExpr -> Find Addr Rslt
 hFind he = find $ flip hLookup he
 
+hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
+hFindSubExprs paths = findFrom "hFindSubExprs" f where
+  f :: Rslt -> Addr -> Either String (Set Addr)
+  f r a = subExprs r paths a
+
 
 -- | == `hLookup`: Lookup via the Hash language.
 

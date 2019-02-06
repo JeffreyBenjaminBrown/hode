@@ -114,8 +114,7 @@ find finder = Find go S.empty where
   go :: sp -> Subst e -> Either String (Set e)
   go g _ = finder g
 
--- | Run a search starting from some element of the space -- maybe
--- from a constant element, or maybe from one drawn from the `Subst`.
+-- | Run a search starting from a variable element of the space.
 findFrom :: forall e sp. (Show e) =>
   String -> (sp -> e -> Either String (Set e)) -> Either e Var -> Find e sp
 findFrom findName finder eev = Find go deps where

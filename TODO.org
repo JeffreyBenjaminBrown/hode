@@ -18,6 +18,7 @@ type CondElts = Map Elt (Set Subst)
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
 * TODO re. Search
+** TODO ? Is the string arg to findFrom needed?
 ** TODO ? define not just sets, but set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
 ** TODO ? searches that take both Subst and Possible arguments
