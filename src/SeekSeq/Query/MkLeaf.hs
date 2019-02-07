@@ -56,7 +56,7 @@ varTestIO iVar oVar = VarTest go deps where
             $ M.lookup iVar subst
     oVal <- maybe (Left $ keyErr "varTestIO" oVar subst) Right
             $ M.lookup oVar subst
-    checkIORel (iVar,iVal) (oVar,oVal) poss
+    _checkIORel (iVar,iVal) (oVar,oVal) poss
 
 
 -- | `varTestIO'` is like `varTestIO`, but takes into account the fact
@@ -76,16 +76,16 @@ varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
            $ M.lookup iInSubst subst
     oVal <- maybe (Left $ keyErr "varTestIO'" oInSubst subst) Right
            $ M.lookup oInSubst subst
-    checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
+    _checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
 
--- | `checkIORel iVar oVar poss subst` determines whether, in poss, iVar
+-- | `_checkIORel iVar oVar poss subst` determines whether, in poss, iVar
 -- is an input that could generate oVar as an output, given
 -- their values iVal and oVal.
-checkIORel :: forall e sp. (Ord e, Show e)
+_checkIORel :: forall e sp. (Ord e, Show e)
   => (Var,e) -> (Var,e) -> Possible e -> Either String Bool
-checkIORel (iVar,iVal) (oVar,oVal) p = do
+_checkIORel (iVar,iVal) (oVar,oVal) p = do
   (ce :: CondElts e) <-
-    maybe (Left $ keyErr "checkIORel: key not in Possible" oVar p) Right
+    maybe (Left $ keyErr "_checkIORel: key not in Possible" oVar p) Right
     $ M.lookup oVar p
   let (ss :: Set (Subst e)) = maybe S.empty id $ M.lookup oVal ce
   Right $ or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
