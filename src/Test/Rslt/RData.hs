@@ -58,12 +58,14 @@ b2 = mkRslt $ M.fromList
   , ( 6, Word' "jumping")
   , ( 7, Tplt' [0,4,0] ) -- _ need _
   , ( 8, Tplt' [0,5,0] ) -- _ like _
-  , ( 9, Rel' [2,3] 4) -- fish #need water
-  , (10, Rel' [2,6] 5) -- fish #like jumping
+  , ( 9, Rel' [2,3] 7) -- fish #need water
+  , (10, Rel' [2,6] 8) -- fish #like jumping
   , (11, Word' "horses")
-  , (12, Rel' [11,6] 5) -- horses #like jumping
+  , (12, Rel' [11,6] 8) -- horses #like jumping
   , (13, Word' "exercise")
   , (14, Word' "is")
   , (15, Tplt' [0,14,0]) -- _ is _
   , (16, Rel' [6,13] 15 ) -- jumping #is exercise
+  , (17, Word' "dolphins")
+  , (18, Rel' [17,2] 7) -- dolphins #need fish
   ]
