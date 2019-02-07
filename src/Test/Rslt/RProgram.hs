@@ -131,13 +131,13 @@ test_rslt_hash_seekSeq = TestCase $ do
 test_rslt_seekSeq = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
-    [ ( "a", QFind $ find
+    [ ( "a", QFind $ mkFind
         $ \sp -> S.singleton <$> R.lookup sp (ExprAddr 0) ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 
   assertBool "2" $ runProgram D.rslt
-    [ ("a", QFind $ find
+    [ ("a", QFind $ mkFind
         $ \sp -> S.singleton <$> refExprAt sp 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton (Word' "") $ S.singleton M.empty )

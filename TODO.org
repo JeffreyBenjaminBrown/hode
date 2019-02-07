@@ -17,14 +17,13 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
+* TODO find should be mkFind, etc.
 * TODO add constructor HVar to type HExpr
 An HExpr needs to be able to use variables supplied to it by a Subst.
 Edit hLookup, hFind to cover the HVar case.
-* TODO rename Qseq to Qseq
-so that I can use the prefix q in combination with the prefixes r(rslt) and h(ash)
-which should then replace a lot of apostrophes
 * TODO re. Search
 ** TODO ? Is the String arg to findFrom needed?
+search for findFrom in the code, see if it's always part of a Left carrying a call stack
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
 ** TODO ? searches that take both Subst and Possible arguments

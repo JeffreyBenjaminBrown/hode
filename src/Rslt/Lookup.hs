@@ -18,10 +18,10 @@ import Util
 -- | == build `Query`s for `Rslt`s
 
 hFind :: HExpr -> Find Addr Rslt
-hFind he = find $ flip hLookup he
+hFind he = mkFind $ flip hLookup he
 
 hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
-hFindSubExprs paths = findFrom "hFindSubExprs" f where
+hFindSubExprs paths = mkFindFrom "hFindSubExprs" f where
   f :: Rslt -> Addr -> Either String (Set Addr)
   f r a = subExprs r paths a
 
