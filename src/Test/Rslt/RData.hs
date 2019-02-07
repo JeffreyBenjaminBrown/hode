@@ -17,6 +17,7 @@ test_the_rslt_test_data = TestList [
       assertBool "3" $ validRslt b2   == Right ()
   ]
 
+
 -- | = A small Rslt
 
 refExprs :: RefExprs
@@ -62,7 +63,7 @@ big = mkRslt $ M.fromList
 b2 :: Rslt
 b2 = mkRslt $ M.fromList
   [ ( 0, Word' "")
-
+  , ( 1, Rel' [2,3] 8) -- fish #like water
   , ( 2, Word' "fish")
   , ( 3, Word' "water")
   , ( 4, Word' "need")
@@ -80,4 +81,5 @@ b2 = mkRslt $ M.fromList
   , (16, Rel' [6,13] 15 ) -- jumping #is exercise
   , (17, Word' "dolphins")
   , (18, Rel' [17,2] 7) -- dolphins #need fish
+  , (19, Rel' [17,3] 8) -- dolphins #like water
   ]

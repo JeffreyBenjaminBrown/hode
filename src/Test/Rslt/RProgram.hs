@@ -29,15 +29,18 @@ test_rslt_hash_seekSeq = TestCase $ do
   assertBool "<any> #like <any>" $ runProgram D.b2
     [ ( "a", QFind $ hFind $ HMap $ M.fromList
              [ ( RoleTplt, HExpr $ ExprAddr 8 ) ] ) ]
-    == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty)
-                                            , (12, S.singleton M.empty) ] )
+    == Right ( M.singleton "a" $ M.fromList [ ( 1, S.singleton M.empty)
+                                            , (10, S.singleton M.empty)
+                                            , (12, S.singleton M.empty)
+                                            , (19, S.singleton M.empty) ] )
 
   assertBool "fish #like <any>" $ runProgram D.b2
     [ ( "a", QFind $ hFind $ HMap $ M.fromList
              [ ( RoleTplt, HExpr $ ExprAddr 8 )
              , ( RoleMember 1, HExpr $ ExprAddr 2 )
              ] ) ]
-    == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty) ] )
+    == Right ( M.singleton "a" $ M.fromList [ ( 1, S.singleton M.empty)
+                                            , (10, S.singleton M.empty) ] )
 
   assertBool "<any> #like (<it> #is exercise)" $ runProgram D.b2
     [ ( "a", QFind $ hFind $ HMap $ M.fromList
@@ -77,7 +80,8 @@ test_rslt_hash_seekSeq = TestCase $ do
             [[ RoleMember 2 ]] ) ] ) ]
     == Right ( M.singleton "a" $ M.fromList [ (2, S.singleton M.empty) ] )
 
-  assertBool ( "a <- <it> #need <any>\n"
+  assertBool ( "another way to sayt he same thing:\n"
+               ++ "a <- <it> #need <any>\n"
                ++ "b <- <any> #need <it>" )
     $ runProgram D.b2
     [ ( "a", QFind $ hFind
@@ -98,6 +102,29 @@ test_rslt_hash_seekSeq = TestCase $ do
                          , (17, S.singleton M.empty) ] )
       , ("b", M.fromList [ (2, S.singleton $ M.singleton "a1" 2) ] ) ] )
 
+  assertBool ( "nl <- everything that needs something and like something\n"
+               ++ "  (i.e. <it> #like <any> && <it> #need <any>\n"
+               ++ "n <- whatever any (nl) needs\n"
+               ++ "l <- whatever any (nl) likes\n"
+               ++ ( "res <- the subset of nl such that nothing it likes"
+                    ++ " is something it needs\n" ) )
+    $ runProgram D.b2
+    [ ( "nl" -- "<it> #need <any> && <it> #like <any>"
+      , QFind $ hFind $ HAnd
+        [ ( HEval ( M.fromList -- <it> #need <any>
+                    [ ( RoleTplt, HExpr $ ExprAddr 7 ) ] )
+            [[ RoleMember 1 ]] )
+        , ( HEval ( M.fromList -- <it> #like <any>
+                    [ ( RoleTplt, HExpr $ ExprAddr 8 ) ] )
+            [[ RoleMember 1 ]] ) ] )
+    ]
+
+    == Right
+    ( M.fromList
+      [ ("nl", M.fromList [ (2, S.singleton M.empty)
+                         , (17, S.singleton M.empty) ] )
+      ] )
+    && False -- still to do: n, l and res
   assertBool "todo: more" False
 
 

@@ -17,6 +17,8 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
+* TODO add constructor HVar to type HExpr
+An HExpr needs to be able to use variables supplied to it by a Subst.
 * TODO re. Search
 ** TODO ? Is the String arg to findFrom needed?
 ** TODO ? define not just Sets, but Set-valued functions of Substs
@@ -25,21 +27,6 @@ Example (for a singleton Subst): define "ancestors-via-is" as a function of a Va
 * TODO re. Rslt
 ** TODO : recursive "is", using "is a kind of"
 If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
-** TODO explore : can I run these queries
-*** a <- everything that needs something
-as <- everything that "_ needs _" is in, in the template role
-bs <- everything that, for some a in as, is in a, as the first member
-*** a <- everything that needs something and isn't dog
-as <- everything that "_ needs _" is in, in the template role
-bs <- everything that
-  (1) for some a in as, is in a, as the first member
-  (2) is not dog
-*** a <- everything that needs something and is needed by something
-as <- everything that "_ needs _" is in, in the template role
-bs <- everything such that
-      (1) for some a in as, it is the first member
-      (2) for some a in as, it is the second member
-*** a <- eveyrthing that needs some x and helps some y, such that x != y
 ** features
 *** DSL for exprs
 *** DSL for queries
