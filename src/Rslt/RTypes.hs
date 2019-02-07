@@ -7,6 +7,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Util
+import Qseq.QTypes (Var)
 
 
 type Addr = Int -- ^ Address
@@ -70,8 +71,10 @@ type RefExprs = Map Addr RefExpr -- TODO use ordinary hard-disk files
 data HExpr =
     HMap  HMap -- ^ The search workhorse.
   | HEval HMap [[Role]] -- ^ Finds matches to the `HMap`, then retrieves
-  -- from each match the subexpression each `[Role]` arrives at. (Inclduing
-  -- more than one `[Role]` in the `[[Role]]` is weird but legal.)
+  -- from each match the subexpression each `[Role]` (path) arrives at.
+  -- (Inclduing more than one path in the `[[Role]]` is weird but legal.)
+  | HVar   Var    -- ^ To look up the `Var` from a `Subst`, probably a
+                  -- `Subst Addr Rslt`.
   | HExpr  Expr   -- ^ When you want exactly one `Expr`, and know which.
   -- The `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
   | HDiff HExpr HExpr -- ^ Set difference.

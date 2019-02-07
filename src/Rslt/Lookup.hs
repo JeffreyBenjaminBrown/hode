@@ -20,6 +20,14 @@ import Util
 hFind :: HExpr -> Find Addr Rslt
 hFind he = mkFind $ flip hLookup he
 
+hVars :: HExpr -> Set Var
+hVars (HMap m)    = S.unions $ map hVars $ M.elems m
+hVars (HEval m _) = S.unions $ map hVars $ M.elems m
+hVars (HVar v)    = S.singleton v
+hVars (HDiff h i) = S.union (hVars h) (hVars i)
+hVars (HAnd hs)   = S.unions $ map hVars hs
+hVars (HOr hs)    = S.unions $ map hVars hs
+
 hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
 hFindSubExprs paths = mkFindFrom "hFindSubExprs" f where
   f :: Rslt -> Addr -> Either String (Set Addr)
