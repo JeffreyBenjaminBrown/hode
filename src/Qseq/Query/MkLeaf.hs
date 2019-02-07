@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module SeekSeq.Query.MkLeaf where
+module Qseq.Query.MkLeaf where
 
 import           Data.Either
 import           Data.List
@@ -12,8 +12,8 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import SeekSeq.Subst
-import SeekSeq.STypes
+import Qseq.Subst
+import Qseq.QTypes
 import Util
 
 

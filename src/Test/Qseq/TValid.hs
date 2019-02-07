@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Test.SeekSeq.TValid where
+module Test.Qseq.TValid where
 
 import           Data.List
 import           Data.Map (Map)
@@ -10,9 +10,9 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Data.Graph
-import SeekSeq.Query.Valid
-import SeekSeq.Query.MkLeaf
-import SeekSeq.STypes
+import Qseq.Query.Valid
+import Qseq.Query.MkLeaf
+import Qseq.QTypes
 
 
 type QIGI = Query Int (Graph Int)
@@ -28,7 +28,7 @@ testModuleQueryClassify = TestList [
     test_usesNoSourceBeforeItExists
   -- these seem too easy to bother testing:
     -- validQuery
-    -- feasible'Junctions
+    -- feasibleJunctions
   ]
 
 test_usesNoSourceBeforeItExists = TestCase $ do

@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Test.SeekSeq.TProgram where
+module Test.Qseq.TProgram where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -7,10 +7,10 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import SeekSeq.Query
-import SeekSeq.Query.MkLeaf
+import Qseq.Query
+import Qseq.Query.MkLeaf
 import Data.Graph
-import SeekSeq.STypes
+import Qseq.QTypes
 
 
 test_module_Program = TestList [

@@ -37,12 +37,12 @@ library
                 , Rslt.RUtil
                 , Rslt.RValid
                 , Rslt.Show
-                , SeekSeq.Query
-                , SeekSeq.Query.MkLeaf
-                , SeekSeq.Query.RunLeaf
-                , SeekSeq.Query.Valid
-                , SeekSeq.Subst
-                , SeekSeq.STypes
+                , Qseq.Query
+                , Qseq.Query.MkLeaf
+                , Qseq.Query.RunLeaf
+                , Qseq.Query.Valid
+                , Qseq.Subst
+                , Qseq.QTypes
 --                , Test.Rslt.ByHand
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
@@ -51,11 +51,11 @@ library
                 , Test.Rslt.TIndex_and_Valid
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow
-                , Test.SeekSeq.TLeaf
-                , Test.SeekSeq.TProgram
-                , Test.SeekSeq.TQuery
-                , Test.SeekSeq.TSubst
-                , Test.SeekSeq.TValid
+                , Test.Qseq.TLeaf
+                , Test.Qseq.TProgram
+                , Test.Qseq.TQuery
+                , Test.Qseq.TSubst
+                , Test.Qseq.TValid
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil

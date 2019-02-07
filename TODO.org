@@ -19,6 +19,10 @@ type CondElts = Map Elt (Set Subst)
  (varTestIO could be interpreting as doing both.)
 * TODO add constructor HVar to type HExpr
 An HExpr needs to be able to use variables supplied to it by a Subst.
+Edit hLookup, hFind to cover the HVar case.
+* TODO rename Qseq to Qseq
+so that I can use the prefix q in combination with the prefixes r(rslt) and h(ash)
+which should then replace a lot of apostrophes
 * TODO re. Search
 ** TODO ? Is the String arg to findFrom needed?
 ** TODO ? define not just Sets, but Set-valued functions of Substs

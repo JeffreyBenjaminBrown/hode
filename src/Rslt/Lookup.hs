@@ -10,8 +10,8 @@ import qualified Data.Set       as S
 
 import Rslt.Index
 import Rslt.RTypes
-import SeekSeq.Query.MkLeaf
-import SeekSeq.STypes
+import Qseq.Query.MkLeaf
+import Qseq.QTypes
 import Util
 
 

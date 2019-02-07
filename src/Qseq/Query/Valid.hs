@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
-module SeekSeq.Query.Valid where
+module Qseq.Query.Valid where
 
 import           Data.List
 import           Data.Map (Map)
@@ -9,7 +9,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import SeekSeq.STypes
+import Qseq.QTypes
 import Util
 
 
@@ -44,14 +44,14 @@ validQuery q = do
     else Left $ "Variable defined in multiple clauses of a conjunction."
   if noIntroducedVarMasked q then Right ()
     else Left $ "One variable definition masks another."
-  if feasible'Junctions q then Right ()
+  if feasibleJunctions q then Right ()
     else Left $ "Infeasible junction in Query."
   if null $ S.intersection (introducesVars q) (drawsFromVars q) then Right ()
     -- introducesVars and drawsFromVars are recursive, so this needn't be.
     else Left $ "Names shared between internally-defined and externally-drawn-from variables."
 
-feasible'Junctions :: Query e sp -> Bool
-feasible'Junctions = recursive where
+feasibleJunctions :: Query e sp -> Bool
+feasibleJunctions = recursive where
   simple, recursive :: Query e sp -> Bool
 
   simple (QJunct (And qs)) = not $ null $ filter findlike qs

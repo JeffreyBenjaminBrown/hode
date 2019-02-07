@@ -8,8 +8,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import SeekSeq.Query.MkLeaf
-import SeekSeq.STypes
+import Qseq.Query.MkLeaf
+import Qseq.QTypes
 import Util
 
 

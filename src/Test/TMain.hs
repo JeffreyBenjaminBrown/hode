@@ -17,11 +17,11 @@ import Test.Rslt.THash
 import Test.Rslt.TIndex_and_Valid
 import Test.Rslt.TLookup
 import Test.Rslt.TShow
-import Test.SeekSeq.TLeaf
-import Test.SeekSeq.TProgram
-import Test.SeekSeq.TQuery
-import Test.SeekSeq.TSubst
-import Test.SeekSeq.TValid
+import Test.Qseq.TLeaf
+import Test.Qseq.TProgram
+import Test.Qseq.TQuery
+import Test.Qseq.TSubst
+import Test.Qseq.TValid
 import Test.TGraph
 import Test.TUtil
 

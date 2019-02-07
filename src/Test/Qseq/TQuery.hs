@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
-module Test.SeekSeq.TQuery where
+module Test.Qseq.TQuery where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -9,9 +9,9 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
 import Data.Graph
-import SeekSeq.Query
-import SeekSeq.Query.MkLeaf
-import SeekSeq.STypes
+import Qseq.Query
+import Qseq.Query.MkLeaf
+import Qseq.QTypes
 
 
 test_module_query = TestList [

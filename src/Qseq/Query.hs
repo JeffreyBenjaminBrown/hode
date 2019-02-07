@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module SeekSeq.Query where
+module Qseq.Query where
 
 import           Data.Either
 import           Data.List
@@ -12,10 +12,10 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import SeekSeq.Query.Valid
-import SeekSeq.Query.RunLeaf
-import SeekSeq.Subst
-import SeekSeq.STypes
+import Qseq.Query.Valid
+import Qseq.Query.RunLeaf
+import Qseq.Subst
+import Qseq.QTypes
 import Util
 
 
