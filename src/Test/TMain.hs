@@ -10,6 +10,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
+import Test.Rslt.RData
 import Test.Rslt.RProgram
 import Test.Rslt.TEdit
 import Test.Rslt.THash
@@ -33,6 +34,7 @@ tests = runTestTT $ TestList
   , testModuleUtil
   , test_module_Program
   , test_module_query
+  , test_the_rslt_test_data
   , test_module_rsltProgram
   , test_module_rslt_edit
   , test_module_rslt_hash

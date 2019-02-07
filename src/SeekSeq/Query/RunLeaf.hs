@@ -12,7 +12,6 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import SeekSeq.Query.Valid
 import SeekSeq.Subst
 import SeekSeq.STypes
 import Util

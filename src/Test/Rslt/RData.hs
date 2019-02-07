@@ -1,10 +1,21 @@
 module Test.Rslt.RData where
 
 import qualified Data.Map as M
+import           Test.HUnit hiding (Test)
 
 import Rslt.Index
 import Rslt.RTypes
+import Rslt.RValid
 
+
+-- | = Make sure each Rslt is okay.
+
+test_the_rslt_test_data = TestList [
+  TestLabel "test_variety" $ TestCase $ do
+      assertBool "1" $ validRslt rslt == Right ()
+      assertBool "2" $ validRslt big  == Right ()
+      assertBool "3" $ validRslt b2   == Right ()
+  ]
 
 -- | = A small Rslt
 
@@ -50,7 +61,8 @@ big = mkRslt $ M.fromList
 
 b2 :: Rslt
 b2 = mkRslt $ M.fromList
-  [ ( 1, Word' "")
+  [ ( 0, Word' "")
+
   , ( 2, Word' "fish")
   , ( 3, Word' "water")
   , ( 4, Word' "need")

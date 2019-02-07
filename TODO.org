@@ -17,10 +17,6 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how varTestCompare is written (unless it has no deps),
  and that's how varTestIO' is currently written, but it could go either way.
  (varTestIO could be interpreting as doing both.)
-* TODO validity-check the 3 Rslts in Test.Rslt.RData
-rslt
-big
-b2
 * TODO re. Search
 ** TODO ? Is the String arg to findFrom needed?
 ** TODO ? define not just Sets, but Set-valued functions of Substs
