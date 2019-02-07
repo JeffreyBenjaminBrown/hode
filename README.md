@@ -54,13 +54,13 @@ A `Find` is used to find stuff in the space. You can make something of type `Fin
 
 A `Test` is used to filter things that have been found. You can make a `Test` by running `test`, which expects a function of type `(e -> e -> Bool)`.
 
-Everywhere you use a quantifier (`ForAll` or `ForSome`), a variable is bound to every possible value of that quantifier's `Source`. A `VarTest` is used to reduce the combinations of variables tried. You can make `VarTests` with `varTestCompare`. Here's an example:
+Everywhere you use a quantifier (`ForAll` or `ForSome`), a variable is bound to every possible value of that quantifier's `Source`. A `VarTest` is used to reduce the combinations of variables tried. You can make `VarTests` with `mkVTestCompare`. Here's an example:
 
 ```
     [ ("a", QFind $ findChildren $ Left 0)
     , ("b", ( ForSome "a1" (Source "a")
               ( ForSome "a2" (Source "a")
-                (QAnd [ QVTest $ varTestCompare (<) (Right "a1") (Right "a2")
+                (QAnd [ QVTest $ mkVTestCompare (<) (Right "a1") (Right "a2")
                       , QFind $ findChildren $ Right "a1"
                       , QFind $ findChildren $ Right "a2" ] ) ) ) ) ]
 ```

@@ -29,9 +29,9 @@ either_varToElt s (Right v) =
 
 -- | = `Test`s
 
-test :: forall e sp. (Eq e, Show e)
+mkTest :: forall e sp. (Eq e, Show e)
         => (e -> e -> Bool) -> Either e Var -> Test e sp
-test compare eev = Test go deps where
+mkTest compare eev = Test go deps where
   go :: sp -> Subst e -> e -> Either String Bool
   go _ s e = do e0 <- either_varToElt s eev
                 Right $ compare e0 e
@@ -41,39 +41,39 @@ test compare eev = Test go deps where
 
 -- | = `VarTest`s
 
--- | `varTestIO iVar oVar` creates a `VarTest` that returns `True`
+-- | `mkVTestIO iVar oVar` creates a `VarTest` that returns `True`
 -- if and only if the "current" (bound according to the `Subst` argument
 -- to `runVarTest`) value of iVar could have led to the current value of oVar.
 -- (abbrevations: i=input, o=output.)
-varTestIO :: forall e sp. (Ord e, Show e)
+mkVTestIO :: forall e sp. (Ord e, Show e)
   => Var -> Var -> VarTest e sp
-varTestIO iVar oVar = VarTest go deps where
+mkVTestIO iVar oVar = VarTest go deps where
   (deps :: Set Var) = S.fromList [iVar,oVar]
   go :: sp -> Possible e -> Subst e -> Either String Bool
   go space poss subst = do
-    iVal <- maybe (Left $ keyErr "varTestIO" iVar subst) Right
+    iVal <- maybe (Left $ keyErr "mkVTestIO" iVar subst) Right
             $ M.lookup iVar subst
-    oVal <- maybe (Left $ keyErr "varTestIO" oVar subst) Right
+    oVal <- maybe (Left $ keyErr "mkVTestIO" oVar subst) Right
             $ M.lookup oVar subst
     _checkIORel (iVar,iVal) (oVar,oVal) poss
 
 
--- | `varTestIO'` is like `varTestIO`, but takes into account the fact
+-- | `mkVTestIO'` is like `mkVTestIO`, but takes into account the fact
 -- that the name used (i.e. the `Var`) in the `Subst` might differ from
 -- the corresponding name in the `Possible`.
-varTestIO' :: forall e sp. (Ord e, Show e)
+mkVTestIO' :: forall e sp. (Ord e, Show e)
   => (Var,Var) -- ^ name of the input  in Subst and Possible, resp.
   -> (Var,Var) -- ^ name of the output in Subst and Possible, resp.
   -> VarTest e sp
-varTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
+mkVTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
   VarTest go deps where
   (deps :: Set Var) = S.fromList [iInSubst, oInSubst]
 
   go :: sp -> Possible e -> Subst e -> Either String Bool
   go space poss subst = do
-    iVal <- maybe (Left $ keyErr "varTestIO'" iInSubst subst) Right
+    iVal <- maybe (Left $ keyErr "mkVTestIO'" iInSubst subst) Right
            $ M.lookup iInSubst subst
-    oVal <- maybe (Left $ keyErr "varTestIO'" oInSubst subst) Right
+    oVal <- maybe (Left $ keyErr "mkVTestIO'" oInSubst subst) Right
            $ M.lookup oInSubst subst
     _checkIORel (iInPossible,iVal) (oInPossible,oVal) poss
 
@@ -89,18 +89,18 @@ _checkIORel (iVar,iVal) (oVar,oVal) p = do
   let (ss :: Set (Subst e)) = maybe S.empty id $ M.lookup oVal ce
   Right $ or $ S.map (M.isSubmapOf $ M.singleton iVar iVal) ss
 
-varTestCompare :: forall e sp. (Eq e, Show e)
+mkVTestCompare :: forall e sp. (Eq e, Show e)
   => (e -> e -> Bool) -> Either e Var -> Either e Var
   -> VarTest e sp
-varTestCompare compare eev eev' = VarTest go deps where
+mkVTestCompare compare eev eev' = VarTest go deps where
   deps :: Set Var
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev,eev']
 
   go :: sp -> Possible e -> Subst e -> Either String Bool
   go _ _ s = do
-    (e  :: e) <- prefixLeft "varTestCompare" $ either_varToElt s eev
-    (e' :: e) <- prefixLeft "varTestCompare" $ either_varToElt s eev'
+    (e  :: e) <- prefixLeft "mkVTestCompare" $ either_varToElt s eev
+    (e' :: e) <- prefixLeft "mkVTestCompare" $ either_varToElt s eev'
     Right $ compare e e'
 
 

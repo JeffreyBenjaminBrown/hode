@@ -47,7 +47,7 @@ data Query e sp = QFind  (Find       e sp)
 -- > QQuant $ ( ForAll "a" "as"
 -- >            ( QJunct $ And [ QFind $ findChildren $ Right "a"
 -- >                           , QTest $ test (<) $ Left 5 ] )
--- >            [ QVTest $ varTestCompare (<) (Left 0) (Right "a") ] )
+-- >            [ QVTest $ mkVTestCompare (<) (Left 0) (Right "a") ] )
 -- the `Subst` mapping a to aVal is tried for all values of aVal in as,
 -- and then filtered so that only values of a greater than 0 survive.
 -- For those remaining `Subst`s, all the children of "a" are retrieved,

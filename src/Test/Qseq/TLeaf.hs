@@ -31,9 +31,9 @@ test_runTest = TestCase $ do
       (a2 :: (Subst Int)) = M.singleton a 2
       (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton $ M.empty) ]
-  assertBool "1" $ runTest g a2 (test (/=) $ Left 1) ce
+  assertBool "1" $ runTest g a2 (mkTest (/=) $ Left 1) ce
     == Right ( M.singleton 2 (S.singleton M.empty) )
-  assertBool "2" $ runTest g a2 (test (/=) $ Right a) ce
+  assertBool "2" $ runTest g a2 (mkTest (/=) $ Right a) ce
     == Right ( M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] ) )
 
   let (a,b,c) = ("a","b","c")
@@ -41,12 +41,12 @@ test_runTest = TestCase $ do
                 , (2, [1,3] ) ]
       s = M.fromList [(a, 1), (b, 2)]
   assertBool "1" $ runTest g s
-    ( test (>) (Left 1) )
+    ( mkTest (>) (Left 1) )
     (  M.fromList [ (0, S.singleton $ M.singleton c 1)
                   , (2, S.singleton $ M.singleton c 1) ] )
     == Right ( M.fromList [ (0, S.singleton $ M.singleton c 1) ] )
   assertBool "2" $ runTest g s
-    ( test (<) (Right a) )
+    ( mkTest (<) (Right a) )
     (  M.fromList [ (0, S.singleton $ M.singleton c 1)
                   , (2, S.singleton $ M.singleton c 1) ] )
     == Right ( M.fromList
@@ -76,18 +76,18 @@ test_runVarTest_ioTest = TestCase $ do
       go = runVarTest p g :: Subst Int -> VarTest Int (Graph Int)
                           -> Either String Bool
 
-  assertBool "in progress" $ go (M.fromList [(a,1),(b,1)]) (varTestIO a b)
+  assertBool "in progress" $ go (M.fromList [(a,1),(b,1)]) (mkVTestIO a b)
     == Right True
-  assertBool "in progress" $ go (M.fromList [(a,1),(b,2)]) (varTestIO a b)
+  assertBool "in progress" $ go (M.fromList [(a,1),(b,2)]) (mkVTestIO a b)
     == Right False
-  assertBool "in progress" $ go (M.fromList [(a,3),(b,1)]) (varTestIO a b)
+  assertBool "in progress" $ go (M.fromList [(a,3),(b,1)]) (mkVTestIO a b)
     == Right False
 
 test_runVarTest_compare = TestCase $ do
-  let a_lt_1 = varTestCompare (>) (Left 1)    $ Right "a"
-      b_lt_1 = varTestCompare (>) (Left 1)    $ Right "b"
-      a_gt_b = varTestCompare (>) (Right "a") $ Right "b"
-      b_gt_a = varTestCompare (>) (Right "b") $ Right "a"
+  let a_lt_1 = mkVTestCompare (>) (Left 1)    $ Right "a"
+      b_lt_1 = mkVTestCompare (>) (Left 1)    $ Right "b"
+      a_gt_b = mkVTestCompare (>) (Right "a") $ Right "b"
+      b_gt_a = mkVTestCompare (>) (Right "b") $ Right "a"
       subst = M.fromList [("a",0),("b",2)] :: Subst Int
       meh = error "whatever"
   assertBool "1" $ Right True  == runVarTest meh meh subst a_lt_1

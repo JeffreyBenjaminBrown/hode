@@ -39,8 +39,8 @@ test_runVarTestlike_complex = TestCase $ do
 
   assertBool "and" $
     substsThatPassAllVarTests (graph [] :: Graph Int) p
-    [ QJunct $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
-                   , QVTest $ varTestIO' (b1,b) (c1,c) ] ]
+    [ QJunct $ And [ QVTest $ mkVTestIO' (a1,a) (b1,b)
+                   , QVTest $ mkVTestIO' (b1,b) (c1,c) ] ]
     ( [ M.fromList [ (a1,1), (b1,1), (c1,1) ]
       , M.fromList [ (a1,1), (b1,1), (c1,2) ]
       , M.fromList [ (a1,1), (b1,2), (c1,2) ]
@@ -49,8 +49,8 @@ test_runVarTestlike_complex = TestCase $ do
 
   assertBool "or" $
     substsThatPassAllVarTests (graph [] :: Graph Int) p
-    [ QJunct $ Or [ QVTest $ varTestIO' (a1,a) (b1,b)
-                  , QVTest $ varTestIO' (b1,b) (c1,c) ] ]
+    [ QJunct $ Or [ QVTest $ mkVTestIO' (a1,a) (b1,b)
+                  , QVTest $ mkVTestIO' (b1,b) (c1,c) ] ]
     ( [ M.fromList [ (a1,1), (b1,3), (c1,0) ]
       , M.fromList [ (a1,0), (b1,1), (c1,2) ]
       , M.fromList [ (a1,0), (b1,2), (c1,2) ]
@@ -62,7 +62,7 @@ test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
       [a2,b2,c2,x2,y2] = ["a2","b2","c2","x2","y2"]
-      isnt v = QTest $ test (/=) $ Right v
+      isnt v = QTest $ mkTest (/=) $ Right v
       d = graph [ (0, [1,2        ] )
                 , (3, [  2,3,4    ] )
                 , (10,[11, 23     ] ) ]
@@ -78,10 +78,10 @@ test_runFindlike_mixed = TestCase $ do
   assertBool "2" $ runFindlike d p s
         ( QJunct $ And
              [ QQuant $ ForAll a2 a ( isnt a2 )
-               [ QVTest $ varTestIO' (a2,a) (b1,b) ]
+               [ QVTest $ mkVTestIO' (a2,a) (b1,b) ]
              , QQuant $ ForSome a1 a $ QJunct $ And
                [ fc a1
-               , QVTest $ varTestIO' (a1,a) (b1,b) ] ] )
+               , QVTest $ mkVTestIO' (a1,a) (b1,b) ] ] )
     == Right ( M.singleton 4 (S.fromList [ M.singleton a1 3 ] ) )
 
   assertBool "1" $ runFindlike d p s
@@ -92,7 +92,7 @@ test_runFindlike_mixed = TestCase $ do
 
 testRunAnd = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
-      nota = QTest $ test (/=) $ Right a
+      nota = QTest $ mkTest (/=) $ Right a
       d = graph [ (0, [1,2    ] )
                 , (3, [  2,3,4] ) ]
       (p :: (Possible Int)) = M.singleton a $
@@ -110,9 +110,9 @@ test_runTestlike = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
       (a2 :: (Subst Int)) = M.singleton a 2
-      (not3 :: Test Int (Graph Int)) = test (/=) $ Left 3
-      (nota :: Test Int (Graph Int)) = test (/=) $ Right a
-      (nota1 :: Test Int (Graph Int)) = test (/=) $ Right a1
+      (not3 :: Test Int (Graph Int)) = mkTest (/=) $ Left 3
+      (nota :: Test Int (Graph Int)) = mkTest (/=) $ Right a
+      (nota1 :: Test Int (Graph Int)) = mkTest (/=) $ Right a1
       d = graph $ map (,[]) [1..3]
       (p :: (Possible Int)) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
@@ -123,7 +123,7 @@ test_runTestlike = TestCase $ do
 
   assertBool "6" $ runTestlike d p ce (M.empty :: Subst Int)
     ( QQuant $ ForAll a1 a (QTest nota1)
-      [ QVTest $ varTestCompare (<) (Left 1) (Right a1) ] )
+      [ QVTest $ mkVTestCompare (<) (Left 1) (Right a1) ] )
     == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
                           , (3, S.singleton M.empty) ] )
 
@@ -171,7 +171,7 @@ test_runFindlike_ForAll = TestCase $ do
   assertBool "4" $ runFindlike g p
     (M.singleton c1 1)
     ( QQuant $ ForAll a1 a (qc a1)
-      [ QVTest $ varTestIO' (a1,a) (c1,c) ] )
+      [ QVTest $ mkVTestIO' (a1,a) (c1,c) ] )
     == Right ( M.fromList [ (12, S.singleton $ M.empty)
                           , (22, S.singleton $ M.empty) ] )
 
@@ -210,7 +210,7 @@ test_runFindlike_ForSome = TestCase $ do
   assertBool "3" $ ( runFindlike g p
                      ( M.singleton b1 1 )
                      $ QQuant $ ForSome a1 a $ QJunct
-                     $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
+                     $ And [ QVTest $ mkVTestIO' (a1,a) (b1,b)
                            , qc a1 ] )
     == Right (M.fromList [ (11, S.singleton $ M.fromList [ (a1, 1) ] )
                          , (21, S.singleton $ M.fromList [ (a1, 1) ] ) ] )
@@ -218,7 +218,7 @@ test_runFindlike_ForSome = TestCase $ do
   assertBool "2" $ ( runFindlike g p
                      ( M.singleton b1 2 ) -- the difference
                      $ QQuant $ ForSome a1 a $ QJunct
-                     $ And [ QVTest $ varTestIO' (a1,a) (b1,b)
+                     $ And [ QVTest $ mkVTestIO' (a1,a) (b1,b)
                            , qc a1 ] )
     == Right M.empty
 

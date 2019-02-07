@@ -94,7 +94,7 @@ test_rslt_hash_seekSeq = TestCase $ do
                        ( HEval ( M.fromList -- <any> #need <it>
                                  [ ( RoleTplt, HExpr $ ExprAddr 7 ) ] )
                          [[ RoleMember 2 ]] )
-                     , QTest $ test (==) $ Right "a1" ] ) )
+                     , QTest $ mkTest (==) $ Right "a1" ] ) )
     ]
     == Right
     ( M.fromList
