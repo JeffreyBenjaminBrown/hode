@@ -68,8 +68,8 @@ data VarTest e sp = VarTest {
   , varTestUses     :: Set Var }
   -- ^ If `*Function` doesn't use the `Subst`, `varTestUses` should be empty.
 
-data Junction e sp = And {clauses :: [Query e sp] } -- ^ order not important
-                   | Or  {clauses :: [Query e sp] } -- ^ order not important
+data Junction e sp = QAnd {clauses :: [Query e sp] } -- ^ order not important
+                   | QOr  {clauses :: [Query e sp] } -- ^ order not important
 
 data Quantifier e sp =
     ForSome { name :: Var, source :: Var, goal :: Query e sp }

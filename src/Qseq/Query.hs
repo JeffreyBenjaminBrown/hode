@@ -88,12 +88,12 @@ runVarTestlike _ _ _ (varTestlike -> False) =
 runVarTestlike sp p s (QVTest vtest) =
   runVarTest p sp s vtest
 
-runVarTestlike sp p s (QJunct (And vtests)) =
+runVarTestlike sp p s (QJunct (QAnd vtests)) =
   and <$>
   ( ifLefts "runVarTestlike"
     $ map (runVarTestlike sp p s) vtests )
 
-runVarTestlike sp p s (QJunct (Or vtests)) =
+runVarTestlike sp p s (QJunct (QOr vtests)) =
   or <$>
   ( ifLefts "runVarTestlike"
     $ map (runVarTestlike sp p s) vtests )
@@ -135,13 +135,13 @@ runTestlike d _ ce s (QTest t) = runTest d s t ce
 runTestlike _ _ _ _ (QVTest _) =
   Left $ "runTestlike: VarTest should have been handled by And."
 
-runTestlike d p ce s (QJunct (And qs)) = do
+runTestlike d p ce s (QJunct (QAnd qs)) = do
   (results :: [CondElts e]) <-
     ifLefts "runTestlike"
     $ map (runTestlike d p ce s) qs
   Right $ reconcileCondElts $ S.fromList results
 
-runTestlike d p ce s (QJunct (Or qs)) = do
+runTestlike d p ce s (QJunct (QOr qs)) = do
   (results :: [CondElts e]) <- ifLefts "runTestlike"
                                $ map (runTestlike d p ce s) qs
   Right $ M.unionsWith S.union results
@@ -180,9 +180,9 @@ runFindlike :: forall e sp. (Ord e, Show e)
 runFindlike _ _ _ (findlike -> False) = Left "runFindlike: non-findlike Query"
 runFindlike d _ s (QFind f) = runFind d s f
 
-runFindlike d p s (QJunct (And qs)) = runAnd d p s qs
+runFindlike d p s (QJunct (QAnd qs)) = runAnd d p s qs
 
-runFindlike d p s (QJunct (Or qs)) = do
+runFindlike d p s (QJunct (QOr qs)) = do
   -- TODO (#fast|#hard) Fold Or with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.

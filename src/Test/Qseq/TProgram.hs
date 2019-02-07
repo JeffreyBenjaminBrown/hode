@@ -33,7 +33,7 @@ test_runProgram = TestCase $ do
              :: Possible Int )
 
   assertBool "2" $ runProgram d
-    [ ( b, ( QJunct $ And [ QFind $ findChildren $ Left 3
+    [ ( b, ( QJunct $ QAnd [ QFind $ findChildren $ Left 3
                              , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right (M.singleton b ( M.fromList [ (3, S.singleton M.empty)
                                            , (4, S.singleton M.empty) ] ) )
@@ -41,7 +41,7 @@ test_runProgram = TestCase $ do
   assertBool "3" $ runProgram d
     [ ( a, QFind $ findParents $ Left 2)
     , ( b, ( QQuant $ ForSome a1 a $
-               QJunct $ And
+               QJunct $ QAnd
                [ QFind $ findChildren $ Right a1
                , QTest $ mkTest (/=) $ Right a1
                , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
@@ -61,7 +61,7 @@ test_runProgram = TestCase $ do
     [ (a, QFind $ findChildren $ Left 0)
     , (b, ( QQuant $ ForSome a1 a
               ( QQuant $ ForSome a2 a
-                (QJunct $ And
+                (QJunct $ QAnd
                  [ QVTest $ mkVTestCompare (<) (Right a1) (Right a2)
                  , QFind $ findChildren $ Right a1
                  , QFind $ findChildren $ Right a2 ] ) ) ) ) ]

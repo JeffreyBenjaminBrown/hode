@@ -54,9 +54,9 @@ feasibleJunctions :: Query e sp -> Bool
 feasibleJunctions = recursive where
   simple, recursive :: Query e sp -> Bool
 
-  simple (QJunct (And qs)) = not $ null $ filter findlike qs
-  simple (QJunct (Or qs))  = and $           map findlike qs
-  simple _                 = True
+  simple (QJunct (QAnd qs)) = not $ null $ filter findlike qs
+  simple (QJunct (QOr qs))  = and $           map findlike qs
+  simple _                  = True
 
   recursive j@(QJunct w) = simple j && and (map recursive $ clauses w)
   recursive (QQuant w)   =                      recursive $ goal w
@@ -67,11 +67,11 @@ feasibleJunctions = recursive where
 
 findlike, varTestlike, testlike :: Query e sp -> Bool
 
-findlike (QFind _)               = True
-findlike (QJunct (And qs))       = or  $ map findlike qs
-findlike (QJunct (Or  qs@(_:_))) = and $ map findlike qs
-findlike (QQuant w)              =           findlike $ goal w
-findlike _                       = False
+findlike (QFind _)                = True
+findlike (QJunct (QAnd qs))       = or  $ map findlike qs
+findlike (QJunct (QOr  qs@(_:_))) = and $ map findlike qs
+findlike (QQuant w)               =           findlike $ goal w
+findlike _                        = False
 
 varTestlike (QVTest _)  = True
 varTestlike (QJunct qs) = and $ map varTestlike $ clauses qs
@@ -95,7 +95,7 @@ noIntroducedVarMasked = f S.empty where
 -- | `noAndCollisions` makes sure that a variable introduced in one
 -- clause of a conjunction is never introduced in another clause.
 noAndCollisions :: Query e sp -> Bool
-noAndCollisions (QJunct (And qs)) =
+noAndCollisions (QJunct (QAnd qs)) =
   and (map noAndCollisions qs)
   && snd (foldr f (S.empty, True) qs)
   where
@@ -104,7 +104,7 @@ noAndCollisions (QJunct (And qs)) =
     f q (vs, True) = if S.disjoint vs $ introducesVars q
                      then (S.union vs $ introducesVars q, True)
                      else (S.empty                      , False)
-noAndCollisions (QJunct (Or qs)) =
+noAndCollisions (QJunct (QOr qs)) =
   and (map noAndCollisions qs)
 noAndCollisions (QQuant w) = noAndCollisions $ goal w
 noAndCollisions _ = True

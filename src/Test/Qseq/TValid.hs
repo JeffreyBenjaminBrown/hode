@@ -38,9 +38,9 @@ test_usesNoSourceBeforeItExists = TestCase $ do
                   ++ " used before being defined.\n"
   assertBool "no sources. (use is different from sourcing.)" $ Right ()
     == usesNoSourceBeforeItExists
-    [ ("c", QJunct $ And [ QFind $ findParents $ Right "a"
+    [ ("c", QJunct $ QAnd [ QFind $ findParents $ Right "a"
                           , QFind $ findParents $ Right "b" ] :: QIGI )
-    , ("d", QJunct $ And [ QFind $ findParents $ Right "c"
+    , ("d", QJunct $ QAnd [ QFind $ findParents $ Right "c"
                           , QFind $ findParents $ Right "d" ] ) ]
   assertBool "3" $ Right ()
     == usesNoSourceBeforeItExists
@@ -58,8 +58,8 @@ test_usesOnlyIntroducedVars = TestCase $ do
 
   assertBool "1" $ False
     == usesOnlyIntroducedVars
-    ( QJunct $ And [ QFind $ findParents $ Right "a"
-                   , QFind $ findParents $ Right "b" ] :: QIGI )
+    ( QJunct $ QAnd [ QFind $ findParents $ Right "a"
+                    , QFind $ findParents $ Right "b" ] :: QIGI )
   assertBool "3" $ True
     == usesOnlyIntroducedVars
     ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "a1" :: QIGI ) )
@@ -74,7 +74,7 @@ test_noIntroducedVarMasked = TestCase $ do
       qy  = QQuant $ ForSome  "y" y qf
       qx1 = QQuant $ ForSome "x1" x qf
       qy1 = QQuant $ ForSome "y1" y qf
-      qxy = QJunct $ Or [qx1,qy1]
+      qxy = QJunct $ QOr [qx1,qy1]
       t = noIntroducedVarMasked
 
   assertBool "-1"  $ t (QQuant $ ForSome x y qx)   == False
@@ -83,7 +83,7 @@ test_noIntroducedVarMasked = TestCase $ do
   assertBool "2"   $ t (QQuant $ ForSome y x qx1)  == True
   assertBool "3"   $ t qx                          == True
   assertBool "3.7" $ t qxy                         == True
-  assertBool "4"   $ t (QJunct $ And [qx1,qxy])    == True
+  assertBool "4"   $ t (QJunct $ QAnd [qx1,qxy])    == True
 
 
 test_noAndCollisions = TestCase $ do
@@ -93,7 +93,7 @@ test_noAndCollisions = TestCase $ do
       qy  = QQuant $ ForSome  y y qf
       qx1 = QQuant $ ForSome x1 x qf
       qy1 = QQuant $ ForSome y1 y qf
-      qxy = QJunct $ Or [qx1,qy1]
+      qxy = QJunct $ QOr [qx1,qy1]
 
   assertBool "-1" $ noAndCollisions (QQuant $ ForSome x y qx)
     == True
@@ -104,9 +104,9 @@ test_noAndCollisions = TestCase $ do
   assertBool "3.5" $ noAndCollisions qx1            == True
   assertBool "3.7" $ noAndCollisions qxy            == True
   assertBool "4" $ noAndCollisions (QQuant $ ForSome z z
-                                    $ QJunct $ And [qx1,qxy]) == False
-  assertBool "4" $ noAndCollisions (QJunct $ And [qx1,qxy]) == False
-  assertBool "4" $ noAndCollisions (QJunct $ Or [qx1,qxy]) == True
+                                    $ QJunct $ QAnd [qx1,qxy]) == False
+  assertBool "4" $ noAndCollisions (QJunct $ QAnd [qx1,qxy]) == False
+  assertBool "4" $ noAndCollisions (QJunct $ QOr [qx1,qxy]) == True
 
 test_drawsFromVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
@@ -117,14 +117,15 @@ test_drawsFromVars = TestCase $ do
       c_a = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
         $ QFind $ findParents $ Right c
 
-  assertBool "5" $ drawsFromVars (QJunct $ Or [ c_de, c_a ] :: QIGI)
+  assertBool "5" $ drawsFromVars (QJunct $ QOr [ c_de, c_a ] :: QIGI)
                                       == S.fromList [d,a]
   assertBool "4" $ drawsFromVars c_de == S.singleton d
   assertBool "3" $ drawsFromVars c_a  == S.singleton a
   assertBool "2" $ drawsFromVars (QFind $ findParents $ Right c :: QIGI)
                                       == S.empty
-  assertBool "1" $ drawsFromVars ( QQuant $ ForAll a b ( QJunct $ Or [ c_de, c_a ] ) [] )
-                                      == S.fromList [b, d, a]
+  assertBool "1" $ drawsFromVars
+    ( QQuant $ ForAll a b ( QJunct $ QOr [ c_de, c_a ] ) [] )
+    == S.fromList [b, d, a]
 
 test_usesVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
@@ -135,14 +136,14 @@ test_usesVars = TestCase $ do
       c_a = QQuant $ ForSome c a -- a was: (Source' a $ S.singleton g)
         $ QFind $ findParents $ Right c
   assertBool "5" $ usesVars
-    (QJunct $ Or [ c_de, c_a ] :: QIGI)
+    (QJunct $ QOr [ c_de, c_a ] :: QIGI)
     == S.fromList [c,e]
   assertBool "4" $ usesVars c_de
     == S.singleton e
   assertBool "3" $ usesVars c_a
     == S.singleton c
   assertBool "1" $ usesVars
-    ( QQuant $ ( ForAll a b ( QJunct $ Or [ c_de, c_a ] )
+    ( QQuant $ ( ForAll a b ( QJunct $ QOr [ c_de, c_a ] )
                  [ QVTest $ mkVTestCompare (>) (Left 1) (Right f) ] ) )
     == S.fromList [c,e,f]
 
@@ -151,20 +152,20 @@ test_introducesVars = TestCase $ do
       q = QFind $ Find (\_ _ -> Right $ S.singleton 1) S.empty
       meh = error "whatever"
   assertBool "1" $ introducesVars (
-    QJunct $ Or [ QQuant $ ForAll x x q []
-                , QQuant $ ForAll y y
-                  (QJunct $ And [ QQuant $ ForSome z z q ] )
-                  [] ] )
+    QJunct $ QOr [ QQuant $ ForAll x x q []
+                 , QQuant $ ForAll y y
+                   (QJunct $ QAnd [ QQuant $ ForSome z z q ] )
+                   [] ] )
     == S.fromList [x,y,z]
 
 test_findlike = TestCase $ do
   let qf = QFind $ Find (\_ _    -> Right S.empty) S.empty
       qc = QTest $ Test (\_ _  _ -> Right False  ) S.empty
-  assertBool "1" $ findlike (QJunct $ And [qf, qc]) == True
-  assertBool "2" $ findlike (QJunct $ And [qf]    ) == True
-  assertBool "3" $ findlike (QJunct $ And [qc]    ) == False
-  assertBool "4" $ findlike (QJunct $ And []      ) == False
-  assertBool "5" $ findlike (QJunct $ Or  [qf, qc]) == False
-  assertBool "6" $ findlike (QJunct $ Or  [qf]    ) == True
-  assertBool "7" $ findlike (QJunct $ Or  [qc]    ) == False
-  assertBool "8" $ findlike (QJunct $ Or  []      ) == False
+  assertBool "1" $ findlike (QJunct $ QAnd [qf, qc]) == True
+  assertBool "2" $ findlike (QJunct $ QAnd [qf]    ) == True
+  assertBool "3" $ findlike (QJunct $ QAnd [qc]    ) == False
+  assertBool "4" $ findlike (QJunct $ QAnd []      ) == False
+  assertBool "5" $ findlike (QJunct $ QOr  [qf, qc]) == False
+  assertBool "6" $ findlike (QJunct $ QOr  [qf]    ) == True
+  assertBool "7" $ findlike (QJunct $ QOr  [qc]    ) == False
+  assertBool "8" $ findlike (QJunct $ QOr  []      ) == False

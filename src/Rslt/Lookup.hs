@@ -70,12 +70,7 @@ hLookup r (HEval hm paths) = do
       $ S.map (subExprs r paths) hosts )
   Right $ S.unions its
 
--- | TRICK: For speed, put the most selective searches first in the list.
-hLookup r (HAnd hs) = foldr1 S.intersection <$>
-                    ( ifLefts "hLookup called on HAnd" $ map (hLookup r) hs )
-
-hLookup r (HOr hs) = foldr1 S.union <$>
-                   ( ifLefts "hLookup called on HOr" $ map (hLookup r) hs )
+hLookup r (HExpr e) = S.singleton <$> lookup r e
 
 hLookup r (HDiff base exclude) = do
   b <- prefixLeft "hLookup called on HDiff calculating base"
@@ -84,7 +79,12 @@ hLookup r (HDiff base exclude) = do
        $ hLookup r exclude
   Right $ S.difference b e
 
-hLookup r (HExpr e) = S.singleton <$> lookup r e
+-- | TRICK: For speed, put the most selective searches first in the list.
+hLookup r (HAnd hs) = foldr1 S.intersection <$>
+                    ( ifLefts "hLookup called on HAnd" $ map (hLookup r) hs )
+
+hLookup r (HOr hs) = foldr1 S.union <$>
+                   ( ifLefts "hLookup called on HOr" $ map (hLookup r) hs )
 
 
 -- | = Find sub-`Expr`s of an `Expr`

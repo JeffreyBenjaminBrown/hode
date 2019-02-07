@@ -90,11 +90,11 @@ test_rslt_hash_seekSeq = TestCase $ do
                [[ RoleMember 1 ]]  ) )
 
     , ( "b", ( QQuant $ ForSome "a1" "a" $ QJunct
-               $ And [ QFind $ hFind
-                       ( HEval ( M.fromList -- <any> #need <it>
-                                 [ ( RoleTplt, HExpr $ ExprAddr 7 ) ] )
-                         [[ RoleMember 2 ]] )
-                     , QTest $ mkTest (==) $ Right "a1" ] ) )
+               $ QAnd [ QFind $ hFind
+                        ( HEval ( M.fromList -- <any> #need <it>
+                                  [ ( RoleTplt, HExpr $ ExprAddr 7 ) ] )
+                          [[ RoleMember 2 ]] )
+                      , QTest $ mkTest (==) $ Right "a1" ] ) )
     ]
     == Right
     ( M.fromList
