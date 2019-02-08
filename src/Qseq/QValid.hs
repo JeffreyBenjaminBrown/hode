@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
-module Qseq.Query.Valid where
+module Qseq.QValid where
 
 import           Data.List
 import           Data.Map (Map)

@@ -11,8 +11,8 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import Data.Graph
-import Qseq.Query.Valid
-import Qseq.Query.MkLeaf
+import Qseq.QValid
+import Qseq.MkLeaf
 import Qseq.QTypes
 
 

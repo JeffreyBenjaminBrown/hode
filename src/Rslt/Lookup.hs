@@ -9,7 +9,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Qseq.QTypes
-import Qseq.Query.MkLeaf
+import Qseq.MkLeaf
 import Rslt.Index
 import Rslt.RTypes
 import Rslt.RUtil

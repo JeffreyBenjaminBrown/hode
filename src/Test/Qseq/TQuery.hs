@@ -10,7 +10,7 @@ import           Test.HUnit hiding (Test, test)
 
 import Data.Graph
 import Qseq.Query
-import Qseq.Query.MkLeaf
+import Qseq.MkLeaf
 import Qseq.QTypes
 
 

@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Qseq.Query.RunLeaf where
+module Qseq.RunLeaf where
 
 import           Data.Either
 import           Data.List

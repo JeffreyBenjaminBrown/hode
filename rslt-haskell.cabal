@@ -38,9 +38,9 @@ library
                 , Rslt.RValid
                 , Rslt.Show
                 , Qseq.Query
-                , Qseq.Query.MkLeaf
-                , Qseq.Query.RunLeaf
-                , Qseq.Query.Valid
+                , Qseq.MkLeaf
+                , Qseq.RunLeaf
+                , Qseq.QValid
                 , Qseq.Subst
                 , Qseq.QTypes
 --                , Test.Rslt.ByHand

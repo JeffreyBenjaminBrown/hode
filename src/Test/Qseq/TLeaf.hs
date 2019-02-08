@@ -8,9 +8,9 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
-import Qseq.Query.Valid
-import Qseq.Query.MkLeaf
-import Qseq.Query.RunLeaf
+import Qseq.QValid
+import Qseq.MkLeaf
+import Qseq.RunLeaf
 import Data.Graph
 import Qseq.QTypes
 

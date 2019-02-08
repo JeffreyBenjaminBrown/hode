@@ -12,8 +12,8 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Qseq.Query.Valid
-import Qseq.Query.RunLeaf
+import Qseq.QValid
+import Qseq.RunLeaf
 import Qseq.Subst
 import Qseq.QTypes
 import Util

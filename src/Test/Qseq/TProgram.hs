@@ -9,7 +9,7 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test, test)
 
 import Qseq.Query
-import Qseq.Query.MkLeaf
+import Qseq.MkLeaf
 import Data.Graph
 import Qseq.QTypes
 
