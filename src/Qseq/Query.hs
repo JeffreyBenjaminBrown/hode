@@ -60,17 +60,19 @@ runAnd d p s qs = do
     let unwrap = \case QVTest t -> t
                        _        -> error "runAnd: unwrap: impossible."
     ifLefts "runAnd" $ map (runVarTest p d s . unwrap) varTests
-  if not $ and varTestResults then Right M.empty
-  else do
-   (found :: [CondElts e]) <- ifLefts "runAnd"
+  if not $ and varTestResults
+    then Right M.empty
+    else do
+    (found :: [CondElts e]) <- ifLefts "runAnd / found"
                               $ map (runFindlike d p s) searches
-   let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
-       tested = foldr f (Right reconciled) tests where
-         f :: Query e sp -> Either String (CondElts e)
-                         -> Either String (CondElts e)
-         f _ (Left s) = Left $ "runAnd: " ++ s -- collect no further Lefts
-         f t (Right ce) = runTestlike d p ce s t
-   tested
+    let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
+        tested = foldr f (Right reconciled) tests where
+          f :: Query e sp -> Either String (CondElts e)
+                          -> Either String (CondElts e)
+          f _ (Left s) = Left $ "runAnd / tested: "
+                         ++ s -- collect no further Lefts
+          f t (Right ce) = runTestlike d p ce s t
+    tested
 
 
 -- | = runVarTestlike
@@ -109,12 +111,14 @@ substsThatPassAllVarTests sp p vtests ss = do
   let passesAllVarTests :: (Ord e, Show e) =>
         sp -> Possible e -> [Query e sp] -> Subst e -> Either String Bool
       passesAllVarTests sp p vtests s = do
-        (bs :: [Bool]) <- ifLefts "passesAllVarTests"
-                          $ map (runVarTestlike sp p s) vtests
+        (bs :: [Bool]) <-
+          ifLefts "substsThatPassAllVarTests / passesAllVarTests"
+          $ map (runVarTestlike sp p s) vtests
         Right $ and bs
 
-  whetherEachPasses <- ifLefts "substsThatPassAllVarTests"
-                       $ map (passesAllVarTests sp p vtests) ss
+  whetherEachPasses <-
+    ifLefts "substsThatPassAllVarTests / whetherEachPasses"
+    $ map (passesAllVarTests sp p vtests) ss
   Right $ map fst $ filter snd $ zip ss whetherEachPasses
 
 
@@ -124,7 +128,7 @@ substsThatPassAllVarTests sp p vtests ss = do
 runTestlike :: forall e sp. (Ord e, Show e)
             => sp
             -> Possible e
-            -> CondElts e
+            -> CondElts e -- ^ results of at least one `Find`
             -> Subst e
             -> Query e sp
             -> Either String (CondElts e)
@@ -147,18 +151,20 @@ runTestlike d p ce s (QJunct (QOr qs)) = do
   Right $ M.unionsWith S.union results
 
 runTestlike d p ce s (QQuant (ForSome v src q)) = do
-  ss                        <- prefixLeft  "runTestlike"
+  (ss :: Set (Subst e))     <- prefixLeft  "runTestlike"
                                $ drawVar p s src v
   (res :: Set (CondElts e)) <- ifLefts_set "runTestlike"
                                $ S.map (flip (runTestlike d p ce) q) ss
   Right $ M.unionsWith S.union res
 
 runTestlike d p ce s (QQuant (ForAll v src vtests q)) = do
-  (ss :: Set (Subst e))        <- prefixLeft "runTestlike"
+  (ss :: Set (Subst e))        <- prefixLeft "runTestlike / ss"
                                   $ drawVar p s src v
   (varTested :: Set (Subst e)) <-
-    S.fromList <$> substsThatPassAllVarTests d p vtests (S.toList ss)
-  (tested :: Set (CondElts e)) <- ifLefts_set "runTestlike"
+    S.fromList <$>
+    ( prefixLeft "runTestlike / varTested"
+      $ substsThatPassAllVarTests d p vtests (S.toList ss) )
+  (tested :: Set (CondElts e)) <- ifLefts_set "runTestlike / testsed"
     $ S.map (flip (runTestlike d p ce) q) varTested
   let (cesWithoutV :: Set (CondElts e)) = S.map f tested where
         -- delete the dependency on v, so that reconciliation can work
@@ -191,9 +197,9 @@ runFindlike d p s (QJunct (QOr qs)) = do
   Right $ M.unionsWith S.union ces
 
 runFindlike d p s (QQuant (ForSome v src q)) = do
-  ss                        <- prefixLeft  "runFindlike"
+  ss                        <- prefixLeft  "runFindlike / ss"
                                $ drawVar p s src v
-  (res :: Set (CondElts e)) <- ifLefts_set "runFindlike"
+  (res :: Set (CondElts e)) <- ifLefts_set "runFindlike / res"
                                $ S.map (flip (runFindlike d p) q) ss
   Right $ M.unionsWith S.union res
 
@@ -202,11 +208,13 @@ runFindlike d p s (QQuant (ForSome v src q)) = do
   -- don't search for it using any remaining value of v.
 
 runFindlike d p s (QQuant (ForAll v src vtests q)) = do
-  (ss :: Set (Subst e))        <- prefixLeft "runFindlike"
+  (ss :: Set (Subst e))        <- prefixLeft "runFindlike / ss"
     $ drawVar p s src v
   (varTested :: Set (Subst e)) <-
-    S.fromList <$> substsThatPassAllVarTests d p vtests (S.toList ss)
-  (found :: Set (CondElts e))  <- ifLefts_set "runFindlike"
+    S.fromList <$>
+    ( prefixLeft "runFindlike / varTested"
+      $ substsThatPassAllVarTests d p vtests (S.toList ss) )
+  (found :: Set (CondElts e))  <- ifLefts_set "runFindlike / found"
     $ S.map (flip (runFindlike d p) q) varTested
   let (foundWithoutV :: Set (CondElts e)) =
         S.map f found where
