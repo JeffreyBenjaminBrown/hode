@@ -18,25 +18,26 @@ type CondElts = Map Elt (Set Subst)
  and that's how mkVTestIO' is currently written, but it could go either way.
  (mkVTestIO could be interpreting as doing both.)
 * TODO BUG
-** the last section of the definition of RProgram.p:
-With these portions commented out, it should find something.
-
-    , ( "res" -- for all nl1 in nl, no n(nl1) is equal to any l(nl1)
-      -- If I uncomment the QQuants and the mkVTestCompare, it finds things.
-      , QQuant $ ForSome "nl1" "nl"
-        $ QQuant $ ForAll "n1" "n"
-          [
-            QVTest $ mkVTestIO' ("nl1","nl") ("n1","n")
-          ]
---        $ QQuant $ ForAll "l1" "l"
---          [ QVTest $ mkVTestIO' ("nl1","nl") ("l1","l") ]
-        $ QJunct $ QAnd
-        [ QFind $ hFind $ HVar "nl1"
---        , QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1")
-        ] )
-    ]
-
+** hunch: I'm confusing using ForAll for conjunctions (of Bools) and for intersections (of search results)
 ** TODO test: is a ForAll under a ForSome treated like a pair of ForAlls?
+*** why I suspect it: the last section of the definition of RProgram.p:
+ With these portions commented out, it should find something.
+
+     , ( "res" -- for all nl1 in nl, no n(nl1) is equal to any l(nl1)
+       -- If I uncomment the QQuants and the mkVTestCompare, it finds things.
+       , QQuant $ ForSome "nl1" "nl"
+         $ QQuant $ ForAll "n1" "n"
+           [
+             QVTest $ mkVTestIO' ("nl1","nl") ("n1","n")
+           ]
+ --        $ QQuant $ ForAll "l1" "l"
+ --          [ QVTest $ mkVTestIO' ("nl1","nl") ("l1","l") ]
+         $ QJunct $ QAnd
+         [ QFind $ hFind $ HVar "nl1"
+ --        , QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1")
+         ] )
+     ]
+
 * TODO re. Search
 ** TODO ? Is the String arg to findFrom needed?
 search for findFrom in the code, see if it's always part of a Left carrying a call stack

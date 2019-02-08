@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Test.Qseq.TProgram where
 
+import           Data.Either
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -15,7 +16,35 @@ import Qseq.QTypes
 
 test_module_Program = TestList [
   TestLabel "test_runProgram" test_runProgram
+  , TestLabel "test_runNestedQuants" test_runNestedQuants
   ]
+
+test_runNestedQuants = TestCase $ do
+--  let [a,b,c,x,y] = ["a","b","c","x","y"]
+--      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+
+  assertBool ( "every c for which all of c's children "
+               ++ "which are also 0's children are < 10" )
+    $ not ( null
+            $ maybe (error "wut") id
+            $ M.lookup "c" x )
+
+x = let d = graph [ (2, [  2,20     ] )
+                  , (3, [  2,3,30   ] ) ]
+        [a,b,c,x,y] = ["a","b","c","x","y"]
+        [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+
+    in fromRight (error "wut") $ runProgram d
+         [ (a, QFind $ findChildren $ Left 2)
+         , (b, QFind $ findChildren $ Left 3)
+         , (c, QQuant $ ForAll b1 b []
+               $ QQuant $ ForSome a1 a
+               $ QJunct $ QAnd
+               [ QFind $ mkFindReturn $ Right a1
+               , QVTest $ mkVTestCompare (==) (Right a1) (Right b1)
+               , QVTest $ mkVTestCompare (<) (Right a1) (Left 10)
+               ] ) ]
+
 
 test_runProgram = TestCase $ do
   let [a,b,c,e,f,g,h,x,y,z] = ["a","b","c","e","f","g","h","x","y","z"]

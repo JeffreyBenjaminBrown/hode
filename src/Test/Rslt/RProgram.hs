@@ -103,12 +103,13 @@ test_rslt_hash_query = TestCase $ do
                          , (17, S.singleton M.empty) ] )
       , ("b", M.fromList [ (2, S.singleton $ M.singleton "a1" 2) ] ) ] )
 
-  assertBool ( "nl <- everything that needs something and like something\n"
-               ++ "  (i.e. <it> #like <any> && <it> #need <any>\n"
-               ++ "n <- whatever any (nl) needs\n"
-               ++ "l <- whatever any (nl) likes\n"
-               ++ ( "res <- the subset of nl such that nothing it likes"
-                    ++ " is something it needs\n" ) )
+  assertBool "do TProgram.hs first"
+      --( "nl <- everything that needs something and like something\n"
+      --         ++ "  (i.e. <it> #like <any> && <it> #need <any>\n"
+      --         ++ "n <- whatever any (nl) needs\n"
+      --         ++ "l <- whatever any (nl) likes\n"
+      --         ++ ( "res <- the subset of nl such that nothing it likes"
+      --              ++ " is something it needs\n" ) )
     $ p
 
     == Right
