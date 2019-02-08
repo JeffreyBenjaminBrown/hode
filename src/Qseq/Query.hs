@@ -54,21 +54,22 @@ runAnd :: forall e sp. (Ord e, Show e)
         => sp -> Possible e -> Subst e -> [Query e sp]
         -> Either String (CondElts e)
 runAnd d p s qs = do
-  let (searches,tests') = partition findlike qs
-      (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
-  (varTestResults :: [Bool]) <- ifLefts "runAnd"
+  let calldata = "runAdn, with subst " ++ show s
+      (searches,tests') = partition findlike qs
+      (tests,varTests) = partition testlike tests'
+  (varTestResults :: [Bool]) <- ifLefts ( calldata ++ ", computing varTestResults" )
                                 $ map (runVarTestlike d p s) varTests
   if not $ and varTestResults
     then Right M.empty
     else do
-    (found :: [CondElts e]) <- ifLefts "runAnd / found"
+    (found :: [CondElts e]) <- ifLefts ( calldata ++ ", computing found" )
                               $ map (runFindlike d p s) searches
     let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
         tested = foldr f (Right reconciled) tests where
           f :: Query e sp -> Either String (CondElts e)
                           -> Either String (CondElts e)
-          f _ (Left s) = Left $ "runAnd / tested: "
-                         ++ s -- collect no further Lefts
+          f _ (Left s) = Left $ calldata ++ ", computing tested --called-> " ++ s
+                         -- collect no further Lefts
           f t (Right ce) = runTestlike d p ce s t
     tested
 
@@ -82,11 +83,12 @@ runVarTestlike :: forall e sp. (Ord e, Show e)
   -> Query e sp
   -> Either String Bool
 
-runVarTestlike _ _ _ (varTestlike -> False) =
-  Left "runVarTestlike: not a varTestlike Query"
+runVarTestlike _ _ s (varTestlike -> False) =
+  Left $ ( "runVarTestlike, called with subst " ++ show s
+           ++ ": not a varTestlike Query" )
 
 runVarTestlike sp p s (QVTest vtest) =
-  runVarTest p sp s vtest
+  prefixLeft "runVarTestlike" $ runVarTest p sp s vtest
 
 runVarTestlike sp p s (QJunct (QAnd vtests)) =
   and <$>
@@ -182,23 +184,28 @@ runFindlike :: forall e sp. (Ord e, Show e)
          -> Either String (CondElts e)
 
 runFindlike _ _ _ (findlike -> False) = Left "runFindlike: non-findlike Query"
-runFindlike d _ s (QFind f) = runFind d s f
+runFindlike d _ s (QFind f) = prefixLeft "runFindlike" $ runFind d s f
 
-runFindlike d p s (QJunct (QAnd qs)) = runAnd d p s qs
+runFindlike d p s (QJunct (QAnd qs)) =
+  prefixLeft "runFindlike, called on QAnd"
+  $ runAnd d p s qs
 
 runFindlike d p s (QJunct (QOr qs)) = do
   -- TODO (#fast|#hard) Fold Or with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
-  (ces :: [CondElts e]) <- ifLefts "runFindlike"
+  (ces :: [CondElts e]) <- ifLefts "runFindlike, call on QOr"
                            $ map (runFindlike d p s) qs
   Right $ M.unionsWith S.union ces
 
 runFindlike d p s (QQuant (ForSome v src q)) = do
-  ss                        <- prefixLeft  "runFindlike / ss"
-                               $ drawVar p s src v
-  (res :: Set (CondElts e)) <- ifLefts_set "runFindlike / res"
-                               $ S.map (flip (runFindlike d p) q) ss
+  let calldata = "runFindlike, called on ForSome, with arguments s: "
+                 ++ show s ++ ", v: " ++ show v ++ ", src: " ++ show src
+  ss <- prefixLeft  (calldata ++ ", computing ss")
+        $ drawVar p s src v
+  (res :: Set (CondElts e)) <-
+    ifLefts_set ( calldata ++ ", computing res" )
+    $ S.map (flip (runFindlike d p) q) ss
   Right $ M.unionsWith S.union res
 
   -- TODO (#fast) runFindlike: Fold ForAll with short-circuiting.
@@ -206,13 +213,16 @@ runFindlike d p s (QQuant (ForSome v src q)) = do
   -- don't search for it using any remaining value of v.
 
 runFindlike d p s (QQuant (ForAll v src vtests q)) = do
-  (ss :: Set (Subst e))        <- prefixLeft "runFindlike / ss"
-    $ drawVar p s src v
+  let calldata = "runFindlike, called on ForAll, with arguments s: "
+                 ++ show s ++ ", v: " ++ show v ++ ", src: " ++ show src
+  (ss :: Set (Subst e)) <- prefixLeft (calldata ++ ", computing ss")
+                           $ drawVar p s src v
   (varTested :: Set (Subst e)) <-
     S.fromList <$>
-    ( prefixLeft "runFindlike / varTested"
+    ( prefixLeft (calldata ++ ", computing varTested")
       $ substsThatPassAllVarTests d p vtests (S.toList ss) )
-  (found :: Set (CondElts e))  <- ifLefts_set "runFindlike / found"
+  (found :: Set (CondElts e))  <-
+    ifLefts_set (calldata ++ ", computing found")
     $ S.map (flip (runFindlike d p) q) varTested
   let (foundWithoutV :: Set (CondElts e)) =
         S.map f found where

@@ -35,7 +35,7 @@ setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
 prefixLeft :: String -> Either String a -> Either String a
 prefixLeft prefix =
-  either (\s -> Left $ prefix ++ ": " ++ s) Right
+  either (\s -> Left $ prefix ++ " --called-> " ++ s) Right
 
 ifNothings :: [Maybe a] -> Maybe [a]
 ifNothings ms = let
@@ -50,7 +50,7 @@ ifLefts msg es = let
   impossible = error "ifLefts: impossible."
   in case null lefts of
        True -> Right $ map (fromRight impossible) es
-       False -> Left $ msg ++ ": "
+       False -> Left $ msg ++ " --called-> "
          ++ concat (map (fromLeft impossible) lefts)
 
 ifLefts_set :: Ord a
@@ -60,7 +60,7 @@ ifLefts_set msg es = let
   impossible = error "ifLefts_set: impossible."
   in case null lefts of
        True -> Right $ S.map (fromRight impossible) es
-       False -> Left $ msg ++ ": "
+       False -> Left $ msg ++ " --called-> "
          ++ concat (S.map (fromLeft impossible) lefts)
 
 ifLefts_mapKeys :: Ord k
@@ -70,7 +70,7 @@ ifLefts_mapKeys msg m = let
   impossible = error "ifLefts_mapKeys: impossible."
   in case null lefts of
        True -> Right $ M.mapKeys (fromRight impossible) m
-       False -> Left $ msg ++ ": "
+       False -> Left $ msg ++ " --called-> "
          ++ concat (S.map (fromLeft impossible) lefts)
 
 ifLefts_map :: Ord k
@@ -80,5 +80,5 @@ ifLefts_map msg m = let
   impossible = error "ifLefts_map: impossible."
   in case null lefts of
        True -> Right $ M.map (fromRight impossible) m
-       False -> Left $ msg ++ ": "
+       False -> Left $ msg ++ " --called-> "
          ++ concat (map (fromLeft impossible) lefts)
