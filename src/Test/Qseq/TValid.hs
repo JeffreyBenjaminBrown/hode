@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Test.Qseq.TValid where
 
+import           Data.Either
 import           Data.List
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -56,15 +57,12 @@ test_usesNoSourceBeforeItExists = TestCase $ do
 test_usesOnlyIntroducedVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
 
-  assertBool "1" $ False
-    == usesOnlyIntroducedVars
+  assertBool "1" $ isLeft $ usesOnlyIntroducedVars
     ( QJunct $ QAnd [ QFind $ findParents $ Right "a"
                     , QFind $ findParents $ Right "b" ] :: QIGI )
-  assertBool "3" $ True
-    == usesOnlyIntroducedVars
+  assertBool "3" $ isRight $ usesOnlyIntroducedVars
     ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "a1" :: QIGI ) )
-  assertBool "3" $ False
-    == usesOnlyIntroducedVars
+  assertBool "3" $ isLeft $ usesOnlyIntroducedVars
     ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "b" :: QIGI ) )
 
 test_noIntroducedVarMasked = TestCase $ do

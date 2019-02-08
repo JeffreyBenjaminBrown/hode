@@ -38,8 +38,7 @@ usesNoSourceBeforeItExists vqs = case null bad of
 
 validQuery :: Query e sp -> Either String ()
 validQuery q = do
-  if usesOnlyIntroducedVars q then Right ()
-    else Left $ "Query uses a Var before introducing it."
+  prefixLeft "validQuery" $ usesOnlyIntroducedVars q
   if noAndCollisions q then Right ()
     else Left $ "Variable defined in multiple clauses of a conjunction."
   if noIntroducedVarMasked q then Right ()
@@ -111,17 +110,22 @@ noAndCollisions _ = True
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.
-usesOnlyIntroducedVars :: Query e sp -> Bool
-usesOnlyIntroducedVars q = f S.empty q where
-  f :: Set Var -> Query e sp -> Bool
+usesOnlyIntroducedVars :: Query e sp -> Either String ()
+usesOnlyIntroducedVars q0 = f S.empty q0 where
+  f :: Set Var -> Query e sp -> Either String ()
   -- The `Set Var` is those Vars that have been introduced so far --
   -- i.e. by the current query or any superquery.
 
-  f vs (QQuant w) = okConditions && f vs' (goal w)
-    where okConditions = and $ map (f vs') $ conditions w
-          vs' = S.insert (name w) vs
-  f vs (QJunct j) = and $ map (f vs) $ clauses j
-  f vs _          = S.isSubsetOf (usesVars q) vs
+  f vs (QQuant w) = do
+    let vs' = S.insert (name w) vs
+    f vs' $ QJunct $ QAnd $ conditions w
+    f vs' $ goal w
+
+  f vs (QJunct j) = do ifLefts "" $ map (f vs) $ clauses j
+                       Right ()
+  f vs q          = if S.isSubsetOf (usesVars q) vs then Right ()
+    else Left $ "usesOnlyIntroducedVars': " ++ show (usesVars q)
+         ++ " not a subset of " ++ show vs
 
 -- | `drawsFromVars q` returns the set of all variables that q expects
 -- to have been defined by previous `Query`s. It uses these as sources

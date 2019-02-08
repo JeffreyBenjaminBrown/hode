@@ -14,15 +14,14 @@ import           Test.HUnit hiding (Test, test)
 import           Rslt.Lookup hiding (lookup)
 import qualified Rslt.Lookup as R
 import           Rslt.RTypes
+import           Qseq.QTypes
 import           Qseq.Query
 import           Qseq.Query.MkLeaf
-import           Qseq.QTypes
 import qualified Test.Rslt.RData as D
 
 
 test_module_rsltProgram = TestList [
   TestLabel "test_rslt_seekSeq" test_rslt_seekSeq
-  , TestLabel "test_usesOnlyIntroducedVars" test_usesOnlyIntroducedVars
   , TestLabel "test_rslt_hash_seekSeq" test_rslt_hash_seekSeq
   ]
 
@@ -110,9 +109,29 @@ test_rslt_hash_seekSeq = TestCase $ do
                ++ "l <- whatever any (nl) likes\n"
                ++ ( "res <- the subset of nl such that nothing it likes"
                     ++ " is something it needs\n" ) )
+    $ p
 
-    $ runProgram D.b2
-    [ ( "nl" -- "<it> #need <any> && <it> #like <any>"
+    == Right
+    ( M.fromList
+      [ ("nl", M.fromList [ (2, S.singleton M.empty) -- fish
+                         , (17, S.singleton M.empty) ] ) -- dolphins
+      , ("n", M.fromList
+          [ ( 3, S.singleton $ M.singleton "nl1" 2) -- water (fish need it)
+          , ( 2 -- fish (dolphins need it)
+            , S.singleton $ M.singleton "nl1" 17) ] )
+      , ("l", M.fromList
+          [ ( 3, S.fromList
+                 [ M.singleton "nl1" 2 -- water (fish like it)
+                 , M.singleton "nl1" 17 ] ) -- water (dolphins like it)
+          , ( 6, S.singleton $ M.singleton "nl1" 2) -- jumping (fish like it)
+          ] )
+      , ("res", M.singleton 17 $ S.singleton $ M.empty)
+      -- dolphins are the only thing that likes something, needs something,
+      -- and likes nothing that it needs
+      ] )
+
+p = runProgram D.b2
+  [ ( "nl" -- "<it> #need <any> && <it> #like <any>"
       , QFind $ hFind $ HAnd
         [ ( HEval
             ( M.singleton RoleTplt $ HExpr $ ExprAddr 7 )
@@ -134,6 +153,7 @@ test_rslt_hash_seekSeq = TestCase $ do
         [[ RoleMember 2 ]] )
 
     , ( "res" -- for all nl1 in nl, no n(nl1) is equal to any l(nl1)
+      -- If I uncomment the QQuants and the mkVTestCompare, it finds things.
       , QQuant $ ForSome "nl1" "nl"
         $ QQuant $ ForAll "n1" "n"
           [ QVTest $ mkVTestIO' ("nl1","nl") ("n1","n") ]
@@ -141,65 +161,10 @@ test_rslt_hash_seekSeq = TestCase $ do
           [ QVTest $ mkVTestIO' ("nl1","nl") ("l1","l") ]
         $ QJunct $ QAnd
         [ QFind $ hFind $ HVar "nl1"
-        , QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1") ] )
+        , QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1")
+        ] )
     ]
 
-    == Right
-    ( M.fromList
-      [ ("nl", M.fromList [ (2, S.singleton M.empty) -- fish
-                         , (17, S.singleton M.empty) ] ) -- dolphins
-      , ("n", M.fromList
-          [ ( 3, S.singleton $ M.singleton "nl1" 2) -- water (fish need it)
-          , ( 2 -- fish (dolphins need it)
-            , S.singleton $ M.singleton "nl1" 17) ] )
-      , ("l", M.fromList
-          [ ( 3, S.fromList
-                 [ M.singleton "nl1" 2 -- water (fish like it)
-                 , M.singleton "nl1" 17 ] ) -- water (dolphins like it)
-          , ( 6, S.singleton $ M.singleton "nl1" 2) -- jumping (fish like it)
-          ] )
-      , ("res", M.singleton 17 $ S.singleton $ M.empty)
-      -- dolphins are the only thing that likes something, needs something,
-      -- and likes nothing that it needs
-      ] )
-
-test_usesOnlyIntroducedVars = TestCase $ do
-   assertBool ("WEIRD BUG: Uncomment either empty list in this test,"
-     ++ " and comment out the lists of VarTests below it, and it works.")
-     $ isRight $ runProgram D.b2
-    [ ( "nl" -- "<it> #need <any> && <it> #like <any>"
-      , QFind $ hFind $ HAnd
-        [ ( HEval
-            ( M.singleton RoleTplt $ HExpr $ ExprAddr 7 )
-            [[ RoleMember 1 ]] )
-        , ( HEval
-            ( M.singleton RoleTplt $ HExpr $ ExprAddr 8 )
-            [[ RoleMember 1 ]] ) ] )
-
-    , ( "n" -- for all nl0 in nl, "x #need <it>"
-      , QQuant $ ForSome "nl0" "nl" $ QFind $ hFind $ HEval
-        ( M.fromList [ ( RoleTplt, HExpr $ ExprAddr 7 )
-                     , ( RoleMember 1, HVar "nl0" ) ] )
-        [[ RoleMember 2 ]] )
-
-    , ( "l" -- for all nl0 in nl, "x #like <it>"
-      , QQuant $ ForSome "nl0" "nl" $ QFind $ hFind $ HEval
-        ( M.fromList [ ( RoleTplt, HExpr $ ExprAddr 8 )
-                     , ( RoleMember 1, HVar "nl0" ) ] )
-        [[ RoleMember 2 ]] )
-
-    , ( "res" -- for all nl0 in nl, no n(nl0) is equal to any l(nl0)
-      , QQuant $ ForSome "nl0" "nl"
-        $ QQuant $ ForAll "n0" "n"
---          []
-          [ QVTest $ mkVTestIO' ("nl0","nl") ("n0","n") ]
-        $ QQuant $ ForAll "l0" "l"
---          []
-          [ QVTest $ mkVTestIO' ("nl0","nl") ("l0","l") ]
-        $ QJunct $ QAnd
-          [ QFind $ hFind $ HVar "nl0"
-          ] )
-    ]
 
 test_rslt_seekSeq = TestCase $ do
 
