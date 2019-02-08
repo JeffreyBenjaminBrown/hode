@@ -8,25 +8,22 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Qseq.QTypes
+import Qseq.Query.MkLeaf
 import Rslt.Index
 import Rslt.RTypes
-import Qseq.Query.MkLeaf
-import Qseq.QTypes
+import Rslt.RUtil
 import Util
 
 
 -- | == build `Query`s for `Rslt`s
 
 hFind :: HExpr -> Find Addr Rslt
-hFind he = mkFind $ flip hLookup he
-
-hVars :: HExpr -> Set Var
-hVars (HMap m)    = S.unions $ map hVars $ M.elems m
-hVars (HEval m _) = S.unions $ map hVars $ M.elems m
-hVars (HVar v)    = S.singleton v
-hVars (HDiff h i) = S.union (hVars h) (hVars i)
-hVars (HAnd hs)   = S.unions $ map hVars hs
-hVars (HOr hs)    = S.unions $ map hVars hs
+hFind he = case null $ hVars he of
+  True -> mkFind f where
+    f :: Rslt -> Either String (Set Addr)
+    f r = hLookup r M.empty he
+  False -> mkFind $ const $ Left "mkFind: todo: handle HVar"
 
 hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
 hFindSubExprs paths = mkFindFrom "hFindSubExprs" f where
@@ -36,11 +33,11 @@ hFindSubExprs paths = mkFindFrom "hFindSubExprs" f where
 
 -- | == `hLookup`: Lookup via the Hash language.
 
-hLookup :: Rslt -> HExpr -> Either String (Set Addr)
+hLookup :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
 
-hLookup r (HMap m) = do
+hLookup r s (HMap m) = do
   let found :: Map Role (Either String (Set Addr))
-      found = M.map (hLookup r) m
+      found = M.map (hLookup r s) m
   (found :: Map Role (Set Addr)) <-
     ifLefts_map "hLookup called on HMap calculating found" found
 
@@ -62,29 +59,33 @@ hLookup r (HMap m) = do
     True -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hosts
 
-hLookup r (HEval hm paths) = do
+hLookup r s (HEval hm paths) = do
   (hosts :: Set Addr) <-
-    hLookup r $ HMap hm
+    hLookup r s $ HMap hm
   (its :: Set (Set Addr)) <-
     ( ifLefts_set "hLookup called on HEval, mapping over hosts"
       $ S.map (subExprs r paths) hosts )
   Right $ S.unions its
 
-hLookup r (HExpr e) = S.singleton <$> lookup r e
+--hLookup r ( >>>
 
-hLookup r (HDiff base exclude) = do
+hLookup r _ (HExpr e) = S.singleton <$> lookup r e
+
+hLookup r s (HDiff base exclude) = do
   b <- prefixLeft "hLookup called on HDiff calculating base"
-       $ hLookup r base
+       $ hLookup r s base
   e <- prefixLeft "hLookup called on HDiff calculating exclude"
-       $ hLookup r exclude
+       $ hLookup r s exclude
   Right $ S.difference b e
 
 -- | TRICK: For speed, put the most selective searches first in the list.
-hLookup r (HAnd hs) = foldr1 S.intersection <$>
-                    ( ifLefts "hLookup called on HAnd" $ map (hLookup r) hs )
+hLookup r s (HAnd hs) = foldr1 S.intersection <$>
+                        ( ifLefts "hLookup called on HAnd"
+                          $ map (hLookup r s) hs )
 
-hLookup r (HOr hs) = foldr1 S.union <$>
-                   ( ifLefts "hLookup called on HOr" $ map (hLookup r) hs )
+hLookup r s (HOr hs) = foldr1 S.union <$>
+                       ( ifLefts "hLookup called on HOr"
+                         $ map (hLookup r s) hs )
 
 
 -- | = Find sub-`Expr`s of an `Expr`

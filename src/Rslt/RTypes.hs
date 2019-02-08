@@ -6,8 +6,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Util
 import Qseq.QTypes (Var)
+import Util
 
 
 type Addr = Int -- ^ Address
@@ -73,8 +73,7 @@ data HExpr =
   | HEval HMap [[Role]] -- ^ Finds matches to the `HMap`, then retrieves
   -- from each match the subexpression each `[Role]` (path) arrives at.
   -- (Inclduing more than one path in the `[[Role]]` is weird but legal.)
-  | HVar   Var    -- ^ To look up the `Var` from a `Subst`, probably a
-                  -- `Subst Addr Rslt`.
+  | HVar   Var    -- ^ To look up the `Var` from a `Subst Addr Rslt`.
   | HExpr  Expr   -- ^ When you want exactly one `Expr`, and know which.
   -- The `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
   | HDiff HExpr HExpr -- ^ Set difference.

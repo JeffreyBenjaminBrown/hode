@@ -17,6 +17,7 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how mkVTestCompare is written (unless it has no deps),
  and that's how mkVTestIO' is currently written, but it could go either way.
  (mkVTestIO could be interpreting as doing both.)
+* TODO rename seekSeq -> query
 * TODO add constructor HVar to type HExpr
 An HExpr needs to be able to use variables supplied to it by a Subst.
 Edit hLookup, hFind to cover the HVar case.

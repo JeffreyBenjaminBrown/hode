@@ -8,6 +8,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Qseq.QTypes (Var)
 import Rslt.RTypes
 import Util
 
@@ -53,3 +54,12 @@ hExprToExpr :: HExpr -> Either String Expr
 hExprToExpr (HExpr e) = Right e
 hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr constructor can be converted to an Expr.\n"
+
+hVars :: HExpr -> Set Var
+hVars (HMap m)    = S.unions $ map hVars $ M.elems m
+hVars (HEval m _) = S.unions $ map hVars $ M.elems m
+hVars (HVar v)    = S.singleton v
+hVars (HExpr _)   = S.empty
+hVars (HDiff h i) = S.union (hVars h) (hVars i)
+hVars (HAnd hs)   = S.unions $ map hVars hs
+hVars (HOr hs)    = S.unions $ map hVars hs
