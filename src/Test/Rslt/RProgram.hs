@@ -156,12 +156,14 @@ p = runProgram D.b2
       -- If I uncomment the QQuants and the mkVTestCompare, it finds things.
       , QQuant $ ForSome "nl1" "nl"
         $ QQuant $ ForAll "n1" "n"
-          [ QVTest $ mkVTestIO' ("nl1","nl") ("n1","n") ]
-        $ QQuant $ ForAll "l1" "l"
-          [ QVTest $ mkVTestIO' ("nl1","nl") ("l1","l") ]
+          [
+            QVTest $ mkVTestIO' ("nl1","nl") ("n1","n")
+          ]
+--        $ QQuant $ ForAll "l1" "l"
+--          [ QVTest $ mkVTestIO' ("nl1","nl") ("l1","l") ]
         $ QJunct $ QAnd
         [ QFind $ hFind $ HVar "nl1"
-        , QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1")
+--        , QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1")
         ] )
     ]
 
