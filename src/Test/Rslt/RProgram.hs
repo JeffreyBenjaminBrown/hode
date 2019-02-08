@@ -164,8 +164,8 @@ test_rslt_hash_seekSeq = TestCase $ do
       ] )
 
 test_usesOnlyIntroducedVars = TestCase $ do
-   assertBool "WEIRD BUG: Uncomment either empty list in this test,"
-     ++ " and comment out the lists of VarTests below it, and it works."
+   assertBool ("WEIRD BUG: Uncomment either empty list in this test,"
+     ++ " and comment out the lists of VarTests below it, and it works.")
      $ isRight $ runProgram D.b2
     [ ( "nl" -- "<it> #need <any> && <it> #like <any>"
       , QFind $ hFind $ HAnd
@@ -200,7 +200,6 @@ test_usesOnlyIntroducedVars = TestCase $ do
           [ QFind $ hFind $ HVar "nl0"
           ] )
     ]
-
 
 test_rslt_seekSeq = TestCase $ do
 
