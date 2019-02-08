@@ -19,11 +19,8 @@ import Util
 -- | == build `Query`s for `Rslt`s
 
 hFind :: HExpr -> Find Addr Rslt
-hFind he = case null $ hVars he of
-  True -> mkFind f where
-    f :: Rslt -> Either String (Set Addr)
-    f r = hLookup r M.empty he
-  False -> mkFind $ const $ Left "mkFind: todo: handle HVar"
+hFind he = Find f $ hVars he
+  where f rslt subst = hLookup rslt subst he
 
 hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
 hFindSubExprs paths = mkFindFrom "hFindSubExprs" f where
@@ -67,7 +64,9 @@ hLookup r s (HEval hm paths) = do
       $ S.map (subExprs r paths) hosts )
   Right $ S.unions its
 
---hLookup r ( >>>
+hLookup r s (HVar v) =
+  maybe (Left $ keyErr "hLookup" v s) (Right . S.singleton)
+  $ M.lookup v s
 
 hLookup r _ (HExpr e) = S.singleton <$> lookup r e
 
