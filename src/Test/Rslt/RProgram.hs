@@ -21,12 +21,12 @@ import qualified Test.Rslt.RData as D
 
 
 test_module_rsltProgram = TestList [
-  TestLabel "test_rslt_seekSeq" test_rslt_seekSeq
-  , TestLabel "test_rslt_hash_seekSeq" test_rslt_hash_seekSeq
+  TestLabel "test_rslt_query" test_rslt_query
+  , TestLabel "test_rslt_hash_query" test_rslt_hash_query
   ]
 
 
-test_rslt_hash_seekSeq = TestCase $ do
+test_rslt_hash_query = TestCase $ do
   assertBool "<any> #like <any>" $ runProgram D.b2
     [ ( "a", QFind $ hFind $ HMap $ M.fromList
              [ ( RoleTplt, HExpr $ ExprAddr 8 ) ] ) ]
@@ -166,7 +166,7 @@ p = runProgram D.b2
     ]
 
 
-test_rslt_seekSeq = TestCase $ do
+test_rslt_query = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ mkFind

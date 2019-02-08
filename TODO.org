@@ -18,7 +18,7 @@ type CondElts = Map Elt (Set Subst)
  and that's how mkVTestIO' is currently written, but it could go either way.
  (mkVTestIO could be interpreting as doing both.)
 * TODO test: is a ForAll under a ForSome treated like a pair of ForAlls?
-* TODO rename seekSeq -> query
+* TODO rename query -> query
 * TODO add constructor HVar to type HExpr
 An HExpr needs to be able to use variables supplied to it by a Subst.
 Edit hLookup, hFind to cover the HVar case.
