@@ -44,13 +44,12 @@ x = let d = graph [ (2, [  2,20     ] )
            , QQuant $ ForSome "a1" "all"
              $ QJunct $ QAnd
              [ QFind $ mkFindReturn $ Right "a1"
-             , QQuant $ ForAll "c of a1" "children" -- this query is varTestlike
-               [ -- restrict to children of a1
-                 QVTest $ mkVTestIO' ("a1","all") ("c of a1","children") ]
---               $ QTest $ Test (\_ _ _ -> Right True) S.empty
-               $ QVTest $ VarTest (\_ _ _ -> Right True) S.empty
---               $ QQuant $ ForAll "c of 3" "children of 3" []
---               $ QVTest $ mkVTestCompare (/=) (Right "c of a1") (Right "c of 3")
+             , ( -- this query is varTestlike
+                 QQuant $ ForAll "c of a1" "children"
+                 [ -- restrict to children of a1
+                   QVTest $ mkVTestIO' ("a1","all") ("c of a1","children") ]
+                 $ QQuant $ ForAll "c of 3" "children of 3" []
+                 $ QVTest $ mkVTestCompare (/=) (Right "c of a1") (Right "c of 3") )
              ] )
          ]
 
