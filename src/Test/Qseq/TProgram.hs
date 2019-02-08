@@ -24,27 +24,33 @@ test_runNestedQuants = TestCase $ do
 --      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
 
   assertBool ( "every c for which all of c's children "
-               ++ "which are also 0's children are < 10" )
+               ++ "which are also 3's children are < 10" )
     $ not ( null
             $ maybe (error "wut") id
-            $ M.lookup "c" x )
+            $ M.lookup "c"
+            $ fromRight (error "bazzle") x )
 
 x = let d = graph [ (2, [  2,20     ] )
                   , (3, [  2,3,30   ] ) ]
         [a,b,c,x,y] = ["a","b","c","x","y"]
         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
 
-    in fromRight (error "wut") $ runProgram d
-         [ (a, QFind $ findChildren $ Left 2)
-         , (b, QFind $ findChildren $ Left 3)
-         , (c, QQuant $ ForAll b1 b []
-               $ QQuant $ ForSome a1 a
-               $ QJunct $ QAnd
-               [ QFind $ mkFindReturn $ Right a1
-               , QVTest $ mkVTestCompare (==) (Right a1) (Right b1)
-               , QVTest $ mkVTestCompare (<) (Right a1) (Left 10)
-               ] ) ]
-
+    in runProgram d
+         [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
+         , ( "children", QQuant $ ForSome "a0" "all"
+                         $ QFind $ findChildren $ Right "a0" )
+         , ( "children of 3", QFind $ findChildren $ Left 3)
+         , ( "whose children don't overlap those of 3"
+           , QQuant $ ForSome "a1" "all"
+             $ QJunct $ QAnd
+             [ QFind $ mkFindReturn $ Right "a1"
+             , QQuant $ ForAll "c of a1" "children" -- this query is varTestlike
+               [ -- restrict to children of a1
+                 QVTest $ mkVTestIO' ("a1","all") ("c of a1","children") ]
+               $ QQuant $ ForAll "c of 3" "children of 3" []
+               $ QVTest $ mkVTestCompare (/=) (Right "c of a1") (Right "c of 3")
+             ] )
+         ]
 
 test_runProgram = TestCase $ do
   let [a,b,c,e,f,g,h,x,y,z] = ["a","b","c","e","f","g","h","x","y","z"]

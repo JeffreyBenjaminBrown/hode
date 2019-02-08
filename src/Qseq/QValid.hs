@@ -77,7 +77,10 @@ varTestlike (QJunct qs) = and $ map varTestlike $ clauses qs
 varTestlike (QQuant w)  = varTestlike $ goal w
 varTestlike _           = False
 
-testlike q = not (findlike q || varTestlike q)
+testlike (QTest _)  = True
+testlike (QJunct qs) = and $ map testlike $ clauses qs
+testlike (QQuant w)  = testlike $ goal w
+testlike _           = False
 
 
 -- | = Ensuring the Vars used in a Query make sense

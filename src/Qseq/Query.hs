@@ -56,10 +56,8 @@ runAnd :: forall e sp. (Ord e, Show e)
 runAnd d p s qs = do
   let (searches,tests') = partition findlike qs
       (varTests,tests) = partition (\case QVTest _->True; _->False) tests'
-  (varTestResults :: [Bool]) <- do
-    let unwrap = \case QVTest t -> t
-                       _        -> error "runAnd: unwrap: impossible."
-    ifLefts "runAnd" $ map (runVarTest p d s . unwrap) varTests
+  (varTestResults :: [Bool]) <- ifLefts "runAnd"
+                                $ map (runVarTestlike d p s) varTests
   if not $ and varTestResults
     then Right M.empty
     else do
