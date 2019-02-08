@@ -1,0 +1,13 @@
+* maybe good for
+** expressivity
+*** nested quotations (ala Lisp)
+https://mpickering.github.io/posts/2019-01-31-nested-brackets.html
+** clarity
+https://coot.me/posts/categories-with-monadic-effects.html
+** speed
+*** fusing graph operations
+https://blog.nyarlathotep.one/2019/02/paramorphisms-fusion-for-algebraic-graphs/
+*** mutable ops without IO contamination
+https://medium.com/permutive/having-your-cake-and-eating-it-9f462bf3f908
+*** how to benchmark
+https://andreaspk.github.io/posts/2019-02-01-nub-benchmarks.html

@@ -15,7 +15,7 @@ import Util
 
 validProgram :: [(Var,Query e sp)] -> Either String ()
 validProgram vqs = do
-  (wholeProgramTest :: ()) <- usesNoSourceBeforeItExists vqs
+  (_wholeProgramTest :: ()) <- usesNoSourceBeforeItExists vqs
   let f :: Either String () -> (Var, Query e sp) -> Either String ()
       f e@(Left _) _     = e
       f (Right ()) (_,q) = validQuery q
@@ -90,7 +90,7 @@ noIntroducedVarMasked = f S.empty where
                         vs' = S.insert v vs
                     in not (elem v vs) && f vs' (goal w)
   f vs (QJunct j) = and $ map (f vs) $ clauses j
-  f vs _ = True
+  f _ _ = True
 
 -- | `noAndCollisions` makes sure that a variable introduced in one
 -- clause of a conjunction is never introduced in another clause.
@@ -114,7 +114,7 @@ noAndCollisions _ = True
 usesOnlyIntroducedVars :: Query e sp -> Bool
 usesOnlyIntroducedVars q = f S.empty q where
   f :: Set Var -> Query e sp -> Bool
-  -- The `Set Var` is those Vars that have been introduces so far --
+  -- The `Set Var` is those Vars that have been introduced so far --
   -- i.e. by the current query or any superquery.
 
   f vs (QQuant w) = okConditions && f vs' (goal w)
