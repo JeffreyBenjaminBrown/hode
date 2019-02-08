@@ -124,7 +124,7 @@ test_drawsFromVars = TestCase $ do
   assertBool "2" $ drawsFromVars (QFind $ findParents $ Right c :: QIGI)
                                       == S.empty
   assertBool "1" $ drawsFromVars
-    ( QQuant $ ForAll a b ( QJunct $ QOr [ c_de, c_a ] ) [] )
+    ( QQuant $ ForAll a b [] ( QJunct $ QOr [ c_de, c_a ] ) )
     == S.fromList [b, d, a]
 
 test_usesVars = TestCase $ do
@@ -143,19 +143,21 @@ test_usesVars = TestCase $ do
   assertBool "3" $ usesVars c_a
     == S.singleton c
   assertBool "1" $ usesVars
-    ( QQuant $ ( ForAll a b ( QJunct $ QOr [ c_de, c_a ] )
-                 [ QVTest $ mkVTestCompare (>) (Left 1) (Right f) ] ) )
+    ( QQuant $ ( ForAll a b
+                 [ QVTest $ mkVTestCompare (>) (Left 1) (Right f) ]
+                 ( QJunct $ QOr [ c_de, c_a ] )
+               ) )
     == S.fromList [c,e,f]
 
 test_introducesVars = TestCase $ do
   let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
       q = QFind $ Find (\_ _ -> Right $ S.singleton 1) S.empty
       meh = error "whatever"
-  assertBool "1" $ introducesVars (
-    QJunct $ QOr [ QQuant $ ForAll x x q []
-                 , QQuant $ ForAll y y
-                   (QJunct $ QAnd [ QQuant $ ForSome z z q ] )
-                   [] ] )
+  assertBool "1" $ introducesVars
+    ( QJunct $ QOr [ QQuant $ ForAll x x [] q
+                   , QQuant $ ForAll y y []
+                     (QJunct $ QAnd [ QQuant $ ForSome z z q ] )
+                   ] )
     == S.fromList [x,y,z]
 
 test_findlike = TestCase $ do

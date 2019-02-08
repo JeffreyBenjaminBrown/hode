@@ -72,9 +72,9 @@ data Junction e sp = QAnd {clauses :: [Query e sp] } -- ^ order not important
                    | QOr  {clauses :: [Query e sp] } -- ^ order not important
 
 data Quantifier e sp =
-    ForSome { name :: Var, source :: Var, goal :: Query e sp }
-  | ForAll  { name :: Var, source :: Var, goal :: Query e sp
+    ForAll  { name :: Var, source :: Var
             , _conditions :: [Query e sp] -- ^ PITFALL: partial function.
+                                         , goal :: Query e sp
               -- `conditions` is a total version.
             }
   -- ^ The `_conditions` field lets you narrow the possibilities considered.
@@ -83,6 +83,7 @@ data Quantifier e sp =
   --  In that case, you would put y in the `conditions` field. 
   -- TODO : the `_conditions` list is currently treated like an And.
   -- It ought simply to be a (`varTestLike`) `Query`, not a list of them.
+  | ForSome { name :: Var, source :: Var , goal :: Query e sp }
 
 conditions :: Quantifier e sp -> [Query e sp]
 conditions   (ForSome _ _ _)  = []

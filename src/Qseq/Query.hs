@@ -153,7 +153,7 @@ runTestlike d p ce s (QQuant (ForSome v src q)) = do
                                $ S.map (flip (runTestlike d p ce) q) ss
   Right $ M.unionsWith S.union res
 
-runTestlike d p ce s (QQuant (ForAll v src q vtests)) = do
+runTestlike d p ce s (QQuant (ForAll v src vtests q)) = do
   (ss :: Set (Subst e))        <- prefixLeft "runTestlike"
                                   $ drawVar p s src v
   (varTested :: Set (Subst e)) <-
@@ -201,7 +201,7 @@ runFindlike d p s (QQuant (ForSome v src q)) = do
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 
-runFindlike d p s (QQuant (ForAll v src q vtests)) = do
+runFindlike d p s (QQuant (ForAll v src vtests q)) = do
   (ss :: Set (Subst e))        <- prefixLeft "runFindlike"
     $ drawVar p s src v
   (varTested :: Set (Subst e)) <-

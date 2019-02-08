@@ -77,17 +77,17 @@ test_runFindlike_mixed = TestCase $ do
 
   assertBool "2" $ runFindlike d p s
         ( QJunct $ QAnd
-             [ QQuant $ ForAll a2 a ( isnt a2 )
+             [ QQuant $ ForAll a2 a
                [ QVTest $ mkVTestIO' (a2,a) (b1,b) ]
+               ( isnt a2 )
              , QQuant $ ForSome a1 a $ QJunct $ QAnd
                [ fc a1
                , QVTest $ mkVTestIO' (a1,a) (b1,b) ] ] )
     == Right ( M.singleton 4 (S.fromList [ M.singleton a1 3 ] ) )
 
   assertBool "1" $ runFindlike d p s
-    ( QQuant $ ForAll a1 a
-      ( QJunct $ QAnd [ fc3, isnt a1 ] )
-      [] )
+    ( QQuant ( ForAll a1 a []
+               ( QJunct $ QAnd [ fc3, isnt a1 ] ) ) )
     == Right ( M.singleton 4 $ S.singleton $ M.empty )
 
 testRunAnd = TestCase $ do
@@ -122,13 +122,14 @@ test_runTestlike = TestCase $ do
                                           , (3, S.singleton M.empty) ]
 
   assertBool "6" $ runTestlike d p ce (M.empty :: Subst Int)
-    ( QQuant $ ForAll a1 a (QTest nota1)
-      [ QVTest $ mkVTestCompare (<) (Left 1) (Right a1) ] )
+    ( QQuant $ ( ForAll a1 a
+                 [ QVTest $ mkVTestCompare (<) (Left 1) (Right a1) ]
+                 $ QTest nota1 ) )
     == Right ( M.fromList [ (1, S.singleton $ M.singleton x 0)
                           , (3, S.singleton M.empty) ] )
 
   assertBool "5" $ runTestlike d p ce (M.empty :: Subst Int)
-    (QQuant $ ForAll a1 a (QTest nota1) [])
+    ( QQuant $ ForAll a1 a [] $ QTest nota1 )
     == Right ( M.singleton 3 (S.singleton M.empty) )
 
   assertBool "4" $ let
@@ -170,28 +171,29 @@ test_runFindlike_ForAll = TestCase $ do
 
   assertBool "4" $ runFindlike g p
     (M.singleton c1 1)
-    ( QQuant $ ForAll a1 a (qc a1)
-      [ QVTest $ mkVTestIO' (a1,a) (c1,c) ] )
+    ( QQuant ( ForAll a1 a
+               [ QVTest $ mkVTestIO' (a1,a) (c1,c) ]
+               $ qc a1 ) )
     == Right ( M.fromList [ (12, S.singleton $ M.empty)
                           , (22, S.singleton $ M.empty) ] )
 
   assertBool "3" $ runFindlike g p
     ( M.singleton x 1 )
-    ( QQuant $ ForAll b1 b ( qc b1 ) [] )
+    ( QQuant $ ForAll b1 b [] $ qc b1 )
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
   assertBool "3.5" $
     runFindlike g p
     ( M.singleton x 1 )
-    ( QQuant $ ForAll b1 b (qc b1) [] )
+    ( QQuant $ ForAll b1 b [] $ qc b1 )
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
   assertBool "2" $ runFindlike g p M.empty
-    (QQuant $ ForAll b1 b (qc b1) [])
+    ( QQuant $ ForAll b1 b [] $ qc b1 )
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
   assertBool "1" $ runFindlike g p M.empty
-    (QQuant $ ForAll a1 a (qc a1) [])
+    ( QQuant $ ForAll a1 a [] $ qc a1 )
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
 test_runFindlike_ForSome = TestCase $ do
