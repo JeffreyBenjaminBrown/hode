@@ -57,18 +57,18 @@ runAnd d p s qs = do
   let calldata = "runAdn, with subst " ++ show s
       (searches,tests') = partition findlike qs
       (tests,varTests) = partition testlike tests'
-  (varTestResults :: [Bool]) <- ifLefts ( calldata ++ ", computing varTestResults" )
+  (varTestResults :: [Bool]) <- ifLefts ( calldata ++ ", at varTestResults" )
                                 $ map (runVarTestlike d p s) varTests
   if not $ and varTestResults
     then Right M.empty
     else do
-    (found :: [CondElts e]) <- ifLefts ( calldata ++ ", computing found" )
+    (found :: [CondElts e]) <- ifLefts ( calldata ++ ", at found" )
                               $ map (runFindlike d p s) searches
     let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
         tested = foldr f (Right reconciled) tests where
           f :: Query e sp -> Either String (CondElts e)
                           -> Either String (CondElts e)
-          f _ (Left s) = Left $ calldata ++ ", computing tested --called-> " ++ s
+          f _ (Left s) = Left $ calldata ++ ", at tested --called-> " ++ s
                          -- collect no further Lefts
           f t (Right ce) = runTestlike d p ce s t
     tested
@@ -100,8 +100,17 @@ runVarTestlike sp p s (QJunct (QOr vtests)) =
   ( ifLefts "runVarTestlike"
     $ map (runVarTestlike sp p s) vtests )
 
-runVarTestlike _ _ _ (QQuant _) =
-  Left "todo ? write runVarTestlike for the QQuant case."
+runVarTestlike sp p s (QQuant w) = do
+  (ss :: [Subst e]) <- S.toList  <$>
+                       ( prefixLeft "runVarTestlike, at ss"
+                         $ drawVar p s (source w) (name w) )
+  (conditioned :: [Subst e]) <-
+    prefixLeft "runVarTestlike, at conditioned"
+    $ substsThatPassAllVarTests sp p (conditions w) ss
+  (bs :: [Bool]) <-
+    ifLefts "runVarTestlike, at bs"
+    $ map (\s -> runVarTestlike sp p s $ goal w) conditioned
+  Right $ and bs
 
 substsThatPassAllVarTests :: (Ord e, Show e) =>
   sp -> Possible e -> [Query e sp] -> [Subst e]
@@ -112,12 +121,12 @@ substsThatPassAllVarTests sp p vtests ss = do
         sp -> Possible e -> [Query e sp] -> Subst e -> Either String Bool
       passesAllVarTests sp p vtests s = do
         (bs :: [Bool]) <-
-          ifLefts "substsThatPassAllVarTests / passesAllVarTests"
+          ifLefts "substsThatPassAllVarTests, at passesAllVarTests"
           $ map (runVarTestlike sp p s) vtests
         Right $ and bs
 
   whetherEachPasses <-
-    ifLefts "substsThatPassAllVarTests / whetherEachPasses"
+    ifLefts "substsThatPassAllVarTests, at whetherEachPasses"
     $ map (passesAllVarTests sp p vtests) ss
   Right $ map fst $ filter snd $ zip ss whetherEachPasses
 
@@ -157,15 +166,15 @@ runTestlike d p ce s (QQuant (ForSome v src q)) = do
                                $ S.map (flip (runTestlike d p ce) q) ss
   Right $ M.unionsWith S.union res
 
-runTestlike d p ce s (QQuant (ForAll v src vtests q)) = do
-  (ss :: Set (Subst e))        <- prefixLeft "runTestlike / ss"
+runTestlike d p ce s (QQuant (ForAll v src conds q)) = do
+  (ss :: Set (Subst e))        <- prefixLeft "runTestlike, at ss"
                                   $ drawVar p s src v
-  (varTested :: Set (Subst e)) <-
+  (conditioned :: Set (Subst e)) <-
     S.fromList <$>
-    ( prefixLeft "runTestlike / varTested"
-      $ substsThatPassAllVarTests d p vtests (S.toList ss) )
-  (tested :: Set (CondElts e)) <- ifLefts_set "runTestlike / testsed"
-    $ S.map (flip (runTestlike d p ce) q) varTested
+    ( prefixLeft "runTestlike, at conditioned"
+      $ substsThatPassAllVarTests d p conds (S.toList ss) )
+  (tested :: Set (CondElts e)) <- ifLefts_set "runTestlike, at testsed"
+    $ S.map (flip (runTestlike d p ce) q) conditioned
   let (cesWithoutV :: Set (CondElts e)) = S.map f tested where
         -- delete the dependency on v, so that reconciliation can work
         f = M.map $ S.map $ M.delete v
@@ -201,10 +210,10 @@ runFindlike d p s (QJunct (QOr qs)) = do
 runFindlike d p s (QQuant (ForSome v src q)) = do
   let calldata = "runFindlike, called on ForSome, with arguments s: "
                  ++ show s ++ ", v: " ++ show v ++ ", src: " ++ show src
-  ss <- prefixLeft  (calldata ++ ", computing ss")
+  ss <- prefixLeft  (calldata ++ ", at ss")
         $ drawVar p s src v
   (res :: Set (CondElts e)) <-
-    ifLefts_set ( calldata ++ ", computing res" )
+    ifLefts_set ( calldata ++ ", at res" )
     $ S.map (flip (runFindlike d p) q) ss
   Right $ M.unionsWith S.union res
 
@@ -212,18 +221,18 @@ runFindlike d p s (QQuant (ForSome v src q)) = do
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 
-runFindlike d p s (QQuant (ForAll v src vtests q)) = do
+runFindlike d p s (QQuant (ForAll v src conds q)) = do
   let calldata = "runFindlike, called on ForAll, with arguments s: "
                  ++ show s ++ ", v: " ++ show v ++ ", src: " ++ show src
-  (ss :: Set (Subst e)) <- prefixLeft (calldata ++ ", computing ss")
+  (ss :: Set (Subst e)) <- prefixLeft (calldata ++ ", at ss")
                            $ drawVar p s src v
-  (varTested :: Set (Subst e)) <-
+  (conditioned :: Set (Subst e)) <-
     S.fromList <$>
-    ( prefixLeft (calldata ++ ", computing varTested")
-      $ substsThatPassAllVarTests d p vtests (S.toList ss) )
+    ( prefixLeft (calldata ++ ", at conditioned")
+      $ substsThatPassAllVarTests d p conds (S.toList ss) )
   (found :: Set (CondElts e))  <-
-    ifLefts_set (calldata ++ ", computing found")
-    $ S.map (flip (runFindlike d p) q) varTested
+    ifLefts_set (calldata ++ ", at found")
+    $ S.map (flip (runFindlike d p) q) conditioned
   let (foundWithoutV :: Set (CondElts e)) =
         S.map f found where
         -- delete the dependency on v, so that reconciliation can work
