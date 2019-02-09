@@ -58,6 +58,20 @@ test_runVarTestlike_complex = TestCase $ do
     == Right [ M.fromList [ (a1,1), (b1,3), (c1,0) ]
              , M.fromList [ (a1,0), (b1,2), (c1,2) ] ]
 
+  assertBool ( "\na ForAll with a condition: For every x s.t for all "
+               ++ "{a0 in a such that a0 > 10], x is a child of a0.\n" )
+    $ let sp = mkGraph [ (  5, [])
+                       , ( 15, [20,30   ] )
+                       , ( 25, [   30,40] ) ]
+          p = M.singleton "a" $ M.fromList [ (5, S.singleton M.empty)
+                                           , (15, S.singleton M.empty)
+                                           , (25, S.singleton M.empty) ]
+          q = QQuant $ ForAll "a0" "a"
+              [ QVTest $ mkVTestCompare (<) (Left 10) $ Right "a0" ]
+              $ QFind $ findChildren $ Right "a0"
+      in runFindlike sp p M.empty q
+         == Right ( M.singleton 30 $ S.singleton M.empty )
+
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]

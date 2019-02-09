@@ -57,3 +57,6 @@ findChildren = mkFindFrom "findChildren"
   $ \g e -> Right $ children g e
 findParents  = mkFindFrom "findParents"
   $ \g e -> Right $ parents g e
+
+findAllNodes :: Show e => Graph e -> Find e (Graph e)
+findAllNodes = mkFindReturn' . graphNodes
