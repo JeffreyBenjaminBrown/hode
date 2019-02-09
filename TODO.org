@@ -18,6 +18,8 @@ type CondElts = Map Elt (Set Subst)
  and that's how mkVTestIO' is currently written, but it could go either way.
  (mkVTestIO could be interpreting as doing both.)
 * TODO Test simple cases of varTestlike QQuants
+** a ForAll with a ForSome condition
+** a ForAll with a ForAll condition
 * TODO BUG
 ** hunch: I'm confusing using ForAll for conjunctions (of Bools) and for intersections (of search results)
 ** TODO test: is a ForAll under a ForSome treated like a pair of ForAlls?

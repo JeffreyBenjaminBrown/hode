@@ -38,7 +38,7 @@ test_runVarTestlike_complex = TestCase $ do
                          , (2, S.fromList [ M.singleton b 2 ] ) ] ) ]
 
   assertBool "and" $
-    substsThatPassAllVarTests (graph [] :: Graph Int) p
+    substsThatPassAllVarTests (mkGraph [] :: Graph Int) p
     [ QJunct $ QAnd [ QVTest $ mkVTestIO' (a1,a) (b1,b)
                     , QVTest $ mkVTestIO' (b1,b) (c1,c) ] ]
     ( [ M.fromList [ (a1,1), (b1,1), (c1,1) ]
@@ -48,7 +48,7 @@ test_runVarTestlike_complex = TestCase $ do
     == Right [ M.fromList [ (a1,1), (b1,2), (c1,2) ] ]
 
   assertBool "or" $
-    substsThatPassAllVarTests (graph [] :: Graph Int) p
+    substsThatPassAllVarTests (mkGraph [] :: Graph Int) p
     [ QJunct $ QOr [ QVTest $ mkVTestIO' (a1,a) (b1,b)
                    , QVTest $ mkVTestIO' (b1,b) (c1,c) ] ]
     ( [ M.fromList [ (a1,1), (b1,3), (c1,0) ]
@@ -63,9 +63,9 @@ test_runFindlike_mixed = TestCase $ do
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
       [a2,b2,c2,x2,y2] = ["a2","b2","c2","x2","y2"]
       isnt v = QTest $ mkTest (/=) $ Right v
-      d = graph [ (0, [1,2        ] )
-                , (3, [  2,3,4    ] )
-                , (10,[11, 23     ] ) ]
+      d = mkGraph [ (0, [1,2        ] )
+                  , (3, [  2,3,4    ] )
+                  , (10,[11, 23     ] ) ]
       (p :: (Possible Int)) = M.fromList
         [ (a, M.fromList $ map (, S.singleton M.empty) [1,2,3])
         , (b, M.fromList [ (11, S.singleton $ M.singleton a 1)
@@ -93,8 +93,8 @@ test_runFindlike_mixed = TestCase $ do
 testRunAnd = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       nota = QTest $ mkTest (/=) $ Right a
-      d = graph [ (0, [1,2    ] )
-                , (3, [  2,3,4] ) ]
+      d = mkGraph [ (0, [1,2    ] )
+                  , (3, [  2,3,4] ) ]
       (p :: (Possible Int)) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
                    , (3, S.singleton M.empty) ]
@@ -113,7 +113,7 @@ test_runTestlike = TestCase $ do
       (not3 :: Test Int (Graph Int)) = mkTest (/=) $ Left 3
       (nota :: Test Int (Graph Int)) = mkTest (/=) $ Right a
       (nota1 :: Test Int (Graph Int)) = mkTest (/=) $ Right a1
-      d = graph $ map (,[]) [1..3]
+      d = mkGraph $ map (,[]) [1..3]
       (p :: (Possible Int)) = M.singleton a $
         M.fromList [ (1, S.singleton M.empty)
                    , (2, S.singleton M.empty) ]
@@ -156,8 +156,8 @@ test_runTestlike = TestCase $ do
                           , (3, S.singleton $ M.singleton a 2) ] )
 
 test_runFindlike_ForAll = TestCase $ do
-  let g = graph [ (1, [11, 12    ] )
-                , (2, [    12, 22] ) ]
+  let g = mkGraph [ (1, [11, 12    ] )
+                  , (2, [    12, 22] ) ]
       [a,b,c,x,y] = ["a","b","c","x","y"]
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
       (p :: (Possible Int)) = M.fromList
@@ -197,8 +197,8 @@ test_runFindlike_ForAll = TestCase $ do
     == Right ( M.fromList [ (12, S.singleton M.empty) ] )
 
 test_runFindlike_ForSome = TestCase $ do
-  let g = graph [ (1, [11, 21] )
-                , (2, [12, 22] ) ]
+  let g = mkGraph [ (1, [11, 21] )
+                  , (2, [12, 22] ) ]
       [a,b,x,y] = ["a","b","x","y"]
       [a1,b1,x1,y1] = ["a1","b1","x1","y1"]
       (p:: Possible Int) = M.fromList
@@ -232,8 +232,8 @@ test_runFindlike_ForSome = TestCase $ do
                           , (22, S.singleton $ M.singleton a1 2) ] )
 
 test_runFindlike_Find = TestCase $ do
-  let g = graph [ (1, [11, 21] )
-                , (2, [12, 22] ) ]
+  let g = mkGraph [ (1, [11, 21] )
+                  , (2, [12, 22] ) ]
       [x,y] = ["x","y"]
       f1 = QFind $ findChildren $ Left 1
       fy = QFind $ findChildren $ Right y

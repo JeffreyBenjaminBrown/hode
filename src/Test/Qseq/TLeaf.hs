@@ -26,8 +26,8 @@ test_runTest = TestCase $ do
   -- I wrote tests for this function twice by accident. They are collected
   -- here, and probably redundant.
   let [a,b,c,x,y] = ["a","b","c","x","y"]
-      g = graph [ (1, [11, 12    ] )
-                , (2, [    12, 22] ) ]
+      g = mkGraph [ (1, [11, 12    ] )
+                  , (2, [    12, 22] ) ]
       (a2 :: (Subst Int)) = M.singleton a 2
       (ce :: (CondElts Int)) = M.fromList [ (1, S.singleton $ M.singleton x 0)
                                     , (2, S.singleton $ M.empty) ]
@@ -37,8 +37,8 @@ test_runTest = TestCase $ do
     == Right ( M.singleton 1 ( S.singleton $ M.fromList [(a,2), (x,0)] ) )
 
   let (a,b,c) = ("a","b","c")
-      g = graph [ (1, [2,3] )
-                , (2, [1,3] ) ]
+      g = mkGraph [ (1, [2,3] )
+                  , (2, [1,3] ) ]
       s = M.fromList [(a, 1), (b, 2)]
   assertBool "1" $ runTest g s
     ( mkTest (>) (Left 1) )
@@ -54,7 +54,7 @@ test_runTest = TestCase $ do
 
 test_runFind = TestCase $ do
   let (a,b,c) = ("a","b","c")
-      g = graph [ (1, [2,3] ) ]
+      g = mkGraph [ (1, [2,3] ) ]
       s = M.fromList [(a, 1), (b, 2)]
   assertBool "1" $ runFind g s (findChildren $ Left 1)  ==
     Right ( M.fromList [ (2, S.singleton M.empty)
@@ -65,7 +65,7 @@ test_runFind = TestCase $ do
   assertBool "2" $ runFind g s (findChildren $ Right b) == Right M.empty
 
 test_runVarTest_ioTest = TestCase $ do
-  let g = graph [] :: Graph Int
+  let g = mkGraph [] :: Graph Int
       [a,b,c,x,y] = ["a","b","c","x","y"]
       (p :: Possible Int) = M.fromList
         [ (a, M.fromList [ ( 1, S.singleton M.empty)

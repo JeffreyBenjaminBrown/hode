@@ -30,8 +30,8 @@ test_runNestedQuants = TestCase $ do
             $ M.lookup "c"
             $ fromRight (error "bazzle") x )
 
-x = let d = graph [ (2, [  2,20     ] )
-                  , (3, [  2,3,30   ] ) ]
+x = let d = mkGraph [ (2, [  2,20     ] )
+                    , (3, [  2,3,30   ] ) ]
         [a,b,c,x,y] = ["a","b","c","x","y"]
         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
 
@@ -59,9 +59,9 @@ test_runProgram = TestCase $ do
         ["a1","b1","c1","e1","f1","g1","h1","x1","y1","z1"]
       [a2,b2,c2,e2,f2,g2,h2,x2,y2,z2] =
         ["a2","b2","c2","e2","f2","g2","h2","x2","y2","z2"]
-      d = graph [ (0, [1,2        ] )
-                , (3, [  2,3,4    ] )
-                , (10,[11, 23     ] ) ]
+      d = mkGraph [ (0, [1,2        ] )
+                  , (3, [  2,3,4    ] )
+                  , (10,[11, 23     ] ) ]
 
   assertBool "1" $ runProgram d [ (a, QFind $ findParents $ Left 2) ]
     == Right ( M.singleton a ( M.fromList [ (0, S.singleton M.empty)
@@ -88,10 +88,10 @@ test_runProgram = TestCase $ do
                                    , (4, S.singleton $ M.singleton a1 3)
                                    ] ) ] )
 
-  let d = graph [ (0, [1,2,3] )
-                , (1, [11,12] )
-                , (2, [   12,13] )
-                , (3, [] ) ]
+  let d = mkGraph [ (0, [1,2,3] )
+                  , (1, [11,12] )
+                  , (2, [   12,13] )
+                  , (3, [] ) ]
 
   assertBool "4" $ runProgram d
     [ (a, QFind $ findChildren $ Left 0)

@@ -24,8 +24,8 @@ data Graph e = Graph {
 
 -- | Given a list of (parent, [child]) pairs, this produces a graph.
 -- It can only create graphs with no isolated nodes.
-graph :: Ord e => [( e, [e] )] -> Graph e
-graph pairs = Graph nodes children $ invertMapToSet children where
+mkGraph :: Ord e => [( e, [e] )] -> Graph e
+mkGraph pairs = Graph nodes children $ invertMapToSet children where
   children = M.fromList $ map f pairs
     where f (a,b) = (a, S.fromList b)
   nodes = S.union (M.keysSet children) $ M.foldl S.union S.empty children
