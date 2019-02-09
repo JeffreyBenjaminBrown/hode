@@ -58,11 +58,11 @@ test_runVarTestlike_complex = TestCase $ do
     == Right [ M.fromList [ (a1,1), (b1,3), (c1,0) ]
              , M.fromList [ (a1,0), (b1,2), (c1,2) ] ]
 
-  assertBool ( "\na ForAll with a condition: For every x s.t for all "
-               ++ "{a0 in a such that a0 > 10], x is a child of a0.\n" )
+  assertBool ( "\nA ForAll with a condition:\n Find all x s.t for all a0 in"
+               ++ " {a | a0 > 10], x is a child of a0.\n" )
     $ let sp = mkGraph [ (  5, [])
-                       , ( 15, [20,30   ] )
-                       , ( 25, [   30,40] ) ]
+                       , ( 15, [20,30,40   ] )
+                       , ( 25, [   30,40, 50] ) ]
           p = M.singleton "a" $ M.fromList [ (5, S.singleton M.empty)
                                            , (15, S.singleton M.empty)
                                            , (25, S.singleton M.empty) ]
@@ -70,7 +70,29 @@ test_runVarTestlike_complex = TestCase $ do
               [ QVTest $ mkVTestCompare (<) (Left 10) $ Right "a0" ]
               $ QFind $ findChildren $ Right "a0"
       in runFindlike sp p M.empty q
-         == Right ( M.singleton 30 $ S.singleton M.empty )
+         == Right ( M.fromList [ (30, S.singleton M.empty )
+                               , (40, S.singleton M.empty ) ] )
+
+  assertBool ( "\nA varTestlike ForAll:\n"
+             ++ "Find all a1 in a s.t. for all b(a1), b > 10.\n"
+             ) $
+    let [a,b,c,x,y] = ["a","b","c","x","y"]
+        [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+        sp = error "irrelevant"
+        p = M.fromList
+            [ (a , M.fromList [ (1, S.singleton M.empty)
+                              , (2, S.singleton M.empty) ] )
+            , (b , M.fromList [ ( 5, S.singleton $ M.singleton a 1)
+                              , (15, S.singleton $ M.singleton a 1)
+                              , (15, S.singleton $ M.singleton b 2) ] ) ]
+        q = QQuant $ ForSome a1 a -- a findlike QQuant
+            $ QJunct $ QAnd
+            [ QFind $ mkFindReturn $ Right a1
+            , QQuant $ ForAll b1 b -- a varTestlike QQuant
+              [ QVTest $ mkVTestIO' (a1,a) (b1,b) ]
+              $ QVTest $ mkVTestCompare (<) (Left 10) $ Right b1 ]
+    in runFindlike sp p M.empty q
+       == Right ( M.singleton 2 $ S.singleton $ M.singleton a1 2 )
 
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]

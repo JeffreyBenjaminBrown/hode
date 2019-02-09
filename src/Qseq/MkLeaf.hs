@@ -108,9 +108,11 @@ mkVTestCompare compare eev eev' = VarTest go deps where
 
 mkFindReturn :: forall e sp. (Show e)
              => Either e Var -> Find e sp
-mkFindReturn e = Find f S.empty where
+mkFindReturn e = Find f deps where
   f :: sp -> Subst e -> Either String (Set e)
   f _ s = either_varToElt s e >>= Right . S.singleton
+  deps = S.fromList $ catMaybes
+    $ map (either (const Nothing) Just) [e]
 
 mkFindReturn' :: forall e sp. (Show e)
              => Set e -> Find e sp
