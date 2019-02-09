@@ -128,6 +128,34 @@ w = let [a,b,c,x,y] = ["a","b","c","x","y"]
             ]
     in runFindlike sp p M.empty q
 
+w2 = let [a,b,c,x,y] = ["a","b","c","x","y"]
+         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+         sp = error "irrelevant"
+         p = M.fromList
+             [ (a , M.fromList [ (1, S.singleton M.empty)
+                               , (10, S.singleton M.empty) ] ) ]
+         q = QQuant $ ForSome a1 a
+             $ QJunct $ QAnd
+             [ QFind $ mkFindReturn $ Right a1
+             , QVTest $ mkVTestCompare (<) (Left 5) $ Right a1
+             ]
+     in runFindlike sp p M.empty q
+
+w3 = let [a,b,c,x,y] = ["a","b","c","x","y"]
+         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+         [a2,b2,c2,x2,y2] = ["a2","b2","c2","x2","y2"]
+         sp = error "irrelevant"
+         p = M.fromList
+             [ (a , M.fromList [ (1, S.singleton M.empty)
+                               , (10, S.singleton M.empty) ] ) ]
+         q = QQuant $ ForSome a1 a
+             $ QJunct $ QAnd
+             [ QFind $ mkFindReturn $ Right a1
+             , QQuant $ ForSome a2 a
+               $ QVTest $ mkVTestCompare (<) (Right a1) $ Right a2
+             ]
+     in runFindlike sp p M.empty q
+
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
       [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
