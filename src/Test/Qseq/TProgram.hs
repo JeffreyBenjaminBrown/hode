@@ -44,7 +44,7 @@ x = let d = mkGraph [ (2, [  2,20     ] )
            , QQuant $ ForSome a1 "all"
              $ QJunct $ QAnd
              [ QFind $ mkFindReturn $ Right a1
-             , ( -- this query is varTestlike
+             , ( -- this query is varTestlike, and failing
                  QQuant $ ForAll "c of a1" "children"
                  [ -- restrict to children of a1
                    QVTest $ mkVTestIO' (a1,"all") ("c of a1","children")
@@ -53,6 +53,29 @@ x = let d = mkGraph [ (2, [  2,20     ] )
                  $ QVTest ( mkVTestCompare (/=) (Right "c of a1")
                             $ Right "c of 3" ) )
              ] ) ]
+
+x1 = let d = mkGraph [ (2, [  2,20     ] )
+                     , (3, [  2,3,30   ] ) ]
+         [a,b,c,x,y] = ["a","b","c","x","y"]
+         [a0,b0,c0,x0,y0] = ["a0","b0","c0","x0","y0"]
+         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+ in runProgram d
+         [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
+         , ( "children", QQuant $ ForSome a0 "all"
+                         $ QFind $ findChildren $ Right a0 )
+         , ( "children of 3", QFind $ findChildren $ Left 3)
+         , ( "whose children don't overlap those of 3"
+           , QQuant $ ForSome a1 "all"
+             $ QJunct $ QAnd
+             [ QFind $ mkFindReturn $ Right a1
+             , ( -- this query is varTestlike, and failing
+                 QQuant $ ForAll "c of a1" "children"
+                 [ -- restrict to children of a1
+                   QVTest $ mkVTestIO' (a1,"all") ("c of a1","children")
+                 ]
+                 $ QVTest $ mkVTestCompare (<) (Right "c of a1") (Left 25) )
+             ] ) ]
+
 
 test_runProgram = TestCase $ do
   let [a,b,c,e,f,g,h,x,y,z] = ["a","b","c","e","f","g","h","x","y","z"]
