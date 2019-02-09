@@ -25,7 +25,7 @@ runProgram :: forall e sp. (Ord e, Show e)
   -> [(Var,Query e sp)] -- ^ ordered: `Query`s can depend on earlier ones
   -> Either String (Possible e)
 
-runProgram d vqs = case validProgram vqs of
+runProgram sp vqs = case validProgram vqs of
   Left s -> Left s
   Right () ->  foldl go (Right M.empty) vqs
     where
@@ -34,7 +34,7 @@ runProgram d vqs = case validProgram vqs of
     go (Left s) _ = Left s
     go (Right p) (v,q) = do
       (ec :: CondElts e) <- prefixLeft "runProgram"
-                            $ runFindlike d p (M.empty :: Subst e) q
+                            $ runFindlike sp p (M.empty :: Subst e) q
       Right $ M.insert v ec p
 
 
@@ -52,24 +52,24 @@ runProgram d vqs = case validProgram vqs of
 runAnd :: forall e sp. (Ord e, Show e)
         => sp -> Possible e -> Subst e -> [Query e sp]
         -> Either String (CondElts e)
-runAnd d p s qs = do
+runAnd sp p s qs = do
   let calldata = "runAdn, with subst " ++ show s
       (searches,tests') = partition findlike qs
       (tests,varTests) = partition testlike tests'
   (varTestResults :: [Bool]) <- ifLefts ( calldata ++ ", at varTestResults" )
-                                $ map (runVarTestlike d p s) varTests
+                                $ map (runVarTestlike sp p s) varTests
   if not $ and varTestResults
     then Right M.empty
     else do
     (found :: [CondElts e]) <- ifLefts ( calldata ++ ", at found" )
-                              $ map (runFindlike d p s) searches
+                              $ map (runFindlike sp p s) searches
     let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
         tested = foldr f (Right reconciled) tests where
           f :: Query e sp -> Either String (CondElts e)
                           -> Either String (CondElts e)
           f _ (Left s) = Left $ calldata ++ ", at tested --called-> " ++ s
                          -- collect no further Lefts
-          f t (Right ce) = runTestlike d p ce s t
+          f t (Right ce) = runTestlike sp p ce s t
     tested
 
 
@@ -143,37 +143,37 @@ runTestlike :: forall e sp. (Ord e, Show e)
 
 runTestlike _ _ _ _ (testlike -> False) =
   Left $ "runTestlike: not a testlike Query"
-runTestlike d _ ce s (QTest t) = runTest d s t ce
+runTestlike sp _ ce s (QTest t) = runTest sp s t ce
 runTestlike _ _ _ _ (QVTest _) =
   Left $ "runTestlike: VarTest should have been handled by And."
 
-runTestlike d p ce s (QJunct (QAnd qs)) = do
+runTestlike sp p ce s (QJunct (QAnd qs)) = do
   (results :: [CondElts e]) <-
     ifLefts "runTestlike"
-    $ map (runTestlike d p ce s) qs
+    $ map (runTestlike sp p ce s) qs
   Right $ reconcileCondElts $ S.fromList results
 
-runTestlike d p ce s (QJunct (QOr qs)) = do
+runTestlike sp p ce s (QJunct (QOr qs)) = do
   (results :: [CondElts e]) <- ifLefts "runTestlike"
-                               $ map (runTestlike d p ce s) qs
+                               $ map (runTestlike sp p ce s) qs
   Right $ M.unionsWith S.union results
 
-runTestlike d p ce s (QQuant (ForSome v src q)) = do
+runTestlike sp p ce s (QQuant (ForSome v src q)) = do
   (ss :: Set (Subst e))     <- prefixLeft  "runTestlike"
                                $ drawVar p s src v
   (res :: Set (CondElts e)) <- ifLefts_set "runTestlike"
-                               $ S.map (flip (runTestlike d p ce) q) ss
+                               $ S.map (flip (runTestlike sp p ce) q) ss
   Right $ M.unionsWith S.union res
 
-runTestlike d p ce s (QQuant (ForAll v src conds q)) = do
+runTestlike sp p ce s (QQuant (ForAll v src conds q)) = do
   (ss :: Set (Subst e))        <- prefixLeft "runTestlike, at ss"
                                   $ drawVar p s src v
   (conditioned :: Set (Subst e)) <-
     S.fromList <$>
     ( prefixLeft "runTestlike, at conditioned"
-      $ substsThatPassAllVarTests d p conds (S.toList ss) )
+      $ substsThatPassAllVarTests sp p conds (S.toList ss) )
   (tested :: Set (CondElts e)) <- ifLefts_set "runTestlike, at testsed"
-    $ S.map (flip (runTestlike d p ce) q) conditioned
+    $ S.map (flip (runTestlike sp p ce) q) conditioned
   let (cesWithoutV :: Set (CondElts e)) = S.map f tested where
         -- delete the dependency on v, so that reconciliation can work
         f = M.map $ S.map $ M.delete v
@@ -192,35 +192,35 @@ runFindlike :: forall e sp. (Ord e, Show e)
          -> Either String (CondElts e)
 
 runFindlike _ _ _ (findlike -> False) = Left "runFindlike: non-findlike Query"
-runFindlike d _ s (QFind f) = prefixLeft "runFindlike" $ runFind d s f
+runFindlike sp _ s (QFind f) = prefixLeft "runFindlike" $ runFind sp s f
 
-runFindlike d p s (QJunct (QAnd qs)) =
+runFindlike sp p s (QJunct (QAnd qs)) =
   prefixLeft "runFindlike, called on QAnd"
-  $ runAnd d p s qs
+  $ runAnd sp p s qs
 
-runFindlike d p s (QJunct (QOr qs)) = do
+runFindlike sp p s (QJunct (QOr qs)) = do
   -- TODO (#fast|#hard) Fold Or with short-circuiting.
   -- Once an `Elt` is found, it need not be searched for again, unless
   -- a new `Subst` would be associated with it.
   (ces :: [CondElts e]) <- ifLefts "runFindlike, call on QOr"
-                           $ map (runFindlike d p s) qs
+                           $ map (runFindlike sp p s) qs
   Right $ M.unionsWith S.union ces
 
-runFindlike d p s (QQuant (ForSome v src q)) = do
+runFindlike sp p s (QQuant (ForSome v src q)) = do
   let calldata = "runFindlike, called on ForSome, with arguments s: "
                  ++ show s ++ ", v: " ++ show v ++ ", src: " ++ show src
   ss <- prefixLeft  (calldata ++ ", at ss")
         $ drawVar p s src v
   (res :: Set (CondElts e)) <-
     ifLefts_set ( calldata ++ ", at res" )
-    $ S.map (flip (runFindlike d p) q) ss
+    $ S.map (flip (runFindlike sp p) q) ss
   Right $ M.unionsWith S.union res
 
   -- TODO (#fast) runFindlike: Fold ForAll with short-circuiting.
   -- Once an Elt fails to obtain for one value of v,
   -- don't search for it using any remaining value of v.
 
-runFindlike d p s (QQuant (ForAll v src conds q)) = do
+runFindlike sp p s (QQuant (ForAll v src conds q)) = do
   let calldata = "runFindlike, called on ForAll, with arguments s: "
                  ++ show s ++ ", v: " ++ show v ++ ", src: " ++ show src
   (ss :: Set (Subst e)) <- prefixLeft (calldata ++ ", at ss")
@@ -228,10 +228,10 @@ runFindlike d p s (QQuant (ForAll v src conds q)) = do
   (conditioned :: Set (Subst e)) <-
     S.fromList <$>
     ( prefixLeft (calldata ++ ", at conditioned")
-      $ substsThatPassAllVarTests d p conds (S.toList ss) )
+      $ substsThatPassAllVarTests sp p conds (S.toList ss) )
   (found :: Set (CondElts e))  <-
     ifLefts_set (calldata ++ ", at found")
-    $ S.map (flip (runFindlike d p) q) conditioned
+    $ S.map (flip (runFindlike sp p) q) conditioned
   let (foundWithoutV :: Set (CondElts e)) =
         S.map f found where
         -- delete the dependency on v, so that reconciliation can work
