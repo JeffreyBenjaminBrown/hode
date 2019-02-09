@@ -62,7 +62,8 @@ runAnd sp p s qs = do
     then Right M.empty
     else do
     (found :: [CondElts e]) <- ifLefts ( calldata ++ ", at found" )
-                              $ map (runFindlike sp p s) searches
+                               $ map (runFindlike sp p s) searches
+
     let (reconciled ::  CondElts e) = reconcileCondElts $ S.fromList found
         tested = foldr f (Right reconciled) tests where
           f :: Query e sp -> Either String (CondElts e)

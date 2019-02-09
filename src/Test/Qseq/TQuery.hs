@@ -130,19 +130,6 @@ w = let [a,b,c,x,y] = ["a","b","c","x","y"]
 
 w2 = let [a,b,c,x,y] = ["a","b","c","x","y"]
          [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
-         sp = error "irrelevant"
-         p = M.fromList
-             [ (a , M.fromList [ (1, S.singleton M.empty)
-                               , (10, S.singleton M.empty) ] ) ]
-         q = QQuant $ ForSome a1 a
-             $ QJunct $ QAnd
-             [ QFind $ mkFindReturn $ Right a1
-             , QVTest $ mkVTestCompare (<) (Left 5) $ Right a1
-             ]
-     in runFindlike sp p M.empty q
-
-w3 = let [a,b,c,x,y] = ["a","b","c","x","y"]
-         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
          [a2,b2,c2,x2,y2] = ["a2","b2","c2","x2","y2"]
          sp = error "irrelevant"
          p = M.fromList
@@ -150,9 +137,10 @@ w3 = let [a,b,c,x,y] = ["a","b","c","x","y"]
                                , (10, S.singleton M.empty) ] ) ]
          q = QQuant $ ForSome a1 a
              $ QJunct $ QAnd
-             [ QFind $ mkFindReturn $ Right a1
+             [ QFind $ mkFindReturn $ Left 0
              , QQuant $ ForSome a2 a
-               $ QVTest $ mkVTestCompare (<) (Right a1) $ Right a2
+               $ QVTest $ mkVTestCompare (<) (Right a2) $ Left 5 -- fails
+--               $ QVTest $ mkVTestCompare (<) (Right a1) $ Left 5 -- works
              ]
      in runFindlike sp p M.empty q
 
