@@ -97,52 +97,28 @@ test_runVarTestlike_complex = TestCase $ do
   assertBool ( "\nA varTestlike ForSome:\n"
              ++ "Find all a1 in a s.t. for some b(a1), b > 10.\n"
              ) $
-    w
-    == Right ( M.fromList
-                  [ (1, S.fromList [ M.fromList [(a1,1), (b1,15)] ] )
-                  , (2, S.fromList [ M.fromList [(a1,2), (b1,15)]
-                                   , M.fromList [(a1,2), (b1,25)] ] )
-                  ] )
-
-w = let [a,b,c,x,y] = ["a","b","c","x","y"]
-        [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
-        sp = error "irrelevant"
+    let sp = error "irrelevant"
         p = M.fromList
             [ (a , M.fromList [ (1, S.singleton M.empty)
                               , (2, S.singleton M.empty)
                               , (3, S.singleton M.empty) ] )
-            , (b , M.fromList [ ( 5, S.singleton $ M.singleton a 1)
-                              , (15, S.singleton $ M.singleton a 1)
-                              , (15, S.singleton $ M.singleton a 2)
-                              , (25, S.singleton $ M.singleton a 2)
-                              , ( 5, S.singleton $ M.singleton a 3) ] ) ]
+            , (b , M.fromList [ ( 5, S.fromList [ M.singleton a 1
+                                                 , M.singleton a 3 ] )
+                              , (15, S.fromList  [ M.singleton a 1
+                                                 , M.singleton a 2 ] )
+                              , (25, S.fromList  [ M.singleton a 2 ] ) ] ) ]
         q = QQuant $ ForSome a1 a -- a findlike QQuant
             $ QJunct $ QAnd
             [ QFind $ mkFindReturn $ Right a1
             , QQuant $ ForSome b1 b -- a varTestlike QQuant
               $ QJunct $ QAnd
-              [
-                QVTest $ mkVTestIO' (a1,a) (b1,b)
---              , QVTest $ mkVTestCompare (<) (Left 10) $ Right b1
-              ]
-            ]
+              [ QVTest $ mkVTestIO' (a1,a) (b1,b)
+              , QVTest $ mkVTestCompare (<) (Left 10) $ Right b1
+              ] ]
     in runFindlike sp p M.empty q
-
-w2 = let [a,b,c,x,y] = ["a","b","c","x","y"]
-         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
-         [a2,b2,c2,x2,y2] = ["a2","b2","c2","x2","y2"]
-         sp = error "irrelevant"
-         p = M.fromList
-             [ (a , M.fromList [ (1, S.singleton M.empty)
-                               , (10, S.singleton M.empty) ] ) ]
-         q = QQuant $ ForSome a1 a
-             $ QJunct $ QAnd
-             [ QFind $ mkFindReturn $ Left 0
-             , QQuant $ ForSome a2 a
-               $ QVTest $ mkVTestCompare (<) (Right a2) $ Left 5 -- fails
---               $ QVTest $ mkVTestCompare (<) (Right a1) $ Left 5 -- works
-             ]
-     in runFindlike sp p M.empty q
+    == Right ( M.fromList [ (1, S.fromList [ M.fromList [(a1,1)] ] )
+                          , (2, S.fromList [ M.fromList [(a1,2)] ] )
+                          ] )
 
 test_runFindlike_mixed = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]

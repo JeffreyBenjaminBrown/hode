@@ -110,7 +110,8 @@ runVarTestlike sp p s (QQuant w) = do
   (bs :: [Bool]) <-
     ifLefts "runVarTestlike, at bs"
     $ map (\s -> runVarTestlike sp p s $ goal w) conditioned
-  Right $ and bs
+  Right $ case w of ForSome _ _ _   -> or  bs
+                    ForAll  _ _ _ _ -> and bs
 
 substsThatPassAllVarTests :: (Ord e, Show e) =>
   sp -> Possible e -> [Query e sp] -> [Subst e]
