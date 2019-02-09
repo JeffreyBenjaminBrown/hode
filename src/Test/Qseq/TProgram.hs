@@ -26,9 +26,9 @@ test_runNestedQuants = TestCase $ do
   assertBool ( "every c for which all of c's children "
                ++ "which are also 3's children are < 10" )
     $ not ( null
-            $ maybe (error "wut") id
+            $ maybe (error "do TQuery first") id
             $ M.lookup "c"
-            $ fromRight (error "bazzle") x )
+            $ fromRight (error "do TQuery first") x )
 
 x = let d = mkGraph [ (2, [  2,20     ] )
                     , (3, [  2,3,30   ] ) ]
