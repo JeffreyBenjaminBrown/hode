@@ -42,6 +42,7 @@ type CondElts = Map Elt (Set Subst)
      ]
 
 * TODO re. Search
+** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? Is the String arg to findFrom needed?
 search for findFrom in the code, see if it's always part of a Left carrying a call stack
 ** TODO ? define not just Sets, but Set-valued functions of Substs
