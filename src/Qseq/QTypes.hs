@@ -67,6 +67,10 @@ data VarTest e sp = VarTest {
     varTestFunction :: sp -> Possible e -> Subst e ->      Either String Bool
   , varTestUses     :: Set Var }
   -- ^ If `*Function` doesn't use the `Subst`, `varTestUses` should be empty.
+  -- PITFALL : The dependencies in the `varTestUses` field refer to
+  -- `Var`s in the `Subst`, not keys in the `Possible`. But also it's
+  -- academic, as (currently) dependencies from a `VarTest` are, unlike
+  -- those from a `Find` or a `Test`, not recorded as inputs to the result.
 
 data Junction e sp = QAnd {clauses :: [Query e sp] } -- ^ order not important
                    | QOr  {clauses :: [Query e sp] } -- ^ order not important

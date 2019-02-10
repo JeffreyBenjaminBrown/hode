@@ -53,10 +53,8 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
 
 findChildren, findParents :: (Ord e, Show e)
                           => Either e Var -> Find e (Graph e)
-findChildren = mkFindFrom "findChildren"
-  $ \g e -> Right $ children g e
-findParents  = mkFindFrom "findParents"
-  $ \g e -> Right $ parents g e
+findChildren = mkFindFrom $ \g e -> Right $ children g e
+findParents  = mkFindFrom $ \g e -> Right $ parents g e
 
 findAllNodes :: Show e => Graph e -> Find e (Graph e)
 findAllNodes = mkFindReturn' . graphNodes

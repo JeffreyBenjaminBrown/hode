@@ -146,8 +146,9 @@ mkFind finder = Find go S.empty where
 
 -- | Run a search starting from a variable element of the space.
 mkFindFrom :: forall e sp. (Show e) =>
-  String -> (sp -> e -> Either String (Set e)) -> Either e Var -> Find e sp
-mkFindFrom findName finder eev = Find go deps where
+  (sp -> e -> Either String (Set e))
+  -> Either e Var -> Find e sp
+mkFindFrom finder eev = Find go deps where
   go :: sp -> Subst e -> Either String (Set e)
   go g s = either_varToElt s eev >>= finder g
   deps = S.fromList $ catMaybes

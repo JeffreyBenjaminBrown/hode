@@ -23,7 +23,7 @@ hFind he = Find f $ hVars he
   where f rslt subst = hLookup rslt subst he
 
 hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
-hFindSubExprs paths = mkFindFrom "hFindSubExprs" f where
+hFindSubExprs paths = mkFindFrom f where
   f :: Rslt -> Addr -> Either String (Set Addr)
   f r a = subExprs r paths a
 

@@ -28,12 +28,6 @@ when it ought to be this:
 * TODO easy-ish
 ** TODO Relax ?| Add a check, and amend docs: All the Vars in a Program must be distinct.
  Relax ? I can't think of a reason that the name of a drawn variable has to be distinct from the name of the set it is drawn from.
-** TODO PITFALL ? a VarTest's deps record Vars in the Subst, not the Possible, right?
- That's necessarily how mkVTestCompare is written (unless it has no deps),
- and that's how mkVTestIO' is currently written, but it could go either way.
- (mkVTestIO could be interpreting as doing both.)
-** TODO (probably) remove the String arg to findFrom
-first search for findFrom in the code, see if it's always part of a Left carrying a call stack
 ** TODO add validity test ? the Query in a _conditions field should be varTestlike
 Seems like it should get caught when something tries to run runVarTestlike on it.
 ** TODO clarity: _conditions should just be Query, not [Query]
