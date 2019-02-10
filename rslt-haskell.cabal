@@ -66,10 +66,13 @@ library
       src
   build-depends:
                 base
+              , brick
               , containers
               , directory
               , filepath
               , HUnit
+              , megaparsec
+              , parser-combinators
               , text
   default-language: Haskell2010
 

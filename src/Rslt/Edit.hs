@@ -199,9 +199,10 @@ _insert a e r = Rslt {
   , _isIn = invertAndAddPositions (_isIn r) (a, refExprPositions e)
   }
 
--- | PITFALL: One could put the Rslt into an invalid state by running this
--- on an RefExpr that appears in other RefExprs. This only deletes mentions in
--- which it is the container or "the thing", but not the contained.
+-- | PITFALL: `_deleteInternalMentionsOf` could put the Rslt into an
+-- invalid state, if it was run on an RefExpr that appears in other
+-- RefExprs. This only deletes mentions in which it is the container
+--or "the thing", but not the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r = do
   (aHas       ::           Map Role Addr) <-
