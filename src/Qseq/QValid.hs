@@ -111,6 +111,17 @@ noAndCollisions (QJunct (QOr qs)) =
 noAndCollisions (QQuant w) = noAndCollisions $ goal w
 noAndCollisions _ = True
 
+conditionsAreVarTestlike :: Query e sp -> Either String ()
+conditionsAreVarTestlike (QQuant w) =
+  let (bs :: [Bool]) = map varTestlike $ conditions w
+  in case and bs of
+    True -> Right ()
+    False -> Left $ "In the Quantifier that binds " ++ show (name w)
+     ++ " by drawing from " ++ show (source w)
+     ++ ", condition(s) " ++ show ( map fst $ filter (not . snd)
+                                    $ zip [1..] bs )
+     ++ " are non-varTestlike."
+
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.
 usesOnlyIntroducedVars :: Query e sp -> Either String ()
