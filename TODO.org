@@ -26,14 +26,9 @@ when it ought to be this:
                , (b, M.fromList [ (1, S.fromList [ M.singleton a 1
                                                  , M.singleton a 2 ] ) ] ) ]
 * TODO easy-ish
-** TODO Relax ?| Add a check, and amend docs: All the Vars in a Program must be distinct.
-Relax ? I can't think of a reason that the name of a drawn variable has to be distinct from the name of the set it is drawn from.
-** TODO add validity test ? the Query in a _conditions field should be varTestlike
-Seems like it should get caught when something tries to run runVarTestlike on it.
 ** TODO clarity: _conditions should just be Query, not [Query]
 Currently the list is equivalent to an And.
 For this I've got to be able to make the empty VarTest, which always returns True.
-
 ** TODO ? solve: mkVTestIO': naming errors cause silent failure
  See the comment leading its definition for detail.
 *** test for it somewhere in validProgram

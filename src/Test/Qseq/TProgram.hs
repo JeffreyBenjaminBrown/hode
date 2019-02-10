@@ -76,17 +76,17 @@ test_runProgram = TestCase $ do
 
   assertBool "3" $ runProgram d
     [ ( a, QFind $ findParents $ Left 2)
-    , ( b, ( QQuant $ ForSome a1 a $
+    , ( b, ( QQuant $ ForSome a a $
                QJunct $ QAnd
-               [ QFind $ findChildren $ Right a1
-               , QTest $ mkTest (/=) $ Right a1
+               [ QFind $ findChildren $ Right a
+               , QTest $ mkTest (/=) $ Right a
                , QTest $ mkTest (/=) $ Left 2 ] ) ) ]
     == Right ( M.fromList
                [ ( a, M.fromList [ (0, S.singleton M.empty)
-                                   , (3, S.singleton M.empty) ] )
-               , ( b, M.fromList [ (1, S.singleton $ M.singleton a1 0)
-                                   , (4, S.singleton $ M.singleton a1 3)
-                                   ] ) ] )
+                                 , (3, S.singleton M.empty) ] )
+               , ( b, M.fromList [ (1, S.singleton $ M.singleton a 0)
+                                 , (4, S.singleton $ M.singleton a 3)
+                                 ] ) ] )
 
   let d = mkGraph [ (0, [1,2,3] )
                   , (1, [11,12] )
@@ -95,16 +95,16 @@ test_runProgram = TestCase $ do
 
   assertBool "4" $ runProgram d
     [ (a, QFind $ findChildren $ Left 0)
-    , (b, ( QQuant $ ForSome a1 a
+    , (b, ( QQuant $ ForSome a a
               ( QQuant $ ForSome a2 a
                 (QJunct $ QAnd
-                 [ QVTest $ mkVTestCompare (<) (Right a1) (Right a2)
-                 , QFind $ findChildren $ Right a1
+                 [ QVTest $ mkVTestCompare (<) (Right a) (Right a2)
+                 , QFind $ findChildren $ Right a
                  , QFind $ findChildren $ Right a2 ] ) ) ) ) ]
-    == Right ( M.fromList
-               [ ( a, M.fromList [ (1, S.singleton M.empty)
-                                   , (2, S.singleton M.empty)
-                                   , (3, S.singleton M.empty) ] )
-               , ( b, M.fromList [ (12, ( S.singleton
-                                            $ M.fromList [(a1,1),(a2,2)]
-                                          ) ) ] ) ] :: Possible Int )
+    == Right
+    ( M.fromList
+      [ ( a, M.fromList [ ( 1, S.singleton M.empty)
+                        , ( 2, S.singleton M.empty)
+                        , ( 3, S.singleton M.empty) ] )
+      , ( b, M.fromList [ ( 12, S.singleton $ M.fromList [(a,1),(a2,2)] ) ] )
+      ] :: Possible Int )
