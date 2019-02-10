@@ -26,8 +26,8 @@ runProgram :: forall e sp. (Ord e, Show e)
   -> Either String (Possible e)
 
 runProgram sp vqs = case validProgram vqs of
-  Left s -> Left s
-  Right () ->  foldl go (Right M.empty) vqs
+  Left s   -> Left s
+  Right () -> foldl go (Right M.empty) vqs
     where
     go :: Either String (Possible e) -> (Var, Query e sp)
        -> Either String (Possible e)
