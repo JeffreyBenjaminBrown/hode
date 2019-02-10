@@ -137,9 +137,9 @@ test_rslt_hash_query = TestCase $ do
             $ QJunct $ QAnd
             [ QFind $ hFind $ HVar "nl2"
             , QQuant $ ForAll "n1" "n"
-              [ QVTest $ mkVTestIO' ("nl2","nl1") ("n1","n") ]
+              ( QVTest $ mkVTestIO' ("nl2","nl1") ("n1","n") )
               $ QQuant $ ForAll "l1" "l"
-              [ QVTest $ mkVTestIO' ("nl2","nl1") ("l1","l") ]
+              ( QVTest $ mkVTestIO' ("nl2","nl1") ("l1","l") )
               $ QVTest $ mkVTestCompare (/=) (Right "n1") (Right "l1")
             ] )
         ]

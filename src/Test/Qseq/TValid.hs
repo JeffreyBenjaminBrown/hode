@@ -119,7 +119,8 @@ test_drawsFromVars = TestCase $ do
   assertBool "2" $ drawsFromVars (QFind $ findParents $ Right c :: QIGI)
                                       == S.empty
   assertBool "1" $ drawsFromVars
-    ( QQuant $ ForAll a b [] ( QJunct $ QOr [ c_de, c_a ] ) )
+    ( QQuant $ ForAll a b (QJunct $ QAnd [])
+      $ QJunct $ QOr [ c_de, c_a ] )
     == S.fromList [b, d, a]
 
 test_usesVars = TestCase $ do
@@ -139,8 +140,8 @@ test_usesVars = TestCase $ do
     == S.singleton c
   assertBool "1" $ usesVars
     ( QQuant $ ( ForAll a b
-                 [ QVTest $ mkVTestCompare (>) (Left 1) (Right f) ]
-                 ( QJunct $ QOr [ c_de, c_a ] )
+                 ( QVTest $ mkVTestCompare (>) (Left 1) (Right f) )
+                 $ QJunct $ QOr [ c_de, c_a ]
                ) )
     == S.fromList [c,e,f]
 
@@ -149,8 +150,8 @@ test_introducesVars = TestCase $ do
       q = QFind $ Find (\_ _ -> Right $ S.singleton 1) S.empty
       meh = error "whatever"
   assertBool "1" $ introducesVars
-    ( QJunct $ QOr [ QQuant $ ForAll x x [] q
-                   , QQuant $ ForAll y y []
+    ( QJunct $ QOr [ QQuant $ ForAll x x (QJunct $ QAnd []) q
+                   , QQuant $ ForAll y y (QJunct $ QAnd [])
                      (QJunct $ QAnd [ QQuant $ ForSome z z q ] )
                    ] )
     == S.fromList [x,y,z]

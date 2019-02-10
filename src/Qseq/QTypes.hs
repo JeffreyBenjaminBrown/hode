@@ -77,7 +77,7 @@ data Junction e sp = QAnd {clauses :: [Query e sp] } -- ^ order not important
 
 data Quantifier e sp =
     ForAll  { name :: Var, source :: Var
-            , _conditions :: [Query e sp] -- ^ PITFALL: partial function.
+            , _condition :: Query e sp -- ^ PITFALL: partial function.
                                          , goal :: Query e sp
               -- `conditions` is a total version.
             }
@@ -89,9 +89,11 @@ data Quantifier e sp =
   -- It ought simply to be a (`varTestLike`) `Query`, not a list of them.
   | ForSome { name :: Var, source :: Var , goal :: Query e sp }
 
-conditions :: Quantifier e sp -> [Query e sp]
-conditions   (ForSome _ _ _)  = []
-conditions q@(ForAll _ _ _ _) = _conditions q
+-- | `conditions` called on a `ForSome` returns the empty `QAnd`, which
+-- is effectively always `True` -- thus imposing no conditions.
+condition :: Quantifier e sp -> Query e sp
+condition   (ForSome _ _ _)  = QJunct $ QAnd []
+condition q@(ForAll _ _ _ _) = _condition q
 
 type Subst e    = Map Var e
 type CondElts e = Map e (Set (Subst e))

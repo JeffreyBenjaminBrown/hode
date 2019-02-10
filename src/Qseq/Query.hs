@@ -106,29 +106,20 @@ runVarTestlike sp p s (QQuant w) = do
                          $ drawVar p s (source w) (name w) )
   (conditioned :: [Subst e]) <-
     prefixLeft "runVarTestlike, at conditioned"
-    $ substsThatPassAllVarTests sp p (conditions w) ss
+    $ substsThatPassVarTest sp p (condition w) ss
   (bs :: [Bool]) <-
     ifLefts "runVarTestlike, at bs"
     $ map (\s -> runVarTestlike sp p s $ goal w) conditioned
   Right $ case w of ForSome _ _ _   -> or  bs
                     ForAll  _ _ _ _ -> and bs
 
-substsThatPassAllVarTests :: (Ord e, Show e) =>
-  sp -> Possible e -> [Query e sp] -> [Subst e]
+substsThatPassVarTest :: (Ord e, Show e) =>
+  sp -> Possible e -> Query e sp -> [Subst e]
   -> Either String [Subst e]
-substsThatPassAllVarTests sp p vtests ss = do
-
-  let passesAllVarTests :: (Ord e, Show e) =>
-        sp -> Possible e -> [Query e sp] -> Subst e -> Either String Bool
-      passesAllVarTests sp p vtests s = do
-        (bs :: [Bool]) <-
-          ifLefts "substsThatPassAllVarTests, at passesAllVarTests"
-          $ map (runVarTestlike sp p s) vtests
-        Right $ and bs
-
+substsThatPassVarTest sp p vtest ss = do
   whetherEachPasses <-
-    ifLefts "substsThatPassAllVarTests, at whetherEachPasses"
-    $ map (passesAllVarTests sp p vtests) ss
+    ifLefts "substsThatPassVarTest, at whetherEachPasses"
+    $ map (\s -> runVarTestlike sp p s vtest) ss
   Right $ map fst $ filter snd $ zip ss whetherEachPasses
 
 
@@ -173,7 +164,7 @@ runTestlike sp p ce s (QQuant (ForAll v src conds q)) = do
   (conditioned :: Set (Subst e)) <-
     S.fromList <$>
     ( prefixLeft "runTestlike, at conditioned"
-      $ substsThatPassAllVarTests sp p conds (S.toList ss) )
+      $ substsThatPassVarTest sp p conds (S.toList ss) )
   (tested :: Set (CondElts e)) <- ifLefts_set "runTestlike, at testsed"
     $ S.map (flip (runTestlike sp p ce) q) conditioned
   let (cesWithoutV :: Set (CondElts e)) = S.map f tested where
@@ -230,7 +221,7 @@ runFindlike sp p s (QQuant (ForAll v src conds q)) = do
   (conditioned :: Set (Subst e)) <-
     S.fromList <$>
     ( prefixLeft (calldata ++ ", at conditioned")
-      $ substsThatPassAllVarTests sp p conds (S.toList ss) )
+      $ substsThatPassVarTest sp p conds (S.toList ss) )
   (found :: Set (CondElts e))  <-
     ifLefts_set (calldata ++ ", at found")
     $ S.map (flip (runFindlike sp p) q) conditioned

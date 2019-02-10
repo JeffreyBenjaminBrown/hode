@@ -41,7 +41,7 @@ usesNoSourceBeforeItExists vqs = case null bad of
 validQuery :: Query e sp -> Either String ()
 validQuery q = prefixLeft "validQuery" $ do
   usesOnlyIntroducedVars q
-  conditionsAreVarTestlike q
+  conditionIsVarTestlike q
   noIntroducedVarMasked q
   noAndCollisions q
   feasibleJunctions q
@@ -125,17 +125,13 @@ noAndCollisions (QJunct (QOr qs)) = mapM_ noAndCollisions qs
 noAndCollisions (QQuant w)        = noAndCollisions $ goal w
 noAndCollisions _                 = Right ()
 
-conditionsAreVarTestlike :: Query e sp -> Either String ()
-conditionsAreVarTestlike (QQuant w) =
-  let (bs :: [Bool]) = map varTestlike $ conditions w
-  in case and bs of
-    True -> Right ()
-    False -> Left $ "In the Quantifier that binds " ++ show (name w)
-     ++ " by drawing from " ++ show (source w)
-     ++ ", condition(s) " ++ show ( map fst $ filter (not . snd)
-                                    $ zip [1..] bs )
-     ++ " are non-varTestlike."
-conditionsAreVarTestlike _ = Right ()
+conditionIsVarTestlike :: Query e sp -> Either String ()
+conditionIsVarTestlike (QQuant w) = case varTestlike $ condition w of
+  True -> Right ()
+  False -> Left $ "In the Quantifier that binds " ++ show (name w)
+           ++ " by drawing from " ++ show (source w)
+           ++ ", the condition is not varTestlike."
+conditionIsVarTestlike _ = Right ()
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.
@@ -147,7 +143,7 @@ usesOnlyIntroducedVars q0 = f S.empty q0 where
 
   f vs (QQuant w) = do
     let vs' = S.insert (name w) vs
-    f vs' $ QJunct $ QAnd $ conditions w
+    f vs' $ condition w
     f vs' $ goal w
 
   f vs (QJunct j) = do ifLefts "" $ map (f vs) $ clauses j
@@ -168,7 +164,7 @@ drawsFromVars _ = S.empty
 -- queries ("leaves") of q -- that is, the `VarTest`s, `Test`s and `Find`s.
 usesVars :: Query e sp -> Set Var
 usesVars (QQuant w) = S.union (usesVars $ goal w) conditionVars
-  where conditionVars = S.unions $ map usesVars $ conditions w
+  where conditionVars = usesVars $ condition w
 usesVars (QJunct j) = S.unions $ map usesVars $ clauses j
 usesVars (QVTest x@(VarTest _ _)) = varTestUses x
 usesVars (QTest  x@(Test    _ _)) = testUses    x

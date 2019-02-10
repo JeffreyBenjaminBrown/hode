@@ -41,10 +41,10 @@ test_runNestedQuants = TestCase $ do
                     , QVTest $ mkVTestCompare (<) (Right a1) $ Left 10
                     , ( -- this query is varTestlike
                         QQuant $ ForAll "c of a1" "children"
-                        [ -- restrict to children of a1
-                          QVTest $ mkVTestIO' (a1,a0) ("c of a1","children")
-                        ]
-                        $ QQuant $ ForAll "c of 3" "children of 3" []
+                        ( -- restrict to children of a1
+                          QVTest $ mkVTestIO' (a1,a0) ("c of a1","children") )
+                        $ QQuant $ ForAll "c of 3" "children of 3"
+                        ( QJunct $ QAnd [] )
                         $ QVTest ( mkVTestCompare (/=) (Right "c of a1")
                                    $ Right "c of 3" ) )
                     ] ) ]
