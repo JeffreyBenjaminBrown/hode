@@ -11,7 +11,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Qseq.QTypes
-import Util
+import Util.Misc
 
 
 validProgram :: [(Var,Query e sp)] -> Either String ()

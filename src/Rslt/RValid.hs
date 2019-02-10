@@ -11,7 +11,7 @@ import qualified Data.Set       as S
 import Rslt.Lookup
 import Rslt.RTypes
 import Rslt.RUtil
-import Util
+import Util.Misc
 
 
 -- | == Check a `RefExpr`

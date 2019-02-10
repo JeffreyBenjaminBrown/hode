@@ -14,7 +14,7 @@ import           System.FilePath.Posix (dropExtension, takeExtension)
 
 import Rslt.RTypes
 import Rslt.Index
-import Util
+import Util.Misc
 
 
 -- | PITFALL: Tested only by hand:

@@ -16,7 +16,7 @@ import           System.FilePath.Posix (dropExtension, takeExtension)
 import Rslt.Lookup
 import Rslt.RTypes
 import Rslt.RUtil
-import Util
+import Util.Misc
 
 
 -- https://unicode-search.net/unicode-namesearch.pl?term=bracket

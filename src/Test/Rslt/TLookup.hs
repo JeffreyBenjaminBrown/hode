@@ -19,7 +19,7 @@ import           Rslt.RTypes
 import           Rslt.RValid
 import           Rslt.Show
 import qualified Test.Rslt.RData as D
-import           Util
+import           Util.Misc
 
 
 test_module_rslt_lookup = TestList [

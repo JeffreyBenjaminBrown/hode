@@ -1,9 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Parse where
+module Util.Parse where
 
 import           Control.Monad (void)
-import           Control.Monad.Combinators.Expr
 import           Data.List (intersperse)
 import           Data.Void (Void)
 import           Text.Megaparsec
@@ -11,7 +10,7 @@ import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 
 
--- | == Lexer
+type Parser = Parsec Void String
 
 sc :: Parser ()
 sc = L.space space1 lineCmnt blockCmnt

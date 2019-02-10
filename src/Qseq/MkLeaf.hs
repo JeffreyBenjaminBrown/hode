@@ -14,7 +14,7 @@ import qualified Data.Set       as S
 
 import Qseq.Subst
 import Qseq.QTypes
-import Util
+import Util.Misc
 
 
 either_varToElt :: Show e

@@ -15,7 +15,7 @@ import Rslt.Edit
 import Rslt.RTypes
 import Rslt.Lookup
 import qualified Test.Rslt.RData as D
-import Util
+import Util.Misc
 
 
 test_module_rslt_hash = TestList [

@@ -1,7 +1,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Util where
+module Util.Misc where
 
 import           Data.Either
 import           Data.Maybe
@@ -10,6 +10,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+
+-- | = Collections
 
 -- | PITFALL: In math, the intersection of the empty set is the entire
 -- universe, just like `and [] == True`. But that's impractical.
@@ -26,12 +28,15 @@ replaceNth a n as = do
   let (before, _:after) = splitAt (n-1) as
   Right $ before ++ a : after
 
+setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
+setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
+
+
+-- | = errors
+
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key map =  callingFunction ++ ": key "
   ++ show key ++ " not found in map " ++ show map ++ ".\n"
-
-setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
-setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
 prefixLeft :: String -> Either String a -> Either String a
 prefixLeft prefix =

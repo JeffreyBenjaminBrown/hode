@@ -17,7 +17,7 @@ import Rslt.Lookup
 import Rslt.RTypes
 import Rslt.RUtil
 import Rslt.RValid
-import Util
+import Util.Misc
 
 
 -- | = Edit + search

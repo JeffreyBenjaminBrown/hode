@@ -15,7 +15,7 @@ import Qseq.QValid
 import Qseq.RunLeaf
 import Qseq.Subst
 import Qseq.QTypes
-import Util
+import Util.Misc
 
 
 -- | == `runProgram` runs a sequence of `Query`s.

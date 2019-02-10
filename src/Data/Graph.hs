@@ -10,7 +10,7 @@ import qualified Data.Set       as S
 
 import Qseq.MkLeaf
 import Qseq.QTypes
-import Util
+import Util.Misc
 
 
 data Graph e = Graph {

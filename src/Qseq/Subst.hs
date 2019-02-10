@@ -10,7 +10,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Qseq.QTypes
-import Util
+import Util.Misc
 
 
 -- | `drawVar p s src res` binds the name res to each e

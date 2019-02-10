@@ -7,7 +7,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Qseq.QTypes (Var)
-import Util
+import Util.Misc
 
 
 type Addr = Int -- ^ Address

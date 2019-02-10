@@ -9,7 +9,7 @@ import qualified Data.Set       as S
 import Test.HUnit
 
 import Qseq.QTypes
-import Util
+import Util.Misc
 
 
 testModuleUtil = TestList [

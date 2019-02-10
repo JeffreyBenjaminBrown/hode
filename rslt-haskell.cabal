@@ -59,7 +59,8 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , Util
+                , Util.Misc
+                , Util.Parse
   other-modules:
       Paths_graph_seq
   hs-source-dirs:

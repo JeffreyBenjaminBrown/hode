@@ -13,7 +13,7 @@ import Qseq.MkLeaf
 import Rslt.Index
 import Rslt.RTypes
 import Rslt.RUtil
-import Util
+import Util.Misc
 
 
 -- | == build `Query`s for `Rslt`s

@@ -10,7 +10,7 @@ import qualified Data.Set       as S
 
 import Qseq.QTypes (Var)
 import Rslt.RTypes
-import Util
+import Util.Misc
 
 
 -- | = For `Expr`s
