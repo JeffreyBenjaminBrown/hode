@@ -20,62 +20,38 @@ test_module_Program = TestList [
   ]
 
 test_runNestedQuants = TestCase $ do
---  let [a,b,c,x,y] = ["a","b","c","x","y"]
---      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+  let [a,b,c,x,y] = ["a","b","c","x","y"]
+      [a0,b0,c0,x0,y0] = ["a0","b0","c0","x0","y0"]
+      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
 
   assertBool ( "every c for which all of c's children "
-               ++ "which are also 3's children are < 10" )
-    $ not ( null
-            $ maybe (error "do TQuery first") id
-            $ M.lookup "c"
-            $ fromRight (error "do TQuery first") x )
-
-x = let d = mkGraph [ (2, [  2,20     ] )
+               ++ "which are also 3's children are < 10" ) $
+    let d = mkGraph [ (1, [  4,40     ] )
+                    , (2, [  2,20     ] )
                     , (3, [  2,3,30   ] ) ]
-        [a,b,c,x,y] = ["a","b","c","x","y"]
-        [a0,b0,c0,x0,y0] = ["a0","b0","c0","x0","y0"]
-        [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
- in runProgram d
-         [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
-         , ( "children", QQuant $ ForSome a0 "all"
-                         $ QFind $ findChildren $ Right a0 )
-         , ( "children of 3", QFind $ findChildren $ Left 3)
-         , ( "whose children don't overlap those of 3"
-           , QQuant $ ForSome a1 "all"
-             $ QJunct $ QAnd
-             [ QFind $ mkFindReturn $ Right a1
-             , ( -- this query is varTestlike, and failing
-                 QQuant $ ForAll "c of a1" "children"
-                 [ -- restrict to children of a1
-                   QVTest $ mkVTestIO' (a1,"all") ("c of a1","children")
-                 ]
-                 $ QQuant $ ForAll "c of 3" "children of 3" []
-                 $ QVTest ( mkVTestCompare (/=) (Right "c of a1")
-                            $ Right "c of 3" ) )
-             ] ) ]
-
-x1 = let d = mkGraph [ (2, [  2,20     ] )
-                     , (3, [  2,3,30   ] ) ]
-         [a,b,c,x,y] = ["a","b","c","x","y"]
-         [a0,b0,c0,x0,y0] = ["a0","b0","c0","x0","y0"]
-         [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
- in runProgram d
-         [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
-         , ( "children", QQuant $ ForSome a0 "all"
-                         $ QFind $ findChildren $ Right a0 )
-         , ( "children of 3", QFind $ findChildren $ Left 3)
-         , ( "whose children don't overlap those of 3"
-           , QQuant $ ForSome a1 "all"
-             $ QJunct $ QAnd
-             [ QFind $ mkFindReturn $ Right a1
-             , ( -- this query is varTestlike, and failing
-                 QQuant $ ForAll "c of a1" "children"
-                 [ -- restrict to children of a1
-                   QVTest $ mkVTestIO' (a1,"all") ("c of a1","children")
-                 ]
-                 $ QVTest $ mkVTestCompare (<) (Right "c of a1") (Left 25) )
-             ] ) ]
-
+        res = runProgram d
+                [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
+                , ( "children", QQuant $ ForSome a0 "all"
+                                $ QFind $ findChildren $ Right a0 )
+                , ( "children of 3", QFind $ findChildren $ Left 3)
+                , ( lastKey
+                  , QQuant $ ForSome a1 "all"
+                    $ QJunct $ QAnd
+                    [ QFind $ mkFindReturn $ Right a1
+                    , QVTest $ mkVTestCompare (<) (Right a1) $ Left 10
+                    , ( -- this query is varTestlike
+                        QQuant $ ForAll "c of a1" "children"
+                        [ -- restrict to children of a1
+                          QVTest $ mkVTestIO' (a1,a0) ("c of a1","children")
+                        ]
+                        $ QQuant $ ForAll "c of 3" "children of 3" []
+                        $ QVTest ( mkVTestCompare (/=) (Right "c of a1")
+                                   $ Right "c of 3" ) )
+                    ] ) ]
+        lastKey = "under 10 and its children don't overlap those of 3"
+    in M.lookup lastKey (fromRight (error "donkeys") res)
+       == Just ( M.fromList [ (1, S.singleton $ M.singleton a1 1)
+                            , (4, S.singleton $ M.singleton a1 4) ] )
 
 test_runProgram = TestCase $ do
   let [a,b,c,e,f,g,h,x,y,z] = ["a","b","c","e","f","g","h","x","y","z"]

@@ -57,10 +57,26 @@ mkVTestIO iVar oVar = VarTest go deps where
             $ M.lookup oVar subst
     _checkIORel (iVar,iVal) (oVar,oVal) poss
 
-
 -- | `mkVTestIO'` is like `mkVTestIO`, but takes into account the fact
 -- that the name used (i.e. the `Var`) in the `Subst` might differ from
 -- the corresponding name in the `Possible`.
+--
+-- PITFALL : mkVTestIO' : naming error => silent failure 
+-- inPossible is the name used as an input to oInPossible;
+-- it is not (at least in general) itself a key to the Possible.
+--
+-- Examples:
+--   See Test.TProgram.test_runNestedQuants for a fully worked example.
+--   Here's a sketch of the idea: Suppose the `Possible` is
+--     [ (a, fromlist [ (1, empty)
+--                    , (2, empty) ] )
+--     , (b, fromlist [ ( 1, S.singleton $ M.singleton a1 1 ) ] ) ]
+--   Then when trying to restrict to a-b pairs such that a is an
+--   input to b, we must call mkVTestIO' something like this:
+--     mkVTestIO' (a2,a1) (b2,b)
+--   and not, though it unfortunately seems more natural, this:
+--     mkVTestIO' (a2,a) (b2,b)
+
 mkVTestIO' :: forall e sp. (Ord e, Show e)
   => (Var,Var) -- ^ name of the input  in Subst and Possible, resp.
   -> (Var,Var) -- ^ name of the output in Subst and Possible, resp.

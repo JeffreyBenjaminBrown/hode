@@ -17,6 +17,8 @@ type CondElts = Map Elt (Set Subst)
  That's necessarily how mkVTestCompare is written (unless it has no deps),
  and that's how mkVTestIO' is currently written, but it could go either way.
  (mkVTestIO could be interpreting as doing both.)
+* TODO ? solve: mkVTestIO': naming errors cause silent failure
+See the comment leading its definition for detail.
 * TODO Test simple cases of varTestlike QQuants
 ** a ForAll with a ForSome condition
 ** a ForAll with a ForAll condition
