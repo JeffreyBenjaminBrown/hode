@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}
 module Qseq.QValid where
 
@@ -21,7 +22,8 @@ validProgram vqs = do
       f (Right ()) (_,q) = validQuery q
   foldl f (Right ()) vqs
 
-usesNoSourceBeforeItExists :: forall e sp. [(Var,Query e sp)] -> Either String ()
+usesNoSourceBeforeItExists :: forall e sp.
+  [(Var,Query e sp)] -> Either String ()
 usesNoSourceBeforeItExists vqs = case null bad of
   True -> Right ()
   False -> Left $ "validProgram: variables used before being defined: "
@@ -37,30 +39,33 @@ usesNoSourceBeforeItExists vqs = case null bad of
     in (S.insert v defined, S.union bad moreBad)
 
 validQuery :: Query e sp -> Either String ()
-validQuery q = do
-  prefixLeft "validQuery" $ usesOnlyIntroducedVars q
-  if noAndCollisions q then Right ()
-    else Left $ "Variable defined in multiple clauses of a conjunction."
-  if noIntroducedVarMasked q then Right ()
-    else Left $ "One variable definition masks another."
-  if feasibleJunctions q then Right ()
-    else Left $ "Infeasible junction in Query."
-  if null $ S.intersection (introducesVars q) (drawsFromVars q) then Right ()
-    -- introducesVars and drawsFromVars are recursive, so this needn't be.
-    else Left $ "Names shared between internally-defined and externally-drawn-from variables."
+validQuery q = prefixLeft "validQuery" $ do
+  usesOnlyIntroducedVars q
+  conditionsAreVarTestlike q
+  noIntroducedVarMasked q
+  noAndCollisions q
+  feasibleJunctions q
 
-feasibleJunctions :: Query e sp -> Bool
+feasibleJunctions :: Query e sp -> Either String ()
 feasibleJunctions = recursive where
-  simple, recursive :: Query e sp -> Bool
+  simple, recursive :: Query e sp -> Either String ()
 
-  simple (QJunct (QAnd qs)) = not $ null $ filter findlike qs
-  simple (QJunct (QOr qs))  = and $           map findlike qs
-  simple _                  = True
+  simple (QJunct (QAnd qs)) = let fs = filter findlike qs
+    in if null fs
+    then Left $ "QAnd with no findlike clauses."
+    else Right ()
+  simple (QJunct (QOr qs))  =
+    let (bs :: [Bool]) = map findlike qs
+    in if and bs then Right ()
+       else Left $ "In a " ++ show (length qs) ++ "-clause QOr, clause(s) "
+            ++ show (map fst $ filter (not . snd) $ zip [1..] bs)
+            ++ " are not findlike."
+  simple _                  = Right ()
 
-  recursive j@(QJunct w) = simple j && and (map recursive $ clauses w)
-  recursive (QQuant w)   =                      recursive $ goal w
-  recursive _            = True
-
+  recursive j@(QJunct w) = do simple j
+                              mapM_ recursive $ clauses w
+  recursive (QQuant w)   = recursive $ goal w
+  recursive _            = Right ()
 
 -- | = Classifying Queries as findlike or testlike
 
@@ -85,31 +90,40 @@ testlike _           = False
 
 -- | = Ensuring the Vars used in a Query make sense
 
-noIntroducedVarMasked :: Query e sp -> Bool
+noIntroducedVarMasked :: Query e sp -> Either String ()
 noIntroducedVarMasked = f S.empty where
-  f :: Set Var -> Query e sp -> Bool
-  f vs (QQuant w) = let v = name w
-                        vs' = S.insert v vs
-                    in not (elem v vs) && f vs' (goal w)
-  f vs (QJunct j) = and $ map (f vs) $ clauses j
-  f _ _ = True
+  f :: Set Var -> Query e sp -> Either String ()
+  f vs (QQuant w) = do
+    let v = name w
+        vs' = S.insert v vs
+    if elem v vs then Left $ "Var " ++ show v
+      ++ " is masked (i.e. by a Var introduced later with the same name)."
+      else Right ()
+    f vs' $ goal w
+  f vs (QJunct j) = mapM_ (f vs) (clauses j)
+  f _ _ = Right ()
 
 -- | `noAndCollisions` makes sure that a variable introduced in one
 -- clause of a conjunction is never introduced in another clause.
-noAndCollisions :: Query e sp -> Bool
-noAndCollisions (QJunct (QAnd qs)) =
-  and (map noAndCollisions qs)
-  && snd (foldr f (S.empty, True) qs)
-  where
-    f :: Query e sp -> (Set Var, Bool) -> (Set Var, Bool)
-    f _ (_, False) = (S.empty, False) -- short circuit (hence foldr)
-    f q (vs, True) = if S.disjoint vs $ introducesVars q
-                     then (S.union vs $ introducesVars q, True)
-                     else (S.empty                      , False)
-noAndCollisions (QJunct (QOr qs)) =
-  and (map noAndCollisions qs)
-noAndCollisions (QQuant w) = noAndCollisions $ goal w
-noAndCollisions _ = True
+noAndCollisions :: Query e sp -> Either String ()
+noAndCollisions (QJunct (QAnd qs)) = do
+  let f :: Query e sp -> (Set Var, Either String ())
+                      -> (Set Var, Either String ())
+      f _ (_, Left s) = (S.empty, Left s) -- short circuit (hence foldr)
+      f q (vs, Right ()) =
+        let overlap = S.intersection vs $ introducesVars q
+        in if S.null overlap
+           then ( S.union vs $ introducesVars q, Right () )
+           else ( S.empty
+                , Left $ "Var used in multiple QAnd clauses: the sets "
+                  ++ show vs ++ " and "
+                  ++ show (introducesVars q) ++ " overlap." )
+  mapM_ (snd . flip f (S.empty, Right ())) qs
+  snd (foldr f (S.empty, Right ()) qs)
+
+noAndCollisions (QJunct (QOr qs)) = mapM_ noAndCollisions qs
+noAndCollisions (QQuant w)        = noAndCollisions $ goal w
+noAndCollisions _                 = Right ()
 
 conditionsAreVarTestlike :: Query e sp -> Either String ()
 conditionsAreVarTestlike (QQuant w) =
@@ -121,6 +135,7 @@ conditionsAreVarTestlike (QQuant w) =
      ++ ", condition(s) " ++ show ( map fst $ filter (not . snd)
                                     $ zip [1..] bs )
      ++ " are non-varTestlike."
+conditionsAreVarTestlike _ = Right ()
 
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.

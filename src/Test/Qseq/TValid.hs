@@ -75,13 +75,13 @@ test_noIntroducedVarMasked = TestCase $ do
       qxy = QJunct $ QOr [qx1,qy1]
       t = noIntroducedVarMasked
 
-  assertBool "-1"  $ t (QQuant $ ForSome x y qx)   == False
-  assertBool "0"   $ t (QQuant $ ForSome x x qy)   == True
-  assertBool "1"   $ t (QQuant $ ForSome x2 y qx1) == True
-  assertBool "2"   $ t (QQuant $ ForSome y x qx1)  == True
-  assertBool "3"   $ t qx                          == True
-  assertBool "3.7" $ t qxy                         == True
-  assertBool "4"   $ t (QJunct $ QAnd [qx1,qxy])    == True
+  assertBool "-1"  $ isLeft  $ t (QQuant $ ForSome x y qx)
+  assertBool "0"   $ isRight $ t (QQuant $ ForSome x x qy)
+  assertBool "1"   $ isRight $ t (QQuant $ ForSome x2 y qx1)
+  assertBool "2"   $ isRight $ t (QQuant $ ForSome y x qx1)
+  assertBool "3"   $ isRight $ t qx
+  assertBool "3.7" $ isRight $ t qxy
+  assertBool "4"   $ isRight $ t (QJunct $ QAnd [qx1,qxy])
 
 
 test_noAndCollisions = TestCase $ do
@@ -93,18 +93,15 @@ test_noAndCollisions = TestCase $ do
       qy1 = QQuant $ ForSome y1 y qf
       qxy = QJunct $ QOr [qx1,qy1]
 
-  assertBool "-1" $ noAndCollisions (QQuant $ ForSome x y qx)
-    == True
-  assertBool "0" $ noAndCollisions  (QQuant $ ForSome x x qy)
-    == True
-
-  assertBool "3" $ noAndCollisions qx               == True
-  assertBool "3.5" $ noAndCollisions qx1            == True
-  assertBool "3.7" $ noAndCollisions qxy            == True
-  assertBool "4" $ noAndCollisions (QQuant $ ForSome z z
-                                    $ QJunct $ QAnd [qx1,qxy]) == False
-  assertBool "4" $ noAndCollisions (QJunct $ QAnd [qx1,qxy]) == False
-  assertBool "4" $ noAndCollisions (QJunct $ QOr [qx1,qxy]) == True
+  assertBool "-1"  $ isRight $ noAndCollisions (QQuant $ ForSome x y qx)
+  assertBool "0"   $ isRight $ noAndCollisions (QQuant $ ForSome x x qy)
+  assertBool "3"   $ isRight $ noAndCollisions qx
+  assertBool "3.5" $ isRight $ noAndCollisions qx1
+  assertBool "3.7" $ isRight $ noAndCollisions qxy
+  assertBool "4"   $ isLeft  $ noAndCollisions ( QQuant $ ForSome z z
+                                                 $ QJunct $ QAnd [qx1,qxy] )
+  assertBool "5"   $ isLeft  $ noAndCollisions (QJunct $ QAnd [qx1,qxy])
+  assertBool "6"   $ isRight $ noAndCollisions (QJunct $ QOr [qx1,qxy])
 
 test_drawsFromVars = TestCase $ do
   let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
