@@ -30,27 +30,28 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
-** a # b ## c # d # e ### f
-More # symbols = higher precedence = listed earlier among Epxr operators.
-** (/eval a # //it ## (/it c # /var x # /addr 3)) ### /tplt _ is _
-Escape a / by preceding it with another one.
-Keywords /it and /eval must be first in the sub-Expr, and bounded with ().
-Keywords /addr and /tplt must be first, but can be free-standing.
-** /par Four score /(and seven/) years ago, (/addr 3) made cake.
-Keyword /par must lead, does not need enclosing parens.
-Put sub-Exprs in the paragraph by using ordinary parens.
-Escape parens with a leading /. Escaping the trailing paren could be optional.
-** (/it _ #likes _) #because _
-If an /it needs describing, it must be bound in parentheses.
-_ means "anything could go here".
-** \ & and | are as expected
-\\\ binds higher than && binds higher than |, etc.
-They are all binary.
-** _ #? _
-_ #? _ means it could be any kind of binary relationship template.
-_ #? _ #? _ could be any ternary, etc.
-** /roles (tplt, _ is _) (1, dog)
-Do that to create an HMap
+** for exprs
+*** a # b ## c # d # e ### f
+ More # symbols = higher precedence = listed earlier among Epxr operators.
+*** (/eval a # //it ## (/it c # /var x # /addr 3)) ### /tplt _ is _
+ Escape a / by preceding it with another one.
+ Keywords /it and /eval must be first in the sub-Expr, and bounded with ().
+ Keywords /addr and /tplt must be first, but can be free-standing.
+*** /par Four score /(and seven/) years ago, (/addr 3) made cake.
+ Keyword /par must lead, does not need enclosing parens.
+ Put sub-Exprs in the paragraph by using ordinary parens.
+ Escape parens with a leading /. Escaping the trailing paren could be optional.
+*** (/it _ #likes _) #because _
+ If an /it needs describing, it must be bound in parentheses.
+ _ means "anything could go here".
+*** \ & and | are as expected
+ \\\ binds higher than && binds higher than |, etc.
+ They are all binary.
+*** _ #? _
+ _ #? _ means it could be any kind of binary relationship template.
+ _ #? _ #? _ could be any ternary, etc.
+*** /roles (tplt, _ is _) (1, dog)
+ Do that to create an HMap
 * TODO re. Search
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
