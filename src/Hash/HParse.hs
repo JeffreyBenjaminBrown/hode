@@ -32,7 +32,7 @@ term = Leaf <$> identifier
        <|> close <$> parens _expr
        <|> absent
 
-pHash :: Int -> Parser (PRel -> PRel -> Either String PRel)
+pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
   label <- option "" $ identifier <|> parens phrase
