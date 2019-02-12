@@ -9,15 +9,15 @@ module Hash.HTypes where
 type Level = Int
 type Joint = String
 
-data PRel -- ^ a parser for `Rel`s
-  = Absent -- ^ The leftmost and rightmost members of an `Open` or `Closed`
-    -- might be absent. Interior ones should not be.
-  | Leaf String
-  | Closed     [PRel] [Joint] -- ^ First list: members. Second: joints.
-    -- Only the first and last members can be Absent. |joints| = |members| - 1
-  | Open Level [PRel] [Joint] -- ^ Like `Closed`, but more things
-    -- might be inserted into it.
-  deriving (Eq, Show)
+data PRel -- ^ intermediate type, on the way to parsing a `Rel`
+   = Absent -- ^ The leftmost and rightmost members of an `Open` or
+     -- `Closed` might be absent. Interior ones should not be.
+   | Leaf String
+   | Closed     [PRel] [Joint] -- ^ First list: members. Second: joints.
+   -- Only the first and last members can be Absent. |joints| = |members| - 1
+   | Open Level [PRel] [Joint] -- ^ Like `Closed`, but more things
+   -- might be inserted into it.
+   deriving (Eq, Show)
 
 hash :: Level -> Joint -> PRel -> PRel -> Either String PRel
 hash l j
@@ -72,7 +72,11 @@ startOpen l j a b = Open l [a,b] [j]
 
 isOpen :: PRel -> Bool
 isOpen (Open _ _ _) = True
-isOpen _ = False
+isOpen _            = False
+
+close :: PRel -> PRel
+close (Open l mbrs js) = Closed mbrs js
+close x                = x
 
 --pRelMembers :: PRel -> Either String [PRel]
 --pRelMembers (Closed mbrs _) = Right mbrs
