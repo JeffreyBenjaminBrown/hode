@@ -29,6 +29,8 @@ library
   exposed-modules:
                   Data.Graph
                 , Data.Relation
+                , Hash.HParse
+                , Hash.HTypes
                 , Rslt.Edit
                 , Rslt.Files
                 , Rslt.Index

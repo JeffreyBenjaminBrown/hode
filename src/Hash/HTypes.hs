@@ -3,23 +3,12 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Experim where
-
-import           Control.Monad (void)
-import           Control.Monad.Combinators.Expr
-import           Data.List (intersperse)
-import           Data.Void (Void)
-import           Text.Megaparsec
-import           Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer as L
-import           Util.Parse
+module Hash.HTypes where
 
 
 type Level = Int
 type Joint = String
 
--- TODO maybe Closed and Open should just hold a Rel,
--- or two [Expr] fields.
 data PRel -- ^ a parser for `Rel`s
   = Absent -- ^ The leftmost and rightmost members of an `Open` or `Closed`
     -- might be absent. Interior ones should not be.
@@ -58,8 +47,9 @@ hash l j
     $ "hash, with args l=" ++ show l ++ ", j=" ++ show j
     ++ ", a=" ++ show a ++ ", b=" ++ show b
     ++ ": higher level should not have been evaluated first."
-  | l == la           = mergeIntoLeft j a b
-  | l > lb            = Right $ startOpen l j a b
+  | l == la          = mergeIntoLeft j a b
+  | l == lb          = mergeIntoRight j a b
+  | l > (max la lb)  = Right $ startOpen l j a b
 
 mergeIntoLeft :: Joint -> PRel -> PRel -> Either String PRel
 mergeIntoLeft j (Open l mbrs joints) pr =
