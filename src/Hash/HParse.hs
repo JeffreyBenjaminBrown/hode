@@ -17,20 +17,20 @@ import           Hash.HTypes
 import           Util.Parse
 
 
-expr :: Parser PRel
-expr = lexeme $ sc >> _expr
-
--- TODO : how to use (a -> a -> Either _ a)
--- where makeExprParser wants (a -> a -> a)?
-_expr :: Parser PRel
-_expr = makeExprParser term
- [ [ InfixL $ try $ pHash n
-   ] | n <- [1..8] ]
-
-term :: Parser PRel
-term = Leaf <$> identifier
-       <|> close <$> parens _expr
-       <|> absent
+--expr :: Parser PRel
+--expr = lexeme $ sc >> _expr
+--
+---- TODO : how to use (a -> a -> Either _ a)
+---- where makeExprParser wants (a -> a -> a)?
+--_expr :: Parser PRel
+--_expr = makeExprParser term
+-- [ [ InfixL $ try $ pHash n
+--   ] | n <- [1..8] ]
+--
+--term :: Parser PRel
+--term = Leaf <$> identifier
+--       <|> close <$> parens _expr
+--       <|> absent
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do

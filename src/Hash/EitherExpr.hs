@@ -85,7 +85,7 @@ makeExprParser = foldl addPrecLevel
 {-# INLINEABLE makeExprParser #-}
 
 -- | @addPrecLevel p ops@ adds the ability to parse operators in table @ops@
--- to parser @p@.
+-- to parser @p@. "Prec" stands for "precedence".
 
 addPrecLevel :: MonadPlus m => m a -> [Operator m a] -> m a
 addPrecLevel term ops =
@@ -97,6 +97,16 @@ addPrecLevel term ops =
     las'  = pInfixL (choice las) term'
     nas'  = pInfixN (choice nas) term'
 {-# INLINEABLE addPrecLevel #-}
+
+eAddPrecLevel :: MonadPlus m => m a -> [EOperator m e a] -> m a
+eAddPrecLevel term ops =
+  term' >>= \x -> choice [ras' x, las' x, nas' x, return x]
+  where
+    (ras, las, nas, prefix, postfix) = foldr eSplitOp ([],[],[],[],[]) ops
+    term' = ePTerm (choice prefix) term (choice postfix)
+    ras'  = ePInfixR (choice ras) term'
+    las'  = ePInfixL (choice las) term'
+    nas'  = ePInfixN (choice nas) term'
 
 -- | @pTerm prefix term postfix@ parses a @term@ surrounded by optional
 -- prefix and postfix unary operators. Parsers @prefix@ and @postfix@ are
@@ -111,15 +121,16 @@ pTerm prefix term postfix = do
 {-# INLINE pTerm #-}
 
 ePTerm :: (Show e, MonadPlus m)
-  => m (a -> a) -> m (Either e a) -> m (a -> a) -> m a
+  => m (a -> Either e a)
+  -> m (     Either e a)
+  -> m (a -> Either e a)
+  -> m a
 ePTerm prefix term postfix = do
-  pre  <- option id prefix
-  (x :: a) <- failIfLeft term
-  post <- option id postfix
-  return . post . pre $ x
-
-failIfLeft :: (Show e, Monad m) => m (Either e a) -> m a
-failIfLeft p = p >>= either (\s -> fail $ show s) return
+  pre      <- option (Right . id) prefix
+  (x :: a) <- term >>= either (\s -> fail $ show s) return
+  post     <- option (Right . id) postfix
+  either (\s -> fail $ show s) return (pre x)
+    >>= either (\s -> fail $ show s) return . post
 
 
 -- | @pInfixN op p x@ parses non-associative infix operator @op@, then term
