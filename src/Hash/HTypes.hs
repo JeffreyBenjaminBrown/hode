@@ -53,19 +53,15 @@ hash l j
 
 mergeIntoLeft :: Joint -> PRel -> PRel -> Either String PRel
 mergeIntoLeft j (Open l mbrs joints) pr =
-  Right $ Open l (pr:mbrs) (j:joints)
-mergeIntoLeft j (Closed mbrs joints) pr =
-  Right $ Closed (pr:mbrs) (j:joints)
+  Right $ Open l (mbrs ++ [pr]) (joints ++ [j])
 mergeIntoLeft _ pr _ = Left $ "mergeIntoLeft: PRel " ++ show pr
-  ++ " cannot receive \"more\" members."
+  ++ " cannot receive more (if Closed) or any (if Leaf or Absent) members."
 
 mergeIntoRight :: Joint -> PRel -> PRel -> Either String PRel
 mergeIntoRight j pr (Open l mbrs joints) =
   Right $ Open l (pr:mbrs) (j:joints)
-mergeIntoRight j pr (Closed mbrs joints) =
-  Right $ Closed (pr:mbrs) (j:joints)
 mergeIntoRight _ _ pr = Left $ "mergeIntoRight: PRel " ++ show pr
-  ++ "cannot receive \"more\" members."
+  ++ " cannot receive more (if Closed) or any (if Leaf or Absent) members."
 
 startOpen :: Level -> Joint -> PRel -> PRel -> PRel
 startOpen l j a b = Open l [a,b] [j]

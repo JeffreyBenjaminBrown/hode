@@ -29,6 +29,7 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO incorporate Hash/Test.EitherExpr.hs into formal tests
 * TODO next: DSL for exprs
 ** for exprs
 *** a # b ## c # d # e ### f
