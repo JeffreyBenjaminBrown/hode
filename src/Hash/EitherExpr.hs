@@ -84,6 +84,12 @@ makeExprParser :: MonadPlus m
 makeExprParser = foldl addPrecLevel
 {-# INLINEABLE makeExprParser #-}
 
+eMakeExprParser :: (Show e, MonadPlus m)
+  => m (Either e a)      -- ^ Term parser
+  -> [[EOperator m e a]] -- ^ Operator table, see 'Operator'
+  -> m a                 -- ^ Resulting expression parser
+eMakeExprParser = foldl eAddPrecLevel
+
 -- | @addPrecLevel p ops@ adds the ability to parse operators in table @ops@
 -- to parser @p@. "Prec" stands for "precedence".
 
@@ -98,7 +104,8 @@ addPrecLevel term ops =
     nas'  = pInfixN (choice nas) term'
 {-# INLINEABLE addPrecLevel #-}
 
-eAddPrecLevel :: MonadPlus m => m a -> [EOperator m e a] -> m a
+eAddPrecLevel :: (Show e, MonadPlus m)
+  => m (Either e a) -> [EOperator m e a] -> m a
 eAddPrecLevel term ops =
   term' >>= \x -> choice [ras' x, las' x, nas' x, return x]
   where
