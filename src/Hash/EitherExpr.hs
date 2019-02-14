@@ -85,7 +85,7 @@ makeExprParser = foldl addPrecLevel
 {-# INLINEABLE makeExprParser #-}
 
 eMakeExprParser :: (Show e, MonadPlus m)
-  => m (Either e a)      -- ^ Term parser
+  => m a                 -- ^ Term parser
   -> [[EOperator m e a]] -- ^ Operator table, see 'Operator'
   -> m a                 -- ^ Resulting expression parser
 eMakeExprParser = foldl eAddPrecLevel
@@ -105,7 +105,7 @@ addPrecLevel term ops =
 {-# INLINEABLE addPrecLevel #-}
 
 eAddPrecLevel :: (Show e, MonadPlus m)
-  => m (Either e a) -> [EOperator m e a] -> m a
+  => m a -> [EOperator m e a] -> m a
 eAddPrecLevel term ops =
   term' >>= \x -> choice [ras' x, las' x, nas' x, return x]
   where
@@ -129,14 +129,14 @@ pTerm prefix term postfix = do
 
 ePTerm :: (Show e, MonadPlus m)
   => m (a -> Either e a)
-  -> m (     Either e a)
+  -> m a
   -> m (a -> Either e a)
   -> m a
 ePTerm prefix term postfix = do
-  pre      <- option (Right . id) prefix
-  (x :: a) <- term >>= either (\s -> fail $ show s) return
-  post     <- option (Right . id) postfix
-  either (\s -> fail $ show s) return (pre x)
+  pre  <- option (Right . id) prefix
+  x    <- term
+  post <- option (Right . id) postfix
+  id $  either (\s -> fail $ show s) return (pre x)
     >>= either (\s -> fail $ show s) return . post
 
 
