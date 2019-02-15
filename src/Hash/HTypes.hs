@@ -5,6 +5,11 @@
 
 module Hash.HTypes where
 
+import           Data.Map (Map)
+import qualified Data.Map       as M
+import           Data.Set (Set)
+import qualified Data.Set       as S
+
 import Qseq.QTypes
 import Rslt.RTypes
 
@@ -24,6 +29,7 @@ data PRel -- ^ intermediate type, on the way to parsing a `Rel`
 
 data PNonRel -- ^ intermediate type, on the way to parsing a `Rel`
   = PExpr Expr
+  | PMap (Map Role PNonRel)
   | PVar Var
   | Any
   | It (Maybe PNonRel)

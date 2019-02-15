@@ -36,3 +36,25 @@ pNonRelToHExpr (It Nothing)    = Left $ "pNonRelToHExpr: Cannot convert empty It
 pNonRelToHExpr (It (Just pnr)) = pNonRelToHExpr pnr
 pNonRelToHExpr (Eval pnr)      = error "todo: pNonRelToHExpr (Eval pnr)"
 pNonRelToHExpr (PRel pr)       = pRelToHExpr pr
+
+pathsToIts_pRel :: PRel -> [[Role]]
+pathsToIts_pRel Absent = []
+pathsToIts_pRel (PNonRel pnr) = pathsToIts_pNonRel pnr
+pathsToIts_pRel (Closed ms _) = let
+  f :: (Int,[[Role]]) -> [[Role]]
+  f (i,ps) = map ((:) $ RoleMember i) ps
+  in concatMap f $ zip [1..] $ map pathsToIts_pRel ms
+pathsToIts_pRel (Open _ ms js) = pathsToIts_pRel $ Closed ms js
+
+pathsToIts_pNonRel :: PNonRel -> [[Role]]
+pathsToIts_pNonRel (PRel pr) = pathsToIts_pRel pr
+pathsToIts_pNonRel (Eval pnr) = pathsToIts_pNonRel pnr
+pathsToIts_pNonRel (It Nothing) = [[]]
+  -- the unique way to get to an It from here is to stay still
+pathsToIts_pNonRel (It (Just pnr)) = [] : pathsToIts_pNonRel pnr
+pathsToIts_pNonRel (PMap m) =
+  concatMap (\(role, paths) -> map ((:) role) paths)
+  $ M.toList $ M.map pathsToIts_pNonRel m
+pathsToIts_pNonRel (PExpr _) = []
+pathsToIts_pNonRel (PVar _)  = []
+pathsToIts_pNonRel Any       = []
