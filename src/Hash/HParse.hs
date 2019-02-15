@@ -13,6 +13,7 @@ import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 
 import           Hash.EitherExpr
+import           Hash.Hash
 import           Hash.HTypes
 import           Util.UParse
 
