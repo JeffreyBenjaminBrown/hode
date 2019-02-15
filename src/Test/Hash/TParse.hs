@@ -11,9 +11,10 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import           Test.HUnit
 
 import Hash.EitherExpr
-import Hash.HTypes
 import Hash.HParse
-import Util.Parse
+import Hash.HTypes
+import Hash.HUtil
+import Util.UParse
 
 
 test_module_hash_parse = TestList [
@@ -23,38 +24,38 @@ test_module_hash_parse = TestList [
 test_parse_rels = TestCase $ do
   assertBool "1" $ parse expr "wut" "a b #(w x) c d"
     == Right ( Open 1
-               [ Leaf "a b", Leaf "c d"]
+               [ pWord "a b", pWord "c d"]
                [ "w x" ] )
 
   assertBool "2" $ parse expr "wut" "I #am ##because I #think"
     == Right ( Open 2
                [ Open 1
-                 [ Leaf "I", Absent]
+                 [ pWord "I", Absent]
                  [ "am" ]
                , Open 1
-                 [Leaf "I", Absent]
+                 [pWord "I", Absent]
                  ["think"]
                ]
                [ "because" ] )
 
   assertBool "3" $
     parse expr "wut" "I #think ##therefore I #am thinking ##so #like yeah man"
-    == Right ( Open 2 [ Open 1 [ Leaf "I"
+    == Right ( Open 2 [ Open 1 [ pWord "I"
                                , Absent] [ "think"]
-                      , Open 1 [ Leaf "I"
-                               , Leaf "thinking"] [ "am"]
+                      , Open 1 [ pWord "I"
+                               , pWord "thinking"] [ "am"]
                       , Open 1 [ Absent
-                               , Leaf "yeah man"] [ "like"]]
+                               , pWord "yeah man"] [ "like"]]
                [ "therefore", "so"] )
 
   assertBool "4" $ parse expr "wut"
     "I #think ##therefore I #am thinking ###so #like yeah man"
     == Right ( Open 3
                [ Open 2
-                 [ Open 1 [ Leaf "I", Absent ] [ "think" ]
-                 , Open 1 [ Leaf "I", Leaf "thinking" ]
+                 [ Open 1 [ pWord "I", Absent ] [ "think" ]
+                 , Open 1 [ pWord "I", pWord "thinking" ]
                    [ "am" ] ]
                  [ "therefore" ]
-               , Open 1 [ Absent, Leaf "yeah man"]
+               , Open 1 [ Absent, pWord "yeah man"]
                  [ "like"] ]
                [ "so" ] )

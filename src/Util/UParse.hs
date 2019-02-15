@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Util.Parse where
+module Util.UParse where
 
 import           Control.Monad (void)
 import           Data.List (intersperse)

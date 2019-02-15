@@ -6,6 +6,25 @@
 module Hash.HTypes where
 
 
+type Level = Int
+type Joint = String
+
+data PRel -- ^ intermediate type, on the way to parsing a `Rel`
+   = Absent -- ^ The leftmost and rightmost members of an `Open` or
+     -- `Closed` might be absent. Interior ones should not be.
+   | PNonRel PNonRel
+   | Closed     [PRel] [Joint] -- ^ First list: members. Second: joints.
+   -- Only the first and last members can be Absent. |joints| = |members| - 1
+   | Open Level [PRel] [Joint] -- ^ Like `Closed`, but more things
+   -- might be inserted into it.
+   deriving (Eq, Show)
+
+data PNonRel -- ^ intermediate type, on the way to parsing a `Rel`
+  = PWord String
+  | Any
+  | It (Maybe PRel)
+  | Eval PRel
+   deriving (Eq, Show)
 -- | The `hash` operator joins `Expr`s into `Rels`s. Each hash operation
 -- has a level associated with it. The higher the level, the later the
 -- evaluation. If a hash's arguments are both Exprs of a lower level,
@@ -35,20 +54,6 @@ module Hash.HTypes where
 -- like `Closed [Absent, Leaf "not"] ["maybe"]` becomes the `HExpr`
 -- `HExpr $ Rel [n] m`, where `n` is the address of `Word "not"` and
 -- `m` is the address of `Tplt [Word "maybe"]`.
-
-
-type Level = Int
-type Joint = String
-
-data PRel -- ^ intermediate type, on the way to parsing a `Rel`
-   = Absent -- ^ The leftmost and rightmost members of an `Open` or
-     -- `Closed` might be absent. Interior ones should not be.
-   | Leaf String
-   | Closed     [PRel] [Joint] -- ^ First list: members. Second: joints.
-   -- Only the first and last members can be Absent. |joints| = |members| - 1
-   | Open Level [PRel] [Joint] -- ^ Like `Closed`, but more things
-   -- might be inserted into it.
-   deriving (Eq, Show)
 
 hash :: Level -> Joint -> PRel -> PRel -> Either String PRel
 hash l j

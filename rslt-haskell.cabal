@@ -46,7 +46,7 @@ library
                 , Qseq.QValid
                 , Qseq.Subst
                 , Qseq.QTypes
---                , Test.Rslt.ByHand
+                , Test.Hash.TParse
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
                 , Test.Rslt.TEdit
@@ -63,7 +63,7 @@ library
                 , Test.TMain
                 , Test.TUtil
                 , Util.Misc
-                , Util.Parse
+                , Util.UParse
   other-modules:
       Paths_graph_seq
   hs-source-dirs:
