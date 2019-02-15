@@ -48,6 +48,7 @@ library
                 , Qseq.QValid
                 , Qseq.Subst
                 , Qseq.QTypes
+                , Test.Hash.TConvert
                 , Test.Hash.TParse
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
