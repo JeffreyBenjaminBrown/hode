@@ -24,6 +24,7 @@ import Test.Qseq.TSubst
 import Test.Qseq.TValid
 import Test.TGraph
 import Test.TUtil
+import Test.Hash.TParse
 
 
 tests :: IO Counts
@@ -42,4 +43,5 @@ tests = runTestTT $ TestList
   , test_module_rslt_lookup
   , test_module_rslt_show
   , test_modules_leaf
+  , test_module_hash_parse
   ]
