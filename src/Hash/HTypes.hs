@@ -29,10 +29,12 @@ data PRel -- ^ intermediate type, on the way to parsing a `Rel`
 
 data PNonRel -- ^ intermediate type, on the way to parsing a `Rel`
   = PExpr Expr
-  | PMap (Map Role PNonRel)
+  | PMap PMap
   | PVar Var
   | Any
   | It (Maybe PNonRel)
-  | Eval PNonRel
+  | Eval PMap
   | PRel PRel
    deriving (Eq, Show)
+
+type PMap = Map Role PNonRel
