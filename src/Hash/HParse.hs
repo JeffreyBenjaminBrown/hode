@@ -26,7 +26,7 @@ _expr = eMakeExprParser term
    ] | n <- [1..8] ]
 
 term :: Parser PRel
-term = Leaf <$> identifier
+term = Leaf <$> phrase
        <|> close <$> parens _expr
        <|> absent
 

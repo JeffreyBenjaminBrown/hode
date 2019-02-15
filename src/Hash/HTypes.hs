@@ -23,7 +23,7 @@ hash :: Level -> Joint -> PRel -> PRel -> Either String PRel
 hash l j
   a@(isOpen -> False)
   b@(isOpen -> False)
-  = Right $ startOpen l j a b
+  = startOpen l j a b
 hash l j
   a@(Open l' mbrs js)
   b@(isOpen -> False)
@@ -31,7 +31,7 @@ hash l j
               ++ ", a=" ++ show a ++ ", b=" ++ show b
               ++ ": higher level should not have been evaluated first."
   | l == l' = mergeIntoLeft j a b
-  | l > l'  = Right $ startOpen l j a b
+  | l > l'  = startOpen l j a b
 hash l j
   a@(isOpen -> False)
   b@(Open l' mbrs js)
@@ -39,7 +39,7 @@ hash l j
               ++ ", a=" ++ show a ++ ", b=" ++ show b
               ++ ": higher level should not have been evaluated first."
   | l == l' = mergeIntoRight j a b
-  | l > l'  = Right $ startOpen l j a b
+  | l > l'  = startOpen l j a b
 hash l j
   a@(Open la _ _)
   b@(Open lb _ _)
@@ -49,7 +49,7 @@ hash l j
     ++ ": higher level should not have been evaluated first."
   | l == la          = mergeIntoLeft j a b
   | l == lb          = mergeIntoRight j a b
-  | l > (max la lb)  = Right $ startOpen l j a b
+  | l > (max la lb)  = startOpen l j a b
 
 mergeIntoLeft :: Joint -> PRel -> PRel -> Either String PRel
 mergeIntoLeft j (Open l mbrs joints) pr =
@@ -63,8 +63,10 @@ mergeIntoRight j pr (Open l mbrs joints) =
 mergeIntoRight _ _ pr = Left $ "mergeIntoRight: PRel " ++ show pr
   ++ " cannot receive more (if Closed) or any (if Leaf or Absent) members."
 
-startOpen :: Level -> Joint -> PRel -> PRel -> PRel
-startOpen l j a b = Open l [a,b] [j]
+startOpen :: Level -> Joint -> PRel -> PRel -> Either String PRel
+startOpen _ _ Absent Absent =
+  Left $ "startOpen called with two Absent members."
+startOpen l j a b = Right $ Open l [a,b] [j]
 
 isOpen :: PRel -> Bool
 isOpen (Open _ _ _) = True
@@ -73,18 +75,3 @@ isOpen _            = False
 close :: PRel -> PRel
 close (Open l mbrs js) = Closed mbrs js
 close x                = x
-
---pRelMembers :: PRel -> Either String [PRel]
---pRelMembers (Closed mbrs _) = Right mbrs
---pRelMembers (Open _ mbrs _) = Right mbrs
---pRelMembers pr = Left
---  $ "pRelMembers: PRel " ++ show pr ++ " has no members."
- 
---higher :: PRel -> PRel -> Bool
---higher (Leaf _    ) (Leaf _    ) = True
---higher (Leaf _    ) (Closed _ _) = False
---higher (Leaf _    ) (Open _ _ _) = False
---higher (Closed _ _) (Closed _ _) = True
---higher (Closed _ _) (Open _ _ _) = False
---higher (Open l _ _) (Open m _ _) = l <= m
---higher a b = not $ higher b a

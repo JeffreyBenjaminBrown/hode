@@ -34,29 +34,11 @@ integer = lexeme L.decimal
 semi :: Parser String
 semi = symbol ";"
 
-reservedWord :: String -> Parser ()
-reservedWord w = lexeme . try
-  $ string w *> notFollowedBy alphaNumChar
-  -- `string` backtracks upon failure
-
-reservedWords :: [String]
-reservedWords = ["if","then","else","while","do"
-                ,"skip","true","false","not","and","or"]
-
 identifier :: Parser String
-identifier = (lexeme . try) (p >>= notReserved) where
-    -- without `try`, expressions like many identifier would
-    -- fail on such identifiers instead of just stopping.
-  (p :: Parser String) =
-    (:) <$> letterChar <*> many alphaNumChar
-    -- `(:) :: Char -> String -> String, and
-    -- `letterChar :: Parser Char`, so
-    -- `(:) <$> letterChar :: Parser (String -> String)
-  notReserved :: String -> Parser String
-  notReserved x = if x `elem` reservedWords
-                  then fail $ "keyword " ++ show x
-                       ++ " cannot be an identifier"
-                  else return x
+identifier = lexeme $ (:) <$> letterChar <*> many alphaNumChar
+  -- `(:) :: Char -> String -> String, and
+  -- `letterChar :: Parser Char`, so
+  -- `(:) <$> letterChar :: Parser (String -> String)
 
 phrase :: Parser String -- | does not accept the empty string
 phrase = concat . intersperse " " <$> some identifier
