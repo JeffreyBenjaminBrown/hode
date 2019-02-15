@@ -19,7 +19,6 @@ import Util.Misc
 
 pRelToHExpr :: PRel -> Either String HExpr
 pRelToHExpr Absent = Left "pRelToHExpr: cannot convert Absent."
-pRelToHExpr (PNonRel pn) = pNonRelToHExpr pn
 pRelToHExpr (Open _ ms js) = pRelToHExpr $ Closed ms js
 pRelToHExpr (Closed ms js) = do
   let t = Tplt $ map Word js
@@ -27,6 +26,7 @@ pRelToHExpr (Closed ms js) = do
   Right $ HMap
     $ M.insert RoleTplt (HExpr t)
     $ M.fromList $ zip (map RoleMember [1..]) hms
+pRelToHExpr (PNonRel pn) = pNonRelToHExpr pn
 
 pNonRelToHExpr :: PNonRel -> Either String HExpr
 pNonRelToHExpr (PExpr s)       = Right $ HExpr s

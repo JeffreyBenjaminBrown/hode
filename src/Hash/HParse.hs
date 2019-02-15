@@ -44,3 +44,26 @@ absent = const Absent <$> f <?> "Intended to \"find\" nothing."
   -- If it finds #, this is an absent leftmost member.
   -- If it finds eof, this is an absent rightmost member.
   -- (Parens get consumed in pairs in an outer (earlier) context.)
+
+
+-- | = parse a PNonRel
+
+pNonRel :: Parser PNonRel
+pNonRel = foldl1 (<|>) [ pWord
+                       , pAny
+                       , pVar
+                       , pIt ]
+
+pWord :: Parser PNonRel
+pWord = lexeme $ phrase >>= return . PExpr . Word
+
+pAny :: Parser PNonRel
+pAny = lexeme (string "_") >> return Any
+
+pVar :: Parser PNonRel
+pVar = do lexeme $ string "/var"
+          identifier >>= return . PVar
+
+pIt :: Parser PNonRel
+pIt = (lexeme (string "/it") >> return (It Nothing))
+  <|> parens (lexeme (string "/it") >> pNonRel)

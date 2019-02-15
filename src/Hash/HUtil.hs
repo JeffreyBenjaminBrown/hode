@@ -9,5 +9,5 @@ import           Hash.HTypes
 import           Rslt.RTypes
 
 
-pWord = PNonRel . PExpr . Word
-
+pnrWord :: String -> PRel
+pnrWord = PNonRel . PExpr . Word

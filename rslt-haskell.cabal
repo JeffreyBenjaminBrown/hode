@@ -33,6 +33,7 @@ library
                 , Hash.EitherExpr
                 , Hash.HParse
                 , Hash.HTypes
+                , Hash.HUtil
                 , Rslt.Edit
                 , Rslt.Files
                 , Rslt.Index

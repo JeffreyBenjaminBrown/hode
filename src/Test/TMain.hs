@@ -24,6 +24,7 @@ import Test.Qseq.TSubst
 import Test.Qseq.TValid
 import Test.TGraph
 import Test.TUtil
+import Test.Hash.TConvert
 import Test.Hash.TParse
 
 
@@ -43,5 +44,6 @@ tests = runTestTT $ TestList
   , test_module_rslt_lookup
   , test_module_rslt_show
   , test_modules_leaf
+  , test_module_hash_convert
   , test_module_hash_parse
   ]
