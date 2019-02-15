@@ -15,6 +15,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import           Hash.EitherExpr
 import           Hash.Hash
 import           Hash.HTypes
+import           Rslt.RTypes
 import           Util.UParse
 
 
@@ -27,7 +28,7 @@ _expr = eMakeExprParser term
    ] | n <- [1..8] ]
 
 term :: Parser PRel
-term = PNonRel . PWord <$> phrase
+term = PNonRel . PExpr . Word <$> phrase
        <|> close <$> parens _expr
        <|> absent
 

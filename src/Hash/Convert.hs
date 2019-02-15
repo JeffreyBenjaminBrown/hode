@@ -29,6 +29,10 @@ pRelToHExpr (Closed ms js) = do
     $ M.fromList $ zip (map RoleMember [1..]) hms
 
 pNonRelToHExpr :: PNonRel -> Either String HExpr
-pNonRelToHExpr (PWord s) = Right $ HExpr $ Word s
-pNonRelToHExpr (PVar s) = Right $ HVar s
-pNonRelToHExpr Any = Left $ "pNonRelToHExpr: Cannot convert Any."
+pNonRelToHExpr (PExpr s)       = Right $ HExpr s
+pNonRelToHExpr (PVar s)        = Right $ HVar s
+pNonRelToHExpr Any             = Left $ "pNonRelToHExpr: Cannot convert Any."
+pNonRelToHExpr (It Nothing)    = Left $ "pNonRelToHExpr: Cannot convert empty It."
+pNonRelToHExpr (It (Just pnr)) = pNonRelToHExpr pnr
+pNonRelToHExpr (Eval pnr)      = error "todo: pNonRelToHExpr (Eval pnr)"
+pNonRelToHExpr (PRel pr)       = pRelToHExpr pr

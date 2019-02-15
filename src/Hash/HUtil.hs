@@ -6,6 +6,8 @@
 module Hash.HUtil where
 
 import           Hash.HTypes
+import           Rslt.RTypes
 
 
-pWord = PNonRel . PWord
+pWord = PNonRel . PExpr . Word
+
