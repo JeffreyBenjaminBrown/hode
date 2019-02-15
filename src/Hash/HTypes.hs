@@ -5,6 +5,8 @@
 
 module Hash.HTypes where
 
+import Qseq.QTypes
+
 
 type Level = Int
 type Joint = String
@@ -21,6 +23,7 @@ data PRel -- ^ intermediate type, on the way to parsing a `Rel`
 
 data PNonRel -- ^ intermediate type, on the way to parsing a `Rel`
   = PWord String
+  | PVar Var
   | Any
   | It (Maybe PRel)
   | Eval PRel

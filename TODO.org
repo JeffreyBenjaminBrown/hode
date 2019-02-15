@@ -31,7 +31,6 @@ when it ought to be this:
 see the comment leading its definition
 * TODO next: DSL for exprs
 ** TODO convert the PRel into an HExpr
-** TODO search for or insert the parsed expression
 ** language sketch
 *** a # b ## c # d # e ### f
  More # symbols = higher precedence = listed earlier among Epxr operators.
@@ -54,6 +53,7 @@ _ #? _ means it could be any kind of binary relationship template.
 _ #? _ #? _ could be any ternary, etc.
 *** /roles (tplt, _ is _) (1, dog)
 Do that to create an HMap
+** TODO search for or insert the parsed expression
 * TODO re. Search
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
