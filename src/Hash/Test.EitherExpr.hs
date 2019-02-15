@@ -4,7 +4,6 @@ Open 1 [Leaf "a b",Leaf "c d"] ["w x"]
 
 -- works
 > parseTest expr "a #is ##for b"
-
 Open 2
   [ Open 1 [ Leaf "a"
            , Absent ]
