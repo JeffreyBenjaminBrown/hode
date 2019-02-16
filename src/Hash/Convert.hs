@@ -29,7 +29,7 @@ pRelToHExpr (Closed ms js) = do
     $ M.fromList $ zip (map RoleMember [1..]) hms
 pRelToHExpr (PNonRel pn) = pNonRelToHExpr pn
 
-pNonRelToHExpr :: PNonRel -> Either String HExpr
+pNonRelToHExpr :: PExpr -> Either String HExpr
 pNonRelToHExpr (PExpr s)       = Right $ HExpr s
 pNonRelToHExpr (PMap m)        = HMap <$> pMapToHMap m
 pNonRelToHExpr (PEval pnr)     = do
@@ -55,7 +55,7 @@ pathsToIts_pRel (Closed ms _) = let
   in concatMap f $ zip [1..] $ map pathsToIts_pRel ms
 pathsToIts_pRel (Open _ ms js) = pathsToIts_pRel $ Closed ms js
 
-pathsToIts_pNonRel :: PNonRel -> [[Role]]
+pathsToIts_pNonRel :: PExpr -> [[Role]]
 pathsToIts_pNonRel (PExpr _) = []
 pathsToIts_pNonRel (PMap m) =
   concatMap (\(role, paths) -> map ((:) role) paths) $ M.toList

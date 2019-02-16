@@ -46,24 +46,24 @@ absent = const Absent <$> f <?> "Intended to \"find\" nothing."
   -- (Parens get consumed in pairs in an outer (earlier) context.)
 
 
--- | = parse a PNonRel
+-- | = parse a PExpr
 
-pNonRel :: Parser PNonRel
+pNonRel :: Parser PExpr
 pNonRel = foldl1 (<|>) [ pWord
                        , pAny
                        , pVar
                        , pIt ]
 
-pWord :: Parser PNonRel
+pWord :: Parser PExpr
 pWord = lexeme $ phrase >>= return . PExpr . Word
 
-pAny :: Parser PNonRel
+pAny :: Parser PExpr
 pAny = lexeme (string "_") >> return Any
 
-pVar :: Parser PNonRel
+pVar :: Parser PExpr
 pVar = do lexeme $ string "/var"
           identifier >>= return . PVar
 
-pIt :: Parser PNonRel
+pIt :: Parser PExpr
 pIt = (lexeme (string "/it") >> return (It Nothing))
   <|> parens (lexeme (string "/it") >> pNonRel)

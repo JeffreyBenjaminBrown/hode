@@ -17,17 +17,17 @@ import Rslt.RTypes
 type Level = Int
 type Joint = String
 
-data PNonRel -- ^ intermediate type, on the way to parsing a `Rel`
+data PExpr -- ^ intermediate type, on the way to parsing a `Rel`
   = PExpr Expr
   | PMap PMap
-  | PEval PNonRel
+  | PEval PExpr
   | PVar Var
   | Any
-  | It (Maybe PNonRel)
+  | It (Maybe PExpr)
   | PRel PRel
    deriving (Eq, Show)
 
-type PMap = Map Role PNonRel
+type PMap = Map Role PExpr
 
 data PRel -- ^ intermediate type, on the way to parsing a `Rel`
    = Absent -- ^ The leftmost and rightmost members of an `Open` or
@@ -36,5 +36,5 @@ data PRel -- ^ intermediate type, on the way to parsing a `Rel`
    -- Only the first and last members can be Absent. |joints| = |members| - 1
    | Open Level [PRel] [Joint] -- ^ Like `Closed`, but more things
    -- might be inserted into it.
-   | PNonRel PNonRel
+   | PNonRel PExpr
    deriving (Eq, Show)
