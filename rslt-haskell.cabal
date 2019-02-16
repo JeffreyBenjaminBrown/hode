@@ -31,6 +31,7 @@ library
                 , Data.Relation
                 , Hash.Convert
                 , Hash.EitherExpr
+                , Hash.Hash
                 , Hash.HParse
                 , Hash.HTypes
                 , Hash.HUtil

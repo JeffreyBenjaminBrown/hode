@@ -30,7 +30,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
-** TODO convert the PRel into an HExpr
+** TODO rename PNonRel -> PExpr
+** TODO (half-done) convert PRel, NonPRel into an HExpr
 ** language sketch
 *** a # b ## c # d # e ### f
  More # symbols = higher precedence = listed earlier among Epxr operators.

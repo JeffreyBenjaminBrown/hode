@@ -57,7 +57,7 @@ hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
 
 hVars :: HExpr -> Set Var
 hVars (HMap m)    = S.unions $ map hVars $ M.elems m
-hVars (HEval m _) = S.unions $ map hVars $ M.elems m
+hVars (HEval m _) = hVars m
 hVars (HVar v)    = S.singleton v
 hVars (HExpr _)   = S.empty
 hVars (HDiff h i) = S.union (hVars h) (hVars i)

@@ -55,11 +55,12 @@ test_pNonRelToHExpr = TestCase $ do
                        [ ( RoleTplt, PExpr $ Tplt [ Word "is" ] )
                        , ( RoleMember 1, It Nothing ) ] ) )
     == Right ( HEval
-               ( M.fromList [ ( RoleTplt
-                              , HExpr ( Tplt [ Word "is" ] ) ) ] )
+               ( HMap $ M.fromList
+                 [ ( RoleTplt
+                   , HExpr ( Tplt [ Word "is" ] ) ) ] )
                [ [ RoleMember 1 ] ] )
 
-  assertBool "2" $ x == error "wut"
+  assertBool "2" $ x == error "voogle"
 
 x = pNonRelToHExpr
     ( PEval $ PRel $ Open (error "irrelevant")

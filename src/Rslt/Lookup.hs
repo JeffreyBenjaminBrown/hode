@@ -57,8 +57,7 @@ hLookup r s (HMap m) = do
     False -> Right $ foldl1 S.intersection $ M.elems hosts
 
 hLookup r s (HEval hm paths) = do
-  (hosts :: Set Addr) <-
-    hLookup r s $ HMap hm
+  (hosts :: Set Addr)     <- hLookup r s hm
   (its :: Set (Set Addr)) <-
     ( ifLefts_set "hLookup called on HEval, mapping over hosts"
       $ S.map (subExprs r paths) hosts )

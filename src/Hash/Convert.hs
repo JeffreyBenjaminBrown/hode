@@ -33,8 +33,8 @@ pNonRelToHExpr :: PNonRel -> Either String HExpr
 pNonRelToHExpr (PExpr s)       = Right $ HExpr s
 pNonRelToHExpr (PMap m)        = HMap <$> pMapToHMap m
 pNonRelToHExpr (PEval pnr)     = do
-  (x :: HMap)  <- pMapToHMap pnr
-  Right $ HEval x $ pathsToIts_pNonRel $ PMap pnr
+  (x :: HExpr)  <- pNonRelToHExpr pnr
+  Right $ HEval x $ pathsToIts_pNonRel pnr
 pNonRelToHExpr (PVar s)        = Right $ HVar s
 pNonRelToHExpr Any             = Left $ "pNonRelToHExpr: Cannot convert Any."
 pNonRelToHExpr (It Nothing)    = Left $ "pNonRelToHExpr: Cannot convert empty It."
@@ -60,7 +60,7 @@ pathsToIts_pNonRel (PExpr _) = []
 pathsToIts_pNonRel (PMap m) =
   concatMap (\(role, paths) -> map ((:) role) paths) $ M.toList
   $ M.map pathsToIts_pNonRel m
-pathsToIts_pNonRel (PEval pnr) = pathsToIts_pNonRel $ PMap pnr
+pathsToIts_pNonRel (PEval pnr) = pathsToIts_pNonRel pnr
 pathsToIts_pNonRel (PVar _)  = []
 pathsToIts_pNonRel Any       = []
 pathsToIts_pNonRel (It Nothing) = [[]]
