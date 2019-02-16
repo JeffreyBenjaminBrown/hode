@@ -48,8 +48,8 @@ absent = const Absent <$> f <?> "Intended to \"find\" nothing."
 
 -- | = parse a PExpr
 
-pNonRel :: Parser PExpr
-pNonRel = foldl1 (<|>) [ pWord
+pExpr :: Parser PExpr
+pExpr = foldl1 (<|>) [ pWord
                        , pAny
                        , pVar
                        , pIt ]
@@ -66,4 +66,4 @@ pVar = do lexeme $ string "/var"
 
 pIt :: Parser PExpr
 pIt = (lexeme (string "/it") >> return (It Nothing))
-  <|> parens (lexeme (string "/it") >> pNonRel)
+  <|> parens (lexeme (string "/it") >> pExpr)

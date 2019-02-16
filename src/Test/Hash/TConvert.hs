@@ -18,7 +18,7 @@ import Rslt.RTypes
 
 test_module_hash_convert = TestList [
     TestLabel "test_pRelToHExpr" test_pRelToHExpr
-  , TestLabel "test_pNonRelToHExpr" test_pNonRelToHExpr
+  , TestLabel "test_pExprToHExpr" test_pExprToHExpr
   ]
 
 test_pRelToHExpr = TestCase $ do
@@ -49,8 +49,8 @@ test_pRelToHExpr = TestCase $ do
                         , ( RoleMember 2, HExpr $ Word "d" ) ] )
       , ( RoleMember 3, HExpr $ Word "b" ) ] )
 
-test_pNonRelToHExpr = TestCase $ do
-  assertBool "1" $ ( pNonRelToHExpr
+test_pExprToHExpr = TestCase $ do
+  assertBool "1" $ ( pExprToHExpr
                      ( PEval $ PMap $ M.fromList
                        [ ( RoleTplt, PExpr $ Tplt [ Word "is" ] )
                        , ( RoleMember 1, It Nothing ) ] ) )
@@ -62,7 +62,7 @@ test_pNonRelToHExpr = TestCase $ do
 
   assertBool "2" $ x == error "voogle"
 
-x = pNonRelToHExpr
+x = pExprToHExpr
     ( PEval $ PRel $ Open (error "irrelevant")
       [ PNonRel $ PMap $ M.fromList
         [ ( RoleMember 1, PExpr $ Word "bugs" )

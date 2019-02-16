@@ -30,8 +30,12 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
-** TODO rather than convert PRel to HExpr
-just convert it to PMap
+** TODO ? rather than convert PRel to HExpr
+-- just convert it to PMap
+pRelToPExpr :: PRel -> Either String PExpr
+pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
+pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
+pRelToPExpr (Closed ms js) =
 ** TODO (half-done) convert PRel, NonPRel into an HExpr
 ** language sketch
 *** a # b ## c # d # e ### f
