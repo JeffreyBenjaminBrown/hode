@@ -60,15 +60,20 @@ test_pExprToHExpr = TestCase $ do
                    , HExpr ( Tplt [ Word "is" ] ) ) ] )
                [ [ RoleMember 1 ] ] )
 
-  assertBool "2" $ x == error "voogle"
-
-x = pExprToHExpr
-    ( PEval $ PRel $ Open (error "irrelevant")
+  assertBool "2" $
+    pExprToHExpr ( PEval $ PRel $ Open (error "irrelevant")
       [ PNonRel $ PMap $ M.fromList
         [ ( RoleMember 1, PExpr $ Word "bugs" )
         , ( RoleMember 2, It Nothing ) ]
       , PNonRel $ PExpr $ Word "sassafras"
       , PNonRel $ Any ]
       [ "enjoy", "because" ]
-    )
-
+    ) == Right ( HEval
+                 ( HMap $ M.fromList
+                   [ ( RoleTplt, ( HExpr $ Tplt
+                                   [ Word "enjoy", Word "because" ] ) )
+                   , ( RoleMember 1, HMap $ M.singleton
+                                     ( RoleMember 1 )
+                                     $ HExpr $ Word "bugs" ),
+                     ( RoleMember 2, HExpr $ Word "sassafras" ) ] )
+                 [ [ RoleMember 1, RoleMember 2 ] ] )

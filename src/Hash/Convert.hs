@@ -22,13 +22,22 @@ import Util.Misc
 pRelToHExpr :: PRel -> Either String HExpr
 pRelToHExpr Absent = Left "pRelToHExpr: cannot convert Absent."
 pRelToHExpr (Open _ ms js) = pRelToHExpr $ Closed ms js
+
 pRelToHExpr (Closed ms js) = do
   let t = Tplt $ map Word js
-  (hms :: [HExpr]) <- ifLefts "pRelToHExpr" $ map pRelToHExpr ms
+      ms' = filter f ms
+        where f :: PRel -> Bool
+              f Absent = False
+              f (PNonRel px) = pExprIsSpecific px
+              f _ = True
+  (hms :: [HExpr]) <- ifLefts "pRelToHExpr"
+    $ map pRelToHExpr ms'
   Right $ HMap
     $ M.insert RoleTplt (HExpr t)
     $ M.fromList $ zip (map RoleMember [1..]) hms
+
 pRelToHExpr (PNonRel pn) = pExprToHExpr pn
+
 
 pExprToHExpr :: PExpr -> Either String HExpr
 pExprToHExpr px@(pExprIsSpecific -> False) = Left
@@ -45,7 +54,7 @@ pExprToHExpr (PRel pr)       = pRelToHExpr pr
 pMapToHMap :: PMap -> Either String HMap
 pMapToHMap = ifLefts_map "pMapToHMap"
   . M.map pExprToHExpr
-  . M.filter (\case It Nothing -> False; Any -> False; _ -> True)
+  . M.filter pExprIsSpecific
 
 pathsToIts_pRel :: PRel -> [[Role]]
 pathsToIts_pRel Absent = []
