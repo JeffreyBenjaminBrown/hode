@@ -30,6 +30,28 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
+** parse more things
+*** TODO next: par
+-- | parse a sequence of phrases punctuated by numbers
+-- (this works)
+pParTest :: Parser ( [(String, Int)], String )
+pParTest = do
+  us <- many unit
+  ap <- try alphaPhrase <|> return ""
+  return (us,ap)
+
+alphaPhrase :: Parser String
+alphaPhrase = lexeme
+  $ concat . intersperse " " <$> some alphaLedIdentifier
+
+unit :: Parser (String,Int)
+unit = try $ do s <- alphaPhrase
+                i <- lexeme $ fromIntegral <$> integer
+                return (s,i)
+*** more
+hmap
+heval
+hdiff, hand, hor
 ** language sketch
 *** DONE a # b ## c # d # e ### f
  More # symbols = higher precedence = listed earlier among Epxr operators.
