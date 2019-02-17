@@ -19,18 +19,18 @@ import           Rslt.RTypes
 import           Util.UParse
 
 
-expr :: Parser PRel
-expr = lexeme $ sc >> _expr
+pExpr :: Parser PRel
+pExpr = lexeme $ sc >> _pExpr
 
-_expr :: Parser PRel
-_expr = eMakeExprParser term
+_pExpr :: Parser PRel
+_pExpr = eMakeExprParser pTerm
  [ [ EInfixL $ try $ pHash n
    ] | n <- [1..8] ]
 
-term :: Parser PRel
-term = PNonRel . PExpr . Word <$> phrase
-       <|> close <$> parens _expr
-       <|> absent
+pTerm :: Parser PRel
+pTerm = PNonRel . PExpr . Word <$> phrase
+        <|> close <$> parens _pExpr
+        <|> pAbsentMember
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
@@ -38,8 +38,9 @@ pHash n = lexeme $ do
   label <- option "" $ identifier <|> parens phrase
   return $ hash n label
 
-absent :: Parser PRel
-absent = const Absent <$> f <?> "Intended to \"find\" nothing."
+pAbsentMember :: Parser PRel
+pAbsentMember = const Absent <$> f
+                <?> "Intended to \"find\" nothing."
   where f = lookAhead $ const () <$> satisfy (== '#') <|> eof
   -- If it finds #, this is an absent leftmost member.
   -- If it finds eof, this is an absent rightmost member.
@@ -48,11 +49,11 @@ absent = const Absent <$> f <?> "Intended to \"find\" nothing."
 
 -- | = parse a PExpr
 
-pExpr :: Parser PExpr
-pExpr = foldl1 (<|>) [ pWord
-                       , pAny
-                       , pVar
-                       , pIt ]
+pPExpr :: Parser PExpr
+pPExpr = foldl1 (<|>) [ pWord
+                      , pAny
+                      , pVar
+                      , pIt ]
 
 pWord :: Parser PExpr
 pWord = lexeme $ phrase >>= return . PExpr . Word
@@ -66,4 +67,4 @@ pVar = do lexeme $ string "/var"
 
 pIt :: Parser PExpr
 pIt = (lexeme (string "/it") >> return (It Nothing))
-  <|> parens (lexeme (string "/it") >> pExpr)
+      <|> parens (lexeme (string "/it") >> pPExpr)

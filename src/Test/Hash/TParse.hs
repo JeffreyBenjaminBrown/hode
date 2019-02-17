@@ -22,12 +22,12 @@ test_module_hash_parse = TestList [
   ]
 
 test_parse_rels = TestCase $ do
-  assertBool "1" $ parse expr "wut" "a b #(w x) c d"
+  assertBool "1" $ parse pExpr "wut" "a b #(w x) c d"
     == Right ( Open 1
                [ pnrWord "a b", pnrWord "c d"]
                [ "w x" ] )
 
-  assertBool "2" $ parse expr "wut" "I #am ##because I #think"
+  assertBool "2" $ parse pExpr "wut" "I #am ##because I #think"
     == Right ( Open 2
                [ Open 1
                  [ pnrWord "I", Absent]
@@ -38,8 +38,8 @@ test_parse_rels = TestCase $ do
                ]
                [ "because" ] )
 
-  assertBool "3" $
-    parse expr "wut" "I #think ##therefore I #am thinking ##so #like yeah man"
+  assertBool "3" $ parse pExpr "wut"
+    "I #think ##therefore I #am thinking ##so #like yeah man"
     == Right ( Open 2 [ Open 1 [ pnrWord "I"
                                , Absent] [ "think"]
                       , Open 1 [ pnrWord "I"
@@ -48,7 +48,7 @@ test_parse_rels = TestCase $ do
                                , pnrWord "yeah man"] [ "like"]]
                [ "therefore", "so"] )
 
-  assertBool "4" $ parse expr "wut"
+  assertBool "4" $ parse pExpr "wut"
     "I #think ##therefore I #am thinking ###so #like yeah man"
     == Right ( Open 3
                [ Open 2
