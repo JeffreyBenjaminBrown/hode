@@ -14,12 +14,28 @@ import Hash.EitherExpr
 import Hash.HParse
 import Hash.HTypes
 import Hash.HUtil
+import Rslt.RTypes
 import Util.UParse
 
 
 test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
+  , TestLabel "test_parse_pExpr" test_parse_pExpr
   ]
+
+test_parse_pExpr = TestCase $ do
+  assertBool "addr" $ parse pAddr "wut" "/addr 34 "
+    == Right (PExpr $ ExprAddr 34)
+  assertBool "word" $ parse pWord "wut" "sammich bagel 1234"
+    == Right (PExpr $ Word "sammich bagel 1234")
+  assertBool "any" $ parse pAny "any" "_ "
+    == Right Any
+  assertBool "var" $ parse pVar "wut" "/var x1 "
+    == Right (PVar "x1")
+  assertBool "it nothing" $ parse pIt "wut" "/it "
+    == Right (It Nothing)
+  assertBool "it $ just _" $ False
+
 
 test_parse_rels = TestCase $ do
   assertBool "1" $ parse pExpr "wut" "a b #(w x) c d"

@@ -68,3 +68,7 @@ pVar = do lexeme $ string "/var"
 pIt :: Parser PExpr
 pIt = (lexeme (string "/it") >> return (It Nothing))
       <|> parens (lexeme (string "/it") >> pPExpr)
+
+pAddr :: Parser PExpr
+pAddr = lexeme (string "/addr")
+        >> PExpr . ExprAddr . fromIntegral <$> integer

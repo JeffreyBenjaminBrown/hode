@@ -34,11 +34,14 @@ integer = lexeme L.decimal
 semi :: Parser String
 semi = symbol ";"
 
-identifier :: Parser String
-identifier = lexeme $ (:) <$> letterChar <*> many alphaNumChar
+alphaLedIdentifier :: Parser String
+alphaLedIdentifier = lexeme $ (:) <$> letterChar <*> many alphaNumChar
   -- `(:) :: Char -> String -> String, and
   -- `letterChar :: Parser Char`, so
   -- `(:) <$> letterChar :: Parser (String -> String)
+
+identifier :: Parser String
+identifier = lexeme $ some alphaNumChar
 
 phrase :: Parser String -- | does not accept the empty string
 phrase = concat . intersperse " " <$> some identifier
