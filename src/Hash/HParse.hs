@@ -19,17 +19,17 @@ import           Rslt.RTypes
 import           Util.UParse
 
 
-pExpr :: Parser PRel
-pExpr = lexeme $ sc >> _pExpr
+pRel :: Parser PRel
+pRel = lexeme $ sc >> _pRel
 
-_pExpr :: Parser PRel
-_pExpr = eMakeExprParser pTerm
+_pRel :: Parser PRel
+_pRel = eMakeExprParser pTerm
  [ [ EInfixL $ try $ pHash n
    ] | n <- [1..8] ]
 
 pTerm :: Parser PRel
 pTerm = PNonRel . PExpr . Word <$> phrase
-        <|> close <$> parens _pExpr
+        <|> close <$> parens _pRel
         <|> pAbsentMember
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -49,8 +49,8 @@ pAbsentMember = const Absent <$> f
 
 -- | = parse a PExpr
 
-pPExpr :: Parser PExpr
-pPExpr = foldl1 (<|>) [ pWord
+pExpr :: Parser PExpr
+pExpr = foldl1 (<|>) [ pWord
                       , pAny
                       , pVar
                       , pIt ]
@@ -67,7 +67,7 @@ pVar = do lexeme $ string "/var"
 
 pIt :: Parser PExpr
 pIt = (lexeme (string "/it") >> return (It Nothing))
-      <|> parens (lexeme (string "/it") >> pPExpr)
+      <|> parens (lexeme (string "/it") >> pExpr)
 
 pAddr :: Parser PExpr
 pAddr = lexeme (string "/addr")
