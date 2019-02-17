@@ -58,6 +58,19 @@ pExpr = foldl1 (<|>)
   , pVar
   , pIt ]
 
+pPar :: Parser PExpr
+pPar = do
+  let maybePhrase :: Parser String
+      maybePhrase = try phrase <|> return ""
+      unit :: Parser (String,PExpr)
+      unit = try $ do p <- maybePhrase
+                      e <- pExpr
+                      return (p,e)
+
+  us <- many unit
+  ap <- maybePhrase
+  return $ PPar us ap
+
 pWord :: Parser PExpr
 pWord = lexeme $ phrase >>= return . PExpr . Word
 

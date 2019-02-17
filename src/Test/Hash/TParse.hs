@@ -40,6 +40,66 @@ test_parse_pExpr = TestCase $ do
                , PNonRel $ PExpr $ Word "b" ]
         [""] ) )
 
+  assertBool "par, simplest" $ parse pPar "wut" "a" == Right
+    (PPar [] "a")
+
+  assertBool "par, balanced, one sub-Expr" $
+    parse pPar "wut" "a (/hash x # y) b"
+    == Right
+    ( PPar [ ( "a"
+             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x"
+                               , PNonRel $ PExpr $ Word "y" ]
+                        [""] ) ) ]
+      "b" )
+
+  assertBool "par, balanced, two sub-Exprs" $
+    ( simplifyPExpr <$>
+      parse pPar "wut" "a a (/hash x x #(j j) y y) b b (/hash z z) c d" )
+    == Right
+    ( PPar [ ( "a a"
+             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
+                               , PNonRel $ PExpr $ Word "y y" ]
+                        ["j j"] ) )
+           , ( "b b", PExpr $ Word "z z" )
+           ]
+      "c d" )
+
+  assertBool "par, left-absent, two sub-Exprs" $
+    ( simplifyPExpr <$>
+      parse pPar "wut" "(/hash x x #(j j) y y) b b (/hash z z) c d" )
+    == Right
+    ( PPar [ ( ""
+             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
+                               , PNonRel $ PExpr $ Word "y y" ]
+                        ["j j"] ) )
+           , ( "b b", PExpr $ Word "z z" )
+           ]
+      "c d" )
+
+  assertBool "par, right-absent, two sub-Exprs" $
+    ( simplifyPExpr <$>
+      parse pPar "wut" "(/hash x x #(j j) y y) b b (/hash z z)" )
+    == Right
+    ( PPar [ ( ""
+             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
+                               , PNonRel $ PExpr $ Word "y y" ]
+                        ["j j"] ) )
+           , ( "b b", PExpr $ Word "z z" )
+           ]
+      "" )
+
+  assertBool "par, middle-absent, two sub-Exprs" $
+    ( simplifyPExpr <$>
+      parse pPar "wut" "(/hash x x #(j j) y y) (/hash z z)" )
+    == Right
+    ( PPar [ ( ""
+             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
+                               , PNonRel $ PExpr $ Word "y y" ]
+                        ["j j"] ) )
+           , ( "", PExpr $ Word "z z" )
+           ]
+      "" )
+
 test_parse_rels = TestCase $ do
   assertBool "1" $ parse pRel "wut" "a b #(w x) c d"
     == Right ( Open 1

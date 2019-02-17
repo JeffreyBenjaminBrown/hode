@@ -24,6 +24,7 @@ data PExpr -- ^ intermediate type, on the way to parsing a `Rel`
   | PVar Var
   | Any
   | It (Maybe PExpr)
+  | PPar [(String,PExpr)] String
   | PRel PRel
    deriving (Eq, Show)
 
