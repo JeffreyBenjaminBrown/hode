@@ -30,21 +30,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
-** TODO ? eventually, may need to test PRels for specificity too
-The assumption is that a `PRel` always refers to something reasonably specific,
-because at the very least the template is determined. But with more language
-features it might not be. (And actually restricting to a certain member will
-in many cases yield fewer matches than restricting to a certain template.)
-
-Currently there exists `pExprIsSpecific`, but no `pRelIsSpecific`.
-  (`pExprToHExpr` calls `pExprIsSpecific` to find whether conversion is possible.)
-  (`pRelToHExpr` calls `pExprIsSpecific` to find which branches to convert.)
-** TODO ? rather than convert PRel to HExpr
--- just convert it to PMap
-pRelToPExpr :: PRel -> Either String PExpr
-pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
-pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
-pRelToPExpr (Closed ms js) =
 ** language sketch
 *** DONE a # b ## c # d # e ### f
  More # symbols = higher precedence = listed earlier among Epxr operators.
@@ -68,6 +53,21 @@ _ #? _ #? _ could be any ternary, etc.
 *** /roles (1, dog)
 Do that to create an HMap.
 #-notation is faster, but cannot express relationships of unknown arity.
+** TODO ? eventually, may need to test PRels for specificity too
+The assumption is that a `PRel` always refers to something reasonably specific,
+because at the very least the template is determined. But with more language
+features it might not be. (And actually restricting to a certain member will
+in many cases yield fewer matches than restricting to a certain template.)
+
+Currently there exists `pExprIsSpecific`, but no `pRelIsSpecific`.
+  (`pExprToHExpr` calls `pExprIsSpecific` to find whether conversion is possible.)
+  (`pRelToHExpr` calls `pExprIsSpecific` to find which branches to convert.)
+** TODO ? rather than convert PRel to HExpr
+-- just convert it to PMap
+pRelToPExpr :: PRel -> Either String PExpr
+pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
+pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
+pRelToPExpr (Closed ms js) =
 ** TODO search for or insert the parsed expression
 * TODO re. Search
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst

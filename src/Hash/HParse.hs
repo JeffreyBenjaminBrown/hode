@@ -28,8 +28,8 @@ _pRel = eMakeExprParser pTerm
    ] | n <- [1..8] ]
 
 pTerm :: Parser PRel
-pTerm = PNonRel . PExpr . Word <$> phrase
-        <|> close <$> parens _pRel
+pTerm = close <$> parens _pRel
+        <|> PNonRel <$> pExpr
         <|> pAbsentMember
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -50,10 +50,13 @@ pAbsentMember = const Absent <$> f
 -- | = parse a PExpr
 
 pExpr :: Parser PExpr
-pExpr = foldl1 (<|>) [ pWord
-                      , pAny
-                      , pVar
-                      , pIt ]
+pExpr = foldl1 (<|>)
+  [ parens pExpr
+  , lexeme (string "/hash") >> PRel <$> pRel
+  , pWord
+  , pAny
+  , pVar
+  , pIt ]
 
 pWord :: Parser PExpr
 pWord = lexeme $ phrase >>= return . PExpr . Word
@@ -66,8 +69,8 @@ pVar = do lexeme $ string "/var"
           identifier >>= return . PVar
 
 pIt :: Parser PExpr
-pIt = (lexeme (string "/it") >> return (It Nothing))
-      <|> parens (lexeme (string "/it") >> pExpr)
+pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
+      <|> (lexeme (string "/it")  >> return (It Nothing))
 
 pAddr :: Parser PExpr
 pAddr = lexeme (string "/addr")

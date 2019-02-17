@@ -34,8 +34,11 @@ test_parse_pExpr = TestCase $ do
     == Right (PVar "x1")
   assertBool "it nothing" $ parse pIt "wut" "/it "
     == Right (It Nothing)
-  assertBool "it $ just _" $ False
-
+  assertBool "it $ just a # b" $ parse pIt "wut" "/it= /hash a # b" == Right
+    ( It $ Just $ PRel
+      ( Open 1 [ PNonRel $ PExpr $ Word "a"
+               , PNonRel $ PExpr $ Word "b" ]
+        [""] ) )
 
 test_parse_rels = TestCase $ do
   assertBool "1" $ parse pRel "wut" "a b #(w x) c d"
