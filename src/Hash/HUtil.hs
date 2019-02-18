@@ -54,6 +54,11 @@ simplifyPExpr x@(PAnd xs) = let
   xs' = map simplifyPExpr xs
   (ands,others) = L.partition (\case PAnd _ -> True; _ -> False) xs'
   in PAnd $ concatMap (\(PAnd x) -> x) ands ++ others
+simplifyPExpr x@(POr xs) = let
+  xs' = map simplifyPExpr xs
+  (ors,others) = L.partition (\case POr _ -> True; _ -> False) xs'
+  in POr $ concatMap (\(POr x) -> x) ors ++ others
+
 -- The rest just map simplification into contents.
 simplifyPExpr x@(PExpr _)     = x
 simplifyPExpr (PMap m)        = PMap $ M.map simplifyPExpr m

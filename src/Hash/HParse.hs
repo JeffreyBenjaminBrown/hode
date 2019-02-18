@@ -25,6 +25,7 @@ _pRel :: Parser PRel
 _pRel = eMakeExprParser pTerm
  [ [ EInfixL $ try $ pHash n
    , EInfixL $ try $ pAnd n
+   , EInfixL $ try $ pOr n
    ] | n <- [1..8] ]
 
 pTerm :: Parser PRel
@@ -42,6 +43,11 @@ pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
   thisMany n '&'
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
+
+pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
+pOr n = lexeme $ do
+  thisMany n '|'
+  return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
 pAbsentMember :: Parser PRel
 pAbsentMember = const Absent <$> f

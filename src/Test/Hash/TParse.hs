@@ -177,3 +177,31 @@ test_parse_rels = TestCase $ do
     $ parse pRel "wut" "a & b && c & d && e"
     == Right ( PNonRel $ PAnd
                $ map (PExpr . Word) ["a", "b", "c", "d", "e"] )
+
+  assertBool "or, 1 levels" $ parse pRel "wut"
+    "a | b"
+    == Right ( PNonRel $ POr [ PExpr $ Word "a"
+                             , PExpr $ Word "b" ] )
+
+  assertBool "or, 2 levels" $ parse pRel "wut"
+    "a | b || c | d"
+    == Right ( PNonRel $ POr $ map (PExpr . Word) ["a","b","c","d"] )
+
+  assertBool "3 levels of &, | and #"
+    $ parse pRel "wut" "a # b && c | d ||| a ## b # c"
+    == Right
+    ( PNonRel
+      ( POr
+        [ PAnd
+          [ PRel
+            ( Open 1
+              [ PNonRel ( PExpr ( Word "a"))
+              , PNonRel ( PExpr ( Word "b"))]
+              [ ""])
+          , POr [ PExpr ( Word "c")
+                , PExpr ( Word "d")]]
+        , PRel ( Open 2 [ PNonRel ( PExpr ( Word "a"))
+                        , Open 1 [ PNonRel ( PExpr ( Word "b"))
+                                 , PNonRel ( PExpr ( Word "c"))]
+                          [ ""]]
+                 [ ""])]))

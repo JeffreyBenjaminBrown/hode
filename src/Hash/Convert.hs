@@ -51,6 +51,9 @@ pExprToHExpr (PVar s)        = Right $ HVar s
 pExprToHExpr (PAnd xs)       = do
   (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map pExprToHExpr xs
   return $ HAnd l
+pExprToHExpr (POr xs)       = do
+  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map pExprToHExpr xs
+  return $ HOr l
 pExprToHExpr (It (Just pnr)) = pExprToHExpr pnr
 pExprToHExpr (PRel pr)       = pRelToHExpr pr
 
@@ -77,6 +80,8 @@ pathsToIts_pExpr (PEval pnr)     = pathsToIts_pExpr pnr
 pathsToIts_pExpr (PVar _)        = []
 pathsToIts_pExpr x@(PAnd _)      =
   error $ "pathsToIts_pExpr: called on PAnd: " ++ show x
+pathsToIts_pExpr x@(POr _)      =
+  error $ "pathsToIts_pExpr: called on POr: " ++ show x
 pathsToIts_pExpr Any             = []
 pathsToIts_pExpr (It Nothing)    = [[]]
   -- the unique way to get to an It from here is to stay still
