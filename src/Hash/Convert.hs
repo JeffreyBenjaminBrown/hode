@@ -19,6 +19,8 @@ import Rslt.RTypes
 import Util.Misc
 
 
+-- | = Building an `HExpr` from a `PExpr`.
+
 pRelToHExpr :: PRel -> Either String HExpr
 pRelToHExpr Absent = Left "pRelToHExpr: cannot convert Absent."
 pRelToHExpr (Open _ ms js) = pRelToHExpr $ Closed ms js
@@ -64,6 +66,9 @@ pMapToHMap :: PMap -> Either String HMap
 pMapToHMap = ifLefts_map "pMapToHMap"
   . M.map pExprToHExpr
   . M.filter pExprIsSpecific
+
+
+-- | = Finding the `It`s for a `PEval` to evaluate.
 
 pathsToIts_pRel :: PRel -> [[Role]]
 pathsToIts_pRel Absent = []

@@ -31,13 +31,11 @@ lookupInsert r ei = do
                             $ lookup r ei
   case mra of
     Just a -> Right (r, a)
-    Nothing -> do
-
-    lookupInsert_rootNotFound r ei
+    Nothing -> lookupInsert_rootNotFound r ei
 
 
--- | `lookupInsert_rootNotFound` is like `lookupInsert`,
--- for the case that the root `RefExpr` has been determined not to be present,
+-- | `lookupInsert_rootNotFound` is like `lookupInsert`, in the case
+-- that the root `RefExpr` has been determined not to be present,
 -- but the others still might be.
 lookupInsert_rootNotFound :: Rslt -> Expr -> Either String (Rslt, Addr)
 lookupInsert_rootNotFound r (Addr a) =
