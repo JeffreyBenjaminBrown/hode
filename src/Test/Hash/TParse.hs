@@ -2,32 +2,38 @@
 
 module Test.Hash.TParse where
 
-import           Control.Monad (void)
-import           Data.List (intersperse)
-import           Data.Void (Void)
+import qualified Data.Map as M
 import           Text.Megaparsec
-import           Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer as L
 import           Test.HUnit
 
-import Hash.EitherExpr
 import Hash.HParse
 import Hash.HTypes
 import Hash.HUtil
 import Rslt.RTypes
-import Util.UParse
 
 
+test_module_hash_parse :: Test
 test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
   , TestLabel "test_parse_pExpr" test_parse_pExpr
   ]
 
+test_parse_pExpr :: Test
 test_parse_pExpr = TestCase $ do
   assertBool "addr" $ parse pAddr "wut" "/addr 34 "
     == Right (Addr 34)
   assertBool "word" $ parse pWord "wut" "sammich bagel 1234"
     == Right (PExpr $ Word "sammich bagel 1234")
+
+  assertBool "map" $ parse pMap "wut"
+    "/map (1 /hash a) (2 /hash b) (tplt sees (whenever there is) because)"
+    == Right
+    ( PMap $ M.fromList
+      [ ( RoleMember 1, PExpr $ Word "a" )
+      , ( RoleMember 2, PExpr $ Word "b" )
+      , ( RoleTplt, PExpr $ Tplt $ map Word
+          ["sees","whenever there is","because"] )
+      ] )
 
   assertBool "any" $ parse pAny "any" "_ "
     == Right Any
@@ -108,6 +114,7 @@ test_parse_pExpr = TestCase $ do
            ]
       "" )
 
+test_parse_rels :: Test
 test_parse_rels = TestCase $ do
   assertBool "1" $ parse pRel "wut" "a b #(w x) c d"
     == Right ( Open 1

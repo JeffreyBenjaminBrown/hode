@@ -87,10 +87,10 @@ pMap = lexeme (string "/map" <|> string "/roles")
        >> PMap . M.fromList <$> some (lexeme $ parens $ pMbr <|> pTplt')
   where
     pTplt', pMbr :: Parser (Role, PExpr)
-    pTplt' = do void $ string "tplt"
+    pTplt' = do void $ lexeme $ string "tplt"
                 t <- _pTplt
                 return ( RoleTplt    , PExpr t )
-    pMbr   = do i <- fromIntegral <$> integer
+    pMbr   = do i <- lexeme $ fromIntegral <$> integer
                 x <- pExpr
                 return ( RoleMember i, x       )
 
@@ -99,7 +99,7 @@ pEval = id  (lexeme (string "/eval") >> PEval <$> pExpr)
 
 pVar :: Parser PExpr
 pVar = do void $ lexeme $ string "/var"
-          identifier >>= return . PVar
+          lexeme identifier >>= return . PVar
 
 pAny :: Parser PExpr
 pAny = lexeme (string "_") >> return Any
