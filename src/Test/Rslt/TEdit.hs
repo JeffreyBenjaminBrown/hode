@@ -31,13 +31,13 @@ test_module_rslt_edit = TestList [
   ]
 
 test_lookupInsert = TestCase $ do
-  assertBool "1" $ R.lookupInsert D.rslt ( Tplt [ ExprAddr 0
-                                                     , ExprAddr 3
-                                                     , ExprAddr 0 ] )
+  assertBool "1" $ R.lookupInsert D.rslt ( Tplt [ Addr 0
+                                                     , Addr 3
+                                                     , Addr 0 ] )
     == Right (D.rslt, 4)
-  assertBool "2" $ R.lookupInsert D.rslt ( Tplt [ ExprAddr 0
-                                                     , ExprAddr 1
-                                                     , ExprAddr 0 ] )
+  assertBool "2" $ R.lookupInsert D.rslt ( Tplt [ Addr 0
+                                                     , Addr 1
+                                                     , Addr 0 ] )
     == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt' [0,1,0]) D.rslt
              , 7 )
 
@@ -53,7 +53,7 @@ test_lookupInsert = TestCase $ do
              , 9 )
 
   assertBool "4" $ R.lookupInsert D.rslt
-    ( Par [ ("The template", Tplt $ map ExprAddr [0,3,0])
+    ( Par [ ("The template", Tplt $ map Addr [0,3,0])
                , ("could use a", Word "taxi") ] "" )
     == Right ( fromRight (error "wut")
                $ R.insertAt 8 (Par' [ ("The template", 4)
@@ -68,11 +68,11 @@ test_lookupInsert = TestCase $ do
                                         , Word "empty" ]
                                ( Tplt [ Word ""
                                            , Word "is"
-                                           , ExprAddr 0 ] )
+                                           , Addr 0 ] )
                              , Word "suck" ]
                     ( Tplt [ Word "That"
                                 , Word "does"
-                                , ExprAddr 0 ] ) )
+                                , Addr 0 ] ) )
     (n16 :: Expr) =
       either (error "wut") id $ refExprAt r a >>= exprFromRefExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"

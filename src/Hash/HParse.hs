@@ -97,4 +97,4 @@ pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
 
 pAddr :: Parser PExpr
 pAddr = lexeme (string "/addr")
-        >> PExpr . ExprAddr . fromIntegral <$> integer
+        >> PExpr . Addr . fromIntegral <$> integer

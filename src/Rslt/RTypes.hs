@@ -22,7 +22,7 @@ data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 -- | = `Expr` is the fundamental type
 
 data Expr =
-    ExprAddr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
+    Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
      -- The other `Expr` constructors are meaningful on their own, but this
     -- one requires some `Rslt` for context.
   | Word String   -- ^ (Could be a phrase too.)
@@ -74,7 +74,7 @@ type RefExprs = Map Addr RefExpr
 -- | An `HExpr` describes a set (maybe empty) of `Expr`s in a `Rslt`.
 data HExpr =
     HExpr  Expr   -- ^ When you want exactly one `Expr`, and know which.
-  -- The `ExprAddr` constructor permits referring to an `Expr` by its `Addr`.
+  -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
   | HMap  HMap -- ^ The search workhorse.
   | HEval HExpr [[Role]] -- ^ Finds matches to the `HMap`, then retrieves
   -- from each match the subexpression each `[Role]` (path) arrives at.

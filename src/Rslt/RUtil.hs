@@ -17,7 +17,7 @@ import Util.Misc
 
 depth :: Expr -> Int
 depth (Word _)     = 0
-depth (ExprAddr _) = 0
+depth (Addr _) = 0
 depth (Rel mems _) = 1 + maximum (map depth mems)
 depth (Tplt mems)  = 0 -- ^ TODO ? consider Tplts with non-Word members
 depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)

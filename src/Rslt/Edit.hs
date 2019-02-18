@@ -40,7 +40,7 @@ lookupInsert r ei = do
 -- for the case that the root `RefExpr` has been determined not to be present,
 -- but the others still might be.
 lookupInsert_rootNotFound :: Rslt -> Expr -> Either String (Rslt, Addr)
-lookupInsert_rootNotFound r (ExprAddr a) =
+lookupInsert_rootNotFound r (Addr a) =
   Left $ "lookupInsert: Addr " ++ show a ++ "not found.\n"
 
 lookupInsert_rootNotFound r (Word w) = do

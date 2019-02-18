@@ -75,14 +75,14 @@ exprFromRefExpr r (Par' sas s) = do
 
 
 eShow :: Rslt -> Expr -> Either String String
-eShow r (ExprAddr a) = do
+eShow r (Addr a) = do
   e <- refExprAt r a
   case e of
     Word' w    ->    eShow r $ Word w
-    Tplt' js   ->    eShow r $ Tplt $ map ExprAddr js
-    Rel' ms t  ->    eShow r $ Rel (map ExprAddr ms) $ ExprAddr t
+    Tplt' js   ->    eShow r $ Tplt $ map Addr js
+    Rel' ms t  ->    eShow r $ Rel (map Addr ms) $ Addr t
     Par' sas s -> let (ss, as) = unzip sas
-                  in eShow r $ Par (zip ss $ map ExprAddr as) s
+                  in eShow r $ Par (zip ss $ map Addr as) s
 
 eShow r (Word w) = Right w
 
@@ -98,7 +98,7 @@ eShow r i@(Rel ms (Tplt js)) = do
     $ map (\(m,j) -> m ++ " " ++ j ++ " ")
     $ zip ("" : mss) jss
 
-eShow r (Rel ms (ExprAddr a)) = do
+eShow r (Rel ms (Addr a)) = do
   (te :: RefExpr) <- prefixLeft "eShow" $ refExprAt r a
   (ti :: Expr)    <- prefixLeft "eShow" $ exprFromRefExpr r te
   eShow r $ Rel ms ti

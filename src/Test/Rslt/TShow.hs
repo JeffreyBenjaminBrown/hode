@@ -30,7 +30,7 @@ test_eShow = TestCase $ do
                                      $ Tplt $ map Word ["","=",""] )
     == Right "a #= b"
   assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Word "cat")
-                                           , (", hello", ExprAddr 1) ]
+                                           , (", hello", Addr 1) ]
                                   ", nice to meet you both." )
     == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
 

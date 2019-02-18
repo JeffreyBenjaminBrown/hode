@@ -114,7 +114,7 @@ lookup x img =
   in case img of
   Word w -> pel $ addrOf x $ Word' w
 
-  ExprAddr a -> pel (refExprAt x a) >>= const (Right a)
+  Addr a -> pel (refExprAt x a) >>= const (Right a)
 
   Tplt is -> do
     mas <- ifLefts "lookup" $ map (lookup x) is

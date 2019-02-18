@@ -29,23 +29,23 @@ test_hLookup = TestCase $ do
     -- One HEval inside another
 
   assertBool "find 2" $ hLookup D.big M.empty
-    ( HExpr $ ExprAddr 2)
+    ( HExpr $ Addr 2)
     == Right ( S.fromList [2] )
 
   assertBool "9 is the only Expr with 2 as member 1"
     $ hLookup D.big M.empty
-    ( HMap $ M.fromList [ ( RoleMember 1, HExpr $ ExprAddr 2) ] )
+    ( HMap $ M.fromList [ ( RoleMember 1, HExpr $ Addr 2) ] )
     == Right ( S.fromList [9] )
 
   assertBool "nothing has 10 as its first member."
     $ hLookup D.big M.empty
-    ( HMap $ M.fromList [ ( RoleMember 1, HExpr $ ExprAddr 10) ] )
+    ( HMap $ M.fromList [ ( RoleMember 1, HExpr $ Addr 10) ] )
     == Right S.empty
 
   assertBool "2 is the first member of the only thing (9) that has 2 as its first member. (Duh.)"
     $ hLookup D.big M.empty
     ( HEval
-      ( HMap $ M.fromList [ (RoleMember 1, HExpr $ ExprAddr 2) ] )
+      ( HMap $ M.fromList [ (RoleMember 1, HExpr $ Addr 2) ] )
       [ [ RoleMember 1 ] ] )
     == Right ( S.fromList [2] )
 
@@ -58,14 +58,14 @@ test_hLookup = TestCase $ do
   assertBool "2 is the first member of the only thing (9) that has 3 as its second member."
     $ hLookup D.big M.empty
     ( HEval
-      ( HMap $ M.fromList [ (RoleMember 2, HExpr $ ExprAddr 3) ] )
+      ( HMap $ M.fromList [ (RoleMember 2, HExpr $ Addr 3) ] )
       [ [ RoleMember 1 ] ] )
     == Right ( S.fromList [2] )
 
   assertBool "9 is the only thing whose first member is 2. The HEval returns 2. 7 is the only thing whose second member is equal to what that HEval returned, so 7 is what the outer HMap returns." $ hLookup D.big M.empty
     ( HMap ( M.singleton (RoleMember 2)
              $ HEval
-             ( HMap $ M.fromList [ (RoleMember 1, HExpr $ ExprAddr 2) ] )
+             ( HMap $ M.fromList [ (RoleMember 1, HExpr $ Addr 2) ] )
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 

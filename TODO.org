@@ -90,7 +90,7 @@ If "brilliant #(is a kind of) bright", I should be able to search for everything
 ** add Expr wrapper for display
 ExprImg = ExprImg Expr | Bracket
 *** Show addresses as numbers?
-  eShow r (ExprAddr a) = Right $ bracket_angle_small_left
+  eShow r (Addr a) = Right $ bracket_angle_small_left
                           : show a ++ [bracket_angle_small_right]
 ** (#fast) isIn ought to return two maps, not a set
  a map from Role to Set Addr

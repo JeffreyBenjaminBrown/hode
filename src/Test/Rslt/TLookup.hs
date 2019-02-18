@@ -31,25 +31,25 @@ test_module_rslt_lookup = TestList [
   ]
 
 test_lookup = TestCase $ do
-  assertBool "1" $ (R.lookup D.rslt $ ExprAddr 0)       == Right 0
+  assertBool "1" $ (R.lookup D.rslt $ Addr 0)       == Right 0
   assertBool "2" $ isLeft
-                 $ (R.lookup D.rslt $ ExprAddr $ -10000)
+                 $ (R.lookup D.rslt $ Addr $ -10000)
   assertBool "3" $ (R.lookup D.rslt $ Word "needs") == Right 3
   assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
                     $ exprFromRefExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
-    R.lookup D.rslt ( Tplt [ ExprAddr 0
+    R.lookup D.rslt ( Tplt [ Addr 0
                                 , Word "needs"
                                 , Word ""] )
 
   assertBool "6" $ Right 5 ==
-    R.lookup D.rslt ( Rel [ ExprAddr 1
+    R.lookup D.rslt ( Rel [ Addr 1
                                , Word "oxygen"]
-                      $ ExprAddr 4 )
+                      $ Addr 4 )
   assertBool "7" $ isLeft $
-    R.lookup D.rslt ( Rel [ ExprAddr 1
+    R.lookup D.rslt ( Rel [ Addr 1
                                , Word "oxygen"]
-                      $ ExprAddr 6 )
+                      $ Addr 6 )
 
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
