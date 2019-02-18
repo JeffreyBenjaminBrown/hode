@@ -40,11 +40,18 @@ test_parse_pExpr = TestCase $ do
                , PNonRel $ PExpr $ Word "b" ]
         [""] ) )
 
-  assertBool "par, simplest" $ parse pPar "wut" "a" == Right
+  assertBool "eval $ just a # b" $ parse pEval "wut" "/eval /hash a # b"
+    == Right
+    ( PEval $ PRel
+      ( Open 1 [ PNonRel $ PExpr $ Word "a"
+               , PNonRel $ PExpr $ Word "b" ]
+        [""] ) )
+
+  assertBool "par, simplest" $ parse pPar "wut" "/par a" == Right
     (PPar [] "a")
 
   assertBool "par, balanced, one sub-Expr" $
-    parse pPar "wut" "a (/hash x # y) b"
+    parse pPar "wut" "/par a (/hash x # y) b"
     == Right
     ( PPar [ ( "a"
              , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x"
@@ -53,8 +60,8 @@ test_parse_pExpr = TestCase $ do
       "b" )
 
   assertBool "par, balanced, two sub-Exprs" $
-    ( simplifyPExpr <$>
-      parse pPar "wut" "a a (/hash x x #(j j) y y) b b (/hash z z) c d" )
+    ( simplifyPExpr <$> parse pPar "wut"
+      "/par a a (/hash x x #(j j) y y) b b (/hash z z) c d" )
     == Right
     ( PPar [ ( "a a"
              , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
@@ -65,8 +72,8 @@ test_parse_pExpr = TestCase $ do
       "c d" )
 
   assertBool "par, left-absent, two sub-Exprs" $
-    ( simplifyPExpr <$>
-      parse pPar "wut" "(/hash x x #(j j) y y) b b (/hash z z) c d" )
+    ( simplifyPExpr <$> parse pPar "wut"
+      "/par (/hash x x #(j j) y y) b b (/hash z z) c d" )
     == Right
     ( PPar [ ( ""
              , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
@@ -77,8 +84,8 @@ test_parse_pExpr = TestCase $ do
       "c d" )
 
   assertBool "par, right-absent, two sub-Exprs" $
-    ( simplifyPExpr <$>
-      parse pPar "wut" "(/hash x x #(j j) y y) b b (/hash z z)" )
+    ( simplifyPExpr <$> parse pPar "wut"
+      "/par (/hash x x #(j j) y y) b b (/hash z z)" )
     == Right
     ( PPar [ ( ""
              , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"
@@ -89,8 +96,8 @@ test_parse_pExpr = TestCase $ do
       "" )
 
   assertBool "par, middle-absent, two sub-Exprs" $
-    ( simplifyPExpr <$>
-      parse pPar "wut" "(/hash x x #(j j) y y) (/hash z z)" )
+    ( simplifyPExpr <$> parse pPar "wut"
+      "/par (/hash x x #(j j) y y) (/hash z z)" )
     == Right
     ( PPar [ ( ""
              , PRel $ ( Open 1 [ PNonRel $ PExpr $ Word "x x"

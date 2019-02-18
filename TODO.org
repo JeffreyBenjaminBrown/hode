@@ -31,7 +31,6 @@ when it ought to be this:
 see the comment leading its definition
 * TODO next: DSL for exprs
 ** parse more things
-*** more
 hmap
 heval
 hdiff, hand, hor

@@ -8,7 +8,7 @@ module Hash.HParse where
 import           Control.Monad (void)
 import           Data.List (intersperse)
 import           Data.Void (Void)
-import           Text.Megaparsec
+import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 
@@ -53,10 +53,16 @@ pExpr :: Parser PExpr
 pExpr = foldl1 (<|>)
   [ parens pExpr
   , lexeme (string "/hash") >> PRel <$> pRel
+  -- the PExpr constructor
+  , pAddr
   , pWord
-  , pAny
+  -- other constructors
+  , pEval
   , pVar
-  , pIt ]
+  , pAny
+  , pIt
+  , pPar
+  ]
 
 pPar :: Parser PExpr
 pPar = do
@@ -67,6 +73,7 @@ pPar = do
                       e <- pExpr
                       return (p,e)
 
+  void $ lexeme $ string "/par"
   us <- many unit
   ap <- maybePhrase
   return $ PPar us ap
@@ -77,8 +84,11 @@ pWord = lexeme $ phrase >>= return . PExpr . Word
 pAny :: Parser PExpr
 pAny = lexeme (string "_") >> return Any
 
+pEval :: Parser PExpr
+pEval = id  (lexeme (string "/eval") >> PEval <$> pExpr)
+
 pVar :: Parser PExpr
-pVar = do lexeme $ string "/var"
+pVar = do void $ lexeme $ string "/var"
           identifier >>= return . PVar
 
 pIt :: Parser PExpr
