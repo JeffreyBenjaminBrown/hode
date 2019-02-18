@@ -32,7 +32,6 @@ see the comment leading its definition
 * TODO next: DSL for exprs
 ** parse more things
 hmap
-heval
 hdiff, hand, hor
 ** language sketch
 *** DONE a # b ## c # d # e ### f

@@ -52,17 +52,38 @@ pAbsentMember = const Absent <$> f
 pExpr :: Parser PExpr
 pExpr = foldl1 (<|>)
   [ parens pExpr
-  , lexeme (string "/hash") >> PRel <$> pRel
-  -- the PExpr constructor
+ -- the PExpr constructor
   , pAddr
   , pWord
-  -- other constructors
+ -- other constructors
   , pEval
   , pVar
   , pAny
   , pIt
   , pPar
+  , lexeme (string "/hash") >> PRel <$> pRel
   ]
+
+pAddr :: Parser PExpr
+pAddr = lexeme (string "/addr")
+        >> PExpr . Addr . fromIntegral <$> integer
+
+pWord :: Parser PExpr
+pWord = lexeme $ phrase >>= return . PExpr . Word
+
+pEval :: Parser PExpr
+pEval = id  (lexeme (string "/eval") >> PEval <$> pExpr)
+
+pVar :: Parser PExpr
+pVar = do void $ lexeme $ string "/var"
+          identifier >>= return . PVar
+
+pAny :: Parser PExpr
+pAny = lexeme (string "_") >> return Any
+
+pIt :: Parser PExpr
+pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
+      <|> (lexeme (string "/it")  >> return (It Nothing))
 
 pPar :: Parser PExpr
 pPar = do
@@ -77,24 +98,3 @@ pPar = do
   us <- many unit
   ap <- maybePhrase
   return $ PPar us ap
-
-pWord :: Parser PExpr
-pWord = lexeme $ phrase >>= return . PExpr . Word
-
-pAny :: Parser PExpr
-pAny = lexeme (string "_") >> return Any
-
-pEval :: Parser PExpr
-pEval = id  (lexeme (string "/eval") >> PEval <$> pExpr)
-
-pVar :: Parser PExpr
-pVar = do void $ lexeme $ string "/var"
-          identifier >>= return . PVar
-
-pIt :: Parser PExpr
-pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
-      <|> (lexeme (string "/it")  >> return (It Nothing))
-
-pAddr :: Parser PExpr
-pAddr = lexeme (string "/addr")
-        >> PExpr . Addr . fromIntegral <$> integer
