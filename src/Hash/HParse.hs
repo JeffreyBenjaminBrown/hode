@@ -6,21 +6,20 @@
 module Hash.HParse where
 
 import           Control.Monad (void)
-import           Data.List (intersperse)
-import           Data.Void (Void)
+import qualified Data.Map as M
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer as L
 
 import           Hash.EitherExpr
 import           Hash.Hash
 import           Hash.HTypes
+import           Hash.HUtil
 import           Rslt.RTypes
 import           Util.UParse
 
 
 pRel :: Parser PRel
-pRel = lexeme $ sc >> _pRel
+pRel = lexeme $ sc >> simplifyPRel <$> _pRel
 
 _pRel :: Parser PRel
 _pRel = eMakeExprParser pTerm
@@ -50,26 +49,50 @@ pAbsentMember = const Absent <$> f
 -- | = parse a PExpr
 
 pExpr :: Parser PExpr
-pExpr = foldl1 (<|>)
-  [ parens pExpr
- -- the PExpr constructor
-  , pAddr
-  , pWord
- -- other constructors
-  , pEval
-  , pVar
-  , pAny
-  , pIt
-  , pPar
-  , lexeme (string "/hash") >> PRel <$> pRel
-  ]
+pExpr = simplifyPExpr <$>
+  ( foldl1 (<|>)
+    [ parens pExpr
 
-pAddr :: Parser PExpr
+  -- the PExpr constructor
+    , PExpr <$> pAddr
+    , pWord -- not really necessary -- could use /hash instead
+    , PExpr <$> pTplt
+
+  -- other constructors
+    , pMap
+    , pEval
+    , pVar
+    , pAny
+    , pIt
+    , pPar
+    , lexeme (string "/hash") >> PRel <$> pRel
+  ] )
+
+pAddr :: Parser Expr
 pAddr = lexeme (string "/addr")
-        >> PExpr . Addr . fromIntegral <$> integer
+        >> Addr . fromIntegral <$> integer
 
 pWord :: Parser PExpr
 pWord = lexeme $ phrase >>= return . PExpr . Word
+
+pTplt :: Parser Expr
+pTplt = lexeme (string "/tplt") >> _pTplt
+
+_pTplt :: Parser Expr
+_pTplt = lexeme $ Tplt . map Word
+         <$> some (identifier <|> parens phrase)
+
+pMap :: Parser PExpr
+pMap = lexeme (string "/map" <|> string "/roles")
+       >> PMap . M.fromList <$> some (lexeme $ parens $ pMbr <|> pTplt')
+  where
+    pTplt', pMbr :: Parser (Role, PExpr)
+    pTplt' = do void $ string "tplt"
+                t <- _pTplt
+                return ( RoleTplt    , PExpr t )
+    pMbr   = do i <- fromIntegral <$> integer
+                x <- pExpr
+                return ( RoleMember i, x       )
 
 pEval :: Parser PExpr
 pEval = id  (lexeme (string "/eval") >> PEval <$> pExpr)

@@ -25,9 +25,10 @@ test_module_hash_parse = TestList [
 
 test_parse_pExpr = TestCase $ do
   assertBool "addr" $ parse pAddr "wut" "/addr 34 "
-    == Right (PExpr $ Addr 34)
+    == Right (Addr 34)
   assertBool "word" $ parse pWord "wut" "sammich bagel 1234"
     == Right (PExpr $ Word "sammich bagel 1234")
+
   assertBool "any" $ parse pAny "any" "_ "
     == Right Any
   assertBool "var" $ parse pVar "wut" "/var x1 "
