@@ -154,7 +154,12 @@ test_parse_rels = TestCase $ do
                  [ "like"] ]
                [ "so" ] )
 
-  assertBool "and, 0 levels" $ parse pRel "wut"
+  assertBool "\\, 1 level" $ parse pRel "wut"
+    "a \\ b"
+    == Right ( PNonRel $ PDiff ( PExpr $ Word "a" )
+                               ( PExpr $ Word "b" ) )
+
+  assertBool "&, 1 level" $ parse pRel "wut"
     "a & b"
     == Right ( PNonRel $ PAnd [ PExpr $ Word "a"
                               , PExpr $ Word "b" ] )
@@ -205,3 +210,16 @@ test_parse_rels = TestCase $ do
                                  , PNonRel ( PExpr ( Word "c"))]
                           [ ""]]
                  [ ""])]))
+
+  assertBool "3 levels of \\, &, | and #, where the L in EInfixL matters"
+    $ parse pRel "wut" "a # b \\\\ c | d ||| a && b \\\\ c"
+    == Right
+    ( PNonRel ( POr [ PDiff ( PRel ( Open 1
+                                     [ PNonRel $ PExpr $ Word "a"
+                                     , PNonRel $ PExpr $ Word "b" ]
+                                     [""] ) )
+                      ( POr [ PExpr $ Word "c"
+                            , PExpr $ Word "d" ] )
+                    , PDiff ( PAnd [ PExpr $ Word "a"
+                                   , PExpr $ Word "b" ] )
+                      ( PExpr $ Word "c" ) ] ) )

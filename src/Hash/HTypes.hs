@@ -22,6 +22,7 @@ data PExpr -- ^ intermediate type, on the way to parsing a `Rel`
   | PMap PMap
   | PEval PExpr
   | PVar Var
+  | PDiff PExpr PExpr
   | PAnd [PExpr]
   | POr [PExpr]
   | Any

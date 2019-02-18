@@ -50,6 +50,7 @@ simplifyPRel (Closed xs js) = Closed (map simplifyPRel xs) js
 simplifyPExpr :: PExpr -> PExpr
  -- These are the simplifications.
 simplifyPExpr (PRel (PNonRel pnr)) = simplifyPExpr pnr
+simplifyPExpr (PDiff a b) = PDiff (simplifyPExpr a) (simplifyPExpr b)
 simplifyPExpr x@(PAnd xs) = let
   xs' = map simplifyPExpr xs
   (ands,others) = L.partition (\case PAnd _ -> True; _ -> False) xs'
