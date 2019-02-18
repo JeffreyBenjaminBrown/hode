@@ -21,7 +21,6 @@ If a=1 or a=2 can both lead to b=1, it's tempting to write this:
     M.fromList [ (a, ...)
                , (b, M.fromList [ (1, S.singleton $ M.singleton a 1)
                                 , (1, S.singleton $ M.singleton a 2) ] ) ]
-
 when it ought to be this:
   (p :: Possible) =
     M.fromList [ (a, ...)
@@ -30,6 +29,22 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
+** TODO pExprIsSpecific should address PDiff, PAnd, POr
+*** where it is used
+ In pRelToHExpr, only specific things can be converted.
+ In pMapToHMap, only specific things are retained.
+*** how to do it, I think
+ if anything in a POr is not specific, then it is not
+ if anything in a PAnd is specific, then it is
+ if both parts of a Diff are specific, then it is
+   Theoretically, the part being subtracted could be vague.
+   But that's not how it's implemented -- both parts have to be found,
+   then the one is subtracted from the other.
+** TODO search for or insert the parsed expression
+** TODO pathsToIts_pExpr called on PAnd, POr, PDiff
+** TODO Parse more characters.
+Escape a / by preceding it with another one.
+Escape parens with a leading /. Escaping the trailing paren could be optional.
 ** DONE language sketch
 *** DONE a # b ## c # d # e ### f
  More # symbols = higher precedence = listed earlier among Epxr operators.
@@ -48,30 +63,26 @@ _ means "anything could go here".
 *** DONE /roles (1, dog)
 Do that to create an HMap.
 #-notation is faster, but cannot express relationships of unknown arity.
-** TODO search for or insert the parsed expression
-** TODO pathsToIts_pExpr called on PAnd, POr, PDiff
-** TODO Parse more characters.
-Escape a / by preceding it with another one.
-Escape parens with a leading /. Escaping the trailing paren could be optional.
-** TODO ? _ #? _
-_ #? _ means it could be any kind of binary relationship template.
-_ #? _ #? _ could be any ternary, etc.
-** TODO ? eventually, may need to test PRels for specificity too
-The assumption is that a `PRel` always refers to something reasonably specific,
-because at the very least the template is determined. But with more language
-features it might not be. (And actually restricting to a certain member will
-in many cases yield fewer matches than restricting to a certain template.)
+** TODO maybe
+*** TODO ? _ #? _
+ _ #? _ means it could be any kind of binary relationship template.
+ _ #? _ #? _ could be any ternary, etc.
+*** TODO ? eventually, may need to test PRels for specificity too
+ The assumption is that a `PRel` always refers to something reasonably specific,
+ because at the very least the template is determined. But with more language
+ features it might not be. (And actually restricting to a certain member will
+ in many cases yield fewer matches than restricting to a certain template.)
 
-Currently there exists `pExprIsSpecific`, but no `pRelIsSpecific`.
-  (`pExprToHExpr` calls `pExprIsSpecific` to find whether conversion is possible.)
-  (`pRelToHExpr` calls `pExprIsSpecific` to find which branches to convert.)
-** TODO ? rather than convert PRel to HExpr
--- just convert it to PMap
-pRelToPExpr :: PRel -> Either String PExpr
-pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
-pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
-pRelToPExpr (Closed ms js) =
-** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
+ Currently there exists `pExprIsSpecific`, but no `pRelIsSpecific`.
+   (`pExprToHExpr` calls `pExprIsSpecific` to find whether conversion is possible.)
+   (`pRelToHExpr` calls `pExprIsSpecific` to find which branches to convert.)
+*** TODO ? rather than convert PRel to HExpr
+ -- just convert it to PMap
+ pRelToPExpr :: PRel -> Either String PExpr
+ pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
+ pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
+ pRelToPExpr (Closed ms js) =
+*** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
 
 * TODO re. Search
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
@@ -83,7 +94,6 @@ Example (for a singleton Subst): define "ancestors-via-is" as a function of a Va
 *** TODO why it's tricky
  It would require introducing a type for checking input-output relationships.
  Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
-
 * TODO re. Rslt
 ** TODO : recursive "is", using "is a kind of"
 If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
@@ -100,6 +110,9 @@ ExprImg = ExprImg Expr | Bracket
    multiple Roles within the same Expr
 ** ? To avoid redundant tree-climbing
  Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
+* TODO a language for views
+* TODO a language for equivalence
+* TODO automate edits ("do _ to everything that satisfies _")
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
@@ -195,13 +208,11 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
  Y <- children of Malox
  W <- X or Y
  Z <- for some W, Z knows W
-
 *** The first (problematic) query should be valid
 *** But in that case certian result requests are meaningless
  The user cannot ask for X(Z) or Y(Z).
 *** Only common dependencies survive disjunction
  When taking the disjunction of two queries, retain any variable dependencies that are defined for every member of the disjunction. So, for instance, if one query is dependent on nothing, then no variable dependencies will be recorded.
-
 *** A simple solution
  In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 ** temporary user burdens: query order, dependency validity
