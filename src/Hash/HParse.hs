@@ -24,6 +24,7 @@ pRel = lexeme $ sc >> simplifyPRel <$> _pRel
 _pRel :: Parser PRel
 _pRel = eMakeExprParser pTerm
  [ [ EInfixL $ try $ pHash n
+   , EInfixL $ try $ pAnd n
    ] | n <- [1..8] ]
 
 pTerm :: Parser PRel
@@ -36,6 +37,11 @@ pHash n = lexeme $ do
   thisMany n '#'
   label <- option "" $ identifier <|> parens phrase
   return $ hash n label
+
+pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
+pAnd n = lexeme $ do
+  thisMany n '&'
+  return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pAbsentMember :: Parser PRel
 pAbsentMember = const Absent <$> f

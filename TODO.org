@@ -30,8 +30,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next: DSL for exprs
+** TODO pathsToIts_pExpr PAnd
 ** parse more things
-hmap
 hdiff, hand, hor
 ** language sketch
 *** DONE a # b ## c # d # e ### f
@@ -56,6 +56,7 @@ _ #? _ #? _ could be any ternary, etc.
 *** /roles (1, dog)
 Do that to create an HMap.
 #-notation is faster, but cannot express relationships of unknown arity.
+** TODO search for or insert the parsed expression
 ** TODO ? eventually, may need to test PRels for specificity too
 The assumption is that a `PRel` always refers to something reasonably specific,
 because at the very least the template is determined. But with more language
@@ -71,7 +72,8 @@ pRelToPExpr :: PRel -> Either String PExpr
 pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
 pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
 pRelToPExpr (Closed ms js) =
-** TODO search for or insert the parsed expression
+** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
+
 * TODO re. Search
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs

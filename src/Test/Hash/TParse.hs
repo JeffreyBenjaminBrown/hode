@@ -116,12 +116,12 @@ test_parse_pExpr = TestCase $ do
 
 test_parse_rels :: Test
 test_parse_rels = TestCase $ do
-  assertBool "1" $ parse pRel "wut" "a b #(w x) c d"
+  assertBool "1 level" $ parse pRel "wut" "a b #(w x) c d"
     == Right ( Open 1
                [ pnrWord "a b", pnrWord "c d"]
                [ "w x" ] )
 
-  assertBool "2" $ parse pRel "wut" "I #am ##because I #think"
+  assertBool "1 level 2 joints" $ parse pRel "wut" "I #am ##because I #think"
     == Right ( Open 2
                [ Open 1
                  [ pnrWord "I", Absent]
@@ -132,7 +132,7 @@ test_parse_rels = TestCase $ do
                ]
                [ "because" ] )
 
-  assertBool "3" $ parse pRel "wut"
+  assertBool "2 levels 2 joints" $ parse pRel "wut"
     "I #think ##therefore I #am thinking ##so #like yeah man"
     == Right ( Open 2 [ Open 1 [ pnrWord "I"
                                , Absent] [ "think"]
@@ -142,7 +142,7 @@ test_parse_rels = TestCase $ do
                                , pnrWord "yeah man"] [ "like"]]
                [ "therefore", "so"] )
 
-  assertBool "4" $ parse pRel "wut"
+  assertBool "3 levels" $ parse pRel "wut"
     "I #think ##therefore I #am thinking ###so #like yeah man"
     == Right ( Open 3
                [ Open 2
@@ -153,3 +153,27 @@ test_parse_rels = TestCase $ do
                , Open 1 [ Absent, pnrWord "yeah man"]
                  [ "like"] ]
                [ "so" ] )
+
+  assertBool "and, 0 levels" $ parse pRel "wut"
+    "a & b"
+    == Right ( PNonRel $ PAnd [ PExpr $ Word "a"
+                              , PExpr $ Word "b" ] )
+
+  assertBool "& under #, 1 level" $ parse pRel "wut" "a & b ## c"
+    == Right
+    ( Open 2 [ PNonRel $ PAnd [ PExpr $ Word "a"
+                              , PExpr $ Word "b" ]
+             , PNonRel $ PExpr $ Word "c" ]
+      [""] )
+
+  assertBool "& over #, 1 level" $ parse pRel "wut" "a && b # c"
+    == Right
+    ( PNonRel $ PAnd [ PExpr $ Word "a"
+                     , PRel $ Open 1 [ PNonRel $ PExpr $ Word "b"
+                                     , PNonRel $ PExpr $ Word "c" ]
+                       [""] ] )
+
+  assertBool "2 levels of &, arities 2 and 3"
+    $ parse pRel "wut" "a & b && c & d && e"
+    == Right ( PNonRel $ PAnd
+               $ map (PExpr . Word) ["a", "b", "c", "d", "e"] )

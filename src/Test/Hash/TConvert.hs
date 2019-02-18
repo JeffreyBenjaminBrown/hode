@@ -17,7 +17,8 @@ import Rslt.RTypes
 
 
 test_module_hash_convert = TestList [
-    TestLabel "test_pRelToHExpr" test_pRelToHExpr
+    TestLabel "test_simplifyPExpr" test_simplifyPExpr
+  , TestLabel "test_pRelToHExpr" test_pRelToHExpr
   , TestLabel "test_pExprToHExpr" test_pExprToHExpr
   ]
 
@@ -77,3 +78,12 @@ test_pExprToHExpr = TestCase $ do
                                      $ HExpr $ Word "bugs" ),
                      ( RoleMember 2, HExpr $ Word "sassafras" ) ] )
                  [ [ RoleMember 1, RoleMember 2 ] ] )
+
+test_simplifyPExpr :: Test
+test_simplifyPExpr = TestCase $ do
+  assertBool "1" $
+    simplifyPExpr ( PAnd [ PAnd [ PAnd [ PExpr $ Word "a"
+                                       , PExpr $ Word "b" ]
+                         , PAnd [ PAnd [ PExpr $ Word "c"
+                                       , PExpr $ Word "d" ] ] ] ] )
+    == PAnd (map (PExpr . Word) ["a","b","c","d"] )

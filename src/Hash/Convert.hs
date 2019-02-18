@@ -48,6 +48,9 @@ pExprToHExpr (PEval pnr)     = do
   (x :: HExpr)  <- pExprToHExpr pnr
   Right $ HEval x $ pathsToIts_pExpr pnr
 pExprToHExpr (PVar s)        = Right $ HVar s
+pExprToHExpr (PAnd xs)       = do
+  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map pExprToHExpr xs
+  return $ HAnd l
 pExprToHExpr (It (Just pnr)) = pExprToHExpr pnr
 pExprToHExpr (PRel pr)       = pRelToHExpr pr
 
@@ -66,14 +69,16 @@ pathsToIts_pRel (Closed ms _) = let
 pathsToIts_pRel (Open _ ms js) = pathsToIts_pRel $ Closed ms js
 
 pathsToIts_pExpr :: PExpr -> [[Role]]
-pathsToIts_pExpr (PExpr _) = []
-pathsToIts_pExpr (PMap m) =
+pathsToIts_pExpr (PExpr _)       = []
+pathsToIts_pExpr (PMap m)        =
   concatMap (\(role, paths) -> map ((:) role) paths) $ M.toList
   $ M.map pathsToIts_pExpr m
-pathsToIts_pExpr (PEval pnr) = pathsToIts_pExpr pnr
-pathsToIts_pExpr (PVar _)  = []
-pathsToIts_pExpr Any       = []
-pathsToIts_pExpr (It Nothing) = [[]]
+pathsToIts_pExpr (PEval pnr)     = pathsToIts_pExpr pnr
+pathsToIts_pExpr (PVar _)        = []
+pathsToIts_pExpr x@(PAnd _)      =
+  error $ "pathsToIts_pExpr: called on PAnd: " ++ show x
+pathsToIts_pExpr Any             = []
+pathsToIts_pExpr (It Nothing)    = [[]]
   -- the unique way to get to an It from here is to stay still
 pathsToIts_pExpr (It (Just pnr)) = [] : pathsToIts_pExpr pnr
-pathsToIts_pExpr (PRel pr) = pathsToIts_pRel pr
+pathsToIts_pExpr (PRel pr)       = pathsToIts_pRel pr

@@ -1,10 +1,12 @@
 -- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
 
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Hash.HUtil where
 
+import qualified Data.List      as L
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -46,6 +48,13 @@ simplifyPRel (Open l xs js) = Open l (map simplifyPRel xs) js
 simplifyPRel (Closed xs js) = Closed (map simplifyPRel xs) js
 
 simplifyPExpr :: PExpr -> PExpr
+ -- These are the simplifications.
+simplifyPExpr (PRel (PNonRel pnr)) = simplifyPExpr pnr
+simplifyPExpr x@(PAnd xs) = let
+  xs' = map simplifyPExpr xs
+  (ands,others) = L.partition (\case PAnd _ -> True; _ -> False) xs'
+  in PAnd $ concatMap (\(PAnd x) -> x) ands ++ others
+-- The rest just map simplification into contents.
 simplifyPExpr x@(PExpr _)     = x
 simplifyPExpr (PMap m)        = PMap $ M.map simplifyPExpr m
 simplifyPExpr (PEval x)       = PEval $ simplifyPExpr x
@@ -57,5 +66,4 @@ simplifyPExpr (PPar pairs s) = let
   (ss,xs) = unzip pairs
   xs' = map simplifyPExpr xs
   in PPar (zip ss xs') s
-simplifyPExpr (PRel (PNonRel pnr)) = simplifyPExpr pnr -- the simplification
 simplifyPExpr (PRel pr) = PRel $ simplifyPRel pr
