@@ -137,6 +137,14 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** redundant cases should be last among definitions
+example: In this:
+    pExprToHExpr :: PExpr -> Either String HExpr
+    pExprToHExpr px@(pExprIsSpecific -> False) = Left
+      $ "pExprToHExpr: " ++ show px ++ " is not specific enough."
+    pExprToHExpr Any =
+      Left $ "pExprToHExpr: Any is not specific enough."
+I only wrote the Any case to make GHCI not issue a warning. It should come last.
 ** use lists in some places for fusion, short-circuiting, instead of maps, sets
 Example: mapping over a map, and then looking for lefts, is slower than turning the map into a list, mapping over the list, and short-circuiting at the first Left.
 hLookup (the Hash language find routine) called on the HMap constructor, for instance, does this.

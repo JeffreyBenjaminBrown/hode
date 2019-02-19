@@ -39,4 +39,3 @@ data PRel -- ^ intermediate type, on the way to parsing a `Rel`
    -- might be inserted into it.
    | PNonRel PExpr
    deriving (Eq, Show)
-

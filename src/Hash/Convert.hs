@@ -39,10 +39,6 @@ pRelToHExpr (PNonRel pn) = pExprToHExpr pn
 pExprToHExpr :: PExpr -> Either String HExpr
 pExprToHExpr px@(pExprIsSpecific -> False) = Left
   $ "pExprToHExpr: " ++ show px ++ " is not specific enough."
-pExprToHExpr Any =
-  Left $ "pExprToHExpr: Any is not specific enough."
-pExprToHExpr (It Nothing) = Left
-  $ "pExprToHExpr: It (Nothing) is not specific enough."
 
 pExprToHExpr (PExpr s)       = Right $ HExpr s
 pExprToHExpr (PMap m)        = HMap <$> pMapToHMap m
@@ -61,6 +57,13 @@ pExprToHExpr (POr xs)       = do
   return $ HOr l
 pExprToHExpr (It (Just pnr)) = pExprToHExpr pnr
 pExprToHExpr (PRel pr)       = pRelToHExpr pr
+
+-- These redundant checks (to keep GHCI from warning me) should come last.
+pExprToHExpr Any =
+  Left $ "pExprToHExpr: Any is not specific enough."
+pExprToHExpr (It Nothing) = Left
+  $ "pExprToHExpr: It (Nothing) is not specific enough."
+
 
 pMapToHMap :: PMap -> Either String HMap
 pMapToHMap = ifLefts_map "pMapToHMap"

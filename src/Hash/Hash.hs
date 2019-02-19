@@ -42,6 +42,7 @@ hash l j -- ignore non-exhaustive error
   a@(isOpen -> False)
   b@(isOpen -> False)
   = startOpen l j a b
+
 hash l j
   a@(Open l' _ _)
   b@(isOpen -> False)
@@ -50,6 +51,7 @@ hash l j
               ++ ": higher level should not have been evaluated first."
   | l == l' = mergeIntoLeft j a b
   | l > l'  = startOpen l j a b
+
 hash l j
   a@(isOpen -> False)
   b@(Open l' _ _)
@@ -58,16 +60,29 @@ hash l j
               ++ ": higher level should not have been evaluated first."
   | l == l' = mergeIntoRight j a b
   | l > l'  = startOpen l j a b
+
+-- The guards in this definition omit a few possibilities,
+-- but I don't think they are reachable.
 hash l j
   a@(Open la _ _)
   b@(Open lb _ _)
-  | l < (min la lb)  = Left
+  | l < (min la lb) = Left
     $ "hash, with args l=" ++ show l ++ ", j=" ++ show j
     ++ ", a=" ++ show a ++ ", b=" ++ show b
     ++ ": higher level should not have been evaluated first."
-  | l == la          = mergeIntoLeft j a b
-  | l == lb          = mergeIntoRight j a b
-  | l > (max la lb)  = startOpen l j a b
+  | l == la         = mergeIntoLeft j a b
+  | l == lb         = mergeIntoRight j a b
+  | l > (max la lb) = startOpen l j a b
+
+-- These redundant checks (to keep GHCI from warning me) should come last.
+hash _ _ (Open _ _ _) (Open _ _ _) = error "seems impossible."
+hash _ _ Absent _                  = error "impossible."
+hash _ _ _ Absent                  = error "impossible."
+hash _ _ (Closed _ _) _            = error "impossible."
+hash _ _ _ (Closed _ _)            = error "impossible."
+hash _ _ (PNonRel _) _             = error "impossible."
+hash _ _ _ (PNonRel _)             = error "impossible."
+
 
 mergeIntoLeft :: Joint -> PRel -> PRel -> Either String PRel
 mergeIntoLeft j (Open l mbrs joints) pr =
@@ -81,14 +96,17 @@ mergeIntoRight j pr (Open l mbrs joints) =
 mergeIntoRight _ _ pr = Left $ "mergeIntoRight: PRel " ++ show pr
   ++ " cannot receive more (if Closed) or any (if Leaf or Absent) members."
 
+
 startOpen :: Level -> Joint -> PRel -> PRel -> Either String PRel
 startOpen _ _ Absent Absent =
   Left $ "startOpen called with two Absent members."
 startOpen l j a b = Right $ Open l [a,b] [j]
 
+
 isOpen :: PRel -> Bool
 isOpen (Open _ _ _) = True
 isOpen _            = False
+
 
 close :: PRel -> PRel
 close (Open _ mbrs js) = Closed mbrs js
