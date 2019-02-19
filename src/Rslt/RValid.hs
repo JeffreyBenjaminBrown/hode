@@ -5,8 +5,6 @@ module Rslt.RValid where
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
---import           Data.Set (Set)
---import qualified Data.Set       as S
 import           Data.Functor (void)
 
 import Rslt.Lookup
@@ -17,8 +15,15 @@ import Util.Misc
 
 -- | == Check an `Expr`
 
---validExpr :: Rslt -> Expr -> Either String ()
---validExpr r (Addr a) = 
+validExpr :: Rslt -> Expr -> Either String ()
+validExpr r (Addr a) = allAddrsPresent r [a]
+validExpr _ (Word _) = Right ()
+--validExpr r rel@(Rel ms t) =
+--  ( ifLefts ("validExpr call on Rel" ++ show rel)
+--    $ map (validExpr r) $ t : ms )
+validExpr r (Par pairs _) =
+  ( ifLefts "validExpr call on a Par"
+    $ map (validExpr r) $ map snd pairs ) >> return ()
 
 
 -- | == Check a `RefExpr`
@@ -94,7 +99,7 @@ relsWithoutMatchingTplts r = res where
   relMatchesTpltArity e@(Rel' _ t) = case M.lookup t $ _variety r of
     Nothing         -> False
     Just (ctr, art) -> case ctr of
-      TpltCtr -> arity e == art
+      TpltCtr -> refExprArity e == art
       _       -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
@@ -109,4 +114,3 @@ allAddrsPresent :: Rslt -> [Addr] -> Either String ()
 allAddrsPresent r as = do
   void $ ifLefts "allAddrsPresent: " $ map (refExprAt r) as
   Right ()
-

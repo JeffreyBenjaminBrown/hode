@@ -4,10 +4,7 @@ module Test.Rslt.THash where
 
 import           Prelude hiding (lookup)
 import           Data.Either
---import           Data.Maybe (isNothing)
---import           Data.Map (Map)
 import qualified Data.Map       as M
---import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit
 
@@ -15,7 +12,6 @@ import Rslt.Edit
 import Rslt.RTypes
 import Rslt.Lookup
 import qualified Test.Rslt.RData as D
---import Util.Misc
 
 
 test_module_rslt_hash :: Test

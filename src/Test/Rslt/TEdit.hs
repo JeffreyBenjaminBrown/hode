@@ -3,23 +3,17 @@
 module Test.Rslt.TEdit where
 
 import           Data.Either
---import           Data.List
---import           Data.Map (Map)
 import qualified Data.Map       as M
---import           Data.Maybe
---import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit
 
 import           Rslt.Lookup hiding (lookup)
 import qualified Rslt.Edit as R
 import           Rslt.Index
---import qualified Rslt.Lookup as R
 import           Rslt.RTypes
 import           Rslt.RValid
 import           Rslt.Show
 import qualified Test.Rslt.RData as D
---import           Util.Misc
 
 
 test_module_rslt_edit :: Test

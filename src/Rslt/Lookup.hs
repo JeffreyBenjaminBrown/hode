@@ -144,6 +144,18 @@ variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
 variety r a = maybe err Right $ M.lookup a $ _variety r
   where err = Left $ "variety: Addr " ++ show a ++ " not found.\n"
 
+arity :: Rslt -> Expr -> Either String Arity
+arity r (Addr a)  = snd <$> variety r a
+arity _ w@(Word _)  = Right 0
+arity r (Rel ms t) = do
+  ta <- arity r t
+  if ta == length ms then Right ta
+    else Left $ "arity: Rel Tplt " ++ show t
+         ++ " does not match number of Rel members " ++ show ms ++ ".\n"
+arity _ (Tplt x)  = Right $ length x - 1
+arity _ (Par x _) = Right $ length x
+
+
 -- | `has r a` finds the expression e at a in r, and returns
 -- every position contained in e.
 has :: Rslt -> Addr -> Either String (Map Role Addr)

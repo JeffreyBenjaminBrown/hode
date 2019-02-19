@@ -26,15 +26,15 @@ depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)
 
 refExprVariety :: RefExpr -> (ExprCtr, Arity)
 refExprVariety   (Word'  _) = (WordCtr, 0)
-refExprVariety e@(Tplt'  _) = (TpltCtr, arity e)
-refExprVariety e@(Rel' _ _) = (RelCtr , arity e)
-refExprVariety e@(Par' _ _) = (ParCtr , arity e)
+refExprVariety e@(Tplt'  _) = (TpltCtr, refExprArity e)
+refExprVariety e@(Rel' _ _) = (RelCtr , refExprArity e)
+refExprVariety e@(Par' _ _) = (ParCtr , refExprArity e)
 
-arity :: RefExpr -> Arity
-arity (Word' _)  = 0
-arity (Rel' x _) = length x
-arity (Tplt' x)  = length x - 1
-arity (Par' x _) = length x
+refExprArity :: RefExpr -> Arity
+refExprArity (Word' _)  = 0
+refExprArity (Rel' x _) = length x
+refExprArity (Tplt' x)  = length x - 1
+refExprArity (Par' x _) = length x
 
 
 -- | = for `Rslt`s
