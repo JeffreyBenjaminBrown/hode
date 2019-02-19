@@ -6,15 +6,10 @@
 
 module Hash.Convert where
 
-import           Data.Maybe
-import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Set (Set)
-import qualified Data.Set       as S
 
 import Hash.HTypes
 import Hash.HUtil
-import Qseq.QTypes
 import Rslt.RTypes
 import Util.Misc
 
@@ -43,7 +38,12 @@ pRelToHExpr (PNonRel pn) = pExprToHExpr pn
 
 pExprToHExpr :: PExpr -> Either String HExpr
 pExprToHExpr px@(pExprIsSpecific -> False) = Left
-  $ "pExprToHExpr: PExpr " ++ show px ++ " is not specific enough."
+  $ "pExprToHExpr: " ++ show px ++ " is not specific enough."
+pExprToHExpr Any =
+  Left $ "pExprToHExpr: Any is not specific enough."
+pExprToHExpr (It Nothing) = Left
+  $ "pExprToHExpr: It (Nothing) is not specific enough."
+
 pExprToHExpr (PExpr s)       = Right $ HExpr s
 pExprToHExpr (PMap m)        = HMap <$> pMapToHMap m
 pExprToHExpr (PEval pnr)     = do

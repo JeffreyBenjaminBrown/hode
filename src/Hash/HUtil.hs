@@ -7,10 +7,7 @@
 module Hash.HUtil where
 
 import qualified Data.List      as L
-import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Set (Set)
-import qualified Data.Set       as S
 
 import           Hash.HTypes
 import           Rslt.RTypes
@@ -39,7 +36,7 @@ pExprIsSpecific _              = True
 simplifyPRel :: PRel -> PRel
 -- These three cases are actual simplifications
 simplifyPRel (PNonRel (PRel pr)) = simplifyPRel pr
-simplifyPRel (Open l [PNonRel pnr] []) = PNonRel $ simplifyPExpr pnr
+simplifyPRel (Open _ [PNonRel pnr] []) = PNonRel $ simplifyPExpr pnr
 simplifyPRel (Closed [PNonRel pnr] []) = PNonRel $ simplifyPExpr pnr
 -- The rest are just mapping into contents.
 simplifyPRel Absent = Absent
@@ -51,14 +48,14 @@ simplifyPExpr :: PExpr -> PExpr
  -- These are the simplifications.
 simplifyPExpr (PRel (PNonRel pnr)) = simplifyPExpr pnr
 simplifyPExpr (PDiff a b) = PDiff (simplifyPExpr a) (simplifyPExpr b)
-simplifyPExpr x@(PAnd xs) = let
+simplifyPExpr (PAnd xs) = let
   xs' = map simplifyPExpr xs
   (ands,others) = L.partition (\case PAnd _ -> True; _ -> False) xs'
-  in PAnd $ concatMap (\(PAnd x) -> x) ands ++ others
-simplifyPExpr x@(POr xs) = let
+  in PAnd $ concatMap (\(PAnd c) -> c) ands ++ others
+simplifyPExpr (POr xs) = let
   xs' = map simplifyPExpr xs
   (ors,others) = L.partition (\case POr _ -> True; _ -> False) xs'
-  in POr $ concatMap (\(POr x) -> x) ors ++ others
+  in POr $ concatMap (\(POr c) -> c) ors ++ others
 
 -- The rest just map simplification into contents.
 simplifyPExpr x@(PExpr _)     = x

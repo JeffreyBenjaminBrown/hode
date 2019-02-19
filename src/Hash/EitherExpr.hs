@@ -6,8 +6,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hash.EitherExpr
-  ( EOperator (..)
-  , eMakeExprParser )
+  (  Operator (..)
+  , EOperator (..)
+  ,  makeExprParser
+  , eMakeExprParser)
 where
 
 import Control.Monad

@@ -4,11 +4,6 @@ module Rslt.Show where
 
 import           Prelude hiding (lookup)
 import qualified Data.List      as L
-import           Data.Maybe
-import           Data.Map (Map)
-import qualified Data.Map       as M
-import           Data.Set (Set)
-import qualified Data.Set       as S
 import           Data.Text (strip, pack, unpack)
 
 import Rslt.Lookup

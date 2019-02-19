@@ -21,9 +21,14 @@ validExpr _ (Word _) = Right ()
 --validExpr r rel@(Rel ms t) =
 --  ( ifLefts ("validExpr call on Rel" ++ show rel)
 --    $ map (validExpr r) $ t : ms )
+validExpr r t@(Tplt js) =
+  ( ifLefts ("validExpr called on Tplt " ++ show t)
+    $ map (validExpr r) js )
+  >> return ()
 validExpr r (Par pairs _) =
   ( ifLefts "validExpr call on a Par"
-    $ map (validExpr r) $ map snd pairs ) >> return ()
+    $ map (validExpr r) $ map snd pairs )
+  >> return ()
 
 
 -- | == Check a `RefExpr`
@@ -31,7 +36,7 @@ validExpr r (Par pairs _) =
 validRefExpr :: Rslt -> RefExpr -> Either String ()
 validRefExpr r e = do validTplt r e
                       refExprRefsExist r e
- 
+
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.

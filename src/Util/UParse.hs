@@ -2,7 +2,6 @@
 
 module Util.UParse where
 
-import           Control.Monad (void)
 import           Data.List (intersperse)
 import           Data.Void (Void)
 import           Text.Megaparsec

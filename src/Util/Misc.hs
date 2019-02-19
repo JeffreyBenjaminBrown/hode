@@ -3,7 +3,7 @@
 
 module Util.Misc where
 
-import           Data.Either
+import           Data.Either hiding (lefts)
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -35,8 +35,8 @@ setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 -- | = errors
 
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
-keyErr callingFunction key map =  callingFunction ++ ": key "
-  ++ show key ++ " not found in map " ++ show map ++ ".\n"
+keyErr callingFunction key m =  callingFunction ++ ": key "
+  ++ show key ++ " not found in map " ++ show m ++ ".\n"
 
 prefixLeft :: String -> Either String a -> Either String a
 prefixLeft prefix =

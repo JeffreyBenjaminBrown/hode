@@ -38,12 +38,12 @@ import Hash.HTypes
 -- `m` is the address of `Tplt [Word "maybe"]`.
 
 hash :: Level -> Joint -> PRel -> PRel -> Either String PRel
-hash l j
+hash l j -- ignore non-exhaustive error
   a@(isOpen -> False)
   b@(isOpen -> False)
   = startOpen l j a b
 hash l j
-  a@(Open l' mbrs js)
+  a@(Open l' _ _)
   b@(isOpen -> False)
   | l < l'  = Left $ "hash, with args l=" ++ show l ++ ", j=" ++ show j
               ++ ", a=" ++ show a ++ ", b=" ++ show b
@@ -52,7 +52,7 @@ hash l j
   | l > l'  = startOpen l j a b
 hash l j
   a@(isOpen -> False)
-  b@(Open l' mbrs js)
+  b@(Open l' _ _)
   | l < l'  = Left $ "hash, with args l=" ++ show l ++ ", j=" ++ show j
               ++ ", a=" ++ show a ++ ", b=" ++ show b
               ++ ": higher level should not have been evaluated first."
@@ -91,5 +91,5 @@ isOpen (Open _ _ _) = True
 isOpen _            = False
 
 close :: PRel -> PRel
-close (Open l mbrs js) = Closed mbrs js
+close (Open _ mbrs js) = Closed mbrs js
 close x                = x

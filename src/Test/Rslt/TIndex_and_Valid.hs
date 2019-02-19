@@ -1,21 +1,17 @@
 module Test.Rslt.TIndex_and_Valid where
 
 import           Data.Either
-import           Data.List
-import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Maybe
-import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import           Rslt.Lookup
 import           Rslt.RTypes
 import           Rslt.Index
 import           Rslt.RValid
 import qualified Test.Rslt.RData as D
 
 
+test_module_rslt_index_and_valid :: Test
 test_module_rslt_index_and_valid = TestList [
     TestLabel "test_invertPositions" test_invertPositions
   , TestLabel "test_checkDb" test_checkDb
