@@ -3,11 +3,8 @@
 
 module Qseq.Query where
 
-import           Data.Either
 import           Data.List
-import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
@@ -68,7 +65,7 @@ runAnd sp p s qs = do
         tested = foldr f (Right reconciled) tests where
           f :: Query e sp -> Either String (CondElts e)
                           -> Either String (CondElts e)
-          f _ (Left s) = Left $ calldata ++ ", at tested --called-> " ++ s
+          f _ (Left msg) = Left $ calldata ++ ", at tested --called-> " ++ msg
                          -- collect no further Lefts
           f t (Right ce) = runTestlike sp p ce s t
     tested
@@ -85,7 +82,13 @@ runVarTestlike :: forall e sp. (Ord e, Show e)
 
 runVarTestlike _ _ s (varTestlike -> False) =
   Left $ ( "runVarTestlike, called with subst " ++ show s
-           ++ ": not a varTestlike Query" )
+           ++ ": not a varTestlike Query." )
+runVarTestlike _ _ s (QFind _) =
+  Left $ ( "runVarTestlike, called with subst " ++ show s
+           ++ ": on a QFind (which is not a varTestlike Query)." )
+runVarTestlike _ _ s (QTest _) =
+  Left $ ( "runVarTestlike, called with subst " ++ show s
+           ++ ": on a QTest (which is not a varTestlike Query)." )
 
 runVarTestlike sp p s (QVTest vtest) =
   prefixLeft "runVarTestlike" $ runVarTest p sp s vtest
@@ -100,10 +103,10 @@ runVarTestlike sp p s (QJunct (QOr vtests)) =
   ( ifLefts "runVarTestlike"
     $ map (runVarTestlike sp p s) vtests )
 
-runVarTestlike sp p s (QQuant w) = do
+runVarTestlike sp p s0 (QQuant w) = do
   (ss :: [Subst e]) <- S.toList  <$>
                        ( prefixLeft "runVarTestlike, at ss"
-                         $ drawVar p s (source w) (name w) )
+                         $ drawVar p s0 (source w) (name w) )
   (conditioned :: [Subst e]) <-
     prefixLeft "runVarTestlike, at conditioned"
     $ substsThatPassVarTest sp p (condition w) ss
@@ -135,6 +138,8 @@ runTestlike :: forall e sp. (Ord e, Show e)
             -> Either String (CondElts e)
 
 runTestlike _ _ _ _ (testlike -> False) =
+  Left $ "runTestlike: not a testlike Query"
+runTestlike _ _ _ _ (QFind _) =
   Left $ "runTestlike: not a testlike Query"
 runTestlike sp _ ce s (QTest t) = runTest sp s t ce
 runTestlike _ _ _ _ (QVTest _) =
@@ -185,6 +190,9 @@ runFindlike :: forall e sp. (Ord e, Show e)
          -> Either String (CondElts e)
 
 runFindlike _ _ _ (findlike -> False) = Left "runFindlike: non-findlike Query"
+runFindlike _ _ _ (QTest _)           = Left "runFindlike: non-findlike Query"
+runFindlike _ _ _ (QVTest _)          = Left "runFindlike: non-findlike Query"
+
 runFindlike sp _ s (QFind f) = prefixLeft "runFindlike" $ runFind sp s f
 
 runFindlike sp p s (QJunct (QAnd qs)) =
@@ -231,3 +239,4 @@ runFindlike sp p s (QQuant (ForAll v src conds q)) = do
         f = M.map $ S.map $ M.delete v
   Right $ reconcileCondElts foundWithoutV
     -- keep only results that obtain for every value of v
+

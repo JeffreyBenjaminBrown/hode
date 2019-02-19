@@ -4,15 +4,11 @@
 
 module Qseq.RunLeaf where
 
-import           Data.Either
-import           Data.List
 import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Qseq.Subst
 import Qseq.QTypes
 import Util.Misc
 
@@ -41,12 +37,13 @@ runTestOnElt sp s (Test test deps) e = do
 runTest :: forall e sp. Ord e
         => sp -> Subst e -> Test e sp -> CondElts e
         -> Either String (CondElts e)
-runTest sp s q ce = do
+runTest sp s0 q ce = do
   (passed :: Map e (Bool, Subst e)) <-
     (<$>) (M.filter fst)
     $ ifLefts_map "runTest"
-    $ M.mapWithKey (\k v -> runTestOnElt sp s q k) ce
+    $ M.mapWithKey (\k _ -> runTestOnElt sp s0 q k) ce
   let f ::  e -> (Bool, Subst e) -> Set (Subst e)
       f k (_,s) = let ss = (M.!) ce k :: Set (Subst e)
                   in S.map (M.union s) ss
   Right $ M.mapWithKey f passed
+

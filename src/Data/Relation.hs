@@ -83,7 +83,7 @@ import           Data.Functor      (Functor((<$)))
 import qualified Data.List    as L
 import qualified Data.Map     as M
 import qualified Data.Set     as S
-import           Data.Maybe        (isJust, fromJust, fromMaybe)
+import           Data.Maybe        (fromMaybe)
 
 -- |
 -- This implementation avoids using @"S.Set (a,b)"@ because

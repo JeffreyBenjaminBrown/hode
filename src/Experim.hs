@@ -20,3 +20,4 @@ expr s = do (pr :: PRel) <- either (\s -> Left $ show s) Right
 --e <- return $ hExprToExpr <$> ( pRelToHExpr <$> parse pRel "?" "a" )
 --
 --x <- lookupInsert 
+

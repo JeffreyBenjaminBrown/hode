@@ -64,10 +64,11 @@ refExprPositions expr =
 invertAndAddPositions :: Map Addr (Set (Role, Addr))
                       -> (Addr,       [(Role, Addr)])
                       -> Map Addr (Set (Role, Addr))
-invertAndAddPositions fm (a1, ras) = foldl f fm ras where
+invertAndAddPositions fm0 (a1, ras) = foldl f fm0 ras where
   f :: Map Addr (Set (Role, Addr))
     ->               (Role, Addr)
     -> Map Addr (Set (Role, Addr))
   f fm (r,a) = M.insertWith S.union a newData fm
     where newData :: Set (Role, Addr)
           newData = S.singleton (r,a1)
+

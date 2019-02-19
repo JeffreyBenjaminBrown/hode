@@ -17,7 +17,6 @@ import Test.Qseq.TQuery
 import Test.Qseq.TSubst
 import Test.Qseq.TValid
 import Test.TGraph
-import Test.TUtil
 import Test.Hash.TConvert
 import Test.Hash.TParse
 
@@ -27,7 +26,6 @@ tests = runTestTT $ TestList
   [ testModuleGraph
   , testModuleQueryClassify
   , testModuleSubst
-  , testModuleUtil
   , test_module_Program
   , test_module_query
   , test_the_rslt_test_data

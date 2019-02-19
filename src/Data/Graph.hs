@@ -2,7 +2,6 @@
 
 module Data.Graph where
 
-import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -10,7 +9,6 @@ import qualified Data.Set       as S
 
 import Qseq.MkLeaf
 import Qseq.QTypes
-import Util.Misc
 
 
 data Graph e = Graph {
@@ -25,10 +23,12 @@ data Graph e = Graph {
 -- | Given a list of (parent, [child]) pairs, this produces a graph.
 -- It can only create graphs with no isolated nodes.
 mkGraph :: Ord e => [( e, [e] )] -> Graph e
-mkGraph pairs = Graph nodes children $ invertMapToSet children where
-  children = M.fromList $ map f pairs
+mkGraph pairs = Graph nodes theChildren
+                $ invertMapToSet theChildren where
+  theChildren = M.fromList $ map f pairs
     where f (a,b) = (a, S.fromList b)
-  nodes = S.union (M.keysSet children) $ M.foldl S.union S.empty children
+  nodes = S.union (M.keysSet theChildren)
+          $ M.foldl S.union S.empty theChildren
 
 parents :: Ord e => Graph e -> e -> Set e
 parents g i  = maybe mempty id $ M.lookup i $ graphParents g
@@ -41,8 +41,8 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
                ->     ( a,  Set a )
                -> M.Map a ( Set a )
 
-  addInversion m (a1, as) -- a1 maps to each a in as
-    = S.foldl f m as where
+  addInversion m0 (a1, as) -- a1 maps to each a in as
+    = S.foldl f m0 as where
       f :: M.Map  a (S.Set a)
         ->        a
         -> M.Map  a (S.Set a)

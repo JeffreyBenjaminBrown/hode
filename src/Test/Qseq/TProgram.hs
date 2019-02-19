@@ -2,10 +2,9 @@
 module Test.Qseq.TProgram where
 
 import           Data.Either
-import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Set (Set)
 import qualified Data.Set       as S
+import qualified Test.HUnit     as T
 import           Test.HUnit hiding (Test, test)
 
 import Qseq.Query
@@ -14,21 +13,21 @@ import Data.Graph
 import Qseq.QTypes
 
 
+test_module_Program :: T.Test
 test_module_Program = TestList [
   TestLabel "test_runProgram" test_runProgram
   , TestLabel "test_runNestedQuants" test_runNestedQuants
   ]
 
+test_runNestedQuants :: T.Test
 test_runNestedQuants = TestCase $ do
-  let [a,b,c,x,y] = ["a","b","c","x","y"]
-      [a0,b0,c0,x0,y0] = ["a0","b0","c0","x0","y0"]
-      [a1,b1,c1,x1,y1] = ["a1","b1","c1","x1","y1"]
+  let [a0,a1] = ["a0","a1"]
 
   assertBool ( "every c for which all of c's children "
                ++ "which are also 3's children are < 10" ) $
     let d = mkGraph [ (1, [  4,40     ] )
                     , (2, [  2,20     ] )
-                    , (3, [  2,3,30   ] ) ]
+                    , (3, [  2,3,30   ] ) ] :: Graph Int
         res = runProgram d
                 [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
                 , ( "children", QQuant $ ForSome a0 "all"
@@ -53,12 +52,10 @@ test_runNestedQuants = TestCase $ do
        == Just ( M.fromList [ (1, S.singleton $ M.singleton a1 1)
                             , (4, S.singleton $ M.singleton a1 4) ] )
 
+test_runProgram :: T.Test
 test_runProgram = TestCase $ do
-  let [a,b,c,e,f,g,h,x,y,z] = ["a","b","c","e","f","g","h","x","y","z"]
-      [a1,b1,c1,e1,f1,g1,h1,x1,y1,z1] =
-        ["a1","b1","c1","e1","f1","g1","h1","x1","y1","z1"]
-      [a2,b2,c2,e2,f2,g2,h2,x2,y2,z2] =
-        ["a2","b2","c2","e2","f2","g2","h2","x2","y2","z2"]
+  let [a,b] = ["a","b"]
+      [a2] = ["a2"]
       d = mkGraph [ (0, [1,2        ] )
                   , (3, [  2,3,4    ] )
                   , (10,[11, 23     ] ) ]
@@ -88,12 +85,12 @@ test_runProgram = TestCase $ do
                                  , (4, S.singleton $ M.singleton a 3)
                                  ] ) ] )
 
-  let d = mkGraph [ (0, [1,2,3] )
+  let d2 = mkGraph [ (0, [1,2,3] )
                   , (1, [11,12] )
                   , (2, [   12,13] )
                   , (3, [] ) ]
 
-  assertBool "4" $ runProgram d
+  assertBool "4" $ runProgram d2
     [ (a, QFind $ findChildren $ Left 0)
     , (b, ( QQuant $ ForSome a a
               ( QQuant $ ForSome a2 a

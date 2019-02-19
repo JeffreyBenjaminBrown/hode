@@ -1,9 +1,7 @@
 module Qseq.QTypes where
 
 import           Data.Map (Map)
-import qualified Data.Map       as M
 import           Data.Set (Set)
-import qualified Data.Set       as S
 
 
 -- | The type variables `sp` and `e` below stand for a space and the

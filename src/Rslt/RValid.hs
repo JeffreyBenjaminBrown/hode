@@ -5,8 +5,9 @@ module Rslt.RValid where
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Set (Set)
-import qualified Data.Set       as S
+--import           Data.Set (Set)
+--import qualified Data.Set       as S
+import           Data.Functor (void)
 
 import Rslt.Lookup
 import Rslt.RTypes
@@ -14,12 +15,18 @@ import Rslt.RUtil
 import Util.Misc
 
 
+-- | == Check an `Expr`
+
+--validExpr :: Rslt -> Expr -> Either String ()
+--validExpr r (Addr a) = 
+
+
 -- | == Check a `RefExpr`
 
 validRefExpr :: Rslt -> RefExpr -> Either String ()
 validRefExpr r e = do validTplt r e
-                      allReferencesExist r e
-
+                      refExprRefsExist r e
+ 
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
@@ -33,23 +40,18 @@ validTplt r (Rel' aMembers aTplt) = do
     ++ " does not match arity of " ++ show aMembers ++ ".\n"
 validTplt _ _ = Right ()
 
-allReferencesExist :: Rslt -> RefExpr -> Either String ()
-allReferencesExist _ (Word' _) = Right ()
-allReferencesExist r e = let
+refExprRefsExist :: Rslt -> RefExpr -> Either String ()
+refExprRefsExist r e = let
   f :: [Addr] -> Either String ()
-  f as = case _allReferencesExist r as of
+  f as = case allAddrsPresent r as of
     Right () -> Right ()
-    Left as -> Left $ "allReferencesExist: Addr values not present in Rslt: "
-               ++ show as
+    Left absent -> Left
+      $ "refExprRefsExist: These Addrs are absent: " ++ show absent
   in case e of
        Rel' aMembers aTplt -> f $ aTplt : aMembers
        Tplt' as            -> f as
        Par' sas _          -> f $ map snd sas
-
-_allReferencesExist :: Rslt -> [Addr] -> Either String ()
-_allReferencesExist r as = do
-  ifLefts "_allReferencesExist: " $ map (refExprAt r) as
-  Right ()
+       Word' _             -> Right ()
 
 
 -- | == Check the database
@@ -99,3 +101,12 @@ relsWithoutMatchingTplts r = res where
   rels = M.filter isRel $ _refExprAt r where
     isRel (Rel' _ _) = True
     isRel _         = False
+
+
+-- | = A utility
+
+allAddrsPresent :: Rslt -> [Addr] -> Either String ()
+allAddrsPresent r as = do
+  void $ ifLefts "allAddrsPresent: " $ map (refExprAt r) as
+  Right ()
+

@@ -4,25 +4,27 @@ module Test.Rslt.THash where
 
 import           Prelude hiding (lookup)
 import           Data.Either
-import           Data.Maybe (isNothing)
-import           Data.Map (Map)
+--import           Data.Maybe (isNothing)
+--import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Set (Set)
+--import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit
 
 import Rslt.Edit
 import Rslt.RTypes
 import Rslt.Lookup
 import qualified Test.Rslt.RData as D
-import Util.Misc
+--import Util.Misc
 
 
+test_module_rslt_hash :: Test
 test_module_rslt_hash = TestList [
     TestLabel "test_subExprs" test_subExprs
   , TestLabel "test_hLookup" test_hLookup
   ]
 
+test_hLookup :: Test
 test_hLookup = TestCase $ do
   -- Still untested:
     -- HEval paths of length > 1
@@ -69,6 +71,7 @@ test_hLookup = TestCase $ do
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 
+test_subExprs :: Test
 test_subExprs = TestCase $ do
   let r = fromRight (error "wut") $ insertAt 7 (Rel' [5,5] 4) D.rslt
   assertBool "1" $ subExprs r [ [RoleMember 1, RoleMember 1] ] 7

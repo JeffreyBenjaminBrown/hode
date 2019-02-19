@@ -3,16 +3,17 @@
 module Test.Qseq.TSubst where
 
 import           Data.Either
-import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import Test.HUnit
+import qualified Test.HUnit     as T
+import           Test.HUnit hiding (Test)
 
 import Qseq.Subst
 import Qseq.QTypes
 
 
+testModuleSubst :: T.Test
 testModuleSubst = TestList
   [ TestLabel "testReconcile2" testReconcile2
   , TestLabel "testReconcile1ToMany" testReconcile1ToMany
@@ -26,6 +27,7 @@ testModuleSubst = TestList
   , TestLabel "test_drawVar" test_drawVar
   ]
 
+test_drawVar :: T.Test
 test_drawVar = TestCase $ do
   let p = M.fromList [ ("a", M.fromList [ (1, error "meh") ] )
                      , ("b", M.fromList [ (2, error "meh")
@@ -36,35 +38,36 @@ test_drawVar = TestCase $ do
                          , M.insert "b1" 3 s ] )
   assertBool "1" $ isLeft $ drawVar p s "b1" "b"
 
+testSetSubstToCondElts :: T.Test
 testSetSubstToCondElts = TestCase $ do
-  let [a,b,c,x,y] = ["a","b","c","x","y"]
-      s = M.fromList [ (a,1), (b,2) ]
-      t = M.fromList [ (a,1), (b,3) ]
-      u = M.fromList [ (a,1), (b,3)
-                     , (a,2), (b,3), (c,4) ]
+  let [a,b,c] = ["a","b","c"]
+      (s :: Subst Int) = M.fromList [ (a,1), (b,2) ]
+      (t :: Subst Int) = M.fromList [ (a,1), (b,3) ]
+      (u :: Subst Int) = M.fromList [ (a,1), (b,3)
+                                    , (a,2), (b,3), (c,4) ]
   assertBool "1" $ setSubstToCondElts a (S.fromList [s, t,u,M.empty])
     == ( M.fromList
          [ (1, S.fromList [ M.singleton b 2
                           , M.singleton b 3 ] )
          , (2, S.singleton $ M.fromList [ (b,3), (c,4) ] ) ] )
 
+testSubstToCondElts :: T.Test
 testSubstToCondElts = TestCase $ do
-  let [a,b,c,x,y] = ["a","b","c","x","y"]
-      s = M.fromList [ (a,1), (b,2) ]
+  let [a,b,c] = ["a","b","c"]
+      (s :: Subst Int) = M.fromList [ (a,1), (b,2) ]
   assertBool "2" $ substToCondElts c s == Nothing
   assertBool "1" $ substToCondElts b s ==
     (Just $ M.singleton 2 $ S.singleton $ M.singleton a 1)
 
+testVarSubsts :: T.Test
 testVarSubsts = TestCase $ do
   let [a,b,c,x,y] = ["a","b","c","x","y"]
-      aOf_x  = "aOf_x" -- (a, S.fromList [x   ])
-      aOf_xy = "aOf_xy" -- (a, S.fromList [x, y])
-      xCondElts = M.fromList -- x could be 1 or 2, if ...
+      (xCondElts :: CondElts Int) = M.fromList -- x could be 1 or 2, if ...
         [ (1, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (2, S.fromList [ M.fromList [ (a, 2), (b, 2) ] ] )
         , (3, S.fromList [ M.fromList [ (a, 1) ,       (c, 3) ]
                          , M.fromList [         (b, 3)        ] ] ) ]
-      yCondElts = M.fromList -- y could be 3 or 4, if ...
+      (yCondElts :: CondElts Int) = M.fromList -- y could be 3 or 4, if ...
         [ (3, S.fromList [ M.fromList [ (a, 1) ] ] )
         , (4, S.fromList [ M.fromList [         (b, 2), (c, 2) ]
                          , M.fromList [ (a, 2),         (c, 3) ]
@@ -90,8 +93,9 @@ testVarSubsts = TestCase $ do
                           , M.fromList [ (a, 2), (b, 3), (c, 3) ]
                           , M.fromList [         (b, 3), (c, 3) ] ] )
 
+testReconcileCondElts :: T.Test
 testReconcileCondElts = TestCase $ do
-  let [a,b,c,x] = ["a","b","c","x"]
+  let [a,b,c] = ["a","b","c"]
       ce, cf :: CondElts Int
       ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
                                        , M.fromList [ (a, 2), (b, 2) ] ] )
@@ -104,8 +108,9 @@ testReconcileCondElts = TestCase $ do
     == M.fromList [ (1, S.singleton $ M.fromList [ (a,2), (b,2) ] )
                   , (2, S.singleton $ M.fromList [ (a,1), (b,1), (c,3) ] ) ]
 
+testReconcileCondEltsAtElt :: T.Test
 testReconcileCondEltsAtElt = TestCase $ do
-  let [a,b,c,x] = ["a","b","c","x"]
+  let [a,b,c] = ["a","b","c"]
       ce, cf :: CondElts Int
       ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
                                        , M.empty ] ) ]
@@ -117,22 +122,26 @@ testReconcileCondEltsAtElt = TestCase $ do
                                          , M.fromList [ (a,1) ]
                                          , M.fromList [ (b,2) ] ] )
 
-  let ce = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] ) ]
-      cf = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
-                                       , M.fromList [ (a, 2), (b, 2) ] ] )
-                      , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
-  assertBool "2" $ reconcileCondEltsAtElt 1 (S.fromList [ce,cf])
+  let (ce2 :: CondElts Int)
+        = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 1) ]
+                                      , M.fromList [ (a, 2), (b, 2) ] ] )
+                     , (2, S.fromList [ M.fromList [ (a, 1), (b, 1) ] ] ) ]
+      (cf2 :: CondElts Int)
+        = M.fromList [ (1, S.fromList [ M.fromList [ (a, 1), (b, 2) ]
+                                      , M.fromList [ (a, 2), (b, 2) ] ] )
+                     , (2, S.fromList [ M.fromList [ (a, 1), (c, 3) ] ] ) ]
+  assertBool "2" $ reconcileCondEltsAtElt 1 (S.fromList [ce2,cf2])
     == Just ( M.fromList
               [ (1, S.singleton $ M.fromList [ (a, 2), (b, 2) ] ) ] )
-  assertBool "1" $ reconcileCondEltsAtElt 2 (S.fromList [ce,cf])
+  assertBool "1" $ reconcileCondEltsAtElt 2 (S.fromList [ce2,cf2])
     == Just ( M.fromList
               [ (2, S.singleton
                   $ M.fromList [ (a,1), (b,1), (c,3) ] ) ] )
 
+testReconcile :: T.Test
 testReconcile = TestCase $ do
   let [x,y,z] = ["x","y","z"]
+      x1, x1_x2, x1_x3 :: Set (Subst Int)
       x1    = S.singleton ( M.singleton x 1 )
       x1_x2 = S.fromList  [ M.singleton x 1
                           , M.singleton x 2 ]
@@ -148,8 +157,10 @@ testReconcile = TestCase $ do
   assertBool "3" $ reconcile (S.fromList [x1, x1y2, y2z3, S.empty]) ==
                                                           S.empty
 
+testReconcile2sets :: T.Test
 testReconcile2sets = TestCase $ do
-  let x1 = M.singleton        "x" 1
+  let x1,y1,z2,x1y2,x1z2,x1y1z2,x1y2z2 :: Subst Int
+      x1 = M.singleton        "x" 1
       y1 = M.singleton        "y" 1
       z2 = M.singleton        "z" 2
       x1y2 = M.fromList [ (   "x", 1)
@@ -174,8 +185,10 @@ testReconcile2sets = TestCase $ do
                                              == sf [x1y2, x1z2, x1y2z2]
   assertBool "3" $ reconcile2sets (ss y1) (sf [x1y2, x1z2]) == ss x1y1z2
 
+testReconcile1ToMany :: T.Test
 testReconcile1ToMany = TestCase $ do
-  let x1   = M.singleton  "x" 1
+  let x1,y1,y2,x1y2 :: Subst Int
+      x1   = M.singleton  "x" 1
       y1   = M.singleton  "y" 1
       y2   = M.singleton  "y" 2
       x1y2 = M.fromList [ ("x", 1)
@@ -187,6 +200,7 @@ testReconcile1ToMany = TestCase $ do
   assertBool "3" $ reconcile1ToMany x1y2 S.empty
                      == S.empty
 
+testReconcile2 :: T.Test
 testReconcile2 = TestCase $ do
   let x1,y1,y2,x1y2 :: Subst Int
       x1 = M.singleton "x" 1

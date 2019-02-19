@@ -1,13 +1,9 @@
 module Rslt.RTypes where
 
-import           Data.Maybe (isNothing)
 import           Data.Map (Map)
-import qualified Data.Map       as M
 import           Data.Set (Set)
-import qualified Data.Set       as S
 
 import Qseq.QTypes (Var)
-import Util.Misc
 
 
 type Addr = Int -- ^ Address
@@ -96,3 +92,4 @@ data HExpr =
 -- The `Left HIt` values are ignored when evaluating the `HMap`;
 -- they come into play when the `HMap` is a subexpression of some `HEval`.
 type HMap = Map Role HExpr
+

@@ -2,8 +2,7 @@
 
 module Qseq.Subst where
 
-import           Data.Either
-import           Data.Map (Map)
+import           Prelude hiding (min)
 import qualified Data.Map       as M
 import           Data.Maybe
 import           Data.Set (Set)

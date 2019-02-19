@@ -4,15 +4,12 @@
 
 module Qseq.MkLeaf where
 
-import           Data.Either
-import           Data.List
-import           Data.Map (Map)
+import           Prelude hiding (compare)
 import qualified Data.Map       as M
 import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Qseq.Subst
 import Qseq.QTypes
 import Util.Misc
 
@@ -50,7 +47,7 @@ mkVTestIO :: forall e sp. (Ord e, Show e)
 mkVTestIO iVar oVar = VarTest go deps where
   (deps :: Set Var) = S.fromList [iVar,oVar]
   go :: sp -> Possible e -> Subst e -> Either String Bool
-  go space poss subst = do
+  go _ poss subst = do
     iVal <- maybe (Left $ keyErr "mkVTestIO" iVar subst) Right
             $ M.lookup iVar subst
     oVal <- maybe (Left $ keyErr "mkVTestIO" oVar subst) Right
@@ -86,7 +83,7 @@ mkVTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
   (deps :: Set Var) = S.fromList [iInSubst, oInSubst]
 
   go :: sp -> Possible e -> Subst e -> Either String Bool
-  go space poss subst = do
+  go _ poss subst = do
     iVal <- maybe (Left $ keyErr "mkVTestIO'" iInSubst subst) Right
            $ M.lookup iInSubst subst
     oVal <- maybe (Left $ keyErr "mkVTestIO'" oInSubst subst) Right
@@ -96,7 +93,7 @@ mkVTestIO' (iInSubst, iInPossible) (oInSubst, oInPossible) =
 -- | `_checkIORel iVar oVar poss subst` determines whether, in poss, iVar
 -- is an input that could generate oVar as an output, given
 -- their values iVal and oVal.
-_checkIORel :: forall e sp. (Ord e, Show e)
+_checkIORel :: forall e. (Ord e, Show e)
   => (Var,e) -> (Var,e) -> Possible e -> Either String Bool
 _checkIORel (iVar,iVal) (oVar,oVal) p = do
   (ce :: CondElts e) <-
@@ -153,3 +150,4 @@ mkFindFrom finder eev = Find go deps where
   go g s = either_varToElt s eev >>= finder g
   deps = S.fromList $ catMaybes
     $ map (either (const Nothing) Just) [eev]
+

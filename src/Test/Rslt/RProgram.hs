@@ -9,6 +9,7 @@ import qualified Data.Map       as M
 import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
+import qualified Test.HUnit as T
 import           Test.HUnit hiding (Test, test)
 
 import           Rslt.Lookup hiding (lookup)
@@ -20,12 +21,14 @@ import           Qseq.MkLeaf
 import qualified Test.Rslt.RData as D
 
 
+test_module_rsltProgram :: T.Test
 test_module_rsltProgram = TestList [
   TestLabel "test_rslt_query" test_rslt_query
   , TestLabel "test_rslt_hash_query" test_rslt_hash_query
   ]
 
 
+test_rslt_hash_query :: T.Test
 test_rslt_hash_query = TestCase $ do
   assertBool "<any> #like <any>" $ runProgram D.b2
     [ ( "a", QFind $ hFind $ HMap $ M.fromList
@@ -165,6 +168,7 @@ test_rslt_hash_query = TestCase $ do
       -- and likes nothing that it needs
       ] )
 
+test_rslt_query :: T.Test
 test_rslt_query = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt

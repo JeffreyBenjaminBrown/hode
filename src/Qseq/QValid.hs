@@ -3,10 +3,7 @@
 {-# LANGUAGE ViewPatterns #-}
 module Qseq.QValid where
 
-import           Data.List
-import           Data.Map (Map)
-import qualified Data.Map       as M
-import           Data.Maybe
+import           Data.Functor (void)
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
@@ -31,12 +28,12 @@ usesNoSourceBeforeItExists vqs = case null bad of
   where
   (_,bad) = foldl f (S.empty, S.empty) vqs :: (Set Var, Set Var)
   f :: (Set Var, Set Var) -> (Var, Query e sp) -> (Set Var, Set Var)
-  f (defined,bad) (v,q) =
+  f (defined, badAcc) (v,q) =
     -- "defined" are variables defined by previous Queries.
     -- "bad" are variables used before being defined.
     let ext = drawsFromVars q
         moreBad = S.filter (not . flip S.member defined) ext
-    in (S.insert v defined, S.union bad moreBad)
+    in (S.insert v defined, S.union badAcc moreBad)
 
 validQuery :: Query e sp -> Either String ()
 validQuery q = prefixLeft "validQuery" $ do
@@ -58,7 +55,7 @@ feasibleJunctions = recursive where
     let (bs :: [Bool]) = map findlike qs
     in if and bs then Right ()
        else Left $ "In a " ++ show (length qs) ++ "-clause QOr, clause(s) "
-            ++ show (map fst $ filter (not . snd) $ zip [1..] bs)
+            ++ show (map fst $ filter (not . snd) $ zip [1 :: Int ..] bs)
             ++ " are not findlike."
   simple _                  = Right ()
 
@@ -74,18 +71,22 @@ findlike, varTestlike, testlike :: Query e sp -> Bool
 findlike (QFind _)                = True
 findlike (QJunct (QAnd qs))       = or  $ map findlike qs
 findlike (QJunct (QOr  qs@(_:_))) = and $ map findlike qs
+findlike (QJunct (QOr  []))       = False
 findlike (QQuant w)               =           findlike $ goal w
-findlike _                        = False
+findlike (QTest _)                = False
+findlike (QVTest _)               = False
 
 varTestlike (QVTest _)  = True
 varTestlike (QJunct qs) = and $ map varTestlike $ clauses qs
 varTestlike (QQuant w)  = varTestlike $ goal w
-varTestlike _           = False
+varTestlike (QTest _)   = False
+varTestlike (QFind _)   = False
 
-testlike (QTest _)  = True
+testlike (QTest _)   = True
 testlike (QJunct qs) = and $ map testlike $ clauses qs
 testlike (QQuant w)  = testlike $ goal w
-testlike _           = False
+testlike (QFind _)   = False
+testlike (QVTest _)  = False
 
 
 -- | = Ensuring the Vars used in a Query make sense
@@ -146,7 +147,7 @@ usesOnlyIntroducedVars q0 = f S.empty q0 where
     f vs' $ condition w
     f vs' $ goal w
 
-  f vs (QJunct j) = do ifLefts "" $ map (f vs) $ clauses j
+  f vs (QJunct j) = do void $ ifLefts "" $ map (f vs) $ clauses j
                        Right ()
   f vs q          = if S.isSubsetOf (usesVars q) vs then Right ()
     else Left $ "usesOnlyIntroducedVars': " ++ show (usesVars q)

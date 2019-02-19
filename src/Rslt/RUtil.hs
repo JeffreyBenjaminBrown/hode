@@ -3,7 +3,6 @@
 module Rslt.RUtil where
 
 import           Prelude hiding (lookup)
-import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
@@ -19,7 +18,7 @@ depth :: Expr -> Int
 depth (Word _)     = 0
 depth (Addr _) = 0
 depth (Rel mems _) = 1 + maximum (map depth mems)
-depth (Tplt mems)  = 0 -- ^ TODO ? consider Tplts with non-Word members
+depth (Tplt _)  = 0 -- ^ TODO ? consider Tplts with non-Word members
 depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)
 
 
@@ -53,7 +52,7 @@ nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
 hExprToExpr :: HExpr -> Either String Expr
 hExprToExpr (HExpr e) = Right e
 hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
-  ++ ", but only the HExpr constructor can be converted to an Expr.\n"
+  ++ ", but only the HExpr and (soon)HMap constructors can be converted."
 
 hVars :: HExpr -> Set Var
 hVars (HMap m)    = S.unions $ map hVars $ M.elems m

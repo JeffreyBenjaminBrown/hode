@@ -2,26 +2,21 @@
 
 module Test.Rslt.TShow where
 
-import           Data.Either
-import           Data.List
-import           Data.Map (Map)
-import qualified Data.Map       as M
-import           Data.Maybe
-import           Data.Set (Set)
-import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit
 
 import           Rslt.RTypes
 import           Rslt.Show
 import qualified Test.Rslt.RData as D
 
 
+test_module_rslt_show :: Test
 test_module_rslt_show = TestList [
   TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
   , TestLabel "test_exprFromRefExpr" test_exprFromRefExpr
   , TestLabel "test_eShow" test_eShow
   ]
 
+test_eShow :: Test
 test_eShow = TestCase $ do
   assertBool "1" $ eShow D.rslt (Word "hello") == Right "hello"
   assertBool "2" $ eShow D.rslt (Tplt $ map Word ["a","b","c"] )
@@ -34,6 +29,7 @@ test_eShow = TestCase $ do
                                   ", nice to meet you both." )
     == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
 
+test_exprFromRefExpr :: Test
 test_exprFromRefExpr = TestCase $ do
   assertBool "tplt" $ Right ( Tplt [ Word ""
                                            , Word "needs"
@@ -56,6 +52,7 @@ test_exprFromRefExpr = TestCase $ do
                ti )
     == exprFromRefExpr D.rslt ( Rel' [1,5] 4 )
 
+test_hashUnlessEmptyStartOrEnd :: Test
 test_hashUnlessEmptyStartOrEnd = TestCase $ do
   assertBool "1" $ hashUnlessEmptyStartOrEnd 2 [] == []
   assertBool "2" $ hashUnlessEmptyStartOrEnd 2 [""] == [""]

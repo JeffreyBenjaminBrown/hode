@@ -1,7 +1,7 @@
 module Test.Rslt.RData where
 
 import qualified Data.Map as M
-import           Test.HUnit hiding (Test)
+import           Test.HUnit
 
 import Rslt.Index
 import Rslt.RTypes
@@ -10,6 +10,7 @@ import Rslt.RValid
 
 -- | = Make sure each Rslt is okay.
 
+test_the_rslt_test_data :: Test
 test_the_rslt_test_data = TestList [
   TestLabel "test_variety" $ TestCase $ do
       assertBool "1" $ validRslt rslt == Right ()
@@ -37,6 +38,7 @@ badRefExprs = M.union refExprs newData where
                        , (1002, Rel' [1,2] (-1000))
                        ]
 
+rslt :: Rslt
 rslt = mkRslt refExprs
 
 

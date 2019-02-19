@@ -7,7 +7,7 @@ import qualified Data.Map       as M
 import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit
 
 import           Rslt.Lookup
 import           Rslt.RTypes
@@ -22,6 +22,7 @@ test_module_rslt_index_and_valid = TestList [
   , TestLabel "test_validRefExpr" test_validRefExpr
   ]
 
+test_validRefExpr :: Test
 test_validRefExpr = TestCase $ do
   -- TODO : test for what kind of Left, not just whether it is Left.
   -- Could do in a future-proof manner by using enum error types rather
@@ -34,12 +35,14 @@ test_validRefExpr = TestCase $ do
   assertBool "tplt not a tplt" $ isLeft $ validRefExpr D.rslt (Rel' [4] $ 0)
   assertBool "word" $ isRight $ validRefExpr D.rslt (Word' "meh")
 
+test_checkDb :: Test
 test_checkDb = TestCase $ do
   assertBool "1" $ M.toList (relsWithoutMatchingTplts $ mkRslt D.badRefExprs)
     == [(1001, Rel' [1,2] 5), (1002, Rel' [1, 2] $ -1000)]
   assertBool "2" $ M.toList (collectionsWithAbsentAddrs $ mkRslt D.badRefExprs)
     == [(1002, [-1000])]
 
+test_invertPositions :: Test
 test_invertPositions = TestCase $ do
   let ips = foldl invertAndAddPositions M.empty
         [ (1,  [ (RoleMember 1, 11 )

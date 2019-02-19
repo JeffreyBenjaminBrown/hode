@@ -2,12 +2,8 @@
 module Test.Qseq.TValid where
 
 import           Data.Either
-import           Data.List
-import           Data.Map (Map)
-import qualified Data.Map       as M
-import           Data.Maybe
-import           Data.Set (Set)
 import qualified Data.Set       as S
+import qualified Test.HUnit as T
 import           Test.HUnit hiding (Test)
 
 import Data.Graph
@@ -18,6 +14,7 @@ import Qseq.QTypes
 
 type QIGI = Query Int (Graph Int)
 
+testModuleQueryClassify :: T.Test
 testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_introducesVars" test_introducesVars
@@ -32,11 +29,8 @@ testModuleQueryClassify = TestList [
     -- feasibleJunctions
   ]
 
+test_usesNoSourceBeforeItExists :: T.Test
 test_usesNoSourceBeforeItExists = TestCase $ do
-  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
-      errMsg :: [Var] -> Either String ()
-      errMsg vs = Left $ "validProgram: variables " ++ show (S.fromList vs)
-                  ++ " used before being defined.\n"
   assertBool "no sources. (use is different from sourcing.)" $ Right ()
     == usesNoSourceBeforeItExists
     [ ("c", QJunct $ QAnd [ QFind $ findParents $ Right "a"
@@ -54,9 +48,8 @@ test_usesNoSourceBeforeItExists = TestCase $ do
     [ ("a", QFind $ findParents $ Left 3 :: QIGI)
     , ("b", QQuant $ ForSome "y" "x" $ QFind $ findParents $ Right "a") ]
 
+test_usesOnlyIntroducedVars :: T.Test
 test_usesOnlyIntroducedVars = TestCase $ do
-  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
-
   assertBool "1" $ isLeft $ usesOnlyIntroducedVars
     ( QJunct $ QAnd [ QFind $ findParents $ Right "a"
                     , QFind $ findParents $ Right "b" ] :: QIGI )
@@ -65,9 +58,10 @@ test_usesOnlyIntroducedVars = TestCase $ do
   assertBool "3" $ isLeft $ usesOnlyIntroducedVars
     ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "b" :: QIGI ) )
 
+test_noIntroducedVarMasked :: T.Test
 test_noIntroducedVarMasked = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> Right S.empty) S.empty
-      [x,x1,x2,y,y1,y2] = ["x","x1","x2","y","y1","y2"]
+      [x,x2,y] = ["x","x2","y"]
       qx  = QQuant $ ForSome  "x" x qf
       qy  = QQuant $ ForSome  "y" y qf
       qx1 = QQuant $ ForSome "x1" x qf
@@ -83,10 +77,10 @@ test_noIntroducedVarMasked = TestCase $ do
   assertBool "3.7" $ isRight $ t qxy
   assertBool "4"   $ isRight $ t (QJunct $ QAnd [qx1,qxy])
 
-
+test_noAndCollisions :: T.Test
 test_noAndCollisions = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> Right S.empty) S.empty
-      [x,x1,x2,y,y1,y2,z] = ["x","x1","x2","y","y1","y2","z"]
+      [x,x1,y,y1,z] = ["x","x1","y","y1","z"]
       qx  = QQuant $ ForSome  x x qf
       qy  = QQuant $ ForSome  y y qf
       qx1 = QQuant $ ForSome x1 x qf
@@ -103,8 +97,9 @@ test_noAndCollisions = TestCase $ do
   assertBool "5"   $ isLeft  $ noAndCollisions (QJunct $ QAnd [qx1,qxy])
   assertBool "6"   $ isRight $ noAndCollisions (QJunct $ QOr [qx1,qxy])
 
+test_drawsFromVars :: T.Test
 test_drawsFromVars = TestCase $ do
-  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
+  let [a,b,c,d,e] = ["a","b","c","d","e"]
       -- These queries are named for their internal and external variables.
       c_de, c_a :: QIGI
       c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
@@ -123,8 +118,9 @@ test_drawsFromVars = TestCase $ do
       $ QJunct $ QOr [ c_de, c_a ] )
     == S.fromList [b, d, a]
 
+test_usesVars :: T.Test
 test_usesVars = TestCase $ do
-  let [a,b,c,d,e,f,g,h,x,y,z] = ["a","b","c","d","e","f","g","h","x","y","z"]
+  let [a,b,c,d,e,f] = ["a","b","c","d","e","f"]
       -- These queries are named for their internal and external variables.
       c_de, c_a :: QIGI
       c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
@@ -145,10 +141,10 @@ test_usesVars = TestCase $ do
                ) )
     == S.fromList [c,e,f]
 
+test_introducesVars :: T.Test
 test_introducesVars = TestCase $ do
-  let [a,b,c,x,y,z] = ["a","b","c","x","y","z"]
-      q = QFind $ Find (\_ _ -> Right $ S.singleton 1) S.empty
-      meh = error "whatever"
+  let [x,y,z] = ["x","y","z"]
+      q = QFind $ Find (\_ _ -> Right $ S.singleton (1 :: Int)) S.empty
   assertBool "1" $ introducesVars
     ( QJunct $ QOr [ QQuant $ ForAll x x (QJunct $ QAnd []) q
                    , QQuant $ ForAll y y (QJunct $ QAnd [])
@@ -156,6 +152,7 @@ test_introducesVars = TestCase $ do
                    ] )
     == S.fromList [x,y,z]
 
+test_findlike :: T.Test
 test_findlike = TestCase $ do
   let qf = QFind $ Find (\_ _    -> Right S.empty) S.empty
       qc = QTest $ Test (\_ _  _ -> Right False  ) S.empty

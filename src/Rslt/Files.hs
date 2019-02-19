@@ -3,18 +3,12 @@
 module Rslt.Files where
 
 import           Prelude hiding (lookup)
-import qualified Data.List      as L
-import           Data.Maybe
-import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Set (Set)
-import qualified Data.Set       as S
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
 
 import Rslt.RTypes
 import Rslt.Index
-import Util.Misc
 
 
 -- | PITFALL: Tested only by hand:

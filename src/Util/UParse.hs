@@ -49,3 +49,4 @@ phrase = concat . intersperse " " <$> some identifier
 thisMany :: Int -> Char -> Parser ()
 thisMany n c = string (replicate n c) <* notFollowedBy (char c)
                >> return ()
+

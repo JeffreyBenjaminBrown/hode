@@ -3,6 +3,7 @@
 module Rslt.Lookup where
 
 import           Prelude hiding (lookup)
+import           Data.Functor (void)
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -10,7 +11,6 @@ import qualified Data.Set       as S
 
 import Qseq.QTypes
 import Qseq.MkLeaf
-import Rslt.Index
 import Rslt.RTypes
 import Rslt.RUtil
 import Util.Misc
@@ -33,10 +33,9 @@ hFindSubExprs paths = mkFindFrom f where
 hLookup :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
 
 hLookup r s (HMap m) = do
-  let found :: Map Role (Either String (Set Addr))
-      found = M.map (hLookup r s) m
   (found :: Map Role (Set Addr)) <-
-    ifLefts_map "hLookup called on HMap calculating found" found
+    ifLefts_map "hLookup called on HMap calculating found"
+    $ M.map (hLookup r s) m
 
   let roleHostCandidates :: Role -> Set Addr -> Either String (Set Addr)
       roleHostCandidates role as = do
@@ -63,7 +62,7 @@ hLookup r s (HEval hm paths) = do
       $ S.map (subExprs r paths) hosts )
   Right $ S.unions its
 
-hLookup r s (HVar v) =
+hLookup _ s (HVar v) =
   maybe (Left $ keyErr "hLookup" v s) (Right . S.singleton)
   $ M.lookup v s
 
@@ -149,14 +148,14 @@ variety r a = maybe err Right $ M.lookup a $ _variety r
 -- every position contained in e.
 has :: Rslt -> Addr -> Either String (Map Role Addr)
 has r a = do
-  either (\s -> Left $ "has: " ++ s) Right $ refExprAt r a
+  void $ either (\s -> Left $ "has: " ++ s) Right $ refExprAt r a
   maybe (Right M.empty) Right $ M.lookup a $ _has r
 
 -- | `isIn r a` finds the expression e at a in r, and returns
 -- every position that e occupies.
 isIn :: Rslt -> Addr -> Either String (Set (Role,Addr))
 isIn r a = do
-  either (\s -> Left $ "isIn: " ++ s) Right $ refExprAt r a
+  void $ either (\s -> Left $ "isIn: " ++ s) Right $ refExprAt r a
   maybe (Right S.empty) Right $ M.lookup a $ _isIn r
 
 -- | `fills r (role,a)` finds the expression that occupies
@@ -168,4 +167,3 @@ fills x (r,a) = do
   let err = Left $ "fills: role " ++ show r
             ++ " not among positions in RefExpr at " ++ show a
   maybe err Right $ M.lookup r positions
-

@@ -10,18 +10,19 @@ import qualified Data.Set       as S
 import           Test.HUnit
 
 import Hash.Convert
-import Hash.EitherExpr
 import Hash.HTypes
 import Hash.HUtil
 import Rslt.RTypes
 
 
+test_module_hash_convert :: Test
 test_module_hash_convert = TestList [
     TestLabel "test_simplifyPExpr" test_simplifyPExpr
   , TestLabel "test_pRelToHExpr" test_pRelToHExpr
   , TestLabel "test_pExprToHExpr" test_pExprToHExpr
   ]
 
+test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
   assertBool "1" $ isLeft $ pRelToHExpr Absent
   assertBool "2" $ pRelToHExpr ( Closed
@@ -50,6 +51,7 @@ test_pRelToHExpr = TestCase $ do
                         , ( RoleMember 2, HExpr $ Word "d" ) ] )
       , ( RoleMember 3, HExpr $ Word "b" ) ] )
 
+test_pExprToHExpr :: Test
 test_pExprToHExpr = TestCase $ do
   assertBool "1" $ ( pExprToHExpr
                      ( PEval $ PMap $ M.fromList

@@ -3,25 +3,26 @@
 module Test.Rslt.TEdit where
 
 import           Data.Either
-import           Data.List
-import           Data.Map (Map)
+--import           Data.List
+--import           Data.Map (Map)
 import qualified Data.Map       as M
-import           Data.Maybe
-import           Data.Set (Set)
+--import           Data.Maybe
+--import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Test.HUnit hiding (Test)
+import           Test.HUnit
 
-import           Rslt.Lookup hiding (insert, lookup)
+import           Rslt.Lookup hiding (lookup)
 import qualified Rslt.Edit as R
 import           Rslt.Index
-import qualified Rslt.Lookup as R
+--import qualified Rslt.Lookup as R
 import           Rslt.RTypes
 import           Rslt.RValid
 import           Rslt.Show
 import qualified Test.Rslt.RData as D
-import           Util.Misc
+--import           Util.Misc
 
 
+test_module_rslt_edit :: Test
 test_module_rslt_edit = TestList [
     TestLabel "test_insert" test_insert
   , TestLabel "test_deleteUnused" test_deleteUnused
@@ -30,6 +31,7 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_lookupInsert" test_lookupInsert
   ]
 
+test_lookupInsert :: Test
 test_lookupInsert = TestCase $ do
   assertBool "1" $ R.lookupInsert D.rslt ( Tplt [ Addr 0
                                                      , Addr 3
@@ -77,6 +79,7 @@ test_lookupInsert = TestCase $ do
       either (error "wut") id $ refExprAt r a >>= exprFromRefExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 
+test_replace :: Test
 test_replace = TestCase $ do
   assertBool "replace word in rel" $
     either (error "wut") id (R.replace (Word' "foo") 1 D.rslt)
@@ -126,6 +129,7 @@ test_replace = TestCase $ do
          , (6, Par' [("The first relationship in this graph is ", 5)] ".")
          ] )
 
+test_replaceInRole :: Test
 test_replaceInRole = TestCase $ do
   let r         = either (error "wut") id $
                   R.replaceInRole (RoleMember 2) 1 5 D.rslt
@@ -147,6 +151,7 @@ test_replaceInRole = TestCase $ do
            $ R.insertAt 8 (Word' "foo") D.rslt
   assertBool "4" $ isIn r2 8 == Right (S.singleton (RoleMember 2, 5))
 
+test_deleteUnused :: Test
 test_deleteUnused = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel'5)
   -- and insert at 6 (Rel' [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
@@ -173,6 +178,7 @@ test_deleteUnused = TestCase $ do
   assertBool "isIn $ another former member of missing" $
     isIn r 2 == Right S.empty
 
+test_insert :: Test
 test_insert = TestCase $ do
   let r2 = either (error "wut") id
            $ R.insertAt 7 (Rel' [1,1] 4) D.rslt

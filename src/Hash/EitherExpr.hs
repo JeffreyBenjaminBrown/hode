@@ -227,3 +227,4 @@ eSplitOp (EInfixL  op) (r, l, n, pre, post) = (r, op:l, n, pre, post)
 eSplitOp (EInfixN  op) (r, l, n, pre, post) = (r, l, op:n, pre, post)
 eSplitOp (EPrefix  op) (r, l, n, pre, post) = (r, l, n, op:pre, post)
 eSplitOp (EPostfix op) (r, l, n, pre, post) = (r, l, n, pre, op:post)
+
