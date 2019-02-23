@@ -11,7 +11,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Rslt.Index
-import Rslt.Lookup
+import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.RUtil
 import Rslt.RValid

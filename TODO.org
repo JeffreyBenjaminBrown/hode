@@ -28,16 +28,19 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO test: Rslt.RUtil.hExprToExpr
-** the HMap case
-Should take an Rslt argument.
-If the HExpr is constructor Expr, call validExpr on it.
-If the HExpr is constructor HMap,
-  if any of its elements are not convertible, fail.
-  if it has no tplt, fail.
-  if its tplt arity does not match the other elements, fail.
-  else succeed.
+* TODO test
+** +validExpr
+** Rslt.RUtil.hExprToExpr
+*** the HMap case
+ Should take an Rslt argument.
+ If the HExpr is constructor Expr, call validExpr on it.
+ If the HExpr is constructor HMap,
+   if any of its elements are not convertible, fail.
+   if it has no tplt, fail.
+   if its tplt arity does not match the other elements, fail.
+   else succeed.
 * TODO move Hash searching from Rslt to Hash
+rename Rslt.RLookup -> Rslt.RLookup
 * TODO views
 ** cursor commands
 up|down to enclosing keyword (\hash, etc)

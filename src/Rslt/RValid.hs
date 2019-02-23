@@ -9,7 +9,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Functor (void)
 
-import Rslt.Lookup
+import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.RUtil
 import Util.Misc

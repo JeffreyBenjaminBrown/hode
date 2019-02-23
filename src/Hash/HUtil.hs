@@ -6,12 +6,29 @@
 
 module Hash.HUtil where
 
-import qualified Data.List      as L
-import qualified Data.Map       as M
+import qualified Data.List as L
+import qualified Data.Map  as M
+import           Data.Set (Set)
+import qualified Data.Set  as S
 
 import           Hash.HTypes
+import           Qseq.QTypes (Var)
 import           Rslt.RTypes
 
+
+-- | = for Hash
+
+hVars :: HExpr -> Set Var
+hVars (HMap m)    = S.unions $ map hVars $ M.elems m
+hVars (HEval m _) = hVars m
+hVars (HVar v)    = S.singleton v
+hVars (HExpr _)   = S.empty
+hVars (HDiff h i) = S.union (hVars h) (hVars i)
+hVars (HAnd hs)   = S.unions $ map hVars hs
+hVars (HOr hs)    = S.unions $ map hVars hs
+
+
+-- | = for parsing Hash
 
 pnrWord :: String -> PRel
 pnrWord = PNonRel . PExpr . Word

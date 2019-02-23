@@ -7,8 +7,10 @@ import qualified Data.Set       as S
 import qualified Test.HUnit as T
 import           Test.HUnit hiding (Test, test)
 
-import           Rslt.Lookup hiding (exprToAddr)
-import qualified Rslt.Lookup as R
+import           Hash.HLookup
+import           Hash.HTypes
+import qualified Rslt.RLookup  as R
+import           Rslt.RLookup hiding (exprToAddr)
 import           Rslt.RTypes
 import           Qseq.QTypes
 import           Qseq.Query

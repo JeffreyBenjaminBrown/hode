@@ -7,7 +7,7 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import           Rslt.Lookup hiding (exprToAddr)
+import           Rslt.RLookup hiding (exprToAddr)
 import qualified Rslt.Edit as R
 import           Rslt.Index
 import           Rslt.RTypes

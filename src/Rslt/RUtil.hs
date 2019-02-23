@@ -3,10 +3,8 @@
 module Rslt.RUtil where
 
 import qualified Data.Map       as M
-import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Qseq.QTypes (Var)
 import Rslt.RTypes
 import Util.Misc
 
@@ -44,15 +42,3 @@ maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _addrToRefExpr
 
 nextAddr :: Rslt -> Either String Addr
 nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
-
-
--- | = for Hash
-
-hVars :: HExpr -> Set Var
-hVars (HMap m)    = S.unions $ map hVars $ M.elems m
-hVars (HEval m _) = hVars m
-hVars (HVar v)    = S.singleton v
-hVars (HExpr _)   = S.empty
-hVars (HDiff h i) = S.union (hVars h) (hVars i)
-hVars (HAnd hs)   = S.unions $ map hVars hs
-hVars (HOr hs)    = S.unions $ map hVars hs

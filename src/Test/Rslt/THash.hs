@@ -7,9 +7,11 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
+import Hash.HLookup
+import Hash.HTypes
 import Rslt.Edit
 import Rslt.RTypes
-import Rslt.Lookup
+import Rslt.RLookup
 import qualified Test.Rslt.RData as D
 
 

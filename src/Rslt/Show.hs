@@ -5,7 +5,7 @@ module Rslt.Show where
 import qualified Data.List      as L
 import           Data.Text (strip, pack, unpack)
 
-import Rslt.Lookup
+import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.RUtil
 import Util.Misc

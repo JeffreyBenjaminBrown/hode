@@ -32,13 +32,14 @@ library
                 , Hash.Convert
                 , Hash.EitherExpr
                 , Hash.Hash
+                , Hash.HLookup
                 , Hash.HParse
                 , Hash.HTypes
                 , Hash.HUtil
                 , Rslt.Edit
                 , Rslt.Files
                 , Rslt.Index
-                , Rslt.Lookup
+                , Rslt.RLookup
                 , Rslt.RTypes
                 , Rslt.RUtil
                 , Rslt.RValid
