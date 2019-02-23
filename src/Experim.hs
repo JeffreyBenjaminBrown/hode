@@ -7,22 +7,17 @@ import Text.Megaparsec
 import Hash.Convert
 import Hash.HLookup
 import Hash.HParse
-import Hash.HTypes
+--import Hash.HTypes
 import Rslt.Edit
-import Rslt.Index
+--import Rslt.Index
 import Rslt.RTypes
 import Util.Misc
 
 
-expr :: Rslt -> String -> Either String Expr
-expr r s = do
-  (pr :: PRel) <- mapLeft show $ parse pRel "expr" s
-  pRelToHExpr pr >>= hExprToExpr r
-
-x :: Either String (Rslt, Addr)
-x = do
-  let r = mkRslt mempty
-  p <- mapLeft show $ parse pRel "doh!" "a"
-  h <- pRelToHExpr p
-  e <- hExprToExpr r h
-  exprToAddrInsert r e
+pInsert :: Rslt -> String -> Either String (Rslt, Addr)
+pInsert r s = prefixLeft "pInsert"
+  $ mapLeft show (parse pExpr "doh!" s)
+  >>= pExprToHExpr
+  >>= hExprToExpr r
+  >>= exprToAddrInsert r
+ 

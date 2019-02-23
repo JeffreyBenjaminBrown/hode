@@ -20,7 +20,13 @@ test_the_rslt_test_data = TestList [
   ]
 
 
--- | = A small Rslt
+-- | = the smallest `Rslt`
+
+r0 :: Rslt
+r0 = mkRslt mempty
+
+
+-- | = a small `Rslt`
 
 refExprs :: Map Addr RefExpr
 refExprs = M.fromList
@@ -43,7 +49,7 @@ rslt :: Rslt
 rslt = mkRslt refExprs
 
 
--- | A big, abstract one
+-- | a big, abstract `Rslt`
 
 big :: Rslt
 big = mkRslt $ M.fromList
@@ -61,7 +67,7 @@ big = mkRslt $ M.fromList
   ]
 
 
--- | = A bigger, concrete one
+-- | = a bigger, concrete `Rslt`
 
 b2 :: Rslt
 b2 = mkRslt $ M.fromList
