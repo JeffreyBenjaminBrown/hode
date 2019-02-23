@@ -26,7 +26,8 @@ validExpr r rel@(Rel ms t) = do
   void $ ifLefts err $ map (validExpr r) $ t : ms
   ((tc,ta) :: (ExprCtr,Arity)) <-
     prefixLeft err $ exprToAddr r t >>= variety r
-  (te :: Expr) <- exprToAddr r t >>= addrToExpr r
+  (te :: Expr) <-    exprToAddr r t >>= addrToExpr r
+    -- looks silly, but it ensures te is not an `Addr`
   if tc == TpltCtr   then Right ()
     else Left $ err ++ ": non-template in template position."
   if ta == length ms then Right ()

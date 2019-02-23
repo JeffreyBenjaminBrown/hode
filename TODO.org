@@ -28,9 +28,7 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO test
-** validExpr
-** hExprToExpr
+* TODO test hExprToExpr
 *** the HMap case
  Should take an Rslt argument.
  If the HExpr is constructor Expr, call validExpr on it.

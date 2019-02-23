@@ -16,7 +16,24 @@ test_module_rslt_index_and_valid = TestList [
     TestLabel "test_invertPositions" test_invertPositions
   , TestLabel "test_checkDb" test_checkDb
   , TestLabel "test_validRefExpr" test_validRefExpr
+  , TestLabel "test_validExpr" test_validExpr
   ]
+
+test_validExpr :: Test
+test_validExpr = TestCase $ do
+  let meh = error "irrelevant"
+  assertBool "1" $ Right () == validExpr D.big (Addr 0)
+  assertBool "1" $ isLeft $    validExpr D.big (Addr 100)
+  assertBool "2" $ Right () == validExpr meh   (Word "a b c")
+  assertBool "2" $ Right () == validExpr meh   (Word "a b c")
+  assertBool "Rel, invalid member" $ isLeft
+    $  validExpr D.big (Rel [ Addr 100 ] $ Addr 101 )
+  assertBool "Rel, false template" $ isLeft
+    $  validExpr D.big ( Rel [ Addr 0, Addr 0 ] $ Addr 0 )
+  assertBool "Rel, arity mismatch" $ isLeft
+    $  validExpr D.big ( Rel [] $ Addr 4 )
+  assertBool "Rel"                 $ Right ()
+    == validExpr D.big ( Rel [Addr 0] $ Addr 4 )
 
 test_validRefExpr :: Test
 test_validRefExpr = TestCase $ do

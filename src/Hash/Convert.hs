@@ -1,5 +1,5 @@
--- | Create `HExpr`s from `PExpr`s and `PRel`s.
--- The step that follows parsing.
+-- | After parsing, the next step is to
+-- create `HExpr`s from `PExpr`s and `PRel`s.
 
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}
