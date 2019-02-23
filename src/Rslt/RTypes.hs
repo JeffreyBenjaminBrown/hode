@@ -92,4 +92,3 @@ data HExpr =
 -- The `Left HIt` values are ignored when evaluating the `HMap`;
 -- they come into play when the `HMap` is a subexpression of some `HEval`.
 type HMap = Map Role HExpr
-

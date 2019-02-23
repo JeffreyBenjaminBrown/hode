@@ -48,11 +48,6 @@ nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
 
 -- | = for Hash
 
-hExprToExpr :: HExpr -> Either String Expr
-hExprToExpr (HExpr e) = Right e
-hExprToExpr h = Left $ "hExprToExpr: given " ++ show h
-  ++ ", but only the HExpr and (soon)HMap constructors can be converted."
-
 hVars :: HExpr -> Set Var
 hVars (HMap m)    = S.unions $ map hVars $ M.elems m
 hVars (HEval m _) = hVars m

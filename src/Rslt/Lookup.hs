@@ -3,6 +3,7 @@
 module Rslt.Lookup where
 
 import           Data.Functor (void)
+import           Data.List (sort)
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -25,6 +26,29 @@ hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
 hFindSubExprs paths = mkFindFrom f where
   f :: Rslt -> Addr -> Either String (Set Addr)
   f r a = subExprs r paths a
+
+
+-- | HExpr -> Expr
+
+hExprToExpr :: Rslt -> HExpr -> Either String Expr
+hExprToExpr _ (HExpr e) = Right e
+hExprToExpr r h@(HMap mh) = do
+  (me :: Map Role Expr) <- ifLefts_map "hExprToExpr"
+    $ M.map (hExprToExpr r) mh
+  (t :: Expr) <-
+    maybe (Left $ "hExprToExpr: no template in " ++ show h)
+    Right $ M.lookup RoleTplt me
+  case t of Tplt _ -> Right ()
+            x -> Left $ "hExprToExpr: in " ++ show h
+                 ++ ", the expression " ++ show x ++ " is not a Tplt."
+  ta <- prefixLeft "hExprToExpr" $ arity r t
+  if M.size me == ta then Right ()
+    else Left $ "hExprToExpr: arity mismatch between " ++ show h
+         ++ " and its Tplt " ++ show t
+  Right $ Rel (sort $ M.elems $ M.delete RoleTplt me) t
+
+hExprToExpr _ h = Left $ "hExprToExpr: given " ++ show h
+  ++ ", but only the HExpr and HMap constructors can be so converted."
 
 
 -- | Expr from RefExpr
