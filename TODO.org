@@ -29,8 +29,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO test
-** +validExpr
-** Rslt.RUtil.hExprToExpr
+** validExpr
+** hExprToExpr
 *** the HMap case
  Should take an Rslt argument.
  If the HExpr is constructor Expr, call validExpr on it.
@@ -39,8 +39,6 @@ see the comment leading its definition
    if it has no tplt, fail.
    if its tplt arity does not match the other elements, fail.
    else succeed.
-* TODO move Hash searching from Rslt to Hash
-rename Rslt.RLookup -> Rslt.RLookup
 * TODO views
 ** cursor commands
 up|down to enclosing keyword (\hash, etc)
@@ -55,7 +53,7 @@ ExprImg = ExprImg Expr | Bracket
                           : show a ++ [bracket_angle_small_right]
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
-* TODO DSL for exprs
+* TODO Hash, the DSL for exprs
 ** TODO pExprIsSpecific should address PDiff, PAnd, POr
 *** where it is used
  In pRelToHExpr, only specific things can be converted.
@@ -111,7 +109,7 @@ Do that to create an HMap.
  pRelToPExpr (Closed ms js) =
 *** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
 
-* TODO re. Search
+* TODO Qseq, the DSL for search
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.

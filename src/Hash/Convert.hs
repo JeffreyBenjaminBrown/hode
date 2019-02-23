@@ -1,4 +1,5 @@
--- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
+-- | Create `HExpr`s from `PExpr`s and `PRel`s.
+-- The step that follows parsing.
 
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}

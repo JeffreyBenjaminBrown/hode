@@ -21,6 +21,8 @@ hFind he = Find f $ hVars he
   where f rslt subst = hExprToAddrs rslt subst he
 
 
+-- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
+
 hExprToExpr :: Rslt -> HExpr -> Either String Expr
 hExprToExpr _ (HExpr e) = Right e
 
@@ -42,6 +44,8 @@ hExprToExpr r h@(HMap mh) = do
 hExprToExpr _ h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr and HMap constructors can be so converted."
 
+
+-- | `hExprToAddrs` is the Hash search workhorse.
 
 hExprToAddrs :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
 
