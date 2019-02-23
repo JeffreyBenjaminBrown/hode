@@ -19,11 +19,26 @@ test_module_rslt_hash :: Test
 test_module_rslt_hash = TestList [
     TestLabel "test_subExprs" test_subExprs
   , TestLabel "test_hExprToAddrs" test_hExprToAddrs
+  , TestLabel "test_hExprToExpr" test_hExprToExpr
   ]
+
+test_hExprToExpr :: Test
+test_hExprToExpr = TestCase $ do
+  assertBool "no template" $ isLeft $ hExprToExpr D.big $ HMap M.empty
+  assertBool "false template" $ isLeft $ hExprToExpr D.big $ HMap
+    $ M.singleton (RoleTplt) $ HExpr $ Word "galk"
+  assertBool "non-convertible member" $ isLeft $ hExprToExpr D.big $ HMap
+    $ M.fromList [ (RoleTplt    , HExpr $ Word "galk")
+                 , (RoleMember 1, HVar "x") ]
+  assertBool "arity mismatch" $ isLeft $ hExprToExpr D.big $ HMap
+    $ M.singleton RoleTplt $ HExpr $ Addr 4
+  assertBool "good" $ isLeft $ hExprToExpr D.big $ HMap
+    $ M.fromList [ (RoleTplt    , HExpr $ Addr 4)
+                 , (RoleMember 1, HExpr $ Word "yo!") ]
 
 test_hExprToAddrs :: Test
 test_hExprToAddrs = TestCase $ do
-  -- Still untested:
+  -- TODO ? Still untested:
     -- HEval paths of length > 1
     -- One HEval inside another
 

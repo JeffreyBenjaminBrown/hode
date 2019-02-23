@@ -24,7 +24,6 @@ test_module_rslt_exprToAddr = TestList [
   , TestLabel "test_refExprToExpr" test_refExprToExpr
   ]
 
-
 test_refExprToExpr :: Test
 test_refExprToExpr = TestCase $ do
   assertBool "tplt" $ Right ( Tplt [ Word ""
