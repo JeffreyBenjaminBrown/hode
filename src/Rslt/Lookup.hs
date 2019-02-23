@@ -28,6 +28,35 @@ hFindSubExprs paths = mkFindFrom f where
   f r a = subExprs r paths a
 
 
+-- | Expr from RefExpr
+
+exprFromRefExpr :: Rslt -> RefExpr -> Either String Expr
+exprFromRefExpr _ (Word' w) = Right $ Word w
+exprFromRefExpr r (Tplt' jointAs) = do
+  (jointEs  :: [RefExpr])   <-
+    ifLefts "exprFromRefExpr" $ map (refExprAt r) jointAs
+  (jointEis :: [Expr]) <-
+    ifLefts "exprFromRefExpr" $ map (exprFromRefExpr r) jointEs
+  Right $ Tplt jointEis
+
+exprFromRefExpr r (Rel' memAs tA) = do
+  (memEs  :: [RefExpr]) <- ifLefts    "exprFromRefExpr"
+                          $ map (refExprAt r) memAs
+  (memEis :: [Expr])    <- ifLefts    "exprFromRefExpr"
+                           $ map (exprFromRefExpr r) memEs
+  (tE     :: RefExpr)   <- prefixLeft "exprFromRefExpr"
+                           $ refExprAt r tA
+  (tEi    :: Expr)      <- prefixLeft "exprFromRefExpr"
+                           $ exprFromRefExpr r tE
+  Right $ Rel memEis tEi
+
+exprFromRefExpr r (Par' sas s) = do
+  let ((ss, as) :: ([String],[Addr])) = unzip sas
+  (es  :: [RefExpr]) <- ifLefts "exprFromRefExpr" $ map (refExprAt r) as
+  (eis :: [Expr])    <- ifLefts "exprFromRefExpr" $ map (exprFromRefExpr r) es
+  Right $ Par (zip ss eis) s
+
+
 -- | == `hLookup`: Lookup via the Hash language.
 
 hLookup :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
@@ -133,8 +162,11 @@ lookup x img =
 
 refExprAt :: Rslt -> Addr -> Either String RefExpr
 refExprAt r a =
-  maybe (Left $ "addrOf: Addr " ++ show a ++ " absent.\n") Right
+  maybe (Left $ "refExprAt: Addr " ++ show a ++ " absent.\n") Right
   $ M.lookup a $ _refExprAt r
+
+exprAt :: Rslt -> Addr -> Either String Expr
+exprAt r a = refExprAt r a >>= exprFromRefExpr r
 
 addrOf :: Rslt -> RefExpr -> Either String Addr
 addrOf r e = maybe err Right $ M.lookup e $ _addrOf r

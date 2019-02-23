@@ -1,7 +1,10 @@
 -- | Gory details, not part of the Rslt interface.
 
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Rslt.RValid where
 
+import           Prelude hiding (lookup)
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -18,15 +21,23 @@ import Util.Misc
 validExpr :: Rslt -> Expr -> Either String ()
 validExpr r (Addr a) = allAddrsPresent r [a]
 validExpr _ (Word _) = Right ()
---validExpr r rel@(Rel ms t) =
---  ( ifLefts ("validExpr call on Rel" ++ show rel)
---    $ map (validExpr r) $ t : ms )
+
+validExpr r rel@(Rel ms t) = do
+  let err = "validExpr called on Rel" ++ show rel
+  void $ ifLefts err $ map (validExpr r) $ t : ms
+  ((tc,ta) :: (ExprCtr,Arity)) <- prefixLeft err $ lookup r t >>= variety r
+  (te :: Expr) <- lookup r t >>= exprAt r
+  if tc == TpltCtr   then Right ()
+    else Left $ err ++ ": non-template in template position."
+  if ta == length ms then Right ()
+    else Left $ err ++ " with template " ++ show te ++ ": arity mismatch."
+
 validExpr r t@(Tplt js) =
   ( ifLefts ("validExpr called on Tplt " ++ show t)
     $ map (validExpr r) js )
   >> return ()
 validExpr r (Par pairs _) =
-  ( ifLefts "validExpr call on a Par"
+  ( ifLefts "validExpr called on a Par"
     $ map (validExpr r) $ map snd pairs )
   >> return ()
 

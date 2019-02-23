@@ -28,6 +28,7 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO fix: the names in Rslt.Lookup
 * TODO fix: Rslt.RUtil.hExprToExpr: cover the HMap case too
 ** first, add RValid.validExpr
 ** then
