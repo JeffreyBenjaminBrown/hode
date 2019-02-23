@@ -17,12 +17,29 @@ import Util.Misc
 
 -- | = Building an `HExpr` from a `PExpr`.
 
+-- | In a PRel, outer *members* can be absent:
+--
+--   > parse pExpr "" "/hash x #j"
+--   Right ( PRel ( Open 1 [ PNonRel $ PExpr $ Word "x"
+--                         , Absent ]
+--                  ["j"] ) )
+--
+-- In an HExpr, nothing is absent, but joints can be empty.
+-- For every outer member of a PRel that is not Absent,
+-- there should be an empty string added to that side of the
+-- template in the corresponding HExpr.
+
 pRelToHExpr :: PRel -> Either String HExpr
 pRelToHExpr Absent = Left "pRelToHExpr: cannot convert Absent."
 pRelToHExpr (Open _ ms js) = pRelToHExpr $ Closed ms js
 
-pRelToHExpr (Closed ms js) = do
-  let t = Tplt $ map Word js
+pRelToHExpr (Closed ms js0) = do
+  let absentLeft, absentRight :: Bool
+      absentLeft  = case head ms of Absent -> True; _ -> False
+      absentRight = case last ms of Absent -> True; _ -> False
+      js1 = if not absentLeft  then "" : js0    else js0
+      js2 = if not absentRight then js1 ++ [""] else js1
+      t = Tplt $ map Word js2
       ms' = filter f ms
         where f :: PRel -> Bool
               f Absent = False

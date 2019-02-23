@@ -26,7 +26,7 @@ test_pRelToHExpr = TestCase $ do
                                  [ pnrWord "a", pnrWord "b" ]
                                  [ "is" ] )
     == Right ( HMap $ M.fromList
-               [ ( RoleTplt, HExpr $ Tplt [ Word "is" ] )
+               [ ( RoleTplt, HExpr $ Tplt $ map Word [ "", "is", "" ] )
                , ( RoleMember 1, HExpr $ Word "a" )
                , ( RoleMember 2, HExpr $ Word "b" ) ] )
   assertBool "3" $ let meh = error "irrelevant"
@@ -40,10 +40,11 @@ test_pRelToHExpr = TestCase $ do
                                  [ "is", "because" ] )
     == Right
     ( HMap $ M.fromList
-      [ ( RoleTplt    , HExpr $ Tplt [ Word "is", Word "because" ] )
+      [ ( RoleTplt    , HExpr $ Tplt $ map Word ["", "is", "because", "" ] )
       , ( RoleMember 1, HExpr $ Word "a" )
       , ( RoleMember 2, HMap $ M.fromList
-                        [ ( RoleTplt    , HExpr $ Tplt [ Word "to" ] )
+                        [ ( RoleTplt    , ( HExpr $ Tplt $ map Word
+                                            [ "","to", "" ] ) )
                         , ( RoleMember 1, HExpr $ Word "c" )
                         , ( RoleMember 2, HExpr $ Word "d" ) ] )
       , ( RoleMember 3, HExpr $ Word "b" ) ] )
@@ -70,8 +71,8 @@ test_pExprToHExpr = TestCase $ do
       [ "enjoy", "because" ]
     ) == Right ( HEval
                  ( HMap $ M.fromList
-                   [ ( RoleTplt, ( HExpr $ Tplt
-                                   [ Word "enjoy", Word "because" ] ) )
+                   [ ( RoleTplt, ( HExpr $ Tplt $ map Word
+                                   ["", "enjoy", "because", "" ] ) )
                    , ( RoleMember 1, HMap $ M.singleton
                                      ( RoleMember 1 )
                                      $ HExpr $ Word "bugs" ),
