@@ -1,5 +1,6 @@
 module Test.Rslt.RData where
 
+import           Data.Map (Map)
 import qualified Data.Map as M
 import           Test.HUnit
 
@@ -21,7 +22,7 @@ test_the_rslt_test_data = TestList [
 
 -- | = A small Rslt
 
-refExprs :: RefExprs
+refExprs :: Map Addr RefExpr
 refExprs = M.fromList
   [ (0, Word' "")
   , (1, Word' "dog")
@@ -32,7 +33,7 @@ refExprs = M.fromList
   , (6, Par' [("The first relationship in this graph is ", 5)] ".")
   ]
 
-badRefExprs :: RefExprs
+badRefExprs :: Map Addr RefExpr
 badRefExprs = M.union refExprs newData where
   newData = M.fromList [ (1001, Rel' [1,2] 5)
                        , (1002, Rel' [1,2] (-1000))

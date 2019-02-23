@@ -15,25 +15,30 @@ import Rslt.RTypes
 import Rslt.RUtil
 
 
-mkRslt :: RefExprs -> Rslt
-mkRslt es = let
-  (hasMap :: Map Addr (Map Role Addr)) =
-    M.filter (not . M.null)
-    $ M.map (M.fromList . refExprPositions)
-    $ es
-  in Rslt {
-    _addrToRefExpr = es
-  , _refExprToAddr = imgDb es
-  , _variety = M.map refExprVariety es
-  , _has = hasMap
-  , _isIn = foldl invertAndAddPositions M.empty
-            $ M.toList $ M.map M.toList hasMap
-  }
+mkRslt :: Map Addr RefExpr -> Rslt
+mkRslt es = go es' where
+  es' :: Map Addr RefExpr
+  es' = if not $ M.null es
+        then es else M.singleton 0 $ Word' ""
+  go :: Map Addr RefExpr -> Rslt
+  go m = let
+    (hasMap :: Map Addr (Map Role Addr)) =
+      M.filter (not . M.null)
+      $ M.map (M.fromList . refExprPositions)
+      $ m
+    in Rslt {
+      _addrToRefExpr = m
+    , _refExprToAddr = imgDb m
+    , _variety = M.map refExprVariety m
+    , _has = hasMap
+    , _isIn = foldl invertAndAddPositions M.empty
+              $ M.toList $ M.map M.toList hasMap
+    }
 
 
 -- | == Given an expression, look up an address.
 
-imgDb :: RefExprs -> Map RefExpr Addr
+imgDb :: Map Addr RefExpr -> Map RefExpr Addr
 imgDb = M.fromList . catMaybes . map f . M.toList where
   f (addr, expr) = case expr of
     Par' _ _ -> Nothing
@@ -59,7 +64,7 @@ refExprPositions expr =
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map
 -- from addresses to the set of roles they play in other expressions, ras is
--- the set of roles in a, and a is not a key of m. 
+-- the set of roles in a, and a is not a key of m.
 
 invertAndAddPositions :: Map Addr (Set (Role, Addr))
                       -> (Addr,       [(Role, Addr)])
@@ -71,4 +76,3 @@ invertAndAddPositions fm0 (a1, ras) = foldl f fm0 ras where
   f fm (r,a) = M.insertWith S.union a newData fm
     where newData :: Set (Role, Addr)
           newData = S.singleton (r,a1)
-

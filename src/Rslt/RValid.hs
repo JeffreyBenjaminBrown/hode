@@ -103,12 +103,12 @@ collectionsWithAbsentAddrs r = res where
   involved (Rel' as a)  = a : as
   involved (Par' sas _) = map snd sas
 
-  collections :: RefExprs
+  collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where
     isCollection expr = case expr of Word' _ -> False
                                      _       -> True
 
-relsWithoutMatchingTplts :: Rslt -> RefExprs
+relsWithoutMatchingTplts :: Rslt -> Map Addr RefExpr
 relsWithoutMatchingTplts r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 

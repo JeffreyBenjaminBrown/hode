@@ -1,23 +1,28 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
+module Experim where
+
 import Text.Megaparsec
 
 import Hash.Convert
+import Hash.HLookup
 import Hash.HParse
 import Hash.HTypes
 import Rslt.Edit
 import Rslt.Index
 import Rslt.RTypes
-import Rslt.RUtil
+import Util.Misc
 
 
-expr :: String -> Either String Expr
-expr s = do (pr :: PRel) <- either (\s -> Left $ show s) Right
-                            $ parse pRel "expr" s
-            pRelToHExpr pr >>= hExprToExpr
+expr :: Rslt -> String -> Either String Expr
+expr r s = do
+  (pr :: PRel) <- mapLeft show $ parse pRel "expr" s
+  pRelToHExpr pr >>= hExprToExpr r
 
---r <- return $ mkRslt mempty
---e <- return $ hExprToExpr <$> ( pRelToHExpr <$> parse pRel "?" "a" )
---
---x <- exprToAddrInsert 
-
+x :: Either String (Rslt, Addr)
+x = do
+  let r = mkRslt mempty
+  p <- mapLeft show $ parse pRel "doh!" "a"
+  h <- pRelToHExpr p
+  e <- hExprToExpr r h
+  exprToAddrInsert r e

@@ -29,6 +29,7 @@ library
   exposed-modules:
                   Data.Graph
                 , Data.Relation
+                , Experim
                 , Hash.Convert
                 , Hash.EitherExpr
                 , Hash.Hash

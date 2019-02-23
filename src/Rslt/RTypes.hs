@@ -60,4 +60,3 @@ data ExprCtr = WordCtr | RelCtr | TpltCtr | ParCtr
   deriving (Eq, Ord, Read, Show)
 
 -- | A `RefExprs` is used to retrieve the text of `Word`s and `Par`s.
-type RefExprs = Map Addr RefExpr
