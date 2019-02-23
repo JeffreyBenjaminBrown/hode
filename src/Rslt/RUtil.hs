@@ -2,7 +2,6 @@
 
 module Rslt.RUtil where
 
-import           Prelude hiding (lookup)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
@@ -40,7 +39,7 @@ refExprArity (Par' x _) = length x
 -- | = for `Rslt`s
 
 maxAddr :: Rslt -> Either String Addr
-maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _refExprAt
+maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _addrToRefExpr
   where errMsg = Left $ "maxAddr: empty Rslt.\n"
 
 nextAddr :: Rslt -> Either String Addr

@@ -3,7 +3,6 @@
 
 module Rslt.Edit where
 
-import           Prelude hiding (lookup)
 import           Data.Functor (void)
 import qualified Data.List      as L
 import           Data.Map (Map)
@@ -21,65 +20,65 @@ import Util.Misc
 
 -- | = Edit + search
 
--- | `lookupInsert r ei` returns the `Addr` containing ei, if present.
+-- | `exprToAddrInsert r ei` returns the `Addr` containing ei, if present.
 -- If not, it inserts ei, and then returns the `Addr` containing it.
 -- Since it might modify the `Rslt`, it also returns that.
-lookupInsert :: Rslt -> Expr -> Either String (Rslt, Addr)
-lookupInsert r ei = do
+exprToAddrInsert :: Rslt -> Expr -> Either String (Rslt, Addr)
+exprToAddrInsert r ei = do
   let (mra :: Maybe Addr) = either (const Nothing) Just
-                            $ lookup r ei
+                            $ exprToAddr r ei
   case mra of
     Just a -> Right (r, a)
-    Nothing -> lookupInsert_rootNotFound r ei
+    Nothing -> exprToAddrInsert_rootNotFound r ei
 
 
--- | `lookupInsert_rootNotFound` is like `lookupInsert`, in the case
+-- | `exprToAddrInsert_rootNotFound` is like `exprToAddrInsert`, in the case
 -- that the root `RefExpr` has been determined not to be present,
 -- but the others still might be.
-lookupInsert_rootNotFound :: Rslt -> Expr -> Either String (Rslt, Addr)
-lookupInsert_rootNotFound _ (Addr a) =
-  Left $ "lookupInsert: Addr " ++ show a ++ "not found.\n"
+exprToAddrInsert_rootNotFound :: Rslt -> Expr -> Either String (Rslt, Addr)
+exprToAddrInsert_rootNotFound _ (Addr a) =
+  Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
 
-lookupInsert_rootNotFound r0 (Word w) = do
+exprToAddrInsert_rootNotFound r0 (Word w) = do
   a <- nextAddr r0
   r1 <- insertAt a (Word' w) r0
   Right (r1,a)
 
-lookupInsert_rootNotFound r0 (Tplt js) = do
-  (r1,as) <- prefixLeft "lookupInsert_rootNotFound"
-            $ lookupInsert_list r0 js
+exprToAddrInsert_rootNotFound r0 (Tplt js) = do
+  (r1,as) <- prefixLeft "exprToAddrInsert_rootNotFound"
+            $ exprToAddrInsert_list r0 js
   a <- nextAddr r1
   r2 <- insertAt a (Tplt' $ as) r1
   Right (r2, a)
 
-lookupInsert_rootNotFound r0 (Rel ms t) = do
-  (r1,ta)  <- prefixLeft "lookupInsert_rootNotFound"
-            $ lookupInsert r0 t
-  (r2,mas) <- prefixLeft "lookupInsert_rootNotFound"
-             $ lookupInsert_list r1 ms
+exprToAddrInsert_rootNotFound r0 (Rel ms t) = do
+  (r1,ta)  <- prefixLeft "exprToAddrInsert_rootNotFound"
+            $ exprToAddrInsert r0 t
+  (r2,mas) <- prefixLeft "exprToAddrInsert_rootNotFound"
+             $ exprToAddrInsert_list r1 ms
   a <- nextAddr r2
   r3 <- insertAt a (Rel' mas ta) r2
   Right (r3,a)
 
-lookupInsert_rootNotFound r0 (Par ps s) = do
+exprToAddrInsert_rootNotFound r0 (Par ps s) = do
   let (ss, is) = unzip ps
-  (r1,as) <- prefixLeft "lookupInsert_rootNotFound"
-            $ lookupInsert_list r0 is
+  (r1,as) <- prefixLeft "exprToAddrInsert_rootNotFound"
+            $ exprToAddrInsert_list r0 is
   a <- nextAddr r1
   r2 <- insertAt a (Par' (zip ss as) s) r1
   Right (r2,a)
 
 
-lookupInsert_list :: Rslt -> [Expr] -> Either String (Rslt, [Addr])
-lookupInsert_list r0 is = do
+exprToAddrInsert_list :: Rslt -> [Expr] -> Either String (Rslt, [Addr])
+exprToAddrInsert_list r0 is = do
   let ((er, as) :: (Either String Rslt, [Addr])) =
         L.mapAccumL f (Right r0) is where
         f :: Either String Rslt -> Expr -> (Either String Rslt, Addr)
         f (Left s) _ = (Left s, error "irrelevant")
-        f (Right r) ei = case lookupInsert r ei of
+        f (Right r) ei = case exprToAddrInsert r ei of
                            Left s -> (Left s, error "irrelevant")
                            Right (r',a) -> (Right r', a)
-  r1 <- prefixLeft "lookupInsert_list" er
+  r1 <- prefixLeft "exprToAddrInsert_list" er
   Right $ (r1, as)
 
 
@@ -106,7 +105,7 @@ _substitute new old r0 = do
 _replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
 _replaceInRefExpr r spot new host = do
   let pel = prefixLeft "_replaceInRefExpr"
-  void $ pel $ refExprAt r new
+  void $ pel $ addrToRefExpr r new
 
   case spot of
     RoleTplt -> case host of
@@ -140,8 +139,8 @@ _replaceInRefExpr r spot new host = do
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceInRole spot new host r = do
   let pel = prefixLeft "replaceInRole"
-  _                          <- pel $ refExprAt r new
-  oldHostRefExpr             <- pel $ refExprAt r host
+  _                          <- pel $ addrToRefExpr r new
+  oldHostRefExpr             <- pel $ addrToRefExpr r host
   (hostHas :: Map Role Addr) <- pel $ has r host
   (old :: Addr) <- let err = Left $ "replaceInRole: RefExpr at " ++ show host
                              ++ " includes no position " ++ show spot ++ "\n."
@@ -152,11 +151,11 @@ replaceInRole spot new host r = do
   (newIsAlreadyIn :: Set (Role,Addr)) <- pel $ isIn r new
 
   Right $ r {
-      _refExprAt = M.insert host newHostRefExpr $ _refExprAt r
-    , _addrOf = let f = case newHostRefExpr of
-                          Par' _ _ -> id
-                          _        -> M.insert newHostRefExpr host
-                in f $ M.delete oldHostRefExpr $ _addrOf r
+      _addrToRefExpr = M.insert host newHostRefExpr $ _addrToRefExpr r
+    , _refExprToAddr = let f = case newHostRefExpr of
+                             Par' _ _ -> id
+                             _        -> M.insert newHostRefExpr host
+                in f $ M.delete oldHostRefExpr $ _refExprToAddr r
 
     , _has    = M.adjust (M.insert spot new) host $ _has r
 
@@ -179,15 +178,15 @@ insertAt a e r = do
   void $ prefixLeft "insertAt" $ validRefExpr r e
   let errMsg = "insertAt: Addr " ++ show a ++ " already occupied.\n"
       in void $ either Right (const $ Left errMsg)
-         $ refExprAt r a
+         $ addrToRefExpr r a
   Right $ _insert a e r
 
 -- | PITFALL: Unsafe. Checks neither that the RefExpr is valid, nor that
 -- the Addr collides with nothing already present.
 _insert :: Addr -> RefExpr -> Rslt -> Rslt
 _insert a e r = Rslt {
-    _refExprAt = M.insert a e $ _refExprAt r
-  , _addrOf = M.insert e a $ _addrOf r
+    _addrToRefExpr = M.insert a e $ _addrToRefExpr r
+  , _refExprToAddr = M.insert e a $ _refExprToAddr r
   , _variety = M.insert a (refExprVariety e) $ _variety r
   , _has = let
       (positions :: Map Role Addr) = M.fromList $ refExprPositions e
@@ -214,16 +213,16 @@ _deleteInternalMentionsOf a r = do
             -> Map Addr (Set (Role, Addr))
           f ii rl ad = M.adjust (S.delete (rl,a)) ad ii
 
-  _addrOf2 <- do
-    e <- prefixLeft "_deleteInternalMentionsOf" $ refExprAt r a
-    Right $ M.delete e $ _addrOf r
+  _refExprToAddr2 <- do
+    e <- prefixLeft "_deleteInternalMentionsOf" $ addrToRefExpr r a
+    Right $ M.delete e $ _refExprToAddr r
 
   Right $ Rslt {
     _has  = _has2
     , _isIn = _isIn2
     , _variety = M.delete a $ _variety r
-    , _refExprAt = M.delete a $ _refExprAt r
-    , _addrOf = _addrOf2
+    , _addrToRefExpr = M.delete a $ _addrToRefExpr r
+    , _refExprToAddr = _refExprToAddr2
     }
 
 deleteUnused :: Addr -> Rslt -> Either String Rslt

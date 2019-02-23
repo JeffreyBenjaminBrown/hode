@@ -40,8 +40,8 @@ data Expr =
 -- than `Expr`s, for speed and compactness.
 
 data Rslt = Rslt {
-    _refExprAt :: Map Addr RefExpr
-  , _addrOf    :: Map RefExpr Addr
+    _addrToRefExpr :: Map Addr RefExpr
+  , _refExprToAddr    :: Map RefExpr Addr
   , _variety   :: Map Addr (ExprCtr, Arity)
   , _has       :: Map Addr (Map Role Addr)
   , _isIn      :: Map Addr (Set (Role, Addr))

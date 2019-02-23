@@ -4,7 +4,6 @@
 
 module Rslt.RValid where
 
-import           Prelude hiding (lookup)
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -25,8 +24,9 @@ validExpr _ (Word _) = Right ()
 validExpr r rel@(Rel ms t) = do
   let err = "validExpr called on Rel" ++ show rel
   void $ ifLefts err $ map (validExpr r) $ t : ms
-  ((tc,ta) :: (ExprCtr,Arity)) <- prefixLeft err $ lookup r t >>= variety r
-  (te :: Expr) <- lookup r t >>= exprAt r
+  ((tc,ta) :: (ExprCtr,Arity)) <-
+    prefixLeft err $ exprToAddr r t >>= variety r
+  (te :: Expr) <- exprToAddr r t >>= addrToExpr r
   if tc == TpltCtr   then Right ()
     else Left $ err ++ ": non-template in template position."
   if ta == length ms then Right ()
@@ -103,7 +103,7 @@ collectionsWithAbsentAddrs r = res where
   involved (Par' sas _) = map snd sas
 
   collections :: RefExprs
-  collections = M.filter isCollection $ _refExprAt r where
+  collections = M.filter isCollection $ _addrToRefExpr r where
     isCollection expr = case expr of Word' _ -> False
                                      _       -> True
 
@@ -119,7 +119,7 @@ relsWithoutMatchingTplts r = res where
       _       -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
-  rels = M.filter isRel $ _refExprAt r where
+  rels = M.filter isRel $ _addrToRefExpr r where
     isRel (Rel' _ _) = True
     isRel _         = False
 
@@ -128,5 +128,5 @@ relsWithoutMatchingTplts r = res where
 
 allAddrsPresent :: Rslt -> [Addr] -> Either String ()
 allAddrsPresent r as = do
-  void $ ifLefts "allAddrsPresent: " $ map (refExprAt r) as
+  void $ ifLefts "allAddrsPresent: " $ map (addrToRefExpr r) as
   Right ()

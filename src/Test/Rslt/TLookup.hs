@@ -7,36 +7,35 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import           Rslt.Lookup hiding (lookup)
+import           Rslt.Lookup hiding (exprToAddr)
 import qualified Rslt.Edit as R
 import qualified Rslt.Lookup as R
 import           Rslt.RTypes
-import           Rslt.Show
 import qualified Test.Rslt.RData as D
 
 
-test_module_rslt_lookup :: Test
-test_module_rslt_lookup = TestList [
+test_module_rslt_exprToAddr :: Test
+test_module_rslt_exprToAddr = TestList [
   TestLabel "test_variety" test_variety
   , TestLabel "test_fills" test_fills
   , TestLabel "test_isIn" test_isIn
   , TestLabel "test_has" test_has
-  , TestLabel "test_lookup" test_lookup
-  , TestLabel "test_exprFromRefExpr" test_exprFromRefExpr
+  , TestLabel "test_exprToAddr" test_exprToAddr
+  , TestLabel "test_refExprToExpr" test_refExprToExpr
   ]
 
 
-test_exprFromRefExpr :: Test
-test_exprFromRefExpr = TestCase $ do
+test_refExprToExpr :: Test
+test_refExprToExpr = TestCase $ do
   assertBool "tplt" $ Right ( Tplt [ Word ""
                                            , Word "needs"
                                            , Word "" ] )
-    == exprFromRefExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
+    == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
   assertBool "par" $ Right ( Par [ ( "You can't eat"
                                         , Word "oxygen" ) ]
                              "silly" )
-    == exprFromRefExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
+    == refExprToExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
 
   assertBool "rel, recursive" $
     let ti = Tplt [ Word ""
@@ -47,27 +46,27 @@ test_exprFromRefExpr = TestCase $ do
                                    , Word "oxygen" ]
                           ti ]
                ti )
-    == exprFromRefExpr D.rslt ( Rel' [1,5] 4 )
+    == refExprToExpr D.rslt ( Rel' [1,5] 4 )
 
-test_lookup :: Test
-test_lookup = TestCase $ do
-  assertBool "1" $ (R.lookup D.rslt $ Addr 0)       == Right 0
+test_exprToAddr :: Test
+test_exprToAddr = TestCase $ do
+  assertBool "1" $ (R.exprToAddr D.rslt $ Addr 0)       == Right 0
   assertBool "2" $ isLeft
-                 $ (R.lookup D.rslt $ Addr $ -10000)
-  assertBool "3" $ (R.lookup D.rslt $ Word "needs") == Right 3
-  assertBool "4" $ (R.lookup D.rslt $ either (error "wut") id
-                    $ exprFromRefExpr D.rslt $ Tplt' [0,3,0])  == Right 4
+                 $ (R.exprToAddr D.rslt $ Addr $ -10000)
+  assertBool "3" $ (R.exprToAddr D.rslt $ Word "needs") == Right 3
+  assertBool "4" $ (R.exprToAddr D.rslt $ either (error "wut") id
+                    $ refExprToExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
-    R.lookup D.rslt ( Tplt [ Addr 0
+    R.exprToAddr D.rslt ( Tplt [ Addr 0
                                 , Word "needs"
                                 , Word ""] )
 
   assertBool "6" $ Right 5 ==
-    R.lookup D.rslt ( Rel [ Addr 1
+    R.exprToAddr D.rslt ( Rel [ Addr 1
                                , Word "oxygen"]
                       $ Addr 4 )
   assertBool "7" $ isLeft $
-    R.lookup D.rslt ( Rel [ Addr 1
+    R.exprToAddr D.rslt ( Rel [ Addr 1
                                , Word "oxygen"]
                       $ Addr 6 )
 

@@ -30,8 +30,6 @@ when it ought to be this:
 see the comment leading its definition
 * TODO fix: the names in Rslt.Lookup
 * TODO fix: Rslt.RUtil.hExprToExpr: cover the HMap case too
-** first, add RValid.validExpr
-** then
 Should take an Rslt argument.
 If the HExpr is constructor Expr, call validExpr on it.
 If the HExpr is constructor HMap,
@@ -148,7 +146,7 @@ example: In this:
 I only wrote the Any case to make GHCI not issue a warning. It should come last.
 ** use lists in some places for fusion, short-circuiting, instead of maps, sets
 Example: mapping over a map, and then looking for lefts, is slower than turning the map into a list, mapping over the list, and short-circuiting at the first Left.
-hLookup (the Hash language find routine) called on the HMap constructor, for instance, does this.
+hExprToAddrs (the Hash language find routine) called on the HMap constructor, for instance, does this.
 ** speed when asking for multiple variables that determined a given one
  For varPossibilities, just use the unconditional found values.
  For the input-output criteria, just use VarTest.

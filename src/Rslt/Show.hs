@@ -2,7 +2,6 @@
 
 module Rslt.Show where
 
-import           Prelude hiding (lookup)
 import qualified Data.List      as L
 import           Data.Text (strip, pack, unpack)
 
@@ -43,7 +42,7 @@ hashUnlessEmptyStartOrEnd k0 joints = case joints of
 
 eShow :: Rslt -> Expr -> Either String String
 eShow r (Addr a) = do
-  e <- refExprAt r a
+  e <- addrToRefExpr r a
   case e of
     Word' w    ->    eShow r $ Word w
     Tplt' js   ->    eShow r $ Tplt $ map Addr js
@@ -66,8 +65,8 @@ eShow r i@(Rel ms (Tplt js)) = do
     $ zip ("" : mss) jss
 
 eShow r (Rel ms (Addr a)) = do
-  (te :: RefExpr) <- prefixLeft "eShow" $ refExprAt r a
-  (ti :: Expr)    <- prefixLeft "eShow" $ exprFromRefExpr r te
+  (te :: RefExpr) <- prefixLeft "eShow" $ addrToRefExpr r a
+  (ti :: Expr)    <- prefixLeft "eShow" $ refExprToExpr r te
   eShow r $ Rel ms ti
 eShow _ i@(Rel _ _) =
   Left $ "eShow: Rel with non-Tplt in Tplt position: " ++ show i

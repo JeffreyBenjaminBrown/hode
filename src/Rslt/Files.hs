@@ -2,7 +2,6 @@
 
 module Rslt.Files where
 
-import           Prelude hiding (lookup)
 import qualified Data.Map       as M
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
@@ -34,4 +33,4 @@ writeRslt p r = let
   writeRefExpr (a,e) =
     writeFile name $ show e
     where name = p ++ "/" ++ show a ++ ".rslt"
-  in mapM_ writeRefExpr $ M.toList $ _refExprAt r
+  in mapM_ writeRefExpr $ M.toList $ _addrToRefExpr r

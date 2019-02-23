@@ -22,8 +22,8 @@ mkRslt es = let
     $ M.map (M.fromList . refExprPositions)
     $ es
   in Rslt {
-    _refExprAt = es
-  , _addrOf = imgDb es
+    _addrToRefExpr = es
+  , _refExprToAddr = imgDb es
   , _variety = M.map refExprVariety es
   , _has = hasMap
   , _isIn = foldl invertAndAddPositions M.empty

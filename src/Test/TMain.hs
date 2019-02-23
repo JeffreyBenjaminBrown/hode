@@ -33,7 +33,7 @@ tests = runTestTT $ TestList
   , test_module_rslt_edit
   , test_module_rslt_hash
   , test_module_rslt_index_and_valid
-  , test_module_rslt_lookup
+  , test_module_rslt_exprToAddr
   , test_module_rslt_show
   , test_modules_leaf
   , test_module_hash_convert

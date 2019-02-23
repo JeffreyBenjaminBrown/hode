@@ -7,7 +7,7 @@ import qualified Data.Set       as S
 import qualified Test.HUnit as T
 import           Test.HUnit hiding (Test, test)
 
-import           Rslt.Lookup hiding (lookup)
+import           Rslt.Lookup hiding (exprToAddr)
 import qualified Rslt.Lookup as R
 import           Rslt.RTypes
 import           Qseq.QTypes
@@ -168,12 +168,12 @@ test_rslt_query = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
     [ ( "a", QFind $ mkFind
-        $ \sp -> S.singleton <$> R.lookup sp (Addr 0) ) ]
+        $ \sp -> S.singleton <$> R.exprToAddr sp (Addr 0) ) ]
     == Right ( M.singleton "a"
                $ M.singleton 0 $ S.singleton M.empty )
 
   assertBool "2" $ runProgram D.rslt
     [ ("a", QFind $ mkFind
-        $ \sp -> S.singleton <$> refExprAt sp 0 ) ]
+        $ \sp -> S.singleton <$> addrToRefExpr sp 0 ) ]
     == Right ( M.singleton "a"
                $ M.singleton (Word' "") $ S.singleton M.empty )

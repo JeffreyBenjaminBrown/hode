@@ -7,7 +7,7 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import           Rslt.Lookup hiding (lookup)
+import           Rslt.Lookup hiding (exprToAddr)
 import qualified Rslt.Edit as R
 import           Rslt.Index
 import           Rslt.RTypes
@@ -22,22 +22,22 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_deleteUnused" test_deleteUnused
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
-  , TestLabel "test_lookupInsert" test_lookupInsert
+  , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
   ]
 
-test_lookupInsert :: Test
-test_lookupInsert = TestCase $ do
-  assertBool "1" $ R.lookupInsert D.rslt ( Tplt [ Addr 0
+test_exprToAddrInsert :: Test
+test_exprToAddrInsert = TestCase $ do
+  assertBool "1" $ R.exprToAddrInsert D.rslt ( Tplt [ Addr 0
                                                      , Addr 3
                                                      , Addr 0 ] )
     == Right (D.rslt, 4)
-  assertBool "2" $ R.lookupInsert D.rslt ( Tplt [ Addr 0
+  assertBool "2" $ R.exprToAddrInsert D.rslt ( Tplt [ Addr 0
                                                      , Addr 1
                                                      , Addr 0 ] )
     == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt' [0,1,0]) D.rslt
              , 7 )
 
-  assertBool "3" $ R.lookupInsert D.rslt ( Tplt [ Word "bar"
+  assertBool "3" $ R.exprToAddrInsert D.rslt ( Tplt [ Word "bar"
                                                      , Word ""
                                                      , Word "foo" ] )
     == Right ( fromRight (error "wut")
@@ -48,7 +48,7 @@ test_lookupInsert = TestCase $ do
                $ R.insertAt 7 (Word' "bar") D.rslt
              , 9 )
 
-  assertBool "4" $ R.lookupInsert D.rslt
+  assertBool "4" $ R.exprToAddrInsert D.rslt
     ( Par [ ("The template", Tplt $ map Addr [0,3,0])
                , ("could use a", Word "taxi") ] "" )
     == Right ( fromRight (error "wut")
@@ -59,7 +59,7 @@ test_lookupInsert = TestCase $ do
              , 8 )
 
   assertBool "5" $ let
-    Right (r,a) = R.lookupInsert D.rslt
+    Right (r,a) = R.exprToAddrInsert D.rslt
                   ( Rel [ Rel [ Word "space"
                                         , Word "empty" ]
                                ( Tplt [ Word ""
@@ -70,7 +70,7 @@ test_lookupInsert = TestCase $ do
                                 , Word "does"
                                 , Addr 0 ] ) )
     (n16 :: Expr) =
-      either (error "wut") id $ refExprAt r a >>= exprFromRefExpr r
+      either (error "wut") id $ addrToRefExpr r a >>= refExprToExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 
 test_replace :: Test
@@ -160,9 +160,9 @@ test_deleteUnused = TestCase $ do
   assertBool "valid 3" $ isRight $ validRslt r
 
   assertBool "1" $ isLeft $ R.deleteUnused 5 D.rslt
-  assertBool "refExprAt of deleted" $ isLeft $ refExprAt r 5
-  assertBool "addrOf missing"    $ isLeft $
-    either (error "wut") (addrOf r) (refExprAt D.rslt 5)
+  assertBool "addrToRefExpr of deleted" $ isLeft $ addrToRefExpr r 5
+  assertBool "refExprToAddr missing"    $ isLeft $
+    either (error "wut") (refExprToAddr r) (addrToRefExpr D.rslt 5)
   assertBool "variety missing"   $ isLeft $ variety r 5
   assertBool "has missing"       $ isLeft $ has r 5
   assertBool "isIn missing"      $ isLeft $ isIn r 5

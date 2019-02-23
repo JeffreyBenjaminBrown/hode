@@ -2,7 +2,6 @@
 
 module Rslt.Lookup where
 
-import           Prelude hiding (lookup)
 import           Data.Functor (void)
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -20,7 +19,7 @@ import Util.Misc
 
 hFind :: HExpr -> Find Addr Rslt
 hFind he = Find f $ hVars he
-  where f rslt subst = hLookup rslt subst he
+  where f rslt subst = hExprToAddrs rslt subst he
 
 hFindSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
 hFindSubExprs paths = mkFindFrom f where
@@ -30,41 +29,41 @@ hFindSubExprs paths = mkFindFrom f where
 
 -- | Expr from RefExpr
 
-exprFromRefExpr :: Rslt -> RefExpr -> Either String Expr
-exprFromRefExpr _ (Word' w) = Right $ Word w
-exprFromRefExpr r (Tplt' jointAs) = do
+refExprToExpr :: Rslt -> RefExpr -> Either String Expr
+refExprToExpr _ (Word' w) = Right $ Word w
+refExprToExpr r (Tplt' jointAs) = do
   (jointEs  :: [RefExpr])   <-
-    ifLefts "exprFromRefExpr" $ map (refExprAt r) jointAs
+    ifLefts "refExprToExpr" $ map (addrToRefExpr r) jointAs
   (jointEis :: [Expr]) <-
-    ifLefts "exprFromRefExpr" $ map (exprFromRefExpr r) jointEs
+    ifLefts "refExprToExpr" $ map (refExprToExpr r) jointEs
   Right $ Tplt jointEis
 
-exprFromRefExpr r (Rel' memAs tA) = do
-  (memEs  :: [RefExpr]) <- ifLefts    "exprFromRefExpr"
-                          $ map (refExprAt r) memAs
-  (memEis :: [Expr])    <- ifLefts    "exprFromRefExpr"
-                           $ map (exprFromRefExpr r) memEs
-  (tE     :: RefExpr)   <- prefixLeft "exprFromRefExpr"
-                           $ refExprAt r tA
-  (tEi    :: Expr)      <- prefixLeft "exprFromRefExpr"
-                           $ exprFromRefExpr r tE
+refExprToExpr r (Rel' memAs tA) = do
+  (memEs  :: [RefExpr]) <- ifLefts    "refExprToExpr"
+                          $ map (addrToRefExpr r) memAs
+  (memEis :: [Expr])    <- ifLefts    "refExprToExpr"
+                           $ map (refExprToExpr r) memEs
+  (tE     :: RefExpr)   <- prefixLeft "refExprToExpr"
+                           $ addrToRefExpr r tA
+  (tEi    :: Expr)      <- prefixLeft "refExprToExpr"
+                           $ refExprToExpr r tE
   Right $ Rel memEis tEi
 
-exprFromRefExpr r (Par' sas s) = do
+refExprToExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
-  (es  :: [RefExpr]) <- ifLefts "exprFromRefExpr" $ map (refExprAt r) as
-  (eis :: [Expr])    <- ifLefts "exprFromRefExpr" $ map (exprFromRefExpr r) es
+  (es  :: [RefExpr]) <- ifLefts "refExprToExpr" $ map (addrToRefExpr r) as
+  (eis :: [Expr])    <- ifLefts "refExprToExpr" $ map (refExprToExpr r) es
   Right $ Par (zip ss eis) s
 
 
--- | == `hLookup`: Lookup via the Hash language.
+-- | == `hExprToAddrs`: Lookup via the Hash language.
 
-hLookup :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
+hExprToAddrs :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
 
-hLookup r s (HMap m) = do
+hExprToAddrs r s (HMap m) = do
   (found :: Map Role (Set Addr)) <-
-    ifLefts_map "hLookup called on HMap calculating found"
-    $ M.map (hLookup r s) m
+    ifLefts_map "hExprToAddrs called on HMap calculating found"
+    $ M.map (hExprToAddrs r s) m
 
   let roleHostCandidates :: Role -> Set Addr -> Either String (Set Addr)
       roleHostCandidates role as = do
@@ -72,46 +71,46 @@ hLookup r s (HMap m) = do
         -- This returns all those hosts.
         (roleHostPairs :: Set (Role, Addr)) <-
           S.unions <$>
-          ( ifLefts_set "hLookup on HMap / f"
+          ( ifLefts_set "hExprToAddrs on HMap / f"
             $ S.map (isIn r) as )
         Right $ S.map snd
           $ S.filter ((==) role . fst) roleHostPairs
 
   (hosts :: Map Role (Set Addr)) <-
-    ifLefts_map "hLookup called on HMap calculating hosts"
+    ifLefts_map "hExprToAddrs called on HMap calculating hosts"
     $ M.mapWithKey roleHostCandidates found
   case null hosts of
     True -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hosts
 
-hLookup r s (HEval hm paths) = do
-  (hosts :: Set Addr)     <- hLookup r s hm
+hExprToAddrs r s (HEval hm paths) = do
+  (hosts :: Set Addr)     <- hExprToAddrs r s hm
   (its :: Set (Set Addr)) <-
-    ( ifLefts_set "hLookup called on HEval, mapping over hosts"
+    ( ifLefts_set "hExprToAddrs called on HEval, mapping over hosts"
       $ S.map (subExprs r paths) hosts )
   Right $ S.unions its
 
-hLookup _ s (HVar v) =
-  maybe (Left $ keyErr "hLookup" v s) (Right . S.singleton)
+hExprToAddrs _ s (HVar v) =
+  maybe (Left $ keyErr "hExprToAddrs" v s) (Right . S.singleton)
   $ M.lookup v s
 
-hLookup r _ (HExpr e) = S.singleton <$> lookup r e
+hExprToAddrs r _ (HExpr e) = S.singleton <$> exprToAddr r e
 
-hLookup r s (HDiff base exclude) = do
-  b <- prefixLeft "hLookup called on HDiff calculating base"
-       $ hLookup r s base
-  e <- prefixLeft "hLookup called on HDiff calculating exclude"
-       $ hLookup r s exclude
+hExprToAddrs r s (HDiff base exclude) = do
+  b <- prefixLeft "hExprToAddrs called on HDiff calculating base"
+       $ hExprToAddrs r s base
+  e <- prefixLeft "hExprToAddrs called on HDiff calculating exclude"
+       $ hExprToAddrs r s exclude
   Right $ S.difference b e
 
 -- | TRICK: For speed, put the most selective searches first in the list.
-hLookup r s (HAnd hs) = foldr1 S.intersection <$>
-                        ( ifLefts "hLookup called on HAnd"
-                          $ map (hLookup r s) hs )
+hExprToAddrs r s (HAnd hs) = foldr1 S.intersection <$>
+                        ( ifLefts "hExprToAddrs called on HAnd"
+                          $ map (hExprToAddrs r s) hs )
 
-hLookup r s (HOr hs) = foldr1 S.union <$>
-                       ( ifLefts "hLookup called on HOr"
-                         $ map (hLookup r s) hs )
+hExprToAddrs r s (HOr hs) = foldr1 S.union <$>
+                       ( ifLefts "hExprToAddrs called on HOr"
+                         $ map (hExprToAddrs r s) hs )
 
 
 -- | = Find sub-`Expr`s of an `Expr`
@@ -136,41 +135,41 @@ subExpr r a (rl : rls) = do
 
 -- | == Lookup from an `Expr`
 
-lookup :: Rslt -> Expr -> Either String Addr
-lookup x img =
-  let pel = prefixLeft "lookup"
+exprToAddr :: Rslt -> Expr -> Either String Addr
+exprToAddr x img =
+  let pel = prefixLeft "exprToAddr"
   in case img of
-  Word w -> pel $ addrOf x $ Word' w
+  Word w -> pel $ refExprToAddr x $ Word' w
 
-  Addr a -> pel (refExprAt x a) >>= const (Right a)
+  Addr a -> pel (addrToRefExpr x a) >>= const (Right a)
 
   Tplt is -> do
-    mas <- ifLefts "lookup" $ map (lookup x) is
-    pel $ addrOf x $ Tplt' mas
+    mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
+    pel $ refExprToAddr x $ Tplt' mas
 
   Rel is i -> do
-    mas <- ifLefts "lookup" $ map (lookup x) is
-    ma <- pel $ lookup x i
-    pel $ addrOf x (Rel' mas ma)
+    mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
+    ma <- pel $ exprToAddr x i
+    pel $ refExprToAddr x (Rel' mas ma)
 
-  Par _ _ -> Left $ "lookup: Pars are not in index, "
+  Par _ _ -> Left $ "exprToAddr: Pars are not in index, "
     ++ "cannot be looked up.\n"
 
 
 -- | == Lookup from `Addr`s or `RefExpr`s. (These are convenience
--- functions for Map.lookup applied to an Rslt field.)
+-- functions for Map.exprToAddr applied to an Rslt field.)
 
-refExprAt :: Rslt -> Addr -> Either String RefExpr
-refExprAt r a =
-  maybe (Left $ "refExprAt: Addr " ++ show a ++ " absent.\n") Right
-  $ M.lookup a $ _refExprAt r
+addrToRefExpr :: Rslt -> Addr -> Either String RefExpr
+addrToRefExpr r a =
+  maybe (Left $ "addrToRefExpr: Addr " ++ show a ++ " absent.\n") Right
+  $ M.lookup a $ _addrToRefExpr r
 
-exprAt :: Rslt -> Addr -> Either String Expr
-exprAt r a = refExprAt r a >>= exprFromRefExpr r
+addrToExpr :: Rslt -> Addr -> Either String Expr
+addrToExpr r a = addrToRefExpr r a >>= refExprToExpr r
 
-addrOf :: Rslt -> RefExpr -> Either String Addr
-addrOf r e = maybe err Right $ M.lookup e $ _addrOf r
-  where err = Left $ "addrOf: RefExpr " ++ show e ++ " not found.\n"
+refExprToAddr :: Rslt -> RefExpr -> Either String Addr
+refExprToAddr r e = maybe err Right $ M.lookup e $ _refExprToAddr r
+  where err = Left $ "refExprToAddr: RefExpr " ++ show e ++ " not found.\n"
 
 variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
 variety r a = maybe err Right $ M.lookup a $ _variety r
@@ -192,14 +191,14 @@ arity _ (Par x _) = Right $ length x
 -- every position contained in e.
 has :: Rslt -> Addr -> Either String (Map Role Addr)
 has r a = do
-  void $ either (\s -> Left $ "has: " ++ s) Right $ refExprAt r a
+  void $ either (\s -> Left $ "has: " ++ s) Right $ addrToRefExpr r a
   maybe (Right M.empty) Right $ M.lookup a $ _has r
 
 -- | `isIn r a` finds the expression e at a in r, and returns
 -- every position that e occupies.
 isIn :: Rslt -> Addr -> Either String (Set (Role,Addr))
 isIn r a = do
-  void $ either (\s -> Left $ "isIn: " ++ s) Right $ refExprAt r a
+  void $ either (\s -> Left $ "isIn: " ++ s) Right $ addrToRefExpr r a
   maybe (Right S.empty) Right $ M.lookup a $ _isIn r
 
 -- | `fills r (role,a)` finds the expression that occupies
