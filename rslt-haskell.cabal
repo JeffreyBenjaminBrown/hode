@@ -85,9 +85,12 @@ library
               , filepath
               , HUnit
               , megaparsec
+              , microlens
+              , microlens-th
               , parser-combinators
               , process
               , text
+              , vty
   default-language: Haskell2010
 
 --executable rslt-haskell-exe
