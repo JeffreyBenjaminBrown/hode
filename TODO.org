@@ -28,14 +28,14 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO replace whole content of Results window
-This works:
+* TODO next : minimal UI
+** replace whole content of Results window
+ This works:
 
-  V.EvKey (V.KChar 'a') []  -> M.continue $ st
-    & results . E.editContentsL .~ Z.textZipper ["a","a","a"] Nothing
-  V.EvKey (V.KChar 'b') []  -> M.continue $ st
-    & results . E.editContentsL .~ Z.textZipper ["b","b","b"] Nothing
-
+   V.EvKey (V.KChar 'a') []  -> M.continue $ st
+     & results . E.editContentsL .~ Z.textZipper ["a","a","a"] Nothing
+   V.EvKey (V.KChar 'b') []  -> M.continue $ st
+     & results . E.editContentsL .~ Z.textZipper ["b","b","b"] Nothing
 * TODO views
 ** cursor commands
 up|down to enclosing keyword (/hash, etc)

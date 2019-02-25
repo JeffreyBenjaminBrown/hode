@@ -67,9 +67,9 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , UI.Brick
                 , UI.Clipboard
                 , UI.Experim
+                , UI.Main
                 , Util.Misc
                 , Util.UParse
   other-modules:

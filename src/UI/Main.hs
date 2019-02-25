@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
-module UI.Brick where
+module UI.Main where
 
 import Lens.Micro
 import Lens.Micro.TH
