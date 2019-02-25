@@ -68,8 +68,8 @@ library
                 , Test.TMain
                 , Test.TUtil
                 , UI.Clipboard
-                , UI.Experim
                 , UI.Main
+                , UI.State
                 , Util.Misc
                 , Util.UParse
   other-modules:

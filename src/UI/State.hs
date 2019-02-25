@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module UI.Experim where
+module UI.State where
 
 import           Data.Set (Set)
 import qualified Data.Set as S
