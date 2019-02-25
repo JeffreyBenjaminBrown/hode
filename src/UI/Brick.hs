@@ -10,6 +10,8 @@ module UI.Brick where
 import Lens.Micro
 import Lens.Micro.TH
 import qualified Graphics.Vty as V
+import qualified Data.Text.Zipper as Z hiding ( textZipper )
+import qualified Data.Text.Zipper.Generic as Z
 
 import qualified Brick.Main as M
 import qualified Brick.Types as T
