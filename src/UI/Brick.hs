@@ -1,3 +1,6 @@
+-- | Based on the demos in the programs/ folder of Brick,
+-- particularly `EditDemo.hs`.
+
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -18,11 +21,12 @@ import qualified Brick.Focus as F
 import Brick.Util (on)
 
 
-data Name = Commands
-          deriving (Ord, Show, Eq)
+data Name = Results | Commands
+  deriving (Ord, Show, Eq)
 
 data St =
     St { _focusRing :: F.FocusRing Name
+       , _results :: E.Editor String Name
        , _commands :: E.Editor String Name
        }
 
@@ -31,28 +35,33 @@ makeLenses ''St
 
 _appDraw :: St -> [T.Widget Name]
 _appDraw st = [ui] where
-  e1 = F.withFocusRing (st^.focusRing)
+  resultWindow = F.withFocusRing (st^.focusRing)
+    (E.renderEditor (str . unlines)) (st^.results)
+  commandWindow = F.withFocusRing (st^.focusRing)
     (E.renderEditor (str . unlines)) (st^.commands)
-  ui = C.center e1
+  ui = C.center
+    $ resultWindow <=> vLimit 3 commandWindow
 
 _appHandleEvent ::
   St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
-_appHandleEvent st (T.VtyEvent ev) =
-  case ev of
-    V.EvKey V.KEsc []         -> M.halt st
-    V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
-    V.EvKey V.KBackTab []     -> M.continue $ st & focusRing %~ F.focusPrev
+_appHandleEvent st (T.VtyEvent ev) = case ev of
+  V.EvKey V.KEsc []         -> M.halt st
+  V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
+  V.EvKey V.KBackTab []     -> M.continue $ st & focusRing %~ F.focusPrev
 
-    _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
-      Just Commands -> T.handleEventLensed
-        st commands E.handleEditorEvent ev
-      Nothing -> return st
+  _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
+    Just Results -> T.handleEventLensed
+      st results E.handleEditorEvent ev
+    Just Commands -> T.handleEventLensed
+      st commands E.handleEditorEvent ev
+    Nothing -> return st
 _appHandleEvent st _ = M.continue st
 
 initialState :: St
-initialState = 
-    St (F.focusRing [Commands])
-       (E.editor Commands Nothing "")  -- the Maybe is a line number limit
+initialState = St ( F.focusRing [Results, Commands] )
+                  ( E.editor Results Nothing "" )
+                  ( E.editor Commands Nothing "" )
+               -- the Maybe is a line number limit
 
 _appAttrMap :: A.AttrMap
 _appAttrMap = A.attrMap V.defAttr
@@ -74,7 +83,5 @@ theApp =
           }
 
 main :: IO ()
-main = do
-    st <- M.defaultMain theApp initialState
-    putStrLn "In input 1 you entered:\n"
-    putStrLn $ unlines $ E.getEditContents $ st^.commands
+main = do (_ :: St) <- M.defaultMain theApp initialState
+          return ()
