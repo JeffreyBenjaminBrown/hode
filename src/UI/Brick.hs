@@ -33,8 +33,8 @@ data St =
 makeLenses ''St
 
 
-_appDraw :: St -> [T.Widget Name]
-_appDraw st = [ui] where
+appDraw :: St -> [T.Widget Name]
+appDraw st = [ui] where
   resultWindow = F.withFocusRing (st^.focusRing)
     (E.renderEditor (str . unlines)) (st^.results)
   commandWindow = F.withFocusRing (st^.focusRing)
@@ -42,9 +42,9 @@ _appDraw st = [ui] where
   ui = C.center
     $ resultWindow <=> vLimit 3 commandWindow
 
-_appHandleEvent ::
+appHandleEvent ::
   St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
-_appHandleEvent st (T.VtyEvent ev) = case ev of
+appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc []         -> M.halt st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab []     -> M.continue $ st & focusRing %~ F.focusPrev
@@ -55,7 +55,7 @@ _appHandleEvent st (T.VtyEvent ev) = case ev of
     Just Commands -> T.handleEventLensed
       st commands E.handleEditorEvent ev
     Nothing -> return st
-_appHandleEvent st _ = M.continue st
+appHandleEvent st _ = M.continue st
 
 initialState :: St
 initialState = St ( F.focusRing [Results, Commands] )
@@ -63,23 +63,23 @@ initialState = St ( F.focusRing [Results, Commands] )
                   ( E.editor Commands Nothing "" )
                -- the Maybe is a line number limit
 
-_appAttrMap :: A.AttrMap
-_appAttrMap = A.attrMap V.defAttr
+appAttrMap :: A.AttrMap
+appAttrMap = A.attrMap V.defAttr
     [ (E.editAttr,        V.white `on` V.blue)
     , (E.editFocusedAttr, V.black `on` V.yellow)
     ]
 
-_appChooseCursor ::
+appChooseCursor ::
   St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
-_appChooseCursor = F.focusRingCursor (^.focusRing)
+appChooseCursor = F.focusRingCursor (^.focusRing)
 
 theApp :: M.App St e Name
 theApp =
-    M.App { M.appDraw         = _appDraw
-          , M.appChooseCursor = _appChooseCursor
-          , M.appHandleEvent  = _appHandleEvent
+    M.App { M.appDraw         = appDraw
+          , M.appChooseCursor = appChooseCursor
+          , M.appHandleEvent  = appHandleEvent
           , M.appStartEvent   = return
-          , M.appAttrMap      = const _appAttrMap
+          , M.appAttrMap      = const appAttrMap
           }
 
 main :: IO ()
