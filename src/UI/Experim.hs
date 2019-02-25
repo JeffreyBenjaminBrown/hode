@@ -1,15 +1,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Experim where
+module UI.Experim where
 
 import           Data.Set (Set)
 import qualified Data.Set as S
-import Text.Megaparsec
+import           Text.Megaparsec
 
 import Hash.Convert
 import Hash.HLookup
 import Hash.HParse
---import Hash.HTypes
 import Qseq.QTypes
 import Rslt.Edit
 import Rslt.RLookup
@@ -42,12 +41,7 @@ pFindStrings r s = do
   return ss
 
 pFindStringsIO :: Rslt -> String -> IO ()
-pFindStringsIO r s = do
-  let (e :: Either String (Set String)) =
-        pFindStrings r s
-  case e of
-    Left err -> putStrLn err
-    Right ss -> mapM_ putStrLn ss
-
--- import qualified Test.Rslt.RData as D
--- pFindStringsIO D.b2 "/hash _ #like _"
+pFindStringsIO r s =
+  case (pFindStrings r s :: Either String (Set String))
+  of Left err -> putStrLn err
+     Right ss -> mapM_ putStrLn ss

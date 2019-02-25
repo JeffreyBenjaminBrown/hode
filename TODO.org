@@ -30,7 +30,7 @@ when it ought to be this:
 see the comment leading its definition
 * TODO views
 ** cursor commands
-up|down to enclosing keyword (\hash, etc)
+up|down to enclosing keyword (/hash, etc)
 up|down to nearest higher binop (#, |, etc)
 up|down, multipurpose
   this kind goes to either of the two previous kinds of things
@@ -98,7 +98,7 @@ Do that to create an HMap.
  pRelToPExpr (Closed ms js) =
 *** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
 
-* TODO Qseq, the DSL for search
+* TODO Qseq, the DSL for compound searches
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
@@ -119,7 +119,7 @@ a map from Addr to Set Role
    multiple Roles within the same Expr
 ** ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
-* TODO equivalence
+* TODO relationship equivalence
 * TODO programmatic edits ("do _ to everything that satisfies _")
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].

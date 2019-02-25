@@ -29,7 +29,6 @@ library
   exposed-modules:
                   Data.Graph
                 , Data.Relation
-                , Experim
                 , Hash.Convert
                 , Hash.EitherExpr
                 , Hash.Hash
@@ -68,6 +67,9 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
+                , UI.Brick
+                , UI.Clipboard
+                , UI.Experim
                 , Util.Misc
                 , Util.UParse
   other-modules:
@@ -77,12 +79,14 @@ library
   build-depends:
                 base
               , brick
+              , Clipboard
               , containers
               , directory
               , filepath
               , HUnit
               , megaparsec
               , parser-combinators
+              , process
               , text
   default-language: Haskell2010
 
