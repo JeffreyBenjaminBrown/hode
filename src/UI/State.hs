@@ -1,13 +1,16 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module UI.State where
 
-import Lens.Micro
-import Lens.Micro.TH
+import           Lens.Micro
+import           Lens.Micro.TH
 
 import           Data.Set (Set)
 import qualified Data.Set as S
+--import qualified Data.Text.Zipper as Z hiding ( textZipper )
+import qualified Data.Text.Zipper.Generic as Z
 import           Text.Megaparsec
 
 import qualified Brick.Widgets.Edit as E
@@ -19,7 +22,7 @@ import Hash.HTypes
 import Hash.HParse
 import Qseq.QTypes
 import Rslt.Edit
-import Rslt.Index
+--import Rslt.Index
 import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
@@ -42,7 +45,7 @@ data St = St {
 makeLenses ''St
 
 
--- | = more
+-- | = functions involving St
 
 initialState :: Rslt -> St
 initialState r = St {
@@ -53,8 +56,13 @@ initialState r = St {
   , _history   = []
   }
 
+editor_replaceText ::
+  Lens' St (E.Editor String Name) -> (St -> St)
+editor_replaceText windowGetter =
+  windowGetter . E.editContentsL .~ Z.textZipper ["a","a","a"] Nothing
 
--- | = parse, search, insert, show
+
+-- | = Functions on Rslt: parse, search, insert, show
 
 pInsert :: Rslt -> String -> Either String (Rslt, Addr)
 pInsert r s = prefixLeft "pInsert"

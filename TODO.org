@@ -29,12 +29,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next : minimal UI
-** function to replace contents of a window
-This works:
-   V.EvKey (V.KChar 'a') []  -> M.continue $ st
-     & results . E.editContentsL .~ Z.textZipper ["a","a","a"] Nothing
-   V.EvKey (V.KChar 'b') []  -> M.continue $ st
-     & results . E.editContentsL .~ Z.textZipper ["b","b","b"] Nothing
 ** the insert command
 Parse an HExpr from the Commands window.
 If it's Left, print the Left in the Results window
