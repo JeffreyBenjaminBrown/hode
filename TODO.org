@@ -29,7 +29,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO UI
-** TODO Main.appHandleEvent: move some code to State.hs
 ** TODO show Addrs
 ** TODO record, show command history
 ** better UI messaging

@@ -41,19 +41,13 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey (V.KChar '\t') [] -> B.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab []     -> B.continue $ st & focusRing %~ F.focusPrev
 
-  V.EvKey (V.KChar 'w') [V.MMeta] ->
+  V.EvKey (V.KChar 'w') [V.MMeta] -> -- copy focused window to clipboard
     liftIO ( toClipboard $ unlines $ E.getEditContents $ focusedWindow st )
     >> B.continue st
-  V.EvKey (V.KChar 'k') [V.MMeta] ->
+  V.EvKey (V.KChar 'k') [V.MMeta] -> -- empty the commands window
     B.continue $ editor_replaceText commands [] st
 
-  V.EvKey (V.KChar 'x') [V.MMeta] ->
-    let cmd = unlines $ E.getEditContents $ st ^. commands
-    in case pCommand (st ^. appRslt) cmd of
-      Left s1  -> B.continue $ editor_replaceText results (lines s1) st
-      Right c -> case runCommand c st of
-        Left s2 -> B.continue $ editor_replaceText results (lines s2) st
-        Right st' -> st'
+  V.EvKey (V.KChar 'x') [V.MMeta] -> parseAndRunCommand st
 
   _ -> B.continue =<< case F.focusGetCurrent (st^.focusRing) of
     Just Results -> T.handleEventLensed

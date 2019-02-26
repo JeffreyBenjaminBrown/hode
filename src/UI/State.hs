@@ -54,6 +54,16 @@ editor_replaceText windowGetter ss =
   windowGetter . BE.editContentsL .~ Z.textZipper ss Nothing
 
 
+parseAndRunCommand :: St -> BT.EventM Name (BT.Next St)
+parseAndRunCommand st =
+  let cmd = unlines $ E.getEditContents $ st ^. commands
+  in case pCommand (st ^. appRslt) cmd of
+    Left s1  -> B.continue $ editor_replaceText results (lines s1) st
+    Right c -> case runCommand c st of
+      Left s2 -> B.continue $ editor_replaceText results (lines s2) st
+      Right st' -> st'
+
+
 runCommand :: Command -> St -> Either String (BT.EventM Name (BT.Next St))
 runCommand (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
