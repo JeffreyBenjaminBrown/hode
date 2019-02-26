@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -35,6 +36,16 @@ initialState r = St {
   , _appRslt   = r
   , _history   = []
   }
+
+
+focusedWindow :: St -> BE.Editor String Name
+focusedWindow st = let
+  err = error "focusedWindow: impossible."
+  f = \case Results -> st ^. results
+            Commands -> st ^. commands
+  in maybe err f
+     $ BF.focusGetCurrent
+     $ st ^. focusRing
 
 
 editor_replaceText ::

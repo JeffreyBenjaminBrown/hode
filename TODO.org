@@ -29,9 +29,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO UI
+** TODO Main.appHandleEvent: move some code to State.hs
 ** TODO show Addrs
-** TODO command to copy focused buffer to clipboard
-** TODO command to flush focused buffer
 ** TODO record, show command history
 ** better UI messaging
 *** the insert command

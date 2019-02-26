@@ -5,6 +5,7 @@
 
 module UI.Main where
 
+import           Control.Monad.IO.Class (liftIO)
 import           Lens.Micro
 
 import qualified Brick.Main as B
@@ -18,6 +19,7 @@ import           Brick.Util (on)
 import qualified Graphics.Vty as V
 
 import Rslt.RTypes
+import UI.Clipboard
 import UI.IParse
 import UI.ITypes
 import UI.State
@@ -38,6 +40,12 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc []         -> B.halt st
   V.EvKey (V.KChar '\t') [] -> B.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab []     -> B.continue $ st & focusRing %~ F.focusPrev
+
+  V.EvKey (V.KChar 'w') [V.MMeta] ->
+    liftIO ( toClipboard $ unlines $ E.getEditContents $ focusedWindow st )
+    >> B.continue st
+  V.EvKey (V.KChar 'k') [V.MMeta] ->
+    B.continue $ editor_replaceText commands [] st
 
   V.EvKey (V.KChar 'x') [V.MMeta] ->
     let cmd = unlines $ E.getEditContents $ st ^. commands
