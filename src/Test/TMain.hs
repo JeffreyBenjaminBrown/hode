@@ -4,6 +4,13 @@ module Test.TMain where
 
 import           Test.HUnit hiding (Test)
 
+import Test.Hash.TConvert
+import Test.Hash.TParse
+import Test.Qseq.TLeaf
+import Test.Qseq.TProgram
+import Test.Qseq.TQuery
+import Test.Qseq.TSubst
+import Test.Qseq.TValid
 import Test.Rslt.RData
 import Test.Rslt.RProgram
 import Test.Rslt.TEdit
@@ -11,14 +18,8 @@ import Test.Rslt.THash
 import Test.Rslt.TIndex_and_Valid
 import Test.Rslt.TLookup
 import Test.Rslt.TShow
-import Test.Qseq.TLeaf
-import Test.Qseq.TProgram
-import Test.Qseq.TQuery
-import Test.Qseq.TSubst
-import Test.Qseq.TValid
 import Test.TGraph
-import Test.Hash.TConvert
-import Test.Hash.TParse
+import Test.TUI
 
 
 tests :: IO Counts
@@ -38,4 +39,5 @@ tests = runTestTT $ TestList
   , test_modules_leaf
   , test_module_hash_convert
   , test_module_hash_parse
+  , test_module_ui
   ]
