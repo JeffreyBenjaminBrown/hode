@@ -29,9 +29,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next : minimal UI
-** add to the St(ate)
-a Rslt
-a list of successful commands
 ** function to replace contents of a window
 This works:
    V.EvKey (V.KChar 'a') []  -> M.continue $ st
@@ -56,7 +53,9 @@ If it's Left, print the Left in the Results window
 If it's Right, print the Right in the Results window
   and flush the Commands buffer.
 ** open and save
-To write, first run `git status`. If anything is modified, ask "are you sure? Your repo has uncommitted changes; this will clobber them." If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
+To write, first run `git status`. If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
+
+If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * TODO views
 ** cursor commands
 up|down to enclosing keyword (/hash, etc)

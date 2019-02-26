@@ -2,13 +2,10 @@
 -- particularly `EditDemo.hs`.
 
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RankNTypes #-}
+
 module UI.Main where
 
 import Lens.Micro
-import Lens.Micro.TH
 import qualified Graphics.Vty as V
 import qualified Data.Text.Zipper as Z hiding ( textZipper )
 import qualified Data.Text.Zipper.Generic as Z
@@ -22,26 +19,17 @@ import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
 import Brick.Util (on)
 
-
-data Name = Results | Commands
-  deriving (Ord, Show, Eq)
-
-data St =
-    St { _focusRing :: F.FocusRing Name
-       , _results :: E.Editor String Name
-       , _commands :: E.Editor String Name
-       }
-
-makeLenses ''St
+import Rslt.RTypes
+import UI.State
 
 
 appDraw :: St -> [T.Widget Name]
-appDraw st = [ui] where
+appDraw st = [w] where
   resultWindow = F.withFocusRing (st^.focusRing)
     (E.renderEditor (str . unlines)) (st^.results)
   commandWindow = F.withFocusRing (st^.focusRing)
     (E.renderEditor (str . unlines)) (st^.commands)
-  ui = C.center
+  w = C.center
     $ resultWindow <=> vLimit 3 commandWindow
 
 appHandleEvent ::
@@ -58,12 +46,6 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
       st commands E.handleEditorEvent ev
     Nothing -> return st
 appHandleEvent st _ = M.continue st
-
-initialState :: St
-initialState = St ( F.focusRing [Results, Commands] )
-                  ( E.editor Results Nothing "" )
-                  ( E.editor Commands Nothing "" )
-               -- the Maybe is a line number limit
 
 appAttrMap :: A.AttrMap
 appAttrMap = A.attrMap V.defAttr
@@ -84,6 +66,5 @@ theApp =
           , M.appAttrMap      = const appAttrMap
           }
 
-main :: IO ()
-main = do (_ :: St) <- M.defaultMain theApp initialState
-          return ()
+ui :: Rslt -> IO St
+ui = M.defaultMain theApp . initialState
