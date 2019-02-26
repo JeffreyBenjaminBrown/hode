@@ -14,25 +14,23 @@ import           UI.ITypes
 
 test_module_ui :: T.Test
 test_module_ui = TestList [
-  TestLabel "test_pCommand_load" test_pCommand_load
-  , TestLabel "test_pCommand_find" test_pCommand_find
-  , TestLabel "test_pCommand_insert" test_pCommand_insert
+  TestLabel "test_pCommand" test_pCommand
   ]
 
-test_pCommand_insert :: T.Test
-test_pCommand_insert = TestCase $ do
-  assertBool "1" $ pCommand_insert (error "irrelevant")
-    "/add done told ya once"
+test_pCommand :: T.Test
+test_pCommand = TestCase $ do
+  assertBool "1" $ pCommand (error "irrelevant")
+    "/add done told ya once "
     == Right ( CommandInsert $ Word "done told ya once" )
 
-test_pCommand_find :: T.Test
-test_pCommand_find = TestCase $ do
-  assertBool "1" $ pCommand_find
+  assertBool "1" $ pCommand (error "irrelevant")
     "/find done told ya once"
     == Right ( CommandFind $ HExpr $ Word "done told ya once" )
 
-test_pCommand_load :: T.Test
-test_pCommand_load = TestCase $ do
-  assertBool "1" $ pCommand_load
+  assertBool "1" $ pCommand (error "irrelevant")
     "/load somewhere/over/the/rainbow.exe"
     == Right ( CommandLoad "somewhere/over/the/rainbow.exe" )
+
+  assertBool "1" $ pCommand (error "irrelevant")
+    "/save somewhere/over/the/rainbow.exe"
+    == Right ( CommandSave "somewhere/over/the/rainbow.exe" )

@@ -2,6 +2,8 @@
 
 module UI.IParse where
 
+import           Data.Char
+import qualified Data.List as L
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
@@ -21,38 +23,45 @@ import Util.Misc
 import Util.UParse
 
 
+splitAfterFirstLexeme :: String -> (String, String)
+splitAfterFirstLexeme s =
+  let (h,t) = span (not . isSpace) $ L.dropWhile isSpace s
+  in (h, L.dropWhile isSpace t)
+
+pCommand :: Rslt -> String -> Either String Command
+pCommand r s =
+  let (h,t) = splitAfterFirstLexeme s
+  in case h of
+    "/add"    -> pCommand_insert r t
+    "/insert" -> pCommand_insert r t
+    "/find"   -> pCommand_find t
+    "/load"   -> pCommand_load t
+    "/save"   -> pCommand_save t
+    _         -> Left $ "pCommand: must start with "
+                 ++ "/add, /insert, /find, /load or /save."
+
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
   ( prefixLeft "pCommand_insert"
-    $ mapLeft show (parse p "doh!" s)
+    $ mapLeft show (parse pExpr "doh!" s)
     >>= pExprToHExpr
     >>= hExprToExpr r )
-  where p :: Parser PExpr
-        p = lexeme (string "/insert" <|> string "/add")
-            >> pExpr
 
 pCommand_find :: String -> Either String Command
 pCommand_find s = CommandFind <$>
   ( prefixLeft "pCommand_find"
-    $ mapLeft show (parse p "doh!" s)
+    $ mapLeft show (parse pExpr "doh!" s)
     >>= pExprToHExpr )
-  where p :: Parser PExpr
-        p = lexeme (string "/find")
-            >> pExpr
 
 pCommand_load :: String -> Either String Command
 pCommand_load s = CommandLoad <$>
   ( prefixLeft "pCommand_load"
-    $ mapLeft show (parse p "doh!" s) )
-  where p :: Parser Folder
-        p = lexeme (string "/load") >> filepath
+    $ mapLeft show (parse filepath "doh!" s) )
 
 pCommand_save :: String -> Either String Command
 pCommand_save s = CommandSave <$>
   ( prefixLeft "pCommand_save"
-    $ mapLeft show (parse p "doh!" s) )
-  where p :: Parser Folder
-        p = lexeme (string "/save") >> filepath
+    $ mapLeft show (parse filepath "doh!" s) )
 
 
 -- | = Functions from an `Rslt` and a parsed `String`,

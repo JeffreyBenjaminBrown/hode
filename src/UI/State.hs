@@ -30,3 +30,4 @@ editor_replaceText ::
   Lens' St (E.Editor String Name) -> [String] -> (St -> St)
 editor_replaceText windowGetter ss =
   windowGetter . E.editContentsL .~ Z.textZipper ss Nothing
+  
