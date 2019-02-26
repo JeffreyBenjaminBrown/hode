@@ -3,6 +3,7 @@
 
 module UI.State where
 
+import           Control.Monad.IO.Class (liftIO)
 import           Lens.Micro
 import           Data.Set (Set)
 import qualified Data.Set as S
@@ -18,6 +19,7 @@ import qualified Brick.Widgets.Edit as BE
 import Hash.HLookup
 import Qseq.QTypes
 import Rslt.Edit
+import Rslt.Files
 import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
@@ -59,9 +61,10 @@ runCommand (CommandFind h) st = do
   Right $ B.continue
     $ editor_replaceText results (S.toList ss) st
 
---runCommand (CommandLoad f) st = do
---  writeRslt f (st
+runCommand (CommandLoad f) st =
+  Right $ do r <- liftIO $ readRslt f
+             B.continue $ st & appRslt .~ r
 
---writeRslt "test-io" D.rslt
---x <- readRslt "test-io"
---x == D.rslt
+runCommand (CommandSave f) st =
+  Right ( liftIO ( writeRslt f $ st ^. appRslt )
+          >> B.continue st )

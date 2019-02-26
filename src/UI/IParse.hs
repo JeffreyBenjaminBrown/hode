@@ -7,12 +7,10 @@ import qualified Data.List as L
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
-import           Text.Megaparsec.Char (string)
 
 import Hash.Convert
 import Hash.HLookup
 import Hash.HParse
-import Hash.HTypes
 import Qseq.QTypes
 import Rslt.Edit
 import Rslt.RLookup
