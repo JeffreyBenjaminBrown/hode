@@ -1,10 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module UI.State where
 
 import           Lens.Micro
+
+--import qualified Data.Text.Zipper as Z hiding ( textZipper )
+import qualified Data.Text.Zipper.Generic as Z
 
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.Focus as F

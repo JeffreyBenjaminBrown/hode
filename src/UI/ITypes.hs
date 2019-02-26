@@ -1,13 +1,8 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module UI.ITypes where
 
 import           Lens.Micro.TH
-
---import qualified Data.Text.Zipper as Z hiding ( textZipper )
-import qualified Data.Text.Zipper.Generic as Z
 
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.Focus as F
@@ -28,3 +23,11 @@ data St = St {
   }
 
 makeLenses ''St
+
+type Folder = String
+
+data Command = Insert Expr
+             | Display HExpr
+             | Load Folder
+             | Save Folder
+             deriving (Show, Eq, Ord)
