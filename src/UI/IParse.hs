@@ -21,14 +21,24 @@ import Util.Misc
 import Util.UParse
 
 
-pInsertCommand :: Rslt -> String -> Either String Command
-pInsertCommand r s = Insert <$>
-  ( prefixLeft "pInsert"
+pCommand_insert :: Rslt -> String -> Either String Command
+pCommand_insert r s = CommandInsert <$>
+  ( prefixLeft "pInsertCommand"
     $ mapLeft show (parse p "doh!" s)
     >>= pExprToHExpr
     >>= hExprToExpr r )
   where p :: Parser PExpr
-        p = lexeme (string "/insert" <|> string "/add") >> pExpr
+        p = lexeme (string "/insert" <|> string "/add")
+            >> pExpr
+
+pCommand_find :: String -> Either String Command
+pCommand_find s = CommandFind <$>
+  ( prefixLeft "pDisplayCommand"
+    $ mapLeft show (parse p "doh!" s)
+    >>= pExprToHExpr )
+  where p :: Parser PExpr
+        p = lexeme (string "/find")
+            >> pExpr
 
 
 -- | = Functions from an `Rslt` and a parsed `String`,

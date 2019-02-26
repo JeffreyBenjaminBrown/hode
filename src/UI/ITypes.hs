@@ -26,8 +26,8 @@ makeLenses ''St
 
 type Folder = String
 
-data Command = Insert Expr
-             | Display HExpr
-             | Load Folder
-             | Save Folder
+data Command = CommandInsert Expr
+             | CommandFind HExpr
+             | CommandLoad Folder
+             | CommandSave Folder
              deriving (Show, Eq, Ord)
