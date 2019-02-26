@@ -39,7 +39,12 @@ hExprToExpr r h@(HMap mh) = do
   if M.size (M.delete RoleTplt me) == ta then Right ()
     else Left $ "hExprToExpr: arity mismatch between "
          ++ show h ++ " and its Tplt " ++ show t
-  Right $ Rel (sort $ M.elems $ M.delete RoleTplt me) t
+  Right $ Rel (M.elems $ M.delete RoleTplt me) t
+    -- PITFALL: This M.elems clause relies on the fact that those
+    -- elems will be ordered from RoleMember 1 to RoleMember n.
+    -- That's true for the same reason this is true:
+    --     > M.elems $ M.fromList [(1,"z"),(2,"a")]
+    --     ["z","a"]
 
 hExprToExpr _ h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr and HMap constructors can be so converted."
