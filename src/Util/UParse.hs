@@ -2,12 +2,26 @@
 
 module Util.UParse where
 
-import           Data.List (intersperse)
+import           Data.Char
+import qualified Data.List as L
 import           Data.Void (Void)
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 
+
+-- | = ordinary String functionsx
+
+splitAfterFirstLexeme :: String -> (String, String)
+splitAfterFirstLexeme s =
+  let (h,t) = span (not . isSpace) $ L.dropWhile isSpace s
+  in (h, L.dropWhile isSpace t)
+
+hasMultipleWords :: String -> Bool
+hasMultipleWords = (/=) "" . snd . splitAfterFirstLexeme
+
+
+-- | = parsing via Megaparsec
 
 type Parser = Parsec Void String
 
@@ -46,7 +60,7 @@ identifier_alphaLed = lexeme $ (:) <$> letterChar <*> many alphaNumChar
   -- `(:) <$> letterChar :: Parser (String -> String)
 
 phrase :: Parser String -- | does not accept the empty string
-phrase = concat . intersperse " " <$> some identifier
+phrase = concat . L.intersperse " " <$> some identifier
 
 thisMany :: Int -> Char -> Parser ()
 thisMany n c = string (replicate n c) <* notFollowedBy (char c)

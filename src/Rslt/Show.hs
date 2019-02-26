@@ -2,13 +2,14 @@
 
 module Rslt.Show where
 
-import qualified Data.List      as L
+import qualified Data.List as L
 import           Data.Text (strip, pack, unpack)
 
 import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.RUtil
 import Util.Misc
+import Util.UParse
 
 
 -- https://unicode-search.net/unicode-namesearch.pl?term=bracket
@@ -20,12 +21,17 @@ bracket_angle_small_right = '»' -- C-x 8 >
 
 
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
-hashUnlessEmptyStartOrEnd k0 joints = case joints of
+hashUnlessEmptyStartOrEnd k0 joints = case joints' of
   [] -> []
   s : ss ->   hashUnlessEmpty    k0 s
             : hashUnlessEmptyEnd k0 ss
 
   where
+  joints' = map maybeParens joints where
+    maybeParens :: String -> String
+    maybeParens s = if hasMultipleWords s
+      then "(" ++ s ++ ")" else s
+
   hash :: Int -> String -> String
   hash k s = replicate k '#' ++ s
 

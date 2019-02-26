@@ -21,11 +21,6 @@ import Util.Misc
 import Util.UParse
 
 
-splitAfterFirstLexeme :: String -> (String, String)
-splitAfterFirstLexeme s =
-  let (h,t) = span (not . isSpace) $ L.dropWhile isSpace s
-  in (h, L.dropWhile isSpace t)
-
 pCommand :: Rslt -> String -> Either String Command
 pCommand r s =
   let (h,t) = splitAfterFirstLexeme s

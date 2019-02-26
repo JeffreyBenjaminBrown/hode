@@ -28,8 +28,6 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO bugs
-** should show multi-word joints in parens
 * TODO UI
 ** command to copy focused buffer to clipboard
 ** command to flush focused buffer
