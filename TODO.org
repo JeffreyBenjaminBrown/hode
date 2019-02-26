@@ -29,9 +29,11 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO UI
-** command to copy focused buffer to clipboard
-** command to flush focused buffer
-** TODO better UI messaging
+** TODO show Addrs
+** TODO command to copy focused buffer to clipboard
+** TODO command to flush focused buffer
+** TODO record, show command history
+** better UI messaging
 *** the insert command
  If it's Left, print the Left in the Results window
  If it's Right
@@ -74,7 +76,6 @@ ExprImg = ExprImg Expr | Bracket
    Theoretically, the part being subtracted could be vague.
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
-** TODO search for or insert the parsed expression
 ** TODO pathsToIts_pExpr called on PAnd, POr, PDiff
 ** TODO Parse more characters.
 Escape a / by preceding it with another one.
