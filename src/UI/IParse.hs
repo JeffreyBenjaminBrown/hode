@@ -23,7 +23,7 @@ import Util.UParse
 
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
-  ( prefixLeft "pInsertCommand"
+  ( prefixLeft "pCommand_insert"
     $ mapLeft show (parse p "doh!" s)
     >>= pExprToHExpr
     >>= hExprToExpr r )
@@ -33,16 +33,25 @@ pCommand_insert r s = CommandInsert <$>
 
 pCommand_find :: String -> Either String Command
 pCommand_find s = CommandFind <$>
-  ( prefixLeft "pDisplayCommand"
+  ( prefixLeft "pCommand_find"
     $ mapLeft show (parse p "doh!" s)
     >>= pExprToHExpr )
   where p :: Parser PExpr
         p = lexeme (string "/find")
             >> pExpr
 
+pCommand_load :: String -> Either String Command
+pCommand_load s = CommandLoad <$>
+  ( prefixLeft "pCommand_load"
+    $ mapLeft show (parse p "doh!" s) )
+  where p :: Parser Folder
+        p = lexeme (string "/load") >> filepath
+
 
 -- | = Functions from an `Rslt` and a parsed `String`,
--- to search, insert, show
+-- to search, insert, show.
+-- Theoretically, one could maintain an Rslt using GHCI with just these,
+-- without ever using the TUI.
 
 pInsert :: Rslt -> String -> Either String (Rslt, Addr)
 pInsert r s = prefixLeft "pInsert"

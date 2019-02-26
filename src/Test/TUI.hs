@@ -14,7 +14,8 @@ import           UI.ITypes
 
 test_module_ui :: T.Test
 test_module_ui = TestList [
-  TestLabel "test_pCommand_find" test_pCommand_find
+  TestLabel "test_pCommand_load" test_pCommand_load
+  , TestLabel "test_pCommand_find" test_pCommand_find
   , TestLabel "test_pCommand_insert" test_pCommand_insert
   ]
 
@@ -29,3 +30,9 @@ test_pCommand_find = TestCase $ do
   assertBool "1" $ pCommand_find
     "/find done told ya once"
     == Right ( CommandFind $ HExpr $ Word "done told ya once" )
+
+test_pCommand_load :: T.Test
+test_pCommand_load = TestCase $ do
+  assertBool "1" $ pCommand_load
+    "/load somewhere/over/the/rainbow.exe"
+    == Right ( CommandLoad "somewhere/over/the/rainbow.exe" )
