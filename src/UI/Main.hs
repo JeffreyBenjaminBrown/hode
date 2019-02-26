@@ -19,6 +19,7 @@ import Brick.Util (on)
 
 import Rslt.RTypes
 import UI.State
+import UI.ITypes
 
 
 appDraw :: St -> [T.Widget Name]
