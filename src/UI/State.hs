@@ -27,6 +27,6 @@ initialState r = St {
   }
 
 editor_replaceText ::
-  Lens' St (E.Editor String Name) -> (St -> St)
-editor_replaceText windowGetter =
-  windowGetter . E.editContentsL .~ Z.textZipper ["a","a","a"] Nothing
+  Lens' St (E.Editor String Name) -> [String] -> (St -> St)
+editor_replaceText windowGetter ss =
+  windowGetter . E.editContentsL .~ Z.textZipper ss Nothing

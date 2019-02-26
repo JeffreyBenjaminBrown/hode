@@ -30,7 +30,6 @@ when it ought to be this:
 see the comment leading its definition
 * TODO next : minimal UI
 ** the insert command
-Parse an HExpr from the Commands window.
 If it's Left, print the Left in the Results window
   and don't flush the Commands buffer
 If it's Right

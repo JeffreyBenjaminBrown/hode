@@ -56,14 +56,14 @@ appChooseCursor ::
   St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
 appChooseCursor = F.focusRingCursor (^.focusRing)
 
-theApp :: M.App St e Name
-theApp =
-    M.App { M.appDraw         = appDraw
-          , M.appChooseCursor = appChooseCursor
-          , M.appHandleEvent  = appHandleEvent
-          , M.appStartEvent   = return
-          , M.appAttrMap      = const appAttrMap
-          }
+app :: M.App St e Name
+app = M.App
+  { M.appDraw         = appDraw
+  , M.appChooseCursor = appChooseCursor
+  , M.appHandleEvent  = appHandleEvent
+  , M.appStartEvent   = return
+  , M.appAttrMap      = const appAttrMap
+  }
 
 ui :: Rslt -> IO St
-ui = M.defaultMain theApp . initialState
+ui = M.defaultMain app . initialState
