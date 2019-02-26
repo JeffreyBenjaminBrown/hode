@@ -47,6 +47,13 @@ pCommand_load s = CommandLoad <$>
   where p :: Parser Folder
         p = lexeme (string "/load") >> filepath
 
+pCommand_save :: String -> Either String Command
+pCommand_save s = CommandSave <$>
+  ( prefixLeft "pCommand_save"
+    $ mapLeft show (parse p "doh!" s) )
+  where p :: Parser Folder
+        p = lexeme (string "/save") >> filepath
+
 
 -- | = Functions from an `Rslt` and a parsed `String`,
 -- to search, insert, show.
