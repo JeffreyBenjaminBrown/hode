@@ -18,8 +18,9 @@ import qualified Brick.Focus as F
 import Brick.Util (on)
 
 import Rslt.RTypes
-import UI.State
+import UI.IParse
 import UI.ITypes
+import UI.State
 
 
 appDraw :: St -> [T.Widget Name]
@@ -37,6 +38,14 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc []         -> M.halt st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab []     -> M.continue $ st & focusRing %~ F.focusPrev
+
+  V.EvKey (V.KChar 'x') [V.MMeta] ->
+    let cmd = unlines $ E.getEditContents $ st ^. commands
+    in case pCommand (st ^. appRslt) cmd of
+      Left s1  -> M.continue $ editor_replaceText results (lines s1) st
+      Right c -> case runCommand c st of
+        Left s2 -> M.continue $ editor_replaceText results (lines s2) st
+        Right st' -> M.continue st'
 
   _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
     Just Results -> T.handleEventLensed

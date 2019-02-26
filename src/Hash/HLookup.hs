@@ -36,7 +36,7 @@ hExprToExpr r h@(HMap mh) = do
             x -> Left $ "hExprToExpr: in " ++ show h
                  ++ ", the expression " ++ show x ++ " is not a Tplt."
   ta <- prefixLeft "hExprToExpr" $ arity r t
-  if M.size me == ta then Right ()
+  if M.size (M.delete RoleTplt me) == ta then Right ()
     else Left $ "hExprToExpr: arity mismatch between "
          ++ show h ++ " and its Tplt " ++ show t
   Right $ Rel (sort $ M.elems $ M.delete RoleTplt me) t
