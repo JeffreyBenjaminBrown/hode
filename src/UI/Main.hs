@@ -45,7 +45,7 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
       Left s1  -> B.continue $ editor_replaceText results (lines s1) st
       Right c -> case runCommand c st of
         Left s2 -> B.continue $ editor_replaceText results (lines s2) st
-        Right st' -> B.continue st'
+        Right st' -> st'
 
   _ -> B.continue =<< case F.focusGetCurrent (st^.focusRing) of
     Just Results -> T.handleEventLensed

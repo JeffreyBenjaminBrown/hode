@@ -28,6 +28,7 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO bug: in ui, "/add /hash dogs #like cats" is creating "cats #like dogs"
 * TODO next : minimal UI
 ** TODO here's how to do IO in the EventM monad
 import           Control.Monad.IO.Class (liftIO)
