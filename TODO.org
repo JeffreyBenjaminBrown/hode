@@ -29,6 +29,12 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO next : minimal UI
+** TODO here's how to do IO in the EventM monad
+import           Control.Monad.IO.Class (liftIO)
+import UI.Clipboard
+...
+  V.EvKey (V.KChar 'o') [V.MMeta] ->
+    liftIO (toClipboard "hello?") >> M.continue st
 ** the insert command
 If it's Left, print the Left in the Results window
   and don't flush the Commands buffer

@@ -5,8 +5,7 @@
 
 module UI.Main where
 
-import Lens.Micro
-import qualified Graphics.Vty as V
+import           Lens.Micro
 
 import qualified Brick.Main as M
 import qualified Brick.Types as T
@@ -15,7 +14,8 @@ import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
-import Brick.Util (on)
+import           Brick.Util (on)
+import qualified Graphics.Vty as V
 
 import Rslt.RTypes
 import UI.IParse
