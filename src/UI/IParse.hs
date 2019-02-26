@@ -5,16 +5,30 @@ module UI.IParse where
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
+import           Text.Megaparsec.Char (string)
 
 import Hash.Convert
 import Hash.HLookup
 import Hash.HParse
+import Hash.HTypes
 import Qseq.QTypes
 import Rslt.Edit
 import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
+import UI.ITypes
 import Util.Misc
+import Util.UParse
+
+
+insertCommand :: Rslt -> String -> Either String Command
+insertCommand r s = Insert <$>
+  ( prefixLeft "pInsert"
+    $ mapLeft show (parse p "doh!" s)
+    >>= pExprToHExpr
+    >>= hExprToExpr r )
+  where p :: Parser PExpr
+        p = lexeme (string "/insert") >> pExpr
 
 
 -- | = Functions from an `Rslt` and a parsed `String`,
