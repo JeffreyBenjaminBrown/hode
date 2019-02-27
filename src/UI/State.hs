@@ -7,7 +7,8 @@ module UI.State where
 import           Control.Monad.IO.Class (liftIO)
 import           Lens.Micro
 import           Data.Set (Set)
-import qualified Data.Set as S
+import           Data.Map (Map)
+import qualified Data.Map as M
 
 --import qualified Data.Text.Zipper as Z hiding ( textZipper )
 import qualified Data.Text.Zipper.Generic as Z
@@ -77,13 +78,15 @@ runCommand (CommandFind h) st = do
   let r = st ^. appRslt
       title = "runCommand, called on CommandFind"
   (as :: Set Addr)   <- prefixLeft title
-                        $ hExprToAddrs r (mempty :: Subst Addr) h
-  (es :: Set Expr)   <- ifLefts_set title
-                        $ S.map ( addrToExpr r ) as
-  (ss :: Set String) <- ifLefts_set title
-                        $ S.map (eShow r) es
+    $ hExprToAddrs r (mempty :: Subst Addr) h
+  (es :: Map Addr Expr)   <- ifLefts_map title
+    $ M.fromSet (addrToExpr r) as
+  (ss :: Map Addr String) <- ifLefts_map title
+    $ M.map (eShow r) es
+  let (ss1 :: [String]) = map f $ M.toList ss where
+        f (addr,expr) = show addr ++ ": " ++ expr
   Right $ B.continue
-    $ editor_replaceText results (S.toList ss) st
+    $ editor_replaceText results ss1 st
 
 runCommand (CommandLoad f) st =
   Right $ do r <- liftIO $ readRslt f
