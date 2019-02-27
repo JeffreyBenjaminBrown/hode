@@ -64,6 +64,7 @@ simplifyPRel (Closed xs js) = Closed (map simplifyPRel xs) js
 simplifyPExpr :: PExpr -> PExpr
  -- These are the simplifications.
 simplifyPExpr (PRel (PNonRel pnr)) = simplifyPExpr pnr
+simplifyPExpr (PEval (PEval x)) = simplifyPExpr $ PEval x
 simplifyPExpr (PDiff a b) = PDiff (simplifyPExpr a) (simplifyPExpr b)
 simplifyPExpr (PAnd xs) = let
   xs' = map simplifyPExpr xs

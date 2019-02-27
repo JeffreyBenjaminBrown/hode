@@ -31,6 +31,6 @@ writeRslt :: FilePath -> Rslt -> IO ()
 writeRslt p r = let
   writeRefExpr :: (Addr, RefExpr) -> IO ()
   writeRefExpr (a,e) =
-    writeFile name $ show e
+    writeFile name $ show e ++ "\n"
     where name = p ++ "/" ++ show a ++ ".rslt"
   in mapM_ writeRefExpr $ M.toList $ _addrToRefExpr r
