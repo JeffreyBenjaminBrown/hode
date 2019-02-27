@@ -24,6 +24,7 @@ import Rslt.Files
 import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
+import UI.IParse
 import UI.ITypes
 import Util.Misc
 
@@ -56,7 +57,7 @@ editor_replaceText windowGetter ss =
 
 parseAndRunCommand :: St -> BT.EventM Name (BT.Next St)
 parseAndRunCommand st =
-  let cmd = unlines $ E.getEditContents $ st ^. commands
+  let cmd = unlines $ BE.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
     Left s1  -> B.continue $ editor_replaceText results (lines s1) st
     Right c -> case runCommand c st of

@@ -20,7 +20,6 @@ import qualified Graphics.Vty as V
 
 import Rslt.RTypes
 import UI.Clipboard
-import UI.IParse
 import UI.ITypes
 import UI.State
 

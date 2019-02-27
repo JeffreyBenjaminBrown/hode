@@ -28,9 +28,11 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO add an implicit Eval at the top of every parsed search
 * TODO UI
 ** TODO show Addrs
 ** TODO record, show command history
+** TODO start with focus on command window
 ** better UI messaging
 *** the insert command
  If it's Left, print the Left in the Results window

@@ -2,8 +2,6 @@
 
 module UI.IParse where
 
-import           Data.Char
-import qualified Data.List as L
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec

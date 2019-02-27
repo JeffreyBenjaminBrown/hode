@@ -2,7 +2,6 @@
 
 module Hash.HLookup where
 
-import           Data.List (sort)
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)

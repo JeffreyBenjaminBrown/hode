@@ -1,9 +1,4 @@
-There are four main branches to this project. Each branch is described in the [docs](docs) folder. They are:
-
-
-* The UI
-
-It's pretty basic but it works.
+There are four main branches to this project. Each branch is described in the [docs](docs) folder. They are -- and this is probably the order in which you should read about them -- these:
 
 
 * The Rslt
@@ -18,6 +13,11 @@ That's the idea, anyway. There are actually two more kinds of `Expr`; see the [d
 * Hash
 
 This is a language, close to ordinary natural language, for talking about a `Rslt`. It offers a concise representation both of individual `Expr`s (expressions, i.e. members) of a `Rslt` and for queries meant to retrieve subsets of an `Rslt`.
+
+
+* The UI
+
+It's pretty basic but it works.
 
 
 * Qseq
