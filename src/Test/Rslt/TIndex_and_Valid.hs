@@ -24,8 +24,8 @@ test_validExpr = TestCase $ do
   let meh = error "irrelevant"
   assertBool "1" $ Right () == validExpr D.big (Addr 0)
   assertBool "1" $ isLeft $    validExpr D.big (Addr 100)
-  assertBool "2" $ Right () == validExpr meh   (Word "a b c")
-  assertBool "2" $ Right () == validExpr meh   (Word "a b c")
+  assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
+  assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "Rel, invalid member" $ isLeft
     $  validExpr D.big (Rel [ Addr 100 ] $ Addr 101 )
   assertBool "Rel, false template" $ isLeft
@@ -46,7 +46,7 @@ test_validRefExpr = TestCase $ do
   assertBool "absent template" $ isLeft $ validRefExpr D.rslt (Rel' [1,2] $ 44)
   assertBool "arity mismatch" $ isLeft $ validRefExpr D.rslt (Rel' [] $ 4)
   assertBool "tplt not a tplt" $ isLeft $ validRefExpr D.rslt (Rel' [4] $ 0)
-  assertBool "word" $ isRight $ validRefExpr D.rslt (Word' "meh")
+  assertBool "word" $ isRight $ validRefExpr D.rslt (Phrase' "meh")
 
 test_checkDb :: Test
 test_checkDb = TestCase $ do

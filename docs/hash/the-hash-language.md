@@ -35,7 +35,7 @@ Every query starts with the symbol "/find".
 
 
 ## Basic queries
-### Query for a Word by writing it
+### Query for a Phrase by writing it
 
 For instance, `/find bob` will display the `Expr` "bob", if it is present. This is good for two things: determining whether it's in the database, and finding its address.
 

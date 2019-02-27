@@ -34,8 +34,8 @@ import Hash.HTypes
 --
 -- For instance, a `PRel`
 -- like `Closed [Absent, Leaf "not"] ["maybe"]` becomes the `HExpr`
--- `HExpr $ Rel [n] m`, where `n` is the address of `Word "not"` and
--- `m` is the address of `Tplt [Word "maybe"]`.
+-- `HExpr $ Rel [n] m`, where `n` is the address of `Phrase "not"` and
+-- `m` is the address of `Tplt [Phrase "maybe"]`.
 
 hash :: Level -> Joint -> PRel -> PRel -> Either String PRel
 hash l j -- ignore non-exhaustive error

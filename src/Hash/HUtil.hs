@@ -30,8 +30,8 @@ hVars (HOr hs)    = S.unions $ map hVars hs
 
 -- | = for parsing Hash
 
-pnrWord :: String -> PRel
-pnrWord = PNonRel . PExpr . Word
+pnrPhrase :: String -> PRel
+pnrPhrase = PNonRel . PExpr . Phrase
 
 pExprIsSpecific :: PExpr -> Bool
 pExprIsSpecific (PMap m)       = or $ map pExprIsSpecific $ M.elems m

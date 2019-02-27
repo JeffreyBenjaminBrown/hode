@@ -19,7 +19,7 @@ mkRslt :: Map Addr RefExpr -> Rslt
 mkRslt es = go es' where
   es' :: Map Addr RefExpr
   es' = if not $ M.null es
-        then es else M.singleton 0 $ Word' ""
+        then es else M.singleton 0 $ Phrase' ""
   go :: Map Addr RefExpr -> Rslt
   go m = let
     (hasMap :: Map Addr (Map Role Addr)) =
@@ -56,7 +56,7 @@ refExprPositions expr =
   let r :: (Int, Addr) -> (Role, Addr)
       r (n,a) = (RoleMember n, a)
   in case expr of
-    Word' _      -> []
+    Phrase' _      -> []
     Tplt' mas    ->                 map r (zip [1..]           mas)
     Rel'  mas ta -> (RoleTplt,ta) : map r (zip [1..]           mas)
     Par'  sas _  ->                 map r (zip [1..] $ map snd sas)

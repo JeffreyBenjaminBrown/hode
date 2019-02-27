@@ -37,37 +37,37 @@ test_exprToAddrInsert = TestCase $ do
     == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt' [0,1,0]) D.rslt
              , 7 )
 
-  assertBool "3" $ R.exprToAddrInsert D.rslt ( Tplt [ Word "bar"
-                                                     , Word ""
-                                                     , Word "foo" ] )
+  assertBool "3" $ R.exprToAddrInsert D.rslt ( Tplt [ Phrase "bar"
+                                                     , Phrase ""
+                                                     , Phrase "foo" ] )
     == Right ( fromRight (error "wut")
                $ R.insertAt 9 (Tplt' [7,0,8])
                $ fromRight (error "wut")
-               $ R.insertAt 8 (Word' "foo")
+               $ R.insertAt 8 (Phrase' "foo")
                $ fromRight (error "wut")
-               $ R.insertAt 7 (Word' "bar") D.rslt
+               $ R.insertAt 7 (Phrase' "bar") D.rslt
              , 9 )
 
   assertBool "4" $ R.exprToAddrInsert D.rslt
     ( Par [ ("The template", Tplt $ map Addr [0,3,0])
-               , ("could use a", Word "taxi") ] "" )
+               , ("could use a", Phrase "taxi") ] "" )
     == Right ( fromRight (error "wut")
                $ R.insertAt 8 (Par' [ ("The template", 4)
                                    , ("could use a", 7) ] "")
                $ fromRight (error "wut")
-               $ R.insertAt 7 (Word' "taxi") D.rslt
+               $ R.insertAt 7 (Phrase' "taxi") D.rslt
              , 8 )
 
   assertBool "5" $ let
     Right (r,a) = R.exprToAddrInsert D.rslt
-                  ( Rel [ Rel [ Word "space"
-                                        , Word "empty" ]
-                               ( Tplt [ Word ""
-                                           , Word "is"
+                  ( Rel [ Rel [ Phrase "space"
+                                        , Phrase "empty" ]
+                               ( Tplt [ Phrase ""
+                                           , Phrase "is"
                                            , Addr 0 ] )
-                             , Word "suck" ]
-                    ( Tplt [ Word "That"
-                                , Word "does"
+                             , Phrase "suck" ]
+                    ( Tplt [ Phrase "That"
+                                , Phrase "does"
                                 , Addr 0 ] ) )
     (n16 :: Expr) =
       either (error "wut") id $ addrToRefExpr r a >>= refExprToExpr r
@@ -76,24 +76,24 @@ test_exprToAddrInsert = TestCase $ do
 test_replace :: Test
 test_replace = TestCase $ do
   assertBool "replace word in rel" $
-    either (error "wut") id (R.replace (Word' "foo") 1 D.rslt)
+    either (error "wut") id (R.replace (Phrase' "foo") 1 D.rslt)
     == mkRslt ( M.fromList
-          [ (0, Word' "")
-          , (2, Word' "oxygen")
-          , (3, Word' "needs")
+          [ (0, Phrase' "")
+          , (2, Phrase' "oxygen")
+          , (3, Phrase' "needs")
           , (4, Tplt' [0,3,0])
           , (5, Rel' [7,2] 4) -- all changes involve address 7
           , (6, Par' [("The first relationship in this graph is ", 5)] ".")
-          , (7, Word' "foo")
+          , (7, Phrase' "foo")
           ] )
 
   assertBool "replace word in template" $
-    either (error "wut") id (R.replace (Word' "foo") 0 D.rslt)
+    either (error "wut") id (R.replace (Phrase' "foo") 0 D.rslt)
     == mkRslt ( M.fromList
-         [ (7, Word' "foo")
-         , (1, Word' "dog")
-         , (2, Word' "oxygen")
-         , (3, Word' "needs")
+         [ (7, Phrase' "foo")
+         , (1, Phrase' "dog")
+         , (2, Phrase' "oxygen")
+         , (3, Phrase' "needs")
          , (4, Tplt' [7,3,7]) -- all changes involve address 7
          , (5, Rel' [1,2] 4)
          , (6, Par' [("The first relationship in this graph is ", 5)] ".")
@@ -102,10 +102,10 @@ test_replace = TestCase $ do
   assertBool "replace rel" $
     either (error "wut") id (R.replace (Rel' [2,1] 4) 5 D.rslt)
     == mkRslt ( M.fromList
-         [ (0, Word' "")
-         , (1, Word' "dog")
-         , (2, Word' "oxygen")
-         , (3, Word' "needs")
+         [ (0, Phrase' "")
+         , (1, Phrase' "dog")
+         , (2, Phrase' "oxygen")
+         , (3, Phrase' "needs")
          , (4, Tplt' [0,3,0])
          , (7, Rel' [2,1] 4) -- all changes involve address 7
          , (6, Par' [("The first relationship in this graph is ", 7)] ".")
@@ -114,10 +114,10 @@ test_replace = TestCase $ do
   assertBool "todo : replace tplt" $
     either (error "wut") id (R.replace (Tplt' [2,2,2]) 4 D.rslt)
     == mkRslt ( M.fromList
-         [ (0, Word' "")
-         , (1, Word' "dog")
-         , (2, Word' "oxygen")
-         , (3, Word' "needs")
+         [ (0, Phrase' "")
+         , (1, Phrase' "dog")
+         , (2, Phrase' "oxygen")
+         , (3, Phrase' "needs")
          , (7, Tplt' [2,2,2])
          , (5, Rel' [1,2] 7) -- all changes involve address 7
          , (6, Par' [("The first relationship in this graph is ", 5)] ".")
@@ -142,7 +142,7 @@ test_replaceInRole = TestCase $ do
   let r2 = either (error "wut") id
            $ R.replaceInRole (RoleMember 2) 8 5
            $ either (error "wut") id
-           $ R.insertAt 8 (Word' "foo") D.rslt
+           $ R.insertAt 8 (Phrase' "foo") D.rslt
   assertBool "4" $ isIn r2 8 == Right (S.singleton (RoleMember 2, 5))
 
 test_deleteUnused :: Test
@@ -190,7 +190,7 @@ test_insert = TestCase $ do
   assertBool "5" $ isLeft $ has D.rslt  7
 
   assertBool "address collision" $ isLeft $
-    R.insertAt 1 (Word' "nuyck") D.rslt
+    R.insertAt 1 (Phrase' "nuyck") D.rslt
   assertBool "non-matching template" $ isLeft $
     R.insertAt 1 (Rel' [1,2,3] 4) D.rslt
   assertBool "nonexistent references" $ isLeft $

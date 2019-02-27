@@ -73,7 +73,7 @@ pExpr = simplifyPExpr <$>
 
   -- the PExpr constructor
     , PExpr <$> pAddr
-    , pWord -- not really necessary -- could use /hash instead
+    , pPhrase -- not really necessary -- could use /hash instead
     , PExpr <$> pTplt
 
   -- other constructors
@@ -90,14 +90,14 @@ pAddr :: Parser Expr
 pAddr = lexeme (string "/addr")
         >> Addr . fromIntegral <$> integer
 
-pWord :: Parser PExpr
-pWord = lexeme $ phrase >>= return . PExpr . Word
+pPhrase :: Parser PExpr
+pPhrase = lexeme $ phrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme (string "/tplt") >> _pTplt
 
 _pTplt :: Parser Expr
-_pTplt = lexeme $ Tplt . map Word
+_pTplt = lexeme $ Tplt . map Phrase
          <$> some (identifier <|> parens phrase)
 
 pMap :: Parser PExpr

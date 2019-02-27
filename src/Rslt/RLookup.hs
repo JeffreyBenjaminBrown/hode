@@ -25,7 +25,7 @@ findSubExprs paths = mkFindFrom f where
 -- | Expr from RefExpr
 
 refExprToExpr :: Rslt -> RefExpr -> Either String Expr
-refExprToExpr _ (Word' w) = Right $ Word w
+refExprToExpr _ (Phrase' w) = Right $ Phrase w
 refExprToExpr r (Tplt' jointAs) = do
   (jointEs  :: [RefExpr])   <-
     ifLefts "refExprToExpr" $ map (addrToRefExpr r) jointAs
@@ -77,7 +77,7 @@ exprToAddr :: Rslt -> Expr -> Either String Addr
 exprToAddr x img =
   let pel = prefixLeft "exprToAddr"
   in case img of
-  Word w -> pel $ refExprToAddr x $ Word' w
+  Phrase w -> pel $ refExprToAddr x $ Phrase' w
 
   Addr a -> pel (addrToRefExpr x a) >>= const (Right a)
 
@@ -115,7 +115,7 @@ variety r a = maybe err Right $ M.lookup a $ _variety r
 
 arity :: Rslt -> Expr -> Either String Arity
 arity r (Addr a)  = snd <$> variety r a
-arity _ (Word _)  = Right 0
+arity _ (Phrase _)  = Right 0
 arity r (Rel ms t) = do
   ta <- arity r t
   if ta == length ms then Right ta

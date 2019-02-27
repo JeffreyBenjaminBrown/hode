@@ -26,23 +26,23 @@ test_module_rslt_exprToAddr = TestList [
 
 test_refExprToExpr :: Test
 test_refExprToExpr = TestCase $ do
-  assertBool "tplt" $ Right ( Tplt [ Word ""
-                                           , Word "needs"
-                                           , Word "" ] )
+  assertBool "tplt" $ Right ( Tplt [ Phrase ""
+                                           , Phrase "needs"
+                                           , Phrase "" ] )
     == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
   assertBool "par" $ Right ( Par [ ( "You can't eat"
-                                        , Word "oxygen" ) ]
+                                        , Phrase "oxygen" ) ]
                              "silly" )
     == refExprToExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
 
   assertBool "rel, recursive" $
-    let ti = Tplt [ Word ""
-                                                      , Word "needs"
-                                                      , Word "" ]
-    in Right ( Rel [ Word "dog"
-                        , Rel [ Word "dog"
-                                   , Word "oxygen" ]
+    let ti = Tplt [ Phrase ""
+                                                      , Phrase "needs"
+                                                      , Phrase "" ]
+    in Right ( Rel [ Phrase "dog"
+                        , Rel [ Phrase "dog"
+                                   , Phrase "oxygen" ]
                           ti ]
                ti )
     == refExprToExpr D.rslt ( Rel' [1,5] 4 )
@@ -52,21 +52,21 @@ test_exprToAddr = TestCase $ do
   assertBool "1" $ (R.exprToAddr D.rslt $ Addr 0)       == Right 0
   assertBool "2" $ isLeft
                  $ (R.exprToAddr D.rslt $ Addr $ -10000)
-  assertBool "3" $ (R.exprToAddr D.rslt $ Word "needs") == Right 3
+  assertBool "3" $ (R.exprToAddr D.rslt $ Phrase "needs") == Right 3
   assertBool "4" $ (R.exprToAddr D.rslt $ either (error "wut") id
                     $ refExprToExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
     R.exprToAddr D.rslt ( Tplt [ Addr 0
-                                , Word "needs"
-                                , Word ""] )
+                                , Phrase "needs"
+                                , Phrase ""] )
 
   assertBool "6" $ Right 5 ==
     R.exprToAddr D.rslt ( Rel [ Addr 1
-                               , Word "oxygen"]
+                               , Phrase "oxygen"]
                       $ Addr 4 )
   assertBool "7" $ isLeft $
     R.exprToAddr D.rslt ( Rel [ Addr 1
-                               , Word "oxygen"]
+                               , Phrase "oxygen"]
                       $ Addr 6 )
 
 test_has :: Test
@@ -92,7 +92,7 @@ test_isIn = TestCase $ do
   assertBool "2" $ isIn D.rslt 4
     == Right ( S.fromList [ (RoleTplt, 5) ] )
   assertBool "3" $ let r' = either (error "wut") id
-                            $ R.insertAt 7 (Word' "pizza") D.rslt
+                            $ R.insertAt 7 (Phrase' "pizza") D.rslt
                    in isIn r' 7 == Right S.empty
 
 test_fills :: Test
@@ -116,7 +116,7 @@ test_fills = TestCase $ do
 
 test_variety :: Test
 test_variety = TestCase $ do
-  assertBool "1" $ variety D.rslt 3 == Right (WordCtr,0)
+  assertBool "1" $ variety D.rslt 3 == Right (PhraseCtr,0)
   assertBool "2" $ variety D.rslt 4 == Right (TpltCtr,2)
   assertBool "3" $ variety D.rslt 5 == Right (RelCtr,2)
   assertBool "4" $ variety D.rslt 6 == Right (ParCtr,1)

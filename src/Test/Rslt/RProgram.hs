@@ -49,7 +49,7 @@ test_rslt_hash_query = TestCase $ do
              , ( RoleMember 2
                , HEval ( HMap $ M.fromList
                          [ ( RoleTplt, HExpr $ Addr 15)
-                         , ( RoleMember 2, HExpr $ Word "exercise") ] )
+                         , ( RoleMember 2, HExpr $ Phrase "exercise") ] )
                  $ [[ RoleMember 1 ]]
                ) ] ) ]
     == Right ( M.singleton "a" $ M.fromList [ (10, S.singleton M.empty)
@@ -64,7 +64,7 @@ test_rslt_hash_query = TestCase $ do
             , HEval
               ( HMap $ M.fromList
                 [ ( RoleTplt, HExpr $ Addr 15)
-                , ( RoleMember 2, HExpr $ Word "exercise") ] )
+                , ( RoleMember 2, HExpr $ Phrase "exercise") ] )
               $ [[ RoleMember 1 ]]
             ) ] )
         [[ RoleMember 1 ]] ) ]
@@ -178,4 +178,4 @@ test_rslt_query = TestCase $ do
     [ ("a", QFind $ mkFind
         $ \sp -> S.singleton <$> addrToRefExpr sp 0 ) ]
     == Right ( M.singleton "a"
-               $ M.singleton (Word' "") $ S.singleton M.empty )
+               $ M.singleton (Phrase' "") $ S.singleton M.empty )

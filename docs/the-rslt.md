@@ -4,7 +4,7 @@ A `Rslt` is a collection of `Expr`s. The `Expr` data type is defined like this:
 
 ```
 data Expr =
-    Word String                 -- word or phrase
+    Phrase String                 -- word or phrase
   | Rel  [Expr] Expr            -- relationship
   | Tplt [Expr]                 -- template for relationships
   | Par [(String, Expr)] String -- paragraph
@@ -12,9 +12,9 @@ data Expr =
 ```
 
 
-## The foundation: `Word`, `Rel` and `Tplt`
+## The foundation: `Phrase`, `Rel` and `Tplt`
 
-The `Word` is the basic building block of a `Rslt`. "dogs", "four score and seven years ago", and the empty string are all technically valid `Word`s.
+The `Phrase` is the basic building block of a `Rslt`. "dogs", "four score and seven years ago", and the empty string are all technically valid `Phrase`s.
 
 A `Rel` is a relationship between some sub-`Expr`s. An example would be "frogs #eat bugs", which is an "eats" relationship between "frogs" and "bugs". Another would be "Bill #gave flowers #to Mary", which is a 3-member "gave-to" relationship. Yet another would be "#maybe not", which is a "maybe" relationship with the single member "not".
 

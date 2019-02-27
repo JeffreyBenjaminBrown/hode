@@ -19,12 +19,12 @@ data Expr =
     Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
      -- The other `Expr` constructors are meaningful on their own, but this
     -- one requires some `Rslt` for context.
-  | Word String   -- ^ (Could be a phrase too.)
+  | Phrase String   -- ^ (Could be a phrase too.)
   | Rel  [Expr] Expr -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | Tplt [Expr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
-                 -- The `Addr`s should probably be `Word`s.
+                 -- The `Addr`s should probably be `Phrase`s.
   | Par [(String, Expr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
@@ -49,14 +49,14 @@ data Rslt = Rslt {
 -- Unlike an `Expr`, a `RefExpr` is not meaningful on its own;
 -- it requires the context of an `Rslt`.
 data RefExpr =
-    Word' String
+    Phrase' String
   | Rel' [Addr] Addr
   | Tplt' [Addr]
   | Par' [(String, Addr)] String
   deriving (Eq, Ord, Read, Show)
 
 -- | The constructor that a `RefExpr` uses.
-data ExprCtr = WordCtr | RelCtr | TpltCtr | ParCtr
+data ExprCtr = PhraseCtr | RelCtr | TpltCtr | ParCtr
   deriving (Eq, Ord, Read, Show)
 
--- | A `RefExprs` is used to retrieve the text of `Word`s and `Par`s.
+-- | A `RefExprs` is used to retrieve the text of `Phrase`s and `Par`s.

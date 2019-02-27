@@ -26,15 +26,15 @@ test_hExprToExpr :: Test
 test_hExprToExpr = TestCase $ do
   assertBool "no template" $ isLeft $ hExprToExpr D.big $ HMap M.empty
   assertBool "false template" $ isLeft $ hExprToExpr D.big $ HMap
-    $ M.singleton (RoleTplt) $ HExpr $ Word "galk"
+    $ M.singleton (RoleTplt) $ HExpr $ Phrase "galk"
   assertBool "non-convertible member" $ isLeft $ hExprToExpr D.big $ HMap
-    $ M.fromList [ (RoleTplt    , HExpr $ Word "galk")
+    $ M.fromList [ (RoleTplt    , HExpr $ Phrase "galk")
                  , (RoleMember 1, HVar "x") ]
   assertBool "arity mismatch" $ isLeft $ hExprToExpr D.big $ HMap
     $ M.singleton RoleTplt $ HExpr $ Addr 4
   assertBool "good" $ isLeft $ hExprToExpr D.big $ HMap
     $ M.fromList [ (RoleTplt    , HExpr $ Addr 4)
-                 , (RoleMember 1, HExpr $ Word "yo!") ]
+                 , (RoleMember 1, HExpr $ Phrase "yo!") ]
 
 test_hExprToAddrs :: Test
 test_hExprToAddrs = TestCase $ do
@@ -66,7 +66,7 @@ test_hExprToAddrs = TestCase $ do
   assertBool "9 is the only Expr in D.big whose 2nd member is 3."
     $ hExprToAddrs D.big M.empty
     ( HMap ( M.singleton (RoleMember 2)
-             $ HExpr $ Word "3" ) )
+             $ HExpr $ Phrase "3" ) )
     == Right ( S.fromList [9] )
 
   assertBool "2 is the first member of the only thing (9) that has 3 as its second member."

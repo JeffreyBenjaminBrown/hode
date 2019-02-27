@@ -23,67 +23,67 @@ test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
   assertBool "1" $ isLeft $ pRelToHExpr Absent
   assertBool "2" $ pRelToHExpr ( Closed
-                                 [ pnrWord "a", pnrWord "b" ]
+                                 [ pnrPhrase "a", pnrPhrase "b" ]
                                  [ "is" ] )
     == Right ( HMap $ M.fromList
-               [ ( RoleTplt, HExpr $ Tplt $ map Word [ "", "is", "" ] )
-               , ( RoleMember 1, HExpr $ Word "a" )
-               , ( RoleMember 2, HExpr $ Word "b" ) ] )
+               [ ( RoleTplt, HExpr $ Tplt $ map Phrase [ "", "is", "" ] )
+               , ( RoleMember 1, HExpr $ Phrase "a" )
+               , ( RoleMember 2, HExpr $ Phrase "b" ) ] )
   assertBool "3" $ let meh = error "irrelevant"
-    in pRelToHExpr ( Open meh [ pnrWord "a", pnrWord "b" ] [ "is" ] )
-    == pRelToHExpr ( Closed   [ pnrWord "a", pnrWord "b" ] [ "is" ] )
+    in pRelToHExpr ( Open meh [ pnrPhrase "a", pnrPhrase "b" ] [ "is" ] )
+    == pRelToHExpr ( Closed   [ pnrPhrase "a", pnrPhrase "b" ] [ "is" ] )
 
   assertBool "4" $ pRelToHExpr ( Closed
-                                 [ pnrWord "a"
-                                 , Closed [ pnrWord "c", pnrWord "d" ] [ "to"]
-                                 , pnrWord "b" ]
+                                 [ pnrPhrase "a"
+                                 , Closed [ pnrPhrase "c", pnrPhrase "d" ] [ "to"]
+                                 , pnrPhrase "b" ]
                                  [ "is", "because" ] )
     == Right
     ( HMap $ M.fromList
-      [ ( RoleTplt    , HExpr $ Tplt $ map Word ["", "is", "because", "" ] )
-      , ( RoleMember 1, HExpr $ Word "a" )
+      [ ( RoleTplt    , HExpr $ Tplt $ map Phrase ["", "is", "because", "" ] )
+      , ( RoleMember 1, HExpr $ Phrase "a" )
       , ( RoleMember 2, HMap $ M.fromList
-                        [ ( RoleTplt    , ( HExpr $ Tplt $ map Word
+                        [ ( RoleTplt    , ( HExpr $ Tplt $ map Phrase
                                             [ "","to", "" ] ) )
-                        , ( RoleMember 1, HExpr $ Word "c" )
-                        , ( RoleMember 2, HExpr $ Word "d" ) ] )
-      , ( RoleMember 3, HExpr $ Word "b" ) ] )
+                        , ( RoleMember 1, HExpr $ Phrase "c" )
+                        , ( RoleMember 2, HExpr $ Phrase "d" ) ] )
+      , ( RoleMember 3, HExpr $ Phrase "b" ) ] )
 
 test_pExprToHExpr :: Test
 test_pExprToHExpr = TestCase $ do
   assertBool "1" $ ( pExprToHExpr
                      ( PEval $ PMap $ M.fromList
-                       [ ( RoleTplt, PExpr $ Tplt [ Word "is" ] )
+                       [ ( RoleTplt, PExpr $ Tplt [ Phrase "is" ] )
                        , ( RoleMember 1, It Nothing ) ] ) )
     == Right ( HEval
                ( HMap $ M.fromList
                  [ ( RoleTplt
-                   , HExpr ( Tplt [ Word "is" ] ) ) ] )
+                   , HExpr ( Tplt [ Phrase "is" ] ) ) ] )
                [ [ RoleMember 1 ] ] )
 
   assertBool "2" $
     pExprToHExpr ( PEval $ PRel $ Open (error "irrelevant")
       [ PNonRel $ PMap $ M.fromList
-        [ ( RoleMember 1, PExpr $ Word "bugs" )
+        [ ( RoleMember 1, PExpr $ Phrase "bugs" )
         , ( RoleMember 2, It Nothing ) ]
-      , PNonRel $ PExpr $ Word "sassafras"
+      , PNonRel $ PExpr $ Phrase "sassafras"
       , PNonRel $ Any ]
       [ "enjoy", "because" ]
     ) == Right ( HEval
                  ( HMap $ M.fromList
-                   [ ( RoleTplt, ( HExpr $ Tplt $ map Word
+                   [ ( RoleTplt, ( HExpr $ Tplt $ map Phrase
                                    ["", "enjoy", "because", "" ] ) )
                    , ( RoleMember 1, HMap $ M.singleton
                                      ( RoleMember 1 )
-                                     $ HExpr $ Word "bugs" ),
-                     ( RoleMember 2, HExpr $ Word "sassafras" ) ] )
+                                     $ HExpr $ Phrase "bugs" ),
+                     ( RoleMember 2, HExpr $ Phrase "sassafras" ) ] )
                  [ [ RoleMember 1, RoleMember 2 ] ] )
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do
   assertBool "1" $
-    simplifyPExpr ( PAnd [ PAnd [ PAnd [ PExpr $ Word "a"
-                                       , PExpr $ Word "b" ]
-                         , PAnd [ PAnd [ PExpr $ Word "c"
-                                       , PExpr $ Word "d" ] ] ] ] )
-    == PAnd (map (PExpr . Word) ["a","b","c","d"] )
+    simplifyPExpr ( PAnd [ PAnd [ PAnd [ PExpr $ Phrase "a"
+                                       , PExpr $ Phrase "b" ]
+                         , PAnd [ PAnd [ PExpr $ Phrase "c"
+                                       , PExpr $ Phrase "d" ] ] ] ] )
+    == PAnd (map (PExpr . Phrase) ["a","b","c","d"] )

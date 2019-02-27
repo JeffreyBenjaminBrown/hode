@@ -12,23 +12,23 @@ import Util.Misc
 -- | = For `Expr`s
 
 depth :: Expr -> Int
-depth (Word _)     = 0
+depth (Phrase _)     = 0
 depth (Addr _) = 0
 depth (Rel mems _) = 1 + maximum (map depth mems)
-depth (Tplt _)  = 0 -- ^ TODO ? consider Tplts with non-Word members
+depth (Tplt _)  = 0 -- ^ TODO ? consider Tplts with non-Phrase members
 depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)
 
 
 -- | for `RefExpr`s
 
 refExprVariety :: RefExpr -> (ExprCtr, Arity)
-refExprVariety   (Word'  _) = (WordCtr, 0)
+refExprVariety   (Phrase'  _) = (PhraseCtr, 0)
 refExprVariety e@(Tplt'  _) = (TpltCtr, refExprArity e)
 refExprVariety e@(Rel' _ _) = (RelCtr , refExprArity e)
 refExprVariety e@(Par' _ _) = (ParCtr , refExprArity e)
 
 refExprArity :: RefExpr -> Arity
-refExprArity (Word' _)  = 0
+refExprArity (Phrase' _)  = 0
 refExprArity (Rel' x _) = length x
 refExprArity (Tplt' x)  = length x - 1
 refExprArity (Par' x _) = length x

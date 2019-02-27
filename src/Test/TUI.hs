@@ -21,11 +21,11 @@ test_pCommand :: T.Test
 test_pCommand = TestCase $ do
   assertBool "1" $ pCommand (error "irrelevant")
     "/add done told ya once "
-    == Right ( CommandInsert $ Word "done told ya once" )
+    == Right ( CommandInsert $ Phrase "done told ya once" )
 
   assertBool "1" $ pCommand (error "irrelevant")
     "/find done told ya once"
-    == Right ( CommandFind $ HExpr $ Word "done told ya once" )
+    == Right ( CommandFind $ HExpr $ Phrase "done told ya once" )
 
   assertBool "1" $ pCommand (error "irrelevant")
     "/load somewhere/over/the/rainbow.exe"

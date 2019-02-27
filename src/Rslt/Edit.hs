@@ -39,9 +39,9 @@ exprToAddrInsert_rootNotFound :: Rslt -> Expr -> Either String (Rslt, Addr)
 exprToAddrInsert_rootNotFound _ (Addr a) =
   Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
 
-exprToAddrInsert_rootNotFound r0 (Word w) = do
+exprToAddrInsert_rootNotFound r0 (Phrase w) = do
   a <- nextAddr r0
-  r1 <- insertAt a (Word' w) r0
+  r1 <- insertAt a (Phrase' w) r0
   Right (r1,a)
 
 exprToAddrInsert_rootNotFound r0 (Tplt js) = do

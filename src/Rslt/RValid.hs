@@ -19,7 +19,7 @@ import Util.Misc
 
 validExpr :: Rslt -> Expr -> Either String ()
 validExpr r (Addr a) = allAddrsPresent r [a]
-validExpr _ (Word _) = Right ()
+validExpr _ (Phrase _) = Right ()
 
 validExpr r rel@(Rel ms t) = do
   let err = "validExpr called on Rel" ++ show rel
@@ -73,7 +73,7 @@ refExprRefsExist r e = let
        Rel' aMembers aTplt -> f $ aTplt : aMembers
        Tplt' as            -> f as
        Par' sas _          -> f $ map snd sas
-       Word' _             -> Right ()
+       Phrase' _             -> Right ()
 
 
 -- | == Check the database
@@ -98,14 +98,14 @@ collectionsWithAbsentAddrs r = res where
   absent = isNothing . flip M.lookup (_variety r)
 
   involved :: RefExpr -> [Addr]
-  involved (Word' _)    = error "impossible"
+  involved (Phrase' _)    = error "impossible"
   involved (Tplt' as)   = as
   involved (Rel' as a)  = a : as
   involved (Par' sas _) = map snd sas
 
   collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where
-    isCollection expr = case expr of Word' _ -> False
+    isCollection expr = case expr of Phrase' _ -> False
                                      _       -> True
 
 relsWithoutMatchingTplts :: Rslt -> Map Addr RefExpr

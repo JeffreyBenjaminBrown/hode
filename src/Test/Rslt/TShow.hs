@@ -17,13 +17,13 @@ test_module_rslt_show = TestList [
 
 test_eShow :: Test
 test_eShow = TestCase $ do
-  assertBool "1" $ eShow D.rslt (Word "hello") == Right "hello"
-  assertBool "2" $ eShow D.rslt (Tplt $ map Word ["a","b","c"] )
+  assertBool "1" $ eShow D.rslt (Phrase "hello") == Right "hello"
+  assertBool "2" $ eShow D.rslt (Tplt $ map Phrase ["a","b","c"] )
     == Right "a _ b _ c"
-  assertBool "3" $ eShow D.rslt ( Rel ( map Word ["a","b"] )
-                                     $ Tplt $ map Word ["","=",""] )
+  assertBool "3" $ eShow D.rslt ( Rel ( map Phrase ["a","b"] )
+                                     $ Tplt $ map Phrase ["","=",""] )
     == Right "a #= b"
-  assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Word "cat")
+  assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Phrase "cat")
                                            , (", hello", Addr 1) ]
                                   ", nice to meet you both." )
     == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."

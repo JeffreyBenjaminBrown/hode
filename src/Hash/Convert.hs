@@ -20,7 +20,7 @@ import Util.Misc
 -- | In a PRel, outer *members* can be absent:
 --
 --   > parse pExpr "" "/hash x #j"
---   Right ( PRel ( Open 1 [ PNonRel $ PExpr $ Word "x"
+--   Right ( PRel ( Open 1 [ PNonRel $ PExpr $ Phrase "x"
 --                         , Absent ]
 --                  ["j"] ) )
 --
@@ -39,7 +39,7 @@ pRelToHExpr (Closed ms js0) = do
       absentRight = case last ms of Absent -> True; _ -> False
       js1 = if not absentLeft  then "" : js0    else js0
       js2 = if not absentRight then js1 ++ [""] else js1
-      t = Tplt $ map Word js2
+      t = Tplt $ map Phrase js2
       ms' = filter f ms
         where f :: PRel -> Bool
               f Absent = False

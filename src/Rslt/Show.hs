@@ -50,13 +50,13 @@ eShow :: Rslt -> Expr -> Either String String
 eShow r (Addr a) = do
   e <- addrToRefExpr r a
   case e of
-    Word' w    ->    eShow r $ Word w
+    Phrase' w    ->    eShow r $ Phrase w
     Tplt' js   ->    eShow r $ Tplt $ map Addr js
     Rel' ms t  ->    eShow r $ Rel (map Addr ms) $ Addr t
     Par' sas s -> let (ss, as) = unzip sas
                   in eShow r $ Par (zip ss $ map Addr as) s
 
-eShow _ (Word w) = Right w
+eShow _ (Phrase w) = Right w
 
 eShow r (Tplt js) = do
   ss <- ifLefts "eShow" $ map (eShow r) js
