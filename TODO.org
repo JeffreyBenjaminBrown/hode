@@ -29,6 +29,7 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO add an implicit Eval at the top of every parsed search
+* TODO terminate each .rslt file with a newline
 * TODO UI
 ** TODO show Addrs
 ** TODO record, show command history
