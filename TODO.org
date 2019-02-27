@@ -32,7 +32,8 @@ see the comment leading its definition
 ** TODO rename Word -> Phrase
 ** TODO document the precedence order of the language
 ** TODO permit punctuation
-** TODO /eval is not working
+** TODO if there is an /it and no /eval, add an eval at the top
+and then delete the PITFALL comment under the /it documentation in the-hash-language.md
 ** TODO add an implicit Eval at the top of every search parsed in the UI
 * TODO UI
 ** TODO record, show command history

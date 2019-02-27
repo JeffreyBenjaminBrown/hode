@@ -54,9 +54,9 @@ If you only wanted it to return alice and chuck, rather than the entire #process
 
 ### Query for subexpressions using /it
 
-(As of last writing this was broken. I may have fixed it by now.)
-
 For instance, if bob has processed alice and chuck, then the command `/find /hash bob #processed /it` would return "alice" and "chuck".
+
+(PITFALL: This will change soon, but at the moment, in order for an expression involving the /it keyword to be evaluated properly, the keyword /eval must be used at the top. For instance, the above example needs to be written as `/find /eval /hash bob #processed /it`.)
 
 
 ### Query for an Addr with /addr, followed by a number
@@ -73,8 +73,6 @@ For instance, if "bob" is stored at `Addr` 1, then `/find /hash /addr 1 #process
 ## Advanced queries
 
 ### Early evaluation for sub-queries: Use /eval
-
-(As of last writing this was broken. I may have fixed it by now.)
 
 Consider a RSLT with the following data:
 ```
