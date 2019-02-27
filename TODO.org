@@ -31,10 +31,12 @@ see the comment leading its definition
 * TODO urgent
 ** TODO rename Word -> Phrase
 ** TODO document the precedence order of the language
+and mention that you can use parens liberally to make it more obvious
 ** TODO permit punctuation
 ** TODO if there is an /it and no /eval, add an eval at the top
 and then delete the PITFALL comment under the /it documentation in the-hash-language.md
-** TODO add an implicit Eval at the top of every search parsed in the UI
+
+Do NOT add an implicit Eval at the top of every search parsed in the UI, because an Eval will return nothing if there are no Its below.
 * TODO UI
 ** TODO record, show command history
 ** TODO show Addrs of subExprs
