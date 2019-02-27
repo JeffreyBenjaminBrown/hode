@@ -28,13 +28,13 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO add an implicit Eval at the top of every parsed search
-* TODO /eval is not working
-* TODO permit punctuation
-* TODO UI
+* TODO urgent
+** TODO permit punctuation
+** TODO /eval is not working
 ** TODO show Addrs
+** TODO add an implicit Eval at the top of every search parsed in the UI
+* TODO UI
 ** TODO record, show command history
-** TODO start with focus on command window
 ** better UI messaging
 *** the insert command
  If it's Left, print the Left in the Results window

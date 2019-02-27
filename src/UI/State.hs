@@ -31,7 +31,9 @@ import Util.Misc
 
 initialState :: Rslt -> St
 initialState r = St {
-    _focusRing = BF.focusRing [Results, Commands]
+    _focusRing = BF.focusRing [Commands, Results]
+      -- Almost always (for safety), Results is listed first,
+      -- but we want focus to start on the Commands window.
   , _results   = BE.editor Results Nothing "" -- Maybe : line number limit
   , _commands  = BE.editor Commands Nothing ""
   , _appRslt   = r
