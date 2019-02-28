@@ -9,6 +9,9 @@ module Hash.Convert where
 
 import qualified Data.Map       as M
 
+import Control.Arrow (second)
+import Data.Functor (void)
+
 import Hash.HTypes
 import Hash.HUtil
 import Rslt.RTypes
@@ -34,22 +37,28 @@ pRelToHExpr Absent = Left "pRelToHExpr: cannot convert Absent."
 pRelToHExpr (Open _ ms js) = pRelToHExpr $ Closed ms js
 
 pRelToHExpr (Closed ms js0) = do
-  let absentLeft, absentRight :: Bool
-      absentLeft  = case head ms of Absent -> True; _ -> False
-      absentRight = case last ms of Absent -> True; _ -> False
-      js1 = if not absentLeft  then "" : js0    else js0
-      js2 = if not absentRight then js1 ++ [""] else js1
-      t = Tplt $ map Phrase js2
-      ms' = filter f ms
-        where f :: PRel -> Bool
-              f Absent = False
-              f (PNonRel px) = pExprIsSpecific px
-              f _ = True
-  (hms :: [HExpr]) <- ifLefts "pRelToHExpr"
-    $ map pRelToHExpr ms'
-  Right $ HMap
-    $ M.insert RoleTplt (HExpr t)
-    $ M.fromList $ zip (map RoleMember [1..]) hms
+  let t = Tplt $ map Phrase js2 where
+        absentLeft, absentRight :: Bool
+        absentLeft  = case head ms of Absent -> True; _ -> False
+        absentRight = case last ms of Absent -> True; _ -> False
+        js1 = if not absentLeft  then "" : js0    else js0
+        js2 = if not absentRight then js1 ++ [""] else js1
+
+      ms' :: [(Role,PRel)]
+      ms' = filter (f . snd) $ zip (map RoleMember [1..]) ms
+       where
+        f :: PRel -> Bool
+        f Absent = False
+        f (PNonRel px) = pExprIsSpecific px
+        f _ = True
+
+  let hms :: [(Role, Either String HExpr)]
+      hms = map (second pRelToHExpr) ms'
+  void $ ifLefts "pRelToHExpr" $ map snd hms
+  let (hms' :: [(Role, HExpr)]) =
+        map (second $ either (error "impossible") id) hms
+  Right $ HMap $ M.insert RoleTplt (HExpr t)
+    $ M.fromList hms'
 
 pRelToHExpr (PNonRel pn) = pExprToHExpr pn
 

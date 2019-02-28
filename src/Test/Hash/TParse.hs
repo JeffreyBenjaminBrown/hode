@@ -23,7 +23,8 @@ test_module_hash_parse = TestList [
 test_parse_hExpr :: Test
 test_parse_hExpr = TestCase $ do
   assertBool "1" $
-    ( ( either (Left . show) Right $ parse pExpr "doh!" "/hash _ #e w")
+    ( either (Left . show) Right
+      ( parse pExpr "doh!" "/hash _ #e w" )
       >>= pExprToHExpr )
     == ( Right $ HMap $ M.fromList
          [ ( RoleTplt    , HExpr $ Tplt [ Phrase "",Phrase "e",Phrase "" ] )
