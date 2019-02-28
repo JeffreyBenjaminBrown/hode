@@ -56,8 +56,6 @@ If you only wanted it to return alice and chuck, rather than the entire #process
 
 For instance, if bob has processed alice and chuck, then the command `/find /hash bob #processed /it` would return "alice" and "chuck".
 
-(PITFALL: This will change soon, but at the moment, in order for an expression involving the /it keyword to be evaluated properly, the keyword /eval must be used at the top. For instance, the above example needs to be written as `/find /eval /hash bob #processed /it`.)
-
 
 ### Query for an Addr with /addr, followed by a number
 

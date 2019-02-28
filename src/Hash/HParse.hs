@@ -37,7 +37,7 @@ pTerm = close <$> parens _pRel
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
-  label <- option "" $ identifier <|> parens phrase
+  label <- option "" $ identifier <|> parens hashPhrase
   return $ hash n label
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -91,7 +91,7 @@ pAddr = lexeme (string "/addr")
         >> Addr . fromIntegral <$> integer
 
 pPhrase :: Parser PExpr
-pPhrase = lexeme $ phrase >>= return . PExpr . Phrase
+pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme (string "/tplt") >> _pTplt

@@ -29,9 +29,7 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO urgent
-** TODO test pathsToIts_*
-** TODO test /eval
-** TODO permit punctuation
+** TODO parse arbitrary strings inside quotation marks
 ** TODO document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO UI
@@ -186,6 +184,7 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
 ** ? test mixed queries more
 *** a ForAll with a ForSome condition
 *** a ForAll with a ForAll condition
+** test pathsToIts_*, eval
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:
