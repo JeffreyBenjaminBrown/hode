@@ -29,21 +29,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO urgent
-** TODO fix /eval
 ** TODO test pathsToIts_*
-** TODO why can't I specify the second member?
-/load test-data
-    -- do this to skip these
-    /add /hash x # y
-    /add /hash x # z
-    /add /hash z # w
-
-/find /hash _ # _
-  -- works
-/find /hash _ # w
-   -- finds nothing
-/find /hash _ # x
-  -- finds the reverse of what it should
+** TODO test /eval
 ** TODO permit punctuation
 ** TODO document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious

@@ -6,6 +6,7 @@ import qualified Data.Map as M
 import           Text.Megaparsec
 import           Test.HUnit
 
+import Hash.Convert
 import Hash.HParse
 import Hash.HTypes
 import Hash.HUtil
@@ -16,7 +17,17 @@ test_module_hash_parse :: Test
 test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
   , TestLabel "test_parse_pExpr" test_parse_pExpr
+  , TestLabel "test_parse_hExpr" test_parse_hExpr
   ]
+
+test_parse_hExpr :: Test
+test_parse_hExpr = TestCase $ do
+  assertBool "1" $
+    ( ( either (Left . show) Right $ parse pExpr "doh!" "/hash _ #e w")
+      >>= pExprToHExpr )
+    == ( Right $ HMap $ M.fromList
+         [ ( RoleTplt    , HExpr $ Tplt [ Phrase "",Phrase "e",Phrase "" ] )
+         , ( RoleMember 2, HExpr $ Phrase "w" ) ] )
 
 test_parse_pExpr :: Test
 test_parse_pExpr = TestCase $ do
