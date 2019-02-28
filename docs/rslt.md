@@ -4,7 +4,7 @@ A `Rslt` is a collection of `Expr`s. The `Expr` data type is defined like this:
 
 ```
 data Expr =
-    Phrase String                 -- word or phrase
+    Phrase String               -- word or phrase
   | Rel  [Expr] Expr            -- relationship
   | Tplt [Expr]                 -- template for relationships
   | Par [(String, Expr)] String -- paragraph
@@ -52,7 +52,7 @@ This is a handy way for referring to an `Expr` rather than writing it all out. W
 For instance, suppose "giant volcano turtles #lay eggs" is stored at `Addr` 13. In that case, we could create the expression "giant volcano turtles #lay eggs ##during spring" by writing the shorter expression "/addr 13 #during spring".
 
 
-## Rslt as an acronym
+## Unimportant: Rslt is an acronym
 
 `Rslt` stands for `reflexive set of labeled tuples`. The `Tplt`s are the labels. Every `Expr` is (expressible as) a tuple. The word `reflexive` is supposed to indicate that relationships can be members of each other.
 

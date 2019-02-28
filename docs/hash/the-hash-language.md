@@ -12,7 +12,7 @@ Hash is a language for reading and writing a `Rslt`. Even though a `Rslt` is mor
 
 If you've read about [the Rslt](docs/the-rslt.md), you know how to write `Expr`s. To add them to the `Rslt` using the UI, you'll just need to prefix two symbols: "/add" and /hash". The first one indicates that you're inserting a new expression. The second indicates that what follows is a Hash expression. So, for instance, `/add /hash Kurt #played guitar` creates a "played" relationship between "Kurt" and "guitar". If any of those things didn't exist before, they do now -- including the template "_ played _".
 
-(If typing "/hash" repeatedly seems annoying, there are 2-character abbreviations available for every common keyword. See "abbreviations" below.)
+(If typing "/hash" repeatedly seems annoying, there are 2-character abbreviations available for every common keyword. See the "abbreviations" file in the documentation.)
 
 
 ## Special characters, quotes and escape characters
@@ -96,17 +96,3 @@ It saves three keystrokes, and is arguably more readable.
 
 Consider the command `/find /roles (1 a) (2 /hash a # b)`. This returns all relationships for which the first member is the word "a" and the second is the relationship "a # b". (There's even a way to specify the template, but in that case it's not clear why you wouldn't use a /hash expression instead of /map.)
 
-
-# Abbreviations for common keywords
-
-Instead of writing /hash, you can write /h, etc. So far these are all the keywords:
-
-```
-/hash -> /h
-/addr -> /@
-/tplt -> /t
-/eval -> /e
-/var  -> /v
-/any  -> /_
-/par  -> /p
-```
