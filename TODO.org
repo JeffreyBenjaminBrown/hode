@@ -29,12 +29,16 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO urgent
-** TODO parse arbitrary strings inside quotation marks
 ** TODO document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
+* TODO pressing
+** shortcuts /f(ind), /a(dd), /h(ash), /ah (add hash), /fh (find hash)
+** paragraphs
+** show Addrs of subExprs
+** a way to search for everything something is in
+as a Member or as anything
 * TODO UI
 ** TODO record, show command history
-** TODO show Addrs of subExprs
 ** better UI messaging
 *** the insert command
  If it's Left, print the Left in the Results window
@@ -52,18 +56,19 @@ and mention that you can use parens liberally to make it more obvious
  To write, first run `git status`. If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
 
  If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
-* TODO views
 ** cursor commands
 up|down to enclosing keyword (/hash, etc)
 up|down to nearest higher binop (#, |, etc)
 up|down, multipurpose
   this kind goes to either of the two previous kinds of things
 left|right in same level
+* TODO views
 ** add Expr wrapper for display
 ExprImg = ExprImg Expr | Bracket
 *** Show addresses as numbers?
   eShow r (Addr a) = Right $ bracket_angle_small_left
                           : show a ++ [bracket_angle_small_right]
+** language for views
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
 * TODO Hash, the DSL for exprs
@@ -79,27 +84,7 @@ ExprImg = ExprImg Expr | Bracket
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 ** TODO pathsToIts_pExpr called on PAnd, POr, PDiff
-** TODO Parse more characters.
-Escape a / by preceding it with another one.
-Escape parens with a leading /. Escaping the trailing paren could be optional.
-** DONE language sketch
-*** DONE a # b ## c # d # e ### f
- More # symbols = higher precedence = listed earlier among Epxr operators.
-*** DONE (/eval a # //it ## (/it c # /var x # /addr 3)) ### /tplt _ is _
- Keywords /it and /eval must be first in the sub-Expr, and bounded with ().
- Keywords /addr and /tplt must be first, but can be free-standing.
-*** DONE /par Four score /(and seven/) years ago, (/addr 3) made cake.
-Keyword /par must lead, does not need enclosing parens.
-Put sub-Exprs in the paragraph by using ordinary parens.
-*** DONE (/it= _ #likes _) #because _
-If an /it needs describing, use /it=, and bind it in parentheses.
-_ means "anything could go here".
-*** DONE \ & and | are as expected
- \\\ binds higher than && binds higher than |, etc.
- They are all binary.
-*** DONE /roles (1, dog)
-Do that to create an HMap.
-#-notation is faster, but cannot express relationships of unknown arity.
+probably just return []
 ** TODO maybe
 *** TODO ? _ #? _
  _ #? _ means it could be any kind of binary relationship template.
