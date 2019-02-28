@@ -7,6 +7,7 @@ module Hash.HParse where
 
 import           Control.Monad (void)
 import qualified Data.Map as M
+import           Data.List (intersperse)
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 
@@ -140,3 +141,37 @@ pPar = do
   ap <- maybePhrase
   return $ PPar us ap
 
+
+-- | like `phrase`, but includes every character that's not special
+-- Hash syntax.
+hashPhrase :: Parser String
+hashPhrase =
+  quoted
+  <|> concat . intersperse " " <$> some hashIdentifier
+ where
+  hashIdentifier :: Parser String
+  hashIdentifier = lexeme $ some $ foldr1 (<|>)
+    ( alphaNumChar : map char
+      [ '!','@','%','^','*','+','=','-','`','~','[',']'
+      ,'{','}',':',';','"','<','>','?',',','.' ] )
+
+  -- | A quoted string can have any character in it.
+  -- Some of those might need escaping (e.g. \" and \\).
+  -- source: from https://stackoverflow.com/questions/24106314/parser-for-quoted-string-using-parsec
+  quoted :: Parser String
+  quoted = do void $ char '"'
+              strings <- many quotedCharacter
+              void $ char '"'
+              return $ concat strings
+
+  quotedCharacter :: Parser String
+  quotedCharacter = fmap return nonEscape <|> escape
+
+  escape :: Parser String
+  escape = do
+      d <- char '\\'
+      c <- oneOf "\\\"0nrvtbf" -- all the characters which can be escaped
+      return [d, c]
+
+  nonEscape :: Parser Char
+  nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"

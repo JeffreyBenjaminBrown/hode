@@ -63,17 +63,6 @@ identifier_alphaLed = lexeme $ (:) <$> letterChar <*> many alphaNumChar
 phrase :: Parser String -- | does not accept the empty string
 phrase = concat . L.intersperse " " <$> some identifier
 
--- | like Phrase, but includes every character that's not special
--- Hash syntax.
-hashPhrase :: Parser String
-hashPhrase = concat . L.intersperse " " <$> some hashIdentifier
- where
-  hashIdentifier :: Parser String
-  hashIdentifier = lexeme $ some $ foldr1 (<|>)
-    ( alphaNumChar : map char
-      [ '!','@','%','^','*','+','=','-','`','~','[',']'
-      ,'{','}','\\',':',';','\'','"','<','>','?',',','.' ] )
-
 thisMany :: Int -> Char -> Parser ()
 thisMany n c = string (replicate n c) <* notFollowedBy (char c)
                >> return ()
