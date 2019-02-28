@@ -37,10 +37,12 @@ We can vary the number of hash symbols attached to a joint to indicate how high 
 A `Par` is just like a `Rel`, except its `Tplt` is not reified. `Par`s are good for writing long passages of text that you don't intend to search verbatim for. For instance, I might record the following `Par`:
 
 ```
-The other day I was at the (/word beach) and I saw a (/word shark). That totally sucked.
+The other day I was at the (/hash beach) and I saw a (/hash shark). That totally sucked.
 ```
 
-If I did that, I could search for `Expr`s involving words "beach" or "shark", and the `Par` would be among the search results. But if I searched for "day" or "sucked" or "was at the" it would not be.
+That `Par` has two reified members: the word "beach" and the word "shark". (Both have been entered as Hash expressions; see the Hash documentation for details.) I can search for them. I cannot search for the other phrases in the `Par`, because they have not been indexed. (So, for instance, I could search for `Expr`s involving words "beach" or "shark", and the `Par` would be among the search results. But if I searched for "day" or "sucked" or "was at the", the `Par` above would not show up.)
+
+Notice that the parentheses above are treated specially. See the "special characters" section of the Hash documentation for details.
 
 
 ## Addr
@@ -50,7 +52,7 @@ This is a handy way for referring to an `Expr` rather than writing it all out. W
 For instance, suppose "giant volcano turtles #lay eggs" is stored at `Addr` 13. In that case, we could create the expression "giant volcano turtles #lay eggs ##during spring" by writing the shorter expression "/addr 13 #during spring".
 
 
-## The acronym
+## Rslt as an acronym
 
 `Rslt` stands for `reflexive set of labeled tuples`. The `Tplt`s are the labels. Every `Expr` is (expressible as) a tuple. The word `reflexive` is supposed to indicate that relationships can be members of each other.
 

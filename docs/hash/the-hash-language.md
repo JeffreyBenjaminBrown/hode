@@ -27,6 +27,13 @@ Hash is a language for reading and writing a `Rslt`. Even though a `Rslt` is mor
 If you've read about [the Rslt](docs/the-rslt.md), you know how to write `Expr`s. To add them to the `Rslt` using the UI, you'll just need to prefix two symbols: "/add" and /hash". The first one indicates that you're inserting a new expression. The second indicates that what follows is a Hash expression. So, for instance, `/add /hash Kurt #played guitar` creates a "played" relationship between "Kurt" and "guitar". If any of those things didn't exist before, they do now -- including the template "_ played _".
 
 
+## Special characters, quotes and escape characters
+
+Hash uses the following special characters: `# / | \ & _ ( )`. Most of them are only used for querying, as explained in the rest of this document. However, when adding (not querying for) data in an Rslt one has to be aware of them. If you'd like to enter a `Phrase` with any of those special characters, you'll need to enclose it in parentheses. Within those parentheses, if you need to write a literal quotation mark or \ symbol, you can do so by escaping it with a leading \ symbol.
+
+For instance, `"I said, \"Hi.\" (It was easy.)"` is a valid `Phrase`. The parentheses don't need escaping, because they are inside quotation marks. The inner quotation marks do, though (because otherwise the Parser would think you were done writing the phrase when it encountered the one to the left of `Hi`).
+
+
 # Querying a RSLT with Hash
 
 Querying is a little more complex than writing, because we query for multiple expressions at once. We still use the same language, Hash, but we introduce a few "reserved words". Each of them is preceded by the `/` symbol.
@@ -84,12 +91,12 @@ To do that, use the `/eval` keyword. `Bran #likes (/eval /it #is psychopathic)` 
 
 
 ### Count &, | and \ symbols like # symbols
-The set operators `&`, `|` and `\` can be repeated, just like the `#` symbol, to decrease their precedence (making them "bind later"). For instance, rather than 
+The set operators `&`, `|` and `\` can be repeated, just like the `#` symbol, to decrease their precedence (making them "bind later"). For instance, rather than
 ```
 (/it #helps Democrats) & (/it #helps Republicans)
 ```
 
-you could write 
+you could write
 ```
 /it #helps Democrats && /it #helps Republicans
 ```
