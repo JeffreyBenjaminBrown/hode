@@ -24,13 +24,14 @@ pCommand :: Rslt -> String -> Either String Command
 pCommand r s =
   let (h,t) = splitAfterFirstLexeme s
   in case h of
-    "/add"    -> pCommand_insert r t
-    "/insert" -> pCommand_insert r t
-    "/find"   -> pCommand_find t
-    "/load"   -> pCommand_load t
-    "/save"   -> pCommand_save t
-    _         -> Left $ "pCommand: must start with "
-                 ++ "/add, /insert, /find, /load or /save."
+    "/add"  -> pCommand_insert r t
+    "/a"    -> pCommand_insert r t
+    "/find" -> pCommand_find t
+    "/f"    -> pCommand_find t
+    "/load" -> pCommand_load t
+    "/save" -> pCommand_save t
+    _       -> Left $ "Commands must start with "
+                 ++ "/add (or /a), /find (or /f), /load or /save."
 
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>

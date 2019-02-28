@@ -1,20 +1,6 @@
 # The Hash Language
 
-(If you're hurrying to the part where you can actually use the app, I would skip the "advanced queries" section.)
-
-## Table of contents
-* What Hash is
-* Writing to a Rslt with Hash
-* Querying a RSLT with Hash
-  * Basic queries
-    * Query for one thing by writing it
-    * Query for everything using /all
-    * Query with wildcards using /any
-    * Boolean operations: union (|), interseciton (&), and difference (\)
-  * Advanced queries
-    * Early evaluation for sub-queries: Use /eval
-    * Search recursively using /branch, /from and /to
-    * Count &, | and \ symbols like * symbols
+(If you're hurrying to the part where you can actually use the app, you could skip the "advanced queries" section.)
 
 
 # What Hash is
@@ -26,19 +12,21 @@ Hash is a language for reading and writing a `Rslt`. Even though a `Rslt` is mor
 
 If you've read about [the Rslt](docs/the-rslt.md), you know how to write `Expr`s. To add them to the `Rslt` using the UI, you'll just need to prefix two symbols: "/add" and /hash". The first one indicates that you're inserting a new expression. The second indicates that what follows is a Hash expression. So, for instance, `/add /hash Kurt #played guitar` creates a "played" relationship between "Kurt" and "guitar". If any of those things didn't exist before, they do now -- including the template "_ played _".
 
+(If typing "/hash" repeatedly seems annoying, there are 2-character abbreviations available for every common keyword. See "abbreviations" below.)
+
 
 ## Special characters, quotes and escape characters
 
-Hash uses the following special characters: `# / | \ & ( )`. Most of them are only used for querying, as explained in the rest of this document. However, when adding (not querying for) data in an Rslt one has to be aware of them. If you'd like to enter a `Phrase` with any of those special characters, you'll need to enclose it in parentheses. Within those parentheses, if you need to write a literal quotation mark or \ symbol, you can do so by escaping it with a leading \ symbol.
+Hash uses the following special characters: `# & | / \ ( )`. Most of them are only used for querying, as explained in the rest of this document. However, when adding (not querying for) data in an Rslt one has to be aware of them. If you'd like to enter a `Phrase` with any of those special characters, you'll need to enclose it in parentheses. Within those parentheses, if you need to write a literal quotation mark or \ character, you can do so by "escaping" it, that is, by putting a "\" in front of it.
 
-For instance, `"I said, \"Hi.\" (It was easy.)"` is a valid `Phrase`. The parentheses don't need escaping, because they are inside quotation marks. The inner quotation marks do, though (because otherwise the Parser would think you were done writing the phrase when it encountered the one to the left of `Hi`).
+For instance, `"I said, \"Hi!\" (It was easy.)"` is a valid `Phrase`. The parentheses don't need escaping, because they are inside quotation marks. The inner quotation marks do, though (because otherwise the Parser would think you were done writing the phrase when it encountered the one to the left of `Hi`).
 
 
 # Querying a RSLT with Hash
 
 Querying is a little more complex than writing, because we query for multiple expressions at once. We still use the same language, Hash, but we introduce a few "reserved words". Each of them is preceded by the `/` symbol.
 
-Every query starts with the symbol "/find".
+Every query starts with the symbol "/find" (or "/f").
 
 
 ## Basic queries
@@ -47,9 +35,9 @@ Every query starts with the symbol "/find".
 For instance, `/find bob` will display the `Expr` "bob", if it is present. This is good for two things: determining whether it's in the database, and finding its address.
 
 
-### Query for a Hash expression by preceding it with the word /hash
+### Query for a Hash expression by preceding it with /hash (or /h)
 
-For instance, `/find /hash bob #processed alice` will search for and return the `Expr` "bob #processed alice".
+For instance, `/find /hash bob #processed alice` will search for and return the `Expr` "bob #processed alice", if it is present.
 
 
 ### Query for everything using _
@@ -64,9 +52,9 @@ If you only wanted it to return alice and chuck, rather than the entire #process
 For instance, if bob has processed alice and chuck, then the command `/find /hash bob #processed /it` would return "alice" and "chuck".
 
 
-### Query for an Addr with /addr, followed by a number
+### Query for an Addr with /addr (or /@), followed by a number
 
-For instance, if "bob" is stored at `Addr` 1, then `/find /hash /addr 1 #processed _` will find every expression of the form "bob #processed _".
+For instance, if "bob" is stored at `Addr` 1, then `/f /h /@ 1 #processed _` will find every expression of the form "bob #processed _".
 
 
 ### Boolean operations: union (|), interseciton (&), and difference (\)
@@ -77,7 +65,7 @@ For instance, if "bob" is stored at `Addr` 1, then `/find /hash /addr 1 #process
 
 ## Advanced queries
 
-### Early evaluation for sub-queries: Use /eval
+### Early evaluation for sub-queries: Use /eval (or /e)
 
 Consider a RSLT with the following data:
 ```
@@ -107,3 +95,18 @@ It saves three keystrokes, and is arguably more readable.
 ### Query for "Hash maps" using /roles or /map
 
 Consider the command `/find /roles (1 a) (2 /hash a # b)`. This returns all relationships for which the first member is the word "a" and the second is the relationship "a # b". (There's even a way to specify the template, but in that case it's not clear why you wouldn't use a /hash expression instead of /map.)
+
+
+# Abbreviations for common keywords
+
+Instead of writing /hash, you can write /h, etc. So far these are all the keywords:
+
+```
+/hash -> /h
+/addr -> /@
+/tplt -> /t
+/eval -> /e
+/var  -> /v
+/any  -> /_
+/par  -> /p
+```

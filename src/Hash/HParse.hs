@@ -162,10 +162,11 @@ hashPhrase =
   <|> concat . intersperse " " <$> some hashIdentifier
  where
 
-  -- | A quoted string can have any character in it.
-  -- Some of those might need escaping (e.g. \" and \\).
-  -- source: from https://stackoverflow.com/questions/24106314/parser-for-quoted-string-using-parsec
   quoted :: Parser String
+  -- A quoted string can have any character in it.
+  -- Some of those might need escaping (e.g. \" and \\).
+  -- This comes nearly verbatim from
+  -- https://stackoverflow.com/questions/24106314/parser-for-quoted-string-using-parsec
   quoted = do void $ char '"'
               strings <- many quotedCharacter
               void $ char '"'
@@ -176,9 +177,9 @@ hashPhrase =
 
   escape :: Parser String
   escape = do
-      d <- char '\\'
+      void $ char '\\'
       c <- oneOf "\\\"0nrvtbf" -- all the characters which can be escaped
-      return [d, c]
+      return [c]
 
   nonEscape :: Parser Char
   nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"
