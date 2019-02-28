@@ -51,7 +51,8 @@ identifier :: Parser String
 identifier = lexeme $ some alphaNumChar
 
 filepath :: Parser String
-filepath = lexeme $ some (alphaNumChar <|> char '.' <|> char '/')
+filepath = lexeme $ some $ foldr1 (<|>)
+  (alphaNumChar : map char ['.','/','_','-'])
 
 identifier_alphaLed :: Parser String
 identifier_alphaLed = lexeme $ (:) <$> letterChar <*> many alphaNumChar

@@ -91,32 +91,39 @@ pMapToHMap = ifLefts_map "pMapToHMap"
 
 -- | = Finding the `It`s for a `PEval` to evaluate.
 
-pathsToIts_pRel :: PRel -> [[Role]]
-pathsToIts_pRel Absent = []
-pathsToIts_pRel (PNonRel pnr) = pathsToIts_pExpr pnr
-pathsToIts_pRel (Closed ms _) = let
+pathsToIts_pExpr :: PExpr -> [[Role]]
+pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
+pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
+
+pathsToIts_sub_pExpr :: PExpr -> [[Role]]
+pathsToIts_sub_pExpr (PExpr _)       = []
+pathsToIts_sub_pExpr (PMap m)        =
+  concatMap (\(role, paths) -> map ((:) role) paths) $ M.toList
+  $ M.map pathsToIts_sub_pExpr m
+pathsToIts_sub_pExpr (PEval _)     = []
+  -- don't recurse into a new PEval context; the paths to
+  -- that PEval's `it`s are not the path to this one's.
+
+pathsToIts_sub_pExpr (PVar _)        = []
+pathsToIts_sub_pExpr x@(PDiff _ _)      =
+  error $ "pathsToIts_sub_pExpr: called on PDiff: " ++ show x
+pathsToIts_sub_pExpr x@(PAnd _)      =
+  error $ "pathsToIts_sub_pExpr: called on PAnd: " ++ show x
+pathsToIts_sub_pExpr x@(POr _)      =
+  error $ "pathsToIts_sub_pExpr: called on POr: " ++ show x
+pathsToIts_sub_pExpr Any             = []
+pathsToIts_sub_pExpr (It Nothing)    = [[]]
+  -- the unique way to get to an It from here is to stay still
+pathsToIts_sub_pExpr (It (Just pnr)) = [] : pathsToIts_sub_pExpr pnr
+pathsToIts_sub_pExpr x@(PPar _ _)      =
+  error $ "pathsToIts_sub_pExpr: called on PPar: " ++ show x
+pathsToIts_sub_pExpr (PRel pr)       = pathsToIts_sub_pRel pr
+
+pathsToIts_sub_pRel :: PRel -> [[Role]]
+pathsToIts_sub_pRel Absent = []
+pathsToIts_sub_pRel (PNonRel pnr) = pathsToIts_sub_pExpr pnr
+pathsToIts_sub_pRel (Closed ms _) = let
   f :: (Int,[[Role]]) -> [[Role]]
   f (i,ps) = map ((:) $ RoleMember i) ps
-  in concatMap f $ zip [1..] $ map pathsToIts_pRel ms
-pathsToIts_pRel (Open _ ms js) = pathsToIts_pRel $ Closed ms js
-
-pathsToIts_pExpr :: PExpr -> [[Role]]
-pathsToIts_pExpr (PExpr _)       = []
-pathsToIts_pExpr (PMap m)        =
-  concatMap (\(role, paths) -> map ((:) role) paths) $ M.toList
-  $ M.map pathsToIts_pExpr m
-pathsToIts_pExpr (PEval pnr)     = pathsToIts_pExpr pnr
-pathsToIts_pExpr (PVar _)        = []
-pathsToIts_pExpr x@(PDiff _ _)      =
-  error $ "pathsToIts_pExpr: called on PDiff: " ++ show x
-pathsToIts_pExpr x@(PAnd _)      =
-  error $ "pathsToIts_pExpr: called on PAnd: " ++ show x
-pathsToIts_pExpr x@(POr _)      =
-  error $ "pathsToIts_pExpr: called on POr: " ++ show x
-pathsToIts_pExpr Any             = []
-pathsToIts_pExpr (It Nothing)    = [[]]
-  -- the unique way to get to an It from here is to stay still
-pathsToIts_pExpr (It (Just pnr)) = [] : pathsToIts_pExpr pnr
-pathsToIts_pExpr x@(PPar _ _)      =
-  error $ "pathsToIts_pExpr: called on PPar: " ++ show x
-pathsToIts_pExpr (PRel pr)       = pathsToIts_pRel pr
+  in concatMap f $ zip [1..] $ map pathsToIts_sub_pRel ms
+pathsToIts_sub_pRel (Open _ ms js) = pathsToIts_sub_pRel $ Closed ms js

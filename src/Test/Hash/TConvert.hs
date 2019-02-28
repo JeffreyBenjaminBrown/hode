@@ -17,7 +17,13 @@ test_module_hash_convert = TestList [
     TestLabel "test_simplifyPExpr" test_simplifyPExpr
   , TestLabel "test_pRelToHExpr" test_pRelToHExpr
   , TestLabel "test_pExprToHExpr" test_pExprToHExpr
+  --, TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
   ]
+
+--test_pathsToIts_pExpr :: Test
+--test_pathsToIts_pExpr = TestCase $ do
+--  assertBool "1" $ pathsToIts_pExpr
+    
 
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
