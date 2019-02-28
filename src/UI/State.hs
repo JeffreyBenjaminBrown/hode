@@ -77,6 +77,7 @@ runCommand (CommandInsert e) st =
 runCommand (CommandFind h) st = do
   let r = st ^. appRslt
       title = "runCommand, called on CommandFind"
+
   (as :: Set Addr)   <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
   (es :: Map Addr Expr)   <- ifLefts_map title

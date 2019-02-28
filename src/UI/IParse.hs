@@ -9,6 +9,7 @@ import           Text.Megaparsec
 import Hash.Convert
 import Hash.HLookup
 import Hash.HParse
+import Hash.HTypes
 import Qseq.QTypes
 import Rslt.Edit
 import Rslt.RLookup
@@ -38,11 +39,19 @@ pCommand_insert r s = CommandInsert <$>
     >>= pExprToHExpr
     >>= hExprToExpr r )
 
+-- | `pCommand_find` looks for any naked `/it` sub-expressions.
+-- (Here naked means not inside an /eval expression.) If there are
+-- any, the `PExpr` must be wrapped in a `PEval` constructor.
 pCommand_find :: String -> Either String Command
-pCommand_find s = CommandFind <$>
-  ( prefixLeft "pCommand_find"
+-- PITFALL: Don't add an implicit Eval at the top of every search parsed in
+-- the UI, because an Eval will return nothing if there are no Its below.
+pCommand_find s = do
+  (e1 :: PExpr) <- prefixLeft "pCommand_find"
     $ mapLeft show (parse pExpr "doh!" s)
-    >>= pExprToHExpr )
+  let e2 = case pathsToIts_pExpr e1 of 
+             [] -> e1
+             _ -> PEval e1
+  CommandFind <$> pExprToHExpr e2
 
 pCommand_load :: String -> Either String Command
 pCommand_load s = CommandLoad <$>
