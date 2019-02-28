@@ -38,7 +38,7 @@ pTerm = close <$> parens _pRel
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
-  label <- option "" $ identifier <|> parens hashPhrase
+  label <- option "" $ hashIdentifier <|> parens hashPhrase
   return $ hash n label
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -84,22 +84,27 @@ pExpr = simplifyPExpr <$>
     , pAny
     , pIt
     , pPar
-    , lexeme (string "/hash") >> PRel <$> pRel
+    , lexeme ( foldr1 (<|>)
+               $ map (try . string) ["/hash","/h"] )
+      >> PRel <$> pRel
   ] )
 
 pAddr :: Parser Expr
-pAddr = lexeme (string "/addr")
+pAddr = lexeme  ( foldr1 (<|>)
+                  $ map (try . string) ["/addr","/@"] )
         >> Addr . fromIntegral <$> integer
 
 pPhrase :: Parser PExpr
 pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
-pTplt = lexeme (string "/tplt") >> _pTplt
+pTplt = lexeme  ( foldr1 (<|>)
+                  $ map (try . string) ["/tplt","/t"] )
+        >> _pTplt
 
 _pTplt :: Parser Expr
 _pTplt = lexeme $ Tplt . map Phrase
-         <$> some (identifier <|> parens phrase)
+         <$> some (hashIdentifier <|> parens phrase)
 
 pMap :: Parser PExpr
 pMap = lexeme (string "/map" <|> string "/roles")
@@ -114,14 +119,20 @@ pMap = lexeme (string "/map" <|> string "/roles")
                 return ( RoleMember i, x       )
 
 pEval :: Parser PExpr
-pEval = id  (lexeme (string "/eval") >> PEval <$> pExpr)
+pEval = lexeme ( foldr1 (<|>)
+                 $ map (try . string) ["/eval","/e"] )
+         >> PEval <$> pExpr
 
 pVar :: Parser PExpr
-pVar = do void $ lexeme $ string "/var"
-          lexeme identifier >>= return . PVar
+pVar = do void $ lexeme
+            ( foldr1 (<|>)
+              $ map (try . string) ["/var","/v"] )
+          lexeme hashIdentifier >>= return . PVar
 
 pAny :: Parser PExpr
-pAny = lexeme (string "_") >> return Any
+pAny = lexeme ( foldr1 (<|>)
+                $ map (try . string) ["/_","/any"] )
+       >> return Any
 
 pIt :: Parser PExpr
 pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
@@ -136,7 +147,8 @@ pPar = do
                       e <- pExpr
                       return (p,e)
 
-  void $ lexeme $ string "/par"
+  void $ lexeme $ ( foldr1 (<|>)
+                    $ map (try . string) ["/par","/p"] )
   us <- many unit
   ap <- maybePhrase
   return $ PPar us ap
@@ -149,11 +161,6 @@ hashPhrase =
   quoted
   <|> concat . intersperse " " <$> some hashIdentifier
  where
-  hashIdentifier :: Parser String
-  hashIdentifier = lexeme $ some $ foldr1 (<|>)
-    ( alphaNumChar : map char
-      [ '!','@','%','^','*','+','=','-','`','~','[',']'
-      ,'{','}',':',';','"','<','>','?',',','.' ] )
 
   -- | A quoted string can have any character in it.
   -- Some of those might need escaping (e.g. \" and \\).
@@ -175,3 +182,9 @@ hashPhrase =
 
   nonEscape :: Parser Char
   nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"
+
+hashIdentifier :: Parser String
+hashIdentifier = lexeme $ some $ foldr1 (<|>)
+  ( alphaNumChar : map char
+    [ '!','@','%','^','*','+','=','-','`','~','_','[',']'
+    ,'{','}',':',';','"','<','>','?',',','.' ] )

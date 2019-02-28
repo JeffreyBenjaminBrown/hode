@@ -29,7 +29,7 @@ If you've read about [the Rslt](docs/the-rslt.md), you know how to write `Expr`s
 
 ## Special characters, quotes and escape characters
 
-Hash uses the following special characters: `# / | \ & _ ( )`. Most of them are only used for querying, as explained in the rest of this document. However, when adding (not querying for) data in an Rslt one has to be aware of them. If you'd like to enter a `Phrase` with any of those special characters, you'll need to enclose it in parentheses. Within those parentheses, if you need to write a literal quotation mark or \ symbol, you can do so by escaping it with a leading \ symbol.
+Hash uses the following special characters: `# / | \ & ( )`. Most of them are only used for querying, as explained in the rest of this document. However, when adding (not querying for) data in an Rslt one has to be aware of them. If you'd like to enter a `Phrase` with any of those special characters, you'll need to enclose it in parentheses. Within those parentheses, if you need to write a literal quotation mark or \ symbol, you can do so by escaping it with a leading \ symbol.
 
 For instance, `"I said, \"Hi.\" (It was easy.)"` is a valid `Phrase`. The parentheses don't need escaping, because they are inside quotation marks. The inner quotation marks do, though (because otherwise the Parser would think you were done writing the phrase when it encountered the one to the left of `Hi`).
 

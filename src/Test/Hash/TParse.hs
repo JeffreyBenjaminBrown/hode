@@ -24,7 +24,7 @@ test_parse_hExpr :: Test
 test_parse_hExpr = TestCase $ do
   assertBool "1" $
     ( either (Left . show) Right
-      ( parse pExpr "doh!" "/hash _ #e w" )
+      ( parse pExpr "doh!" "/hash /_ #e w" )
       >>= pExprToHExpr )
     == ( Right $ HMap $ M.fromList
          [ ( RoleTplt    , HExpr $ Tplt [ Phrase "",Phrase "e",Phrase "" ] )
@@ -47,7 +47,7 @@ test_parse_pExpr = TestCase $ do
           ["sees","whenever there is","because"] )
       ] )
 
-  assertBool "any" $ parse pAny "any" "_ "
+  assertBool "any" $ parse pAny "any" "/_ "
     == Right Any
   assertBool "var" $ parse pVar "wut" "/var x1 "
     == Right (PVar "x1")
