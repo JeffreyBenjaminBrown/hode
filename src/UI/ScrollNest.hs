@@ -15,8 +15,8 @@
 module UI.ScrollNest where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Data.Tree
-import qualified Data.Tree as T
+import           Data.Maybe
+import           Data.Tree as T
 import           Lens.Micro
 import           Lens.Micro.TH
 
@@ -33,13 +33,13 @@ import qualified Graphics.Vty as B
 
 -- | A path from the top window to the given window
 -- The top window has the name [].
-type Name = [Int] 
+type Path = [Int]
 
-data Window = Window Name String
+data Window = Window Int String
 
 data St = St {
-    _windows :: Tree Window
-  , _focus :: Name
+    _windows :: [Tree Window]
+  , _focus :: Path
   }
 
 makeLenses ''St
@@ -48,24 +48,26 @@ makeLenses ''St
 -- | = functions
 
 main :: IO St
-main = mainFrom $ St { _windows = T.Node (Window [] "top") []
+main = mainFrom $ St { _windows = []
                      , _focus = [] }
 
 mainFrom :: St -> IO St
 mainFrom = B.defaultMain app
 
 aState :: St
-aState = let   n :: [Int] -> Window
-               n is = Window is $ show is
+aState = let w :: Path -> Tree Int -> Tree Window
+             w p (Node i []) = Node (Window i $ show $ i : p) []
+             w p (Node i ns) = Node (Window i $ show $ i : p)
+               $ map (w $ i : p) ns
   in St { _focus = []
-        , _windows = fmap n
-          $ Node [] [ Node [0] [ Node [0,0] []
-                               , Node [1,0] [] ]
-                    , Node [1] [ Node [0,1] []
-                               , Node [1,1] [] ] ]
+        , _windows = map (w [])
+          [ Node 0 [ Node 0 []
+                   , Node 1 [] ]
+          , Node 1 [ Node 0 []
+                   , Node 1 [] ] ]
         }
 
-app :: B.App St e Name
+app :: B.App St e Path
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor
@@ -74,22 +76,23 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
-subtreeDraw :: Tree Window -> B.Widget Name
-subtreeDraw (Node (Window _ s) []) = str s
-subtreeDraw (Node (Window _ s) ws) =
-  str s <=> padLeft (B.Pad 2) (vBox $ map subtreeDraw ws)
+treeDraw :: Tree Window -> B.Widget Path
+treeDraw (Node (Window _ s) []) = str s
+treeDraw (Node (Window _ s) ws) =
+  str s
+  <=> padLeft (B.Pad 2) (vBox $ map treeDraw ws)
 
-appDraw :: St -> [B.Widget Name]
-appDraw st = [subtreeDraw $ st ^. windows]
+appDraw :: St -> [B.Widget Path]
+appDraw st = [vBox $ map treeDraw $ st ^. windows]
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
 -- maybe a map, they keys of which come from some tree field of the `St`).
 appChooseCursor ::
-  St -> [B.CursorLocation Name] -> Maybe (B.CursorLocation Name)
+  St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
 appChooseCursor _ _ = Nothing
 
 appHandleEvent ::
-  St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
+  St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
 appHandleEvent st _ = B.halt st
 
 appAttrMap :: B.AttrMap
@@ -97,3 +100,9 @@ appAttrMap = B.attrMap B.defAttr
     [ (B.editAttr,        B.white `on` B.blue)
     , (B.editFocusedAttr, B.black `on` B.yellow)
     ]
+
+--stFocusWindow :: St -> Window
+--stFocusWindow st = go (st ^. focus) (st ^. windows) where
+--  go :: [Int] -> Tree Window -> Window
+--  go [] (Node w _) = w
+--  go (i : is) =
