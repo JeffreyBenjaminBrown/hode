@@ -35,7 +35,7 @@ import qualified Graphics.Vty as B
 -- The top window has the name [].
 type Name = [Int] 
 
-data Window = Window Name
+data Window = Window Name String
 
 data St = St {
     _windows :: Tree Window
@@ -48,11 +48,22 @@ makeLenses ''St
 -- | = functions
 
 main :: IO St
-main = mainFrom $ St { _windows = T.Node (Window []) []
+main = mainFrom $ St { _windows = T.Node (Window [] "top") []
                      , _focus = [] }
 
 mainFrom :: St -> IO St
 mainFrom = B.defaultMain app
+
+aState :: St
+aState = let   n :: [Int] -> Window
+               n is = Window is $ show is
+  in St { _focus = []
+        , _windows = fmap n
+          $ Node [] [ Node [0] [ Node [0,0] []
+                               , Node [1,0] [] ]
+                    , Node [1] [ Node [0,1] []
+                               , Node [1,1] [] ] ]
+        }
 
 app :: B.App St e Name
 app = B.App
@@ -63,8 +74,13 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
-appDraw :: St -> [B.Widget n]
-appDraw = error "?"
+subtreeDraw :: Tree Window -> B.Widget Name
+subtreeDraw (Node (Window _ s) []) = str s
+subtreeDraw (Node (Window _ s) ws) =
+  str s <=> padLeft (B.Pad 2) (vBox $ map subtreeDraw ws)
+
+appDraw :: St -> [B.Widget Name]
+appDraw st = [subtreeDraw $ st ^. windows]
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
 -- maybe a map, they keys of which come from some tree field of the `St`).
@@ -74,7 +90,7 @@ appChooseCursor _ _ = Nothing
 
 appHandleEvent ::
   St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
-appHandleEvent st _ = B.continue st
+appHandleEvent st _ = B.halt st
 
 appAttrMap :: B.AttrMap
 appAttrMap = B.attrMap B.defAttr
