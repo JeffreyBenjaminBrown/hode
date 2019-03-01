@@ -7,7 +7,7 @@ Switch focus between the two windows using the Tab key. The top one is for displ
 
 ## Starting it
 
-The easiest way to start the UI is with an empty `Rslt`, by calling ` ui $ mkRslt mempty` from inside GHCI.
+The easiest way to start the UI is with an empty `Rslt`, by calling `ui` from inside GHCI.
 
 
 ## Copy focused window's entire contents to clipboard: Alt-w

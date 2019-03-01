@@ -36,4 +36,4 @@ This is a metalanguage for search. It lets you combine multiple searches in some
 
 You'll need `Stack` (the Haskell toolkit) installed. You'll also need `xsel`, and proabbly a few things I can't remember (`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
 
-Clone the repo and then run `stack ghci` from somewhere inside it. Then run "ui $ mkRslt mempty" to start the UI.
+Clone the repo and then run `stack ghci` from somewhere inside it. Then run "ui" to start the UI.

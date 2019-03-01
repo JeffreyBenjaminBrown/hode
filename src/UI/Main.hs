@@ -18,6 +18,7 @@ import qualified Brick.Focus as F
 import           Brick.Util (on)
 import qualified Graphics.Vty as V
 
+import Rslt.Index (mkRslt)
 import Rslt.RTypes
 import UI.Clipboard
 import UI.ITypes
@@ -75,5 +76,8 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
-ui :: Rslt -> IO St
-ui = B.defaultMain app . initialState
+uiFrom :: Rslt -> IO St
+uiFrom = B.defaultMain app . initialState
+
+ui :: IO St
+ui = uiFrom $ mkRslt mempty
