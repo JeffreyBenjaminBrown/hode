@@ -101,8 +101,15 @@ appAttrMap = B.attrMap B.defAttr
     , (B.editFocusedAttr, B.black `on` B.yellow)
     ]
 
---stFocusWindow :: St -> Window
---stFocusWindow st = go (st ^. focus) (st ^. windows) where
---  go :: [Int] -> Tree Window -> Window
---  go [] (Node w _) = w
---  go (i : is) =
+stFocusWindow :: St -> Maybe Window
+stFocusWindow st = let foc = st ^. focus in
+   case foc of
+    [] -> Nothing
+    path -> go path topWindow where
+      topWindow = Node (error "impossible") (st ^. windows)
+      go :: [Int] -> Tree Window -> Maybe Window
+      go []       (Node w _)  = Just w
+      go (i : is) (Node _ ts) = go is nextWindow where
+        nextWindow = head $ filter f ts where
+          f :: Tree Window -> Bool
+          f (Node (Window i' _) _) = i == i'
