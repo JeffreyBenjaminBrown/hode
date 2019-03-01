@@ -67,11 +67,12 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , UI.Clipboard
-                , UI.IParse
-                , UI.Main
-                , UI.State
-                , UI.ITypes
+                , UI.ScrollNest
+--                , UI.Clipboard
+--                , UI.IParse
+--                , UI.Main
+--                , UI.State
+--                , UI.ITypes
                 , Util.Misc
                 , Util.UParse
   other-modules:
@@ -93,6 +94,7 @@ library
               , process
               , text
               , text-zipper
+              , vector
               , vty
   default-language: Haskell2010
 
