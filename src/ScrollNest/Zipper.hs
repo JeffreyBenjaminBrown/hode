@@ -37,17 +37,30 @@ type Ed = B.Editor String Path
 
 data Window = Window { _isFocused :: Bool
                      , _windowEd :: Ed }
+  deriving (Show)
 makeLenses ''Window
 
 data St = St { _windows :: TreePos Full Window
              , _focus :: () } -- ^ will use later
+  deriving (Show)
 makeLenses ''St
 
 zLabel :: Lens' (TreePos Full a) a
 zLabel = lens Z.label $ flip Z.setLabel
 
 
----- | Brick
+-- | Tree Zippers
+
+firstFull :: TreePos Full a -> TreePos Full a
+firstFull tz = maybe (error "impossible") id
+               $ Z.nextTree $ Z.first $ Z.prevSpace tz
+
+lastFull :: TreePos Full a -> TreePos Full a
+lastFull tz = maybe (error "impossible") id
+              $ Z.prevTree $ Z.last $ Z.prevSpace tz
+
+
+-- | Brick
 
 main :: IO St
 main = mainFrom aState
@@ -65,13 +78,26 @@ aState = let
   pt p (Node i ns) = Node  (pw $ i : p)
                      $ map (pt $ i : p) ns
 
-  (wz :: TreePos Full Window) = Z.fromTree $ pt [] $
-    Node 0 [ Node 0 []
-           , Node 1 [ Node 0 []
-                    , Node 1 [] ] ]
+  (wz :: TreePos Full Window) = Z.fromTree $ pt [] fatTree
 
   in St { _focus = ()
         , _windows = wz }
+
+fatTree :: Tree Int
+fatTree = Node 0 [ Node 0 []
+                 , Node 1 []
+                 , Node 2 [] ]
+--                          [ Node 0 []
+--                          , Node 1 []
+--                          , Node 2 [ Node 0 []
+--                                   , Node 1 []
+--                                   , Node 2 []
+--                                   , Node 3 []
+--                                   , Node 4 [] ]
+--                          , Node 3 []
+--                          , Node 4 [] ]
+--                 , Node 3 []
+--                 , Node 4 [] ]
 
 app :: B.App St e Path
 app = B.App
@@ -116,13 +142,17 @@ appHandleEvent ::
   St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [] -> B.halt st
-  B.EvKey (B.KChar 'l') [B.MCtrl] ->
+  B.EvKey (B.KChar 'l') [B.MMeta] ->
     B.continue $ st & windows %~ \w -> maybe w id $ Z.firstChild w
-  B.EvKey (B.KChar 'k') [B.MCtrl] ->
+  B.EvKey (B.KChar 'k') [B.MMeta] ->
     B.continue $ st & windows %~ \w -> maybe w id $ Z.next w
-  B.EvKey (B.KChar 'i') [B.MCtrl] ->
+  B.EvKey (B.KChar 'K') [B.MMeta] ->
+    B.continue $ st & windows %~ lastFull
+  B.EvKey (B.KChar 'i') [B.MMeta] ->
     B.continue $ st & windows %~ \w -> maybe w id $ Z.prev w
-  B.EvKey (B.KChar 'j') [B.MCtrl] ->
+  B.EvKey (B.KChar 'I') [B.MMeta] ->
+    B.continue $ st & windows %~ firstFull
+  B.EvKey (B.KChar 'j') [B.MMeta] ->
     B.continue $ st & windows %~ \w -> maybe w id $ Z.parent w
   _ -> B.continue =<< B.handleEventLensed st
    (windows . zLabel . windowEd) B.handleEditorEvent ev
@@ -130,6 +160,6 @@ appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
 appAttrMap = B.attrMap B.defAttr
-    [ (B.editAttr,        B.white `on` B.black)
-    , (B.editFocusedAttr, B.black `on` B.yellow)
-    ]
+  [ (B.editAttr,        B.white `on` B.black)
+  , (B.editFocusedAttr, B.black `on` B.yellow)
+  ]
