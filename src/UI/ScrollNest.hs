@@ -35,17 +35,15 @@ import qualified Graphics.Vty as B
 -- The top window has the name [].
 type Path = [Int]
 
-data Window = Window { _windowInt :: Int
-                     , _windowString :: String
+data Window = Window { _windowPath :: Path
+                     , _windowEditor :: B.Editor String Path
                      }
-
 makeLenses ''Window
 
 data St = St {
     _windows :: [Tree Window]
   , _focus :: Path
   }
-
 makeLenses ''St
 
 
@@ -58,16 +56,29 @@ mainFrom :: St -> IO St
 mainFrom = B.defaultMain app
 
 aState :: St
-aState = let w :: Path -> Tree Int -> Tree Window
-             w p (Node i []) = Node (Window i $ show $ i : p) []
-             w p (Node i ns) = Node (Window i $ show $ i : p)
-               $ map (w $ i : p) ns
-  in St { _focus = []
-        , _windows = map (w [])
+aState = let
+  pw :: Path -> Window
+  pw p = Window { _windowPath = p
+                , _windowEditor =
+                  B.editor p (Just 1) $ show $ reverse p }
+
+  pt :: Path -> Tree Int -> Tree Window
+  pt p (Node i []) = Node (pw $ i : p) []
+  pt p (Node i ns) = Node (pw $ i : p)
+                    $ map (pt $ i : p) ns
+
+  in St { _focus = [0,1,1]
+        , _windows = map (pt [])
           [ Node 0 [ Node 0 []
-                   , Node 1 [] ]
-          , Node 1 [ Node 0 []
-                   , Node 1 [] ] ]
+                   , Node 1 [ Node 0 []
+                            , Node 1 [] ] ]
+          , Node 1 [ Node 0 [ Node 0 [ Node 0 []
+                                     , Node 1 [ Node 0 []
+                                              , Node 1 [] ] ]
+                            , Node 1 [] ]
+                   , Node 1 [ Node 0 []
+                            , Node 1 [ Node 0 []
+                                     , Node 1 [] ] ] ] ]
         }
 
 app :: B.App St e Path
@@ -79,14 +90,13 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
-treeDraw :: Tree Window -> B.Widget Path
-treeDraw (Node (Window _ s) []) = str s
-treeDraw (Node (Window _ s) ws) =
-  str s
-  <=> padLeft (B.Pad 2) (vBox $ map treeDraw ws)
+treeDraw :: St -> Tree Window -> B.Widget Path
+treeDraw st (Node (Window p e) ws) =
+  B.renderEditor (str . unlines) (reverse p == st ^. focus) e
+  <=> padLeft (B.Pad 2) (vBox $ map (treeDraw st) ws)
 
 appDraw :: St -> [B.Widget Path]
-appDraw st = [vBox $ map treeDraw $ st ^. windows]
+appDraw st = [vBox $ map (treeDraw st) $ st ^. windows]
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
 -- maybe a map, keys of which are first drawn from a tree in the `St`).
@@ -100,12 +110,14 @@ appHandleEvent st _ = B.halt st
 
 appAttrMap :: B.AttrMap
 appAttrMap = B.attrMap B.defAttr
-    [ (B.editAttr,        B.white `on` B.blue)
+    [ (B.editAttr,        B.white `on` B.black)
     , (B.editFocusedAttr, B.black `on` B.yellow)
     ]
 
 stFocusWindow :: St -> Maybe Window
 stFocusWindow st = let foc = st ^. focus in
+  -- TODO : head bad (used twice here).
+  -- Maps would be better than lists to build a tree.
   case foc of
     [] -> Nothing
     path -> go path topWindow where
@@ -115,4 +127,4 @@ stFocusWindow st = let foc = st ^. focus in
       go (i : is) (Node _ ts) = go is nextWindow where
         nextWindow = head $ filter f ts where
           f :: Tree Window -> Bool
-          f (Node (Window i' _) _) = i == i'
+          f (Node (Window i' _) _) = i == head i'
