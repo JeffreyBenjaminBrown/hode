@@ -106,7 +106,11 @@ appChooseCursor _ _ = Nothing
 
 appHandleEvent ::
   St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
-appHandleEvent st _ = B.halt st
+appHandleEvent st (B.VtyEvent ev) = case ev of
+  B.EvKey B.KEsc []        -> B.halt st
+  B.EvKey (B.KChar 'i') [] -> B.continue $ st & focus .~ [0]
+  _ -> B.continue st
+appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
 appAttrMap = B.attrMap B.defAttr
