@@ -12,7 +12,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module UI.ScrollNest where
+module ScrollNest.Tree where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe

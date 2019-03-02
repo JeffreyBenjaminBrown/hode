@@ -67,8 +67,9 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , UI.ScrollNest
-                , UI.ScrollNest2
+                , ScrollNest.List
+                , ScrollNest.Vector
+                , ScrollNest.Zipper
 --                , UI.Clipboard
 --                , UI.IParse
 --                , UI.Main
@@ -93,6 +94,7 @@ library
               , microlens-th
               , parser-combinators
               , process
+              , rosezipper
               , text
               , text-zipper
               , vector
