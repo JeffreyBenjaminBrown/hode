@@ -25,25 +25,29 @@ import qualified Graphics.Vty as B
 
 -- | A path from the top window to the given window
 -- The top window has the name [].
-type Path = [Int]
+type Path = Vector Int
 
 data Tree a = Tree { _load :: a
                    , _rest :: Vector (Tree a) }
 makeLenses ''Tree
 
-fromTree :: forall a. Path -> Tree a -> Maybe a
-fromTree [] t = Just $ _load t
-fromTree (i:is) t = maybe Nothing f next where
-  (next :: Maybe (Tree a)) = (V.!?) (_rest t) i
-  (f :: Tree a -> Maybe a) = fromTree is
-
-data Window = Window { _windowPath :: Path
-                     , _windowEditor :: B.Editor String Path
-                     }
+data Window = Window { _windowPath :: Path -- ^ reversed, for speed; the
+  -- first digit in this `Path` is the last choice on the way to the window. 
+  , _windowEditor :: B.Editor String Path }
 makeLenses ''Window
 
-data St = St {
-    _windows :: Tree Window
-  , _focus :: Path
-  }
+data St = St { _windows :: Tree Window
+             , _focus :: Path }
 makeLenses ''St
+
+fromTree :: forall a. Path -> Tree a -> Maybe a
+fromTree v t = case null v of
+  True -> Just $ _load t
+  False -> maybe Nothing f next where
+    (next :: Maybe (Tree a)) = (V.!?) (_rest t) (V.head v)
+    (f :: Tree a -> Maybe a) = fromTree $ V.tail v
+
+treeDraw :: St -> Tree Window -> B.Widget Path
+treeDraw st (Tree (Window p e) ws) =
+  B.renderEditor (str . unlines) (V.reverse p == st ^. focus) e
+  <=> padLeft (B.Pad 2) (vBox $ map (treeDraw st) $ V.toList ws)
