@@ -35,7 +35,11 @@ import qualified Graphics.Vty as B
 -- The top window has the name [].
 type Path = [Int]
 
-data Window = Window Int String
+data Window = Window { _windowInt :: Int
+                     , _windowString :: String
+                     }
+
+makeLenses ''Window
 
 data St = St {
     _windows :: [Tree Window]
@@ -48,8 +52,7 @@ makeLenses ''St
 -- | = functions
 
 main :: IO St
-main = mainFrom $ St { _windows = []
-                     , _focus = [] }
+main = mainFrom aState
 
 mainFrom :: St -> IO St
 mainFrom = B.defaultMain app
@@ -86,7 +89,7 @@ appDraw :: St -> [B.Widget Path]
 appDraw st = [vBox $ map treeDraw $ st ^. windows]
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
--- maybe a map, they keys of which come from some tree field of the `St`).
+-- maybe a map, keys of which are first drawn from a tree in the `St`).
 appChooseCursor ::
   St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
 appChooseCursor _ _ = Nothing
@@ -103,7 +106,7 @@ appAttrMap = B.attrMap B.defAttr
 
 stFocusWindow :: St -> Maybe Window
 stFocusWindow st = let foc = st ^. focus in
-   case foc of
+  case foc of
     [] -> Nothing
     path -> go path topWindow where
       topWindow = Node (error "impossible") (st ^. windows)
