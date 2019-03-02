@@ -31,104 +31,104 @@ import           Brick.Util (on)
 import qualified Graphics.Vty as B
 
 
--- | A path from the top window to the given window
--- The top window has the name [].
-type Path = [Int]
-
-data Window = Window { _windowPath :: Path
-                     , _windowEditor :: B.Editor String Path
-                     }
-makeLenses ''Window
-
-data St = St {
-    _windows :: [Tree Window]
-  , _focus :: Path
-  }
-makeLenses ''St
-
-
--- | = functions
-
-main :: IO St
-main = mainFrom aState
-
-mainFrom :: St -> IO St
-mainFrom = B.defaultMain app
-
-aState :: St
-aState = let
-  pw :: Path -> Window
-  pw p = Window { _windowPath = p
-                , _windowEditor =
-                  B.editor p (Just 1) $ show $ reverse p }
-
-  pt :: Path -> Tree Int -> Tree Window
-  pt p (Node i []) = Node (pw $ i : p) []
-  pt p (Node i ns) = Node (pw $ i : p)
-                    $ map (pt $ i : p) ns
-
-  in St { _focus = [0,1,1]
-        , _windows = map (pt [])
-          [ Node 0 [ Node 0 []
-                   , Node 1 [ Node 0 []
-                            , Node 1 [] ] ]
-          , Node 1 [ Node 0 [ Node 0 [ Node 0 []
-                                     , Node 1 [ Node 0 []
-                                              , Node 1 [] ] ]
-                            , Node 1 [] ]
-                   , Node 1 [ Node 0 []
-                            , Node 1 [ Node 0 []
-                                     , Node 1 [] ] ] ] ]
-        }
-
-app :: B.App St e Path
-app = B.App
-  { B.appDraw         = appDraw
-  , B.appChooseCursor = appChooseCursor
-  , B.appHandleEvent  = appHandleEvent
-  , B.appStartEvent   = return
-  , B.appAttrMap      = const appAttrMap
-  }
-
-treeDraw :: St -> Tree Window -> B.Widget Path
-treeDraw st (Node (Window p e) ws) =
-  B.renderEditor (str . unlines) (reverse p == st ^. focus) e
-  <=> padLeft (B.Pad 2) (vBox $ map (treeDraw st) ws)
-
-appDraw :: St -> [B.Widget Path]
-appDraw st = [vBox $ map (treeDraw st) $ st ^. windows]
-
--- | Ignore the list; this app needs cursor locations to be in a tree (or
--- maybe a map, keys of which are first drawn from a tree in the `St`).
-appChooseCursor ::
-  St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
-appChooseCursor _ _ = Nothing
-
-appHandleEvent ::
-  St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
-appHandleEvent st (B.VtyEvent ev) = case ev of
-  B.EvKey B.KEsc []        -> B.halt st
-  B.EvKey (B.KChar 'i') [] -> B.continue $ st & focus .~ [0]
-  _ -> B.continue st
-appHandleEvent st _ = B.continue st
-
-appAttrMap :: B.AttrMap
-appAttrMap = B.attrMap B.defAttr
-    [ (B.editAttr,        B.white `on` B.black)
-    , (B.editFocusedAttr, B.black `on` B.yellow)
-    ]
-
-stFocusWindow :: St -> Maybe Window
-stFocusWindow st = let foc = st ^. focus in
-  -- TODO : head bad (used twice here).
-  -- Maps would be better than lists to build a tree.
-  case foc of
-    [] -> Nothing
-    path -> go path topWindow where
-      topWindow = Node (error "impossible") (st ^. windows)
-      go :: [Int] -> Tree Window -> Maybe Window
-      go []       (Node w _)  = Just w
-      go (i : is) (Node _ ts) = go is nextWindow where
-        nextWindow = head $ filter f ts where
-          f :: Tree Window -> Bool
-          f (Node (Window i' _) _) = i == head i'
+---- | A path from the top window to the given window
+---- The top window has the name [].
+--type Path = [Int]
+--
+--data Window = Window { _windowPath :: Path
+--                     , _windowEditor :: B.Editor String Path
+--                     }
+--makeLenses ''Window
+--
+--data St = St {
+--    _windows :: [Tree Window]
+--  , _focus :: Path
+--  }
+--makeLenses ''St
+--
+--
+---- | = functions
+--
+--main :: IO St
+--main = mainFrom aState
+--
+--mainFrom :: St -> IO St
+--mainFrom = B.defaultMain app
+--
+--aState :: St
+--aState = let
+--  pw :: Path -> Window
+--  pw p = Window { _windowPath = p
+--                , _windowEditor =
+--                  B.editor p (Just 1) $ show $ reverse p }
+--
+--  pt :: Path -> Tree Int -> Tree Window
+--  pt p (Node i []) = Node (pw $ i : p) []
+--  pt p (Node i ns) = Node (pw $ i : p)
+--                    $ map (pt $ i : p) ns
+--
+--  in St { _focus = [0,1,1]
+--        , _windows = map (pt [])
+--          [ Node 0 [ Node 0 []
+--                   , Node 1 [ Node 0 []
+--                            , Node 1 [] ] ]
+--          , Node 1 [ Node 0 [ Node 0 [ Node 0 []
+--                                     , Node 1 [ Node 0 []
+--                                              , Node 1 [] ] ]
+--                            , Node 1 [] ]
+--                   , Node 1 [ Node 0 []
+--                            , Node 1 [ Node 0 []
+--                                     , Node 1 [] ] ] ] ]
+--        }
+--
+--app :: B.App St e Path
+--app = B.App
+--  { B.appDraw         = appDraw
+--  , B.appChooseCursor = appChooseCursor
+--  , B.appHandleEvent  = appHandleEvent
+--  , B.appStartEvent   = return
+--  , B.appAttrMap      = const appAttrMap
+--  }
+--
+--treeDraw :: St -> Tree Window -> B.Widget Path
+--treeDraw st (Node (Window p e) ws) =
+--  B.renderEditor (str . unlines) (reverse p == st ^. focus) e
+--  <=> padLeft (B.Pad 2) (vBox $ map (treeDraw st) ws)
+--
+--appDraw :: St -> [B.Widget Path]
+--appDraw st = [vBox $ map (treeDraw st) $ st ^. windows]
+--
+---- | Ignore the list; this app needs cursor locations to be in a tree (or
+---- maybe a map, keys of which are first drawn from a tree in the `St`).
+--appChooseCursor ::
+--  St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
+--appChooseCursor _ _ = Nothing
+--
+--appHandleEvent ::
+--  St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
+--appHandleEvent st (B.VtyEvent ev) = case ev of
+--  B.EvKey B.KEsc []        -> B.halt st
+--  B.EvKey (B.KChar 'i') [] -> B.continue $ st & focus .~ [0]
+--  _ -> B.continue st
+--appHandleEvent st _ = B.continue st
+--
+--appAttrMap :: B.AttrMap
+--appAttrMap = B.attrMap B.defAttr
+--    [ (B.editAttr,        B.white `on` B.black)
+--    , (B.editFocusedAttr, B.black `on` B.yellow)
+--    ]
+--
+--stFocusWindow :: St -> Maybe Window
+--stFocusWindow st = let foc = st ^. focus in
+--  -- TODO : head bad (used twice here).
+--  -- Maps would be better than lists to build a tree.
+--  case foc of
+--    [] -> Nothing
+--    path -> go path topWindow where
+--      topWindow = Node (error "impossible") (st ^. windows)
+--      go :: [Int] -> Tree Window -> Maybe Window
+--      go []       (Node w _)  = Just w
+--      go (i : is) (Node _ ts) = go is nextWindow where
+--        nextWindow = head $ filter f ts where
+--          f :: Tree Window -> Bool
+--          f (Node (Window i' _) _) = i == head i'
