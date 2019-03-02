@@ -9,6 +9,8 @@ import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe
 import           Data.Tree (Tree(Node))
 import qualified Data.Tree as T
+import qualified Data.Text.Zipper as TextZ hiding ( textZipper )
+import qualified Data.Text.Zipper.Generic as TextZ
 import           Data.Tree.Zipper (TreePos, Full)
 import qualified Data.Tree.Zipper as Z
 import           Lens.Micro
@@ -40,6 +42,9 @@ makeLenses ''Window
 data St = St { _windows :: TreePos Full Window
              , _focus :: () } -- ^ will use later
 makeLenses ''St
+
+zLabel :: Lens' (TreePos Full a) a
+zLabel = lens Z.label $ flip Z.setLabel
 
 
 ---- | Brick
@@ -93,14 +98,21 @@ appDraw st = [treeDraw st $ Z.tree $ Z.root $ st ^. windows]
 -- maybe a map, keys of which are first drawn from a tree in the `St`).
 appChooseCursor ::
   St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
-appChooseCursor _ _ = Nothing
+appChooseCursor st _ = let
+  e = st ^. windows . zLabel . windowEd
+  z = e ^. B.editContentsL
+  cp = TextZ.cursorPosition z
+  toLeft = TextZ.take (cp ^. _2) (TextZ.currentLine z)
+  (cursorLoc :: B.Location) = B.Location (textWidth toLeft, cp^._1)
+  (n :: Path) = getName e
+  in Just $ B.CursorLocation cursorLoc $ Just n
 
 appHandleEvent ::
   St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc []        -> B.halt st
-  -- B.EvKey (B.KChar 'i') [] ->
-  _ -> B.continue st
+  _ -> B.continue =<< B.handleEventLensed st
+   (windows . zLabel . windowEd) B.handleEditorEvent ev
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
@@ -108,6 +120,3 @@ appAttrMap = B.attrMap B.defAttr
     [ (B.editAttr,        B.white `on` B.black)
     , (B.editFocusedAttr, B.black `on` B.yellow)
     ]
-
---stFocusWindow :: St -> Maybe Window
---stFocusWindow st = error "todo"
