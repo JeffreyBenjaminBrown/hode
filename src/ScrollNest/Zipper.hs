@@ -71,7 +71,7 @@ aState = let
                     , Node 1 [] ] ]
 
   in St { _focus = ()
-        , _windows = Z.modifyLabel (isFocused .~ True) wz }
+        , _windows = wz }
 
 app :: B.App St e Path
 app = B.App
@@ -82,17 +82,22 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
-windowDraw :: Window -> B.Widget Path
-windowDraw w =
-  B.renderEditor (str . unlines) (w ^. isFocused) (w ^. windowEd)
-
-treeDraw :: St -> Tree Window -> B.Widget Path
-treeDraw st (Node w ws) =
-  windowDraw w
-  <=> padLeft (B.Pad 2) (vBox $ map (treeDraw st) ws)
-
 appDraw :: St -> [B.Widget Path]
-appDraw st = [treeDraw st $ Z.tree $ Z.root $ st ^. windows]
+appDraw st =
+  [treeDraw $ Z.tree $ Z.root $ focusedSt ^. windows ]
+  where
+    focusedSt = st & windows . zLabel . isFocused .~ True
+
+    treeDraw :: Tree Window -> B.Widget Path
+    treeDraw (Node w0 ws) =
+      windowDraw w0
+      <=> padLeft (B.Pad 2) (vBox $ map treeDraw ws)
+
+      where
+        windowDraw :: Window -> B.Widget Path
+        windowDraw w =
+          B.renderEditor (str . unlines)
+          (w ^. isFocused) (w ^. windowEd)
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
 -- maybe a map, keys of which are first drawn from a tree in the `St`).
@@ -110,7 +115,15 @@ appChooseCursor st _ = let
 appHandleEvent ::
   St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
-  B.EvKey B.KEsc []        -> B.halt st
+  B.EvKey B.KEsc [] -> B.halt st
+  B.EvKey (B.KChar 'l') [B.MCtrl] ->
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.firstChild w
+  B.EvKey (B.KChar 'k') [B.MCtrl] ->
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.next w
+  B.EvKey (B.KChar 'i') [B.MCtrl] ->
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.prev w
+  B.EvKey (B.KChar 'j') [B.MCtrl] ->
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.parent w
   _ -> B.continue =<< B.handleEventLensed st
    (windows . zLabel . windowEd) B.handleEditorEvent ev
 appHandleEvent st _ = B.continue st
