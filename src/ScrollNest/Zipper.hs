@@ -54,11 +54,14 @@ makeLenses ''St
 zLabel :: Lens' (TreePos Full a) a
 zLabel = lens Z.label $ flip Z.setLabel
 
-reFocus :: St -> St -- TODO ? Is this useful?
-reFocus st = -- TODO ? update the focus state of the focused window, too
-             -- (currently that's done in appDraw).
-  let e = st ^. windows . zLabel . windowEd
-  in st & focus .~ getName e
+moveFocus :: (TreePos Full Window -> TreePos Full Window)
+          -> ( St                 -> St)
+moveFocus move = reFocus . (windows %~ move) . unFocus
+  where unFocus, reFocus :: St -> St
+        unFocus = windows . zLabel . isFocused .~ False
+        reFocus st = st & focus .~ getName e
+                     & windows . zLabel . isFocused .~ True
+          where e = st ^. windows . zLabel . windowEd
 
 firstFull :: TreePos Full a -> TreePos Full a
 firstFull tz = maybe (error "impossible") id
@@ -142,20 +145,14 @@ appDraw st =
                        (w ^. isFocused) (w ^. windowEd)
           where foc = w ^. isFocused
 
--- | Ignore the list; this app needs cursor locations to be in a tree (or
--- maybe a map, keys of which are first drawn from a tree in the `St`).
---
--- Broken. Lifted with little understanding from Bricks.Widgets.Edit.
-appChooseCursor ::
-  St -> [B.CursorLocation Name] -> Maybe (B.CursorLocation Name)
-appChooseCursor st _ = let
-  e = st ^. windows . zLabel . windowEd
-  z = e ^. B.editContentsL
-  cp = TextZ.cursorPosition z
-  toLeft = TextZ.take (cp ^. _2) (TextZ.currentLine z)
-  (cursorLoc :: B.Location) = B.Location (textWidth toLeft, cp^._1)
-  (n :: Name) = getName e
-  in Just $ B.CursorLocation cursorLoc $ Just n
+-- | Based on `Brick.Focus.focusRingCursor`
+appChooseCursor :: St
+                -> [B.CursorLocation Name]
+                -> Maybe (B.CursorLocation Name)
+appChooseCursor st =
+  listToMaybe . filter isCurrent
+  where isCurrent cl = cl ^. B.cursorLocationNameL
+                       == Just (st ^. focus)
 
 appHandleEvent ::
   St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
@@ -164,17 +161,17 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   -- moving around
   B.EvKey (B.KChar 'l') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.firstChild w
+    B.continue $ st & moveFocus (\w -> maybe w id $ Z.firstChild w)
   B.EvKey (B.KChar 'k') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.next w
+    B.continue $ st & moveFocus (\w -> maybe w id $ Z.next w)
   B.EvKey (B.KChar 'K') [B.MMeta] ->
-    B.continue $ st & windows %~ lastFull
+    B.continue $ st & moveFocus lastFull
   B.EvKey (B.KChar 'i') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.prev w
+    B.continue $ st & moveFocus (\w -> maybe w id $ Z.prev w)
   B.EvKey (B.KChar 'I') [B.MMeta] ->
-    B.continue $ st & windows %~ firstFull
+    B.continue $ st & moveFocus firstFull
   B.EvKey (B.KChar 'j') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.parent w
+    B.continue $ st & moveFocus (\w -> maybe w id $ Z.parent w)
 
   -- report extent of focused editor
   B.EvKey (B.KChar 'e') [B.MMeta] -> do
@@ -182,6 +179,11 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     (s :: String) <- maybe "lookupExtent returned Nothing" show
                      <$> B.lookupExtent n
     B.continue $ replaceText s st
+
+  -- report whether focused editor has focus (should be `True`)
+  B.EvKey (B.KChar 'f') [B.MMeta] ->
+    let (focused :: Bool) = st ^. windows . zLabel . isFocused
+    in B.continue $ replaceText (show focused) st
 
   -- copy focused editor's content to clipboard
   B.EvKey (B.KChar 'c') [B.MMeta] ->
