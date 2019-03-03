@@ -33,14 +33,17 @@ import qualified Graphics.Vty as B
 -- | A path from the top window to the given window
 -- The top window has the name [].
 type Path = [Int]
+data Name = ToSelf {namePath :: Path}
+          | ToChildren {namePath :: Path}
+          deriving (Show, Eq, Ord)
 
 data Window = Window { _isFocused :: Bool
-                     , _windowEd :: B.Editor String Path }
+                     , _windowEd :: B.Editor String Name }
   deriving (Show)
 makeLenses ''Window
 
 data St = St { _windows :: TreePos Full Window
-             , _focus :: Path } -- TODO ? unused
+             , _focus :: Name } -- TODO ? unused
   deriving (Show)
 makeLenses ''St
 
@@ -78,7 +81,7 @@ aState :: St
 aState = let
   (pw :: Path -> Window) = \p -> Window
     { _isFocused = False
-    , _windowEd = B.editor p (Nothing) $ show p }
+    , _windowEd = B.editor (ToSelf p) (Just 2) $ show p }
 
   pt :: Path -> Tree Int -> Tree Window
   pt p (Node i ns) = Node  (pw $ i : p)
@@ -86,26 +89,26 @@ aState = let
 
   (wz :: TreePos Full Window) = Z.fromTree $ pt [] aTree
 
-  in St { _focus = [0] -- TODO ? dangerous, use something like head instead
+  in St { _focus = ToSelf [0]
+        -- TODO ? [0] dangerous, use something like head instead
         , _windows = wz }
 
 aTree :: Tree Int
 aTree = Node 0 [ Node 0 []
                , Node 1 []
-               , Node 2 [] ]
---                        [ Node 0 []
---                        , Node 1 []
---                        , Node 2 [ Node 0 []
---                                 , Node 1 []
---                                 , Node 2 []
---                                 , Node 3 []
---                                 , Node 4 [] ]
---                        , Node 3 []
---                        , Node 4 [] ]
---               , Node 3 []
---               , Node 4 [] ]
+               , Node 2 [ Node 0 []
+                        , Node 1 []
+                        , Node 2 [ Node 0 []
+                                 , Node 1 []
+                                 , Node 2 []
+                                 , Node 3 []
+                                 , Node 4 [] ]
+                        , Node 3 []
+                        , Node 4 [] ]
+               , Node 3 []
+               , Node 4 [] ]
 
-app :: B.App St e Path
+app :: B.App St e Name
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor
@@ -114,40 +117,48 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
-appDraw :: St -> [B.Widget Path]
+appDraw :: St -> [B.Widget Name]
 appDraw st =
   [treeDraw $ Z.tree $ Z.root $ focusedSt ^. windows ]
   where
-    focusedSt = st & windows . zLabel . isFocused .~ True
+    (focusedSt :: St) = st & windows . zLabel . isFocused .~ True
 
-    treeDraw :: Tree Window -> B.Widget Path
+    treeDraw :: Tree Window -> B.Widget Name
     treeDraw (Node w0 ws) =
       windowDraw w0
-      <=> padLeft (B.Pad 2) (vBox $ map treeDraw ws)
-
+      <=> ( padLeft (B.Pad 2)
+            $ ( if n0 /= topName then id else
+                  viewport ( ToChildren [0] ) B.Vertical )
+            $ vBox
+            $ map treeDraw ws )
       where
-        windowDraw :: Window -> B.Widget Path
-        windowDraw w =
-          B.renderEditor (str . unlines)
-          (w ^. isFocused) (w ^. windowEd)
+
+        (n0 :: Name) = getName $ w0 ^. windowEd
+        (topName :: Name) = ToSelf [0]
+
+        windowDraw :: Window -> B.Widget Name
+        windowDraw w = (if foc then visible else id)
+                       $ B.renderEditor (str . unlines)
+                       (w ^. isFocused) (w ^. windowEd)
+          where foc = w ^. isFocused
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
 -- maybe a map, keys of which are first drawn from a tree in the `St`).
 --
 -- Broken. Lifted with little understanding from Bricks.Widgets.Edit.
 appChooseCursor ::
-  St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
+  St -> [B.CursorLocation Name] -> Maybe (B.CursorLocation Name)
 appChooseCursor st _ = let
   e = st ^. windows . zLabel . windowEd
   z = e ^. B.editContentsL
   cp = TextZ.cursorPosition z
   toLeft = TextZ.take (cp ^. _2) (TextZ.currentLine z)
   (cursorLoc :: B.Location) = B.Location (textWidth toLeft, cp^._1)
-  (n :: Path) = getName e
+  (n :: Name) = getName e
   in Just $ B.CursorLocation cursorLoc $ Just n
 
 appHandleEvent ::
-  St -> B.BrickEvent Path e -> B.EventM Path (B.Next St)
+  St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [] -> B.halt st
   B.EvKey (B.KChar 'l') [B.MMeta] ->
