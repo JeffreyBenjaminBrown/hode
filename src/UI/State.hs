@@ -51,12 +51,10 @@ focusedWindow st = let
      $ BF.focusGetCurrent
      $ st ^. focusRing
 
-
 editor_replaceText ::
   Lens' St (BE.Editor String Name) -> [String] -> (St -> St)
 editor_replaceText windowGetter ss =
   windowGetter . BE.editContentsL .~ Z.textZipper ss Nothing
-
 
 parseAndRunCommand :: St -> BT.EventM Name (BT.Next St)
 parseAndRunCommand st =

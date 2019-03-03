@@ -70,7 +70,7 @@ library
                 , ScrollNest.List
                 , ScrollNest.Vector
                 , ScrollNest.Zipper
---                , UI.Clipboard
+                , UI.Clipboard
 --                , UI.IParse
 --                , UI.Main
 --                , UI.State

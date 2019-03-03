@@ -27,6 +27,7 @@ import qualified Brick.Focus as B
 import           Brick.Util (on)
 import qualified Graphics.Vty as B
 
+import UI.Clipboard (toClipboard)
 
 -- | = Types
 
@@ -43,7 +44,7 @@ data Window = Window { _isFocused :: Bool
 makeLenses ''Window
 
 data St = St { _windows :: TreePos Full Window
-             , _focus :: Name } -- TODO ? unused
+             , _focus :: Name } -- TODO ? Is this useful?
   deriving (Show)
 makeLenses ''St
 
@@ -53,9 +54,8 @@ makeLenses ''St
 zLabel :: Lens' (TreePos Full a) a
 zLabel = lens Z.label $ flip Z.setLabel
 
--- TODO ? Is this pointless
-reFocus :: St -> St
-reFocus st = -- TODO ? update the focus state of the focused window too
+reFocus :: St -> St -- TODO ? Is this useful?
+reFocus st = -- TODO ? update the focus state of the focused window, too
              -- (currently that's done in appDraw).
   let e = st ^. windows . zLabel . windowEd
   in st & focus .~ getName e
@@ -161,18 +161,34 @@ appHandleEvent ::
   St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [] -> B.halt st
+
+  -- moving around
   B.EvKey (B.KChar 'l') [B.MMeta] ->
-    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.firstChild w
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.firstChild w
   B.EvKey (B.KChar 'k') [B.MMeta] ->
-    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.next w
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.next w
   B.EvKey (B.KChar 'K') [B.MMeta] ->
-    B.continue $ reFocus $ st & windows %~ lastFull
+    B.continue $ st & windows %~ lastFull
   B.EvKey (B.KChar 'i') [B.MMeta] ->
-    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.prev w
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.prev w
   B.EvKey (B.KChar 'I') [B.MMeta] ->
-    B.continue $ reFocus $ st & windows %~ firstFull
+    B.continue $ st & windows %~ firstFull
   B.EvKey (B.KChar 'j') [B.MMeta] ->
-    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.parent w
+    B.continue $ st & windows %~ \w -> maybe w id $ Z.parent w
+
+  -- report extent of focused editor
+  B.EvKey (B.KChar 'e') [B.MMeta] -> do
+    let (n :: Name) = getName $ st ^. windows . zLabel . windowEd
+    (s :: String) <- maybe "lookupExtent returned Nothing" show
+                     <$> B.lookupExtent n
+    B.continue $ replaceText s st
+
+  -- copy focused editor's content to clipboard
+  B.EvKey (B.KChar 'c') [B.MMeta] ->
+    liftIO ( toClipboard $ show $ TextZ.getText
+             $ st ^. windows . zLabel . windowEd . B.editContentsL )
+    >> B.continue st
+
   _ -> B.continue =<< B.handleEventLensed st
    (windows . zLabel . windowEd) B.handleEditorEvent ev
 appHandleEvent st _ = B.continue st
@@ -182,3 +198,8 @@ appAttrMap = B.attrMap B.defAttr
   [ (B.editAttr,        B.white `on` B.black)
   , (B.editFocusedAttr, B.black `on` B.yellow)
   ]
+
+replaceText :: String -> St -> St
+replaceText s =
+  windows . zLabel . windowEd
+  %~ B.applyEdit (TextZ.insertMany s)
