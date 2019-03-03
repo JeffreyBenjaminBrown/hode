@@ -4,7 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module ScrollNest.Zipper where
+module ScrollNest.Zipper (scrollNest_main) where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe
@@ -74,17 +74,17 @@ lastFull tz = maybe (error "impossible") id
 
 -- | Brick
 
-main :: IO St
-main = mainFrom aState
+scrollNest_main :: IO St
+scrollNest_main = scrollNest_mainFrom aState
 
-mainFrom :: St -> IO St
-mainFrom = B.defaultMain app
+scrollNest_mainFrom :: St -> IO St
+scrollNest_mainFrom = B.defaultMain app
 
 aState :: St
 aState = let
   (pw :: Path -> Window) = \p -> Window
     { _isFocused = False
-    , _windowEd = B.editor (ToSelf p) (Just 2) $ show p }
+    , _windowEd = B.editor (ToSelf p) (Just 1) $ show p }
 
   pt :: Path -> Tree Int -> Tree Window
   pt p (Node i ns) = Node  (pw $ i : p)

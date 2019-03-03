@@ -67,14 +67,13 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , ScrollNest.List
                 , ScrollNest.Vector
                 , ScrollNest.Zipper
                 , UI.Clipboard
---                , UI.IParse
---                , UI.Main
---                , UI.State
---                , UI.ITypes
+                , UI.IParse
+                , UI.Main
+                , UI.State
+                , UI.ITypes
                 , Util.Misc
                 , Util.UParse
   other-modules:
