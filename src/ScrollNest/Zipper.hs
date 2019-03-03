@@ -1,4 +1,5 @@
--- | Like ScrollNest, but with more convenient, faster types.
+-- | Run `main` and the use `Ctrl-[i,j,k,l]` to move around.
+-- Press `Shift` to move faster vertically.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -33,23 +34,28 @@ import qualified Graphics.Vty as B
 -- The top window has the name [].
 type Path = [Int]
 
-type Ed = B.Editor String Path
-
 data Window = Window { _isFocused :: Bool
-                     , _windowEd :: Ed }
+                     , _windowEd :: B.Editor String Path }
   deriving (Show)
 makeLenses ''Window
 
 data St = St { _windows :: TreePos Full Window
-             , _focus :: () } -- ^ will use later
+             , _focus :: Path } -- TODO ? unused
   deriving (Show)
 makeLenses ''St
+
+
+-- | Type helpers
 
 zLabel :: Lens' (TreePos Full a) a
 zLabel = lens Z.label $ flip Z.setLabel
 
-
--- | Tree Zippers
+-- TODO ? Is this pointless
+reFocus :: St -> St
+reFocus st = -- TODO ? update the focus state of the focused window too
+             -- (currently that's done in appDraw).
+  let e = st ^. windows . zLabel . windowEd
+  in st & focus .~ getName e
 
 firstFull :: TreePos Full a -> TreePos Full a
 firstFull tz = maybe (error "impossible") id
@@ -72,32 +78,32 @@ aState :: St
 aState = let
   (pw :: Path -> Window) = \p -> Window
     { _isFocused = False
-    , _windowEd = B.editor p (Just 1) $ show p }
+    , _windowEd = B.editor p (Nothing) $ show p }
 
   pt :: Path -> Tree Int -> Tree Window
   pt p (Node i ns) = Node  (pw $ i : p)
                      $ map (pt $ i : p) ns
 
-  (wz :: TreePos Full Window) = Z.fromTree $ pt [] fatTree
+  (wz :: TreePos Full Window) = Z.fromTree $ pt [] aTree
 
-  in St { _focus = ()
+  in St { _focus = [0] -- TODO ? dangerous, use something like head instead
         , _windows = wz }
 
-fatTree :: Tree Int
-fatTree = Node 0 [ Node 0 []
-                 , Node 1 []
-                 , Node 2 [] ]
---                          [ Node 0 []
---                          , Node 1 []
---                          , Node 2 [ Node 0 []
---                                   , Node 1 []
---                                   , Node 2 []
---                                   , Node 3 []
---                                   , Node 4 [] ]
---                          , Node 3 []
---                          , Node 4 [] ]
---                 , Node 3 []
---                 , Node 4 [] ]
+aTree :: Tree Int
+aTree = Node 0 [ Node 0 []
+               , Node 1 []
+               , Node 2 [] ]
+--                        [ Node 0 []
+--                        , Node 1 []
+--                        , Node 2 [ Node 0 []
+--                                 , Node 1 []
+--                                 , Node 2 []
+--                                 , Node 3 []
+--                                 , Node 4 [] ]
+--                        , Node 3 []
+--                        , Node 4 [] ]
+--               , Node 3 []
+--               , Node 4 [] ]
 
 app :: B.App St e Path
 app = B.App
@@ -127,6 +133,8 @@ appDraw st =
 
 -- | Ignore the list; this app needs cursor locations to be in a tree (or
 -- maybe a map, keys of which are first drawn from a tree in the `St`).
+--
+-- Broken. Lifted with little understanding from Bricks.Widgets.Edit.
 appChooseCursor ::
   St -> [B.CursorLocation Path] -> Maybe (B.CursorLocation Path)
 appChooseCursor st _ = let
@@ -143,17 +151,17 @@ appHandleEvent ::
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [] -> B.halt st
   B.EvKey (B.KChar 'l') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.firstChild w
+    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.firstChild w
   B.EvKey (B.KChar 'k') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.next w
+    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.next w
   B.EvKey (B.KChar 'K') [B.MMeta] ->
-    B.continue $ st & windows %~ lastFull
+    B.continue $ reFocus $ st & windows %~ lastFull
   B.EvKey (B.KChar 'i') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.prev w
+    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.prev w
   B.EvKey (B.KChar 'I') [B.MMeta] ->
-    B.continue $ st & windows %~ firstFull
+    B.continue $ reFocus $ st & windows %~ firstFull
   B.EvKey (B.KChar 'j') [B.MMeta] ->
-    B.continue $ st & windows %~ \w -> maybe w id $ Z.parent w
+    B.continue $ reFocus $ st & windows %~ \w -> maybe w id $ Z.parent w
   _ -> B.continue =<< B.handleEventLensed st
    (windows . zLabel . windowEd) B.handleEditorEvent ev
 appHandleEvent st _ = B.continue st
