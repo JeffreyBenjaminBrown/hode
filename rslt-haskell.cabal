@@ -67,7 +67,6 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , ScrollNest.Vector
                 , ScrollNest.Zipper
                 , UI.Clipboard
                 , UI.IParse

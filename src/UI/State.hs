@@ -14,9 +14,9 @@ import qualified Data.Map as M
 import qualified Data.Text.Zipper.Generic as Z
 
 import qualified Brick.Main as B
-import qualified Brick.Focus as BF
-import qualified Brick.Types as BT
-import qualified Brick.Widgets.Edit as BE
+import qualified Brick.Focus as B
+import qualified Brick.Types as B
+import qualified Brick.Widgets.Edit as B
 
 import Hash.HLookup
 import Qseq.QTypes
@@ -32,33 +32,32 @@ import Util.Misc
 
 initialState :: Rslt -> St
 initialState r = St {
-    _focusRing = BF.focusRing [Commands, Results]
-      -- Almost always (for safety), Results is listed first,
-      -- but we want focus to start on the Commands window.
-  , _results   = BE.editor Results Nothing "" -- Maybe : line number limit
-  , _commands  = BE.editor Commands Nothing ""
+    _focusRing = B.focusRing [Commands, Results]
+      -- Almost always (for safety), Results is listed first. Not so here,
+      -- because we want focus to start on the Commands window.
+  , _results   = B.editor Results Nothing "" -- Maybe : line number limit
+  , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
-  , _history   = []
   }
 
 
-focusedWindow :: St -> BE.Editor String Name
+focusedWindow :: St -> B.Editor String Name
 focusedWindow st = let
   err = error "focusedWindow: impossible."
   f = \case Results -> st ^. results
             Commands -> st ^. commands
   in maybe err f
-     $ BF.focusGetCurrent
+     $ B.focusGetCurrent
      $ st ^. focusRing
 
 editor_replaceText ::
-  Lens' St (BE.Editor String Name) -> [String] -> (St -> St)
+  Lens' St (B.Editor String Name) -> [String] -> (St -> St)
 editor_replaceText windowGetter ss =
-  windowGetter . BE.editContentsL .~ Z.textZipper ss Nothing
+  windowGetter . B.editContentsL .~ Z.textZipper ss Nothing
 
-parseAndRunCommand :: St -> BT.EventM Name (BT.Next St)
+parseAndRunCommand :: St -> B.EventM Name (B.Next St)
 parseAndRunCommand st =
-  let cmd = unlines $ BE.getEditContents $ st ^. commands
+  let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
     Left s1  -> B.continue $ editor_replaceText results (lines s1) st
     Right c -> case runCommand c st of
@@ -66,10 +65,10 @@ parseAndRunCommand st =
       Right st' -> st'
 
 
-runCommand :: Command -> St -> Either String (BT.EventM Name (BT.Next St))
+runCommand :: Command -> St -> Either String (B.EventM Name (B.Next St))
 runCommand (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
-  where f :: (Rslt, Addr) -> BT.EventM Name (BT.Next St)
+  where f :: (Rslt, Addr) -> B.EventM Name (B.Next St)
         f (r,_) = B.continue $ st & appRslt .~ r
 
 runCommand (CommandFind h) st = do

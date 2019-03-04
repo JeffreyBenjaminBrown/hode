@@ -9,14 +9,14 @@ import           Control.Monad.IO.Class (liftIO)
 import           Lens.Micro
 
 import qualified Brick.Main as B
-import qualified Brick.Types as T
+import qualified Brick.Types as B
 import           Brick.Widgets.Core
-import qualified Brick.Widgets.Center as C
-import qualified Brick.Widgets.Edit as E
-import qualified Brick.AttrMap as A
-import qualified Brick.Focus as F
+import qualified Brick.Widgets.Center as B
+import qualified Brick.Widgets.Edit as B
+import qualified Brick.AttrMap as B
+import qualified Brick.Focus as B
 import           Brick.Util (on)
-import qualified Graphics.Vty as V
+import qualified Graphics.Vty as B
 
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
@@ -25,47 +25,47 @@ import UI.ITypes
 import UI.State
 
 
-appDraw :: St -> [T.Widget Name]
+appDraw :: St -> [B.Widget Name]
 appDraw st = [w] where
-  resultWindow = F.withFocusRing (st^.focusRing)
-    (E.renderEditor (str . unlines)) (st^.results)
-  commandWindow = F.withFocusRing (st^.focusRing)
-    (E.renderEditor (str . unlines)) (st^.commands)
-  w = C.center
+  resultWindow = B.withFocusRing (st^.focusRing)
+    (B.renderEditor (str . unlines)) (st^.results)
+  commandWindow = B.withFocusRing (st^.focusRing)
+    (B.renderEditor (str . unlines)) (st^.commands)
+  w = B.center
     $ resultWindow <=> vLimit 3 commandWindow
 
 appHandleEvent ::
-  St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
-appHandleEvent st (T.VtyEvent ev) = case ev of
-  V.EvKey V.KEsc []         -> B.halt st
-  V.EvKey (V.KChar '\t') [] -> B.continue $ st & focusRing %~ F.focusNext
-  V.EvKey V.KBackTab []     -> B.continue $ st & focusRing %~ F.focusPrev
+  St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
+appHandleEvent st (B.VtyEvent ev) = case ev of
+  B.EvKey B.KEsc []         -> B.halt st
+  B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
+  B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  V.EvKey (V.KChar 'w') [V.MMeta] -> -- copy focused window to clipboard
-    liftIO ( toClipboard $ unlines $ E.getEditContents $ focusedWindow st )
+  B.EvKey (B.KChar 'w') [B.MMeta] -> -- copy focused window to clipboard
+    liftIO ( toClipboard $ unlines $ B.getEditContents $ focusedWindow st )
     >> B.continue st
-  V.EvKey (V.KChar 'k') [V.MMeta] -> -- empty the commands window
+  B.EvKey (B.KChar 'k') [B.MMeta] -> -- empty the commands window
     B.continue $ editor_replaceText commands [] st
 
-  V.EvKey (V.KChar 'x') [V.MMeta] -> parseAndRunCommand st
+  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
-  _ -> B.continue =<< case F.focusGetCurrent (st^.focusRing) of
-    Just Results -> T.handleEventLensed
-      st results E.handleEditorEvent ev
-    Just Commands -> T.handleEventLensed
-      st commands E.handleEditorEvent ev
+  _ -> B.continue =<< case B.focusGetCurrent (st^.focusRing) of
+    Just Results -> B.handleEventLensed
+      st results B.handleEditorEvent ev
+    Just Commands -> B.handleEventLensed
+      st commands B.handleEditorEvent ev
     Nothing -> return st
 appHandleEvent st _ = B.continue st
 
-appAttrMap :: A.AttrMap
-appAttrMap = A.attrMap V.defAttr
-    [ (E.editAttr,        V.white `on` V.blue)
-    , (E.editFocusedAttr, V.black `on` V.yellow)
+appAttrMap :: B.AttrMap
+appAttrMap = B.attrMap B.defAttr
+    [ (B.editAttr,        B.white `on` B.blue)
+    , (B.editFocusedAttr, B.black `on` B.yellow)
     ]
 
 appChooseCursor ::
-  St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
-appChooseCursor = F.focusRingCursor (^.focusRing)
+  St -> [B.CursorLocation Name] -> Maybe (B.CursorLocation Name)
+appChooseCursor = B.focusRingCursor (^.focusRing)
 
 app :: B.App St e Name
 app = B.App

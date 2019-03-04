@@ -9,9 +9,7 @@ module ScrollNest.Zipper (scrollNest_main) where
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe
 import           Data.Tree (Tree(Node))
-import qualified Data.Tree as T
 import qualified Data.Text.Zipper as TextZ hiding ( textZipper )
-import qualified Data.Text.Zipper.Generic as TextZ
 import           Data.Tree.Zipper (TreePos, Full)
 import qualified Data.Tree.Zipper as Z
 import           Lens.Micro
@@ -20,14 +18,13 @@ import           Lens.Micro.TH
 import qualified Brick.Main as B
 import qualified Brick.Types as B
 import           Brick.Widgets.Core
-import qualified Brick.Widgets.Center as B
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.AttrMap as B
-import qualified Brick.Focus as B
 import           Brick.Util (on)
 import qualified Graphics.Vty as B
 
 import UI.Clipboard (toClipboard)
+
 
 -- | = Types
 

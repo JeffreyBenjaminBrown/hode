@@ -4,8 +4,8 @@ module UI.ITypes where
 
 import           Lens.Micro.TH
 
-import qualified Brick.Widgets.Edit as E
-import qualified Brick.Focus as F
+import qualified Brick.Widgets.Edit as B
+import qualified Brick.Focus as B
 
 import Hash.HTypes
 import Rslt.RTypes
@@ -15,11 +15,10 @@ data Name = Results | Commands
   deriving (Ord, Show, Eq)
 
 data St = St {
-    _focusRing :: F.FocusRing Name
-  , _results   :: E.Editor String Name
-  , _commands  :: E.Editor String Name
+    _focusRing :: B.FocusRing Name
+  , _results   :: B.Editor String Name
+  , _commands  :: B.Editor String Name
   , _appRslt   :: Rslt
-  , _history   :: [HExpr]
   }
 
 makeLenses ''St

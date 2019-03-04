@@ -5,8 +5,6 @@
 
 module ScrollNest.Vector (fromTree) where
 
-import           Control.Monad.IO.Class (liftIO)
-import           Data.Maybe
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
 import           Lens.Micro
@@ -15,10 +13,8 @@ import           Lens.Micro.TH
 import qualified Brick.Main as B
 import qualified Brick.Types as B
 import           Brick.Widgets.Core
-import qualified Brick.Widgets.Center as B
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.AttrMap as B
-import qualified Brick.Focus as B
 import           Brick.Util (on)
 import qualified Graphics.Vty as B
 
