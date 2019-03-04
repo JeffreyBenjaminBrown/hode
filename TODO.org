@@ -33,7 +33,8 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** thinking
+** wrap a string + vertical limit
+** overview
 *** absolute and relative queries
 There will be nested "results" windows. Each time you issue a "global" query -- a /find command written into the Command window -- it should create a Results object containing the query (as text, to show, and maybe also as hexpr) and a window full of its results. Those results each start off as a ResultLeaf.
 
@@ -50,13 +51,25 @@ Every template such that the center appears in at least one relationship using t
 **** an Expr result
 **** a Tplt result
 These have to know what center they were queried from. That way they can be unfolded to show only rels involving that center.
+** data types
+data VQuery = VQuery { -- "V" to distinguish it from Qseq.Query
+    vQueryString :: String
+  , vQueryResults :: QueryResults }
+
+data QueryResult = QueryResult {
+    resultExpr :: Expr
+  , subQueries :: [ VQuery ] }
+
+data View = View {
+    viewQuery :: VQuery
+  , folded :: Bool }
 ** capabilities
 *** Every relationship involving _
- Grouped by template.
+Grouped by template.
 *** members of
- "_ is a member of _" is a "synthetic" template. There might be others.
-*** nested unfolding
- First show all the templates of Rels involving some root Expr.
+"_ is a member of _" is a "synthetic" template. There might be others.
+*** show path to here
+It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
 *** view-root the Expr at point
  It should stay at the top line, while its members if many scroll through a window below it.
 *** buffer list
