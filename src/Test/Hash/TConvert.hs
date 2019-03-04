@@ -23,7 +23,7 @@ test_module_hash_convert = TestList [
 --test_pathsToIts_pExpr :: Test
 --test_pathsToIts_pExpr = TestCase $ do
 --  assertBool "1" $ pathsToIts_pExpr
-    
+
 
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do

@@ -82,7 +82,7 @@ data Quantifier e sp =
   -- ^ The `_conditions` field lets you narrow the possibilities considered.
   -- Rather than requiring all x to satisfy z, you might want to require
   -- the less strict condition that all x which satisfy y satisfy z.
-  --  In that case, you would put y in the `conditions` field. 
+  --  In that case, you would put y in the `conditions` field.
   -- TODO : the `_conditions` list is currently treated like an And.
   -- It ought simply to be a (`varTestLike`) `Query`, not a list of them.
   | ForSome { name :: Var, source :: Var , goal :: Query e sp }

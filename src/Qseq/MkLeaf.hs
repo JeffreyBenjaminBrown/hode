@@ -58,7 +58,7 @@ mkVTestIO iVar oVar = VarTest go deps where
 -- that the name used (i.e. the `Var`) in the `Subst` might differ from
 -- the corresponding name in the `Possible`.
 --
--- PITFALL : mkVTestIO' : naming error => silent failure 
+-- PITFALL : mkVTestIO' : naming error => silent failure
 -- inPossible is the name used as an input to oInPossible;
 -- it is not (at least in general) itself a key to the Possible.
 --

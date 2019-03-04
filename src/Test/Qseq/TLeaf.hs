@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 module Test.Qseq.TLeaf where
- 
+
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 import qualified Test.HUnit     as T

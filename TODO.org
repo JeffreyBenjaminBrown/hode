@@ -32,9 +32,6 @@ see the comment leading its definition
 ** paragraphs
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
-** show Addrs of subExprs
-** a way to search for everything something is in
-as a Member or as anything
 * TODO crawling
 ** Every relationship involving _
 Grouped by template.
