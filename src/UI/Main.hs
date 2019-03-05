@@ -27,12 +27,16 @@ import UI.State
 
 appDraw :: St -> [B.Widget Name]
 appDraw st = [w] where
-  resultWindow = B.withFocusRing (st^.focusRing)
-    (B.renderEditor (str . unlines)) (st^.results)
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
   w = B.center
-    $ resultWindow <=> vLimit 3 commandWindow
+    $ outputWindow st <=> vLimit 3 commandWindow
+
+outputWindow :: St -> B.Widget Name
+outputWindow st = case st ^. showingThing of
+  ShowingError -> strWrap $ st ^. uiError
+  ShowingResults -> B.withFocusRing (st^.focusRing)
+    (B.renderEditor $ str . unlines) (st^.results)
 
 appHandleEvent ::
   St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)

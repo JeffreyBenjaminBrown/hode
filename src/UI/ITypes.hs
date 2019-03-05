@@ -2,7 +2,7 @@
 
 module UI.ITypes where
 
-import qualified Data.Map as M
+--import qualified Data.Map as M
 import           Data.Map (Map)
 import           Data.Vector (Vector)
 import           Lens.Micro.TH
