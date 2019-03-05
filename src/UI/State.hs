@@ -40,8 +40,10 @@ initialState r = St {
   , _results   = B.editor Results Nothing "" -- Maybe : line number limit
   , _results'  = VQuery { _vQueryString = ""
                         , _vQueryResults = M.empty }
+  , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
+  , _showingThing = ShowingResults
   }
 
 focusedWindow :: St -> B.Editor String Name

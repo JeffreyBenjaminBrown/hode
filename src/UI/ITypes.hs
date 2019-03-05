@@ -18,12 +18,16 @@ data Name = Results | Commands
   deriving (Ord, Show, Eq)
 
 data St = St {
-    _focusRing :: B.FocusRing Name
-  , _results   :: B.Editor String Name
-  , _results'  :: VQuery
-  , _commands  :: B.Editor String Name
-  , _appRslt   :: Rslt
+    _focusRing    :: B.FocusRing Name
+  , _results      :: B.Editor String Name
+  , _results'     :: VQuery
+  , _uiError      :: String
+  , _commands     :: B.Editor String Name
+  , _appRslt      :: Rslt
+  , _showingThing :: ShowingThing
   }
+
+data ShowingThing = ShowingError | ShowingResults
 
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
     _vQueryString :: String

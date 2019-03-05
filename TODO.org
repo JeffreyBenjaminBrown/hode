@@ -33,7 +33,8 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** thinking
+** next steps
+*** show errors in a separate strWrap widget
 *** replace: focusedWindow :: St -> B.Editor String Name
 `focusedWindow` is only called once, to determine which box to copy text form.
 Replace it with "focusedText".
