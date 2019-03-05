@@ -9,6 +9,8 @@ import           Lens.Micro
 import           Data.Set (Set)
 import           Data.Map (Map)
 import qualified Data.Map as M
+--import           Data.Vector (Vector)
+import qualified Data.Vector as V
 
 --import qualified Data.Text.Zipper as Z hiding ( textZipper )
 import qualified Data.Text.Zipper.Generic as Z
@@ -36,6 +38,8 @@ initialState r = St {
       -- Almost always (for safety), Results is listed first. Not so here,
       -- because we want focus to start on the Commands window.
   , _results   = B.editor Results Nothing "" -- Maybe : line number limit
+  , _results'  = VQuery { _vQueryString = ""
+                        , _vQueryResults = V.empty }
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
   }

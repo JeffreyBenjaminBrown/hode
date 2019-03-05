@@ -33,7 +33,6 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** wrap a string: Brick.Widgets.Core.strWrap
 ** overview
 *** absolute and relative queries
 There will be nested "results" windows. Each time you issue a "global" query -- a /find command written into the Command window -- it should create a Results object containing the query (as text, to show, and maybe also as hexpr) and a window full of its results. Those results each start off as a ResultLeaf.
@@ -52,6 +51,7 @@ Every template such that the center appears in at least one relationship using t
 **** a Tplt result
 These have to know what center they were queried from. That way they can be unfolded to show only rels involving that center.
 ** data types
+*** implementing now
 data VQuery = VQuery { -- "V" to distinguish it from Qseq.Query
     vQueryString :: String
   , vQueryResults :: QueryResults }
@@ -59,7 +59,7 @@ data VQuery = VQuery { -- "V" to distinguish it from Qseq.Query
 data QueryResult = QueryResult {
     resultExpr :: Expr
   , subQueries :: [ VQuery ] }
-
+*** yet to implement
 data View = View {
     viewQuery :: VQuery
   , folded :: Bool }
@@ -74,6 +74,7 @@ It could be that the buffer has a lot of text, and the context leading to the cu
  It should stay at the top line, while its members if many scroll through a window below it.
 *** buffer list
  Later, a buffer tree.
+** wrap a string: Brick.Widgets.Core.strWrap
 * TODO UI
 ** TODO record, show command history
 ** better UI messaging
