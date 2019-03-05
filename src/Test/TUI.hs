@@ -23,9 +23,9 @@ test_pCommand = TestCase $ do
     "/add done told ya once "
     == Right ( CommandInsert $ Phrase "done told ya once" )
 
-  assertBool "1" $ pCommand (error "irrelevant")
-    "/find done told ya once"
-    == Right ( CommandFind $ HExpr $ Phrase "done told ya once" )
+  assertBool "1" $ let s = "done told ya once"
+    in pCommand (error "irrelevant") ("/find " ++ s)
+    == Right ( CommandFind s $ HExpr $ Phrase "done told ya once" )
 
   assertBool "1" $ pCommand (error "irrelevant")
     "/load somewhere/over/the/rainbow.exe"

@@ -39,11 +39,10 @@ initialState r = St {
       -- because we want focus to start on the Commands window.
   , _results   = B.editor Results Nothing "" -- Maybe : line number limit
   , _results'  = VQuery { _vQueryString = ""
-                        , _vQueryResults = V.empty }
+                        , _vQueryResults = M.empty }
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
   }
-
 
 focusedWindow :: St -> B.Editor String Name
 focusedWindow st = let
@@ -68,14 +67,13 @@ parseAndRunCommand st =
       Left s2 -> B.continue $ editor_replaceText results (lines s2) st
       Right st' -> st'
 
-
 runCommand :: Command -> St -> Either String (B.EventM Name (B.Next St))
 runCommand (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
   where f :: (Rslt, Addr) -> B.EventM Name (B.Next St)
         f (r,_) = B.continue $ st & appRslt .~ r
 
-runCommand (CommandFind h) st = do
+runCommand (CommandFind s h) st = do
   let r = st ^. appRslt
       title = "runCommand, called on CommandFind"
 
@@ -87,8 +85,20 @@ runCommand (CommandFind h) st = do
     $ M.map (eShow r) es
   let (ss1 :: [String]) = map f $ M.toList ss where
         f (addr,expr) = show addr ++ ": " ++ expr
+
+  let qr (a :: Addr) = QueryResult { _resultExpr = (M.!) es a
+                                   , _resultString = (M.!) ss a
+                                   , _subQueries = V.empty }
+      vq = VQuery { _vQueryString = s
+                  , _vQueryResults = let
+                      f :: Addr -> a -> QueryResult
+                      f k _ = qr k
+                    in M.mapWithKey f es }
+
   Right $ B.continue
-    $ editor_replaceText results ss1 st
+    $ editor_replaceText results ss1
+    $ results' .~ vq
+    $ st
 
 runCommand (CommandLoad f) st =
   Right $ do r <- liftIO $ readRslt f

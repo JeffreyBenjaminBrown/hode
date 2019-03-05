@@ -52,7 +52,7 @@ pCommand_find s = do
   let e2 = case pathsToIts_pExpr e1 of
              [] -> e1
              _ -> PEval e1
-  CommandFind <$> pExprToHExpr e2
+  CommandFind s <$> pExprToHExpr e2
 
 pCommand_load :: String -> Either String Command
 pCommand_load s = CommandLoad <$>

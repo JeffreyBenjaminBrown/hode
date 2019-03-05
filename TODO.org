@@ -33,6 +33,14 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
+** thinking
+*** replace: focusedWindow :: St -> B.Editor String Name
+`focusedWindow` is only called once, to determine which box to copy text form.
+Replace it with "focusedText".
+*** sometimes the View just shows an error
+see `parseAndRunCommand`
+*** `editor_replaceText` is mostly used to replace the Results window
+Except for one shortcut, where it empties the Commands window.
 ** overview
 *** absolute and relative queries
 There will be nested "results" windows. Each time you issue a "global" query -- a /find command written into the Command window -- it should create a Results object containing the query (as text, to show, and maybe also as hexpr) and a window full of its results. Those results each start off as a ResultLeaf.

@@ -2,6 +2,8 @@
 
 module UI.ITypes where
 
+import qualified Data.Map as M
+import           Data.Map (Map)
 import           Data.Vector (Vector)
 import           Lens.Micro.TH
 
@@ -25,16 +27,17 @@ data St = St {
 
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
     _vQueryString :: String
-  , _vQueryResults :: Vector QueryResult }
+  , _vQueryResults :: Map Addr QueryResult }
 
 data QueryResult = QueryResult {
     _resultExpr :: Expr
+  , _resultString :: String
   , _subQueries :: Vector VQuery }
 
 type Folder = String
 
 data Command = CommandInsert Expr
-             | CommandFind HExpr
+             | CommandFind String HExpr
              | CommandLoad Folder
              | CommandSave Folder
              deriving (Show, Eq, Ord)
