@@ -19,7 +19,6 @@ data Name = Results | Commands
 
 data St = St {
     _focusRing    :: B.FocusRing Name
-  , _results      :: B.Editor String Name
   , _results'     :: VQuery
   , _uiError      :: String
   , _commands     :: B.Editor String Name

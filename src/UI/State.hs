@@ -37,7 +37,6 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so here,
       -- because we want focus to start on the Commands window.
-  , _results   = B.editor Results Nothing "" -- Maybe : line number limit
   , _results'  = VQuery { _vQueryString = ""
                         , _vQueryResults = M.empty }
   , _uiError   = ""
@@ -62,19 +61,9 @@ results'Text st = showVq 0 $ st ^. results' where
     indent i (show a ++ ": " ++ show (qr ^. resultString))
     : concatMap (showVq $ i+2) (V.toList $ qr ^. subQueries)
 
-focusedWindow :: St -> B.Editor String Name
-focusedWindow st = let
-  err = error "focusedWindow: impossible."
-  f = \case Results -> st ^. results
-            Commands -> st ^. commands
-  in maybe err f
-     $ B.focusGetCurrent
-     $ st ^. focusRing
-
-editor_replaceText ::
-  Lens' St (B.Editor String Name) -> [String] -> (St -> St)
-editor_replaceText windowGetter ss =
-  windowGetter . B.editContentsL .~ Z.textZipper ss Nothing
+emptyCommandWindow :: St -> St
+emptyCommandWindow = commands . B.editContentsL
+                     .~ Z.textZipper [] Nothing
 
 parseAndRunCommand :: St -> B.EventM Name (B.Next St)
 parseAndRunCommand st =
@@ -110,23 +99,18 @@ runCommand (CommandFind s h) st = do
     $ M.fromSet (addrToExpr r) as
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
-  let (ss1 :: [String]) = map f $ M.toList ss where
-        f (addr,expr) = show addr ++ ": " ++ expr
 
-  let qr (a :: Addr) = QueryResult { _resultExpr = (M.!) es a
-                                   , _resultString = (M.!) ss a
-                                   , _subQueries = V.empty }
-      vq = VQuery { _vQueryString = s
-                  , _vQueryResults = let
-                      f :: Addr -> a -> QueryResult
-                      f k _ = qr k
-                    in M.mapWithKey f es }
+  let vq = VQuery { _vQueryString = s
+                  , _vQueryResults = let f addr _ = qr addr
+                                     in M.mapWithKey f es }
+           where  qr a = QueryResult {
+                      _resultExpr = (M.!) es a
+                    , _resultString = (M.!) ss a
+                    , _subQueries = V.empty }
 
-  Right $ B.continue
-    $ editor_replaceText results ss1
-    $ results' .~ vq
-    $ showingThing .~ ShowingResults
-    $ st
+  Right $ B.continue $ st
+    & results' .~ vq
+    & showingThing .~ ShowingResults
 
 runCommand (CommandLoad f) st =
   Right $ do r <- liftIO $ readRslt f

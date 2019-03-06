@@ -51,23 +51,19 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  B.EvKey (B.KChar 'w') [B.MMeta] -> -- copy focused window to clipboard
-    liftIO ( toClipboard $ unlines $ B.getEditContents $ focusedWindow st )
-    >> B.continue st
   B.EvKey (B.KChar 'r') [B.MMeta] -> -- copy results
+    -- TODO : slightly buggy: generates an empty line.
     liftIO ( toClipboard $ unlines $ results'Text st )
     >> B.continue st
   B.EvKey (B.KChar 'k') [B.MMeta] -> -- empty the commands window
-    B.continue $ editor_replaceText commands [] st
+    B.continue $ emptyCommandWindow st
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
   _ -> B.continue =<< case B.focusGetCurrent (st^.focusRing) of
-    Just Results -> B.handleEventLensed
-      st results B.handleEditorEvent ev
     Just Commands -> B.handleEventLensed
       st commands B.handleEditorEvent ev
-    Nothing -> return st
+    _ -> return st
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap

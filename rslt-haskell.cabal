@@ -28,7 +28,7 @@ source-repository head
 library
   exposed-modules:
                   Data.Graph
-                , Data.Relation
+--                , Data.Relation
                 , Hash.Convert
                 , Hash.EitherExpr
                 , Hash.Hash
