@@ -54,6 +54,9 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'w') [B.MMeta] -> -- copy focused window to clipboard
     liftIO ( toClipboard $ unlines $ B.getEditContents $ focusedWindow st )
     >> B.continue st
+  B.EvKey (B.KChar 'r') [B.MMeta] -> -- copy results
+    liftIO ( toClipboard $ unlines $ results'Text st )
+    >> B.continue st
   B.EvKey (B.KChar 'k') [B.MMeta] -> -- empty the commands window
     B.continue $ editor_replaceText commands [] st
 

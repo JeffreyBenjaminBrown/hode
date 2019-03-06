@@ -46,6 +46,22 @@ initialState r = St {
   , _showingThing = ShowingResults
   }
 
+results'Text :: St -> [String]
+results'Text st = showVq 0 $ st ^. results' where
+
+  indent :: Int -> String -> String
+  indent i s = replicate (2*i) ' ' ++ s
+
+  showVq :: Int -> VQuery -> [String]
+  showVq i vq =
+    indent i (vq ^. vQueryString)
+    : concatMap (showQR $ i+2) (M.toList $ vq ^. vQueryResults)
+
+  showQR :: Int -> (Addr,QueryResult) -> [String]
+  showQR i (a,qr) =
+    indent i (show a ++ ": " ++ show (qr ^. resultString))
+    : concatMap (showVq $ i+2) (V.toList $ qr ^. subQueries)
+
 focusedWindow :: St -> B.Editor String Name
 focusedWindow st = let
   err = error "focusedWindow: impossible."
