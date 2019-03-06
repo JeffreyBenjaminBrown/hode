@@ -37,7 +37,7 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so here,
       -- because we want focus to start on the Commands window.
-  , _results'  = VQuery { _vQueryString = ""
+  , _results  = VQuery { _vQueryString = ""
                         , _vQueryResults = M.empty }
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
@@ -45,8 +45,8 @@ initialState r = St {
   , _showingThing = ShowingResults
   }
 
-results'Text :: St -> [String]
-results'Text st = showVq 0 $ st ^. results' where
+resultsText :: St -> [String]
+resultsText st = showVq 0 $ st ^. results where
 
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
@@ -109,7 +109,7 @@ runCommand (CommandFind s h) st = do
                     , _subQueries = V.empty }
 
   Right $ B.continue $ st
-    & results' .~ vq
+    & results .~ vq
     & showingThing .~ ShowingResults
 
 runCommand (CommandLoad f) st =

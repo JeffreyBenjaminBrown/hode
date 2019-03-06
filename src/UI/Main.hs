@@ -34,9 +34,9 @@ appDraw st = [w] where
   outputWindow, commandWindow :: B.Widget Name
   outputWindow = case st ^. showingThing of
     ShowingError -> strWrap $ st ^. uiError
-    ShowingResults -> strWrap (st ^. results' . vQueryString)
+    ShowingResults -> strWrap (st ^. results . vQueryString)
       <=> padLeft (B.Pad 2) ( vBox $ map f $ M.toList
-                              $ st ^. results' . vQueryResults )
+                              $ st ^. results . vQueryResults )
       where f :: (Addr, QueryResult) -> B.Widget Name
             f (a,qr) = strWrap
               $ show a ++ ": " ++ show (qr ^. resultString)
@@ -51,11 +51,11 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  B.EvKey (B.KChar 'r') [B.MMeta] -> -- copy results
+  B.EvKey (B.KChar 'r') [B.MMeta] ->
     -- TODO : slightly buggy: generates an empty line.
-    liftIO ( toClipboard $ unlines $ results'Text st )
+    liftIO ( toClipboard $ unlines $ resultsText st )
     >> B.continue st
-  B.EvKey (B.KChar 'k') [B.MMeta] -> -- empty the commands window
+  B.EvKey (B.KChar 'k') [B.MMeta] ->
     B.continue $ emptyCommandWindow st
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
