@@ -6,6 +6,7 @@
 module UI.Main where
 
 import           Control.Monad.IO.Class (liftIO)
+import qualified Data.Map as M
 import           Lens.Micro
 
 import qualified Brick.Main as B
@@ -27,16 +28,21 @@ import UI.State
 
 appDraw :: St -> [B.Widget Name]
 appDraw st = [w] where
+  w = B.center
+    $ outputWindow <=> vLimit 3 commandWindow
+
+  outputWindow, commandWindow :: B.Widget Name
+  outputWindow = case st ^. showingThing of
+    ShowingError -> strWrap $ st ^. uiError
+    ShowingResults -> strWrap (st ^. results' . vQueryString)
+      <=> padLeft (B.Pad 2) ( vBox $ map f $ M.toList
+                              $ st ^. results' . vQueryResults )
+      where f :: (Addr, QueryResult) -> B.Widget Name
+            f (a,qr) = strWrap
+              $ show a ++ ": " ++ show (qr ^. resultString)
+
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
-  w = B.center
-    $ outputWindow st <=> vLimit 3 commandWindow
-
-outputWindow :: St -> B.Widget Name
-outputWindow st = case st ^. showingThing of
-  ShowingError -> strWrap $ st ^. uiError
-  ShowingResults -> B.withFocusRing (st^.focusRing)
-    (B.renderEditor $ str . unlines) (st^.results)
 
 appHandleEvent ::
   St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)

@@ -34,12 +34,9 @@ see the comment leading its definition
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** next steps
-*** show errors in a separate strWrap widget
 *** replace: focusedWindow :: St -> B.Editor String Name
 `focusedWindow` is only called once, to determine which box to copy text form.
 Replace it with "focusedText".
-*** sometimes the View just shows an error
-see `parseAndRunCommand`
 *** `editor_replaceText` is mostly used to replace the Results window
 Except for one shortcut, where it empties the Commands window.
 ** overview
@@ -83,7 +80,6 @@ It could be that the buffer has a lot of text, and the context leading to the cu
  It should stay at the top line, while its members if many scroll through a window below it.
 *** buffer list
  Later, a buffer tree.
-** wrap a string: Brick.Widgets.Core.strWrap
 * TODO UI
 ** TODO record, show command history
 ** better UI messaging
