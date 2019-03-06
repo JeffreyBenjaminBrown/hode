@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
                   Data.Graph
+                , Experim.MyFocus
 --                , Data.Relation
                 , Hash.Convert
                 , Hash.EitherExpr
@@ -97,6 +98,7 @@ library
               , text-zipper
               , vector
               , vty
+              , word-wrap
   default-language: Haskell2010
 
 --executable rslt-haskell-exe
