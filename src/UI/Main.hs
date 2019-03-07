@@ -1,6 +1,7 @@
 -- | Based on the demos in the programs/ folder of Brick,
 -- particularly `EditDemo.hs`.
 
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.Main where
@@ -34,12 +35,23 @@ appDraw st = [w] where
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. shownInResultsWindow of
     ShowingError -> strWrap $ st ^. uiError
-    ShowingResults -> strWrap (st ^. results . vQueryString)
-      <=> padLeft (B.Pad 2) ( vBox $ map f $ M.toList
+    ShowingResults ->
+      showQuery st
+      <=> padLeft (B.Pad 2) ( vBox $ map showResult $ M.toList
                               $ st ^. results . vQueryResults )
-      where f :: (Addr, QueryResult) -> B.Widget WindowName
-            f (a,qr) = strWrap
-              $ show a ++ ": " ++ show (qr ^. resultString)
+      where
+
+        showQuery :: St -> B.Widget WindowName
+        showQuery st0 = style $ strWrap $ vq ^. vQueryString where
+          (vq :: VQuery) = st0 ^. results
+          (isFocused :: Bool) = vq ^. vQueryName == st0 ^. focusedResult
+          style :: B.Widget WindowName -> B.Widget WindowName
+          style = if not isFocused then id
+                  else withAttr (B.attrName "focused result")
+
+        showResult :: (Addr, QueryResult) -> B.Widget WindowName
+        showResult (a,qr) = strWrap
+          $ show a ++ ": " ++ show (qr ^. resultString)
 
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
@@ -52,7 +64,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   B.EvKey (B.KChar 'r') [B.MMeta] ->
-    -- TODO : slightly buggy: generates an empty line.
+    -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
     >> B.continue st
   B.EvKey (B.KChar 'k') [B.MMeta] ->
@@ -61,15 +73,16 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
   _ -> B.continue =<< case B.focusGetCurrent (st^.focusRing) of
-    Just Commands -> B.handleEventLensed
+    Just Commands -> B.handleEventLensed 
       st commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
 appAttrMap = B.attrMap B.defAttr
-    [ (B.editAttr,        B.white `on` B.blue)
-    , (B.editFocusedAttr, B.black `on` B.yellow)
+    [ (B.editAttr                  , B.white `on` B.blue)
+    , (B.editFocusedAttr           , B.black `on` B.yellow)
+    , (B.attrName "focused result" , B.black `on` B.green)
     ]
 
 appChooseCursor ::

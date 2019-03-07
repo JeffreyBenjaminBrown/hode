@@ -34,11 +34,12 @@ type Folder = String
 -- | = meatier types
 
 data St = St {
-    _focusRing :: B.FocusRing WindowName
-  , _results   :: VQuery
-  , _uiError   :: String
-  , _commands  :: B.Editor String WindowName
-  , _appRslt   :: Rslt
+    _focusRing            :: B.FocusRing WindowName
+  , _results              :: VQuery
+  , _focusedResult        :: SubviewPath
+  , _uiError              :: String
+  , _commands             :: B.Editor String WindowName
+  , _appRslt              :: Rslt
   , _shownInResultsWindow :: ShownInResultsWindow
   }
 

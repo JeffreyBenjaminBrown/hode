@@ -40,6 +40,7 @@ initialState r = St {
   , _results  = VQuery { _vQueryName = [SvQuery ""]
                        , _vQueryString = ""
                        , _vQueryResults = M.empty }
+  , _focusedResult = [SvQuery ""]
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
@@ -113,6 +114,7 @@ runCommand (CommandFind s h) st = do
                     , _subQueries = V.empty }
 
   Right $ B.continue $ st
+    & focusedResult .~ [SvQuery s]
     & results .~ vq
     & shownInResultsWindow .~ ShowingResults
 
