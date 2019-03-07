@@ -39,7 +39,7 @@ initialState r = St {
       -- because we want focus to start on the Commands window.
   , _results  = VQuery { _vQueryName = [SvQuery ""]
                        , _vQueryString = ""
-                       , _vQueryResults = M.empty }
+                       , _vQueryResults = V.empty }
   , _focusedResult = [SvQuery ""]
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
@@ -56,12 +56,12 @@ resultsText st = showVq 0 $ st ^. results where
   showVq :: Int -> VQuery -> [String]
   showVq i vq =
     indent i (vq ^. vQueryString)
-    : concatMap (showQR $ i+2) (M.toList $ vq ^. vQueryResults)
+    : concatMap (showQR $ i+2) (V.toList $ vq ^. vQueryResults)
 
-  showQR :: Int -> (Addr,QueryResult) -> [String]
-  showQR i (a,qr) =
-    indent i (show a ++ ": " ++ show (qr ^. resultString))
-    : concatMap (showVq $ i+2) (V.toList $ qr ^. subQueries)
+  showQR :: Int -> QueryResult -> [String]
+  showQR i qr = let a = qr ^. resultAddr
+    in indent i (show a ++ ": " ++ show (qr ^. resultString))
+       : concatMap (showVq $ i+2) (V.toList $ qr ^. subQueries)
 
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
@@ -103,15 +103,16 @@ runCommand (CommandFind s h) st = do
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
 
-  let vq = VQuery { _vQueryName = [SvQuery s]
+  let vq = VQuery { _vQueryName = []
                   , _vQueryString = s
                   , _vQueryResults = let f addr _ = qr addr
-                                     in M.mapWithKey f es }
-           where  qr a = QueryResult {
-                      _resultName = [SvQuery s, SvResult a]
-                    , _resultExpr = (M.!) es a
-                    , _resultString = (M.!) ss a
-                    , _subQueries = V.empty }
+                    in V.fromList $ M.elems $ M.mapWithKey f es }
+             where qr a = QueryResult {
+                       _resultPath = [SvQuery s]
+                     , _resultAddr = a
+                     , _resultExpr = (M.!) es a
+                     , _resultString = (M.!) ss a
+                     , _subQueries = V.empty }
 
   Right $ B.continue $ st
     & focusedResult .~ [SvQuery s]

@@ -44,12 +44,13 @@ data St = St {
   }
 
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
-    _vQueryName :: SubviewPath
+    _vQueryName :: SubviewPath -- ^ Path excluding the last (String) elt
   , _vQueryString :: String
-  , _vQueryResults :: Map Addr QueryResult }
+  , _vQueryResults :: Vector QueryResult }
 
 data QueryResult = QueryResult {
-    _resultName :: SubviewPath
+    _resultPath :: SubviewPath -- ^ Path excluding the last (Addr) elt
+  , _resultAddr :: Addr
   , _resultExpr :: Expr
   , _resultString :: String
   , _subQueries :: Vector VQuery }

@@ -7,7 +7,7 @@
 module UI.Main where
 
 import           Control.Monad.IO.Class (liftIO)
-import qualified Data.Map as M
+import qualified Data.Vector as V
 import           Lens.Micro
 
 import qualified Brick.Main as B
@@ -37,7 +37,7 @@ appDraw st = [w] where
     ShowingError -> strWrap $ st ^. uiError
     ShowingResults ->
       showQuery st
-      <=> padLeft (B.Pad 2) ( vBox $ map showResult $ M.toList
+      <=> padLeft (B.Pad 2) ( vBox $ map showResult $ V.toList
                               $ st ^. results . vQueryResults )
       where
 
@@ -49,9 +49,9 @@ appDraw st = [w] where
           style = if not isFocused then id
                   else withAttr (B.attrName "focused result")
 
-        showResult :: (Addr, QueryResult) -> B.Widget WindowName
-        showResult (a,qr) = strWrap
-          $ show a ++ ": " ++ show (qr ^. resultString)
+        showResult :: QueryResult -> B.Widget WindowName
+        showResult qr = strWrap $ show (qr ^. resultAddr)
+                        ++ ": " ++ show (qr ^. resultString)
 
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
