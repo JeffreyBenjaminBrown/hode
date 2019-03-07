@@ -14,8 +14,7 @@ import Rslt.RTypes
 
 -- | = Types used for names
 
-data WindowName = Results | Commands
-  deriving (Ord, Show, Eq)
+data WindowName = Results | Commands deriving (Ord, Show, Eq)
 
 -- | PITFALL: Permits invalid paths. A safer but more tedious path type
 -- would use two edge types, and a path could only start from a query,
@@ -35,7 +34,7 @@ type Folder = String
 data St = St {
     _focusRing            :: B.FocusRing WindowName
   , _results              :: VQuery
-  , _focusedResult        :: SubviewPath
+  , _focusedSubview       :: SubviewPath
   , _uiError              :: String
   , _commands             :: B.Editor String WindowName
   , _appRslt              :: Rslt
@@ -46,8 +45,10 @@ data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
     _vQueryPath :: SubviewPath -- ^ Path excluding the last (String) elt
   , _vQueryString :: String
   , _vQueryResults :: Vector QueryResult
+  , _focusedResult :: Int -- ^ index into the `Vector` of results
     -- TODO ? Zipper would be smaller, and would obviate the need to
     -- record focus as a separate field.
+    -- TODO ? ought to be a Maybe, since there might be no results yet.
   }
 
 data QueryResult = QueryResult {
@@ -56,6 +57,8 @@ data QueryResult = QueryResult {
   , _resultExpr :: Expr
   , _resultString :: String
   , _subQueries :: Vector VQuery
+  , _focusedSubQuery :: Int  -- ^ index into the `Vector` of sub-queries
+    -- TODO ? ought to be a Maybe, since there might be no sub-queries.
     -- TODO ? Zipper would be smaller, and would obviate the need to
     -- record focus as a separate field.
   }

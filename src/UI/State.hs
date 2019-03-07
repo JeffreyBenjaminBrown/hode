@@ -38,8 +38,10 @@ initialState r = St {
       -- because we want focus to start on the Commands window.
   , _results  = VQuery { _vQueryPath = [SvQuery ""]
                        , _vQueryString = ""
-                       , _vQueryResults = V.empty }
-  , _focusedResult = []
+                       , _vQueryResults = V.empty
+                       , _focusedResult = 0
+                       }
+  , _focusedSubview = []
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
@@ -47,11 +49,11 @@ initialState r = St {
   }
 
 vqIsFocused :: St -> VQuery -> Bool
-vqIsFocused st vq = (st ^. focusedResult) ==
+vqIsFocused st vq = (st ^. focusedSubview) ==
   (vq ^. vQueryPath) ++ [SvQuery $ vq ^. vQueryString]
 
 qrIsFocused :: St -> QueryResult -> Bool
-qrIsFocused st qr = (st ^. focusedResult) ==
+qrIsFocused st qr = (st ^. focusedSubview) ==
   (qr ^. resultPath) ++ [SvResult $ qr ^. resultAddr]
 
 resultsText :: St -> [String]
@@ -110,19 +112,25 @@ runCommand (CommandFind s h) st = do
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
 
-  let vq = VQuery { _vQueryPath = []
-                  , _vQueryString = s
-                  , _vQueryResults = let f addr _ = qr addr
-                    in V.fromList $ M.elems $ M.mapWithKey f es }
-             where qr a = QueryResult {
-                       _resultPath = [SvQuery s]
-                     , _resultAddr = a
-                     , _resultExpr = (M.!) es a
-                     , _resultString = (M.!) ss a
-                     , _subQueries = V.empty }
+  let vq = VQuery {
+          _vQueryPath = []
+        , _vQueryString = s
+        , _vQueryResults = let
+            f addr _ = qr addr where
+               qr a = QueryResult {
+                         _resultPath = [SvQuery s]
+                       , _resultAddr = a
+                       , _resultExpr = (M.!) es a
+                       , _resultString = (M.!) ss a
+                       , _subQueries = V.empty
+                       , _focusedSubQuery = 0
+                       }
+            in V.fromList $ M.elems $ M.mapWithKey f es
+        , _focusedResult = 0
+        }
 
   Right $ B.continue $ st
-    & focusedResult .~ [SvQuery s]
+    & focusedSubview .~ [SvQuery s]
     & results .~ vq
     & shownInResultsWindow .~ ShowingResults
 
