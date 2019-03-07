@@ -26,18 +26,18 @@ import UI.ITypes
 import UI.State
 
 
-appDraw :: St -> [B.Widget Name]
+appDraw :: St -> [B.Widget WindowName]
 appDraw st = [w] where
   w = B.center
     $ outputWindow <=> vLimit 3 commandWindow
 
-  outputWindow, commandWindow :: B.Widget Name
+  outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. showingThing of
     ShowingError -> strWrap $ st ^. uiError
     ShowingResults -> strWrap (st ^. results . vQueryString)
       <=> padLeft (B.Pad 2) ( vBox $ map f $ M.toList
                               $ st ^. results . vQueryResults )
-      where f :: (Addr, QueryResult) -> B.Widget Name
+      where f :: (Addr, QueryResult) -> B.Widget WindowName
             f (a,qr) = strWrap
               $ show a ++ ": " ++ show (qr ^. resultString)
 
@@ -45,7 +45,7 @@ appDraw st = [w] where
     (B.renderEditor (str . unlines)) (st^.commands)
 
 appHandleEvent ::
-  St -> B.BrickEvent Name e -> B.EventM Name (B.Next St)
+  St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc []         -> B.halt st
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
@@ -73,10 +73,10 @@ appAttrMap = B.attrMap B.defAttr
     ]
 
 appChooseCursor ::
-  St -> [B.CursorLocation Name] -> Maybe (B.CursorLocation Name)
+  St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
 appChooseCursor = B.focusRingCursor (^.focusRing)
 
-app :: B.App St e Name
+app :: B.App St e WindowName
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor

@@ -66,7 +66,7 @@ emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
                      .~ Z.textZipper [] Nothing
 
-parseAndRunCommand :: St -> B.EventM Name (B.Next St)
+parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
 parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
@@ -81,10 +81,10 @@ parseAndRunCommand st =
         $ st
       Right evNextSt -> evNextSt
 
-runCommand :: Command -> St -> Either String (B.EventM Name (B.Next St))
+runCommand :: Command -> St -> Either String (B.EventM WindowName (B.Next St))
 runCommand (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
-  where f :: (Rslt, Addr) -> B.EventM Name (B.Next St)
+  where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
         f (r,_) = B.continue
           $ appRslt .~ r
           $ showingThing .~ ShowingResults

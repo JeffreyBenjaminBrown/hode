@@ -13,7 +13,7 @@ import Hash.HTypes
 import Rslt.RTypes
 
 
-data Name = Results | Commands
+data WindowName = Results | Commands
   deriving (Ord, Show, Eq)
 
 -- | PITFALL: Permits invalid paths. A safer but more tedious path type
@@ -25,10 +25,10 @@ data SubviewEdge = SvQuery String
 type SubviewPath = [SubviewEdge]
 
 data St = St {
-    _focusRing    :: B.FocusRing Name
+    _focusRing    :: B.FocusRing WindowName
   , _results      :: VQuery
   , _uiError      :: String
-  , _commands     :: B.Editor String Name
+  , _commands     :: B.Editor String WindowName
   , _appRslt      :: Rslt
   , _showingThing :: ShowingThing
   }
