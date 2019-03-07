@@ -32,7 +32,7 @@ appDraw st = [w] where
     $ outputWindow <=> vLimit 3 commandWindow
 
   outputWindow, commandWindow :: B.Widget WindowName
-  outputWindow = case st ^. showingThing of
+  outputWindow = case st ^. shownInResultsWindow of
     ShowingError -> strWrap $ st ^. uiError
     ShowingResults -> strWrap (st ^. results . vQueryString)
       <=> padLeft (B.Pad 2) ( vBox $ map f $ M.toList

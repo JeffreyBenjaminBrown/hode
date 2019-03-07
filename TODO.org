@@ -40,11 +40,11 @@ and mention that you can use parens liberally to make it more obvious
 Brick's "focus" selects among named Widgets. Few things can be named: lists, editors, viewports and `cached`s. In particular, a strWrap cannot be.
 
 I could wrap the strWrap in a List, but that feels awkward.
-*** things that can be named
-cached
-**** these won't work for holding a single widget
-editor
-viewport -- would be infinite-sized, because nested
+**** things that can be named
+ cached
+***** these won't work for holding a single widget
+ editor
+ viewport -- would be infinite-sized, because nested
 ** overview
 *** absolute and relative queries
 There will be nested "results" windows. Each time you issue a "global" query -- a /find command written into the Command window -- it should create a Results object containing the query (as text, to show, and maybe also as hexpr) and a window full of its results. Those results each start off as a ResultLeaf.

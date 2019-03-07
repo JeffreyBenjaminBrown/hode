@@ -43,7 +43,7 @@ initialState r = St {
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
-  , _showingThing = ShowingResults
+  , _shownInResultsWindow = ShowingResults
   }
 
 resultsText :: St -> [String]
@@ -71,23 +71,24 @@ parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
     Left s1  -> B.continue -- editor_replaceText results (lines s1) st
-     $ showingThing .~ ShowingError
+     $ shownInResultsWindow .~ ShowingError
      $ uiError .~ s1
      $ st
     Right c -> case runCommand c st of
       Left s2 -> B.continue -- editor_replaceText results (lines s2) st
-        $ showingThing .~ ShowingError
+        $ shownInResultsWindow .~ ShowingError
         $ uiError .~ s2
         $ st
       Right evNextSt -> evNextSt
 
-runCommand :: Command -> St -> Either String (B.EventM WindowName (B.Next St))
+runCommand ::
+  Command -> St -> Either String (B.EventM WindowName (B.Next St))
 runCommand (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
   where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
         f (r,_) = B.continue
           $ appRslt .~ r
-          $ showingThing .~ ShowingResults
+          $ shownInResultsWindow .~ ShowingResults
           $ st
 
 runCommand (CommandFind s h) st = do
@@ -113,7 +114,7 @@ runCommand (CommandFind s h) st = do
 
   Right $ B.continue $ st
     & results .~ vq
-    & showingThing .~ ShowingResults
+    & shownInResultsWindow .~ ShowingResults
 
 runCommand (CommandLoad f) st =
   Right $ do r <- liftIO $ readRslt f

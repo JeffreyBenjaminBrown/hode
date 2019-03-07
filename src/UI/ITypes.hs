@@ -13,6 +13,8 @@ import Hash.HTypes
 import Rslt.RTypes
 
 
+-- | = Types used for names
+
 data WindowName = Results | Commands
   deriving (Ord, Show, Eq)
 
@@ -24,16 +26,21 @@ data SubviewEdge = SvQuery String
                  | SvResult Addr deriving (Show, Eq, Ord)
 type SubviewPath = [SubviewEdge]
 
-data St = St {
-    _focusRing    :: B.FocusRing WindowName
-  , _results      :: VQuery
-  , _uiError      :: String
-  , _commands     :: B.Editor String WindowName
-  , _appRslt      :: Rslt
-  , _showingThing :: ShowingThing
-  }
+data ShownInResultsWindow = ShowingError | ShowingResults
 
-data ShowingThing = ShowingError | ShowingResults
+type Folder = String
+
+
+-- | = meatier types
+
+data St = St {
+    _focusRing :: B.FocusRing WindowName
+  , _results   :: VQuery
+  , _uiError   :: String
+  , _commands  :: B.Editor String WindowName
+  , _appRslt   :: Rslt
+  , _shownInResultsWindow :: ShownInResultsWindow
+  }
 
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
     _vQueryName :: SubviewPath
@@ -45,8 +52,6 @@ data QueryResult = QueryResult {
   , _resultExpr :: Expr
   , _resultString :: String
   , _subQueries :: Vector VQuery }
-
-type Folder = String
 
 data Command = CommandInsert Expr
              | CommandFind String HExpr
