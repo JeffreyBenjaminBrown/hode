@@ -99,6 +99,7 @@ library
               , vector
               , vty
               , word-wrap
+              , zippers
   default-language: Haskell2010
 
 --executable rslt-haskell-exe

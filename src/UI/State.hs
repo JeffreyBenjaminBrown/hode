@@ -12,8 +12,7 @@ import qualified Data.Map as M
 --import           Data.Vector (Vector)
 import qualified Data.Vector as V
 
---import qualified Data.Text.Zipper as Z hiding ( textZipper )
-import qualified Data.Text.Zipper.Generic as Z
+import qualified Data.Text.Zipper.Generic as TxZ
 
 import qualified Brick.Main as B
 import qualified Brick.Focus as B
@@ -73,7 +72,7 @@ resultsText st = showVq 0 $ st ^. results where
 
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
-                     .~ Z.textZipper [] Nothing
+                     .~ TxZ.textZipper [] Nothing
 
 parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
 parseAndRunCommand st =

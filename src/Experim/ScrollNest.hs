@@ -9,7 +9,7 @@ module Experim.ScrollNest (scrollNest_main) where
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe
 import           Data.Tree (Tree(Node))
-import qualified Data.Text.Zipper as TextZ hiding ( textZipper )
+import qualified Data.Text.Zipper as TxZ hiding ( textZipper )
 import           Data.Tree.Zipper (TreePos, Full)
 import qualified Data.Tree.Zipper as Z
 import           Lens.Micro
@@ -184,7 +184,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   -- copy focused editor's content to clipboard
   B.EvKey (B.KChar 'c') [B.MMeta] ->
-    liftIO ( toClipboard $ show $ TextZ.getText
+    liftIO ( toClipboard $ show $ TxZ.getText
              $ st ^. windows . zLabel . windowEd . B.editContentsL )
     >> B.continue st
 
@@ -201,4 +201,4 @@ appAttrMap = B.attrMap B.defAttr
 replaceText :: String -> St -> St
 replaceText s =
   windows . zLabel . windowEd
-  %~ B.applyEdit (TextZ.insertMany s)
+  %~ B.applyEdit (TxZ.insertMany s)

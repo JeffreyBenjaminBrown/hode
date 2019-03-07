@@ -45,14 +45,20 @@ data St = St {
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
     _vQueryPath :: SubviewPath -- ^ Path excluding the last (String) elt
   , _vQueryString :: String
-  , _vQueryResults :: Vector QueryResult }
+  , _vQueryResults :: Vector QueryResult
+    -- TODO ? Zipper would be smaller, and would obviate the need to
+    -- record focus as a separate field.
+  }
 
 data QueryResult = QueryResult {
     _resultPath :: SubviewPath -- ^ Path excluding the last (Addr) elt
   , _resultAddr :: Addr
   , _resultExpr :: Expr
   , _resultString :: String
-  , _subQueries :: Vector VQuery }
+  , _subQueries :: Vector VQuery
+    -- TODO ? Zipper would be smaller, and would obviate the need to
+    -- record focus as a separate field.
+  }
 
 data Command = CommandInsert Expr
              | CommandFind String HExpr
