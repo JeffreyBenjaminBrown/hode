@@ -33,9 +33,6 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** broken: focus
-because Paths no longer include the last edge
-** rename vQueryName -> vQueryPath
 ** next: focus a result
 *** suspicion: implement my own "resultFocus" separate from Brick's "focus"
 **** how: see Experim.MyFocus

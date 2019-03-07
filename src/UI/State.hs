@@ -37,7 +37,7 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so here,
       -- because we want focus to start on the Commands window.
-  , _results  = VQuery { _vQueryName = [SvQuery ""]
+  , _results  = VQuery { _vQueryPath = [SvQuery ""]
                        , _vQueryString = ""
                        , _vQueryResults = V.empty }
   , _focusedResult = []
@@ -49,7 +49,7 @@ initialState r = St {
 
 vqIsFocused :: St -> VQuery -> Bool
 vqIsFocused st vq = (st ^. focusedResult) ==
-  (vq ^. vQueryName) ++ [SvQuery $ vq ^. vQueryString]
+  (vq ^. vQueryPath) ++ [SvQuery $ vq ^. vQueryString]
 
 qrIsFocused :: St -> QueryResult -> Bool
 qrIsFocused st qr = (st ^. focusedResult) ==
@@ -111,7 +111,7 @@ runCommand (CommandFind s h) st = do
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
 
-  let vq = VQuery { _vQueryName = []
+  let vq = VQuery { _vQueryPath = []
                   , _vQueryString = s
                   , _vQueryResults = let f addr _ = qr addr
                     in V.fromList $ M.elems $ M.mapWithKey f es }

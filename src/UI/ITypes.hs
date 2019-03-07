@@ -2,7 +2,6 @@
 
 module UI.ITypes where
 
-import           Data.Map (Map)
 import           Data.Vector (Vector)
 import           Lens.Micro.TH
 
@@ -44,7 +43,7 @@ data St = St {
   }
 
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
-    _vQueryName :: SubviewPath -- ^ Path excluding the last (String) elt
+    _vQueryPath :: SubviewPath -- ^ Path excluding the last (String) elt
   , _vQueryString :: String
   , _vQueryResults :: Vector QueryResult }
 
