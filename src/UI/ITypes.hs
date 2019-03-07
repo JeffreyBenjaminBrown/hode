@@ -2,7 +2,6 @@
 
 module UI.ITypes where
 
---import qualified Data.Map as M
 import           Data.Map (Map)
 import           Data.Vector (Vector)
 import           Lens.Micro.TH
@@ -17,6 +16,14 @@ import Rslt.RTypes
 data Name = Results | Commands
   deriving (Ord, Show, Eq)
 
+-- | PITFALL: Permits invalid paths. A safer but more tedious path type
+-- would use two edge types, and a path could only start from a query,
+-- and a query could only lead to a result, and a result to a query,
+-- and a path could never be empty.
+data SubviewEdge = SvQuery String
+                 | SvResult Addr deriving (Show, Eq, Ord)
+type SubviewPath = [SubviewEdge]
+
 data St = St {
     _focusRing    :: B.FocusRing Name
   , _results      :: VQuery
@@ -29,11 +36,13 @@ data St = St {
 data ShowingThing = ShowingError | ShowingResults
 
 data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
-    _vQueryString :: String
+    _vQueryName :: SubviewPath
+  , _vQueryString :: String
   , _vQueryResults :: Map Addr QueryResult }
 
 data QueryResult = QueryResult {
-    _resultExpr :: Expr
+    _resultName :: SubviewPath
+  , _resultExpr :: Expr
   , _resultString :: String
   , _subQueries :: Vector VQuery }
 

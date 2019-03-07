@@ -9,9 +9,7 @@
 module Experim.MyFocus where
 
 import Brick
-import Data.Monoid ((<>))
 import Graphics.Vty
-import Text.Wrap (defaultWrapSettings, preserveIndentation)
 
 
 data BoxName = BoxName Int deriving (Show, Eq, Ord)

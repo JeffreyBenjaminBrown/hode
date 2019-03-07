@@ -37,8 +37,9 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so here,
       -- because we want focus to start on the Commands window.
-  , _results  = VQuery { _vQueryString = ""
-                        , _vQueryResults = M.empty }
+  , _results  = VQuery { _vQueryName = [SvQuery ""]
+                       , _vQueryString = ""
+                       , _vQueryResults = M.empty }
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
@@ -100,11 +101,13 @@ runCommand (CommandFind s h) st = do
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
 
-  let vq = VQuery { _vQueryString = s
+  let vq = VQuery { _vQueryName = [SvQuery s]
+                  , _vQueryString = s
                   , _vQueryResults = let f addr _ = qr addr
                                      in M.mapWithKey f es }
            where  qr a = QueryResult {
-                      _resultExpr = (M.!) es a
+                      _resultName = [SvQuery s, SvResult a]
+                    , _resultExpr = (M.!) es a
                     , _resultString = (M.!) ss a
                     , _subQueries = V.empty }
 
