@@ -29,6 +29,7 @@ library
   exposed-modules:
                   Data.Graph
                 , Experim.MyFocus
+                , Experim.ScrollNest
 --                , Data.Relation
                 , Hash.Convert
                 , Hash.EitherExpr
@@ -68,7 +69,6 @@ library
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
-                , ScrollNest.Zipper
                 , UI.Clipboard
                 , UI.IParse
                 , UI.Main

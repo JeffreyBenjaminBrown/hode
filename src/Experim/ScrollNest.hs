@@ -4,7 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module ScrollNest.Zipper (scrollNest_main) where
+module Experim.ScrollNest (scrollNest_main) where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe
