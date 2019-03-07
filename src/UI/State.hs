@@ -40,12 +40,20 @@ initialState r = St {
   , _results  = VQuery { _vQueryName = [SvQuery ""]
                        , _vQueryString = ""
                        , _vQueryResults = V.empty }
-  , _focusedResult = [SvQuery ""]
+  , _focusedResult = []
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
   , _shownInResultsWindow = ShowingResults
   }
+
+vqIsFocused :: St -> VQuery -> Bool
+vqIsFocused st vq = (st ^. focusedResult) ==
+  (vq ^. vQueryName) ++ [SvQuery $ vq ^. vQueryString]
+
+qrIsFocused :: St -> QueryResult -> Bool
+qrIsFocused st qr = (st ^. focusedResult) ==
+  (qr ^. resultPath) ++ [SvResult $ qr ^. resultAddr]
 
 resultsText :: St -> [String]
 resultsText st = showVq 0 $ st ^. results where

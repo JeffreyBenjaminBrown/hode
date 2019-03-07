@@ -44,14 +44,17 @@ appDraw st = [w] where
         showQuery :: St -> B.Widget WindowName
         showQuery st0 = style $ strWrap $ vq ^. vQueryString where
           (vq :: VQuery) = st0 ^. results
-          (isFocused :: Bool) = vq ^. vQueryName == st0 ^. focusedResult
           style :: B.Widget WindowName -> B.Widget WindowName
-          style = if not isFocused then id
-                  else withAttr (B.attrName "focused result")
+          style = if not $ vqIsFocused st vq then id
+                  else withAttr $ B.attrName "focused result"
 
         showResult :: QueryResult -> B.Widget WindowName
-        showResult qr = strWrap $ show (qr ^. resultAddr)
-                        ++ ": " ++ show (qr ^. resultString)
+        showResult qr = let
+          style :: B.Widget WindowName -> B.Widget WindowName
+          style = if not $ qrIsFocused st qr then id
+            else withAttr $ B.attrName "focused result"
+          in style $ strWrap $ show (qr ^. resultAddr)
+             ++ ": " ++ show (qr ^. resultString)
 
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
