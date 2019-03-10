@@ -148,3 +148,10 @@ fills x (r,a) = do
   let err = Left $ "fills: role " ++ show r
             ++ " not among positions in RefExpr at " ++ show a
   maybe err Right $ M.lookup r positions
+
+
+-- | = Misc
+
+unAddr :: Rslt -> Expr -> Either String Expr
+unAddr r (Addr a) = addrToExpr r a
+unAddr _ e        = Right e

@@ -50,14 +50,8 @@ eShow :: Rslt -> Expr -> Either String String
 eShow r = para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
 
-  f (AddrF a) = do
-    e <- addrToRefExpr r a
-    case e of
-      Phrase' w  ->    eShow r $ Phrase w
-      Tplt' js   ->    eShow r $ Tplt $ map Addr js
-      Rel' ms t  ->    eShow r $ Rel (map Addr ms) $ Addr t
-      Par' sas s -> let (ss, as) = unzip sas
-                    in eShow r $ Par (zip ss $ map Addr as) s
+  f e@(AddrF _) = prefixLeft "eShow Addr" $
+    unAddr r (embed $ fmap fst e) >>= eShow r
 
   f (PhraseF w) = Right w
 
@@ -65,8 +59,8 @@ eShow r = para f where
                   >>= Right . concat . L.intersperse " _ "
 
   f relf@(RelF ms (Tplt js, _)) = do
-  -- In this case, the recursive argument (second member of the pair) is
-  -- unused, hence not computed. Instead, each j in js is `eShow`n separately.
+  -- The recursive argument (second member of the pair) is unused, hence
+  -- not computed. Instead, each joint in `js` is `eShow`n separately.
     mss <- ifLefts "eShow Rel" $ map snd ms
     jss <- let rel = embed $ fmap fst relf
            in hashUnlessEmptyStartOrEnd (depth rel)
@@ -75,14 +69,12 @@ eShow r = para f where
       $ map (\(m,j) -> m ++ " " ++ j ++ " ")
       $ zip ("" : mss) jss
 
-  f (RelF ms (Addr a, _)) = do
-    (te :: RefExpr) <- prefixLeft "eShow" $ addrToRefExpr r a
-    (ti :: Expr)    <- prefixLeft "eShow" $ refExprToExpr r te
-    eShow r $ Rel (map fst ms) ti
+  f (RelF ms (a@(Addr _), _)) = do
+    templateExpr <- unAddr r a
+    eShow r $ Rel (map fst ms) templateExpr
 
-  f x@(RelF _ _) = Left
-    $ "eShow: Rel with non-Tplt in Tplt position: "
-    ++ show (embed $ fmap fst x)
+  f x@(RelF _ _) = Left $ "eShow: Rel with non-Tplt for Tplt: "
+                   ++ show (embed $ fmap fst x)
 
   f (ParF triples s0) = do
     let (ss :: [String], ps)               = unzip triples
