@@ -79,8 +79,8 @@ hExprToAddrs r s (HMap m) = do
 hExprToAddrs r s (HEval hm paths) = do
   (hosts :: Set Addr)     <- hExprToAddrs r s hm
   (its :: Set (Set Addr)) <-
-    ( ifLefts_set "hExprToAddrs called on HEval, mapping over hosts"
-      $ S.map (subExprs r paths) hosts )
+    ifLefts_set "hExprToAddrs called on HEval, mapping over hosts"
+    $ S.map (subExprs r paths) hosts
   Right $ S.unions its
 
 hExprToAddrs _ s (HVar v) =
