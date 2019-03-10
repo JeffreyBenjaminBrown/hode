@@ -74,14 +74,8 @@ hash l j
   | l == lb         = mergeIntoRight j a b
   | l > (max la lb) = startOpen l j a b
 
--- These redundant checks (to keep GHCI from warning me) should come last.
 hash _ _ (Open _ _ _) (Open _ _ _) = error "seems impossible."
-hash _ _ Absent _                  = error "impossible."
-hash _ _ _ Absent                  = error "impossible."
-hash _ _ (Closed _ _) _            = error "impossible."
-hash _ _ _ (Closed _ _)            = error "impossible."
-hash _ _ (PNonRel _) _             = error "impossible."
-hash _ _ _ (PNonRel _)             = error "impossible."
+hash _ _ _ _                       = error "impossible."
 
 
 mergeIntoLeft :: Joint -> PRel -> PRel -> Either String PRel

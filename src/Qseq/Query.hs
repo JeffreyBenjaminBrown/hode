@@ -239,4 +239,3 @@ runFindlike sp p s (QQuant (ForAll v src conds q)) = do
         f = M.map $ S.map $ M.delete v
   Right $ reconcileCondElts foundWithoutV
     -- keep only results that obtain for every value of v
-

@@ -114,17 +114,17 @@ pathsToIts_sub_pExpr (PEval _)     = []
   -- that PEval's `it`s are not the path to this one's.
 
 pathsToIts_sub_pExpr (PVar _)        = []
-pathsToIts_sub_pExpr x@(PDiff _ _)      =
+pathsToIts_sub_pExpr x@(PDiff _ _)   =
   error $ "pathsToIts_sub_pExpr: called on PDiff: " ++ show x
 pathsToIts_sub_pExpr x@(PAnd _)      =
   error $ "pathsToIts_sub_pExpr: called on PAnd: " ++ show x
-pathsToIts_sub_pExpr x@(POr _)      =
+pathsToIts_sub_pExpr x@(POr _)       =
   error $ "pathsToIts_sub_pExpr: called on POr: " ++ show x
 pathsToIts_sub_pExpr Any             = []
 pathsToIts_sub_pExpr (It Nothing)    = [[]]
   -- the unique way to get to an It from here is to stay still
 pathsToIts_sub_pExpr (It (Just pnr)) = [] : pathsToIts_sub_pExpr pnr
-pathsToIts_sub_pExpr x@(PPar _ _)      =
+pathsToIts_sub_pExpr x@(PPar _ _)    =
   error $ "pathsToIts_sub_pExpr: called on PPar: " ++ show x
 pathsToIts_sub_pExpr (PRel pr)       = pathsToIts_sub_pRel pr
 
