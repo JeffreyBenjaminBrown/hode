@@ -41,7 +41,7 @@ data St = St {
   , _shownInResultsWindow :: ShownInResultsWindow
   }
 
-data VQuery = VQuery { -- "V" (for View) to distinguish it from Qseq.Query
+data VQuery = VQuery { -- ^ "V" (for View) to distinguish it from Qseq.Query
     _vQueryPath :: SubviewPath -- ^ Path excluding the last (String) elt
   , _vQueryString :: String
   , _vQueryResults :: Vector QueryResult

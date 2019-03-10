@@ -72,6 +72,7 @@ library
                 , UI.Clipboard
                 , UI.IParse
                 , UI.Main
+                , UI.NoUI
                 , UI.State
                 , UI.ITypes
                 , Util.Misc
