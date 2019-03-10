@@ -1,3 +1,4 @@
+{-# LANGUAGE PartialTypeSignatures #-}
 -- | After parsing, the next step is to
 -- create `HExpr`s from `PExpr`s and `PRel`s.
 
@@ -7,6 +8,7 @@
 
 module Hash.Convert where
 
+import           Data.Functor.Foldable
 import qualified Data.Map       as M
 
 import Control.Arrow (second)
@@ -33,34 +35,36 @@ import Util.Misc
 -- template in the corresponding HExpr.
 
 pRelToHExpr :: PRel -> Either String HExpr
-pRelToHExpr Absent = Left "pRelToHExpr: cannot convert Absent."
-pRelToHExpr (Open _ ms js) = pRelToHExpr $ Closed ms js
+pRelToHExpr = para f where
+  f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
-pRelToHExpr (Closed ms js0) = do
-  let t = Tplt $ map Phrase js2 where
-        absentLeft, absentRight :: Bool
-        absentLeft  = case head ms of Absent -> True; _ -> False
-        absentRight = case last ms of Absent -> True; _ -> False
-        js1 = if not absentLeft  then "" : js0    else js0
-        js2 = if not absentRight then js1 ++ [""] else js1
+  f (PNonRelF pn) = pExprToHExpr pn -- PITFALL: must recurse by hand.
+  f AbsentF = Left "pRelToHExpr: Absent represents no HExpr."
+  f (OpenF _ ms js) = f $ ClosedF ms js
 
-      ms' :: [(Role,PRel)]
-      ms' = filter (f . snd) $ zip (map RoleMember [1..]) ms
-       where
-        f :: PRel -> Bool
-        f Absent = False
-        f (PNonRel px) = pExprIsSpecific px
-        f _ = True
+  f (ClosedF ms js0) = do
+    let t = Tplt $ map Phrase js2 where
+          absentLeft, absentRight :: Bool
+          absentLeft  = case head ms of (Absent,_) -> True; _ -> False
+          absentRight = case last ms of (Absent,_) -> True; _ -> False
+          js1 = if not absentLeft  then "" : js0    else js0
+          js2 = if not absentRight then js1 ++ [""] else js1
 
-  let hms :: [(Role, Either String HExpr)]
-      hms = map (second pRelToHExpr) ms'
-  void $ ifLefts "pRelToHExpr" $ map snd hms
-  let (hms' :: [(Role, HExpr)]) =
-        map (second $ either (error "impossible") id) hms
-  Right $ HMap $ M.insert RoleTplt (HExpr t)
-    $ M.fromList hms'
+        ms' :: [(Role, (PRel, Either String HExpr))]
+        ms' = let g :: PRel -> Bool
+                  g Absent       = False
+                  g (PNonRel px) = pExprIsSpecific px
+                  g _            = True
+          in filter (g . fst . snd)
+             $ zip (map RoleMember [1..]) ms
+        hms :: [(Role, Either String HExpr)]
+        hms = map (second snd) ms'
 
-pRelToHExpr (PNonRel pn) = pExprToHExpr pn
+    void $ ifLefts "pRelToHExpr" $ map snd hms
+    let (hms' :: [(Role, HExpr)]) =
+          map (second $ either (error "impossible") id) hms
+    Right $ HMap $ M.insert RoleTplt (HExpr t)
+      $ M.fromList hms'
 
 
 pExprToHExpr :: PExpr -> Either String HExpr
@@ -105,34 +109,34 @@ pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
 pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
 pathsToIts_sub_pExpr :: PExpr -> [[Role]]
-pathsToIts_sub_pExpr (PExpr _)       = []
-pathsToIts_sub_pExpr (PMap m)        =
-  concatMap (\(role, paths) -> map ((:) role) paths) $ M.toList
-  $ M.map pathsToIts_sub_pExpr m
-pathsToIts_sub_pExpr (PEval _)     = []
-  -- don't recurse into a new PEval context; the paths to
-  -- that PEval's `it`s are not the path to this one's.
+pathsToIts_sub_pExpr = para f where
+  err :: Base PExpr (PExpr, [[Role]]) -> [[Role]]
+  err x = error $ "pathsToIts_sub_pExpr called too late, on "
+          ++ show (embed $ fmap fst x)
 
-pathsToIts_sub_pExpr (PVar _)        = []
-pathsToIts_sub_pExpr x@(PDiff _ _)   =
-  error $ "pathsToIts_sub_pExpr: called on PDiff: " ++ show x
-pathsToIts_sub_pExpr x@(PAnd _)      =
-  error $ "pathsToIts_sub_pExpr: called on PAnd: " ++ show x
-pathsToIts_sub_pExpr x@(POr _)       =
-  error $ "pathsToIts_sub_pExpr: called on POr: " ++ show x
-pathsToIts_sub_pExpr Any             = []
-pathsToIts_sub_pExpr (It Nothing)    = [[]]
-  -- the unique way to get to an It from here is to stay still
-pathsToIts_sub_pExpr (It (Just pnr)) = [] : pathsToIts_sub_pExpr pnr
-pathsToIts_sub_pExpr x@(PPar _ _)    =
-  error $ "pathsToIts_sub_pExpr: called on PPar: " ++ show x
-pathsToIts_sub_pExpr (PRel pr)       = pathsToIts_sub_pRel pr
+  f :: Base PExpr (PExpr, [[Role]]) -> [[Role]]
+  f (PExprF _)       = []
+  f (PMapF m)        = concatMap g $ M.toList $ M.map snd m
+    where g (role, paths) = map ((:) role) paths
+  f (PEvalF _)       = []
+    -- don't recurse into a new PEval context; the paths to
+    -- that PEval's `it`s are not the path to this one's.
+  f (PVarF _)        = []
+  f x@(PDiffF _ _)   = err x
+  f x@(PAndF _)      = err x
+  f x@(POrF _)       = err x
+  f AnyF             = []
+  f (ItF Nothing)    = [[]]
+  f (ItF (Just pnr)) = [] : snd pnr
+  f x@(PParF _ _)    = err x
+  f (PRelF pr)       = pathsToIts_sub_pRel pr
 
 pathsToIts_sub_pRel :: PRel -> [[Role]]
-pathsToIts_sub_pRel Absent = []
-pathsToIts_sub_pRel (PNonRel pnr) = pathsToIts_sub_pExpr pnr
-pathsToIts_sub_pRel (Closed ms _) = let
-  f :: (Int,[[Role]]) -> [[Role]]
-  f (i,ps) = map ((:) $ RoleMember i) ps
-  in concatMap f $ zip [1..] $ map pathsToIts_sub_pRel ms
-pathsToIts_sub_pRel (Open _ ms js) = pathsToIts_sub_pRel $ Closed ms js
+pathsToIts_sub_pRel = cata f where
+  f :: Base PRel [[Role]] -> [[Role]]
+  f AbsentF         = []
+  f (PNonRelF pnr)  = pathsToIts_sub_pExpr pnr
+  f (OpenF _ ms js) = f $ ClosedF ms js
+  f (ClosedF ms _)  = concatMap g $ zip [1..] ms where
+    g :: (Int,[[Role]]) -> [[Role]]
+    g (i,ps) = map ((:) $ RoleMember i) ps

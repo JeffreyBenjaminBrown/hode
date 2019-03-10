@@ -31,10 +31,7 @@ see the comment leading its definition
 * TODO refactor the immediately-recursive types using recursion-schemes
  i.e. Data.Functor.Foldable
 ** these functions
-definitely Hash.HUtil.simplify*
-maybe      Hash.HUtil.*
-           Hash.Convert.pathsToIts_*
-           Hash.HLookup.hExprToAddrs
+maybe      Hash.HLookup.hExprToAddrs
 ** these types:  Expr,  PExpr,  HExpr
 * TODO pressing
 ** paragraphs
