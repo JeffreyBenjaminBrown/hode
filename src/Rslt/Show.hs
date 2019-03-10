@@ -2,6 +2,7 @@
 
 module Rslt.Show where
 
+import           Data.Functor.Foldable
 import qualified Data.List as L
 import           Data.Text (strip, pack, unpack)
 
@@ -45,43 +46,49 @@ hashUnlessEmptyStartOrEnd k0 joints = case joints' of
   hashUnlessEmptyEnd k (s : ss) =   hash               k s
                                   : hashUnlessEmptyEnd k ss
 
-
 eShow :: Rslt -> Expr -> Either String String
-eShow r (Addr a) = do
-  e <- addrToRefExpr r a
-  case e of
-    Phrase' w    ->    eShow r $ Phrase w
-    Tplt' js   ->    eShow r $ Tplt $ map Addr js
-    Rel' ms t  ->    eShow r $ Rel (map Addr ms) $ Addr t
-    Par' sas s -> let (ss, as) = unzip sas
-                  in eShow r $ Par (zip ss $ map Addr as) s
+eShow r = para f where
+  f :: Base Expr (Expr, Either String String) -> Either String String
 
-eShow _ (Phrase w) = Right w
+  f (AddrF a) = do
+    e <- addrToRefExpr r a
+    case e of
+      Phrase' w  ->    eShow r $ Phrase w
+      Tplt' js   ->    eShow r $ Tplt $ map Addr js
+      Rel' ms t  ->    eShow r $ Rel (map Addr ms) $ Addr t
+      Par' sas s -> let (ss, as) = unzip sas
+                    in eShow r $ Par (zip ss $ map Addr as) s
 
-eShow r (Tplt js) = do
-  ss <- ifLefts "eShow" $ map (eShow r) js
-  Right $ concat $ L.intersperse " _ " ss
+  f (PhraseF w) = Right w
 
-eShow r i@(Rel ms (Tplt js)) = do
-  mss <-     ifLefts "eShow" $ map (eShow r) ms
-  jss <- hashUnlessEmptyStartOrEnd (depth i)
-         <$> ifLefts "eShow" ( map (eShow r) js )
-  Right $ unpack . strip . pack $ concat
-    $ map (\(m,j) -> m ++ " " ++ j ++ " ")
-    $ zip ("" : mss) jss
+  f (TpltF pairs) = ifLefts "eShow Tplt" (map snd pairs)
+                  >>= Right . concat . L.intersperse " _ "
 
-eShow r (Rel ms (Addr a)) = do
-  (te :: RefExpr) <- prefixLeft "eShow" $ addrToRefExpr r a
-  (ti :: Expr)    <- prefixLeft "eShow" $ refExprToExpr r te
-  eShow r $ Rel ms ti
-eShow _ i@(Rel _ _) =
-  Left $ "eShow: Rel with non-Tplt in Tplt position: " ++ show i
+  f relf@(RelF ms (Tplt js, _)) = do
+  -- In this case, the recursive argument (second member of the pair) is
+  -- unused, hence not computed. Instead, each j in js is `eShow`n separately.
+    mss <- ifLefts "eShow Rel" $ map snd ms
+    jss <- let rel = embed $ fmap fst relf
+           in hashUnlessEmptyStartOrEnd (depth rel)
+              <$> ifLefts "eShow Rel" ( map (eShow r) js )
+    Right $ unpack . strip . pack $ concat
+      $ map (\(m,j) -> m ++ " " ++ j ++ " ")
+      $ zip ("" : mss) jss
 
-eShow r (Par ps s0) = do
-  let (ss,ms) = unzip ps
-  (mis :: [String]) <- ifLefts "eShow" $ map (eShow r) ms
-  let showPair :: (String, String) -> String
-      showPair (s,mi) = s ++ " " ++ [bracket_angle_big_left]
-        ++ mi ++ [bracket_angle_big_right] ++ " "
-  Right $ concat (map showPair $ zip ss mis) ++ " " ++ s0
+  f (RelF ms (Addr a, _)) = do
+    (te :: RefExpr) <- prefixLeft "eShow" $ addrToRefExpr r a
+    (ti :: Expr)    <- prefixLeft "eShow" $ refExprToExpr r te
+    eShow r $ Rel (map fst ms) ti
 
+  f x@(RelF _ _) = Left
+    $ "eShow: Rel with non-Tplt in Tplt position: "
+    ++ show (embed $ fmap fst x)
+
+  f (ParF triples s0) = do
+    let (ss :: [String], ps)               = unzip triples
+        (_, ess :: [Either String String]) = unzip ps
+    (mis :: [String]) <- ifLefts "eShow Par" ess
+    let showPair :: (String, String) -> String
+        showPair (s,mi) = s ++ " " ++ [bracket_angle_big_left]
+          ++ mi ++ [bracket_angle_big_right] ++ " "
+    Right $ concat (map showPair $ zip ss mis) ++ " " ++ s0

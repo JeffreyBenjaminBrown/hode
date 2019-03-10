@@ -24,9 +24,9 @@ validExpr r = para f where
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
 
-  f (RelF memEis (t,te)) = do
+  f rel@(RelF memEis (t,te)) = do
     let (ms :: [Expr], es :: [Either String ()]) = unzip memEis
-        err = "validExpr called on " ++ show (Rel ms t)
+        err = "validExpr called on " ++ show (embed $ fmap fst rel)
     void $ ifLefts err $ te : es
     ((tc,ta) :: (ExprCtr,Arity)) <-
       prefixLeft err $ exprToAddr r t >>= variety r

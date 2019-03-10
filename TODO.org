@@ -28,11 +28,10 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-** TODO refactor the immediately-recursive types using recursion-schemes
-  i.e. Data.Functor.Foldable
-  Expr
-  PExpr
-  HExpr
+* TODO refactor the immediately-recursive types using recursion-schemes
+ i.e. Data.Functor.Foldable
+** TODO factor the conversion from Addr to a normal Expr out of eShow
+** these types:  Expr,  PExpr,  HExpr
 * TODO pressing
 ** paragraphs
 ** document the precedence order of the language
