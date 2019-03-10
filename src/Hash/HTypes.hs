@@ -1,11 +1,14 @@
 -- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
 
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies, DeriveFoldable, DeriveTraversable #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Hash.HTypes where
 
-import           Data.Map (Map)
+import Data.Functor.Foldable.TH
+import Data.Map (Map)
 
 import Qseq.QTypes
 import Rslt.RTypes
@@ -28,9 +31,6 @@ data HExpr =
   | HOr  [HExpr]      -- ^ Union. Pronounced "a chore".
   deriving (Eq, Ord, Show)
 
-
--- | = For parsing an HExpr
-
 -- | An `HMap` m is used to request all expressions x such that for each
 -- key r in m, such that r is mapped to h, some expression in the
 -- result of searching for h appears in position r in x.
@@ -42,6 +42,9 @@ data HExpr =
 -- The `Left HIt` values are ignored when evaluating the `HMap`;
 -- they come into play when the `HMap` is a subexpression of some `HEval`.
 type HMap = Map Role HExpr
+
+
+-- | = For parsing an HExpr
 
 data PExpr -- ^ intermediate type, on the way to parsing a `Rel`
   = PExpr Expr
@@ -59,6 +62,7 @@ data PExpr -- ^ intermediate type, on the way to parsing a `Rel`
 
 type PMap = Map Role PExpr
 
+
 data PRel -- ^ intermediate type, on the way to parsing a `Rel`
    = Absent -- ^ The leftmost and rightmost members of an `Open` or
      -- `Closed` might be absent. Interior ones should not be.
@@ -68,3 +72,7 @@ data PRel -- ^ intermediate type, on the way to parsing a `Rel`
    -- might be inserted into it.
    | PNonRel PExpr
    deriving (Eq, Show)
+
+makeBaseFunctor ''HExpr
+makeBaseFunctor ''PExpr
+makeBaseFunctor ''PRel

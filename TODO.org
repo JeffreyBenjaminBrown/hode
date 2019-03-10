@@ -28,8 +28,6 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO reopen recursion-scheme-studies
-Try writing some homomorphisms where most of the cases are handled by id. Example: fmap into an Abc, turning each A into B A and leaving everything else unchanged. This hopefully will illustrate the kind of transformation that can be made much more succinct by factoring out the recursion. (This, in contrast to most|all of my real-world (rslt-haskell) uses of recursion-schemes, which have been about the same amount of code as what they replaced.)
 * TODO refactor the immediately-recursive types using recursion-schemes
  i.e. Data.Functor.Foldable
 ** these functions

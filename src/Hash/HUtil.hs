@@ -6,6 +6,7 @@
 
 module Hash.HUtil where
 
+import           Data.Functor.Foldable
 import qualified Data.List as L
 import qualified Data.Map  as M
 import           Data.Set (Set)
@@ -19,13 +20,15 @@ import           Rslt.RTypes
 -- | = for Hash
 
 hVars :: HExpr -> Set Var
-hVars (HMap m)    = S.unions $ map hVars $ M.elems m
-hVars (HEval m _) = hVars m
-hVars (HVar v)    = S.singleton v
-hVars (HExpr _)   = S.empty
-hVars (HDiff h i) = S.union (hVars h) (hVars i)
-hVars (HAnd hs)   = S.unions $ map hVars hs
-hVars (HOr hs)    = S.unions $ map hVars hs
+hVars = cata f where
+  f :: Base HExpr (Set Var) -> Set Var
+  f (HMapF m)    = S.unions $ M.elems m
+  f (HEvalF m _) = m
+  f (HVarF v)    = S.singleton v
+  f (HExprF _)   = S.empty
+  f (HDiffF h i) = S.union h i
+  f (HAndF hs)   = S.unions hs
+  f (HOrF hs)    = S.unions hs
 
 
 -- | = for parsing Hash
@@ -34,57 +37,42 @@ pnrPhrase :: String -> PRel
 pnrPhrase = PNonRel . PExpr . Phrase
 
 pExprIsSpecific :: PExpr -> Bool
-pExprIsSpecific (PMap m)       = or $ map pExprIsSpecific $ M.elems m
-pExprIsSpecific (PEval px)     =          pExprIsSpecific px
-pExprIsSpecific Any            = False
-pExprIsSpecific (It Nothing)   = False
-pExprIsSpecific (It (Just px)) =          pExprIsSpecific px
-pExprIsSpecific _              = True
+pExprIsSpecific = cata f where
+  f :: Base PExpr Bool -> Bool
+  f (PMapF m)       = or $ M.elems m
+  f (PEvalF px)     = px
+  f AnyF            = False
+  f (ItF Nothing)   = False
+  f (ItF (Just px)) = px
+  f _               = True
 
 
 -- | To simplify a `PRel` or `PExpr` is to flatten sections of the form
 -- `PNonRel (PRel x)` into `x`, and similarly sections of the form
 -- `PRel (PNonRel x)`.
---
--- TODO ? It would be nice to use some kind of recursion scheme, so that
--- I defined once how to map over `PRel`s and `PExpr`s, allowing any
--- function so mapped to be much simpler.
 
 simplifyPRel :: PRel -> PRel
--- These three cases are actual simplifications
-simplifyPRel (PNonRel (PRel pr)) = simplifyPRel pr
-simplifyPRel (Open _ [PNonRel pnr] []) = PNonRel $ simplifyPExpr pnr
-simplifyPRel (Closed [PNonRel pnr] []) = PNonRel $ simplifyPExpr pnr
--- The rest are just mapping into contents.
-simplifyPRel Absent = Absent
-simplifyPRel (PNonRel pnr) = PNonRel $ simplifyPExpr pnr
-simplifyPRel (Open l xs js) = Open l (map simplifyPRel xs) js
-simplifyPRel (Closed xs js) = Closed (map simplifyPRel xs) js
+simplifyPRel = cata f where
+  -- TODO ? Wart: Any `PNonRelF` pattern (here, 2) require recursing by hand.
+  -- If I unified PRel and PExpr as an indexed type family,
+  -- this clause could be eliminated. c.f. https://www.reddit.com/r/haskell/comments/3sm1j1/how_to_mix_the_base_functorrecursion_scheme_stuff/
+  f :: Base PRel PRel -> PRel
+  f (PNonRelF (PRel x)) =           simplifyPRel  x
+  f (PNonRelF x)        = PNonRel $ simplifyPExpr x
+  f (OpenF _ [PNonRel x] []) = PNonRel x
+  f (ClosedF [PNonRel x] []) = PNonRel x
+  f x                        = embed x
 
 simplifyPExpr :: PExpr -> PExpr
- -- These are the simplifications.
-simplifyPExpr (PRel (PNonRel pnr)) = simplifyPExpr pnr
-simplifyPExpr (PEval (PEval x)) = simplifyPExpr $ PEval x
-simplifyPExpr (PDiff a b) = PDiff (simplifyPExpr a) (simplifyPExpr b)
-simplifyPExpr (PAnd xs) = let
-  xs' = map simplifyPExpr xs
-  (ands,others) = L.partition (\case PAnd _ -> True; _ -> False) xs'
-  in PAnd $ concatMap (\(PAnd c) -> c) ands ++ others
-simplifyPExpr (POr xs) = let
-  xs' = map simplifyPExpr xs
-  (ors,others) = L.partition (\case POr _ -> True; _ -> False) xs'
-  in POr $ concatMap (\(POr c) -> c) ors ++ others
-
--- The rest just map simplification into contents.
-simplifyPExpr x@(PExpr _)     = x
-simplifyPExpr (PMap m)        = PMap $ M.map simplifyPExpr m
-simplifyPExpr (PEval x)       = PEval $ simplifyPExpr x
-simplifyPExpr x@(PVar _)      = x
-simplifyPExpr x@Any           = x
-simplifyPExpr x@(It Nothing)  = x
-simplifyPExpr   (It (Just x)) = It $ Just $ simplifyPExpr x
-simplifyPExpr (PPar pairs s) = let
-  (ss,xs) = unzip pairs
-  xs' = map simplifyPExpr xs
-  in PPar (zip ss xs') s
-simplifyPExpr (PRel pr) = PRel $ simplifyPRel pr
+simplifyPExpr = cata f where
+  f :: Base PExpr PExpr -> PExpr
+  -- TODO ? Wart: Any `PRelF` pattern (here, 2) require recursing by hand.
+  -- See corresponding comment for `simplifyPRel`.
+  f (PRelF (PNonRel x)) =        simplifyPExpr x
+  f (PRelF x)           = PRel $ simplifyPRel  x
+  f (PEvalF (PEval x))  = PEval x
+  f (PAndF xs) = PAnd $ concatMap (\(PAnd c) -> c) ands ++ others where
+    (ands, others) = L.partition (\case PAnd _ -> True; _ -> False) xs
+  f (POrF xs)  = POr  $ concatMap (\(POr  c) -> c) ors  ++ others where
+    (ors,  others) = L.partition (\case POr  _ -> True; _ -> False) xs
+  f x                   = embed x
