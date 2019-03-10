@@ -75,6 +75,7 @@ library
                 , UI.NoUI
                 , UI.State
                 , UI.ITypes
+                , UI.ITypes2
                 , Util.Misc
                 , Util.UParse
   other-modules:
