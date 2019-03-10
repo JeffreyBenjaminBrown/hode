@@ -27,6 +27,21 @@ import UI.ITypes
 import UI.State
 
 
+ui :: IO St
+ui = uiFrom $ mkRslt mempty
+
+uiFrom :: Rslt -> IO St
+uiFrom = B.defaultMain app . initialState
+
+app :: B.App St e WindowName
+app = B.App
+  { B.appDraw         = appDraw
+  , B.appChooseCursor = appChooseCursor
+  , B.appHandleEvent  = appHandleEvent
+  , B.appStartEvent   = return
+  , B.appAttrMap      = const appAttrMap
+  }
+
 appDraw :: St -> [B.Widget WindowName]
 appDraw st = [w] where
   w = B.center
@@ -59,6 +74,10 @@ appDraw st = [w] where
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
 
+appChooseCursor ::
+  St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
+appChooseCursor = B.focusRingCursor (^.focusRing)
+
 appHandleEvent ::
   St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
@@ -87,22 +106,3 @@ appAttrMap = B.attrMap B.defAttr
     , (B.editFocusedAttr           , B.black `on` B.yellow)
     , (B.attrName "focused result" , B.black `on` B.green)
     ]
-
-appChooseCursor ::
-  St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
-appChooseCursor = B.focusRingCursor (^.focusRing)
-
-app :: B.App St e WindowName
-app = B.App
-  { B.appDraw         = appDraw
-  , B.appChooseCursor = appChooseCursor
-  , B.appHandleEvent  = appHandleEvent
-  , B.appStartEvent   = return
-  , B.appAttrMap      = const appAttrMap
-  }
-
-uiFrom :: Rslt -> IO St
-uiFrom = B.defaultMain app . initialState
-
-ui :: IO St
-ui = uiFrom $ mkRslt mempty
