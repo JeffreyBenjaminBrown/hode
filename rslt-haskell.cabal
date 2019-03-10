@@ -93,6 +93,7 @@ library
               , microlens-th
               , parser-combinators
               , process
+              , recursion-schemes
               , rosezipper
               , text
               , text-zipper

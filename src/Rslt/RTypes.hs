@@ -1,4 +1,10 @@
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
+
 module Rslt.RTypes where
+
+import Data.Functor.Foldable.TH
 
 import           Data.Map (Map)
 import           Data.Set (Set)
@@ -32,6 +38,8 @@ data Expr =
     -- `Par`s are like lists, in that the weird bit comes last.
     -- `Par` is the only kind of `RefExpr` not in the `Index`.
   deriving (Eq, Ord, Read, Show)
+
+makeBaseFunctor ''Expr
 
 
 -- | = A `Rslt` is a database of `Expr`s. It stores `RefExpr`s rather

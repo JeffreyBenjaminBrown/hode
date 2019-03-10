@@ -2,6 +2,7 @@
 
 module Rslt.RUtil where
 
+import Data.Functor.Foldable
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 
@@ -12,11 +13,13 @@ import Util.Misc
 -- | = For `Expr`s
 
 depth :: Expr -> Int
-depth (Phrase _)     = 0
-depth (Addr _) = 0
-depth (Rel mems _) = 1 + maximum (map depth mems)
-depth (Tplt _)  = 0 -- ^ TODO ? consider Tplts with non-Phrase members
-depth (Par sis _)  = 1 + maximum (map (depth . snd) sis)
+depth = cata f where
+  f :: Base Expr Int -> Int
+  f (AddrF _)     = 0
+  f (PhraseF _)   = 0
+  f (RelF mems _) = 1 + maximum mems
+  f (TpltF _)     = 0
+  f (ParF sis _)  = 1 + maximum (map snd sis)
 
 
 -- | for `RefExpr`s
