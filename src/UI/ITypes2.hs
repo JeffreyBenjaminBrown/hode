@@ -8,13 +8,26 @@ import           Data.Functor.Foldable.TH
 import           Lens.Micro.TH
 import           Data.Vector (Vector)
 
+import qualified Brick.Widgets.Edit as B
+import qualified Brick.Focus as B
+
 import Rslt.RTypes
 import UI.ITypes
 
 
+data St2 = St2 {
+    _st2_focusRing            :: B.FocusRing WindowName
+  , _st2_view                 :: View
+  , _st2_focusedSubview       :: SubviewPath
+  , _st2_uiError              :: String
+  , _st2_commands             :: B.Editor String WindowName
+  , _st2_appRslt              :: Rslt
+  , _st2_shownInResultsWindow :: ShownInResultsWindow
+  }
+
 data View = View {
     _viewPath :: [SubviewEdge]
-  , _viewFOcus :: Int
+  , _viewFocus :: Int
   , _viewContent :: Either ViewQuery ViewResult
   , _viewSubviews :: Vector View -- ^ PITFALL: permits invalid state.
   -- A `ViewResult`'s children should be `ViewQuery`s, and vice-versa.
@@ -27,6 +40,6 @@ data ViewResult = ViewResult {
   , _viewResultExpr :: Expr
   , _viewResultString :: String }
 
-makeLenses ''View
+makeLenses ''St2
 makeLenses ''ViewResult
 makeBaseFunctor ''View

@@ -74,6 +74,7 @@ library
                 , UI.Main
                 , UI.NoUI
                 , UI.State
+                , UI.State2
                 , UI.ITypes
                 , UI.ITypes2
                 , Util.Misc

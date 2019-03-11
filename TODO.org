@@ -33,9 +33,8 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** TODO make a unified View type
-data View = ViewQuery VQuery [View]
-          | ViewResult VResult [View]
+** TODO use the new, unified View type
+At most, requires refactoring UI.State and UI.Main
 ** problem: moving around the Subview tree sucks
 fromVQuery :: SubviewPath -> VQuery -> Either String (Either VQuery QueryResult)
 fromVQuery [SvQuery s] vq =
