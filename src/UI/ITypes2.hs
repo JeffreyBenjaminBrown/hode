@@ -26,9 +26,10 @@ data St2 = St2 {
   }
 
 data View = View {
-    _viewFocus :: Int -- ^ maybe out of bounds; that's ok
-  , _viewContent :: Either ViewQuery ViewResult
-  , _viewSubviews :: Vector View -- ^ PITFALL: permits invalid state.
+    _viewFocus     :: Int -- ^ meaningless if `viewSubviews` empty
+  , _viewIsFocused :: Bool
+  , _viewContent   :: Either ViewQuery ViewResult
+  , _viewSubviews  :: Vector View -- ^ PITFALL: permits invalid state.
   -- A `ViewResult`'s children should be `ViewQuery`s, and vice-versa.
   }
 

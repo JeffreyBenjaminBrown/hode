@@ -43,7 +43,6 @@ and mention that you can use parens liberally to make it more obvious
  focusedContent st =
 **** The focused subview can be recalculated at each call to `appDisplay`.
 For each `View`, `viewIsFocused` can stay `False` outside of `appDisplay`.
-**** `st2_subviewPath :: SubviewPath` is too complex; it could just be [Int].
 *** DONE suspicion: implement my own "resultFocus" separate from Brick's "focus"
 **** how: see Experim.MyFocus
 **** why

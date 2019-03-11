@@ -39,6 +39,7 @@ initialState2 r = St2 {
       -- Almost always (for safety), Results is listed first. Not so
       -- here, because we want focus to start on the Commands window.
   , _st2_view  = View { _viewFocus = 0
+                      , _viewIsFocused = False
                       , _viewContent = Left ""
                       , _viewSubviews = V.empty
                       }
@@ -107,13 +108,15 @@ runCommand2 (CommandFind s h) st = do
                         , _viewResultString = (M.!) ss a }
       v_qr :: Addr -> View
       v_qr a = View { _viewFocus = 0
+                    , _viewIsFocused = False
                     , _viewContent = Right $ qr a
                     , _viewSubviews = V.empty }
-      v = View {
-          _viewFocus = 0
-        , _viewContent = Left s
-        , _viewSubviews = V.fromList $ map v_qr $ S.toList as
-        }
+      v = View { _viewFocus = 0
+               , _viewIsFocused = False
+               , _viewContent = Left s
+               , _viewSubviews =
+                 V.fromList $ map v_qr $ S.toList as
+               }
 
   Right $ B.continue $ st
     & st2_view .~ v
