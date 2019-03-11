@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module UI.State2 where
 
@@ -51,15 +52,14 @@ initialState2 r = St2 {
   }
 
 
-focusedContent :: [Int] -> View
-               -> Either String (Either ViewQuery ViewResult)
-focusedContent [] v = Right $ v ^. viewContent
-focusedContent path v = do
+get_subviewAtPath :: [Int] -> View -> Either String View
+get_subviewAtPath [] v = Right v
+get_subviewAtPath path v = do
   let (svs :: V.Vector View) = v ^. viewSubviews
   (subview :: View) <-
-    maybe (Left "focusedContent: viewFocus out of range.") Right
+    maybe (Left "get_subviewAtPath: viewFocus out of range.") Right
     $ (V.!?) svs $ v ^. viewFocus
-  focusedContent (tail path) subview
+  get_subviewAtPath (tail path) subview
 
 
 resultsText2 :: St2 -> [String]

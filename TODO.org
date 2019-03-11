@@ -33,9 +33,34 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** next: focus a result
-*** TODO thinking
-**** The focused subview can be recalculated at each call to `appDisplay`.
+** TODO rename focusedSubview -> pathToFocus
+** TODO need: set_subviewAtPath
+and then make a lens
+** moveFocus: somewhat coded
+*** extant code
+moveFocus :: Direction -> St2 -> Either String St2
+moveFocus DirLeft st@( _st2_focusedSubview -> [] ) = Right st
+moveFocus DirLeft st = Right $ st & st2_focusedSubview %~ tail
+
+moveFocus DirRight st = do
+  (v :: View) <- prefixLeft "moveFocus"
+    $ get_focusedSubview (st ^. st2_focusedSubview)
+    (st ^. st2_view)
+  case null $ v ^. viewSubviews of
+    True -> Right st
+    False -> let nextFocusLink = v ^. viewFocus
+      in Right $ st & st2_focusedSubview %~ (++ [nextFocusLink])
+
+moveFocus DirUp st = do
+  let path = st ^. st2_focusedSubview
+  (parent :: View) <- prefixLeft "moveFocus"
+    $ get_focusedSubview (take (length path - 1) path)
+    (st ^. st2_view)
+  case parent ^. viewFocus of
+    0 -> Right st
+    n -> Right $
+
+*** The focused subview can be recalculated at each call to `appDisplay`.
 For each `View`, `viewIsFocused` can stay `False` outside of `appDisplay`.
 *** DONE suspicion: implement my own "resultFocus" separate from Brick's "focus"
 **** how: see Experim.MyFocus
