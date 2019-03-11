@@ -56,14 +56,15 @@ resultsText2 st = f 0 $ st ^. st2_view where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 
-  iShow :: Int -> Either ViewQuery ViewResult -> String
-  iShow i (Left vq)  = indent i vq
-  iShow i (Right qr) = indent i $ show (qr ^. viewResultAddr)
-                       ++ ": " ++ show (qr ^. viewResultString)
-
   f :: Int -> View -> [String]
-  f i v = iShow i (v ^. viewContent)
+  f i v = indent i (vShow $ v ^. viewContent)
     : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
+
+
+vShow :: Either ViewQuery ViewResult -> String
+vShow (Left vq)  = vq
+vShow (Right qr) = show (qr ^. viewResultAddr)
+  ++ ": " ++ show (qr ^. viewResultString)
 
 
 emptyCommandWindow2 :: St2 -> St2
