@@ -5,15 +5,15 @@
 module UI.State2 where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Lens.Micro
-import           Data.Set (Set)
-import qualified Data.Set as S
+--import           Data.Functor.Foldable
 import           Data.Map (Map)
 import qualified Data.Map as M
+import           Data.Set (Set)
+import qualified Data.Set as S
+import qualified Data.Text.Zipper.Generic as TxZ
 --import           Data.Vector (Vector)
 import qualified Data.Vector as V
-
-import qualified Data.Text.Zipper.Generic as TxZ
+import           Lens.Micro
 
 import qualified Brick.Main as B
 import qualified Brick.Focus as B
@@ -36,10 +36,10 @@ import Util.Misc
 initialState2 :: Rslt -> St2
 initialState2 r = St2 {
     _st2_focusRing = B.focusRing [Commands, Results]
-      -- Almost always (for safety), Results is listed first. Not so here,
-      -- because we want focus to start on the Commands window.
+      -- Almost always (for safety), Results is listed first. Not so
+      -- here, because we want focus to start on the Commands window.
   , _st2_view  = View { _viewPath = []
-                      , _viewFocus = 0 -- ^ maybe out of bounds; that's ok
+                      , _viewFocus = 0
                       , _viewContent = Left ""
                       , _viewSubviews = V.empty
                       }
@@ -49,6 +49,43 @@ initialState2 r = St2 {
   , _st2_appRslt   = r
   , _st2_shownInResultsWindow = ShowingResults
   }
+
+
+resultsText2 :: St2 -> [String]
+resultsText2 st = f 0 $ st ^. st2_view where
+  indent :: Int -> String -> String
+  indent i s = replicate (2*i) ' ' ++ s
+
+  iShow :: Int -> Either ViewQuery ViewResult -> String
+  iShow i (Left vq)  = indent i vq
+  iShow i (Right qr) = indent i $ show (qr ^. viewResultAddr)
+                       ++ ": " ++ show (qr ^. viewResultString)
+
+  f :: Int -> View -> [String]
+  f i v = iShow i (v ^. viewContent)
+    : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
+
+
+emptyCommandWindow2 :: St2 -> St2
+emptyCommandWindow2 = st2_commands . B.editContentsL
+                     .~ TxZ.textZipper [] Nothing
+
+
+parseAndRunCommand2 :: St2 -> B.EventM WindowName (B.Next St2)
+parseAndRunCommand2 st =
+  let cmd = unlines $ B.getEditContents $ st ^. st2_commands
+  in case pCommand (st ^. st2_appRslt) cmd of
+    Left s1 -> B.continue
+     $ st2_shownInResultsWindow .~ ShowingError
+     $ st2_uiError .~ s1
+     $ st
+    Right c -> case runCommand2 c st of
+      Left s2 -> B.continue
+        $ st2_shownInResultsWindow .~ ShowingError
+        $ st2_uiError .~ s2
+        $ st
+      Right evNextSt -> evNextSt
+
 
 runCommand2 ::
   Command -> St2 -> Either String (B.EventM WindowName (B.Next St2))
@@ -84,7 +121,6 @@ runCommand2 (CommandFind s h) st = do
     & st2_focusedSubview .~ [SvQuery s]
     & st2_view .~ v
     & st2_shownInResultsWindow .~ ShowingResults
-
 
 runCommand2 (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. st2_appRslt) e

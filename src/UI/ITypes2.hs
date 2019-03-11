@@ -27,7 +27,7 @@ data St2 = St2 {
 
 data View = View {
     _viewPath :: [SubviewEdge]
-  , _viewFocus :: Int
+  , _viewFocus :: Int -- ^ maybe out of bounds; that's ok
   , _viewContent :: Either ViewQuery ViewResult
   , _viewSubviews :: Vector View -- ^ PITFALL: permits invalid state.
   -- A `ViewResult`'s children should be `ViewQuery`s, and vice-versa.
@@ -41,5 +41,8 @@ data ViewResult = ViewResult {
   , _viewResultString :: String }
 
 makeLenses ''St2
+makeLenses ''View
 makeLenses ''ViewResult
+
 makeBaseFunctor ''View
+makeLenses ''ViewF
