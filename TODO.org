@@ -35,12 +35,6 @@ and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** next: focus a result
 *** TODO thinking
-**** (code for this that I started writing)
- data View = View { ...
-   , _isFocused            :: Bool
-
- focusedContent :: [SubviewEdge] -> View -> Either ViewQuery ViewResult
- focusedContent st =
 **** The focused subview can be recalculated at each call to `appDisplay`.
 For each `View`, `viewIsFocused` can stay `False` outside of `appDisplay`.
 *** DONE suspicion: implement my own "resultFocus" separate from Brick's "focus"

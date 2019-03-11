@@ -95,7 +95,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
   _ -> B.continue =<< case B.focusGetCurrent (st^.focusRing) of
-    Just Commands -> B.handleEventLensed 
+    Just Commands -> B.handleEventLensed
       st commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st

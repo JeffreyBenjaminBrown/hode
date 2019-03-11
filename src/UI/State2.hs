@@ -51,6 +51,17 @@ initialState2 r = St2 {
   }
 
 
+focusedContent :: [Int] -> View
+               -> Either String (Either ViewQuery ViewResult)
+focusedContent [] v = Right $ v ^. viewContent
+focusedContent path v = do
+  let (svs :: V.Vector View) = v ^. viewSubviews
+  (subview :: View) <-
+    maybe (Left "focusedContent: viewFocus out of range.") Right
+    $ (V.!?) svs $ v ^. viewFocus
+  focusedContent (tail path) subview
+
+
 resultsText2 :: St2 -> [String]
 resultsText2 st = f 0 $ st ^. st2_view where
   indent :: Int -> String -> String
