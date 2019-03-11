@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module UI.Main where
+module UI.Main () where
 
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Vector as V
