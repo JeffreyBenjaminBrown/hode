@@ -20,7 +20,7 @@ data Direction = DirUp | DirDown | DirLeft | DirRight
 data St2 = St2 {
     _st2_focusRing            :: B.FocusRing WindowName
   , _st2_view                 :: View
-  , _st2_focusedSubview       :: [Int]
+  , _st2_pathToFocus          :: [Int]
   , _st2_uiError              :: String
   , _st2_commands             :: B.Editor String WindowName
   , _st2_appRslt              :: Rslt

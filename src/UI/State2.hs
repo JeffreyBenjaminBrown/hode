@@ -44,7 +44,7 @@ initialState2 r = St2 {
                       , _viewContent = Left ""
                       , _viewSubviews = V.empty
                       }
-  , _st2_focusedSubview = []
+  , _st2_pathToFocus = []
   , _st2_uiError   = ""
   , _st2_commands  = B.editor Commands Nothing ""
   , _st2_appRslt   = r

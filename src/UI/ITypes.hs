@@ -34,7 +34,7 @@ type Folder = String
 data St = St {
     _focusRing            :: B.FocusRing WindowName
   , _results              :: VQuery
-  , _focusedSubview       :: SubviewPath
+  , _pathToFocus          :: SubviewPath
   , _uiError              :: String
   , _commands             :: B.Editor String WindowName
   , _appRslt              :: Rslt

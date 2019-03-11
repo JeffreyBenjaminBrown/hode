@@ -41,7 +41,7 @@ initialState r = St {
                        , _vQueryResults = V.empty
                        , _focusedResult = 0
                        }
-  , _focusedSubview = []
+  , _pathToFocus = []
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
@@ -49,11 +49,11 @@ initialState r = St {
   }
 
 vqIsFocused :: St -> VQuery -> Bool
-vqIsFocused st vq = (st ^. focusedSubview) ==
+vqIsFocused st vq = (st ^. pathToFocus) ==
   (vq ^. vQueryPath) ++ [SvQuery $ vq ^. vQueryString]
 
 qrIsFocused :: St -> QueryResult -> Bool
-qrIsFocused st qr = (st ^. focusedSubview) ==
+qrIsFocused st qr = (st ^. pathToFocus) ==
   (qr ^. resultPath) ++ [SvResult $ qr ^. resultAddr]
 
 resultsText :: St -> [String]
@@ -130,7 +130,7 @@ runCommand (CommandFind s h) st = do
         }
 
   Right $ B.continue $ st
-    & focusedSubview .~ [SvQuery s]
+    & pathToFocus .~ [SvQuery s]
     & results .~ vq
     & shownInResultsWindow .~ ShowingResults
 

@@ -33,7 +33,6 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** TODO rename focusedSubview -> pathToFocus
 ** TODO need: set_subviewAtPath
 and then make a lens
 ** moveFocus: somewhat coded
