@@ -28,20 +28,20 @@ import UI.ITypes2
 import UI.State2
 
 
---ui :: IO St
---ui = uiFrom $ mkRslt mempty
---
---uiFrom :: Rslt -> IO St
---uiFrom = B.defaultMain app . initialState
---
---app :: B.App St e WindowName
---app = B.App
---  { B.appDraw         = appDraw
---  , B.appChooseCursor = appChooseCursor
---  , B.appHandleEvent  = appHandleEvent
---  , B.appStartEvent   = return
---  , B.appAttrMap      = const appAttrMap
---  }
+ui2 :: IO St2
+ui2 = uiFrom2 $ mkRslt mempty
+
+uiFrom2 :: Rslt -> IO St2
+uiFrom2 = B.defaultMain app . initialState2
+
+app :: B.App St2 e WindowName
+app = B.App
+  { B.appDraw         = appDraw
+  , B.appChooseCursor = appChooseCursor
+  , B.appHandleEvent  = appHandleEvent
+  , B.appStartEvent   = return
+  , B.appAttrMap      = const appAttrMap
+  }
 
 appDraw :: St2 -> [B.Widget WindowName]
 appDraw st = [w] where
