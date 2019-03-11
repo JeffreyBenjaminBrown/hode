@@ -38,8 +38,7 @@ initialState2 r = St2 {
     _st2_focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so
       -- here, because we want focus to start on the Commands window.
-  , _st2_view  = View { _viewPath = []
-                      , _viewFocus = 0
+  , _st2_view  = View { _viewFocus = 0
                       , _viewContent = Left ""
                       , _viewSubviews = V.empty
                       }
@@ -107,19 +106,16 @@ runCommand2 (CommandFind s h) st = do
                         , _viewResultExpr = (M.!) es a
                         , _viewResultString = (M.!) ss a }
       v_qr :: Addr -> View
-      v_qr a = View { _viewPath = [SvQuery s]
-                    , _viewFocus = 0
+      v_qr a = View { _viewFocus = 0
                     , _viewContent = Right $ qr a
                     , _viewSubviews = V.empty }
       v = View {
-        _viewPath = []
-        , _viewFocus = 0
+          _viewFocus = 0
         , _viewContent = Left s
         , _viewSubviews = V.fromList $ map v_qr $ S.toList as
         }
 
   Right $ B.continue $ st
-    & st2_focusedSubview .~ [SvQuery s]
     & st2_view .~ v
     & st2_shownInResultsWindow .~ ShowingResults
 

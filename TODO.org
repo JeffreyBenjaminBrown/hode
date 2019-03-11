@@ -35,7 +35,7 @@ and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** next: focus a result
 *** TODO thinking
-**** code for this that I started writing
+**** (code for this that I started writing)
  data View = View { ...
    , _isFocused            :: Bool
 
@@ -44,7 +44,6 @@ and mention that you can use parens liberally to make it more obvious
 **** The focused subview can be recalculated at each call to `appDisplay`.
 For each `View`, `viewIsFocused` can stay `False` outside of `appDisplay`.
 **** `st2_subviewPath :: SubviewPath` is too complex; it could just be [Int].
-**** `View` does not need the `viewPath` field.
 *** DONE suspicion: implement my own "resultFocus" separate from Brick's "focus"
 **** how: see Experim.MyFocus
 **** why

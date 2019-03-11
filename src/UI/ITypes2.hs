@@ -18,7 +18,7 @@ import UI.ITypes
 data St2 = St2 {
     _st2_focusRing            :: B.FocusRing WindowName
   , _st2_view                 :: View
-  , _st2_focusedSubview       :: SubviewPath
+  , _st2_focusedSubview       :: [Int]
   , _st2_uiError              :: String
   , _st2_commands             :: B.Editor String WindowName
   , _st2_appRslt              :: Rslt
@@ -26,8 +26,7 @@ data St2 = St2 {
   }
 
 data View = View {
-    _viewPath :: [SubviewEdge]
-  , _viewFocus :: Int -- ^ maybe out of bounds; that's ok
+    _viewFocus :: Int -- ^ maybe out of bounds; that's ok
   , _viewContent :: Either ViewQuery ViewResult
   , _viewSubviews :: Vector View -- ^ PITFALL: permits invalid state.
   -- A `ViewResult`'s children should be `ViewQuery`s, and vice-versa.
