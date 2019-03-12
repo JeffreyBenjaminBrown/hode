@@ -6,20 +6,18 @@
 module UI.State2 where
 
 import           Control.Monad.IO.Class (liftIO)
---import           Data.Functor.Foldable
 import           Data.Map (Map)
-import qualified Data.Map as M
+import qualified Data.Map                 as M
 import           Data.Set (Set)
-import qualified Data.Set as S
+import qualified Data.Set                 as S
 import qualified Data.Text.Zipper.Generic as TxZ
---import           Data.Vector (Vector)
-import qualified Data.Vector as V
+import qualified Data.Vector              as V
 import           Lens.Micro
 
-import qualified Brick.Main as B
-import qualified Brick.Focus as B
-import qualified Brick.Types as B
-import qualified Brick.Widgets.Edit as B
+import qualified Brick.Main               as B
+import qualified Brick.Focus              as B
+import qualified Brick.Types              as B
+import qualified Brick.Widgets.Edit       as B
 
 import Hash.HLookup
 import Qseq.QTypes
@@ -52,14 +50,29 @@ initialState2 r = St2 {
   }
 
 
-get_subviewAtPath :: [Int] -> View -> Either String View
-get_subviewAtPath [] v = Right v
-get_subviewAtPath path v = do
-  let (svs :: V.Vector View) = v ^. viewSubviews
-  (subview :: View) <-
-    maybe (Left "get_subviewAtPath: viewFocus out of range.") Right
-    $ (V.!?) svs $ v ^. viewFocus
-  get_subviewAtPath (tail path) subview
+-- TODO : The next two functions should be (prismatic?) one-liners.
+-- TODO : The `Vector View` field really ought (so far) to be a zipper.
+get_viewAt :: [Int] -> View -> Either String View
+get_viewAt [] v = Right v
+get_viewAt (p:path) v = do
+  let (subvs :: V.Vector View) = v ^. viewSubviews
+  _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
+       in if inBounds subvs p then Right () else Left errMsg
+  let subv = (V.!) subvs p
+  get_viewAt path subv
+
+
+mod_viewAt :: [Int] -> (View -> View) -> View -> Either String View
+mod_viewAt []       f v = Right $ f v
+mod_viewAt (p:path) f v = do
+  let (subvs :: V.Vector View) = v ^. viewSubviews
+  _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
+       in if inBounds subvs p then Right () else Left errMsg
+  let subv = (V.!) subvs p
+  subv' <- mod_viewAt path f subv
+  let Just subvs' = modifyAt p (const subv') subvs
+      -- it's not `Nothing` because I already checked `inBounds`.
+  Right $ v & viewSubviews .~ subvs'
 
 
 resultsText2 :: St2 -> [String]

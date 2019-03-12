@@ -5,11 +5,12 @@ module Util.Misc where
 
 import           Data.Either hiding (lefts)
 import           Data.Maybe
-import           Data.Map (Map)
-import qualified Data.Map       as M
-import           Data.Set (Set)
-import qualified Data.Set       as S
-
+import           Data.Map    (Map)
+import qualified Data.Map    as M
+import           Data.Set    (Set)
+import qualified Data.Set    as S
+import           Data.Vector (Vector)
+import qualified Data.Vector as V
 
 -- | = Collections
 
@@ -30,6 +31,20 @@ replaceNth a n as = do
 
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
+
+inBounds :: Vector a -> Int -> Bool
+inBounds v i = i >= 0 &&
+               i <= V.length v - 1
+
+modifyAt :: Int -> (a -> a) -> Vector a -> Maybe (Vector a)
+modifyAt i f v
+  | not $ inBounds v i = Nothing
+  | otherwise = Just ( before
+                       V.++ V.singleton (f $ v V.! i)
+                       V.++ after )
+    where before = V.take i v
+          after = V.take remaining $ V.reverse v
+            where remaining = (V.length v - 1) - i
 
 
 -- | = errors
