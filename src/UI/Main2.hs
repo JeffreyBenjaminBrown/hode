@@ -44,6 +44,8 @@ app = B.App
   , B.appAttrMap      = const appAttrMap
   }
 
+-- | The focused subview is recalculated at each call to `appDisplay`.
+-- Dach `View`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St2 -> [B.Widget WindowName]
 appDraw st0 = [w] where
   w = B.center
@@ -90,6 +92,27 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     >> B.continue st
   B.EvKey (B.KChar 'k') [B.MMeta] ->
     B.continue $ emptyCommandWindow2 st
+
+  B.EvKey (B.KChar 'e') [B.MMeta] ->
+    let (e :: Either String St2) = moveFocus DirUp st
+        st' = either errMsg id e where
+          errMsg = error "appHandleEvent: todo: handle either better"
+    in B.continue st'
+  B.EvKey (B.KChar 'd') [B.MMeta] ->
+    let (e :: Either String St2) = moveFocus DirDown st
+        st' = either errMsg id e where
+          errMsg = error "appHandleEvent: todo: handle either better"
+    in B.continue st'
+  B.EvKey (B.KChar 'f') [B.MMeta] ->
+    let (e :: Either String St2) = moveFocus DirRight st
+        st' = either errMsg id e where
+          errMsg = error "appHandleEvent: todo: handle either better"
+    in B.continue st'
+  B.EvKey (B.KChar 's') [B.MMeta] ->
+    let (e :: Either String St2) = moveFocus DirLeft st
+        st' = either errMsg id e where
+          errMsg = error "appHandleEvent: todo: handle either better"
+    in B.continue st'
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand2 st
 
