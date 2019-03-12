@@ -43,7 +43,7 @@ modifyAt i f v
                        V.++ V.singleton (f $ v V.! i)
                        V.++ after )
     where before = V.take i v
-          after = V.take remaining $ V.reverse v
+          after = V.reverse $ V.take remaining $ V.reverse v
             where remaining = (V.length v - 1) - i
 
 
