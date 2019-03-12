@@ -26,6 +26,7 @@ import UI.Clipboard
 import UI.ITypes
 import UI.ITypes2
 import UI.State2
+import UI.ViewTree
 
 
 ui2 :: IO St2
@@ -44,16 +45,26 @@ app = B.App
   }
 
 appDraw :: St2 -> [B.Widget WindowName]
-appDraw st = [w] where
+appDraw st0 = [w] where
   w = B.center
     $ outputWindow <=> vLimit 3 commandWindow
+
+  st = let
+    v = either err id $ foc $ st0 ^. st2_view where
+      err = error "appDraw: todo: handle better"
+      foc = mod_viewAt (st0 ^. st2_pathToFocus) (viewIsFocused .~ True)
+    in st0 & st2_view .~ v
 
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. st2_shownInResultsWindow of
     ShowingError -> strWrap $ st ^. st2_uiError
     ShowingResults -> let 
       f :: View -> B.Widget WindowName
-      f = strWrap . vShow . _viewContent
+      f v = style $ strWrap $ vShow $ _viewContent v where
+        style :: B.Widget WindowName -> B.Widget WindowName
+        style = if not $ v ^. viewIsFocused then id
+                  else withAttr $ B.attrName "focused result"
+
       in f (st ^. st2_view)
          <=> ( padLeft (B.Pad 2)
                ( vBox $ map f $ V.toList
