@@ -50,31 +50,6 @@ initialState2 r = St2 {
   }
 
 
--- TODO : The next two functions should be (prismatic?) one-liners.
--- TODO : The `Vector View` field really ought (so far) to be a zipper.
-get_viewAt :: [Int] -> View -> Either String View
-get_viewAt [] v = Right v
-get_viewAt (p:path) v = do
-  let (subvs :: V.Vector View) = v ^. viewSubviews
-  _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
-       in if inBounds subvs p then Right () else Left errMsg
-  let subv = (V.!) subvs p
-  get_viewAt path subv
-
-
-mod_viewAt :: [Int] -> (View -> View) -> View -> Either String View
-mod_viewAt []       f v = Right $ f v
-mod_viewAt (p:path) f v = do
-  let (subvs :: V.Vector View) = v ^. viewSubviews
-  _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
-       in if inBounds subvs p then Right () else Left errMsg
-  let subv = (V.!) subvs p
-  subv' <- mod_viewAt path f subv
-  let Just subvs' = modifyAt p (const subv') subvs
-      -- it's not `Nothing` because I already checked `inBounds`.
-  Right $ v & viewSubviews .~ subvs'
-
-
 resultsText2 :: St2 -> [String]
 resultsText2 st = f 0 $ st ^. st2_view where
   indent :: Int -> String -> String

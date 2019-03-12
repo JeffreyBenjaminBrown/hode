@@ -28,16 +28,22 @@ source-repository head
 library
   exposed-modules:
                   Data.Graph
+--                , Data.Relation
                 , Experim.MyFocus
                 , Experim.ScrollNest
---                , Data.Relation
                 , Hash.Convert
                 , Hash.EitherExpr
-                , Hash.Hash
                 , Hash.HLookup
                 , Hash.HParse
                 , Hash.HTypes
                 , Hash.HUtil
+                , Hash.Hash
+                , Qseq.MkLeaf
+                , Qseq.QTypes
+                , Qseq.QValid
+                , Qseq.Query
+                , Qseq.RunLeaf
+                , Qseq.Subst
                 , Rslt.Edit
                 , Rslt.Files
                 , Rslt.Index
@@ -46,14 +52,13 @@ library
                 , Rslt.RUtil
                 , Rslt.RValid
                 , Rslt.Show
-                , Qseq.Query
-                , Qseq.MkLeaf
-                , Qseq.RunLeaf
-                , Qseq.QValid
-                , Qseq.Subst
-                , Qseq.QTypes
                 , Test.Hash.TConvert
                 , Test.Hash.TParse
+                , Test.Qseq.TLeaf
+                , Test.Qseq.TProgram
+                , Test.Qseq.TQuery
+                , Test.Qseq.TSubst
+                , Test.Qseq.TValid
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
                 , Test.Rslt.TEdit
@@ -61,23 +66,19 @@ library
                 , Test.Rslt.TIndex_and_Valid
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow
-                , Test.Qseq.TLeaf
-                , Test.Qseq.TProgram
-                , Test.Qseq.TQuery
-                , Test.Qseq.TSubst
-                , Test.Qseq.TValid
                 , Test.TGraph
                 , Test.TMain
                 , Test.TUtil
                 , UI.Clipboard
                 , UI.IParse
+                , UI.ITypes
+                , UI.ITypes2
                 , UI.Main
                 , UI.Main2
                 , UI.NoUI
                 , UI.State
                 , UI.State2
-                , UI.ITypes
-                , UI.ITypes2
+                , UI.ViewTree
                 , Util.Misc
                 , Util.UParse
   other-modules:
