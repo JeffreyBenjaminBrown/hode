@@ -13,7 +13,6 @@ import qualified Brick.Focus as B
 
 import Hash.HTypes
 import Rslt.RTypes
---import UI.ITypes
 
 
 -- | = Tiny types
@@ -43,14 +42,14 @@ type Folder = String
 
 -- | = Meaty types
 
-data St2 = St2 {
-    _st2_focusRing            :: B.FocusRing WindowName
-  , _st2_view                 :: View
-  , _st2_pathToFocus          :: [Int]
-  , _st2_uiError              :: String
-  , _st2_commands             :: B.Editor String WindowName
-  , _st2_appRslt              :: Rslt
-  , _st2_shownInResultsWindow :: ShownInResultsWindow
+data St = St {
+    _focusRing            :: B.FocusRing WindowName
+  , _view                 :: View
+  , _pathToFocus          :: [Int]
+  , _uiError              :: String
+  , _commands             :: B.Editor String WindowName
+  , _appRslt              :: Rslt
+  , _shownInResultsWindow :: ShownInResultsWindow
   }
 
 data View = View {
@@ -68,7 +67,7 @@ data ViewResult = ViewResult {
   , _viewResultExpr :: Expr
   , _viewResultString :: String }
 
-makeLenses ''St2
+makeLenses ''St
 makeLenses ''View
 makeLenses ''ViewResult
 

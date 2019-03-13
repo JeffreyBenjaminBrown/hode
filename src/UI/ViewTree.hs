@@ -43,23 +43,23 @@ mod_viewAt (p:path) f v = do
   Right $ v & viewSubviews .~ subvs'
 
 
-moveFocus :: Direction -> St2 -> Either String St2
-moveFocus DirLeft st@( _st2_pathToFocus -> [] ) = Right st
-moveFocus DirLeft st = Right $ st & st2_pathToFocus %~ tail
+moveFocus :: Direction -> St -> Either String St
+moveFocus DirLeft st@( _pathToFocus -> [] ) = Right st
+moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
 
 moveFocus DirRight st = do
   (v :: View) <- prefixLeft "moveFocus"
-    $ get_viewAt (st ^. st2_pathToFocus)
-    (st ^. st2_view)
+    $ get_viewAt (st ^. pathToFocus)
+    (st ^. view)
   case null $ v ^. viewSubviews of
     True -> Right st
     False -> let nextFocusLink = v ^. viewFocus
-      in Right $ st & st2_pathToFocus %~ (++ [nextFocusLink])
+      in Right $ st & pathToFocus %~ (++ [nextFocusLink])
 
 moveFocus DirUp st = do
-  let path = st ^. st2_pathToFocus
+  let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
-      topView = st ^. st2_view
+      topView = st ^. view
   (parent :: View) <- prefixLeft "moveFocus"
     $ get_viewAt pathToParent topView
   let parFoc = parent ^. viewFocus
@@ -69,13 +69,13 @@ moveFocus DirUp st = do
       path' = path ++ [parFoc']
   topView' <- mod_viewAt pathToParent
               (viewFocus .~ parFoc') topView
-  Right $ st & st2_pathToFocus .~ path'
-    & st2_view .~ topView'
+  Right $ st & pathToFocus .~ path'
+    & view .~ topView'
 
 moveFocus DirDown st = do
-  let path = st ^. st2_pathToFocus
+  let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
-      topView = st ^. st2_view
+      topView = st ^. view
   (parent :: View) <- prefixLeft "moveFocus"
     $ get_viewAt pathToParent topView
   let parFoc = parent ^. viewFocus
@@ -85,5 +85,5 @@ moveFocus DirDown st = do
       path' = path ++ [parFoc']
   topView' <- mod_viewAt pathToParent
               (viewFocus .~ parFoc') topView
-  Right $ st & st2_pathToFocus .~ path'
-    & st2_view .~ topView'
+  Right $ st & pathToFocus .~ path'
+    & view .~ topView'

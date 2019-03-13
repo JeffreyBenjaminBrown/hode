@@ -28,13 +28,13 @@ import UI.State
 import UI.ViewTree
 
 
-ui2 :: IO St2
-ui2 = uiFrom2 $ mkRslt mempty
+ui :: IO St
+ui = uiFrom $ mkRslt mempty
 
-uiFrom2 :: Rslt -> IO St2
-uiFrom2 = B.defaultMain app . initialState2
+uiFrom :: Rslt -> IO St
+uiFrom = B.defaultMain app . initialState
 
-app :: B.App St2 e WindowName
+app :: B.App St e WindowName
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor
@@ -45,20 +45,20 @@ app = B.App
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
 -- Dach `View`'s `viewIsFocused` field is `False` outside of `appDisplay`.
-appDraw :: St2 -> [B.Widget WindowName]
+appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
   w = B.center
     $ outputWindow <=> vLimit 3 commandWindow
 
   st = let
-    v = either err id $ foc $ st0 ^. st2_view where
+    v = either err id $ foc $ st0 ^. view where
       err = error "appDraw: todo: handle better"
-      foc = mod_viewAt (st0 ^. st2_pathToFocus) (viewIsFocused .~ True)
-    in st0 & st2_view .~ v
+      foc = mod_viewAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
+    in st0 & view .~ v
 
   outputWindow, commandWindow :: B.Widget WindowName
-  outputWindow = case st ^. st2_shownInResultsWindow of
-    ShowingError -> strWrap $ st ^. st2_uiError
+  outputWindow = case st ^. shownInResultsWindow of
+    ShowingError -> strWrap $ st ^. uiError
     ShowingResults -> let 
       f :: View -> B.Widget WindowName
       f v = style $ strWrap $ vShow $ _viewContent v where
@@ -66,58 +66,58 @@ appDraw st0 = [w] where
         style = if not $ v ^. viewIsFocused then id
                   else withAttr $ B.attrName "focused result"
 
-      in f (st ^. st2_view)
+      in f (st ^. view)
          <=> ( padLeft (B.Pad 2)
                ( vBox $ map f $ V.toList
-                 $ st ^. st2_view . viewSubviews ) )
+                 $ st ^. view . viewSubviews ) )
 
-  commandWindow = B.withFocusRing (st^.st2_focusRing)
-    (B.renderEditor (str . unlines)) (st^.st2_commands)
+  commandWindow = B.withFocusRing (st^.focusRing)
+    (B.renderEditor (str . unlines)) (st^.commands)
 
 appChooseCursor ::
-  St2 -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
-appChooseCursor = B.focusRingCursor (^. st2_focusRing)
+  St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
+appChooseCursor = B.focusRingCursor (^. focusRing)
 
 appHandleEvent ::
-  St2 -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St2)
+  St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc []         -> B.halt st
-  B.EvKey (B.KChar '\t') [] -> B.continue $ st & st2_focusRing %~ B.focusNext
-  B.EvKey B.KBackTab []     -> B.continue $ st & st2_focusRing %~ B.focusPrev
+  B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
+  B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   B.EvKey (B.KChar 'r') [B.MMeta] ->
     -- TODO : slightly buggy: conjures, copies some empty lines.
-    liftIO ( toClipboard $ unlines $ resultsText2 st )
+    liftIO ( toClipboard $ unlines $ resultsText st )
     >> B.continue st
   B.EvKey (B.KChar 'k') [B.MMeta] ->
-    B.continue $ emptyCommandWindow2 st
+    B.continue $ emptyCommandWindow st
 
   B.EvKey (B.KChar 'e') [B.MMeta] ->
-    let (e :: Either String St2) = moveFocus DirUp st
+    let (e :: Either String St) = moveFocus DirUp st
         st' = either errMsg id e where
           errMsg = error "appHandleEvent: todo: handle either better"
     in B.continue st'
   B.EvKey (B.KChar 'd') [B.MMeta] ->
-    let (e :: Either String St2) = moveFocus DirDown st
+    let (e :: Either String St) = moveFocus DirDown st
         st' = either errMsg id e where
           errMsg = error "appHandleEvent: todo: handle either better"
     in B.continue st'
   B.EvKey (B.KChar 'f') [B.MMeta] ->
-    let (e :: Either String St2) = moveFocus DirRight st
+    let (e :: Either String St) = moveFocus DirRight st
         st' = either errMsg id e where
           errMsg = error "appHandleEvent: todo: handle either better"
     in B.continue st'
   B.EvKey (B.KChar 's') [B.MMeta] ->
-    let (e :: Either String St2) = moveFocus DirLeft st
+    let (e :: Either String St) = moveFocus DirLeft st
         st' = either errMsg id e where
           errMsg = error "appHandleEvent: todo: handle either better"
     in B.continue st'
 
-  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand2 st
+  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
-  _ -> B.continue =<< case B.focusGetCurrent (st^.st2_focusRing) of
+  _ -> B.continue =<< case B.focusGetCurrent (st^.focusRing) of
     Just Commands -> B.handleEventLensed 
-      st st2_commands B.handleEditorEvent ev
+      st commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st
 

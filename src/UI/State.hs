@@ -31,26 +31,26 @@ import UI.ITypes
 import Util.Misc
 
 
-initialState2 :: Rslt -> St2
-initialState2 r = St2 {
-    _st2_focusRing = B.focusRing [Commands, Results]
+initialState :: Rslt -> St
+initialState r = St {
+    _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so
       -- here, because we want focus to start on the Commands window.
-  , _st2_view  = View { _viewFocus = 0
+  , _view  = View { _viewFocus = 0
                       , _viewIsFocused = False
                       , _viewContent = Left ""
                       , _viewSubviews = V.empty
                       }
-  , _st2_pathToFocus = []
-  , _st2_uiError   = ""
-  , _st2_commands  = B.editor Commands Nothing ""
-  , _st2_appRslt   = r
-  , _st2_shownInResultsWindow = ShowingResults
+  , _pathToFocus = []
+  , _uiError   = ""
+  , _commands  = B.editor Commands Nothing ""
+  , _appRslt   = r
+  , _shownInResultsWindow = ShowingResults
   }
 
 
-resultsText2 :: St2 -> [String]
-resultsText2 st = f 0 $ st ^. st2_view where
+resultsText :: St -> [String]
+resultsText st = f 0 $ st ^. view where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 
@@ -65,32 +65,32 @@ vShow (Right qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
 
 
-emptyCommandWindow2 :: St2 -> St2
-emptyCommandWindow2 = st2_commands . B.editContentsL
+emptyCommandWindow :: St -> St
+emptyCommandWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
 
 
-parseAndRunCommand2 :: St2 -> B.EventM WindowName (B.Next St2)
-parseAndRunCommand2 st =
-  let cmd = unlines $ B.getEditContents $ st ^. st2_commands
-  in case pCommand (st ^. st2_appRslt) cmd of
+parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
+parseAndRunCommand st =
+  let cmd = unlines $ B.getEditContents $ st ^. commands
+  in case pCommand (st ^. appRslt) cmd of
     Left s1 -> B.continue
-     $ st2_shownInResultsWindow .~ ShowingError
-     $ st2_uiError .~ s1
+     $ shownInResultsWindow .~ ShowingError
+     $ uiError .~ s1
      $ st
-    Right c -> case runCommand2 c st of
+    Right c -> case runCommand c st of
       Left s2 -> B.continue
-        $ st2_shownInResultsWindow .~ ShowingError
-        $ st2_uiError .~ s2
+        $ shownInResultsWindow .~ ShowingError
+        $ uiError .~ s2
         $ st
       Right evNextSt -> evNextSt
 
 
-runCommand2 ::
-  Command -> St2 -> Either String (B.EventM WindowName (B.Next St2))
+runCommand ::
+  Command -> St -> Either String (B.EventM WindowName (B.Next St))
 
-runCommand2 (CommandFind s h) st = do
-  let r = st ^. st2_appRslt
+runCommand (CommandFind s h) st = do
+  let r = st ^. appRslt
       title = "runCommand, called on CommandFind"
 
   (as :: Set Addr)   <- prefixLeft title
@@ -117,21 +117,21 @@ runCommand2 (CommandFind s h) st = do
                           , _viewResultString = (M.!) ss a }
 
   Right $ B.continue $ st
-    & st2_view .~ v
-    & st2_shownInResultsWindow .~ ShowingResults
+    & view .~ v
+    & shownInResultsWindow .~ ShowingResults
 
-runCommand2 (CommandInsert e) st =
-  either Left (Right . f) $ exprToAddrInsert (st ^. st2_appRslt) e
-  where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St2)
+runCommand (CommandInsert e) st =
+  either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
+  where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
         f (r,_) = B.continue
-          $ st2_appRslt .~ r
-          $ st2_shownInResultsWindow .~ ShowingResults
+          $ appRslt .~ r
+          $ shownInResultsWindow .~ ShowingResults
           $ st
 
-runCommand2 (CommandLoad f) st =
+runCommand (CommandLoad f) st =
   Right $ do r <- liftIO $ readRslt f
-             B.continue $ st & st2_appRslt .~ r
+             B.continue $ st & appRslt .~ r
 
-runCommand2 (CommandSave f) st =
-  Right ( liftIO ( writeRslt f $ st ^. st2_appRslt )
+runCommand (CommandSave f) st =
+  Right ( liftIO ( writeRslt f $ st ^. appRslt )
           >> B.continue st )
