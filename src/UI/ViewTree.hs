@@ -14,6 +14,7 @@ module UI.ViewTree (
   , mod_viewAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
+  , resultView    -- Rslt -> Addr -> Either String ResultView
   ) where
 
 import           Data.Map (Map)
@@ -22,10 +23,11 @@ import qualified Data.Set    as S
 import qualified Data.Vector as V
 import           Lens.Micro
 
+import Rslt.RLookup
+import Rslt.RTypes
+import Rslt.Show
 import UI.ITypes
 import Util.Misc
-import Rslt.RTypes
-import Rslt.RLookup
 
 
 -- TODO : The next two functions should be (prismatic?) one-liners.
@@ -124,3 +126,11 @@ groupHostRels r a0 = do
           tplt :: Addr -> [Expr]
           tplt a = es where Right (Tplt es) = addrToExpr r a
   Right $ map package $ M.toList groups
+
+
+resultView :: Rslt -> Addr -> Either String ResultView
+resultView r a = do
+  (s :: String) <- prefixLeft "resultView"
+                   $ addrToExpr r a >>= eShow r
+  Right $ ResultView { _viewResultAddr = a
+                     , _viewResultString = s }

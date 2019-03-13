@@ -14,8 +14,6 @@ module UI.State (
   ) where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Data.Map (Map)
-import qualified Data.Map                 as M
 import           Data.Set (Set)
 import qualified Data.Set                 as S
 import qualified Data.Text.Zipper.Generic as TxZ
@@ -31,11 +29,10 @@ import Hash.HLookup
 import Qseq.QTypes
 import Rslt.Edit
 import Rslt.Files
-import Rslt.RLookup
 import Rslt.RTypes
-import Rslt.Show
 import UI.IParse
 import UI.ITypes
+import UI.ViewTree
 import Util.Misc
 
 
@@ -104,10 +101,6 @@ runCommand (CommandFind s h) st = do
 
   (as :: Set Addr)   <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
-  (es :: Map Addr Expr)   <- ifLefts_map title
-    $ M.fromSet (addrToExpr r) as
-  (ss :: Map Addr String) <- ifLefts_map title
-    $ M.map (eShow r) es
 
   let v = ViewTree { _viewFocus = 0
                    , _viewIsFocused = False
@@ -117,12 +110,14 @@ runCommand (CommandFind s h) st = do
                    } where
 
         v_qr :: Addr -> ViewTree
-        v_qr a = ViewTree { _viewFocus = 0
-                          , _viewIsFocused = False
-                          , _viewContent = VResult qr
-                          , _viewSubviews = V.empty } where
-          qr = ResultView { _viewResultAddr = a
-                          , _viewResultString = (M.!) ss a }
+        v_qr a = ViewTree {
+            _viewFocus = 0
+          , _viewIsFocused = False
+          , _viewContent = let
+              (rv :: Either String ResultView) = resultView r a
+              (err :: String -> ResultView) = \se -> error ("runCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+              in VResult $ either err id rv
+          , _viewSubviews = V.empty }
 
   Right $ B.continue $ st
     & pathToFocus .~ []

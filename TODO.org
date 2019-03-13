@@ -41,9 +41,9 @@ This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 * TODO crawling
 ** local queries to implement
 *** TODO H -> "its host relationship, grouped by template and its role"
-make a new function :: Addr -> ViewResult
-   factor the logic for it out of RunCommand (FindCommand)
 use these
+  resultView :: Rslt -> Addr -> Either String ResultView
+
   _pathToFocus :: St -> [Int]
   get_viewAt :: [Int] -> ViewTree -> Either String ViewTree
   _viewContent :: ViewTree -> View      -- or the lens
