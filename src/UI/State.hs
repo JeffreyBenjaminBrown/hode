@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module UI.State2 where
+module UI.State where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Map (Map)
@@ -27,7 +27,7 @@ import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
 import UI.IParse
-import UI.ITypes2
+import UI.ITypes
 import Util.Misc
 
 

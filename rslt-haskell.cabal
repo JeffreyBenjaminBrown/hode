@@ -71,10 +71,10 @@ library
                 , Test.TUtil
                 , UI.Clipboard
                 , UI.IParse
-                , UI.ITypes2
-                , UI.Main2
+                , UI.ITypes
+                , UI.Main
                 , UI.NoUI
-                , UI.State2
+                , UI.State
                 , UI.ViewTree
                 , Util.Misc
                 , Util.UParse

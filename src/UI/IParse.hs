@@ -9,7 +9,7 @@ import Hash.HLookup
 import Hash.HParse
 import Hash.HTypes
 import Rslt.RTypes
-import UI.ITypes2
+import UI.ITypes
 import Util.Misc
 import Util.UParse
 

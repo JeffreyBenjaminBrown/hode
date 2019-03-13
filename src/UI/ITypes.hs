@@ -2,7 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module UI.ITypes2 where
+module UI.ITypes where
 
 import           Data.Functor.Foldable.TH
 import           Lens.Micro.TH

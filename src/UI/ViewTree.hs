@@ -14,7 +14,7 @@ module UI.ViewTree where
 import qualified Data.Vector as V
 import           Lens.Micro
 
-import UI.ITypes2
+import UI.ITypes
 import Util.Misc
 
 

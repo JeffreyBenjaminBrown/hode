@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module UI.Main2 where
+module UI.Main where
 
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Vector as V
@@ -23,8 +23,8 @@ import qualified Graphics.Vty as B
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
 import UI.Clipboard
-import UI.ITypes2
-import UI.State2
+import UI.ITypes
+import UI.State
 import UI.ViewTree
 
 
