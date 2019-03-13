@@ -34,13 +34,29 @@ see the comment leading its definition
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** local queries to implement
-*** "its templates"
-Every template such that the center appears in at least one relationship using that template.
-*** "its rels" (every relationship in which it is a level-one member)
-*** "its members" (all level-1 members)
+*** TODO R -> "its templates, and under those, its relationships"
+**** how
+***** Find everything the expression `isIn`.
+***** Group those by (Template, Role of the center).
+***** Create a "ViewCenterRole" object.
+****** *PITFALL: at first blush* it has this data
+The Addr `a` of the center
+The Role r which `a` plays
+The Tplt t
+The set of Rels for which `a` plays r in t
+Whether the contents (those Rels) are folded.
+****** but in fact the subviews should be separate
+Just like a ViewQuery or a ViewResult does not hold its subviews.
+****** the `ViewCenterRole`'s subviews are of `ViewResult`s
+**** goal
+Every template such that the center appears in at least one relationship using that template, and grouped under that, every such relationship.
+*** TODO M -> "its members" (all level-1 members)
+similar, but rather than `ViewCenterRole`, something simpler.
+*** To move faster around these trees
+When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
 *** "its members*" (with a star)
 all members, submembers, etc -- probably nested
-*** maybe "all its rels*" (with a star)
+*** maybe "its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
 ** things displayed in the Results window
 *** an absolute query
