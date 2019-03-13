@@ -2,20 +2,38 @@
 
 module Test.TUI where
 
-import qualified Test.HUnit as T
+import qualified Data.Set        as S
+import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
 import           Hash.HTypes
 import           Rslt.RTypes
 import           UI.IParse
 import           UI.ITypes
---import qualified Test.Rslt.RData as D
+import           UI.ViewTree
+import qualified Test.Rslt.RData as D
 
 
 test_module_ui :: T.Test
 test_module_ui = TestList [
-  TestLabel "test_pCommand" test_pCommand
+    TestLabel "test_pCommand" test_pCommand
+  , TestLabel "test_groupHostRels" test_groupHostRels
   ]
+
+test_groupHostRels :: T.Test
+test_groupHostRels = TestCase $ do
+  assertBool "1" $ (S.fromList <$> groupHostRels D.big 2) == Right
+    ( S.fromList
+      [ ( CenterRoleView
+          { _crvCenter = 2
+          , _crvRole = RoleMember 1
+          , _crvTplt = [Phrase "0",Phrase "0",Phrase "0"] }
+        ,[9] )
+      , ( CenterRoleView
+          { _crvCenter = 2
+          , _crvRole = RoleMember 2
+          , _crvTplt = [Phrase "0",Phrase "0",Phrase "0"] }
+        ,[7] ) ] )
 
 test_pCommand :: T.Test
 test_pCommand = TestCase $ do

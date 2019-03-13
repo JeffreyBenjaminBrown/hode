@@ -37,21 +37,7 @@ and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** local queries to implement
 *** TODO H -> "its host relationship, grouped by template and its role"
-**** how
-***** Find everything the expression `isIn`.
-***** Group those by (Template, Role of the center).
-***** Create a "ViewCenterRole" object.
-****** *PITFALL: at first blush* it has this data
-The Addr `a` of the center
-The Role r which `a` plays
-The Tplt t
-The set of Rels for which `a` plays r in t
-Whether the contents (those Rels) are folded.
-****** but in fact the subviews should be separate
-Just like a ViewQuery or a ResultView does not hold its subviews.
-****** the `ViewCenterRole`'s subviews are of `ResultView`s
-**** goal
-Every template such that the center appears in at least one relationship using that template, and grouped under that, every such relationship.
+use `groupHostRels` :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
 *** TODO M -> "its members" (all level-1 members)
 similar, but rather than `ViewCenterRole`, something simpler.
 *** To move faster around these trees
