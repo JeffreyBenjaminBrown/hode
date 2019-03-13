@@ -22,9 +22,9 @@ data HExpr =
     HExpr  Expr   -- ^ When you want exactly one `Expr`, and know which.
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
   | HMap  HMap    -- ^ The search workhorse.
-  | HEval HExpr [[Role]] -- ^ Finds matches to the `HMap`, then retrieves
-  -- from each match the subexpression each `[Role]` (path) arrives at.
-  -- (Inclduing more than one path in the `[[Role]]` is weird but legal.)
+  | HEval HExpr [RolePath] -- ^ Finds matches to the `HMap`, then retrieves
+  -- from each match the subexpression each `RolePath` arrives at.
+  -- (Inclduing more than one path in the `[RolePath]` is weird but legal.)
   | HVar   Var    -- ^ To look up the `Var` from a `Subst Addr Rslt`.
   | HDiff HExpr HExpr -- ^ Set difference.
   | HAnd [HExpr]      -- ^ Intersection.

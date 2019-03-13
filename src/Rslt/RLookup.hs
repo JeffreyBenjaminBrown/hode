@@ -16,7 +16,7 @@ import Util.Misc
 
 -- | == build `Query`s for `Rslt`s
 
-findSubExprs :: [[Role]] -> Either Addr Var -> Find Addr Rslt
+findSubExprs :: [RolePath] -> Either Addr Var -> Find Addr Rslt
 findSubExprs paths = mkFindFrom f where
   f :: Rslt -> Addr -> Either String (Set Addr)
   f r a = subExprs r paths a
@@ -53,13 +53,13 @@ refExprToExpr r (Par' sas s) = do
 
 -- | = Find sub-`Expr`s of an `Expr`
 
-subExprs :: Rslt -> [[Role]] -> Addr -> Either String (Set Addr)
+subExprs :: Rslt -> [RolePath] -> Addr -> Either String (Set Addr)
 subExprs r rls a =
   S.fromList <$> ifLefts "subExprs" its
   where its :: [Either String Addr]
         its = map (subExpr r a) rls
 
-subExpr :: Rslt -> Addr -> [Role] -> Either String Addr
+subExpr :: Rslt -> Addr -> RolePath -> Either String Addr
 subExpr _ a [] = Right a
 subExpr r a (rl : rls) = do
   (aHas :: Map Role Addr) <-

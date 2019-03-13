@@ -40,7 +40,7 @@ Every template such that the center appears in at least one relationship using t
 *** "its members" (all level-1 members)
 *** "its members*" (with a star)
 all members, submembers, etc -- probably nested
-*** maybe "all rels*" (with a star)
+*** maybe "all its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
 ** things displayed in the Results window
 *** an absolute query

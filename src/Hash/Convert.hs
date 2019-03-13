@@ -104,17 +104,17 @@ pMapToHMap = ifLefts_map "pMapToHMap"
 
 -- | = Finding the `It`s for a `PEval` to evaluate.
 
-pathsToIts_pExpr :: PExpr -> [[Role]]
+pathsToIts_pExpr :: PExpr -> [RolePath]
 pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
 pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
-pathsToIts_sub_pExpr :: PExpr -> [[Role]]
+pathsToIts_sub_pExpr :: PExpr -> [RolePath]
 pathsToIts_sub_pExpr = para f where
-  err :: Base PExpr (PExpr, [[Role]]) -> [[Role]]
+  err :: Base PExpr (PExpr, [RolePath]) -> [RolePath]
   err x = error $ "pathsToIts_sub_pExpr called too late, on "
           ++ show (embed $ fmap fst x)
 
-  f :: Base PExpr (PExpr, [[Role]]) -> [[Role]]
+  f :: Base PExpr (PExpr, [RolePath]) -> [RolePath]
   f (PExprF _)       = []
   f (PMapF m)        = concatMap g $ M.toList $ M.map snd m
     where g (role, paths) = map ((:) role) paths
@@ -131,12 +131,12 @@ pathsToIts_sub_pExpr = para f where
   f x@(PParF _ _)    = err x
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
-pathsToIts_sub_pRel :: PRel -> [[Role]]
+pathsToIts_sub_pRel :: PRel -> [RolePath]
 pathsToIts_sub_pRel = cata f where
-  f :: Base PRel [[Role]] -> [[Role]]
+  f :: Base PRel [RolePath] -> [RolePath]
   f AbsentF         = []
   f (PNonRelF pnr)  = pathsToIts_sub_pExpr pnr
   f (OpenF _ ms js) = f $ ClosedF ms js
   f (ClosedF ms _)  = concatMap g $ zip [1..] ms where
-    g :: (Int,[[Role]]) -> [[Role]]
+    g :: (Int,[RolePath]) -> [RolePath]
     g (i,ps) = map ((:) $ RoleMember i) ps
