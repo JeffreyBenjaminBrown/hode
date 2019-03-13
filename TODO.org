@@ -33,43 +33,21 @@ see the comment leading its definition
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
-** TODO 2 bugs
-Moving focus up or down causes a crash.
-** if moving focus ever gets slow
-replace those vectors of subviews with zippers
-** why the focus within the Results window is coded by hand
-(where "by hand" = instead of using Brick's built-in focus concept).
-*** in brief
-Brick's "focus" selects among named Widgets. Few things can be named: lists, editors, viewports and `cached`s. In particular, a strWrap cannot be.
-
-I could wrap the strWrap in a List, but that feels awkward.
-*** things that can be named
-cached
-**** these won't work for holding a single widget
-editor
-viewport -- would be infinite-sized, because nested
-** overview
-*** absolute and relative queries
-There will be nested "results" windows. Each time you issue a "global" query -- a /find command written into the Command window -- it should create a Results object containing the query (as text, to show, and maybe also as hexpr) and a window full of its results. Those results each start off as a ResultLeaf.
-
-From a ResultLeaf one can issue a "local" query, referring to that center as /c, or maybe only implicitly.
-*** local queries include
-**** "all templates"
+** local queries to implement
+*** "its templates"
 Every template such that the center appears in at least one relationship using that template.
-**** "all rels" (every relationship in which it is a level-one member)
-**** "all members" (all level-1 members)
-**** "all members*" (all members, submembers, etc -- probably nested)
-**** and maybe "all rels*", but for certain Exprs that could explode
-*** things displayed in the Results window
-**** an absolute query
-**** an Expr result
-**** a Tplt result
+*** "its rels" (every relationship in which it is a level-one member)
+*** "its members" (all level-1 members)
+*** "its members*" (with a star)
+all members, submembers, etc -- probably nested
+*** maybe "all rels*" (with a star)
+"maybe" because for certain Exprs that could explode
+** things displayed in the Results window
+*** an absolute query
+*** an Expr result
+*** a Tplt result
 These have to know what center they were queried from. That way they can be unfolded to show only rels involving that center.
-** data types, yet to implement
-data View = View {
-    viewQuery :: VQuery
-  , folded :: Bool }
-** capabilities
+** DONE obvious | redundant
 *** Every relationship involving _
 Grouped by template.
 *** members of
@@ -79,7 +57,7 @@ It could be that the buffer has a lot of text, and the context leading to the cu
 *** view-root the Expr at point
  It should stay at the top line, while its members if many scroll through a window below it.
 *** buffer list
- Later, a buffer tree.
+Later, a buffer tree.
 * TODO UI
 ** TODO record, show command history
 ** better UI messaging
@@ -107,13 +85,10 @@ up|down, multipurpose
 left|right in same level
 * TODO views
 ** add Expr wrapper for display
-ExprImg = ExprImg Expr | Bracket
-*** Show addresses as numbers?
-  eShow r (Addr a) = Right $ bracket_angle_small_left
-                          : show a ++ [bracket_angle_small_right]
-** language for views
-** show a recursive statement without exploding
-** hard : text-to-hexpr|expr correspondence
+ExprImg = ExprImg Expr | Bracket ExprImg
+** Show addresses as numbers?
+ eShow r (Addr a) = Right $ bracket_angle_small_left
+                         : show a ++ [bracket_angle_small_right]
 * TODO Hash, the DSL for exprs
 ** TODO pExprIsSpecific should address PDiff, PAnd, POr
 *** where it is used
@@ -149,7 +124,7 @@ probably just return []
  pRelToPExpr (Closed ms js) =
 *** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
 
-* TODO Qseq, the DSL for compound searches
+* TODO Qseq, the search metalanguage
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
@@ -170,14 +145,14 @@ a map from Addr to Set Role
    multiple Roles within the same Expr
 ** ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
-* TODO relationship equivalence
-* TODO programmatic edits ("do _ to everything that satisfies _")
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** if moving focus ever gets slow
+replace those vectors of subviews with zippers
 ** redundant cases should be last among definitions
 example: In this:
     pExprToHExpr :: PExpr -> Either String HExpr
@@ -213,12 +188,30 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
 *** a ForAll with a ForSome condition
 *** a ForAll with a ForAll condition
 ** test pathsToIts_*, eval
+* far off
+** relationship equivalence
+** programmatic edits ("do _ to everything that satisfies _")
+** language for views
+** show a recursive statement without exploding
+** hard : text-to-hexpr|expr correspondence
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:
    https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
  more:
    https://www.fpcomplete.com/blog/defining-exceptions-in-haskell
+* DONE explaining some design decisions
+** why the focus within the Results window is coded by hand
+(where "by hand" = instead of using Brick's built-in focus concept).
+*** in brief
+Brick's "focus" selects among named Widgets. Few things can be named: lists, editors, viewports and `cached`s. In particular, a strWrap cannot be.
+
+I could wrap the strWrap in a List, but that feels awkward.
+*** things that can be named
+cached
+**** these won't work for holding a single widget
+editor
+viewport -- would be infinite-sized, because nested
 * DONE ? obvious|stale
 ** forall and exists clauses for variable functions of variables
 *** Example

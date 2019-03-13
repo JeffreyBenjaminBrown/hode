@@ -106,12 +106,12 @@ runCommand (CommandFind s h) st = do
                , _viewSubviews =
                  V.fromList $ map v_qr $ S.toList as
                } where
+
         v_qr :: Addr -> View
         v_qr a = View { _viewFocus = 0
                       , _viewIsFocused = False
                       , _viewContent = Right $ qr
                       , _viewSubviews = V.empty } where
-          qr :: ViewResult
           qr = ViewResult { _viewResultAddr = a
                           , _viewResultExpr = (M.!) es a
                           , _viewResultString = (M.!) ss a }
