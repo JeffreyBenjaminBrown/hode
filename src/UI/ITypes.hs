@@ -63,7 +63,7 @@ type QueryView = String
 
 data ResultView = ResultView {
     _viewResultAddr :: Addr
-  , _viewResultExpr :: Expr
+  , _viewResultExpr :: Expr -- TODO ? delete field
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
 -- | `CenterRoleView` is used to group relationships in which the `Expr`at
@@ -71,13 +71,14 @@ data ResultView = ResultView {
 -- then `CenterRoleView 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
 data CenterRoleView = CenterRoleView {
-  crvCenter :: Addr
-  , crvRole :: Role
-  , crvTplt :: [Expr] } deriving (Show, Eq, Ord)
+    _crvCenter :: Addr
+  , _crvRole :: Role
+  , _crvTplt :: [Expr] } deriving (Show, Eq, Ord)
 
 makeLenses ''St
 makeLenses ''ViewTree
 makeLenses ''ResultView
+makeLenses ''CenterRoleView
 
 makeBaseFunctor ''ViewTree
 makeLenses ''ViewTreeF

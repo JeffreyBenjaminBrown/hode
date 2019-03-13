@@ -13,13 +13,19 @@ module UI.ViewTree (
     get_viewAt -- [Int] -> ViewTree                           -> Either String ViewTree
   , mod_viewAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
   , moveFocus  -- Direction -> St -> Either String St
+  , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
   ) where
 
+import           Data.Map (Map)
+import qualified Data.Map    as M
+import qualified Data.Set    as S
 import qualified Data.Vector as V
 import           Lens.Micro
 
 import UI.ITypes
 import Util.Misc
+import Rslt.RTypes
+import Rslt.RLookup
 
 
 -- TODO : The next two functions should be (prismatic?) one-liners.
@@ -93,3 +99,28 @@ moveFocus DirDown st = do
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'
     & view .~ topView'
+
+
+groupHostRels :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
+groupHostRels r a0 = do
+  (ras :: [(Role, Addr)]) <- let
+    msg = "groupHostRels, computing ras from center " ++ show a0
+    in prefixLeft msg $ S.toList <$> isIn r a0
+  (ts :: [Addr]) <- let
+    tpltAddr :: Addr -> Either String Addr
+    tpltAddr a = prefixLeft msg $ fills r (RoleTplt, a)
+      where msg = "groupHostRels, computing tpltAddr of " ++ show a
+    in ifLefts "" $ map (tpltAddr . snd) ras
+  let groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
+      groups = foldr f M.empty $ zip ras ts where
+        f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
+                                  -> Map (Role, Addr) [Addr]
+        f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
+      package :: ((Role, Addr),[Addr]) -> (CenterRoleView, [Addr])
+      package ((role,t),as) = (crv, as) where
+        crv = CenterRoleView { _crvCenter = a0
+                             , _crvRole = role
+                             , _crvTplt = tplt t } where
+          tplt :: Addr -> [Expr]
+          tplt a = es where Right (Tplt es) = addrToExpr r a
+  Right $ map package $ M.toList groups
