@@ -44,7 +44,7 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so
       -- here, because we want focus to start on the Commands window.
-  , _view  = View { _viewFocus = 0
+  , _view  = ViewTree { _viewFocus = 0
                       , _viewIsFocused = False
                       , _viewContent = Left ""
                       , _viewSubviews = V.empty
@@ -62,7 +62,7 @@ resultsText st = f 0 $ st ^. view where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 
-  f :: Int -> View -> [String]
+  f :: Int -> ViewTree -> [String]
   f i v = indent i (vShow $ v ^. viewContent)
     : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
 
@@ -108,18 +108,18 @@ runCommand (CommandFind s h) st = do
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
 
-  let v = View { _viewFocus = 0
-               , _viewIsFocused = False
-               , _viewContent = Left s
-               , _viewSubviews =
-                 V.fromList $ map v_qr $ S.toList as
-               } where
+  let v = ViewTree { _viewFocus = 0
+                   , _viewIsFocused = False
+                   , _viewContent = Left s
+                   , _viewSubviews =
+                     V.fromList $ map v_qr $ S.toList as
+                   } where
 
-        v_qr :: Addr -> View
-        v_qr a = View { _viewFocus = 0
-                      , _viewIsFocused = False
-                      , _viewContent = Right $ qr
-                      , _viewSubviews = V.empty } where
+        v_qr :: Addr -> ViewTree
+        v_qr a = ViewTree { _viewFocus = 0
+                          , _viewIsFocused = False
+                          , _viewContent = Right $ qr
+                          , _viewSubviews = V.empty } where
           qr = ResultView { _viewResultAddr = a
                           , _viewResultExpr = (M.!) es a
                           , _viewResultString = (M.!) ss a }

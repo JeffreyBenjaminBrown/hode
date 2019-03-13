@@ -67,5 +67,3 @@ data RefExpr =
 -- | The constructor that a `RefExpr` uses.
 data ExprCtr = PhraseCtr | RelCtr | TpltCtr | ParCtr
   deriving (Eq, Ord, Read, Show)
-
--- | A `RefExprs` is used to retrieve the text of `Phrase`s and `Par`s.

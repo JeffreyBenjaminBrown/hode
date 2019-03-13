@@ -10,9 +10,9 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    get_viewAt -- [Int]                   -> View -> Either String View
-  , mod_viewAt -- [Int] -> (View -> View) -> View -> Either String View
-  , moveFocus  -- Direction -> St                 -> Either String St
+    get_viewAt -- [Int] -> ViewTree                           -> Either String ViewTree
+  , mod_viewAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
+  , moveFocus  -- Direction -> St -> Either String St
   ) where
 
 import qualified Data.Vector as V
@@ -23,21 +23,21 @@ import Util.Misc
 
 
 -- TODO : The next two functions should be (prismatic?) one-liners.
--- TODO : The `Vector View` field really ought (so far) to be a zipper.
-get_viewAt :: [Int] -> View -> Either String View
+-- TODO : The `Vector ViewTree` field really ought (so far) to be a zipper.
+get_viewAt :: [Int] -> ViewTree -> Either String ViewTree
 get_viewAt [] v = Right v
 get_viewAt (p:path) v = do
-  let (subvs :: V.Vector View) = v ^. viewSubviews
+  let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
   _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
        in if inBounds subvs p then Right () else Left errMsg
   let subv = (V.!) subvs p
   get_viewAt path subv
 
 
-mod_viewAt :: [Int] -> (View -> View) -> View -> Either String View
+mod_viewAt :: [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
 mod_viewAt []       f v = Right $ f v
 mod_viewAt (p:path) f v = do
-  let (subvs :: V.Vector View) = v ^. viewSubviews
+  let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
   _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
        in if inBounds subvs p then Right () else Left errMsg
   let subv = (V.!) subvs p
@@ -52,7 +52,7 @@ moveFocus DirLeft st@( _pathToFocus -> [] ) = Right st
 moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
 
 moveFocus DirRight st = do
-  (v :: View) <- prefixLeft "moveFocus"
+  (v :: ViewTree) <- prefixLeft "moveFocus"
     $ get_viewAt (st ^. pathToFocus)
     (st ^. view)
   case null $ v ^. viewSubviews of
@@ -64,7 +64,7 @@ moveFocus DirUp st = do
   let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
       topView = st ^. view
-  (parent :: View) <- prefixLeft "moveFocus, computing parent"
+  (parent :: ViewTree) <- prefixLeft "moveFocus, computing parent"
     $ get_viewAt pathToParent topView
   let parFoc = parent ^. viewFocus
       parFoc' = if inBounds (parent ^. viewSubviews) parFoc
@@ -81,7 +81,7 @@ moveFocus DirDown st = do
   let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
       topView = st ^. view
-  (parent :: View) <- prefixLeft "moveFocus"
+  (parent :: ViewTree) <- prefixLeft "moveFocus"
     $ get_viewAt pathToParent topView
   let parFoc = parent ^. viewFocus
       parFoc' = if inBounds (parent ^. viewSubviews) parFoc

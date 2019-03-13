@@ -44,7 +44,7 @@ app = B.App
   }
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
--- Dach `View`'s `viewIsFocused` field is `False` outside of `appDisplay`.
+-- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
   w = B.center
@@ -53,7 +53,7 @@ appDraw st0 = [w] where
   st = let
     v = either err id $ foc $ st0 ^. view where
       err = error "appDraw: todo: handle better"
-      foc :: View -> Either String View
+      foc :: ViewTree -> Either String ViewTree
       foc = mod_viewAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
     in st0 & view .~ v
 
@@ -61,7 +61,7 @@ appDraw st0 = [w] where
   outputWindow = case st ^. shownInResultsWindow of
     ShowingError -> strWrap $ st ^. uiError
     ShowingResults -> let 
-      f :: View -> B.Widget WindowName
+      f :: ViewTree -> B.Widget WindowName
       f v = style $ strWrap $ vShow $ _viewContent v where
         style :: B.Widget WindowName -> B.Widget WindowName
         style = if not $ v ^. viewIsFocused then id

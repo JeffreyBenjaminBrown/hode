@@ -39,7 +39,7 @@ type Folder = String
 
 data St = St {
     _focusRing            :: B.FocusRing WindowName
-  , _view                 :: View
+  , _view                 :: ViewTree
   , _pathToFocus          :: [Int]
   , _uiError              :: String
   , _commands             :: B.Editor String WindowName
@@ -47,11 +47,11 @@ data St = St {
   , _shownInResultsWindow :: ShownInResultsWindow
   }
 
-data View = View {
+data ViewTree = ViewTree {
     _viewFocus     :: Int -- ^ meaningless if `viewSubviews` empty
   , _viewIsFocused :: Bool
   , _viewContent   :: Either QueryView ResultView
-  , _viewSubviews  :: Vector View -- ^ PITFALL: permits invalid state.
+  , _viewSubviews  :: Vector ViewTree -- ^ PITFALL: permits invalid state.
   -- A `ResultView`'s children should be `QueryView`s, and vice-versa.
   } deriving (Show)
 
@@ -62,12 +62,21 @@ data ResultView = ResultView {
   , _viewResultExpr :: Expr
   , _viewResultString :: String } deriving (Show)
 
+-- | `CenterRoleView` is used to group relationships in which the `Expr`at
+-- `crvCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
+-- then `CenterRoleView 3 (RoleMember 1) ["", "helps", ""]` will
+-- be one of the groups of relationships involving the `Expr` at `Addr 3`.
+data CenterRoleView = CenterRoleView {
+  crvCenter :: Addr
+  , crvRole :: Role
+  , crvTplt :: [Expr] }
+
 makeLenses ''St
-makeLenses ''View
+makeLenses ''ViewTree
 makeLenses ''ResultView
 
-makeBaseFunctor ''View
-makeLenses ''ViewF
+makeBaseFunctor ''ViewTree
+makeLenses ''ViewTreeF
 
 instance Show St where
   show st = "St { "
