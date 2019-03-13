@@ -1,7 +1,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Qseq.Query where
+module Qseq.Query (
+    runProgram            -- | sp               -> [(Var,Query e sp)]
+                          --               -> Either String (Possible e)
+  , runAnd                -- | sp -> Possible e -> Subst e -> [Query e sp]
+                          --               -> Either String (CondElts e)
+  , runVarTestlike        -- | sp -> Possible e -> Subst e -> Query e sp
+                          --               -> Either String Bool
+  , substsThatPassVarTest -- | sp -> Possible e -> Query e sp -> [Subst e]
+                          --               -> Either String [Subst e]
+  , runTestlike           -- | sp -> Possible e -> CondElts e -> Subst e
+                          -- -> Query e sp -> Either String (CondElts e)
+  , runFindlike           -- | sp -> Possible e -> Subst e -> Query e sp
+                          --               -> Either String (CondElts e)
+  ) where
 
 import           Data.List
 import qualified Data.Map       as M

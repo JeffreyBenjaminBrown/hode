@@ -1,6 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hash.HLookup where
+module Hash.HLookup (
+    hFind        -- HExpr -> Find Addr Rslt
+  , hExprToExpr  -- Rslt -> HExpr               -> Either String Expr
+  , hExprToAddrs -- Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
+  ) where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M

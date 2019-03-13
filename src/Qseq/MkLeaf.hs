@@ -2,7 +2,19 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Qseq.MkLeaf where
+module Qseq.MkLeaf (
+    either_varToElt -- ^ Subst e -> Either e Var -> Either String e
+  , mkTest          -- ^ (e -> e -> Bool) -> Either e Var -> Test e sp
+  , mkVTestIO       -- ^ Var -> Var -> VarTest e sp
+  , mkVTestIO'      -- ^ (Var,Var) -> (Var,Var) -> VarTest e sp
+  , mkVTestCompare  -- ^ (e -> e -> Bool) -> Either e Var -> Either e Var
+                    --   -> VarTest e sp
+  , mkFindReturn    -- ^ Either e Var -> Find e sp
+  , mkFindReturn'   -- ^ Set e -> Find e sp
+  , mkFind          -- ^ (sp -> Either String (Set e)) -> Find e sp
+  , mkFindFrom      -- ^ (sp -> e -> Either String (Set e)) 
+                    --   -> Either e Var -> Find e sp
+  ) where
 
 import           Prelude hiding (compare)
 import qualified Data.Map       as M

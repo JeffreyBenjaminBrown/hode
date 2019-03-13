@@ -6,7 +6,12 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hash.Convert where
+module Hash.Convert (
+    pRelToHExpr      -- PRel  -> Either String HExpr
+  , pExprToHExpr     -- PExpr -> Either String HExpr
+  , pMapToHMap       -- PMap  -> Either String HMap
+  , pathsToIts_pExpr -- PExpr -> [RolePath]
+) where
 
 import           Data.Functor.Foldable
 import qualified Data.Map       as M

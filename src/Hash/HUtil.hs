@@ -4,7 +4,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Hash.HUtil where
+module Hash.HUtil (
+    hVars           -- HExpr  -> Set Var
+  , pnrPhrase       -- String -> PRel
+  , pExprIsSpecific -- PExpr  -> Bool
+  , simplifyPRel    -- PRel   -> PRel
+  , simplifyPExpr   -- PExpr  -> PExpr
+  ) where
 
 import           Data.Functor.Foldable
 import qualified Data.List as L

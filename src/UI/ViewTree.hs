@@ -9,7 +9,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module UI.ViewTree where
+module UI.ViewTree (
+    get_viewAt -- [Int]                   -> View -> Either String View
+  , mod_viewAt -- [Int] -> (View -> View) -> View -> Either String View
+  , moveFocus  -- Direction -> St                 -> Either String St
+  ) where
 
 import qualified Data.Vector as V
 import           Lens.Micro

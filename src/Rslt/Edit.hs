@@ -1,7 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Rslt.Edit where
+module Rslt.Edit (
+    exprToAddrInsert      -- ^ Rslt -> Expr   -> Either String (Rslt, Addr)
+  , exprToAddrInsert_list -- ^ Rslt -> [Expr] -> Either String (Rslt, [Addr])
+  , replace           -- ^ RefExpr -> Addr -> Rslt      -> Either String Rslt
+  , replaceInRole     -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
+  , insert            -- ^ RefExpr -> Rslt              -> Either String Rslt
+  , insertAt          -- ^ Addr -> RefExpr -> Rslt      -> Either String Rslt
+  , deleteUnused      -- ^ Addr -> Rslt                 -> Either String Rslt
+  ) where
 
 import           Data.Functor (void)
 import qualified Data.List      as L
@@ -173,6 +181,7 @@ insert e r = do
   a <- prefixLeft "insert" $ nextAddr r
   insertAt a e r
 
+-- | like `insert`, but specifying which `Addr` to give the new expression
 insertAt :: Addr -> RefExpr -> Rslt -> Either String Rslt
 insertAt a e r = do
   void $ prefixLeft "insertAt" $ validRefExpr r e

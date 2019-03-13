@@ -3,7 +3,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module UI.State where
+module UI.State (
+  initialState       -- ^ Rslt -> St
+  , resultsText        -- ^ St -> [String]
+  , vShow              -- ^ Either ViewQuery ViewResult -> String
+  , emptyCommandWindow -- ^ St -> St
+  , parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
+  , runCommand -- ^ Command -> St
+               -- -> Either String (B.EventM WindowName (B.Next St))
+  ) where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Map (Map)

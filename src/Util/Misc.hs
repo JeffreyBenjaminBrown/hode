@@ -1,7 +1,26 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Util.Misc where
+module Util.Misc (
+  -- | = collections
+    intersections      -- ^ Set (Set a) -> Set a
+  , replaceNth         -- ^ a -> Int -> [a] -> Either String [a]
+  , replaceLast        -- ^ a -> [a] -> Either String [a]
+  , setFromSetOfMaybes -- ^ Set (Maybe a) -> Set a
+  , inBounds           -- ^ Vector a -> Int -> Bool
+  , modifyAt           -- ^ Int -> (a -> a) -> Vector a
+                       --   -> Maybe (Vector a)
+
+  -- | = errors
+  , keyErr          -- ^ String -> k -> Map k a -> String
+  , mapLeft         -- ^ (a -> a') -> Either a b -> Either a' b
+  , prefixLeft      -- ^ String -> Either String a -> Either String a
+  , ifNothings      -- ^ [Maybe a] -> Maybe [a]
+  , ifLefts         -- ^ String -> [Either String a] -> Either String [a]
+  , ifLefts_set     -- ^ String -> Set (Either String a) -> Either String (Set a)
+  , ifLefts_mapKeys -- ^ String -> Map (Either String k) a -> Either String (Map k a)
+  , ifLefts_map     -- ^ String -> Map k (Either String a) -> Either String (Map k a)
+  ) where
 
 import           Data.Either hiding (lefts)
 import           Data.Maybe

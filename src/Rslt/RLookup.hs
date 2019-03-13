@@ -1,21 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Rslt.RLookup (
-  -- | primary lookup functions
+  -- | = primary lookup functions
     variety -- ^ Rslt -> Addr -> Either String (ExprCtr, Arity)
   , arity   -- ^ Rslt -> Expr -> Either String Arity
   , has     -- ^ Rslt -> Addr -> Either String (Map Role Addr)
   , isIn    -- ^ Rslt -> Addr -> Either String (Set (Role,Addr))
   , fills   -- ^ Rslt -> (Role, Addr) -> Either String Addr
 
-  -- | convert bewteen `Addr`, `Expr`, `RefExpr`
+  -- | = convert bewteen `Addr`, `Expr`, `RefExpr`
   , C.refExprToExpr -- ^ Rslt -> RefExpr -> Either String Expr
   , C.exprToAddr    -- ^ Rslt -> Expr    -> Either String Addr
   , C.addrToRefExpr -- ^ Rslt -> Addr    -> Either String RefExpr
   , C.addrToExpr    -- ^ Rslt -> Addr    -> Either String Expr
   , C.refExprToAddr -- ^ Rslt -> RefExpr -> Either String Addr
 
-  -- | misc
+  -- | = misc
   , findSubExprs -- ^ [RolePath] -> Either Addr Var -> Find Addr Rslt
   , subExprs     -- ^ Rslt -> [RolePath] -> Addr -> Either String (Set Addr)
   , subExpr      -- ^ Rslt -> Addr -> RolePath   -> Either String Addr

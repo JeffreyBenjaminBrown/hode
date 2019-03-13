@@ -2,7 +2,19 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Rslt.RValid where
+module Rslt.RValid (
+  -- | = validate individual expressions
+  validExpr                  -- Rslt -> Expr    -> Either String ()
+, validRefExpr               -- Rslt -> RefExpr -> Either String ()
+, validTplt                  -- Rslt -> RefExpr -> Either String ()
+, refExprRefsExist           -- Rslt -> RefExpr -> Either String ()
+
+-- | = validate an entire `Rslt`
+, validRslt                  -- Rslt            -> Either String ()
+, collectionsWithAbsentAddrs -- Rslt -> Map Addr [Addr]
+, relsWithoutMatchingTplts   -- Rslt -> Map Addr RefExpr
+, allAddrsPresent            -- Rslt -> [Addr]  -> Either String ()
+  ) where
 
 import           Data.Functor.Foldable
 import           Data.Maybe

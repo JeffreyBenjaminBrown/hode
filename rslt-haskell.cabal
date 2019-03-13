@@ -48,6 +48,7 @@ library
                 , Rslt.Files
                 , Rslt.Index
                 , Rslt.RLookup
+                , Rslt.RLookup.RConvert
                 , Rslt.RTypes
                 , Rslt.RUtil
                 , Rslt.RValid
