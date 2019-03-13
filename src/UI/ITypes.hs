@@ -50,21 +50,21 @@ data St = St {
 data View = View {
     _viewFocus     :: Int -- ^ meaningless if `viewSubviews` empty
   , _viewIsFocused :: Bool
-  , _viewContent   :: Either ViewQuery ViewResult
+  , _viewContent   :: Either QueryView ResultView
   , _viewSubviews  :: Vector View -- ^ PITFALL: permits invalid state.
-  -- A `ViewResult`'s children should be `ViewQuery`s, and vice-versa.
+  -- A `ResultView`'s children should be `QueryView`s, and vice-versa.
   } deriving (Show)
 
-type ViewQuery = String
+type QueryView = String
 
-data ViewResult = ViewResult {
+data ResultView = ResultView {
     _viewResultAddr :: Addr
   , _viewResultExpr :: Expr
   , _viewResultString :: String } deriving (Show)
 
 makeLenses ''St
 makeLenses ''View
-makeLenses ''ViewResult
+makeLenses ''ResultView
 
 makeBaseFunctor ''View
 makeLenses ''ViewF

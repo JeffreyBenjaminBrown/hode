@@ -28,13 +28,15 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO pressing
+* TODO friendliness
+** don't crash with bad filename
+** fix the Either cheats that use errror in UI.*
 ** paragraphs
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** local queries to implement
-*** TODO R -> "its templates, and under those, its relationships"
+*** TODO H -> "its host relationship, grouped by template and its role"
 **** how
 ***** Find everything the expression `isIn`.
 ***** Group those by (Template, Role of the center).
@@ -46,8 +48,8 @@ The Tplt t
 The set of Rels for which `a` plays r in t
 Whether the contents (those Rels) are folded.
 ****** but in fact the subviews should be separate
-Just like a ViewQuery or a ViewResult does not hold its subviews.
-****** the `ViewCenterRole`'s subviews are of `ViewResult`s
+Just like a ViewQuery or a ResultView does not hold its subviews.
+****** the `ViewCenterRole`'s subviews are of `ResultView`s
 **** goal
 Every template such that the center appears in at least one relationship using that template, and grouped under that, every such relationship.
 *** TODO M -> "its members" (all level-1 members)

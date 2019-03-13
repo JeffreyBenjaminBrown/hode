@@ -6,7 +6,7 @@
 module UI.State (
   initialState       -- ^ Rslt -> St
   , resultsText        -- ^ St -> [String]
-  , vShow              -- ^ Either ViewQuery ViewResult -> String
+  , vShow              -- ^ Either QueryView ResultView -> String
   , emptyCommandWindow -- ^ St -> St
   , parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
   , runCommand -- ^ Command -> St
@@ -67,7 +67,7 @@ resultsText st = f 0 $ st ^. view where
     : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
 
 
-vShow :: Either ViewQuery ViewResult -> String
+vShow :: Either QueryView ResultView -> String
 vShow (Left vq)  = vq
 vShow (Right qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
@@ -120,7 +120,7 @@ runCommand (CommandFind s h) st = do
                       , _viewIsFocused = False
                       , _viewContent = Right $ qr
                       , _viewSubviews = V.empty } where
-          qr = ViewResult { _viewResultAddr = a
+          qr = ResultView { _viewResultAddr = a
                           , _viewResultExpr = (M.!) es a
                           , _viewResultString = (M.!) ss a }
 
