@@ -50,17 +50,21 @@ data St = St {
 data ViewTree = ViewTree {
     _viewFocus     :: Int -- ^ meaningless if `viewSubviews` empty
   , _viewIsFocused :: Bool
-  , _viewContent   :: Either QueryView ResultView
+  , _viewContent   :: View
   , _viewSubviews  :: Vector ViewTree -- ^ PITFALL: permits invalid state.
   -- A `ResultView`'s children should be `QueryView`s, and vice-versa.
   } deriving (Show)
+
+data View = VQuery QueryView
+          | VResult ResultView
+          | VCenterRoleView CenterRoleView deriving (Show, Eq, Ord)
 
 type QueryView = String
 
 data ResultView = ResultView {
     _viewResultAddr :: Addr
   , _viewResultExpr :: Expr
-  , _viewResultString :: String } deriving (Show)
+  , _viewResultString :: String } deriving (Show, Eq, Ord)
 
 -- | `CenterRoleView` is used to group relationships in which the `Expr`at
 -- `crvCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
@@ -69,7 +73,7 @@ data ResultView = ResultView {
 data CenterRoleView = CenterRoleView {
   crvCenter :: Addr
   , crvRole :: Role
-  , crvTplt :: [Expr] }
+  , crvTplt :: [Expr] } deriving (Show, Eq, Ord)
 
 makeLenses ''St
 makeLenses ''ViewTree

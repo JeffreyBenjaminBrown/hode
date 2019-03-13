@@ -6,7 +6,7 @@
 module UI.State (
   initialState       -- ^ Rslt -> St
   , resultsText        -- ^ St -> [String]
-  , vShow              -- ^ Either QueryView ResultView -> String
+  , vShow              -- ^ View -> String
   , emptyCommandWindow -- ^ St -> St
   , parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
   , runCommand -- ^ Command -> St
@@ -46,7 +46,7 @@ initialState r = St {
       -- here, because we want focus to start on the Commands window.
   , _view  = ViewTree { _viewFocus = 0
                       , _viewIsFocused = False
-                      , _viewContent = Left ""
+                      , _viewContent = VQuery ""
                       , _viewSubviews = V.empty
                       }
   , _pathToFocus = []
@@ -67,10 +67,11 @@ resultsText st = f 0 $ st ^. view where
     : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
 
 
-vShow :: Either QueryView ResultView -> String
-vShow (Left vq)  = vq
-vShow (Right qr) = show (qr ^. viewResultAddr)
+vShow :: View -> String
+vShow (VQuery vq)  = vq
+vShow (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
+vShow (VCenterRoleView _) = error "todo: vShow called on VCenterRoleView"
 
 
 emptyCommandWindow :: St -> St
@@ -110,7 +111,7 @@ runCommand (CommandFind s h) st = do
 
   let v = ViewTree { _viewFocus = 0
                    , _viewIsFocused = False
-                   , _viewContent = Left s
+                   , _viewContent = VQuery s
                    , _viewSubviews =
                      V.fromList $ map v_qr $ S.toList as
                    } where
@@ -118,7 +119,7 @@ runCommand (CommandFind s h) st = do
         v_qr :: Addr -> ViewTree
         v_qr a = ViewTree { _viewFocus = 0
                           , _viewIsFocused = False
-                          , _viewContent = Right $ qr
+                          , _viewContent = VResult qr
                           , _viewSubviews = V.empty } where
           qr = ResultView { _viewResultAddr = a
                           , _viewResultExpr = (M.!) es a
