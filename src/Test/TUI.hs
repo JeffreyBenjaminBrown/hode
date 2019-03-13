@@ -8,7 +8,7 @@ import           Test.HUnit hiding (Test, test)
 import           Hash.HTypes
 import           Rslt.RTypes
 import           UI.IParse
-import           UI.ITypes
+import           UI.ITypes2
 --import qualified Test.Rslt.RData as D
 
 

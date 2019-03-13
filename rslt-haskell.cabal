@@ -71,12 +71,9 @@ library
                 , Test.TUtil
                 , UI.Clipboard
                 , UI.IParse
-                , UI.ITypes
                 , UI.ITypes2
-                , UI.Main
                 , UI.Main2
                 , UI.NoUI
-                , UI.State
                 , UI.State2
                 , UI.ViewTree
                 , Util.Misc

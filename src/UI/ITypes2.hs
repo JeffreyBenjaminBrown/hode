@@ -11,11 +11,37 @@ import           Data.Vector (Vector)
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
+import Hash.HTypes
 import Rslt.RTypes
-import UI.ITypes
+--import UI.ITypes
 
+
+-- | = Tiny types
+
+data WindowName = Results | Commands deriving (Ord, Show, Eq)
+
+data Command = CommandInsert Expr
+             | CommandFind String HExpr
+             | CommandLoad Folder
+             | CommandSave Folder
+             deriving (Show, Eq, Ord)
+
+-- | PITFALL: Permits invalid paths. A safer but more tedious path type
+-- would use two edge types, and a path could only start from a query,
+-- and a query could only lead to a result, and a result to a query,
+-- and a path could never be empty.
+data SubviewEdge = SvQuery String
+                 | SvResult Addr deriving (Show, Eq, Ord)
+type SubviewPath = [SubviewEdge]
+
+data ShownInResultsWindow = ShowingError | ShowingResults
 
 data Direction = DirUp | DirDown | DirLeft | DirRight
+
+type Folder = String
+
+
+-- | = Meaty types
 
 data St2 = St2 {
     _st2_focusRing            :: B.FocusRing WindowName

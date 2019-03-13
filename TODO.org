@@ -34,7 +34,6 @@ see the comment leading its definition
 and mention that you can use parens liberally to make it more obvious
 * TODO crawling
 ** TODO 2 bugs
-Moving focus changes the order of results shown.
 Moving focus up or down causes a crash.
 ** if moving focus ever gets slow
 replace those vectors of subviews with zippers

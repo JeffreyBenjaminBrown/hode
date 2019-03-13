@@ -27,7 +27,6 @@ import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
 import UI.IParse
-import UI.ITypes
 import UI.ITypes2
 import Util.Misc
 
@@ -101,21 +100,21 @@ runCommand2 (CommandFind s h) st = do
   (ss :: Map Addr String) <- ifLefts_map title
     $ M.map (eShow r) es
 
-  let qr :: Addr -> ViewResult
-      qr a = ViewResult { _viewResultAddr = a
-                        , _viewResultExpr = (M.!) es a
-                        , _viewResultString = (M.!) ss a }
-      v_qr :: Addr -> View
-      v_qr a = View { _viewFocus = 0
-                    , _viewIsFocused = False
-                    , _viewContent = Right $ qr a
-                    , _viewSubviews = V.empty }
-      v = View { _viewFocus = 0
+  let v = View { _viewFocus = 0
                , _viewIsFocused = False
                , _viewContent = Left s
                , _viewSubviews =
                  V.fromList $ map v_qr $ S.toList as
-               }
+               } where
+        v_qr :: Addr -> View
+        v_qr a = View { _viewFocus = 0
+                      , _viewIsFocused = False
+                      , _viewContent = Right $ qr
+                      , _viewSubviews = V.empty } where
+          qr :: ViewResult
+          qr = ViewResult { _viewResultAddr = a
+                          , _viewResultExpr = (M.!) es a
+                          , _viewResultString = (M.!) ss a }
 
   Right $ B.continue $ st
     & st2_view .~ v
