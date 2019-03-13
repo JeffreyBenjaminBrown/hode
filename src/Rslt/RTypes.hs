@@ -48,10 +48,10 @@ makeBaseFunctor ''Expr
 
 data Rslt = Rslt {
     _addrToRefExpr :: Map Addr RefExpr
-  , _refExprToAddr    :: Map RefExpr Addr
-  , _variety   :: Map Addr (ExprCtr, Arity)
-  , _has       :: Map Addr (Map Role Addr)
-  , _isIn      :: Map Addr (Set (Role, Addr))
+  , _refExprToAddr :: Map RefExpr Addr
+  , _variety       :: Map Addr (ExprCtr, Arity)
+  , _has           :: Map Addr (Map Role Addr)
+  , _isIn          :: Map Addr (Set (Role, Addr))
   } deriving (Eq, Ord, Read, Show)
 
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.

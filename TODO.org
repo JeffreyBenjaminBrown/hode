@@ -28,16 +28,28 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO friendliness
+* TODO user-friendliness
 ** don't crash with bad filename
 ** fix the Either cheats that use errror in UI.*
 ** paragraphs
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
+* TODO coder-friendliness
+** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
+and maybe HExpr and PExpr.
+This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 * TODO crawling
 ** local queries to implement
 *** TODO H -> "its host relationship, grouped by template and its role"
-use `groupHostRels` :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
+make a new function :: Addr -> ViewResult
+   factor the logic for it out of RunCommand (FindCommand)
+use these
+  _pathToFocus :: St -> [Int]
+  get_viewAt :: [Int] -> ViewTree -> Either String ViewTree
+  _viewContent :: ViewTree -> View      -- or the lens
+  _viewResultAddr :: ResultView -> Addr -- or the lens
+    if the content is not a ViewResult, the operation should fail
+  groupHostRels` :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
 *** TODO M -> "its members" (all level-1 members)
 similar, but rather than `ViewCenterRole`, something simpler.
 *** To move faster around these trees

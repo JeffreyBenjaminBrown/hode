@@ -122,7 +122,6 @@ runCommand (CommandFind s h) st = do
                           , _viewContent = VResult qr
                           , _viewSubviews = V.empty } where
           qr = ResultView { _viewResultAddr = a
-                          , _viewResultExpr = (M.!) es a
                           , _viewResultString = (M.!) ss a }
 
   Right $ B.continue $ st

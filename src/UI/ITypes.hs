@@ -63,7 +63,6 @@ type QueryView = String
 
 data ResultView = ResultView {
     _viewResultAddr :: Addr
-  , _viewResultExpr :: Expr -- TODO ? delete field
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
 -- | `CenterRoleView` is used to group relationships in which the `Expr`at
