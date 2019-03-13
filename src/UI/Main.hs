@@ -53,6 +53,7 @@ appDraw st0 = [w] where
   st = let
     v = either err id $ foc $ st0 ^. view where
       err = error "appDraw: todo: handle better"
+      foc :: View -> Either String View
       foc = mod_viewAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
     in st0 & view .~ v
 

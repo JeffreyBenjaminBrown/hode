@@ -5,6 +5,7 @@
 module UI.ITypes where
 
 import           Data.Functor.Foldable.TH
+import           Lens.Micro ((^.))
 import           Lens.Micro.TH
 import           Data.Vector (Vector)
 
@@ -25,17 +26,11 @@ data Command = CommandInsert Expr
              | CommandSave Folder
              deriving (Show, Eq, Ord)
 
--- | PITFALL: Permits invalid paths. A safer but more tedious path type
--- would use two edge types, and a path could only start from a query,
--- and a query could only lead to a result, and a result to a query,
--- and a path could never be empty.
-data SubviewEdge = SvQuery String
-                 | SvResult Addr deriving (Show, Eq, Ord)
-type SubviewPath = [SubviewEdge]
-
 data ShownInResultsWindow = ShowingError | ShowingResults
+  deriving (Show,Eq, Ord)
 
 data Direction = DirUp | DirDown | DirLeft | DirRight
+  deriving (Show,Eq, Ord)
 
 type Folder = String
 
@@ -58,14 +53,14 @@ data View = View {
   , _viewContent   :: Either ViewQuery ViewResult
   , _viewSubviews  :: Vector View -- ^ PITFALL: permits invalid state.
   -- A `ViewResult`'s children should be `ViewQuery`s, and vice-versa.
-  }
+  } deriving (Show)
 
 type ViewQuery = String
 
 data ViewResult = ViewResult {
     _viewResultAddr :: Addr
   , _viewResultExpr :: Expr
-  , _viewResultString :: String }
+  , _viewResultString :: String } deriving (Show)
 
 makeLenses ''St
 makeLenses ''View
@@ -73,3 +68,13 @@ makeLenses ''ViewResult
 
 makeBaseFunctor ''View
 makeLenses ''ViewF
+
+instance Show St where
+  show st = "St { "
+   ++ "view = "                 ++ show (st ^. view)                 ++ ",\n"
+   ++ "pathToFocus = "          ++ show (st ^. pathToFocus)          ++ ",\n"
+--   ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
+--   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
+--   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"
+--   ++ "shownInResultsWindow = " ++ show (st ^. shownInResultsWindow) ++ ",\n"
+   ++ "}\n"

@@ -60,13 +60,14 @@ moveFocus DirUp st = do
   let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
       topView = st ^. view
-  (parent :: View) <- prefixLeft "moveFocus"
+  (parent :: View) <- prefixLeft "moveFocus, computing parent"
     $ get_viewAt pathToParent topView
   let parFoc = parent ^. viewFocus
       parFoc' = if inBounds (parent ^. viewSubviews) parFoc
         then max 0 $ parFoc - 1
         else 0
-      path' = path ++ [parFoc']
+  path' <- prefixLeft "moveFocus, computing path'"
+           $ replaceLast parFoc' path
   topView' <- mod_viewAt pathToParent
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'
@@ -82,7 +83,8 @@ moveFocus DirDown st = do
       parFoc' = if inBounds (parent ^. viewSubviews) parFoc
         then min (parFoc + 1) $ V.length (parent ^. viewSubviews) - 1
         else 0
-      path' = path ++ [parFoc']
+  path' <- prefixLeft "moveFocus, computing path'"
+           $ replaceLast parFoc' path
   topView' <- mod_viewAt pathToParent
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'

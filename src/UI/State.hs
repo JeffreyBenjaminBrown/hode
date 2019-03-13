@@ -117,6 +117,7 @@ runCommand (CommandFind s h) st = do
                           , _viewResultString = (M.!) ss a }
 
   Right $ B.continue $ st
+    & pathToFocus .~ []
     & view .~ v
     & shownInResultsWindow .~ ShowingResults
 

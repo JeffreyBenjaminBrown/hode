@@ -29,6 +29,10 @@ replaceNth a n as = do
   let (before, _:after) = splitAt (n-1) as
   Right $ before ++ a : after
 
+replaceLast :: a -> [a] -> Either String [a]
+replaceLast _ [] = Left "replaceLast given an empty list."
+replaceLast a as = Right $ reverse $ a : tail (reverse as)
+
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
 
