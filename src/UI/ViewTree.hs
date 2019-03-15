@@ -30,7 +30,6 @@ import           Lens.Micro
 
 import Rslt.RLookup
 import Rslt.RTypes
-import Rslt.Show
 import UI.ITypes
 import UI.IUtil
 import Util.Misc
@@ -132,14 +131,6 @@ groupHostRels r a0 = do
           tplt :: Addr -> [Expr]
           tplt a = es where Right (Tplt es) = addrToExpr r a
   Right $ map package $ M.toList groups
-
-
-resultView :: Rslt -> Addr -> Either String ResultView
-resultView r a = do
-  (s :: String) <- prefixLeft "resultView"
-                   $ addrToExpr r a >>= eShow r
-  Right $ ResultView { _viewResultAddr = a
-                     , _viewResultString = s }
 
 
 insertHosts :: St -> Either String St

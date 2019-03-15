@@ -5,8 +5,10 @@
 module UI.ITypes where
 
 import           Data.Functor.Foldable.TH
-import           Lens.Micro.TH
 import           Data.Vector (Vector)
+import           Lens.Micro
+import           Lens.Micro.TH
+
 
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B

@@ -23,8 +23,9 @@ import qualified Graphics.Vty as B
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
 import UI.Clipboard
-import UI.ITypes
 import UI.State
+import UI.ITypes
+import UI.IUtil
 import UI.ViewTree
 
 

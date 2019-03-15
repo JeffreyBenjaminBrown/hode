@@ -38,6 +38,7 @@ and mention that you can use parens liberally to make it more obvious
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
+** why is UI.IUtil.vShow distinct from show?
 * TODO crawling
 ** local queries to implement
 *** TODO H -> "its host relationship, grouped by template and its role"

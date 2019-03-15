@@ -6,7 +6,6 @@
 module UI.State (
   initialState       -- ^ Rslt -> St
   , resultsText        -- ^ St -> [String]
-  , vShow              -- ^ View -> String
   , emptyCommandWindow -- ^ St -> St
   , parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
   , runCommand -- ^ Command -> St
@@ -32,7 +31,7 @@ import Rslt.Files
 import Rslt.RTypes
 import UI.IParse
 import UI.ITypes
-import UI.ViewTree
+import UI.IUtil
 import Util.Misc
 
 
@@ -52,23 +51,6 @@ initialState r = St {
   , _appRslt   = r
   , _shownInResultsWindow = ShowingResults
   }
-
-
-resultsText :: St -> [String]
-resultsText st = f 0 $ st ^. viewTree where
-  indent :: Int -> String -> String
-  indent i s = replicate (2*i) ' ' ++ s
-
-  f :: Int -> ViewTree -> [String]
-  f i v = indent i (vShow $ v ^. viewContent)
-    : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
-
-
-vShow :: View -> String
-vShow (VQuery vq)  = vq
-vShow (VResult qr) = show (qr ^. viewResultAddr)
-  ++ ": " ++ show (qr ^. viewResultString)
-vShow (VCenterRoleView _) = error "todo: vShow called on VCenterRoleView"
 
 
 emptyCommandWindow :: St -> St
