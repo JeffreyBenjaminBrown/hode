@@ -54,7 +54,7 @@ appDraw st0 = [w] where
     v = either err id $ foc $ st0 ^. view where
       err = error "appDraw: todo: handle better"
       foc :: ViewTree -> Either String ViewTree
-      foc = mod_viewAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
+      foc = modViewTreeAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
     in st0 & view .~ v
 
   outputWindow, commandWindow :: B.Widget WindowName

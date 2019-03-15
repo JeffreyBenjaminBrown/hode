@@ -10,8 +10,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    get_viewAt -- [Int] -> ViewTree                           -> Either String ViewTree
-  , mod_viewAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
+    getViewTreeAt -- [Int] -> ViewTree                           -> Either String ViewTree
+  , modViewTreeAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
   , resultView    -- Rslt -> Addr -> Either String ResultView
@@ -32,24 +32,24 @@ import Util.Misc
 
 -- TODO : The next two functions should be (prismatic?) one-liners.
 -- TODO : The `Vector ViewTree` field really ought (so far) to be a zipper.
-get_viewAt :: [Int] -> ViewTree -> Either String ViewTree
-get_viewAt [] v = Right v
-get_viewAt (p:path) v = do
+getViewTreeAt :: [Int] -> ViewTree -> Either String ViewTree
+getViewTreeAt [] v = Right v
+getViewTreeAt (p:path) v = do
   let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
-  _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
+  _ <- let errMsg = "getViewTreeAt: index " ++ show p ++ " out of bounds."
        in if inBounds subvs p then Right () else Left errMsg
   let subv = (V.!) subvs p
-  get_viewAt path subv
+  getViewTreeAt path subv
 
 
-mod_viewAt :: [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
-mod_viewAt []       f v = Right $ f v
-mod_viewAt (p:path) f v = do
+modViewTreeAt :: [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
+modViewTreeAt []       f v = Right $ f v
+modViewTreeAt (p:path) f v = do
   let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
-  _ <- let errMsg = "get_viewAt: index " ++ show p ++ " out of bounds."
+  _ <- let errMsg = "getViewTreeAt: index " ++ show p ++ " out of bounds."
        in if inBounds subvs p then Right () else Left errMsg
   let subv = (V.!) subvs p
-  subv' <- mod_viewAt path f subv
+  subv' <- modViewTreeAt path f subv
   let Just subvs' = modifyAt p (const subv') subvs
       -- it's not `Nothing` because I already checked `inBounds`.
   Right $ v & viewSubviews .~ subvs'
@@ -61,7 +61,7 @@ moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
 
 moveFocus DirRight st = do
   (v :: ViewTree) <- prefixLeft "moveFocus"
-    $ get_viewAt (st ^. pathToFocus)
+    $ getViewTreeAt (st ^. pathToFocus)
     (st ^. view)
   case null $ v ^. viewSubviews of
     True -> Right st
@@ -73,14 +73,14 @@ moveFocus DirUp st = do
       pathToParent = take (length path - 1) path
       topView = st ^. view
   (parent :: ViewTree) <- prefixLeft "moveFocus, computing parent"
-    $ get_viewAt pathToParent topView
+    $ getViewTreeAt pathToParent topView
   let parFoc = parent ^. viewFocus
       parFoc' = if inBounds (parent ^. viewSubviews) parFoc
         then max 0 $ parFoc - 1
         else 0
   path' <- prefixLeft "moveFocus, computing path'"
            $ replaceLast parFoc' path
-  topView' <- mod_viewAt pathToParent
+  topView' <- modViewTreeAt pathToParent
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'
     & view .~ topView'
@@ -90,14 +90,14 @@ moveFocus DirDown st = do
       pathToParent = take (length path - 1) path
       topView = st ^. view
   (parent :: ViewTree) <- prefixLeft "moveFocus"
-    $ get_viewAt pathToParent topView
+    $ getViewTreeAt pathToParent topView
   let parFoc = parent ^. viewFocus
       parFoc' = if inBounds (parent ^. viewSubviews) parFoc
         then min (parFoc + 1) $ V.length (parent ^. viewSubviews) - 1
         else 0
   path' <- prefixLeft "moveFocus, computing path'"
            $ replaceLast parFoc' path
-  topView' <- mod_viewAt pathToParent
+  topView' <- modViewTreeAt pathToParent
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'
     & view .~ topView'

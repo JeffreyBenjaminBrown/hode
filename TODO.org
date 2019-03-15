@@ -40,16 +40,23 @@ and maybe HExpr and PExpr.
 This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 * TODO crawling
 ** local queries to implement
+*** TODO rename
+getViewTreeAt -> getViewTreeAt
+modViewTreeAt -> modViewTreeAt
 *** TODO H -> "its host relationship, grouped by template and its role"
-use these
-  resultView :: Rslt -> Addr -> Either String ResultView
-
+Find the focused View:
   _pathToFocus :: St -> [Int]
-  get_viewAt :: [Int] -> ViewTree -> Either String ViewTree
+  _view :: St -> ViewTree
+  getViewTreeAt :: [Int] -> ViewTree -> Either String ViewTree
   _viewContent :: ViewTree -> View      -- or the lens
+
+If the View is a ResultView, it has an Addr associated. Compute all the Rels it belongs to:
   _viewResultAddr :: ResultView -> Addr -- or the lens
-    if the content is not a ViewResult, the operation should fail
   groupHostRels` :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
+
+For each group, append to the focused ViewTree's Subviews a ViewTree containing a VCenterRoleView, which in turn has ResultView subviews for each Rel:
+  resultView :: Rslt -> Addr -> Either String ResultView
+  modViewTreeAt :: [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
 *** TODO M -> "its members" (all level-1 members)
 similar, but rather than `ViewCenterRole`, something simpler.
 *** To move faster around these trees
