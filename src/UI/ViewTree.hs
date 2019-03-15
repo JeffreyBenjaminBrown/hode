@@ -150,8 +150,7 @@ insertHosts st = prefixLeft "insertHosts" $ do
   (foc :: ViewTree) <- getViewTreeAt p top
   let (focView :: View) = foc ^. viewContent
   case focView of VResult _ -> Right ()
-                  _ -> Left $ "insertHosts can only be done to"
-                       ++ " a View with an Addr."
+                  _ -> Left $ "target View must have an Addr"
   let VResult (rv :: ResultView) = focView
       (focAddr :: Addr) = rv ^. viewResultAddr
   (hostRelGroups :: [(CenterRoleView, [Addr])]) <-
