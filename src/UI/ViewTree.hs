@@ -65,7 +65,7 @@ moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
 moveFocus DirRight st = do
   (v :: ViewTree) <- prefixLeft "moveFocus"
     $ getViewTreeAt (st ^. pathToFocus)
-    (st ^. view)
+    (st ^. viewTree)
   case null $ v ^. viewSubviews of
     True -> Right st
     False -> let nextFocusLink = v ^. viewFocus
@@ -74,7 +74,7 @@ moveFocus DirRight st = do
 moveFocus DirUp st = do
   let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
-      topView = st ^. view
+      topView = st ^. viewTree
   (parent :: ViewTree) <- prefixLeft "moveFocus, computing parent"
     $ getViewTreeAt pathToParent topView
   let parFoc = parent ^. viewFocus
@@ -86,12 +86,12 @@ moveFocus DirUp st = do
   topView' <- modViewTreeAt pathToParent
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'
-    & view .~ topView'
+    & viewTree .~ topView'
 
 moveFocus DirDown st = do
   let path = st ^. pathToFocus
       pathToParent = take (length path - 1) path
-      topView = st ^. view
+      topView = st ^. viewTree
   (parent :: ViewTree) <- prefixLeft "moveFocus"
     $ getViewTreeAt pathToParent topView
   let parFoc = parent ^. viewFocus
@@ -103,7 +103,7 @@ moveFocus DirDown st = do
   topView' <- modViewTreeAt pathToParent
               (viewFocus .~ parFoc') topView
   Right $ st & pathToFocus .~ path'
-    & view .~ topView'
+    & viewTree .~ topView'
 
 
 groupHostRels :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]

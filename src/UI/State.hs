@@ -41,11 +41,11 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so
       -- here, because we want focus to start on the Commands window.
-  , _view  = ViewTree { _viewFocus = 0
-                      , _viewIsFocused = False
-                      , _viewContent = VQuery ""
-                      , _viewSubviews = V.empty
-                      }
+  , _viewTree  = ViewTree { _viewFocus = 0
+                          , _viewIsFocused = False
+                          , _viewContent = VQuery ""
+                          , _viewSubviews = V.empty
+                          }
   , _pathToFocus = []
   , _uiError   = ""
   , _commands  = B.editor Commands Nothing ""
@@ -55,7 +55,7 @@ initialState r = St {
 
 
 resultsText :: St -> [String]
-resultsText st = f 0 $ st ^. view where
+resultsText st = f 0 $ st ^. viewTree where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 
@@ -121,7 +121,7 @@ runCommand (CommandFind s h) st = do
 
   Right $ B.continue $ st
     & pathToFocus .~ []
-    & view .~ v
+    & viewTree .~ v
     & shownInResultsWindow .~ ShowingResults
 
 runCommand (CommandInsert e) st =

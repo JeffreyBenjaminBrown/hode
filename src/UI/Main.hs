@@ -51,11 +51,11 @@ appDraw st0 = [w] where
     $ outputWindow <=> vLimit 3 commandWindow
 
   st = let
-    v = either err id $ foc $ st0 ^. view where
+    v = either err id $ foc $ st0 ^. viewTree where
       err = error "appDraw: todo: handle better"
       foc :: ViewTree -> Either String ViewTree
       foc = modViewTreeAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
-    in st0 & view .~ v
+    in st0 & viewTree .~ v
 
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. shownInResultsWindow of
@@ -67,10 +67,10 @@ appDraw st0 = [w] where
         style = if not $ v ^. viewIsFocused then id
                   else withAttr $ B.attrName "focused result"
 
-      in f (st ^. view)
+      in f (st ^. viewTree)
          <=> ( padLeft (B.Pad 2)
                ( vBox $ map f $ V.toList
-                 $ st ^. view . viewSubviews ) )
+                 $ st ^. viewTree . viewSubviews ) )
 
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)

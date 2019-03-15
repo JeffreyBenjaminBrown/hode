@@ -38,7 +38,7 @@ type Folder = String
 
 data St = St {
     _focusRing            :: B.FocusRing WindowName
-  , _view                 :: ViewTree
+  , _viewTree             :: ViewTree
   , _pathToFocus          :: [Int]
   , _uiError              :: String
   , _commands             :: B.Editor String WindowName
