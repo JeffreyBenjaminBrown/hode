@@ -15,6 +15,8 @@ module UI.ViewTree (
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
   , resultView    -- Rslt -> Addr -> Either String ResultView
+  , hostRelGroup_to_view -- Rslt -> (CenterRoleView, [Addr])
+                         -- -> Either String ViewTree
   ) where
 
 import           Data.Map (Map)
@@ -27,6 +29,7 @@ import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
 import UI.ITypes
+import UI.IUtil
 import Util.Misc
 
 
@@ -134,3 +137,15 @@ resultView r a = do
                    $ addrToExpr r a >>= eShow r
   Right $ ResultView { _viewResultAddr = a
                      , _viewResultString = s }
+
+
+hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])
+                     -> Either String ViewTree
+hostRelGroup_to_view r (crv, as) = do
+  (rs :: [ResultView]) <- ifLefts "hostRelGroup_to_view"
+    $ map (resultView r) as
+  Right $ ViewTree { _viewFocus = 0
+                   , _viewIsFocused = False
+                   , _viewContent = VCenterRoleView crv
+                   , _viewSubviews =
+                     V.fromList $ map (viewLeaf . VResult) rs }

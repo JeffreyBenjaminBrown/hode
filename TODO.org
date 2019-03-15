@@ -40,9 +40,6 @@ and maybe HExpr and PExpr.
 This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 * TODO crawling
 ** local queries to implement
-*** TODO rename
-getViewTreeAt -> getViewTreeAt
-modViewTreeAt -> modViewTreeAt
 *** TODO H -> "its host relationship, grouped by template and its role"
 Find the focused View:
   _pathToFocus :: St -> [Int]

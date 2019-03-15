@@ -5,7 +5,6 @@
 module UI.ITypes where
 
 import           Data.Functor.Foldable.TH
-import           Lens.Micro ((^.))
 import           Lens.Micro.TH
 import           Data.Vector (Vector)
 
@@ -81,13 +80,3 @@ makeLenses ''CenterRoleView
 
 makeBaseFunctor ''ViewTree
 makeLenses ''ViewTreeF
-
-instance Show St where
-  show st = "St { "
-   ++ "view = "                 ++ show (st ^. view)                 ++ ",\n"
-   ++ "pathToFocus = "          ++ show (st ^. pathToFocus)          ++ ",\n"
---   ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
---   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
---   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"
---   ++ "shownInResultsWindow = " ++ show (st ^. shownInResultsWindow) ++ ",\n"
-   ++ "}\n"
