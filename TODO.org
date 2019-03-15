@@ -41,6 +41,9 @@ This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 * TODO crawling
 ** local queries to implement
 *** TODO H -> "its host relationship, grouped by template and its role"
+it's mostly coded:
+ViewTree.insertHosts :: St -> Either String St
+
 Find the focused View:
   _pathToFocus :: St -> [Int]
   _view :: St -> ViewTree

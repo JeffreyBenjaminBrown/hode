@@ -6,6 +6,7 @@
 -- (2a) Mutable Vectors instead of immutable ones.
 
 
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
@@ -137,6 +138,24 @@ resultView r a = do
                    $ addrToExpr r a >>= eShow r
   Right $ ResultView { _viewResultAddr = a
                      , _viewResultString = s }
+
+
+insertHosts :: St -> Either String St
+insertHosts st = prefixLeft "insertHosts" $ do
+  let (p :: [Int]) = st ^. pathToFocus
+      (top :: ViewTree) = st ^. viewTree
+      (r :: Rslt) = st ^. appRslt
+  (focTree :: ViewTree) <- getViewTreeAt p top
+  let (foc :: View) = focTree ^. viewContent
+  case foc of VResult _ -> Right ()
+              _ -> Left $ "insertHosts can only be done to"
+                   ++ " a View with an Addr."
+  let VResult (rv :: ResultView) = foc
+      a0 = rv ^. viewResultAddr
+  (hostRelGroups :: [(CenterRoleView, [Addr])]) <- groupHostRels r a0
+  (newTrees :: [ViewTree]) <-
+    ifLefts "" $ map (hostRelGroup_to_view r) hostRelGroups
+  error "todo >>> resume: use modViewTreeAt, return a new St"
 
 
 hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])
