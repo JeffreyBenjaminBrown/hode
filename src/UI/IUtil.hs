@@ -17,7 +17,7 @@ instance Show St where
   show st = "St { "
    ++ "view = "                 ++ show (st ^. viewTree)             ++ ",\n"
    ++ "pathToFocus = "          ++ show (st ^. pathToFocus)          ++ ",\n"
---   ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
+   ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
 --   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
 --   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"
 --   ++ "shownInResultsWindow = " ++ show (st ^. shownInResultsWindow) ++ ",\n"

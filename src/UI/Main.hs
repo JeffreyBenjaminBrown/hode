@@ -86,6 +86,11 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
+  B.EvKey (B.KChar 'i') [B.MMeta] ->
+    case st & insertHosts of
+      Right st' -> B.continue st'
+      Left err  -> B.continue $ st & uiError .~ err
+
   B.EvKey (B.KChar 'r') [B.MMeta] ->
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )

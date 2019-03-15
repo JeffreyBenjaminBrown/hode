@@ -18,11 +18,13 @@ module UI.ViewTree (
   , resultView    -- Rslt -> Addr -> Either String ResultView
   , hostRelGroup_to_view -- Rslt -> (CenterRoleView, [Addr])
                          -- -> Either String ViewTree
+  , insertHosts -- St -> Either String St
   ) where
 
 import           Data.Map (Map)
 import qualified Data.Map    as M
 import qualified Data.Set    as S
+import           Data.Vector (Vector)
 import qualified Data.Vector as V
 import           Lens.Micro
 
@@ -145,17 +147,22 @@ insertHosts st = prefixLeft "insertHosts" $ do
   let (p :: [Int]) = st ^. pathToFocus
       (top :: ViewTree) = st ^. viewTree
       (r :: Rslt) = st ^. appRslt
-  (focTree :: ViewTree) <- getViewTreeAt p top
-  let (foc :: View) = focTree ^. viewContent
-  case foc of VResult _ -> Right ()
-              _ -> Left $ "insertHosts can only be done to"
-                   ++ " a View with an Addr."
-  let VResult (rv :: ResultView) = foc
-      a0 = rv ^. viewResultAddr
-  (hostRelGroups :: [(CenterRoleView, [Addr])]) <- groupHostRels r a0
+  (foc :: ViewTree) <- getViewTreeAt p top
+  let (focView :: View) = foc ^. viewContent
+  case focView of VResult _ -> Right ()
+                  _ -> Left $ "insertHosts can only be done to"
+                       ++ " a View with an Addr."
+  let VResult (rv :: ResultView) = focView
+      (focAddr :: Addr) = rv ^. viewResultAddr
+  (hostRelGroups :: [(CenterRoleView, [Addr])]) <-
+    groupHostRels r focAddr
   (newTrees :: [ViewTree]) <-
     ifLefts "" $ map (hostRelGroup_to_view r) hostRelGroups
-  error "todo >>> resume: use modViewTreeAt, return a new St"
+  let newFoc = foc & viewSubviews %~ f
+        where f :: Vector ViewTree -> Vector ViewTree
+              f vt = foldr (flip V.snoc) vt newTrees
+  newTop <- modViewTreeAt p (const newFoc) top
+  Right $ st & viewTree .~ newTop
 
 
 hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])
