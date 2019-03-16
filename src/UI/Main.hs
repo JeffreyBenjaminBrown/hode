@@ -85,42 +85,28 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  B.EvKey (B.KChar 'i') [B.MMeta] ->
-    case st & insertHosts_atFocus of
-      Right st' -> B.continue st'
-      Left err  -> B.continue $ st & uiError .~ err
+  B.EvKey (B.KChar 'i') [B.MMeta] -> B.continue
+    $ updateSt (st & insertHosts_atFocus) st
 
   B.EvKey (B.KChar 'r') [B.MMeta] ->
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
     >> B.continue st
-  B.EvKey (B.KChar 'k') [B.MMeta] ->
-    B.continue $ emptyCommandWindow st
+  B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
+    $ emptyCommandWindow st
 
-  B.EvKey (B.KChar 'e') [B.MMeta] ->
-    let (e :: Either String St) = moveFocus DirUp st
-        st' = either errMsg id e where
-          errMsg = error "appHandleEvent: todo: handle either better"
-    in B.continue st'
-  B.EvKey (B.KChar 'd') [B.MMeta] ->
-    let (e :: Either String St) = moveFocus DirDown st
-        st' = either errMsg id e where
-          errMsg = error "appHandleEvent: todo: handle either better"
-    in B.continue st'
-  B.EvKey (B.KChar 'f') [B.MMeta] ->
-    let (e :: Either String St) = moveFocus DirRight st
-        st' = either errMsg id e where
-          errMsg = error "appHandleEvent: todo: handle either better"
-    in B.continue st'
-  B.EvKey (B.KChar 's') [B.MMeta] ->
-    let (e :: Either String St) = moveFocus DirLeft st
-        st' = either errMsg id e where
-          errMsg = error "appHandleEvent: todo: handle either better"
-    in B.continue st'
+  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
+    $ updateSt (moveFocus DirUp st) st
+  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
+    $ updateSt (moveFocus DirDown st) st
+  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
+    $ updateSt (moveFocus DirRight st) st
+  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
+    $ updateSt (moveFocus DirLeft st) st
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
-  _ -> B.continue =<< case B.focusGetCurrent (st^.focusRing) of
+  _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
     Just Commands -> B.handleEventLensed 
       st commands B.handleEditorEvent ev
     _ -> return st

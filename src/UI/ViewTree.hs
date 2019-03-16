@@ -42,8 +42,8 @@ pathInBounds :: ViewTree -> Path -> Either String ()
 pathInBounds _ [] = Right ()
 pathInBounds vt (p:ps) = let vs = vt ^. viewSubviews
   in case inBounds vs p of
-       True -> pathInBounds (vs V.! p) ps
-       False -> Left "pathInBounds: It's not."
+  True -> pathInBounds (vs V.! p) ps
+  False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
 
 
 atPath :: Path -> Traversal' ViewTree ViewTree

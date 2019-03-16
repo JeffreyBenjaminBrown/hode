@@ -4,7 +4,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.State (
-  initialState       -- ^ Rslt -> St
+  initialState         -- ^ Rslt -> St
+  , updateSt           -- ^ Either String St -> St -> St
   , resultsText        -- ^ St -> [String]
   , emptyCommandWindow -- ^ St -> St
   , parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
@@ -53,6 +54,14 @@ initialState r = St {
   }
 
 
+updateSt :: Either String St -> St -> St
+updateSt (Left s) old = old
+  & shownInResultsWindow .~ ShowingError
+  & uiError .~ s
+updateSt (Right new) _ = new
+  & shownInResultsWindow .~ ShowingResults
+
+
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
@@ -62,18 +71,18 @@ parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
 parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
-    Left s1 -> B.continue
-     $ shownInResultsWindow .~ ShowingError
-     $ uiError .~ s1
-     $ st
+    Left s1 -> B.continue $ updateSt (Left s1) st
+      -- PITFALL: these two Lefts have different types.
     Right c -> case runCommand c st of
-      Left s2 -> B.continue
-        $ shownInResultsWindow .~ ShowingError
-        $ uiError .~ s2
-        $ st
+      Left s2 -> B.continue $ updateSt (Left s2) st
+        -- PITFALL: these two Lefts have different types.
       Right evNextSt -> evNextSt
 
 
+-- | Pitfall: this looks like it could just return `St` rather
+-- than `Event ... St`, but it needs IO to load and save.
+-- (If I really want to keep it pure I could add a field in St
+-- that keeps a list of actions to execute.)
 runCommand ::
   Command -> St -> Either String (B.EventM WindowName (B.Next St))
 
@@ -101,18 +110,13 @@ runCommand (CommandFind s h) st = do
               in VResult $ either err id rv
           , _viewSubviews = V.empty }
 
-  Right $ B.continue $ st
-    & pathToFocus .~ []
-    & viewTree .~ v
-    & shownInResultsWindow .~ ShowingResults
+  Right $ B.continue $ st & pathToFocus .~ []
+                          & viewTree .~ v
 
 runCommand (CommandInsert e) st =
   either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
   where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
-        f (r,_) = B.continue
-          $ appRslt .~ r
-          $ shownInResultsWindow .~ ShowingResults
-          $ st
+        f (r,_) = B.continue $ st & appRslt .~ r
 
 runCommand (CommandLoad f) st =
   Right $ do r <- liftIO $ readRslt f
