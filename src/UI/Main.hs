@@ -74,6 +74,7 @@ appDraw st0 = [w] where
                            . withAttr (B.attrName "focused result")
 
   commandWindow = B.withFocusRing (st^.focusRing)
+    -- TODO ? There's so far never reason to focus anywhere but COmmands.
     (B.renderEditor (str . unlines)) (st^.commands)
 
 appChooseCursor ::
@@ -87,8 +88,8 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  B.EvKey (B.KChar 'i') [B.MMeta] -> B.continue
-    $ updateSt (st & insertHosts_atFocus) st
+  B.EvKey (B.KChar 'i') [B.MMeta] -> B.continue $ updateSt st
+    $ insertHosts_atFocus st
 
   B.EvKey (B.KChar 'r') [B.MMeta] ->
     -- TODO : slightly buggy: conjures, copies some empty lines.
@@ -97,14 +98,14 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
-  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ updateSt (moveFocus DirUp st) st
-  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ updateSt (moveFocus DirDown st) st
-  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ updateSt (moveFocus DirRight st) st
-  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ updateSt (moveFocus DirLeft st) st
+  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue $ updateSt st
+    $ moveFocus DirUp st
+  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue $ updateSt st
+    $ moveFocus DirDown st
+  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue $ updateSt st
+    $ moveFocus DirRight st
+  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue $ updateSt st
+    $ moveFocus DirLeft st
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 

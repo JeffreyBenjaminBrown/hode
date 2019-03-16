@@ -28,6 +28,15 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO top priorities
+** M -> "its members" (all level-1 members)
+Similar, but rather than `ViewCenterRole`, something simpler.
+** can insertHosts_atFocus when they're already there
+** adding data should update views
+at least in the current buffer -- and switching should update the new buffer
+
+** show CRV groups compactly
+e.g. as "x # _"
 * TODO user-friendliness
 ** TODO it's possible to get stuck in ShowingError
 Moving left escapes it.
@@ -35,21 +44,14 @@ Moving left escapes it.
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO bugs
-** can insertHosts_atFocus when they're already there
-** adding data should update views
-at least in the current buffer -- and switching should update the new buffer
 ** paragraphs: incomplete pattern in Hash.Convert
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 ** why is UI.IUtil.vShow distinct from show?
-* TODO crawling
-** show CRV groups compactly
-e.g. as "x # _"
+* TODO crawling across Exprs
 ** local queries to implement
-*** TODO M -> "its members" (all level-1 members)
-similar, but rather than `ViewCenterRole`, something simpler.
 *** To move faster around these trees
 When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
 *** "its members*" (with a star)
@@ -84,7 +86,7 @@ Later, a buffer tree.
  To write, first run `git status`. If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
 
  If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
-** cursor commands
+** crawling within an Expr
 up|down to enclosing keyword (/hash, etc)
 up|down to nearest higher binop (#, |, etc)
 up|down, multipurpose

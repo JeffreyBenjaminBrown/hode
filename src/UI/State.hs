@@ -54,11 +54,11 @@ initialState r = St {
   }
 
 
-updateSt :: Either String St -> St -> St
-updateSt (Left s) old = old
+updateSt :: St -> Either String St -> St
+updateSt old (Left s) = old
   & shownInResultsWindow .~ ShowingError
   & uiError .~ s
-updateSt (Right new) _ = new
+updateSt _ (Right new) = new
   & shownInResultsWindow .~ ShowingResults
 
 
@@ -71,10 +71,10 @@ parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
 parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
-    Left s1 -> B.continue $ updateSt (Left s1) st
+    Left s1 -> B.continue $ updateSt st $ Left s1
       -- PITFALL: these two Lefts have different types.
     Right c -> case runCommand c st of
-      Left s2 -> B.continue $ updateSt (Left s2) st
+      Left s2 -> B.continue $ updateSt st $ Left s2
         -- PITFALL: these two Lefts have different types.
       Right evNextSt -> evNextSt
 
