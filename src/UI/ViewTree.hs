@@ -128,6 +128,15 @@ groupHostRels r a0 = do
   Right $ map package $ M.toList groups
 
 
+--members_atFocus :: St -> Either String (MembersView, [Addr])
+--members_atFocus st = prefixLeft "members_atFocus" $ do
+--  let (p :: Path) = st ^. pathToFocus
+--  (foc :: ViewTree) <- let left = Left $ "bad path: " ++ show p
+--    in maybe left Right $ st ^? viewTree . atPath p
+--  error "?"
+--  -- members <- has (st ^. appRslt) (
+
+
 groupHostRels_atFocus :: St -> Either String [(CenterRoleView, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   let (top :: ViewTree) = st ^. viewTree

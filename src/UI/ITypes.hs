@@ -60,6 +60,7 @@ data ViewTree = ViewTree {
 
 data View = VQuery QueryView
           | VResult ResultView
+          | VMembersView MembersView
           | VCenterRoleView CenterRoleView deriving (Show, Eq, Ord)
 
 type QueryView = String
@@ -67,6 +68,9 @@ type QueryView = String
 data ResultView = ResultView {
     _viewResultAddr :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
+
+data MembersView = MembersView { _mvCenter :: Addr }
+  deriving (Show, Eq, Ord)
 
 -- | `CenterRoleView` is used to group relationships in which the `Expr`at
 -- `crvCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
