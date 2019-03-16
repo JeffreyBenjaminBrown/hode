@@ -51,7 +51,7 @@ data St = St {
   }
 
 data ViewTree = ViewTree {
-    _viewFocus     :: Int -- ^ meaningless if `viewSubviews` empty
+    _viewChildFocus     :: Int -- ^ meaningless if `viewSubviews` empty
   , _viewIsFocused :: Bool
   , _viewContent   :: View
   , _viewSubviews  :: Vector ViewTree -- ^ PITFALL: permits invalid state.

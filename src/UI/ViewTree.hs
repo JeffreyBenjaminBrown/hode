@@ -64,7 +64,7 @@ moveFocus DirRight st = do
             $ (st ^. viewTree) ^? atPath (st ^. pathToFocus)
   if null $ foc ^. viewSubviews
     then Right st
-    else Right $ st & pathToFocus %~ (++ [foc ^. viewFocus])
+    else Right $ st & pathToFocus %~ (++ [foc ^. viewChildFocus])
 
 moveFocus DirUp st = do
   let topView = st ^. viewTree
@@ -73,14 +73,14 @@ moveFocus DirUp st = do
   let pathToParent = take (length path - 1) path
       Just parent = -- safe b/c path is in bounds
         topView ^? atPath pathToParent
-      parFoc = parent ^. viewFocus
+      parFoc = parent ^. viewChildFocus
   _ <- if inBounds (parent ^. viewSubviews) parFoc then Right ()
        else Left $ "Bad focus in " ++ show parent
             ++ " at " ++ show pathToParent
   let parFoc' = max 0 $ parFoc - 1
   Right $ st
         & pathToFocus %~ replaceLast' parFoc'
-        & viewTree . atPath pathToParent . viewFocus .~ parFoc'
+        & viewTree . atPath pathToParent . viewChildFocus .~ parFoc'
 
 -- TODO : This duplicates the code for DirUp.
 -- Instead, factor out the computation of newFocus,
@@ -92,7 +92,7 @@ moveFocus DirDown st = do
   let pathToParent = take (length path - 1) path
       Just parent = -- safe b/c path is in bounds
         topView ^? atPath pathToParent
-      parFoc = parent ^. viewFocus
+      parFoc = parent ^. viewChildFocus
   _ <- if inBounds (parent ^. viewSubviews) parFoc then Right ()
        else Left $ "Bad focus in " ++ show parent
             ++ " at " ++ show pathToParent
@@ -100,7 +100,7 @@ moveFocus DirDown st = do
                 $ V.length (parent ^. viewSubviews) - 1
   Right $ st
         & pathToFocus %~ replaceLast' parFoc'
-        & viewTree . atPath pathToParent . viewFocus .~ parFoc'
+        & viewTree . atPath pathToParent . viewChildFocus .~ parFoc'
 
 
 groupHostRels :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
@@ -167,7 +167,7 @@ hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])
 hostRelGroup_to_view r (crv, as) = do
   (rs :: [ResultView]) <- ifLefts "hostRelGroup_to_view"
     $ map (resultView r) as
-  Right $ ViewTree { _viewFocus = 0
+  Right $ ViewTree { _viewChildFocus = 0
                    , _viewIsFocused = False
                    , _viewContent = VCenterRoleView crv
                    , _viewSubviews =

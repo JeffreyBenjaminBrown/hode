@@ -35,7 +35,7 @@ resultView r a = do
 
 viewLeaf :: View -> ViewTree
 viewLeaf v = ViewTree {
-    _viewFocus = 0
+    _viewChildFocus = 0
   , _viewIsFocused = False
   , _viewContent = v
   , _viewSubviews = V.empty }

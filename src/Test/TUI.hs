@@ -19,7 +19,7 @@ import qualified Test.Rslt.RData as D
 
 aViewTree :: ViewTree
 aViewTree = ViewTree {
-    _viewFocus = 0
+    _viewChildFocus = 0
   , _viewIsFocused = False
   , _viewContent = VQuery "top"
   , _viewSubviews = V.fromList

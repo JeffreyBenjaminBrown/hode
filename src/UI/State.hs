@@ -41,7 +41,7 @@ initialState r = St {
     _focusRing = B.focusRing [Commands, Results]
       -- Almost always (for safety), Results is listed first. Not so
       -- here, because we want focus to start on the Commands window.
-  , _viewTree  = ViewTree { _viewFocus = 0
+  , _viewTree  = ViewTree { _viewChildFocus = 0
                           , _viewIsFocused = False
                           , _viewContent = VQuery ""
                           , _viewSubviews = V.empty
@@ -93,7 +93,7 @@ runCommand (CommandFind s h) st = do
   (as :: Set Addr)   <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
 
-  let v = ViewTree { _viewFocus = 0
+  let v = ViewTree { _viewChildFocus = 0
                    , _viewIsFocused = False
                    , _viewContent = VQuery s
                    , _viewSubviews =
@@ -102,7 +102,7 @@ runCommand (CommandFind s h) st = do
 
         v_qr :: Addr -> ViewTree
         v_qr a = ViewTree {
-            _viewFocus = 0
+            _viewChildFocus = 0
           , _viewIsFocused = False
           , _viewContent = let
               (rv :: Either String ResultView) = resultView r a
