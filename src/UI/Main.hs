@@ -87,7 +87,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   B.EvKey (B.KChar 'i') [B.MMeta] ->
-    case st & insertHosts of
+    case st & insertHosts_atFocus of
       Right st' -> B.continue st'
       Left err  -> B.continue $ st & uiError .~ err
 

@@ -16,9 +16,10 @@ module UI.ViewTree (
   , atPath       -- Path -> Traversal' ViewTree ViewTree
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
+  , groupHostRels_atFocus   -- St -> Either String [(CenterRoleView, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (CenterRoleView, [Addr])
                          -- -> Either String ViewTree
-  , insertHosts  -- St -> Either String St
+  , insertHosts_atFocus -- St -> Either String St
   ) where
 
 import           Data.Map (Map)
@@ -126,24 +127,29 @@ groupHostRels r a0 = do
   Right $ map package $ M.toList groups
 
 
-insertHosts :: St -> Either String St
-insertHosts st = prefixLeft "insertHosts'" $ do
+groupHostRels_atFocus :: St -> Either String [(CenterRoleView, [Addr])]
+groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   let (top :: ViewTree) = st ^. viewTree
       (p :: Path) = st ^. pathToFocus
-      (r :: Rslt) = st ^. appRslt
   _ <- pathInBounds top p
   let (ma :: Maybe Addr) = top ^?
         atPath p . viewContent . _VResult . viewResultAddr
   a <- let err = "target View must have an Addr"
        in maybe (Left err) Right ma
-  (hostRelGroups :: [(CenterRoleView, [Addr])]) <- groupHostRels r a
+  groupHostRels (st ^. appRslt) a
+
+
+insertHosts_atFocus :: St -> Either String St
+insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
+  (groups :: [(CenterRoleView, [Addr])]) <-
+    groupHostRels_atFocus st
   (newTrees :: [ViewTree]) <- ifLefts ""
-    $ map (hostRelGroup_to_view r) hostRelGroups
+    $ map (hostRelGroup_to_view $ st ^. appRslt) groups
   let insert :: ViewTree -> ViewTree
       insert vt = vt & viewSubviews .~
                   V.fromList (foldr (:) preexist newTrees) where
         (preexist :: [ViewTree]) =  V.toList $ vt ^. viewSubviews
-  Right $ st & viewTree . atPath p %~ insert
+  Right $ st & viewTree . atPath (st ^. pathToFocus) %~ insert
 
 
 hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])
