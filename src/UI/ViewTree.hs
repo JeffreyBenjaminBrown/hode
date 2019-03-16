@@ -85,11 +85,13 @@ moveFocus DirLeft st@( _pathToFocus -> [] ) = Right st
 moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
 
 moveFocus DirRight st = do
-  -- TODO : don't allow moving right when there are no viewSubviews
-  case (st ^. viewTree)
-       ^? atPath (st ^. pathToFocus) . viewFocus
-    of Nothing -> Right $ st
-       Just i  -> Right $ st & pathToFocus %~ (++ [i])
+  foc <- let err = "moveFocus: bad focus "
+                   ++ show (st ^. pathToFocus)
+         in maybe (Left err) Right
+            $ (st ^. viewTree) ^? atPath (st ^. pathToFocus)
+  if null $ foc ^. viewSubviews
+    then Right st
+    else Right $ st & pathToFocus %~ (++ [foc ^. viewFocus])
 
 moveFocus DirUp st = do
   let topView = st ^. viewTree
