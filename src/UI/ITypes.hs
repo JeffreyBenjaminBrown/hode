@@ -30,6 +30,8 @@ data Command = CommandInsert Expr
 data ShownInResultsWindow = ShowingError | ShowingResults
   deriving (Show,Eq, Ord)
 
+type Path = [Int]
+
 data Direction = DirUp | DirDown | DirLeft | DirRight
   deriving (Show,Eq, Ord)
 
@@ -41,7 +43,7 @@ type Folder = String
 data St = St {
     _focusRing            :: B.FocusRing WindowName
   , _viewTree             :: ViewTree
-  , _pathToFocus          :: [Int]
+  , _pathToFocus          :: Path
   , _uiError              :: String
   , _commands             :: B.Editor String WindowName
   , _appRslt              :: Rslt

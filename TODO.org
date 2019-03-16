@@ -40,6 +40,10 @@ and maybe HExpr and PExpr.
 This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 ** why is UI.IUtil.vShow distinct from show?
 * TODO crawling
+** prism|ix fix for ViewTree
+Make a function that tests the validity of a path.
+After running that, it's safe to use ix.
+Later, might include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr. (If it's in the buffer multiple times, cycle between them.)
 ** local queries to implement
 *** TODO H -> "its host relationship, grouped by template and its role"
 it's mostly coded:

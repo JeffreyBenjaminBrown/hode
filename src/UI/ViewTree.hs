@@ -11,8 +11,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    getViewTreeAt -- [Int] -> ViewTree                           -> Either String ViewTree
-  , modViewTreeAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
+    pathInBounds  -- ViewTree -> Path  -> Either String ()
+  , getViewTreeAt -- [Int] -> ViewTree -> Either String ViewTree
+  , modViewTreeAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree
+                                    -- -> Either String ViewTree
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
   , resultView    -- Rslt -> Addr -> Either String ResultView
@@ -35,9 +37,20 @@ import UI.IUtil
 import Util.Misc
 
 
+pathInBounds :: ViewTree -> Path -> Either String ()
+pathInBounds _ [] = Right ()
+pathInBounds vt (p:ps) = let vs = vt ^. viewSubviews
+  in case inBounds v p of
+       True -> pathInBounds (vs V.! p) ps
+       False -> Left "pathInBounds: It's not."
+
+
+
+
+
 -- TODO : The next two functions should be (prismatic?) one-liners.
 -- TODO : The `Vector ViewTree` field really ought (so far) to be a zipper.
-getViewTreeAt :: [Int] -> ViewTree -> Either String ViewTree
+getViewTreeAt :: Path -> ViewTree -> Either String ViewTree
 getViewTreeAt [] v = Right v
 getViewTreeAt (p:path) v = do
   let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
@@ -47,7 +60,7 @@ getViewTreeAt (p:path) v = do
   getViewTreeAt path subv
 
 
-modViewTreeAt :: [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
+modViewTreeAt :: Path -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
 modViewTreeAt []       f v = Right $ f v
 modViewTreeAt (p:path) f v = do
   let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
@@ -135,7 +148,7 @@ groupHostRels r a0 = do
 
 insertHosts :: St -> Either String St
 insertHosts st = prefixLeft "insertHosts" $ do
-  let (p :: [Int]) = st ^. pathToFocus
+  let (p :: Path) = st ^. pathToFocus
       (top :: ViewTree) = st ^. viewTree
       (r :: Rslt) = st ^. appRslt
   (foc :: ViewTree) <- getViewTreeAt p top
