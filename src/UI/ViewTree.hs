@@ -54,7 +54,8 @@ atPath (p:ps) = viewSubviews . from vector
 
 moveFocus :: Direction -> St -> Either String St
 moveFocus DirLeft st@( _pathToFocus -> [] ) = Right st
-moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
+moveFocus DirLeft st = Right $ st & pathToFocus
+                       %~ reverse . tail . reverse
 
 moveFocus DirRight st = do
   foc <- let err = "moveFocus: bad focus "

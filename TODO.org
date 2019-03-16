@@ -28,19 +28,17 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO scroll
 * TODO user-friendliness
 ** TODO it's possible to get stuck in ShowingError
-Moving left escapes it ...
+Moving left escapes it.
+** TODO bad filename crashes ui
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO bugs
-** fix the Either cheats that use errror in UI.*
 ** can insertHosts_atFocus when they're already there
-** moving cursor left across a CRV group can crash
-if the last focus is anything but 0
 ** adding data should update views
 at least in the current buffer -- and switching should update the new buffer
-** bad filename crashes ui
 ** paragraphs: incomplete pattern in Hash.Convert
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
