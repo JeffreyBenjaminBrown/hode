@@ -3,6 +3,7 @@
 module Test.TUI where
 
 import qualified Data.Set        as S
+import qualified Data.Vector     as V
 import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
@@ -10,8 +11,19 @@ import           Hash.HTypes
 import           Rslt.RTypes
 import           UI.IParse
 import           UI.ITypes
+import           UI.IUtil
 import           UI.ViewTree
 import qualified Test.Rslt.RData as D
+
+
+
+aViewTree :: ViewTree
+aViewTree = ViewTree {
+    _viewFocus = 0
+  , _viewIsFocused = False
+  , _viewContent = VQuery "top"
+  , _viewSubviews = V.fromList
+    $ map (viewLeaf . VQuery .show) [0,1 :: Int] }
 
 
 test_module_ui :: T.Test

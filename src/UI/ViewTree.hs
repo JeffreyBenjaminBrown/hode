@@ -7,11 +7,13 @@
 
 
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    pathInBounds  -- ViewTree -> Path  -> Either String ()
+    pathInBounds -- ViewTree -> Path  -> Either String ()
+  , atPath       -- Path -> Traversal' ViewTree ViewTree
   , getViewTreeAt -- [Int] -> ViewTree -> Either String ViewTree
   , modViewTreeAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree
                                     -- -> Either String ViewTree
@@ -28,6 +30,9 @@ import qualified Data.Map    as M
 import qualified Data.Set    as S
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
+
+import           Control.Lens.Combinators (from)
+import           Data.Vector.Lens (vector)
 import           Lens.Micro
 
 import Rslt.RLookup
@@ -40,12 +45,15 @@ import Util.Misc
 pathInBounds :: ViewTree -> Path -> Either String ()
 pathInBounds _ [] = Right ()
 pathInBounds vt (p:ps) = let vs = vt ^. viewSubviews
-  in case inBounds v p of
+  in case inBounds vs p of
        True -> pathInBounds (vs V.! p) ps
        False -> Left "pathInBounds: It's not."
 
 
-
+atPath :: Path -> Traversal' ViewTree ViewTree
+atPath [] = lens id $ flip const -- the trivial lens
+atPath (p:ps) = viewSubviews . from vector
+                . ix p . atPath ps
 
 
 -- TODO : The next two functions should be (prismatic?) one-liners.
