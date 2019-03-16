@@ -51,8 +51,7 @@ app = B.App
 -- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
-  w = B.center
-    $ outputWindow <=> vLimit 3 commandWindow
+  w = B.center $ outputWindow <=> vLimit 3 commandWindow
 
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
@@ -60,17 +59,17 @@ appDraw st0 = [w] where
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. shownInResultsWindow of
     ShowingError -> strWrap $ st ^. uiError
-    ShowingResults -> let 
-      f :: ViewTree -> B.Widget WindowName
-      f v = style $ strWrap $ vShow $ _viewContent v where
-        style :: B.Widget WindowName -> B.Widget WindowName
-        style = if not $ v ^. viewIsFocused then id
-                  else withAttr $ B.attrName "focused result"
+    ShowingResults -> showRec $ st ^. viewTree where
 
-      in f (st ^. viewTree)
-         <=> ( padLeft (B.Pad 2)
-               ( vBox $ map f $ V.toList
-                 $ st ^. viewTree . viewSubviews ) )
+      showOne, showRec :: ViewTree -> B.Widget WindowName
+      showRec vt | null $ vt ^. viewSubviews = showOne vt
+                 | True = showOne vt <=>
+                   ( padLeft (B.Pad 2) $ vBox $ map showRec
+                     $ V.toList $ vt ^. viewSubviews )
+      showOne vt = style $ strWrap $ vShow $ _viewContent vt
+        where style :: B.Widget WindowName -> B.Widget WindowName
+              style = if not $ vt ^. viewIsFocused then id
+                      else withAttr $ B.attrName "focused result"
 
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
