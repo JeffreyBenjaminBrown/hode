@@ -29,11 +29,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** rename
-ViewResult -> ViewResult
-ViewMember -> ViewMember
-ViewCenterRole -> ViewCenterRole
-ViewQuery -> ViewQuery
 ** M -> "its members" (all level-1 members)
 Similar, but rather than `ViewCenterRole`, something simpler.
 ** can insertHosts_atFocus when they're already there

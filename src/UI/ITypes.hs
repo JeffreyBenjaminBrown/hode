@@ -62,7 +62,7 @@ data ViewTree = ViewTree {
 
 data View = VQuery      ViewQuery
           | VResult     ViewResult
-          | VMembers    ViewMember
+          | VMembers    ViewMembers
           | VCenterRole ViewCenterRole deriving (Show, Eq, Ord)
 
 type ViewQuery = String
@@ -71,7 +71,7 @@ data ViewResult = ViewResult {
     _viewResultAddr :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
-data ViewMember = ViewMember { _mvCenter :: Addr }
+data ViewMembers = ViewMembers { _mvCenter :: Addr }
   deriving (Show, Eq, Ord)
 
 -- | `ViewCenterRole` is used to group relationships in which the `Expr`at

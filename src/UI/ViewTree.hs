@@ -15,6 +15,7 @@ module UI.ViewTree (
     pathInBounds -- ViewTree -> Path  -> Either String ()
   , atPath       -- Path -> Traversal' ViewTree ViewTree
   , moveFocus  -- Direction -> St -> Either String St
+  , members_atFocus --         St -> Either String (ViewMembers, [Addr])
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
@@ -29,7 +30,7 @@ import qualified Data.Vector as V
 
 import           Control.Lens.Combinators (from)
 import           Data.Vector.Lens (vector)
-import           Lens.Micro
+import           Lens.Micro hiding (has)
 
 import Rslt.RLookup
 import Rslt.RTypes
@@ -103,6 +104,18 @@ moveFocus DirDown st = do
         & viewTree . atPath pathToParent . viewChildFocus .~ parFoc'
 
 
+members_atFocus :: St -> Either String (ViewMembers, [Addr])
+members_atFocus st = prefixLeft "members_atFocus" $ do
+  let (p :: Path) = st ^. pathToFocus
+  (foc :: ViewTree) <- let left = Left $ "bad path: " ++ show p
+    in maybe left Right $ st ^? viewTree . atPath p
+  (a :: Addr) <- case foc ^. viewContent of
+    VResult rv -> Right $ rv ^. viewResultAddr
+    _ -> Left $ "can only be called from a View with an Addr."
+  (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
+  Right ( ViewMembers a, as )
+
+
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels r a0 = do
   (ras :: [(Role, Addr)]) <- let
@@ -126,17 +139,6 @@ groupHostRels r a0 = do
           tplt :: Addr -> [Expr]
           tplt a = es where Right (Tplt es) = addrToExpr r a
   Right $ map package $ M.toList groups
-
-
---members_atFocus :: St -> Either String (ViewMember, [Addr])
---members_atFocus st = prefixLeft "members_atFocus" $ do
---  let (p :: Path) = st ^. pathToFocus
---  (foc :: ViewTree) <- let left = Left $ "bad path: " ++ show p
---    in maybe left Right $ st ^? viewTree . atPath p
---  (a :: Addr) <- case foc ^. viewContent of
---    >>>
---    VResult (ViewResult rv) ->
---  error "?"
 
 
 groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
