@@ -28,7 +28,6 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO scroll
 * TODO user-friendliness
 ** TODO it's possible to get stuck in ShowingError
 Moving left escapes it.

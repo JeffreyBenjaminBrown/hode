@@ -59,7 +59,8 @@ appDraw st0 = [w] where
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. shownInResultsWindow of
     ShowingError -> strWrap $ st ^. uiError
-    ShowingResults -> showRec $ st ^. viewTree where
+    ShowingResults -> viewport Results B.Vertical
+                      $ showRec $ st ^. viewTree where
 
       showOne, showRec :: ViewTree -> B.Widget WindowName
       showRec vt | null $ vt ^. viewSubviews = showOne vt
@@ -69,7 +70,8 @@ appDraw st0 = [w] where
       showOne vt = style $ strWrap $ vShow $ _viewContent vt
         where style :: B.Widget WindowName -> B.Widget WindowName
               style = if not $ vt ^. viewIsFocused then id
-                      else withAttr $ B.attrName "focused result"
+                      else visible
+                           . withAttr (B.attrName "focused result")
 
   commandWindow = B.withFocusRing (st^.focusRing)
     (B.renderEditor (str . unlines)) (st^.commands)
