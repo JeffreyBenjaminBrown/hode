@@ -51,10 +51,10 @@ data St = St {
   }
 
 data ViewTree = ViewTree {
-    _viewChildFocus     :: Int -- ^ meaningless if `viewSubviews` empty
-  , _viewIsFocused :: Bool
-  , _viewContent   :: View
-  , _viewSubviews  :: Vector ViewTree -- ^ PITFALL: permits invalid state.
+    _viewChildFocus :: Int -- ^ meaningless if `viewSubviews` empty
+  , _viewIsFocused  :: Bool
+  , _viewContent    :: View
+  , _viewSubviews   :: Vector ViewTree -- ^ PITFALL: permits invalid state.
   -- The subviews of a `VQuery`, `VMember` or `VCenterRole`
   -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
   -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.

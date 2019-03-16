@@ -15,7 +15,8 @@ module UI.ViewTree (
     pathInBounds -- ViewTree -> Path  -> Either String ()
   , atPath       -- Path -> Traversal' ViewTree ViewTree
   , moveFocus  -- Direction -> St -> Either String St
-  , members_atFocus --         St -> Either String (ViewMembers, [Addr])
+  , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
+  , insertMembers_atFocus   -- St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
@@ -114,6 +115,18 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
     _ -> Left $ "can only be called from a View with an Addr."
   (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
   Right ( ViewMembers a, as )
+
+
+insertMembers_atFocus :: St -> Either String St
+insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
+  ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus st
+  let (topOfNew :: ViewTree) = viewLeaf $ VMembers ms
+  (leavesOfNew :: [ViewTree]) <- map (viewLeaf . VResult)
+    <$> ifLefts "" (map (resultView (st ^. appRslt)) as)
+  let (new :: ViewTree) =
+        topOfNew & viewSubviews .~ V.fromList leavesOfNew
+      l = viewTree . atPath (st ^. pathToFocus) . viewSubviews
+  Right $ st & l %~ V.cons new
 
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]

@@ -88,8 +88,10 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  B.EvKey (B.KChar 'i') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ updateSt st
     $ insertHosts_atFocus st
+  B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ updateSt st
+    $ insertMembers_atFocus st
 
   B.EvKey (B.KChar 'r') [B.MMeta] ->
     -- TODO : slightly buggy: conjures, copies some empty lines.
