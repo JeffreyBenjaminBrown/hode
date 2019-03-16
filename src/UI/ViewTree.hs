@@ -14,20 +14,16 @@
 module UI.ViewTree (
     pathInBounds -- ViewTree -> Path  -> Either String ()
   , atPath       -- Path -> Traversal' ViewTree ViewTree
-  , getViewTreeAt -- [Int] -> ViewTree -> Either String ViewTree
-  , modViewTreeAt -- [Int] -> (ViewTree -> ViewTree) -> ViewTree
-                                    -- -> Either String ViewTree
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (CenterRoleView, [Addr])
                          -- -> Either String ViewTree
-  , insertHosts -- St -> Either String St
+  , insertHosts  -- St -> Either String St
   ) where
 
 import           Data.Map (Map)
 import qualified Data.Map    as M
 import qualified Data.Set    as S
-import           Data.Vector (Vector)
 import qualified Data.Vector as V
 
 import           Control.Lens.Combinators (from)
@@ -53,31 +49,6 @@ atPath :: Path -> Traversal' ViewTree ViewTree
 atPath [] = lens id $ flip const -- the trivial lens
 atPath (p:ps) = viewSubviews . from vector
                 . ix p . atPath ps
-
-
--- TODO : The next two functions should be (prismatic?) one-liners.
--- TODO : The `Vector ViewTree` field really ought (so far) to be a zipper.
-getViewTreeAt :: Path -> ViewTree -> Either String ViewTree
-getViewTreeAt [] v = Right v
-getViewTreeAt (p:path) v = do
-  let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
-  _ <- let errMsg = "getViewTreeAt: index " ++ show p ++ " out of bounds."
-       in if inBounds subvs p then Right () else Left errMsg
-  let subv = (V.!) subvs p
-  getViewTreeAt path subv
-
-
-modViewTreeAt :: Path -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
-modViewTreeAt []       f v = Right $ f v
-modViewTreeAt (p:path) f v = do
-  let (subvs :: V.Vector ViewTree) = v ^. viewSubviews
-  _ <- let errMsg = "getViewTreeAt: index " ++ show p ++ " out of bounds."
-       in if inBounds subvs p then Right () else Left errMsg
-  let subv = (V.!) subvs p
-  subv' <- modViewTreeAt path f subv
-  let Just subvs' = modifyAt p (const subv') subvs
-      -- it's not `Nothing` because I already checked `inBounds`.
-  Right $ v & viewSubviews .~ subvs'
 
 
 moveFocus :: Direction -> St -> Either String St
@@ -156,25 +127,23 @@ groupHostRels r a0 = do
 
 
 insertHosts :: St -> Either String St
-insertHosts st = prefixLeft "insertHosts" $ do
-  let (p :: Path) = st ^. pathToFocus
-      (top :: ViewTree) = st ^. viewTree
+insertHosts st = prefixLeft "insertHosts'" $ do
+  let (top :: ViewTree) = st ^. viewTree
+      (p :: Path) = st ^. pathToFocus
       (r :: Rslt) = st ^. appRslt
-  (foc :: ViewTree) <- getViewTreeAt p top
-  let (focView :: View) = foc ^. viewContent
-  case focView of VResult _ -> Right ()
-                  _ -> Left $ "target View must have an Addr"
-  let VResult (rv :: ResultView) = focView
-      (focAddr :: Addr) = rv ^. viewResultAddr
-  (hostRelGroups :: [(CenterRoleView, [Addr])]) <-
-    groupHostRels r focAddr
-  (newTrees :: [ViewTree]) <-
-    ifLefts "" $ map (hostRelGroup_to_view r) hostRelGroups
-  let newFoc = foc & viewSubviews %~ f
-        where f :: Vector ViewTree -> Vector ViewTree
-              f vt = foldr (flip V.snoc) vt newTrees
-  newTop <- modViewTreeAt p (const newFoc) top
-  Right $ st & viewTree .~ newTop
+  _ <- pathInBounds top p
+  let (ma :: Maybe Addr) = top ^?
+        atPath p . viewContent . _VResult . viewResultAddr
+  a <- let err = "target View must have an Addr"
+       in maybe (Left err) Right ma
+  (hostRelGroups :: [(CenterRoleView, [Addr])]) <- groupHostRels r a
+  (newTrees :: [ViewTree]) <- ifLefts ""
+    $ map (hostRelGroup_to_view r) hostRelGroups
+  let insert :: ViewTree -> ViewTree
+      insert vt = vt & viewSubviews .~
+                  V.fromList (foldr (:) preexist newTrees) where
+        (preexist :: [ViewTree]) =  V.toList $ vt ^. viewSubviews
+  Right $ st & viewTree . atPath p %~ insert
 
 
 hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])

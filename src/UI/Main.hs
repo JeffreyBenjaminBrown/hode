@@ -30,10 +30,13 @@ import UI.ViewTree
 
 
 ui :: IO St
-ui = uiFrom $ mkRslt mempty
+ui = uiFromRslt $ mkRslt mempty
 
-uiFrom :: Rslt -> IO St
-uiFrom = B.defaultMain app . initialState
+uiFromSt :: St -> IO St
+uiFromSt = B.defaultMain app
+
+uiFromRslt :: Rslt -> IO St
+uiFromRslt = B.defaultMain app . initialState
 
 app :: B.App St e WindowName
 app = B.App
@@ -51,12 +54,8 @@ appDraw st0 = [w] where
   w = B.center
     $ outputWindow <=> vLimit 3 commandWindow
 
-  st = let
-    v = either err id $ foc $ st0 ^. viewTree where
-      err = error "appDraw: todo: handle better"
-      foc :: ViewTree -> Either String ViewTree
-      foc = modViewTreeAt (st0 ^. pathToFocus) (viewIsFocused .~ True)
-    in st0 & viewTree .~ v
+  st = st0 & l .~ True where
+    l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. shownInResultsWindow of

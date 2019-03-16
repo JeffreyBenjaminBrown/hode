@@ -7,7 +7,7 @@ module UI.ITypes where
 import           Data.Functor.Foldable.TH
 import           Data.Vector (Vector)
 import           Lens.Micro
-import           Lens.Micro.TH
+import           Control.Lens.TH
 
 
 import qualified Brick.Widgets.Edit as B
@@ -78,6 +78,7 @@ data CenterRoleView = CenterRoleView {
   , _crvTplt :: [Expr] } deriving (Show, Eq, Ord)
 
 makeLenses ''St
+makePrisms ''View -- prisms!
 makeLenses ''ViewTree
 makeLenses ''ResultView
 makeLenses ''CenterRoleView
