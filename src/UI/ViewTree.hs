@@ -19,7 +19,6 @@ module UI.ViewTree (
                                     -- -> Either String ViewTree
   , moveFocus  -- Direction -> St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
-  , resultView    -- Rslt -> Addr -> Either String ResultView
   , hostRelGroup_to_view -- Rslt -> (CenterRoleView, [Addr])
                          -- -> Either String ViewTree
   , insertHosts -- St -> Either String St
@@ -86,47 +85,47 @@ moveFocus DirLeft st@( _pathToFocus -> [] ) = Right st
 moveFocus DirLeft st = Right $ st & pathToFocus %~ tail
 
 moveFocus DirRight st = do
-  (v :: ViewTree) <- prefixLeft "moveFocus"
-    $ getViewTreeAt (st ^. pathToFocus)
-    (st ^. viewTree)
-  case null $ v ^. viewSubviews of
-    True -> Right st
-    False -> let nextFocusLink = v ^. viewFocus
-      in Right $ st & pathToFocus %~ (++ [nextFocusLink])
+  -- TODO : don't allow moving right when there are no viewSubviews
+  case (st ^. viewTree)
+       ^? atPath (st ^. pathToFocus) . viewFocus
+    of Nothing -> Right $ st
+       Just i  -> Right $ st & pathToFocus %~ (++ [i])
 
 moveFocus DirUp st = do
-  let path = st ^. pathToFocus
-      pathToParent = take (length path - 1) path
-      topView = st ^. viewTree
-  (parent :: ViewTree) <- prefixLeft "moveFocus, computing parent"
-    $ getViewTreeAt pathToParent topView
-  let parFoc = parent ^. viewFocus
-      parFoc' = if inBounds (parent ^. viewSubviews) parFoc
-        then max 0 $ parFoc - 1
-        else 0
-  path' <- prefixLeft "moveFocus, computing path'"
-           $ replaceLast parFoc' path
-  topView' <- modViewTreeAt pathToParent
-              (viewFocus .~ parFoc') topView
-  Right $ st & pathToFocus .~ path'
-    & viewTree .~ topView'
+  let topView = st ^. viewTree
+      path = st ^. pathToFocus
+  _ <- pathInBounds topView path
+  let pathToParent = take (length path - 1) path
+      Just parent = -- safe b/c path is in bounds
+        topView ^? atPath pathToParent
+      parFoc = parent ^. viewFocus
+  _ <- if inBounds (parent ^. viewSubviews) parFoc then Right ()
+       else Left $ "Bad focus in " ++ show parent
+            ++ " at " ++ show pathToParent
+  let parFoc' = max 0 $ parFoc - 1
+  Right $ st
+        & pathToFocus %~ replaceLast' parFoc'
+        & viewTree . atPath pathToParent . viewFocus .~ parFoc'
 
+-- TODO : This duplicates the code for DirUp.
+-- Instead, factor out the computation of newFocus,
+-- as a function of parent and an adjustment function.
 moveFocus DirDown st = do
-  let path = st ^. pathToFocus
-      pathToParent = take (length path - 1) path
-      topView = st ^. viewTree
-  (parent :: ViewTree) <- prefixLeft "moveFocus"
-    $ getViewTreeAt pathToParent topView
-  let parFoc = parent ^. viewFocus
-      parFoc' = if inBounds (parent ^. viewSubviews) parFoc
-        then min (parFoc + 1) $ V.length (parent ^. viewSubviews) - 1
-        else 0
-  path' <- prefixLeft "moveFocus, computing path'"
-           $ replaceLast parFoc' path
-  topView' <- modViewTreeAt pathToParent
-              (viewFocus .~ parFoc') topView
-  Right $ st & pathToFocus .~ path'
-    & viewTree .~ topView'
+  let topView = st ^. viewTree
+      path = st ^. pathToFocus
+  _ <- pathInBounds topView path
+  let pathToParent = take (length path - 1) path
+      Just parent = -- safe b/c path is in bounds
+        topView ^? atPath pathToParent
+      parFoc = parent ^. viewFocus
+  _ <- if inBounds (parent ^. viewSubviews) parFoc then Right ()
+       else Left $ "Bad focus in " ++ show parent
+            ++ " at " ++ show pathToParent
+  let parFoc' = min (parFoc + 1)
+                $ V.length (parent ^. viewSubviews) - 1
+  Right $ st
+        & pathToFocus %~ replaceLast' parFoc'
+        & viewTree . atPath pathToParent . viewFocus .~ parFoc'
 
 
 groupHostRels :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]

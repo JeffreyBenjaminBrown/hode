@@ -69,6 +69,7 @@ library
                 , Test.Rslt.TShow
                 , Test.TGraph
                 , Test.TMain
+                , Test.TUI
                 , Test.TUtil
                 , UI.Clipboard
                 , UI.IParse

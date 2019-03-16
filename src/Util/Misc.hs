@@ -6,6 +6,7 @@ module Util.Misc (
     intersections      -- ^ Set (Set a) -> Set a
   , replaceNth         -- ^ a -> Int -> [a] -> Either String [a]
   , replaceLast        -- ^ a -> [a] -> Either String [a]
+  , replaceLast'       -- ^ a -> [a] -> [a]
   , setFromSetOfMaybes -- ^ Set (Maybe a) -> Set a
   , inBounds           -- ^ Vector a -> Int -> Bool
   , modifyAt           -- ^ Int -> (a -> a) -> Vector a
@@ -51,6 +52,10 @@ replaceNth a n as = do
 replaceLast :: a -> [a] -> Either String [a]
 replaceLast _ [] = Left "replaceLast given an empty list."
 replaceLast a as = Right $ reverse $ a : tail (reverse as)
+
+replaceLast' :: a -> [a] -> [a]
+replaceLast' _ [] = []
+replaceLast' a as = reverse $ a : tail (reverse as)
 
 setFromSetOfMaybes :: Ord a => Set (Maybe a) -> Set a
 setFromSetOfMaybes = S.map fromJust . S.filter (not . isNothing)
