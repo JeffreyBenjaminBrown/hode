@@ -15,9 +15,9 @@ module UI.ViewTree (
     pathInBounds -- ViewTree -> Path  -> Either String ()
   , atPath       -- Path -> Traversal' ViewTree ViewTree
   , moveFocus  -- Direction -> St -> Either String St
-  , groupHostRels -- Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
-  , groupHostRels_atFocus   -- St -> Either String [(CenterRoleView, [Addr])]
-  , hostRelGroup_to_view -- Rslt -> (CenterRoleView, [Addr])
+  , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
+  , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
+  , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
                          -- -> Either String ViewTree
   , insertHosts_atFocus -- St -> Either String St
   ) where
@@ -103,7 +103,7 @@ moveFocus DirDown st = do
         & viewTree . atPath pathToParent . viewChildFocus .~ parFoc'
 
 
-groupHostRels :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
+groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels r a0 = do
   (ras :: [(Role, Addr)]) <- let
     msg = "groupHostRels, computing ras from center " ++ show a0
@@ -118,9 +118,9 @@ groupHostRels r a0 = do
         f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
                                   -> Map (Role, Addr) [Addr]
         f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
-      package :: ((Role, Addr),[Addr]) -> (CenterRoleView, [Addr])
+      package :: ((Role, Addr),[Addr]) -> (ViewCenterRole, [Addr])
       package ((role,t),as) = (crv, as) where
-        crv = CenterRoleView { _crvCenter = a0
+        crv = ViewCenterRole { _crvCenter = a0
                              , _crvRole = role
                              , _crvTplt = tplt t } where
           tplt :: Addr -> [Expr]
@@ -128,16 +128,18 @@ groupHostRels r a0 = do
   Right $ map package $ M.toList groups
 
 
---members_atFocus :: St -> Either String (MembersView, [Addr])
+--members_atFocus :: St -> Either String (ViewMember, [Addr])
 --members_atFocus st = prefixLeft "members_atFocus" $ do
 --  let (p :: Path) = st ^. pathToFocus
 --  (foc :: ViewTree) <- let left = Left $ "bad path: " ++ show p
 --    in maybe left Right $ st ^? viewTree . atPath p
+--  (a :: Addr) <- case foc ^. viewContent of
+--    >>>
+--    VResult (ViewResult rv) ->
 --  error "?"
---  -- members <- has (st ^. appRslt) (
 
 
-groupHostRels_atFocus :: St -> Either String [(CenterRoleView, [Addr])]
+groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   let (top :: ViewTree) = st ^. viewTree
       (p :: Path) = st ^. pathToFocus
@@ -151,7 +153,7 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
-  (groups :: [(CenterRoleView, [Addr])]) <-
+  (groups :: [(ViewCenterRole, [Addr])]) <-
     groupHostRels_atFocus st
   (newTrees :: [ViewTree]) <- ifLefts ""
     $ map (hostRelGroup_to_view $ st ^. appRslt) groups
@@ -162,13 +164,13 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
   Right $ st & viewTree . atPath (st ^. pathToFocus) %~ insert
 
 
-hostRelGroup_to_view :: Rslt -> (CenterRoleView, [Addr])
+hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
                      -> Either String ViewTree
 hostRelGroup_to_view r (crv, as) = do
-  (rs :: [ResultView]) <- ifLefts "hostRelGroup_to_view"
+  (rs :: [ViewResult]) <- ifLefts "hostRelGroup_to_view"
     $ map (resultView r) as
   Right $ ViewTree { _viewChildFocus = 0
                    , _viewIsFocused = False
-                   , _viewContent = VCenterRoleView crv
+                   , _viewContent = VCenterRole crv
                    , _viewSubviews =
                      V.fromList $ map (viewLeaf . VResult) rs }

@@ -2,7 +2,7 @@
 
 module UI.IUtil (
     resultsText -- St -> [String]
-  , resultView -- Rslt -> Addr -> Either String ResultView
+  , resultView -- Rslt -> Addr -> Either String ViewResult
   , viewLeaf -- View -> ViewTree
   , vShow -- View -> String
   ) where
@@ -26,11 +26,11 @@ resultsText st = f 0 $ st ^. viewTree where
   f i v = indent i (vShow $ v ^. viewContent)
     : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
 
-resultView :: Rslt -> Addr -> Either String ResultView
+resultView :: Rslt -> Addr -> Either String ViewResult
 resultView r a = do
   (s :: String) <- prefixLeft "resultView"
                    $ addrToExpr r a >>= eShow r
-  Right $ ResultView { _viewResultAddr = a
+  Right $ ViewResult { _viewResultAddr = a
                      , _viewResultString = s }
 
 viewLeaf :: View -> ViewTree
@@ -44,5 +44,5 @@ vShow :: View -> String
 vShow (VQuery vq)  = vq
 vShow (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
-vShow (VMembersView a) = "memebers of " ++ show a
-vShow (VCenterRoleView crv) = show crv
+vShow (VMembers a) = "memebers of " ++ show a
+vShow (VCenterRole crv) = show crv

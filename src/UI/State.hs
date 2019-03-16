@@ -105,8 +105,8 @@ runCommand (CommandFind s h) st = do
             _viewChildFocus = 0
           , _viewIsFocused = False
           , _viewContent = let
-              (rv :: Either String ResultView) = resultView r a
-              (err :: String -> ResultView) = \se -> error ("runCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+              (rv :: Either String ViewResult) = resultView r a
+              (err :: String -> ViewResult) = \se -> error ("runCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
               in VResult $ either err id rv
           , _viewSubviews = V.empty }
 

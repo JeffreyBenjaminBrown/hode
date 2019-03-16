@@ -55,28 +55,30 @@ data ViewTree = ViewTree {
   , _viewIsFocused :: Bool
   , _viewContent   :: View
   , _viewSubviews  :: Vector ViewTree -- ^ PITFALL: permits invalid state.
-  -- A `ResultView`'s children should be `QueryView`s, and vice-versa.
+  -- The subviews of a `VQuery`, `VMember` or `VCenterRole`
+  -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
+  -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
   } deriving (Show)
 
-data View = VQuery QueryView
-          | VResult ResultView
-          | VMembersView MembersView
-          | VCenterRoleView CenterRoleView deriving (Show, Eq, Ord)
+data View = VQuery      ViewQuery
+          | VResult     ViewResult
+          | VMembers    ViewMember
+          | VCenterRole ViewCenterRole deriving (Show, Eq, Ord)
 
-type QueryView = String
+type ViewQuery = String
 
-data ResultView = ResultView {
+data ViewResult = ViewResult {
     _viewResultAddr :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
-data MembersView = MembersView { _mvCenter :: Addr }
+data ViewMember = ViewMember { _mvCenter :: Addr }
   deriving (Show, Eq, Ord)
 
--- | `CenterRoleView` is used to group relationships in which the `Expr`at
+-- | `ViewCenterRole` is used to group relationships in which the `Expr`at
 -- `crvCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
--- then `CenterRoleView 3 (RoleMember 1) ["", "helps", ""]` will
+-- then `ViewCenterRole 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
-data CenterRoleView = CenterRoleView {
+data ViewCenterRole = ViewCenterRole {
     _crvCenter :: Addr
   , _crvRole :: Role
   , _crvTplt :: [Expr] } deriving (Show, Eq, Ord)
@@ -84,8 +86,8 @@ data CenterRoleView = CenterRoleView {
 makeLenses ''St
 makePrisms ''View -- prisms!
 makeLenses ''ViewTree
-makeLenses ''ResultView
-makeLenses ''CenterRoleView
+makeLenses ''ViewResult
+makeLenses ''ViewCenterRole
 
 makeBaseFunctor ''ViewTree
 makeLenses ''ViewTreeF

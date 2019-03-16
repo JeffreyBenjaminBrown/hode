@@ -29,6 +29,11 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
+** rename
+ViewResult -> ViewResult
+ViewMember -> ViewMember
+ViewCenterRole -> ViewCenterRole
+ViewQuery -> ViewQuery
 ** M -> "its members" (all level-1 members)
 Similar, but rather than `ViewCenterRole`, something simpler.
 ** can insertHosts_atFocus when they're already there
@@ -48,7 +53,7 @@ and mention that you can use parens liberally to make it more obvious
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
-This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
+This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
 ** why is UI.IUtil.vShow distinct from show?
 * TODO crawling across Exprs
 ** local queries to implement
