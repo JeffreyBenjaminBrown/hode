@@ -29,39 +29,26 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO user-friendliness
-** don't crash with bad filename
-** fix the Either cheats that use errror in UI.*
-** paragraphs
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
+* TODO bugs
+** fix the Either cheats that use errror in UI.*
+** can insertHosts_atFocus when they're already there
+** moving cursor across a CRV group can crash
+when there are (stupidly) multiple CRV groups under the same ResultView
+** adding data should update views
+at least in the current buffer -- and switching should update the new buffer
+** bad filename crashes ui
+** paragraphs: incomplete pattern in Hash.Convert
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make CenterRoleView.crvTplt :: [Expr] safer.
 ** why is UI.IUtil.vShow distinct from show?
 * TODO crawling
-** prism|ix fix for ViewTree
-Make a function that tests the validity of a path.
-After running that, it's safe to use ix.
-Later, might include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr. (If it's in the buffer multiple times, cycle between them.)
+** show CRV groups compactly
+e.g. as "x # _"
 ** local queries to implement
-*** TODO H -> "its host relationship, grouped by template and its role"
-it's mostly coded:
-ViewTree.insertHosts :: St -> Either String St
-
-Find the focused View:
-  _pathToFocus :: St -> [Int]
-  _view :: St -> ViewTree
-  getViewTreeAt :: [Int] -> ViewTree -> Either String ViewTree
-  _viewContent :: ViewTree -> View      -- or the lens
-
-If the View is a ResultView, it has an Addr associated. Compute all the Rels it belongs to:
-  _viewResultAddr :: ResultView -> Addr -- or the lens
-  groupHostRels` :: Rslt -> Addr -> Either String [(CenterRoleView, [Addr])]
-
-For each group, append to the focused ViewTree's Subviews a ViewTree containing a VCenterRoleView, which in turn has ResultView subviews for each Rel:
-  resultView :: Rslt -> Addr -> Either String ResultView
-  modViewTreeAt :: [Int] -> (ViewTree -> ViewTree) -> ViewTree -> Either String ViewTree
 *** TODO M -> "its members" (all level-1 members)
 similar, but rather than `ViewCenterRole`, something simpler.
 *** To move faster around these trees
@@ -70,15 +57,8 @@ When pressing left or right, if there is a view collection like "ViewCenterRole"
 all members, submembers, etc -- probably nested
 *** maybe "its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
-** things displayed in the Results window
-*** an absolute query
-*** an Expr result
-*** a Tplt result
-These have to know what center they were queried from. That way they can be unfolded to show only rels involving that center.
-** DONE obvious | redundant
-*** Every relationship involving _
-Grouped by template.
-*** members of
+** obvious | redundant
+*** synthetic templates
 "_ is a member of _" is a "synthetic" template. There might be others.
 *** show path to here
 It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
@@ -179,6 +159,8 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** for jumping around the view
+Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr. (If it's in the buffer multiple times, cycle between them.)
 ** if moving focus ever gets slow
 replace those vectors of subviews with zippers
 ** redundant cases should be last among definitions
