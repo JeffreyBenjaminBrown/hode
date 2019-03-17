@@ -89,11 +89,11 @@ appHandleEvent ::
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc []         -> B.halt st
 
-  B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
     $ insertHosts_atFocus   st
-  B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ unEitherSt st
     $ insertMembers_atFocus st
-  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ unEitherSt st
     $ closeSubviews_atFocus st
 
   B.EvKey (B.KChar 'w') [B.MMeta] ->
@@ -103,13 +103,13 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
-  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue $ unEitherSt st
     $ moveFocus DirUp st
-  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue $ unEitherSt st
     $ moveFocus DirDown st
-  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue $ unEitherSt st
     $ moveFocus DirRight st
-  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue $ updateSt st
+  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue $ unEitherSt st
     $ moveFocus DirLeft st
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st

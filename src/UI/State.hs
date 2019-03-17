@@ -5,7 +5,7 @@
 
 module UI.State (
   initialState         -- ^ Rslt -> St
-  , updateSt           -- ^ Either String St -> St -> St
+  , unEitherSt           -- ^ Either String St -> St -> St
   , resultsText        -- ^ St -> [String]
   , emptyCommandWindow -- ^ St -> St
   , parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
@@ -55,11 +55,11 @@ initialState r = St {
   }
 
 
-updateSt :: St -> Either String St -> St
-updateSt old (Left s) = old
+unEitherSt :: St -> Either String St -> St
+unEitherSt old (Left s) = old
   & shownInResultsWindow .~ ShowingError
   & uiError .~ s
-updateSt _ (Right new) = new
+unEitherSt _ (Right new) = new
   & shownInResultsWindow .~ ShowingResults
 
 
@@ -72,10 +72,10 @@ parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
 parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
-    Left s1 -> B.continue $ updateSt st $ Left s1
+    Left parseErr -> B.continue $ unEitherSt st $ Left parseErr
       -- PITFALL: these two Lefts have different types.
-    Right c -> case runCommand c st of
-      Left s2 -> B.continue $ updateSt st $ Left s2
+    Right parsedCmd -> case runCommand parsedCmd st of
+      Left runErr -> B.continue $ unEitherSt st $ Left runErr
         -- PITFALL: these two Lefts have different types.
       Right evNextSt -> evNextSt
 
@@ -112,12 +112,16 @@ runCommand (CommandFind s h) st = do
           , _viewSubviews = V.empty }
 
   Right $ B.continue $ st & pathToFocus .~ []
+                          & shownInResultsWindow .~ ShowingResults
                           & viewTree .~ v
 
 runCommand (CommandInsert e) st =
-  either Left (Right . f) $ exprToAddrInsert (st ^. appRslt) e
-  where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
-        f (r,_) = B.continue $ st & appRslt .~ r
+  either Left (Right . f)
+  $ exprToAddrInsert (st ^. appRslt) e
+  where
+    f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
+    f (r,_) = B.continue $ st & appRslt .~ r
+                              & shownInResultsWindow .~ ShowingResults
 
 runCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f

@@ -31,21 +31,22 @@ see the comment leading its definition
 * TODO top priorities
 ** buffer list
 Later, a buffer tree.
-** adding data should update views
+** TODO adding data should update views
 at least in the current buffer -- and switching should update the new buffer
-** paragraphs: incomplete pattern in Hash.Convert
-** show path to here
-It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
+** TODO paragraphs: incomplete pattern in Hash.Convert
+** TODO success should show a message
+** TODO bad filename should produce a warning
 * TODO user-friendliness
 ** can insertHosts_atFocus when they're already there
-** TODO bad filename should produce a warning
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
+** show path to here
+(Not a big deal because the cursor path is remembered.)
+Add a toggleable window above the Results window.
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
-** why is UI.IUtil.vShow distinct from show?
 * TODO crawling across Exprs
 ** local queries to implement
 *** To move faster around these trees
@@ -54,9 +55,6 @@ When pressing left or right, if there is a view collection like "ViewCenterRole"
 all members, submembers, etc -- probably nested
 *** maybe "its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
-** obvious | redundant
-*** synthetic templates
-"_ is a member of _" is a "synthetic" template. There might be others.
 * TODO UI
 ** TODO record, show command history
 ** better UI messaging
@@ -188,6 +186,8 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
 *** a ForAll with a ForAll condition
 ** test pathsToIts_*, eval
 * far off
+** synthetic templates
+_ is a member of _" is a "synthetic" template. There might be others.
 ** relationship equivalence
 ** programmatic edits ("do _ to everything that satisfies _")
 ** language for views
