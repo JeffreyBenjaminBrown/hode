@@ -58,7 +58,10 @@ appDraw st0 = [w] where
 
   outputWindow, commandWindow :: B.Widget WindowName
   outputWindow = case st ^. shownInResultsWindow of
-    ShowingError -> strWrap $ st ^. uiError
+    ShowingError -> vBox
+      [ strWrap $ st ^. uiError
+      , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
+        ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
     ShowingResults -> viewport Results B.Vertical
                       $ showRec $ st ^. viewTree where
 

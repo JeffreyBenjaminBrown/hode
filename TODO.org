@@ -38,8 +38,7 @@ at least in the current buffer -- and switching should update the new buffer
 It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
 * TODO user-friendliness
 ** can insertHosts_atFocus when they're already there
-** TODO add "how to escape this message" at the bottom of error messages.
-** TODO bad filename crashes ui
+** TODO bad filename should produce a warning
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
 * TODO coder-friendliness
