@@ -72,12 +72,12 @@ library
                 , Test.TUI
                 , Test.TUtil
                 , UI.Clipboard
+                , UI.Command
                 , UI.IParse
                 , UI.ITypes
                 , UI.IUtil
                 , UI.Main
                 , UI.NoUI
-                , UI.State
                 , UI.ViewTree
                 , Util.Misc
                 , Util.UParse

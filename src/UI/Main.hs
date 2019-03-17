@@ -23,7 +23,7 @@ import qualified Graphics.Vty as B
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
 import UI.Clipboard
-import UI.State
+import UI.Command
 import UI.ITypes
 import UI.IUtil
 import UI.ViewTree
@@ -87,7 +87,7 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 appHandleEvent ::
   St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
-  B.EvKey B.KEsc []         -> B.halt st
+  B.EvKey B.KEsc []               -> B.halt st
 
   B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
     $ insertHosts_atFocus   st

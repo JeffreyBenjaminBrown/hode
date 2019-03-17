@@ -47,12 +47,11 @@ Add a toggleable window above the Results window.
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
 * TODO crawling across Exprs
-** local queries to implement
-*** To move faster around these trees
+** Move faster by crossing over some views
 When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
-*** "its members*" (with a star)
+** "its members*" (with a star)
 all members, submembers, etc -- probably nested
-*** maybe "its rels*" (with a star)
+** maybe "its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
 * TODO UI
 ** TODO record, show command history
