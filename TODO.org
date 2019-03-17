@@ -29,22 +29,25 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** M -> "its members" (all level-1 members)
-Similar, but rather than `ViewCenterRole`, something simpler.
-** can insertHosts_atFocus when they're already there
-** adding data should update views
-at least in the current buffer -- and switching should update the new buffer
-
 ** show CRV groups compactly
 e.g. as "x # _"
+** delete all subviews
+Folding can come later; for now there's no harm recalculating to reopen.
+** adding data should update views
+at least in the current buffer -- and switching should update the new buffer
+** paragraphs: incomplete pattern in Hash.Convert
+** show path to here
+It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
+** buffer list
+Later, a buffer tree.
 * TODO user-friendliness
+** can insertHosts_atFocus when they're already there
+
 ** TODO it's possible to get stuck in ShowingError
 Moving left escapes it.
 ** TODO bad filename crashes ui
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
-* TODO bugs
-** paragraphs: incomplete pattern in Hash.Convert
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
@@ -61,12 +64,8 @@ all members, submembers, etc -- probably nested
 ** obvious | redundant
 *** synthetic templates
 "_ is a member of _" is a "synthetic" template. There might be others.
-*** show path to here
-It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
 *** view-root the Expr at point
  It should stay at the top line, while its members if many scroll through a window below it.
-*** buffer list
-Later, a buffer tree.
 * TODO UI
 ** TODO record, show command history
 ** better UI messaging
@@ -93,8 +92,6 @@ up|down, multipurpose
   this kind goes to either of the two previous kinds of things
 left|right in same level
 * TODO views
-** add Expr wrapper for display
-ExprImg = ExprImg Expr | Bracket ExprImg
 ** Show addresses as numbers?
  eShow r (Addr a) = Right $ bracket_angle_small_left
                          : show a ++ [bracket_angle_small_right]
