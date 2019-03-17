@@ -36,6 +36,7 @@ initialState r = St {
                           }
   , _pathToFocus = []
   , _uiError   = ""
+  , _reassurance = "It's all good."
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
   , _shownInResultsWindow = ShowingResults

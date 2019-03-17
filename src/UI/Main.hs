@@ -51,7 +51,9 @@ app = B.App
 -- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
-  w = B.center $ outputWindow <=> vLimit 3 commandWindow
+  w = B.center $ outputWindow
+    <=> strWrap (st0 ^. reassurance)
+    <=> vLimit 3 commandWindow
 
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused

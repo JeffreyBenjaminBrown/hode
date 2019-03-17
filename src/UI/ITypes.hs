@@ -115,6 +115,7 @@ data St = St {
   , _viewTree             :: ViewTree
   , _pathToFocus          :: Path
   , _uiError              :: String
+  , _reassurance          :: String
   , _commands             :: B.Editor String WindowName
   , _appRslt              :: Rslt
   , _shownInResultsWindow :: ShownInResultsWindow
