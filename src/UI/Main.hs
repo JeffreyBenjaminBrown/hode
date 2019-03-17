@@ -85,15 +85,15 @@ appHandleEvent ::
   St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc []         -> B.halt st
-  B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
-  B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ updateSt st
-    $ insertHosts_atFocus st
+    $ insertHosts_atFocus   st
   B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ updateSt st
     $ insertMembers_atFocus st
+  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ updateSt st
+    $ closeSubviews_atFocus st
 
-  B.EvKey (B.KChar 'r') [B.MMeta] ->
+  B.EvKey (B.KChar 'w') [B.MMeta] ->
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
     >> B.continue st
@@ -111,6 +111,11 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
+  -- Window-focus-related stuff. The first two lines, which move the focus,
+  -- are disabled, because so far switching focus isn't useful.
+  -- PITFALL: The focused `Window` is distinct from the focused `View`.
+  -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
+  -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
   _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
     Just Commands -> B.handleEventLensed 
       st commands B.handleEditorEvent ev

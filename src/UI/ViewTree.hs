@@ -21,7 +21,8 @@ module UI.ViewTree (
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
                          -- -> Either String ViewTree
-  , insertHosts_atFocus -- St -> Either String St
+  , insertHosts_atFocus    -- St -> Either String St
+  , closeSubviews_atFocus -- St -> Either String St
   ) where
 
 import           Data.Map (Map)
@@ -189,3 +190,14 @@ hostRelGroup_to_view r (crv, as) = do
                    , _viewContent = VCenterRole crv
                    , _viewSubviews =
                      V.fromList $ map (viewLeaf . VResult) rs }
+
+
+closeSubviews_atFocus :: St -> Either String St
+closeSubviews_atFocus st = prefixLeft "closeSubviews_atFocus" $ do
+  let path = st ^. pathToFocus
+  _ <- pathInBounds (st ^. viewTree) path
+  _ <- let err = "Closing the root of a view would be silly."
+       in if path == [] then Left err else Right ()
+  let close :: ViewTree -> ViewTree
+      close = viewSubviews .~ mempty
+  Right $ st & viewTree . atPath (st ^. pathToFocus) %~ close

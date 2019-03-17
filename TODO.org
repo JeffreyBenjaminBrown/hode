@@ -29,15 +29,13 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** delete all subviews
-Folding can come later; for now there's no harm recalculating to reopen.
+** buffer list
+Later, a buffer tree.
 ** adding data should update views
 at least in the current buffer -- and switching should update the new buffer
 ** paragraphs: incomplete pattern in Hash.Convert
 ** show path to here
 It could be that the buffer has a lot of text, and the context leading to the current expression has scrolled off the screen. This shortcut would show each Query in the path that led to the currently-focused Expr, tab-indented. For simplicity, movement can be impossible until the user returns to the normal view.
-** buffer list
-Later, a buffer tree.
 * TODO user-friendliness
 ** can insertHosts_atFocus when they're already there
 

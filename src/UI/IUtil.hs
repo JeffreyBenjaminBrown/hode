@@ -40,6 +40,9 @@ viewLeaf v = ViewTree {
   , _viewContent = v
   , _viewSubviews = V.empty }
 
+-- | `vShow` is used to display a `View` in the UI. It is distinct
+-- from `show` so that `show` can show everything about the `View`,
+-- whereas `vShow` hides things that are already clear in the UI context.
 vShow :: View -> String
 vShow (VQuery vq)  = vq
 vShow (VResult qr) = show (qr ^. viewResultAddr)
