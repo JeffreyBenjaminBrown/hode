@@ -52,16 +52,15 @@ app = B.App
 -- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
-  w = B.center
-    $            outputWindow
-    <=> vLimit 3 errorWindow
-    <=> strWrap (st0 ^. reassurance)
-    <=> vLimit 3 commandWindow
+  w = B.center ( outputWindow
+                 <=> vLimit 3 errorWindow
+                 <=> reassuranceWindow
+                 <=> vLimit 3 commandWindow )
 
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
-  commandWindow, errorWindow, outputWindow :: B.Widget WindowName
+  commandWindow, errorWindow, outputWindow, reassuranceWindow :: B.Widget WindowName
   commandWindow = B.withFocusRing (st^.focusRing)
     -- TODO ? There's so far never reason to focus anywhere but COmmands.
     (B.renderEditor (str . unlines)) (st^.commands)
@@ -89,6 +88,11 @@ appDraw st0 = [w] where
                       else visible
                            . withAttr (B.attrName "focused result")
 
+  reassuranceWindow = withAttr (B.attrName "reassurance") $
+    if M.lookup Reassurance (st ^. showing) /= Just True
+    then emptyWidget
+    else strWrap $ st0 ^. reassurance
+
 appChooseCursor ::
   St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
 appChooseCursor = B.focusRingCursor (^. focusRing)
@@ -105,21 +109,26 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ unEitherSt st
     $ closeSubviews_atFocus st
 
-  B.EvKey (B.KChar 'w') [B.MMeta] ->
+  B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
-    >> B.continue st
+    B.continue $ st
+      & showReassurance "Results window copied to clipboard."
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
-  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue $ unEitherSt st
-    $ moveFocus DirUp st
-  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue $ unEitherSt st
-    $ moveFocus DirDown st
-  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue $ unEitherSt st
-    $ moveFocus DirRight st
-  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue $ unEitherSt st
-    $ moveFocus DirLeft st
+  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocus DirUp
+    $ st & hideReassurance
+  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocus DirDown
+    $ st & hideReassurance
+  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocus DirRight
+    $ st & hideReassurance
+  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocus DirLeft
+    $ st & hideReassurance
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
@@ -129,8 +138,8 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
   _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just Commands -> B.handleEventLensed 
-      st commands B.handleEditorEvent ev
+    Just Commands -> B.handleEventLensed
+      (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st
 
@@ -138,5 +147,6 @@ appAttrMap :: B.AttrMap
 appAttrMap = B.attrMap B.defAttr
     [ (B.editAttr                  , B.white `on` B.blue)
     , (B.editFocusedAttr           , B.black `on` B.yellow)
+    , (B.attrName "reassurance"    , B.black `on` B.blue)
     , (B.attrName "focused result" , B.black `on` B.green)
     ]

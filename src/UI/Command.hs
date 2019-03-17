@@ -86,23 +86,24 @@ runCommand (CommandInsert e) st =
   $ exprToAddrInsert (st ^. appRslt) e
   where
     f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
-    f (r,_) = B.continue $ st & appRslt .~ r
-                              & showResults
+    f (r,a) = B.continue $ st & appRslt .~ r
+              & showReassurance ("Expr added at Addr " ++ show a)
+              & showResults
 
 runCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   if bad
-    then B.continue $ st & uiError .~ "Non-existent folder: " ++ f
-                         & showErrors
+    then B.continue $ st & showError ("Non-existent folder: " ++ f)
     else do r <- liftIO $ readRslt f
             B.continue $ st & appRslt .~ r
+                            & showReassurance "Rslt loaded."
                             & showResults
 
 runCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
-    then return $ st & showErrors
-                     & uiError .~ "Non-existent folder: " ++ f
+    then return $ st & showError ("Non-existent folder: " ++ f)
     else do liftIO $ writeRslt f $ st ^. appRslt
             return $ st & showResults
+                   & showReassurance "Rslt saved."
   B.continue st'

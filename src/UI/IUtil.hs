@@ -1,11 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    initialState            -- ^ Rslt -> St
-  , unEitherSt              -- ^ Either String St -> St -> St
-  , showErrors, showResults -- ^ St -> St
-  , emptyCommandWindow      -- ^ St -> St
-  , resultsText             -- ^ St -> [String]
+    initialState                     -- ^ Rslt -> St
+  , unEitherSt                       -- ^ Either String St -> St -> St
+  , showResults, hideReassurance     -- ^           St -> St
+  , showError, showReassurance       -- ^ String -> St -> St
+  , emptyCommandWindow               -- ^ St -> St
+  , resultsText                      -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , viewLeaf     -- ^ View -> ViewTree
   , vShow        -- ^ View -> String
@@ -47,13 +48,20 @@ initialState r = St {
                           , (Results     , True) ]
   }
 
-showErrors, showResults :: St -> St
-showErrors  = showing %~ M.insert Results False . M.insert Errors True
+showResults, hideReassurance :: St -> St
 showResults = showing %~ M.insert Results True  . M.insert Errors False
+hideReassurance = showing %~ M.insert Reassurance False
+
+showError, showReassurance :: String -> St -> St
+showError msg = (showing %~ ( M.insert Results False
+                              . M.insert Errors True
+                              . M.insert Reassurance False ) )
+                . (uiError .~ msg)
+showReassurance msg = (showing %~ M.insert Reassurance True)
+                      . (reassurance .~ msg)
 
 unEitherSt :: St -> Either String St -> St
-unEitherSt old (Left s) = old & showErrors
-                              & uiError .~ s
+unEitherSt old (Left s) = old & showError s
 unEitherSt _ (Right new) = new & showResults
 
 emptyCommandWindow :: St -> St

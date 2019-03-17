@@ -34,7 +34,6 @@ Later, a buffer tree.
 ** TODO adding data should update views
 at least in the current buffer -- and switching should update the new buffer
 ** TODO paragraphs: incomplete pattern in Hash.Convert
-** TODO success should show a message
 * TODO user-friendliness
 ** can insertHosts_atFocus when they're already there
 ** document the precedence order of the language
