@@ -19,6 +19,7 @@ import qualified Data.Set                 as S
 import qualified Data.Text.Zipper.Generic as TxZ
 import qualified Data.Vector              as V
 import           Lens.Micro
+import           System.Directory
 
 import qualified Brick.Main               as B
 import qualified Brick.Focus              as B
@@ -118,10 +119,14 @@ runCommand (CommandInsert e) st =
   where f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
         f (r,_) = B.continue $ st & appRslt .~ r
 
-runCommand (CommandLoad f) st =
-  Right $ do r <- liftIO $ readRslt f
-             B.continue $ st & appRslt .~ r
+runCommand (CommandLoad f) st = Right $ do
+  (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
+  if bad then B.continue $ st
+    else do r <- liftIO $ readRslt f
+            B.continue $ st & appRslt .~ r
 
-runCommand (CommandSave f) st =
-  Right ( liftIO ( writeRslt f $ st ^. appRslt )
-          >> B.continue st )
+runCommand (CommandSave f) st = Right $ do
+  (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
+  if bad then return ()
+    else liftIO $ writeRslt f $ st ^. appRslt
+  B.continue st
