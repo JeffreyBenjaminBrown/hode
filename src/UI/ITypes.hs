@@ -66,9 +66,10 @@ data ViewCenterRole = ViewCenterRole {
   , _crvRole   :: Role
   , _crvTplt   :: [Expr] } deriving (Eq, Ord)
 
-makePrisms      ''View -- prisms!
-makeLenses      ''ViewResult
-makeLenses      ''ViewCenterRole
+makePrisms ''View -- prisms!
+makeLenses ''ViewResult
+makeLenses ''ViewMembers
+makeLenses ''ViewCenterRole
 
 instance Show ViewCenterRole where
   show vcr = let

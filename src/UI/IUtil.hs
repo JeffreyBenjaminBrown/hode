@@ -44,5 +44,6 @@ vShow :: View -> String
 vShow (VQuery vq)  = vq
 vShow (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
-vShow (VMembers a) = "memebers of " ++ show a
+vShow (VMembers a) = "memebers of Expr at Addr "
+                     ++ show (a ^. mvCenter)
 vShow (VCenterRole crv) = show crv
