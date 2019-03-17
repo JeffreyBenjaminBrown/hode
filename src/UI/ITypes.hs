@@ -5,10 +5,11 @@
 
 module UI.ITypes where
 
-import           Data.Functor.Foldable.TH
-import           Data.Vector (Vector)
-import           Lens.Micro
-import           Control.Lens.TH
+import Data.Map (Map)
+import Data.Functor.Foldable.TH
+import Data.Vector (Vector)
+import Lens.Micro
+import Control.Lens.TH
 
 
 import qualified Brick.Widgets.Edit as B
@@ -22,16 +23,15 @@ import Util.Misc (replaceNth)
 
 -- | = Tiny types
 
-data WindowName = Results | Commands deriving (Ord, Show, Eq)
+data WindowName = Commands
+                | Errors
+                | Reassurance
+                | Results deriving (Ord, Show, Eq)
 
 data Command = CommandInsert Expr
              | CommandFind String HExpr
              | CommandLoad Folder
-             | CommandSave Folder
-             deriving (Show, Eq, Ord)
-
-data ShownInResultsWindow = ShowingError | ShowingResults
-  deriving (Show,Eq, Ord)
+             | CommandSave Folder deriving (Show, Eq, Ord)
 
 type Path = [Int]
 
@@ -111,14 +111,14 @@ data ViewTree = ViewTree {
   } deriving (Show)
 
 data St = St {
-    _focusRing            :: B.FocusRing WindowName
-  , _viewTree             :: ViewTree
-  , _pathToFocus          :: Path
-  , _uiError              :: String
-  , _reassurance          :: String
-  , _commands             :: B.Editor String WindowName
-  , _appRslt              :: Rslt
-  , _shownInResultsWindow :: ShownInResultsWindow
+    _focusRing   :: B.FocusRing WindowName
+  , _viewTree    :: ViewTree
+  , _pathToFocus :: Path
+  , _uiError     :: String
+  , _reassurance :: String
+  , _commands    :: B.Editor String WindowName
+  , _appRslt     :: Rslt
+  , _showing     :: Map WindowName Bool
   }
 
 makeLenses      ''St

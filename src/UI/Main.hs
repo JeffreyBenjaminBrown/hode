@@ -7,18 +7,19 @@
 module UI.Main where
 
 import           Control.Monad.IO.Class (liftIO)
-import qualified Data.Vector as V
+import qualified Data.Map             as M
+import qualified Data.Vector          as V
 import           Lens.Micro
 
-import qualified Brick.Main as B
-import qualified Brick.Types as B
+import qualified Brick.Main           as B
+import qualified Brick.Types          as B
 import           Brick.Widgets.Core
 import qualified Brick.Widgets.Center as B
-import qualified Brick.Widgets.Edit as B
-import qualified Brick.AttrMap as B
-import qualified Brick.Focus as B
+import qualified Brick.Widgets.Edit   as B
+import qualified Brick.AttrMap        as B
+import qualified Brick.Focus          as B
 import           Brick.Util (on)
-import qualified Graphics.Vty as B
+import qualified Graphics.Vty         as B
 
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
@@ -51,21 +52,31 @@ app = B.App
 -- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
-  w = B.center $ outputWindow
+  w = B.center
+    $            outputWindow
+    <=> vLimit 3 errorWindow
     <=> strWrap (st0 ^. reassurance)
     <=> vLimit 3 commandWindow
 
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
-  outputWindow, commandWindow :: B.Widget WindowName
-  outputWindow = case st ^. shownInResultsWindow of
-    ShowingError -> vBox
+  commandWindow, errorWindow, outputWindow :: B.Widget WindowName
+  commandWindow = B.withFocusRing (st^.focusRing)
+    -- TODO ? There's so far never reason to focus anywhere but COmmands.
+    (B.renderEditor (str . unlines)) (st^.commands)
+
+  errorWindow = if M.lookup Errors (st ^. showing) /= Just True
+    then emptyWidget
+    else vBox
       [ strWrap $ st ^. uiError
       , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
         ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
-    ShowingResults -> viewport Results B.Vertical
-                      $ showRec $ st ^. viewTree where
+
+  outputWindow = if M.lookup Results (st ^. showing) /= Just True
+    then emptyWidget
+    else viewport Results B.Vertical
+         $ showRec $ st ^. viewTree where
 
       showOne, showRec :: ViewTree -> B.Widget WindowName
       showRec vt | null $ vt ^. viewSubviews = showOne vt
@@ -77,10 +88,6 @@ appDraw st0 = [w] where
               style = if not $ vt ^. viewIsFocused then id
                       else visible
                            . withAttr (B.attrName "focused result")
-
-  commandWindow = B.withFocusRing (st^.focusRing)
-    -- TODO ? There's so far never reason to focus anywhere but COmmands.
-    (B.renderEditor (str . unlines)) (st^.commands)
 
 appChooseCursor ::
   St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)

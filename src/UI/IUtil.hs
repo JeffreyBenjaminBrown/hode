@@ -1,21 +1,23 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    initialState -- ^ Rslt -> St
-  , unEitherSt   -- ^ Either String St -> St -> St
-  , emptyCommandWindow -- ^ St -> St
-  , resultsText  -- ^ St -> [String]
+    initialState            -- ^ Rslt -> St
+  , unEitherSt              -- ^ Either String St -> St -> St
+  , showErrors, showResults -- ^ St -> St
+  , emptyCommandWindow      -- ^ St -> St
+  , resultsText             -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , viewLeaf     -- ^ View -> ViewTree
   , vShow        -- ^ View -> String
   ) where
 
-import qualified Data.Vector as V
+import qualified Data.Map                 as M
+import qualified Data.Vector              as V
 import           Lens.Micro
 import qualified Data.Text.Zipper.Generic as TxZ
 
-import qualified Brick.Focus        as B
-import qualified Brick.Widgets.Edit as B
+import qualified Brick.Focus              as B
+import qualified Brick.Widgets.Edit       as B
 
 import Rslt.RLookup
 import Rslt.RTypes
@@ -39,15 +41,20 @@ initialState r = St {
   , _reassurance = "It's all good."
   , _commands  = B.editor Commands Nothing ""
   , _appRslt   = r
-  , _shownInResultsWindow = ShowingResults
+  , _showing = M.fromList [ (Commands    , True)
+                          , (Errors      , False)
+                          , (Reassurance , True)
+                          , (Results     , True) ]
   }
 
+showErrors, showResults :: St -> St
+showErrors  = showing %~ M.insert Results False . M.insert Errors True
+showResults = showing %~ M.insert Results True  . M.insert Errors False
+
 unEitherSt :: St -> Either String St -> St
-unEitherSt old (Left s) = old
-  & shownInResultsWindow .~ ShowingError
-  & uiError .~ s
-unEitherSt _ (Right new) = new
-  & shownInResultsWindow .~ ShowingResults
+unEitherSt old (Left s) = old & showErrors
+                              & uiError .~ s
+unEitherSt _ (Right new) = new & showResults
 
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL

@@ -78,7 +78,7 @@ runCommand (CommandFind s h) st = do
           , _viewSubviews = V.empty }
 
   Right $ B.continue $ st & pathToFocus .~ []
-                          & shownInResultsWindow .~ ShowingResults
+                          & showResults
                           & viewTree .~ v
 
 runCommand (CommandInsert e) st =
@@ -87,22 +87,22 @@ runCommand (CommandInsert e) st =
   where
     f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
     f (r,_) = B.continue $ st & appRslt .~ r
-                              & shownInResultsWindow .~ ShowingResults
+                              & showResults
 
 runCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   if bad
     then B.continue $ st & uiError .~ "Non-existent folder: " ++ f
-                         & shownInResultsWindow .~ ShowingError
+                         & showErrors
     else do r <- liftIO $ readRslt f
             B.continue $ st & appRslt .~ r
-                            & shownInResultsWindow .~ ShowingResults
+                            & showResults
 
 runCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
-    then return $ st & shownInResultsWindow .~ ShowingError
+    then return $ st & showErrors
                      & uiError .~ "Non-existent folder: " ++ f
     else do liftIO $ writeRslt f $ st ^. appRslt
-            return $ st & shownInResultsWindow .~ ShowingResults
+            return $ st & showResults
   B.continue st'
