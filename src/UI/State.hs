@@ -78,6 +78,9 @@ parseAndRunCommand st =
       Left runErr -> B.continue $ unEitherSt st $ Left runErr
         -- PITFALL: these two Lefts have different types.
       Right evNextSt -> evNextSt
+        -- PITFALL: Don't call `unEitherSt` on this `evNextSt`, because
+        -- it might be showing errors, because the load and save commnads
+        -- must return Right in order to perform IO.
 
 
 -- | Pitfall: this looks like it could just return `St` rather
@@ -125,12 +128,18 @@ runCommand (CommandInsert e) st =
 
 runCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
-  if bad then B.continue $ st
+  if bad
+    then B.continue $ st & uiError .~ "Non-existent folder: " ++ f
+                         & shownInResultsWindow .~ ShowingError
     else do r <- liftIO $ readRslt f
             B.continue $ st & appRslt .~ r
+                            & shownInResultsWindow .~ ShowingResults
 
 runCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
-  if bad then return ()
-    else liftIO $ writeRslt f $ st ^. appRslt
-  B.continue st
+  st' <- if bad
+    then return $ st & shownInResultsWindow .~ ShowingError
+                     & uiError .~ "Non-existent folder: " ++ f
+    else do liftIO $ writeRslt f $ st ^. appRslt
+            return $ st & shownInResultsWindow .~ ShowingResults
+  B.continue st'
