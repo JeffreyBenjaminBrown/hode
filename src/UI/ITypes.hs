@@ -24,6 +24,7 @@ import Util.Misc (replaceNth)
 -- | = Tiny types
 
 data WindowName = Commands
+                | CommandHistory
                 | Errors
                 | Reassurance
                 | Results deriving (Ord, Show, Eq)

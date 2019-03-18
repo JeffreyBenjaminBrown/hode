@@ -55,12 +55,13 @@ appDraw st0 = [w] where
   w = B.center ( outputWindow
                  <=> vLimit 3 errorWindow
                  <=> reassuranceWindow
+                 <=> commandHistoryWindow
                  <=> vLimit 3 commandWindow )
 
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
-  commandWindow, errorWindow, outputWindow, reassuranceWindow
+  commandWindow, errorWindow, outputWindow, reassuranceWindow, commandHistoryWindow
     :: B.Widget WindowName
   commandWindow = B.withFocusRing (st^.focusRing)
     -- TODO ? There's so far never reason to focus anywhere but COmmands.
@@ -88,6 +89,12 @@ appDraw st0 = [w] where
               style = if not $ vt ^. viewIsFocused then id
                       else visible
                            . withAttr (B.attrName "focused result")
+
+  commandHistoryWindow =
+    if M.lookup CommandHistory (st ^. showing) /= Just True
+    then emptyWidget
+    else strWrap
+         $ unlines $ map show $ st0 ^. commandHistory
 
   reassuranceWindow = withAttr (B.attrName "reassurance") $
     if M.lookup Reassurance (st ^. showing) /= Just True

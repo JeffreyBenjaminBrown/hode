@@ -43,10 +43,11 @@ initialState r = St {
   , _commands  = B.editor Commands Nothing ""
   , _commandHistory = []
   , _appRslt   = r
-  , _showing = M.fromList [ (Commands    , True)
-                          , (Errors      , False)
-                          , (Reassurance , True)
-                          , (Results     , True) ]
+  , _showing = M.fromList [ (Commands      , True)
+                          , (CommandHistory, True)
+                          , (Errors        , False)
+                          , (Reassurance   , True)
+                          , (Results       , True) ]
   }
 
 showResults, hideReassurance :: St -> St

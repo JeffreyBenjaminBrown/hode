@@ -36,7 +36,9 @@ see the comment leading its definition
 **** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
-*** show command history
+*** distinguish optional window from main window
+Main window has exactly one of History, Results or Error.
+Optional windows are Commands and Reassurance.
 *** buffer list
 Later, a buffer tree.
 *** TODO paragraphs: incomplete pattern in Hash.Convert
@@ -57,7 +59,7 @@ Later, a buffer tree.
 *** pathsToIts_pExpr called on PAnd, POr, PDiff
  probably just return []
 
-** incremental view updates
+ ** incremental view updates
 Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.
 ** video
 Use screenkey to show key presses:
