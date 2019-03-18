@@ -61,6 +61,9 @@ Later, a buffer tree.
 
  ** incremental view updates
 Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.
+** batch add
+Toggle a checkbox window at the side of the main window.
+Introduce an /each keyword for expression-insertion purposes.
 ** video
 Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
