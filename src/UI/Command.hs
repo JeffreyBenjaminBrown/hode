@@ -40,7 +40,8 @@ parseAndRunCommand st =
     Right parsedCmd -> case runCommand parsedCmd st of
       Left runErr -> B.continue $ unEitherSt st $ Left runErr
         -- PITFALL: these two Lefts have different types.
-      Right evNextSt -> evNextSt
+      Right evNextSt -> (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
+                        evNextSt
         -- PITFALL: Don't call `unEitherSt` on this `evNextSt`, because
         -- it might be showing errors, because the load and save commnads
         -- must return Right in order to perform IO.

@@ -111,14 +111,15 @@ data ViewTree = ViewTree {
   } deriving (Show)
 
 data St = St {
-    _focusRing   :: B.FocusRing WindowName
-  , _viewTree    :: ViewTree
-  , _pathToFocus :: Path
-  , _uiError     :: String
-  , _reassurance :: String
-  , _commands    :: B.Editor String WindowName
-  , _appRslt     :: Rslt
-  , _showing     :: Map WindowName Bool
+    _focusRing      :: B.FocusRing WindowName
+  , _viewTree       :: ViewTree
+  , _pathToFocus    :: Path
+  , _uiError        :: String
+  , _reassurance    :: String
+  , _commands       :: B.Editor String WindowName
+  , _commandHistory :: [Command]
+  , _appRslt        :: Rslt
+  , _showing        :: Map WindowName Bool
   }
 
 makeLenses      ''St

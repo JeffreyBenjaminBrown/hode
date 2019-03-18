@@ -41,6 +41,7 @@ initialState r = St {
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor Commands Nothing ""
+  , _commandHistory = []
   , _appRslt   = r
   , _showing = M.fromList [ (Commands    , True)
                           , (Errors      , False)
