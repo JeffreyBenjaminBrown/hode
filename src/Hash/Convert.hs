@@ -18,6 +18,7 @@ import qualified Data.Map       as M
 
 import Control.Arrow (second)
 import Data.Functor (void)
+import Lens.Micro
 
 import Hash.HTypes
 import Hash.HUtil
@@ -93,6 +94,9 @@ pExprToHExpr (POr xs)       = do
   return $ HOr l
 pExprToHExpr (It (Just pnr)) = pExprToHExpr pnr
 pExprToHExpr (PRel pr)       = pRelToHExpr pr
+pExprToHExpr (PPar spPairs s) =
+  let spPairs' = map (_2 %~ pExprToHExpr) spPairs
+  in error "HExpr cannot yet accommodate paragraphs."
 
 -- These redundant checks (to keep GHCI from warning me) should come last.
 pExprToHExpr Any =

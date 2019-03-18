@@ -31,9 +31,14 @@ see the comment leading its definition
 * TODO top priorities
 ** easy
 *** insertion list
-*** record, show command history
+**** data St = ...
++  , _insertionHistory :: [Addr]
+**** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existed
+*** show command history
 *** buffer list
- Later, a buffer tree.
+Later, a buffer tree.
 *** TODO paragraphs: incomplete pattern in Hash.Convert
 ** things that ought already to work
 *** not all Hash functions work
