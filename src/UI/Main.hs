@@ -60,7 +60,8 @@ appDraw st0 = [w] where
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
-  commandWindow, errorWindow, outputWindow, reassuranceWindow :: B.Widget WindowName
+  commandWindow, errorWindow, outputWindow, reassuranceWindow
+    :: B.Widget WindowName
   commandWindow = B.withFocusRing (st^.focusRing)
     -- TODO ? There's so far never reason to focus anywhere but COmmands.
     (B.renderEditor (str . unlines)) (st^.commands)
@@ -100,7 +101,7 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 appHandleEvent ::
   St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
-  B.EvKey B.KEsc []               -> B.halt st
+  B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
   B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
     $ insertHosts_atFocus   st

@@ -41,7 +41,7 @@ data Direction = DirUp | DirDown | DirLeft | DirRight
 type Folder = String
 
 
--- | = Meaty types
+-- | = Views
 
 type ViewQuery = String
 
