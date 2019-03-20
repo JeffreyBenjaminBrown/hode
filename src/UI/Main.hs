@@ -39,7 +39,7 @@ uiFromSt = B.defaultMain app
 uiFromRslt :: Rslt -> IO St
 uiFromRslt = B.defaultMain app . initialState
 
-app :: B.App St e WindowName
+app :: B.App St e MainWindowName
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor
@@ -50,7 +50,7 @@ app = B.App
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
 -- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
-appDraw :: St -> [B.Widget WindowName]
+appDraw :: St -> [B.Widget MainWindowName]
 appDraw st0 = [w] where
   w = B.center ( outputWindow
                  <=> vLimit 3 errorWindow
@@ -62,51 +62,52 @@ appDraw st0 = [w] where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
   commandWindow, errorWindow, outputWindow, reassuranceWindow, commandHistoryWindow
-    :: B.Widget WindowName
+    :: B.Widget MainWindowName
   commandWindow = B.withFocusRing (st^.focusRing)
     -- TODO ? There's so far never reason to focus anywhere but COmmands.
     (B.renderEditor (str . unlines)) (st^.commands)
 
-  errorWindow = if M.lookup Errors (st ^. showing) /= Just True
+  errorWindow = if M.lookup Errors (st ^. showingInMainWindow) /= Just True
     then emptyWidget
     else vBox
       [ strWrap $ st ^. uiError
       , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
         ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
 
-  outputWindow = if M.lookup Results (st ^. showing) /= Just True
+  outputWindow =
+    if M.lookup Results (st ^. showingInMainWindow) /= Just True
     then emptyWidget
     else viewport Results B.Vertical
          $ showRec $ st ^. viewTree where
 
-      showOne, showRec :: ViewTree -> B.Widget WindowName
+      showOne, showRec :: ViewTree -> B.Widget MainWindowName
       showRec vt | null $ vt ^. viewSubviews = showOne vt
                  | True = showOne vt <=>
                    ( padLeft (B.Pad 2) $ vBox $ map showRec
                      $ V.toList $ vt ^. viewSubviews )
       showOne vt = style $ strWrap $ vShow $ _viewContent vt
-        where style :: B.Widget WindowName -> B.Widget WindowName
+        where style :: B.Widget MainWindowName -> B.Widget MainWindowName
               style = if not $ vt ^. viewIsFocused then id
                       else visible
                            . withAttr (B.attrName "focused result")
 
   commandHistoryWindow =
-    if M.lookup CommandHistory (st ^. showing) /= Just True
+    if M.lookup CommandHistory (st ^. showingInMainWindow) /= Just True
     then emptyWidget
     else strWrap
          $ unlines $ map show $ st0 ^. commandHistory
 
   reassuranceWindow = withAttr (B.attrName "reassurance") $
-    if M.lookup Reassurance (st ^. showing) /= Just True
+    if M.lookup Reassurance (st ^. showingInMainWindow) /= Just True
     then emptyWidget
     else strWrap $ st0 ^. reassurance
 
-appChooseCursor ::
-  St -> [B.CursorLocation WindowName] -> Maybe (B.CursorLocation WindowName)
+appChooseCursor :: St -> [B.CursorLocation MainWindowName]
+                -> Maybe (B.CursorLocation MainWindowName)
 appChooseCursor = B.focusRingCursor (^. focusRing)
 
-appHandleEvent ::
-  St -> B.BrickEvent WindowName e -> B.EventM WindowName (B.Next St)
+appHandleEvent :: St -> B.BrickEvent MainWindowName e
+               -> B.EventM MainWindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 

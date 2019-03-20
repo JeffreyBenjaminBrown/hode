@@ -23,11 +23,11 @@ import Util.Misc (replaceNth)
 
 -- | = Tiny types
 
-data WindowName = Commands
-                | CommandHistory
-                | Errors
-                | Reassurance
-                | Results deriving (Ord, Show, Eq)
+data MainWindowName = Commands
+                    | CommandHistory
+                    | Errors
+                    | Reassurance
+                    | Results deriving (Ord, Show, Eq)
 
 data Command = CommandInsert Expr
              | CommandFind String HExpr
@@ -99,7 +99,7 @@ instance Show View where
 
 -- | = Huge types.
 
--- PITFALL: These types must come last to deive `Show`.
+-- PITFALL: These types must come last to derive `Show`.
 
 data ViewTree = ViewTree {
     _viewChildFocus :: Int -- ^ meaningless if `viewSubviews` empty
@@ -112,15 +112,15 @@ data ViewTree = ViewTree {
   } deriving (Show)
 
 data St = St {
-    _focusRing        :: B.FocusRing WindowName
-  , _viewTree         :: ViewTree
-  , _pathToFocus      :: Path
-  , _uiError          :: String
-  , _reassurance      :: String
-  , _commands         :: B.Editor String WindowName
-  , _commandHistory   :: [Command]
-  , _appRslt          :: Rslt
-  , _showing          :: Map WindowName Bool
+    _focusRing           :: B.FocusRing MainWindowName
+  , _viewTree            :: ViewTree
+  , _pathToFocus         :: Path
+  , _uiError             :: String
+  , _reassurance         :: String
+  , _commands            :: B.Editor String MainWindowName
+  , _commandHistory      :: [Command]
+  , _appRslt             :: Rslt
+  , _showingInMainWindow :: Map MainWindowName Bool
   }
 
 makeLenses      ''St

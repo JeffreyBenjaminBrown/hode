@@ -43,23 +43,25 @@ initialState r = St {
   , _commands  = B.editor Commands Nothing ""
   , _commandHistory = []
   , _appRslt   = r
-  , _showing = M.fromList [ (Commands      , True)
-                          , (CommandHistory, True)
-                          , (Errors        , False)
-                          , (Reassurance   , True)
-                          , (Results       , True) ]
+  , _showingInMainWindow = M.fromList
+    [ (Commands      , True)
+    , (CommandHistory, True)
+    , (Errors        , False)
+    , (Reassurance   , True)
+    , (Results       , True) ]
   }
 
 showResults, hideReassurance :: St -> St
-showResults = showing %~ M.insert Results True  . M.insert Errors False
-hideReassurance = showing %~ M.insert Reassurance False
+showResults = showingInMainWindow
+              %~ M.insert Results True  . M.insert Errors False
+hideReassurance = showingInMainWindow %~ M.insert Reassurance False
 
 showError, showReassurance :: String -> St -> St
-showError msg = (showing %~ ( M.insert Results False
+showError msg = (showingInMainWindow %~ ( M.insert Results False
                               . M.insert Errors True
                               . M.insert Reassurance False ) )
                 . (uiError .~ msg)
-showReassurance msg = (showing %~ M.insert Reassurance True)
+showReassurance msg = (showingInMainWindow %~ M.insert Reassurance True)
                       . (reassurance .~ msg)
 
 unEitherSt :: St -> Either String St -> St
