@@ -23,10 +23,12 @@ import Util.Misc (replaceNth)
 
 -- | = Tiny types
 
-data MainWindowName = Commands
-                    | CommandHistory
+data WindowName = OptionalWindowName OptionalWindowName
+                | MainWindowName MainWindowName deriving (Ord, Show, Eq)
+data OptionalWindowName = Commands
+                        | Reassurance deriving (Ord, Show, Eq)
+data MainWindowName = CommandHistory
                     | Errors
-                    | Reassurance
                     | Results deriving (Ord, Show, Eq)
 
 data Command = CommandInsert Expr
@@ -112,15 +114,17 @@ data ViewTree = ViewTree {
   } deriving (Show)
 
 data St = St {
-    _focusRing           :: B.FocusRing MainWindowName
-  , _viewTree            :: ViewTree
-  , _pathToFocus         :: Path
-  , _uiError             :: String
-  , _reassurance         :: String
-  , _commands            :: B.Editor String MainWindowName
-  , _commandHistory      :: [Command]
-  , _appRslt             :: Rslt
-  , _showingInMainWindow :: Map MainWindowName Bool
+    _focusRing              :: B.FocusRing WindowName
+    -- ^ So far `focusRing` is unused in spirit, although technically used.
+  , _viewTree               :: ViewTree
+  , _pathToFocus            :: Path
+  , _uiError                :: String
+  , _reassurance            :: String
+  , _commands               :: B.Editor String WindowName
+  , _commandHistory         :: [Command]
+  , _appRslt                :: Rslt
+  , _showingInMainWindow    :: MainWindowName
+  , _showingOptionalWindows :: Map OptionalWindowName Bool
   }
 
 makeLenses      ''St

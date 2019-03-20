@@ -29,9 +29,7 @@ import Util.Misc
 
 initialState :: Rslt -> St
 initialState r = St {
-    _focusRing = B.focusRing [Commands, Results]
-      -- Almost always (for safety), Results is listed first. Not so
-      -- here, because we want focus to start on the Commands window.
+    _focusRing = B.focusRing [OptionalWindowName Commands]
   , _viewTree  = ViewTree { _viewChildFocus = 0
                           , _viewIsFocused = False
                           , _viewContent = VQuery ""
@@ -40,28 +38,23 @@ initialState r = St {
   , _pathToFocus = []
   , _uiError   = ""
   , _reassurance = "It's all good."
-  , _commands  = B.editor Commands Nothing ""
+  , _commands  = B.editor (OptionalWindowName Commands) Nothing ""
   , _commandHistory = []
   , _appRslt   = r
-  , _showingInMainWindow = M.fromList
-    [ (Commands      , True)
-    , (CommandHistory, True)
-    , (Errors        , False)
-    , (Reassurance   , True)
-    , (Results       , True) ]
+  , _showingInMainWindow = Results
+  , _showingOptionalWindows = M.fromList [ (Commands   , True)
+                                         , (Reassurance, True) ]
   }
 
 showResults, hideReassurance :: St -> St
-showResults = showingInMainWindow
-              %~ M.insert Results True  . M.insert Errors False
-hideReassurance = showingInMainWindow %~ M.insert Reassurance False
+showResults = showingInMainWindow .~ Results
+hideReassurance = showingOptionalWindows %~ M.insert Reassurance False
 
 showError, showReassurance :: String -> St -> St
-showError msg = (showingInMainWindow %~ ( M.insert Results False
-                              . M.insert Errors True
-                              . M.insert Reassurance False ) )
+showError msg = (showingOptionalWindows %~ M.insert Reassurance False)
+                . (showingInMainWindow .~ Errors)
                 . (uiError .~ msg)
-showReassurance msg = (showingInMainWindow %~ M.insert Reassurance True)
+showReassurance msg = (showingOptionalWindows %~ M.insert Reassurance True)
                       . (reassurance .~ msg)
 
 unEitherSt :: St -> Either String St -> St

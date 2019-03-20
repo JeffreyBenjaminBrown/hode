@@ -39,7 +39,7 @@ uiFromSt = B.defaultMain app
 uiFromRslt :: Rslt -> IO St
 uiFromRslt = B.defaultMain app . initialState
 
-app :: B.App St e MainWindowName
+app :: B.App St e WindowName
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor
@@ -50,64 +50,63 @@ app = B.App
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
 -- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
-appDraw :: St -> [B.Widget MainWindowName]
+appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
-  w = B.center ( outputWindow
-                 <=> vLimit 3 errorWindow
-                 <=> reassuranceWindow
-                 <=> commandHistoryWindow
-                 <=> vLimit 3 commandWindow )
+  w = B.center ( mainWindow
+                 <=> optionalWindows )
 
   st = st0 & l .~ True where
     l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
 
-  commandWindow, errorWindow, outputWindow, reassuranceWindow, commandHistoryWindow
-    :: B.Widget MainWindowName
-  commandWindow = B.withFocusRing (st^.focusRing)
-    -- TODO ? There's so far never reason to focus anywhere but COmmands.
-    (B.renderEditor (str . unlines)) (st^.commands)
+  mainWindow = case st ^. showingInMainWindow of
+    CommandHistory -> commandHistoryWindow
+    Errors -> errorWindow
+    Results -> resultWindow
 
-  errorWindow = if M.lookup Errors (st ^. showingInMainWindow) /= Just True
-    then emptyWidget
-    else vBox
-      [ strWrap $ st ^. uiError
-      , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
-        ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
+  optionalWindows =
+    ( if (st ^. showingOptionalWindows) M.! Reassurance
+      then reassuranceWindow else emptyWidget ) <=>
+    ( if (st ^. showingOptionalWindows) M.! Commands
+      then commandWindow else emptyWidget )
 
-  outputWindow =
-    if M.lookup Results (st ^. showingInMainWindow) /= Just True
-    then emptyWidget
-    else viewport Results B.Vertical
-         $ showRec $ st ^. viewTree where
+  commandWindow, errorWindow, resultWindow, reassuranceWindow, commandHistoryWindow
+    :: B.Widget WindowName
+  commandWindow = vLimit 3
+    ( B.withFocusRing (st^.focusRing)
+      (B.renderEditor $ str . unlines) (st^.commands) )
 
-      showOne, showRec :: ViewTree -> B.Widget MainWindowName
-      showRec vt | null $ vt ^. viewSubviews = showOne vt
-                 | True = showOne vt <=>
-                   ( padLeft (B.Pad 2) $ vBox $ map showRec
-                     $ V.toList $ vt ^. viewSubviews )
-      showOne vt = style $ strWrap $ vShow $ _viewContent vt
-        where style :: B.Widget MainWindowName -> B.Widget MainWindowName
-              style = if not $ vt ^. viewIsFocused then id
-                      else visible
-                           . withAttr (B.attrName "focused result")
+  errorWindow = vBox
+    [ strWrap $ st ^. uiError
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
+      ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
+
+  resultWindow = viewport (MainWindowName Results) B.Vertical
+    $ showRec $ st ^. viewTree where
+
+    showOne, showRec :: ViewTree -> B.Widget WindowName
+    showRec vt | null $ vt ^. viewSubviews = showOne vt
+               | True = showOne vt <=>
+                 ( padLeft (B.Pad 2) $ vBox $ map showRec
+                   $ V.toList $ vt ^. viewSubviews )
+    showOne vt = style $ strWrap $ vShow $ _viewContent vt
+      where style :: B.Widget WindowName
+                  -> B.Widget WindowName
+            style = if not $ vt ^. viewIsFocused then id
+                    else visible
+                         . withAttr (B.attrName "focused result")
 
   commandHistoryWindow =
-    if M.lookup CommandHistory (st ^. showingInMainWindow) /= Just True
-    then emptyWidget
-    else strWrap
-         $ unlines $ map show $ st0 ^. commandHistory
+    strWrap $ unlines $ map show $ st0 ^. commandHistory
 
   reassuranceWindow = withAttr (B.attrName "reassurance") $
-    if M.lookup Reassurance (st ^. showingInMainWindow) /= Just True
-    then emptyWidget
-    else strWrap $ st0 ^. reassurance
+    strWrap $ st0 ^. reassurance
 
-appChooseCursor :: St -> [B.CursorLocation MainWindowName]
-                -> Maybe (B.CursorLocation MainWindowName)
+appChooseCursor :: St -> [B.CursorLocation WindowName]
+                -> Maybe (B.CursorLocation WindowName)
 appChooseCursor = B.focusRingCursor (^. focusRing)
 
-appHandleEvent :: St -> B.BrickEvent MainWindowName e
-               -> B.EventM MainWindowName (B.Next St)
+appHandleEvent :: St -> B.BrickEvent WindowName e
+               -> B.EventM WindowName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
@@ -141,13 +140,16 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 
+  B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
+    $ st & showingInMainWindow .~ CommandHistory
+
   -- Window-focus-related stuff. The first two lines, which move the focus,
   -- are disabled, because so far switching focus isn't useful.
   -- PITFALL: The focused `Window` is distinct from the focused `View`.
   -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
   _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just Commands -> B.handleEventLensed
+    Just (OptionalWindowName Commands) -> B.handleEventLensed
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st

@@ -29,6 +29,7 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
+** delete showResults
 ** easy
 *** insertion list
 **** data St = ...
