@@ -103,6 +103,10 @@ instance Show View where
 
 -- PITFALL: These types must come last to derive `Show`.
 
+data VecTree a = VecTree { vecTreeLabel :: a
+                         , vecTrees :: Vector (VecTree a) }
+                 deriving (Eq, Show, Ord, Functor)
+
 data ViewTree = ViewTree {
     _viewChildFocus :: Int -- ^ meaningless if `viewSubviews` empty
   , _viewIsFocused  :: Bool
@@ -128,6 +132,9 @@ data St = St {
   }
 
 makeLenses      ''St
+makeLenses      ''VecTree
+makeBaseFunctor ''VecTree
+makeLenses      ''VecTreeF
 makeLenses      ''ViewTree
 makeBaseFunctor ''ViewTree
 makeLenses      ''ViewTreeF

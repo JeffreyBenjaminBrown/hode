@@ -30,21 +30,17 @@ when it ought to be this:
 see the comment leading its definition
 * TODO top priorities
 ** easy
+*** buffer list|tree
+If tree, use something similar to ViewTree
 *** insertion list
 **** data St = ...
 +  , _insertionHistory :: [Addr]
 **** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
-*** distinguish optional window from main window
-Main window has exactly one of History, Results or Error.
-Optional windows are Commands and Reassurance.
-*** buffer list
-Later, a buffer tree.
-*** TODO paragraphs: incomplete pattern in Hash.Convert
 ** things that ought already to work
 *** not all Hash functions work
- before doing this, do the coder-friendliness task (abstract Rel and Tplt)
+before doing this, do the coder-friendliness task (abstract Rel and Tplt)
 *** pExprIsSpecific should address PDiff, PAnd, POr
 **** where it is used
   In pRelToHExpr, only specific things can be converted.
@@ -80,7 +76,15 @@ Add a toggleable window above the Results window.
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
-** TODO ? wart: HExpr and PExpr are complex and nearly isomorphic
+** ViewTree should be a functor
+That way I can duplicate it for the buffer tree.
+** wart: HExpr and PExpr are complex and nearly isomorphic
+** wart: ViewTree is not natural
+*** the root
+The root is supposed to only be a Query, but that is permitted elsewhere.
+The root information is(will be) duplicated by the buffer.
+*** the alternation is not enforced
+It should be that each ViewResult can only have a Host or Members as a child, and vice-versa.
 * TODO crawling across Exprs
 ** Move faster by crossing over some views
 When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
