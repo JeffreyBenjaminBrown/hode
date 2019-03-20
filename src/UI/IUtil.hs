@@ -1,12 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    initialState                     -- ^ Rslt -> St
-  , unEitherSt                       -- ^ Either String St -> St -> St
-  , showResults, hideReassurance     -- ^           St -> St
-  , showError, showReassurance       -- ^ String -> St -> St
-  , emptyCommandWindow               -- ^ St -> St
-  , resultsText                      -- ^ St -> [String]
+    initialState               -- ^ Rslt -> St
+  , unEitherSt                 -- ^ Either String St -> St -> St
+  , hideReassurance            -- ^           St -> St
+  , showError, showReassurance -- ^ String -> St -> St
+  , emptyCommandWindow         -- ^ St -> St
+  , resultsText                -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , viewLeaf     -- ^ View -> ViewTree
   , vShow        -- ^ View -> String
@@ -46,8 +46,7 @@ initialState r = St {
                                          , (Reassurance, True) ]
   }
 
-showResults, hideReassurance :: St -> St
-showResults = showingInMainWindow .~ Results
+hideReassurance :: St -> St
 hideReassurance = showingOptionalWindows %~ M.insert Reassurance False
 
 showError, showReassurance :: String -> St -> St
@@ -59,7 +58,7 @@ showReassurance msg = (showingOptionalWindows %~ M.insert Reassurance True)
 
 unEitherSt :: St -> Either String St -> St
 unEitherSt old (Left s) = old & showError s
-unEitherSt _ (Right new) = new & showResults
+unEitherSt _ (Right new) = new & showingInMainWindow .~ Results
 
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL

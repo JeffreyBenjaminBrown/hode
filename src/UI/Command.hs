@@ -79,7 +79,7 @@ runCommand (CommandFind s h) st = do
           , _viewSubviews = V.empty }
 
   Right $ B.continue $ st & pathToFocus .~ []
-                          & showResults
+                          & showingInMainWindow .~ Results
                           & viewTree .~ v
 
 runCommand (CommandInsert e) st =
@@ -89,7 +89,7 @@ runCommand (CommandInsert e) st =
     f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
     f (r,a) = B.continue $ st & appRslt .~ r
               & showReassurance ("Expr added at Addr " ++ show a)
-              & showResults
+              & showingInMainWindow .~ Results
 
 runCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
@@ -98,13 +98,13 @@ runCommand (CommandLoad f) st = Right $ do
     else do r <- liftIO $ readRslt f
             B.continue $ st & appRslt .~ r
                             & showReassurance "Rslt loaded."
-                            & showResults
+                            & showingInMainWindow .~ Results
 
 runCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
     then return $ st & showError ("Non-existent folder: " ++ f)
     else do liftIO $ writeRslt f $ st ^. appRslt
-            return $ st & showResults
+            return $ st & showingInMainWindow .~ Results
                    & showReassurance "Rslt saved."
   B.continue st'
