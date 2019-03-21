@@ -29,13 +29,39 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** easy
-*** buffer list|tree
-If tree, use something similar to ViewTree
-*** insertion list
-**** data St = ...
+** buffer tree
+*** changes
+**** Window names will, I think, need to include buffer name.
+type WindowName = (BufferName, InfoName)
+type BufferName = ViewQuery
+data InfoName = OptionalInfoName OptionalInfoName
+              | MainInfoName MainInfoName deriving (Ord, Show, Eq)
+data OptionalInfoName = Commands
+                      | Reassurance deriving (Ord, Show, Eq)
+data MainInfoName = CommandHistory
+                  | Errors
+                  | Results deriving (Ord, Show, Eq)
+**** Each buffer needs its own
+VQuery
+VTree RsltView
+pathToFocus
+**** View will no longer need the VQuery type
+*** an incremental (i.e. codable) path
+Change window name types.
+Create the Buffer type.
+In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
+In St, wrap the Buffer in a VTree Buffer.
+In St, add pathToBufferInResults and pathToBufferInBufferTree fields.
+  They are different!
+Add a way to create a new Buffer.
+Add a way to view the VTree Buffer, and cursor around it.
+From that view, add a way to switch to another Buffer.
+  That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
+  and then show Results instead of the Buffer Tree.
+** insertion list
+*** data St = ...
 +  , _insertionHistory :: [Addr]
-**** complications
+*** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
 ** things that ought already to work
@@ -57,7 +83,10 @@ before doing this, do the coder-friendliness task (abstract Rel and Tplt)
 
  ** incremental view updates
 Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.
-** batch add
+** marking things in a tree
+*** buffer nicknames
+Let the user add a nickname to a buffer, and then switch to that buffer via the nickname. Begin with some auto-generated nicknames (numbers? letters?).
+*** batch add
 Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
 ** video
@@ -73,12 +102,9 @@ and mention that you can use parens liberally to make it more obvious
 (Not a big deal because the cursor path is remembered.)
 Add a toggleable window above the Results window.
 * TODO coder-friendliness
-** rename View -> ResultView or something
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
-** ViewTree should be a functor
-That way I can duplicate it for the buffer tree.
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: ViewTree is not natural
 *** the root
@@ -195,6 +221,9 @@ _ is a member of _" is a "synthetic" template. There might be others.
 ** language for views
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
+** buffer ring
+ From the Buffer Tree view, allow the user to mark buffers with unique integer indexes. To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
+
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:

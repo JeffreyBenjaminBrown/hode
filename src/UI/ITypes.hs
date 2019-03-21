@@ -55,6 +55,10 @@ data ViewResult = ViewResult {
 data ViewMembers = ViewMembers { _mvCenter :: Addr }
   deriving (Show, Eq, Ord)
 
+-- | PITFALL: In the case of `VTree RsltView`,
+-- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
+-- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
+-- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
 data RsltView = VQuery      ViewQuery
               | VResult     ViewResult
               | VMembers    ViewMembers
@@ -108,10 +112,7 @@ data VTree a = VTree {
   _vTreeLabel :: a
   , _vTrees :: Vector (VTree a)
   , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
-  , _vTreeIsFocused :: Bool -- ^ PITFALL: In the case of `VTree RsltView`,
-  -- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
-  -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
-  -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
+  , _vTreeIsFocused :: Bool
   } deriving (Eq, Show, Ord, Functor)
 
 data St = St {
