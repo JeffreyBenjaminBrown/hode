@@ -8,7 +8,7 @@ module UI.IUtil (
   , emptyCommandWindow         -- ^ St -> St
   , resultsText                -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
-  , viewLeaf     -- ^ View -> ViewTree
+  , viewLeaf     -- ^ View -> VTree View
   , vShow        -- ^ View -> String
   ) where
 
@@ -30,11 +30,11 @@ import Util.Misc
 initialState :: Rslt -> St
 initialState r = St {
     _focusRing = B.focusRing [OptionalWindowName Commands]
-  , _viewTree  = ViewTree { _viewChildFocus = 0
-                          , _viewIsFocused = False
-                          , _viewContent = VQuery ""
-                          , _viewSubviews = V.empty
-                          }
+  , _viewTree  = VTree { _vTreeLabel = VQuery ""
+                       , _vTreeFocus = 0
+                       , _vTreeIsFocused = False
+                       , _vTrees = V.empty
+                       }
   , _pathToFocus = []
   , _uiError   = ""
   , _reassurance = "It's all good."
@@ -69,9 +69,9 @@ resultsText st = f 0 $ st ^. viewTree where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 
-  f :: Int -> ViewTree -> [String]
-  f i v = indent i (vShow $ v ^. viewContent)
-    : concatMap (f $ i+1) (V.toList $ v ^. viewSubviews)
+  f :: Int -> VTree View -> [String]
+  f i v = indent i (vShow $ v ^. vTreeLabel)
+    : concatMap (f $ i+1) (V.toList $ v ^. vTrees)
 
 resultView :: Rslt -> Addr -> Either String ViewResult
 resultView r a = do
@@ -80,12 +80,12 @@ resultView r a = do
   Right $ ViewResult { _viewResultAddr = a
                      , _viewResultString = s }
 
-viewLeaf :: View -> ViewTree
-viewLeaf v = ViewTree {
-    _viewChildFocus = 0
-  , _viewIsFocused = False
-  , _viewContent = v
-  , _viewSubviews = V.empty }
+viewLeaf :: View -> VTree View
+viewLeaf v = VTree {
+    _vTreeFocus = 0
+  , _vTreeIsFocused = False
+  , _vTreeLabel = v
+  , _vTrees = V.empty }
 
 -- | `vShow` is used to display a `View` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `View`,

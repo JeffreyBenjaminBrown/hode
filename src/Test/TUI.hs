@@ -17,12 +17,12 @@ import qualified Test.Rslt.RData as D
 
 
 
-aViewTree :: ViewTree
-aViewTree = ViewTree {
-    _viewChildFocus = 0
-  , _viewIsFocused = False
-  , _viewContent = VQuery "top"
-  , _viewSubviews = V.fromList
+aViewTree :: VTree View
+aViewTree = VTree {
+    _vTreeFocus = 0
+  , _vTreeIsFocused = False
+  , _vTreeLabel = VQuery "top"
+  , _vTrees = V.fromList
     $ map (viewLeaf . VQuery .show) [0,1 :: Int] }
 
 

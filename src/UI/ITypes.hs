@@ -104,26 +104,20 @@ instance Show View where
 -- PITFALL: These types must come last to derive `Show`.
 
 -- | A vector-based tree, for viewing things like Views, Buffers, ...
-data VTree a = VecTree { vTreeLabel :: a
-                       , vTreeChildFocus :: Int
-                       , vTreeIsFocused :: Bool
-                       , vTrees :: Vector (VTree a) }
-             deriving (Eq, Show, Ord, Functor)
-
-data ViewTree = ViewTree {
-    _viewChildFocus :: Int -- ^ meaningless if `viewSubviews` empty
-  , _viewIsFocused  :: Bool
-  , _viewContent    :: View
-  , _viewSubviews   :: Vector ViewTree -- ^ PITFALL: permits invalid state.
-  -- The subviews of a `VQuery`, `VMember` or `VCenterRole`
+data VTree a = VTree {
+  _vTreeLabel :: a
+  , _vTrees :: Vector (VTree a)
+  , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
+  , _vTreeIsFocused :: Bool -- ^ PITFALL: In the case of `VTree View`,
+  -- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
   -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
   -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
-  } deriving (Show)
+  } deriving (Eq, Show, Ord, Functor)
 
 data St = St {
     _focusRing              :: B.FocusRing WindowName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _viewTree               :: ViewTree
+  , _viewTree               :: VTree View
   , _pathToFocus            :: Path
   , _uiError                :: String
   , _reassurance            :: String
@@ -138,9 +132,6 @@ makeLenses      ''St
 makeLenses      ''VTree
 makeBaseFunctor ''VTree
 makeLenses      ''VTreeF
-makeLenses      ''ViewTree
-makeBaseFunctor ''ViewTree
-makeLenses      ''ViewTreeF
 
 instance Show St where
   show st = "St { "

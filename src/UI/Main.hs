@@ -49,14 +49,14 @@ app = B.App
   }
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
--- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
+-- Dach `(VTree View)`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget WindowName]
 appDraw st0 = [w] where
   w = B.center ( mainWindow
                  <=> optionalWindows )
 
   st = st0 & l .~ True where
-    l = viewTree . atPath (st0 ^. pathToFocus) . viewIsFocused
+    l = viewTree . atPath (st0 ^. pathToFocus) . vTreeIsFocused
 
   mainWindow = case st ^. showingInMainWindow of
     CommandHistory -> commandHistoryWindow
@@ -83,15 +83,15 @@ appDraw st0 = [w] where
   resultWindow = viewport (MainWindowName Results) B.Vertical
     $ showRec $ st ^. viewTree where
 
-    showOne, showRec :: ViewTree -> B.Widget WindowName
-    showRec vt | null $ vt ^. viewSubviews = showOne vt
+    showOne, showRec :: VTree View -> B.Widget WindowName
+    showRec vt | null $ vt ^. vTrees = showOne vt
                | True = showOne vt <=>
                  ( padLeft (B.Pad 2) $ vBox $ map showRec
-                   $ V.toList $ vt ^. viewSubviews )
-    showOne vt = style $ strWrap $ vShow $ _viewContent vt
+                   $ V.toList $ vt ^. vTrees )
+    showOne vt = style $ strWrap $ vShow $ _vTreeLabel vt
       where style :: B.Widget WindowName
                   -> B.Widget WindowName
-            style = if not $ vt ^. viewIsFocused then id
+            style = if not $ vt ^. vTreeIsFocused then id
                     else visible
                          . withAttr (B.attrName "focused result")
 

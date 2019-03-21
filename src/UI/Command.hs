@@ -61,22 +61,22 @@ runCommand (CommandFind s h) st = do
   (as :: Set Addr)   <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
 
-  let v = ViewTree { _viewChildFocus = 0
-                   , _viewIsFocused = False
-                   , _viewContent = VQuery s
-                   , _viewSubviews =
-                     V.fromList $ map v_qr $ S.toList as
-                   } where
+  let v = VTree { _vTreeFocus = 0
+                , _vTreeIsFocused = False
+                , _vTreeLabel = VQuery s
+                , _vTrees =
+                  V.fromList $ map v_qr $ S.toList as
+                } where
 
-        v_qr :: Addr -> ViewTree
-        v_qr a = ViewTree {
-            _viewChildFocus = 0
-          , _viewIsFocused = False
-          , _viewContent = let
+        v_qr :: Addr -> VTree View
+        v_qr a = VTree {
+            _vTreeFocus = 0
+          , _vTreeIsFocused = False
+          , _vTreeLabel = let
               (rv :: Either String ViewResult) = resultView r a
               (err :: String -> ViewResult) = \se -> error ("runCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
               in VResult $ either err id rv
-          , _viewSubviews = V.empty }
+          , _vTrees = V.empty }
 
   Right $ B.continue $ st & pathToFocus .~ []
                           & showingInMainWindow .~ Results
