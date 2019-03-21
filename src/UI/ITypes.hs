@@ -55,10 +55,10 @@ data ViewResult = ViewResult {
 data ViewMembers = ViewMembers { _mvCenter :: Addr }
   deriving (Show, Eq, Ord)
 
-data View = VQuery      ViewQuery
-          | VResult     ViewResult
-          | VMembers    ViewMembers
-          | VCenterRole ViewCenterRole deriving (Eq, Ord)
+data RsltView = VQuery      ViewQuery
+              | VResult     ViewResult
+              | VMembers    ViewMembers
+              | VCenterRole ViewCenterRole deriving (Eq, Ord)
 
 -- | `ViewCenterRole` is used to group relationships in which the `Expr`at
 -- `crvCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
@@ -69,7 +69,7 @@ data ViewCenterRole = ViewCenterRole {
   , _crvRole   :: Role
   , _crvTplt   :: [Expr] } deriving (Eq, Ord)
 
-makePrisms ''View -- prisms!
+makePrisms ''RsltView -- prisms!
 makeLenses ''ViewResult
 makeLenses ''ViewMembers
 makeLenses ''ViewCenterRole
@@ -92,7 +92,7 @@ instance Show ViewCenterRole where
             in either (const noLeft) id
                $ eShow noRslt $ Rel mbrs $ Tplt tplt
 
-instance Show View where
+instance Show RsltView where
   show (VQuery x)      = "VQuery "      ++ show x
   show (VResult x)     = "VResult "     ++ show x
   show (VMembers x)    = "VMembers "    ++ show x
@@ -108,7 +108,7 @@ data VTree a = VTree {
   _vTreeLabel :: a
   , _vTrees :: Vector (VTree a)
   , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
-  , _vTreeIsFocused :: Bool -- ^ PITFALL: In the case of `VTree View`,
+  , _vTreeIsFocused :: Bool -- ^ PITFALL: In the case of `VTree RsltView`,
   -- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
   -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
   -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
@@ -117,7 +117,7 @@ data VTree a = VTree {
 data St = St {
     _focusRing              :: B.FocusRing WindowName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _viewTree               :: VTree View
+  , _viewTree               :: VTree RsltView
   , _pathToFocus            :: Path
   , _uiError                :: String
   , _reassurance            :: String

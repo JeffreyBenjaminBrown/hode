@@ -17,7 +17,7 @@ import qualified Test.Rslt.RData as D
 
 
 
-aViewTree :: VTree View
+aViewTree :: VTree RsltView
 aViewTree = VTree {
     _vTreeFocus = 0
   , _vTreeIsFocused = False

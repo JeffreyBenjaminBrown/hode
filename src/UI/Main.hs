@@ -83,7 +83,7 @@ appDraw st0 = [w] where
   resultWindow = viewport (MainWindowName Results) B.Vertical
     $ showRec $ st ^. viewTree where
 
-    showOne, showRec :: VTree View -> B.Widget WindowName
+    showOne, showRec :: VTree RsltView -> B.Widget WindowName
     showRec vt | null $ vt ^. vTrees = showOne vt
                | True = showOne vt <=>
                  ( padLeft (B.Pad 2) $ vBox $ map showRec
@@ -145,7 +145,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   -- Window-focus-related stuff. The first two lines, which move the focus,
   -- are disabled, because so far switching focus isn't useful.
-  -- PITFALL: The focused `Window` is distinct from the focused `View`.
+  -- PITFALL: The focused `Window` is distinct from the focused `RsltView`.
   -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
   _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of

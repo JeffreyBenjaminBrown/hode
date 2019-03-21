@@ -12,15 +12,15 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    pathInBounds -- VTree View -> Path  -> Either String ()
-  , atPath       -- Path -> Traversal' (VTree View) (VTree View)
+    pathInBounds -- VTree RsltView -> Path  -> Either String ()
+  , atPath       -- Path -> Traversal' (VTree RsltView) (VTree RsltView)
   , moveFocus  -- Direction -> St -> Either String St
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
-                         -- -> Either String (VTree View)
+                         -- -> Either String (VTree RsltView)
   , insertHosts_atFocus    -- St -> Either String St
   , closeSubviews_atFocus -- St -> Either String St
   ) where
@@ -41,7 +41,7 @@ import UI.IUtil
 import Util.Misc
 
 
-pathInBounds :: VTree View -> Path -> Either String ()
+pathInBounds :: VTree RsltView -> Path -> Either String ()
 pathInBounds _ [] = Right ()
 pathInBounds vt (p:ps) = let vs = vt ^. vTrees
   in case inBounds vs p of
@@ -49,7 +49,7 @@ pathInBounds vt (p:ps) = let vs = vt ^. vTrees
   False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
 
 
-atPath :: Path -> Traversal' (VTree View) (VTree View)
+atPath :: Path -> Traversal' (VTree RsltView) (VTree RsltView)
 atPath [] = lens id $ flip const -- the trivial lens
 atPath (p:ps) = vTrees . from vector
                 . ix p . atPath ps
@@ -109,11 +109,11 @@ moveFocus DirDown st = do
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
   let (p :: Path) = st ^. pathToFocus
-  (foc :: VTree View) <- let left = Left $ "bad path: " ++ show p
+  (foc :: VTree RsltView) <- let left = Left $ "bad path: " ++ show p
     in maybe left Right $ st ^? viewTree . atPath p
   (a :: Addr) <- case foc ^. vTreeLabel of
     VResult rv -> Right $ rv ^. viewResultAddr
-    _ -> Left $ "can only be called from a View with an Addr."
+    _ -> Left $ "can only be called from a RsltView with an Addr."
   (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
   Right ( ViewMembers a, as )
 
@@ -121,10 +121,10 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
   ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus st
-  let (topOfNew :: VTree View) = viewLeaf $ VMembers ms
-  (leavesOfNew :: [VTree View]) <- map (viewLeaf . VResult)
+  let (topOfNew :: VTree RsltView) = viewLeaf $ VMembers ms
+  (leavesOfNew :: [VTree RsltView]) <- map (viewLeaf . VResult)
     <$> ifLefts "" (map (resultView (st ^. appRslt)) as)
-  let (new :: VTree View) =
+  let (new :: VTree RsltView) =
         topOfNew & vTrees .~ V.fromList leavesOfNew
       l = viewTree . atPath (st ^. pathToFocus) . vTrees
   Right $ st & l %~ V.cons new
@@ -157,12 +157,12 @@ groupHostRels r a0 = do
 
 groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
-  let (top :: VTree View) = st ^. viewTree
+  let (top :: VTree RsltView) = st ^. viewTree
       (p :: Path) = st ^. pathToFocus
   _ <- pathInBounds top p
   let (ma :: Maybe Addr) = top ^?
         atPath p . vTreeLabel . _VResult . viewResultAddr
-  a <- let err = "target View must have an Addr"
+  a <- let err = "target RsltView must have an Addr"
        in maybe (Left err) Right ma
   groupHostRels (st ^. appRslt) a
 
@@ -171,17 +171,17 @@ insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
   (groups :: [(ViewCenterRole, [Addr])]) <-
     groupHostRels_atFocus st
-  (newTrees :: [VTree View]) <- ifLefts ""
+  (newTrees :: [VTree RsltView]) <- ifLefts ""
     $ map (hostRelGroup_to_view $ st ^. appRslt) groups
-  let insert :: VTree View -> VTree View
+  let insert :: VTree RsltView -> VTree RsltView
       insert vt = vt & vTrees .~
                   V.fromList (foldr (:) preexist newTrees) where
-        (preexist :: [VTree View]) =  V.toList $ vt ^. vTrees
+        (preexist :: [VTree RsltView]) =  V.toList $ vt ^. vTrees
   Right $ st & viewTree . atPath (st ^. pathToFocus) %~ insert
 
 
 hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
-                     -> Either String (VTree View)
+                     -> Either String (VTree RsltView)
 hostRelGroup_to_view r (crv, as) = do
   (rs :: [ViewResult]) <- ifLefts "hostRelGroup_to_view"
     $ map (resultView r) as
@@ -198,6 +198,6 @@ closeSubviews_atFocus st = prefixLeft "closeSubviews_atFocus" $ do
   _ <- pathInBounds (st ^. viewTree) path
   _ <- let err = "Closing the root of a view would be silly."
        in if path == [] then Left err else Right ()
-  let close :: VTree View -> VTree View
+  let close :: VTree RsltView -> VTree RsltView
       close = vTrees .~ mempty
   Right $ st & viewTree . atPath (st ^. pathToFocus) %~ close

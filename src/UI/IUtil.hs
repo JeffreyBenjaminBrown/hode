@@ -8,8 +8,8 @@ module UI.IUtil (
   , emptyCommandWindow         -- ^ St -> St
   , resultsText                -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
-  , viewLeaf     -- ^ View -> VTree View
-  , vShow        -- ^ View -> String
+  , viewLeaf     -- ^ RsltView -> VTree RsltView
+  , vShow        -- ^ RsltView -> String
   ) where
 
 import qualified Data.Map                 as M
@@ -69,7 +69,7 @@ resultsText st = f 0 $ st ^. viewTree where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 
-  f :: Int -> VTree View -> [String]
+  f :: Int -> VTree RsltView -> [String]
   f i v = indent i (vShow $ v ^. vTreeLabel)
     : concatMap (f $ i+1) (V.toList $ v ^. vTrees)
 
@@ -80,17 +80,17 @@ resultView r a = do
   Right $ ViewResult { _viewResultAddr = a
                      , _viewResultString = s }
 
-viewLeaf :: View -> VTree View
+viewLeaf :: RsltView -> VTree RsltView
 viewLeaf v = VTree {
     _vTreeFocus = 0
   , _vTreeIsFocused = False
   , _vTreeLabel = v
   , _vTrees = V.empty }
 
--- | `vShow` is used to display a `View` in the UI. It is distinct
--- from `show` so that `show` can show everything about the `View`,
+-- | `vShow` is used to display a `RsltView` in the UI. It is distinct
+-- from `show` so that `show` can show everything about the `RsltView`,
 -- whereas `vShow` hides things that are already clear in the UI context.
-vShow :: View -> String
+vShow :: RsltView -> String
 vShow (VQuery vq)  = vq
 vShow (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)

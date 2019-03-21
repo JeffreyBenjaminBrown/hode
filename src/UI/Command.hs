@@ -68,7 +68,7 @@ runCommand (CommandFind s h) st = do
                   V.fromList $ map v_qr $ S.toList as
                 } where
 
-        v_qr :: Addr -> VTree View
+        v_qr :: Addr -> VTree RsltView
         v_qr a = VTree {
             _vTreeFocus = 0
           , _vTreeIsFocused = False
