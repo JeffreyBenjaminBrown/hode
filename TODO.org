@@ -30,6 +30,9 @@ when it ought to be this:
 see the comment leading its definition
 * TODO top priorities
 ** buffer tree
+*** TODO ? window names
+Some windows are not buffer specific -- e.g. history.
+I think the uniqueness of window names is only required across windows being drawn at any particular frame in time.
 *** changes
 **** Window names will, I think, need to include buffer name.
 type WindowName = (BufferName, InfoName)
@@ -58,12 +61,6 @@ Add a way to view the VTree Buffer, and cursor around it.
 From that view, add a way to switch to another Buffer.
   That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
   and then show Results instead of the Buffer Tree.
-** insertion list
-*** data St = ...
-+  , _insertionHistory :: [Addr]
-*** complications
-(1) inserting a compound expression inserts subexpressions
-(2) don't record insertion if it already existed
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)
@@ -89,6 +86,12 @@ Let the user add a nickname to a buffer, and then switch to that buffer via the 
 *** batch add
 Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
+** insertion list
+*** data St = ...
++  , _insertionHistory :: [Addr]
+*** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existed
 ** video
 Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
