@@ -26,8 +26,8 @@ import Util.Misc (replaceNth)
 -- | Some window names are used without ever reaching Brick. Ones that reach
 -- Brick must be unique across windows in the same drawn image. (Not every
 -- window Brick draws needs a name. Editors and viewports in particular do.)
-data BrickName = OptionalWindowName OptionalWindowName
-               | MainWindowName MainWindowName deriving (Ord, Show, Eq)
+data BrickName = BrickOptionalName OptionalWindowName
+               | BrickMainName MainWindowName deriving (Ord, Show, Eq)
 data OptionalWindowName = Commands
                         | Reassurance deriving (Ord, Show, Eq)
 data MainWindowName = CommandHistory

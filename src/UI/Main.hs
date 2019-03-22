@@ -80,7 +80,7 @@ appDraw st0 = [w] where
     , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
       ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
 
-  resultWindow = viewport (MainWindowName Results) B.Vertical
+  resultWindow = viewport (BrickMainName Results) B.Vertical
     $ showRec $ st ^. viewTree where
 
     showOne, showRec :: ViewTree -> B.Widget BrickName
@@ -149,7 +149,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
   _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (OptionalWindowName Commands) -> B.handleEventLensed
+    Just (BrickOptionalName Commands) -> B.handleEventLensed
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st

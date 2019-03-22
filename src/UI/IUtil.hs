@@ -29,7 +29,7 @@ import Util.Misc
 
 initialState :: Rslt -> St
 initialState r = St {
-    _focusRing = B.focusRing [OptionalWindowName Commands]
+    _focusRing = B.focusRing [BrickOptionalName Commands]
   , _viewTree  = ViewTree { _viewChildFocus = 0
                           , _viewIsFocused = False
                           , _viewContent = VQuery ""
@@ -38,7 +38,7 @@ initialState r = St {
   , _pathToFocus = []
   , _uiError   = ""
   , _reassurance = "It's all good."
-  , _commands  = B.editor (OptionalWindowName Commands) Nothing ""
+  , _commands  = B.editor (BrickOptionalName Commands) Nothing ""
   , _commandHistory = []
   , _appRslt   = r
   , _showingInMainWindow = Results
