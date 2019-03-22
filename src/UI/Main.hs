@@ -39,7 +39,7 @@ uiFromSt = B.defaultMain app
 uiFromRslt :: Rslt -> IO St
 uiFromRslt = B.defaultMain app . initialState
 
-app :: B.App St e WindowName
+app :: B.App St e BrickName
 app = B.App
   { B.appDraw         = appDraw
   , B.appChooseCursor = appChooseCursor
@@ -49,8 +49,8 @@ app = B.App
   }
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
--- Dach `(VTree View)`'s `viewIsFocused` field is `False` outside of `appDisplay`.
-appDraw :: St -> [B.Widget WindowName]
+-- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
+appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
   w = B.center ( mainWindow
                  <=> optionalWindows )
@@ -70,7 +70,7 @@ appDraw st0 = [w] where
       then commandWindow else emptyWidget )
 
   commandWindow, errorWindow, resultWindow, reassuranceWindow, commandHistoryWindow
-    :: B.Widget WindowName
+    :: B.Widget BrickName
   commandWindow = vLimit 3
     ( B.withFocusRing (st^.focusRing)
       (B.renderEditor $ str . unlines) (st^.commands) )
@@ -80,17 +80,17 @@ appDraw st0 = [w] where
     , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
       ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
 
-  resultWindow = viewport (MainWindowName Results) B.Vertical
+  resultWindow = viewport (BrickMainName Results) B.Vertical
     $ showRec $ st ^. viewTree where
 
-    showOne, showRec :: VTree RsltView -> B.Widget WindowName
+    showOne, showRec :: VTree RsltView -> B.Widget BrickName
     showRec vt | null $ vt ^. vTrees = showOne vt
                | True = showOne vt <=>
                  ( padLeft (B.Pad 2) $ vBox $ map showRec
                    $ V.toList $ vt ^. vTrees )
     showOne vt = style $ strWrap $ vShow $ _vTreeLabel vt
-      where style :: B.Widget WindowName
-                  -> B.Widget WindowName
+      where style :: B.Widget BrickName
+                  -> B.Widget BrickName
             style = if not $ vt ^. vTreeIsFocused then id
                     else visible
                          . withAttr (B.attrName "focused result")
@@ -101,12 +101,12 @@ appDraw st0 = [w] where
   reassuranceWindow = withAttr (B.attrName "reassurance") $
     strWrap $ st0 ^. reassurance
 
-appChooseCursor :: St -> [B.CursorLocation WindowName]
-                -> Maybe (B.CursorLocation WindowName)
+appChooseCursor :: St -> [B.CursorLocation BrickName]
+                -> Maybe (B.CursorLocation BrickName)
 appChooseCursor = B.focusRingCursor (^. focusRing)
 
-appHandleEvent :: St -> B.BrickEvent WindowName e
-               -> B.EventM WindowName (B.Next St)
+appHandleEvent :: St -> B.BrickEvent BrickName e
+               -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
@@ -149,7 +149,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
   -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
   _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (OptionalWindowName Commands) -> B.handleEventLensed
+    Just (BrickOptionalName Commands) -> B.handleEventLensed
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 appHandleEvent st _ = B.continue st

@@ -23,8 +23,11 @@ import Util.Misc (replaceNth)
 
 -- | = Tiny types
 
-data WindowName = OptionalWindowName OptionalWindowName
-                | MainWindowName MainWindowName deriving (Ord, Show, Eq)
+-- | Some window names are used without ever reaching Brick. Ones that reach
+-- Brick must be unique across windows in the same drawn image. (Not every
+-- window Brick draws needs a name. Editors and viewports in particular do.)
+data BrickName = BrickOptionalName OptionalWindowName
+               | BrickMainName MainWindowName deriving (Ord, Show, Eq)
 data OptionalWindowName = Commands
                         | Reassurance deriving (Ord, Show, Eq)
 data MainWindowName = CommandHistory
@@ -105,7 +108,7 @@ instance Show RsltView where
 
 -- | = Huge types.
 
--- PITFALL: These types must come last to derive `Show`.
+-- PITFALL: These types must come last in order to derive `Show`.
 
 -- | A vector-based tree, for viewing things like Views, Buffers, ...
 data VTree a = VTree {
@@ -116,13 +119,13 @@ data VTree a = VTree {
   } deriving (Eq, Show, Ord, Functor)
 
 data St = St {
-    _focusRing              :: B.FocusRing WindowName
+    _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
   , _viewTree               :: VTree RsltView
   , _pathToFocus            :: Path
   , _uiError                :: String
   , _reassurance            :: String
-  , _commands               :: B.Editor String WindowName
+  , _commands               :: B.Editor String BrickName
   , _commandHistory         :: [Command]
   , _appRslt                :: Rslt
   , _showingInMainWindow    :: MainWindowName

@@ -4,9 +4,9 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.Command (
-  parseAndRunCommand -- ^ St -> B.EventM WindowName (B.Next St)
+  parseAndRunCommand -- ^ St -> B.EventM BrickName (B.Next St)
   , runCommand -- ^ Command -> St
-               -- -> Either String (B.EventM WindowName (B.Next St))
+               -- -> Either String (B.EventM BrickName (B.Next St))
   ) where
 
 import           Control.Monad.IO.Class (liftIO)
@@ -31,7 +31,7 @@ import UI.IUtil
 import Util.Misc
 
 
-parseAndRunCommand :: St -> B.EventM WindowName (B.Next St)
+parseAndRunCommand :: St -> B.EventM BrickName (B.Next St)
 parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
@@ -52,7 +52,7 @@ parseAndRunCommand st =
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
 runCommand ::
-  Command -> St -> Either String (B.EventM WindowName (B.Next St))
+  Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
 runCommand (CommandFind s h) st = do
   let r = st ^. appRslt
@@ -86,7 +86,7 @@ runCommand (CommandInsert e) st =
   either Left (Right . f)
   $ exprToAddrInsert (st ^. appRslt) e
   where
-    f :: (Rslt, Addr) -> B.EventM WindowName (B.Next St)
+    f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
     f (r,a) = B.continue $ st & appRslt .~ r
               & showReassurance ("Expr added at Addr " ++ show a)
               & showingInMainWindow .~ Results
