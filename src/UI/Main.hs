@@ -30,7 +30,7 @@ import UI.IUtil
 import UI.String
 import UI.ViewTree
 import UI.Window
-import Util.Misc
+import Util.VTree
 
 
 ui :: IO St

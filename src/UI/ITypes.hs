@@ -17,6 +17,7 @@ import Hash.HTypes
 import Rslt.RTypes
 import Rslt.Show
 import Util.Misc
+import Util.VTree
 
 
 -- | = Tiny types

@@ -82,7 +82,7 @@ library
                 , UI.Window
                 , Util.Misc
                 , Util.UParse
-                , Util.UTypes
+                , Util.VTree
   other-modules:
   hs-source-dirs:
       src

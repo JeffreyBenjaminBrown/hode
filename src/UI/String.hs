@@ -14,6 +14,7 @@ import Rslt.RTypes
 import Rslt.Show
 import UI.ITypes
 import Util.Misc
+import Util.VTree
 
 
 resultsText :: St -> [String]

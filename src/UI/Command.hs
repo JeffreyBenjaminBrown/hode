@@ -31,6 +31,7 @@ import UI.IUtil
 import UI.Window
 import UI.String
 import Util.Misc
+import Util.VTree
 
 
 parseAndRunCommand :: St -> B.EventM BrickName (B.Next St)

@@ -3,22 +3,15 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Util.Misc (
-    module U
 
   -- | = Lenses etc.
-  , eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
+    eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
                                           -- -> a -> Either String a
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
 
-  , pathInBounds -- ^ VTree RsltView -> Path  -> Either String ()
-  , atPath  -- ^ Path -> Traversal' (VTree a)  (VTree a)
-  , atVath  -- ^ Vath -> Traversal' (Vorest a) (VTree a)
-  , moveFocus -- ^ Direction -> (Path, VTree a)
-             -- -> Either String (Path, VTree a)
-
   -- | = collections
-  ,  intersections      -- ^ Set (Set a) -> Set a
+  , intersections      -- ^ Set (Set a) -> Set a
   , replaceNth         -- ^ a -> Int -> [a] -> Either String [a]
   , replaceLast        -- ^ a -> [a] -> Either String [a]
   , replaceLast'       -- ^ a -> [a] -> [a]
@@ -46,11 +39,7 @@ import           Data.Set    (Set)
 import qualified Data.Set    as S
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
-import           Data.Vector.Lens
 import           Lens.Micro
-import           Control.Lens.Combinators (from)
-
-import           Util.UTypes as U
 
 
 -- | = Lenses etc.
@@ -66,62 +55,6 @@ eitherIntoTraversal l f st = do
 eitherIntoLens :: Lens' a b -> (b -> Either left b) -> a -> Either left a
 eitherIntoLens l f st = do b' <- f $ st ^. l
                            Right $ st & l .~ b'
-
-pathInBounds :: VTree a -> Path -> Either String ()
-pathInBounds _ [] = Right ()
-pathInBounds vt (p:ps) = let vs = vt ^. vTrees
-  in case inBounds vs p of
-  True -> pathInBounds (vs V.! p) ps
-  False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
-
-atPath :: Path -> Traversal' (VTree a) (VTree a)
-atPath [] = lens id $ flip const -- the trivial lens
-atPath (p:ps) = vTrees . from vector
-                . ix p . atPath ps
-
-atVath :: Vath -> Traversal' (Vorest a) (VTree a)
-atVath (i,p) = from vector . ix i . atPath p
-
-moveFocus :: Direction -> (Path, VTree a)
-          -> Either String (Path, VTree a)
-moveFocus DirUp p@([],_) = Right p
-moveFocus DirUp (p,a)    = Right (f p, a)
-  where f = reverse . tail . reverse
-moveFocus DirDown (p,a) = prefixLeft "moveFocus" $ do
-  foc <- let err = "bad focus " ++ show p
-         in maybe (Left err) Right
-            $ a ^? atPath p
-  if null $ foc ^. vTrees
-    then Right (p                       , a)
-    else Right (p ++ [foc ^. vTreeFocus], a)
-
-moveFocus DirPrev (p,a) = do
-  _ <- pathInBounds a p
-  let pathToParent = take (length p - 1) p
-      Just parent = -- safe b/c p is in bounds
-        a ^? atPath pathToParent
-      parFoc = parent ^. vTreeFocus
-  _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
-       else Left $ "Bad focus in parent."
-  let parFoc' = max 0 $ parFoc - 1
-  Right ( p & replaceLast' parFoc'
-        , a & atPath pathToParent . vTreeFocus .~ parFoc' )
-
--- TODO : This duplicates the code for DirPrev.
--- Better: factor out the computation of newFocus,
--- as a function of parent and an adjustment function.
-moveFocus DirNext (p,a) = do
-  _ <- pathInBounds a p
-  let pathToParent = take (length p - 1) p
-      Just parent = -- safe b/c p is in bounds
-        a ^? atPath pathToParent
-      parFoc = parent ^. vTreeFocus
-  _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
-       else Left $ "Bad focus in parent."
-  let parFoc' = min (parFoc + 1)
-                $ V.length (parent ^. vTrees) - 1
-  Right ( p & replaceLast' parFoc'
-        , a & atPath pathToParent . vTreeFocus .~ parFoc' )
 
 
 -- | = Collections

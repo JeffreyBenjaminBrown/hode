@@ -36,8 +36,11 @@ import UI.ITypes
 import UI.IUtil
 import UI.String
 import Util.Misc
+import Util.VTree
 
 
+-- TODO ? some clever `Traversal` work could probably make
+-- `moveFocusedRsltView` into a one-liner
 moveFocusedRsltView :: Direction -> St -> Either String St
 moveFocusedRsltView d st = prefixLeft "moveFocus" $ do
   b <- maybe (Left "Bad vathToBuffer in St.") Right

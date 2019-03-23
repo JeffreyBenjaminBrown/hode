@@ -18,7 +18,7 @@ import qualified Brick.Widgets.Edit       as B
 import Rslt.RTypes
 import UI.ITypes
 import UI.Window
-import Util.Misc
+import Util.VTree
 
 
 unEitherSt :: St -> Either String St -> St
