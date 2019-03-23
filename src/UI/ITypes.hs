@@ -11,14 +11,13 @@ import Data.Vector (Vector)
 import Lens.Micro
 import Control.Lens.TH
 
-
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
 import Hash.HTypes
 import Rslt.RTypes
 import Rslt.Show
-import Util.Misc (replaceNth)
+import Util.Misc
 
 
 -- | = Tiny types
@@ -38,8 +37,6 @@ data Command = CommandInsert Expr
              | CommandFind String HExpr
              | CommandLoad Folder
              | CommandSave Folder deriving (Show, Eq, Ord)
-
-type Path = [Int]
 
 data Direction = DirUp | DirDown | DirLeft | DirRight
   deriving (Show,Eq, Ord)
@@ -110,22 +107,17 @@ instance Show RsltView where
 
 -- PITFALL: These types must come last in order to derive `Show`.
 
--- | A vector-based tree, for viewing things like Views, Buffers, ...
-data VTree a = VTree {
-  _vTreeLabel :: a
-  , _vTrees :: Vorest a
-  , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
-  , _vTreeIsFocused :: Bool } deriving (Eq, Show, Ord, Functor)
-type Vorest a = Vector (VTree a)
-
 data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferView  :: VTree RsltView
                      , _bufferPath  :: Path } deriving (Eq, Show, Ord)
+
+makeLenses ''Buffer
 
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
   , _buffer                 :: Buffer
+      -- :: Vorest Buffer
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
@@ -135,15 +127,12 @@ data St = St {
   , _showingOptionalWindows :: Map OptionalWindowName Bool
   }
 
-makeLenses      ''VTree
-makeBaseFunctor ''VTree
-makeLenses      ''VTreeF
-makeLenses      ''Buffer
-makeLenses      ''St
+makeLenses ''St
 
 instance Show St where
   show st = "St { "
    ++ "buffer = "               ++ show (st ^. buffer)             ++ ",\n"
+--   ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"
    ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
 --   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
 --   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"

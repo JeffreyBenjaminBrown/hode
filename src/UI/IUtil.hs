@@ -30,13 +30,18 @@ import Util.Misc
 initialState :: Rslt -> St
 initialState r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _buffer = Buffer {
-        _bufferQuery = ""
-      , _bufferView = VTree { _vTreeLabel = VQuery ""
-                            , _vTreeFocus = 0
-                            , _vTreeIsFocused = False
-                            , _vTrees = V.empty }
-      , _bufferPath = [] }
+  , _buffer = let
+      b = Buffer { _bufferQuery = ""
+                 , _bufferView = VTree { _vTreeLabel = VQuery ""
+                                       , _vTrees = V.empty
+                                       , _vTreeFocus = 0
+                                       , _vTreeIsFocused = False }
+                 , _bufferPath = [] }
+      in b
+--      in V.singleton $ VTree { _vTreeLabel = b
+--                             , _vTrees = V.empty
+--                             , _vTreeFocus = 0
+--                             , _vTreeIsFocused = False }
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""

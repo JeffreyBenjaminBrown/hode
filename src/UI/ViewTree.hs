@@ -13,7 +13,6 @@
 
 module UI.ViewTree (
     pathInBounds -- VTree RsltView -> Path  -> Either String ()
-  , atPath       -- Path -> Traversal' (VTree RsltView) (VTree RsltView)
   , moveFocus  -- Direction -> St -> Either String St
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
@@ -30,8 +29,6 @@ import qualified Data.Map    as M
 import qualified Data.Set    as S
 import qualified Data.Vector as V
 
-import           Control.Lens.Combinators (from)
-import           Data.Vector.Lens (vector)
 import           Lens.Micro hiding (has)
 
 import Rslt.RLookup
@@ -47,13 +44,6 @@ pathInBounds vt (p:ps) = let vs = vt ^. vTrees
   in case inBounds vs p of
   True -> pathInBounds (vs V.! p) ps
   False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
-
-
-atPath :: Path -> Traversal' (VTree RsltView) (VTree RsltView)
-atPath [] = lens id $ flip const -- the trivial lens
-atPath (p:ps) = vTrees . from vector
-                . ix p . atPath ps
-
 
 moveFocus :: Direction -> St -> Either String St
 moveFocus d = prefixLeft "moveFocus"

@@ -3,8 +3,13 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Util.Misc (
-    eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
+    module U
+
+  -- | = Lenses
+  , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
+  , atPath  -- ^       Path  -> Traversal' (VTree a)  (VTree a)
+  , atPath' -- ^ (Int, Path) -> Traversal' (Vorest a) (VTree a)
 
   -- | = collections
   ,  intersections      -- ^ Set (Set a) -> Set a
@@ -35,12 +40,26 @@ import           Data.Set    (Set)
 import qualified Data.Set    as S
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
+import           Data.Vector.Lens
 import           Lens.Micro
+import           Control.Lens.Combinators (from)
 
+import           Util.UTypes as U
+
+
+-- | = Lenses
 
 eitherIntoLens :: Lens' a b -> (b -> Either left b) -> a -> Either left a
 eitherIntoLens l f st = do b' <- f $ st ^. l
                            Right $ st & l .~ b'
+
+atPath :: Path -> Traversal' (VTree a) (VTree a)
+atPath [] = lens id $ flip const -- the trivial lens
+atPath (p:ps) = vTrees . from vector
+                . ix p . atPath ps
+
+atPath' :: (Int, Path) -> Traversal' (Vorest a) (VTree a)
+atPath' (i,p) = from vector . ix i . atPath p
 
 
 -- | = Collections

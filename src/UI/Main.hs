@@ -28,6 +28,7 @@ import UI.Command
 import UI.ITypes
 import UI.IUtil
 import UI.ViewTree
+import Util.Misc
 
 
 ui :: IO St
