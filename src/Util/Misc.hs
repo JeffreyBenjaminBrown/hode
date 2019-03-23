@@ -5,11 +5,13 @@
 module Util.Misc (
     module U
 
-  -- | = Lenses
+  -- | = Lenses etc.
   , eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
                                           -- -> a -> Either String a
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
+
+  , pathInBounds -- VTree RsltView -> Path  -> Either String ()
   , atPath  -- ^ Path -> Traversal' (VTree a)  (VTree a)
   , atVath  -- ^ Vath -> Traversal' (Vorest a) (VTree a)
 
@@ -49,7 +51,7 @@ import           Control.Lens.Combinators (from)
 import           Util.UTypes as U
 
 
--- | = Lenses
+-- | = Lenses etc.
 
 eitherIntoTraversal ::
   Traversal' a b -> (b -> Either String b) -> a -> Either String a
@@ -62,6 +64,13 @@ eitherIntoTraversal l f st = do
 eitherIntoLens :: Lens' a b -> (b -> Either left b) -> a -> Either left a
 eitherIntoLens l f st = do b' <- f $ st ^. l
                            Right $ st & l .~ b'
+
+pathInBounds :: VTree a -> Path -> Either String ()
+pathInBounds _ [] = Right ()
+pathInBounds vt (p:ps) = let vs = vt ^. vTrees
+  in case inBounds vs p of
+  True -> pathInBounds (vs V.! p) ps
+  False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
 
 atPath :: Path -> Traversal' (VTree a) (VTree a)
 atPath [] = lens id $ flip const -- the trivial lens

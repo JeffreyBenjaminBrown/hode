@@ -15,9 +15,7 @@ import           Lens.Micro
 import qualified Brick.Focus              as B
 import qualified Brick.Widgets.Edit       as B
 
-import Rslt.RLookup
 import Rslt.RTypes
-import Rslt.Show
 import UI.ITypes
 import UI.Window
 import Util.Misc

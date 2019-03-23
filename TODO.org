@@ -29,8 +29,9 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
+** factor the "moveFocus" logic away from the `RsltView` type
 ** buffer tree
-*** TODO ? window names
+*** DONE ? window names
 Some windows are not buffer specific -- e.g. history.
 I think the uniqueness of window names is only required across windows being drawn at any particular frame in time.
 *** changes
@@ -49,7 +50,7 @@ VQuery
 VTree RsltView
 pathToFocus
 **** View will no longer need the VQuery type
-*** an incremental (i.e. codable) path
+*** TODO an incremental (i.e. codable) path
 **** DONE Change window name types.
 **** DONE Create the Buffer type.
 **** DONE In St, wrap the VQuery, the VTree View and the Path into a single Buffer.

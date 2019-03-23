@@ -12,8 +12,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    pathInBounds -- VTree RsltView -> Path  -> Either String ()
-  , moveFocus  -- Direction -> St -> Either String St
+    moveFocus  -- Direction -> St -> Either String St
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
@@ -38,13 +37,6 @@ import UI.IUtil
 import UI.String
 import Util.Misc
 
-
-pathInBounds :: VTree RsltView -> Path -> Either String ()
-pathInBounds _ [] = Right ()
-pathInBounds vt (p:ps) = let vs = vt ^. vTrees
-  in case inBounds vs p of
-  True -> pathInBounds (vs V.! p) ps
-  False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
 
 moveFocus :: Direction -> St -> Either String St
 moveFocus d st = st & prefixLeft "moveFocus"
