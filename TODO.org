@@ -29,7 +29,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** factor the "moveFocus" logic away from the `RsltView` type
 ** buffer tree
 *** DONE ? window names
 Some windows are not buffer specific -- e.g. history.

@@ -39,59 +39,13 @@ import Util.Misc
 
 
 moveFocus :: Direction -> St -> Either String St
-moveFocus d st = st & prefixLeft "moveFocus"
-  . eitherIntoTraversal (stBuffer st) (_moveFocus d)
-
-_moveFocus :: Direction -> Buffer -> Either String Buffer
-_moveFocus DirUp b@( _bufferPath -> [] ) = Right b
-_moveFocus DirUp b = Right $ b & bufferPath
-                      %~ reverse . tail . reverse
-
-_moveFocus DirDown b = do
-  let p = b ^. bufferPath
-  foc <- let err = "bad focus " ++ show p
-         in maybe (Left err) Right
-            $ (b ^. bufferView) ^? atPath p
-  if null $ foc ^. vTrees
-    then Right b
-    else Right $ b & bufferPath %~ (++ [foc ^. vTreeFocus])
-
-_moveFocus DirPrev b = do
-  let topView = b ^. bufferView
-      path = b ^. bufferPath
-  _ <- pathInBounds topView path
-  let pathToParent = take (length path - 1) path
-      Just parent = -- safe b/c path is in bounds
-        topView ^? atPath pathToParent
-      parFoc = parent ^. vTreeFocus
-  _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
-       else Left $ "Bad focus in " ++ show parent
-            ++ " at " ++ show pathToParent
-  let parFoc' = max 0 $ parFoc - 1
-  Right $ b
-        & bufferPath %~ replaceLast' parFoc'
-        & bufferView . atPath pathToParent . vTreeFocus .~ parFoc'
-
--- TODO : This duplicates the code for DirPrev.
--- Instead, factor out the computation of newFocus,
--- as a function of parent and an adjustment function.
-_moveFocus DirNext b = do
-  let topView = b ^. bufferView
-      path = b ^. bufferPath
-  _ <- pathInBounds topView path
-  let pathToParent = take (length path - 1) path
-      Just parent = -- safe b/c path is in bounds
-        topView ^? atPath pathToParent
-      parFoc = parent ^. vTreeFocus
-  _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
-       else Left $ "Bad focus in " ++ show parent
-            ++ " at " ++ show pathToParent
-  let parFoc' = min (parFoc + 1)
-                $ V.length (parent ^. vTrees) - 1
-  Right $ b
-        & bufferPath %~ replaceLast' parFoc'
-        & bufferView . atPath pathToParent . vTreeFocus .~ parFoc'
-
+moveFocus d st = prefixLeft "moveFocus" $ do
+  b <- maybe (Left "Bad vathToBuffer in St.") Right
+    $ st ^? stBuffer st
+  (p :: Path, vt :: VTree RsltView) <- moveFocus' d
+    (b ^. bufferPath, b ^. bufferView)
+  Right $ st & stBuffer st . bufferView .~ vt
+             & stBuffer st . bufferPath .~ p
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do

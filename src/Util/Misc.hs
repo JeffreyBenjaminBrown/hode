@@ -11,9 +11,11 @@ module Util.Misc (
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
 
-  , pathInBounds -- VTree RsltView -> Path  -> Either String ()
+  , pathInBounds -- ^ VTree RsltView -> Path  -> Either String ()
   , atPath  -- ^ Path -> Traversal' (VTree a)  (VTree a)
   , atVath  -- ^ Vath -> Traversal' (Vorest a) (VTree a)
+  , moveFocus' -- ^ Direction -> (Path, VTree a)
+             -- -> Either String (Path, VTree a)
 
   -- | = collections
   ,  intersections      -- ^ Set (Set a) -> Set a
@@ -79,6 +81,47 @@ atPath (p:ps) = vTrees . from vector
 
 atVath :: Vath -> Traversal' (Vorest a) (VTree a)
 atVath (i,p) = from vector . ix i . atPath p
+
+moveFocus' :: Direction -> (Path, VTree a)
+          -> Either String (Path, VTree a)
+moveFocus' DirUp p@([],_) = Right p
+moveFocus' DirUp (p,a)    = Right (f p, a)
+  where f = reverse . tail . reverse
+moveFocus' DirDown (p,a) = prefixLeft "moveFocus" $ do
+  foc <- let err = "bad focus " ++ show p
+         in maybe (Left err) Right
+            $ a ^? atPath p
+  if null $ foc ^. vTrees
+    then Right (p                       , a)
+    else Right (p ++ [foc ^. vTreeFocus], a)
+
+moveFocus' DirPrev (p,a) = do
+  _ <- pathInBounds a p
+  let pathToParent = take (length p - 1) p
+      Just parent = -- safe b/c p is in bounds
+        a ^? atPath pathToParent
+      parFoc = parent ^. vTreeFocus
+  _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
+       else Left $ "Bad focus in parent."
+  let parFoc' = max 0 $ parFoc - 1
+  Right ( p & replaceLast' parFoc'
+        , a & atPath pathToParent . vTreeFocus .~ parFoc' )
+
+-- TODO : This duplicates the code for DirPrev.
+-- Better: factor out the computation of newFocus,
+-- as a function of parent and an adjustment function.
+moveFocus' DirNext (p,a) = do
+  _ <- pathInBounds a p
+  let pathToParent = take (length p - 1) p
+      Just parent = -- safe b/c p is in bounds
+        a ^? atPath pathToParent
+      parFoc = parent ^. vTreeFocus
+  _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
+       else Left $ "Bad focus in parent."
+  let parFoc' = min (parFoc + 1)
+                $ V.length (parent ^. vTrees) - 1
+  Right ( p & replaceLast' parFoc'
+        , a & atPath pathToParent . vTreeFocus .~ parFoc' )
 
 
 -- | = Collections
