@@ -115,18 +115,16 @@ data VTree a = VTree {
   _vTreeLabel :: a
   , _vTrees :: Vector (VTree a)
   , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
-  , _vTreeIsFocused :: Bool
-  } deriving (Eq, Show, Ord, Functor)
+  , _vTreeIsFocused :: Bool } deriving (Eq, Show, Ord, Functor)
 
 data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferView  :: VTree RsltView
-                     , _bufferPath  :: Path }
+                     , _bufferPath  :: Path } deriving (Eq, Show, Ord)
 
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _viewTree               :: VTree RsltView
-  , _pathToFocus            :: Path
+  , _buffer                 :: Buffer
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
@@ -144,8 +142,7 @@ makeLenses      ''St
 
 instance Show St where
   show st = "St { "
-   ++ "view = "                 ++ show (st ^. viewTree)             ++ ",\n"
-   ++ "pathToFocus = "          ++ show (st ^. pathToFocus)          ++ ",\n"
+   ++ "buffer = "               ++ show (st ^. buffer)             ++ ",\n"
    ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
 --   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
 --   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"

@@ -55,8 +55,10 @@ appDraw st0 = [w] where
   w = B.center ( mainWindow
                  <=> optionalWindows )
 
-  st = st0 & l .~ True where
-    l = viewTree . atPath (st0 ^. pathToFocus) . vTreeIsFocused
+  st = st0 & buffer .~ b
+  b = b0 & l .~ True where
+    b0 = st0 ^. buffer
+    l = bufferView . atPath (b0 ^. bufferPath) . vTreeIsFocused
 
   mainWindow = case st ^. showingInMainWindow of
     CommandHistory -> commandHistoryWindow
@@ -81,7 +83,7 @@ appDraw st0 = [w] where
       ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-    $ showRec $ st ^. viewTree where
+    $ showRec $ b ^. bufferView where
 
     showOne, showRec :: VTree RsltView -> B.Widget BrickName
     showRec vt | null $ vt ^. vTrees = showOne vt
@@ -135,7 +137,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     $ unEitherSt st . moveFocus DirRight
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus DirLeft
+    $ unEitherSt st . (moveFocus DirLeft)
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st

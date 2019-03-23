@@ -1,8 +1,11 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
     initialState               -- ^ Rslt -> St
   , unEitherSt                 -- ^ Either String St -> St -> St
+  , liftEitherToSt -- ^ Lens' St a -> (a -> Either String a)
+                                -- -> St -> Either String St
   , hideReassurance            -- ^           St -> St
   , showError, showReassurance -- ^ String -> St -> St
   , emptyCommandWindow         -- ^ St -> St
@@ -30,12 +33,13 @@ import Util.Misc
 initialState :: Rslt -> St
 initialState r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _viewTree  = VTree { _vTreeLabel = VQuery ""
-                       , _vTreeFocus = 0
-                       , _vTreeIsFocused = False
-                       , _vTrees = V.empty
-                       }
-  , _pathToFocus = []
+  , _buffer = Buffer {
+        _bufferQuery = ""
+      , _bufferView = VTree { _vTreeLabel = VQuery ""
+                            , _vTreeFocus = 0
+                            , _vTreeIsFocused = False
+                            , _vTrees = V.empty }
+      , _bufferPath = [] }
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""
@@ -60,12 +64,17 @@ unEitherSt :: St -> Either String St -> St
 unEitherSt old (Left s) = old & showError s
 unEitherSt _ (Right new) = new & showingInMainWindow .~ Results
 
+liftEitherToSt :: Lens' St a -> (a -> Either String a) -> St -> Either String St
+liftEitherToSt l f st = do b' <- f $ st ^. l
+                           Right $ st & l .~ b'
+
+
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
 
 resultsText :: St -> [String]
-resultsText st = f 0 $ st ^. viewTree where
+resultsText st = f 0 $ st ^. buffer . bufferView where
   indent :: Int -> String -> String
   indent i s = replicate (2*i) ' ' ++ s
 

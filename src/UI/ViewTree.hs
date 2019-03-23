@@ -22,7 +22,7 @@ module UI.ViewTree (
   , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
                          -- -> Either String (VTree RsltView)
   , insertHosts_atFocus    -- St -> Either String St
-  , closeSubviews_atFocus -- St -> Either String St
+  , closeSubviews_atFocus  -- St -> Either String St
   ) where
 
 import           Data.Map (Map)
@@ -56,22 +56,26 @@ atPath (p:ps) = vTrees . from vector
 
 
 moveFocus :: Direction -> St -> Either String St
-moveFocus DirLeft st@( _pathToFocus -> [] ) = Right st
-moveFocus DirLeft st = Right $ st & pathToFocus
-                       %~ reverse . tail . reverse
+moveFocus d = prefixLeft "moveFocus"
+              . liftEitherToSt buffer (_moveFocus d)
 
-moveFocus DirRight st = do
-  foc <- let err = "moveFocus: bad focus "
-                   ++ show (st ^. pathToFocus)
+_moveFocus :: Direction -> Buffer -> Either String Buffer
+_moveFocus DirLeft b@( _bufferPath -> [] ) = Right b
+_moveFocus DirLeft b = Right $ b & bufferPath
+                      %~ reverse . tail . reverse
+
+_moveFocus DirRight b = do
+  let p = b ^. bufferPath
+  foc <- let err = "bad focus " ++ show p
          in maybe (Left err) Right
-            $ (st ^. viewTree) ^? atPath (st ^. pathToFocus)
+            $ (b ^. bufferView) ^? atPath p
   if null $ foc ^. vTrees
-    then Right st
-    else Right $ st & pathToFocus %~ (++ [foc ^. vTreeFocus])
+    then Right b
+    else Right $ b & bufferPath %~ (++ [foc ^. vTreeFocus])
 
-moveFocus DirUp st = do
-  let topView = st ^. viewTree
-      path = st ^. pathToFocus
+_moveFocus DirUp b = do
+  let topView = b ^. bufferView
+      path = b ^. bufferPath
   _ <- pathInBounds topView path
   let pathToParent = take (length path - 1) path
       Just parent = -- safe b/c path is in bounds
@@ -81,16 +85,16 @@ moveFocus DirUp st = do
        else Left $ "Bad focus in " ++ show parent
             ++ " at " ++ show pathToParent
   let parFoc' = max 0 $ parFoc - 1
-  Right $ st
-        & pathToFocus %~ replaceLast' parFoc'
-        & viewTree . atPath pathToParent . vTreeFocus .~ parFoc'
+  Right $ b
+        & bufferPath %~ replaceLast' parFoc'
+        & bufferView . atPath pathToParent . vTreeFocus .~ parFoc'
 
 -- TODO : This duplicates the code for DirUp.
 -- Instead, factor out the computation of newFocus,
 -- as a function of parent and an adjustment function.
-moveFocus DirDown st = do
-  let topView = st ^. viewTree
-      path = st ^. pathToFocus
+_moveFocus DirDown b = do
+  let topView = b ^. bufferView
+      path = b ^. bufferPath
   _ <- pathInBounds topView path
   let pathToParent = take (length path - 1) path
       Just parent = -- safe b/c path is in bounds
@@ -101,16 +105,16 @@ moveFocus DirDown st = do
             ++ " at " ++ show pathToParent
   let parFoc' = min (parFoc + 1)
                 $ V.length (parent ^. vTrees) - 1
-  Right $ st
-        & pathToFocus %~ replaceLast' parFoc'
-        & viewTree . atPath pathToParent . vTreeFocus .~ parFoc'
+  Right $ b
+        & bufferPath %~ replaceLast' parFoc'
+        & bufferView . atPath pathToParent . vTreeFocus .~ parFoc'
 
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
-  let (p :: Path) = st ^. pathToFocus
+  let (p :: Path) = st ^. buffer . bufferPath
   (foc :: VTree RsltView) <- let left = Left $ "bad path: " ++ show p
-    in maybe left Right $ st ^? viewTree . atPath p
+    in maybe left Right $ st ^? buffer . bufferView . atPath p
   (a :: Addr) <- case foc ^. vTreeLabel of
     VResult rv -> Right $ rv ^. viewResultAddr
     _ -> Left $ "can only be called from a RsltView with an Addr."
@@ -126,8 +130,8 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
     <$> ifLefts "" (map (resultView (st ^. appRslt)) as)
   let (new :: VTree RsltView) =
         topOfNew & vTrees .~ V.fromList leavesOfNew
-      l = viewTree . atPath (st ^. pathToFocus) . vTrees
-  Right $ st & l %~ V.cons new
+      l = buffer . bufferView . atPath (st ^. buffer . bufferPath) . vTrees
+    in Right $ st & l %~ V.cons new
 
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
@@ -157,8 +161,8 @@ groupHostRels r a0 = do
 
 groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
-  let (top :: VTree RsltView) = st ^. viewTree
-      (p :: Path) = st ^. pathToFocus
+  let (top :: VTree RsltView) = st ^. buffer . bufferView
+      (p :: Path)             = st ^. buffer . bufferPath
   _ <- pathInBounds top p
   let (ma :: Maybe Addr) = top ^?
         atPath p . vTreeLabel . _VResult . viewResultAddr
@@ -177,7 +181,7 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
       insert vt = vt & vTrees .~
                   V.fromList (foldr (:) preexist newTrees) where
         (preexist :: [VTree RsltView]) =  V.toList $ vt ^. vTrees
-  Right $ st & viewTree . atPath (st ^. pathToFocus) %~ insert
+  Right $ st & buffer . bufferView . atPath (st ^. buffer . bufferPath) %~ insert
 
 
 hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
@@ -193,11 +197,14 @@ hostRelGroup_to_view r (crv, as) = do
 
 
 closeSubviews_atFocus :: St -> Either String St
-closeSubviews_atFocus st = prefixLeft "closeSubviews_atFocus" $ do
-  let path = st ^. pathToFocus
-  _ <- pathInBounds (st ^. viewTree) path
+closeSubviews_atFocus = prefixLeft "moveFocus"
+                        . liftEitherToSt buffer _closeSubviews_atFocus
+
+_closeSubviews_atFocus :: Buffer -> Either String Buffer
+_closeSubviews_atFocus b = prefixLeft "closeSubviews_atFocus" $ do
+  _ <- pathInBounds (b ^. bufferView) (b ^. bufferPath)
   _ <- let err = "Closing the root of a view would be silly."
-       in if path == [] then Left err else Right ()
+       in if b ^. bufferPath == [] then Left err else Right ()
   let close :: VTree RsltView -> VTree RsltView
       close = vTrees .~ mempty
-  Right $ st & viewTree . atPath (st ^. pathToFocus) %~ close
+  Right $ b & bufferView . atPath (b ^. bufferPath) %~ close

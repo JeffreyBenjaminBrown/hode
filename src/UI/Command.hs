@@ -78,9 +78,10 @@ runCommand (CommandFind s h) st = do
               in VResult $ either err id rv
           , _vTrees = V.empty }
 
-  Right $ B.continue $ st & pathToFocus .~ []
-                          & showingInMainWindow .~ Results
-                          & viewTree .~ v
+  Right $ B.continue $ st & showingInMainWindow .~ Results
+                          & buffer . bufferQuery .~ s
+                          & buffer . bufferPath .~ []
+                          & buffer . bufferView .~ v
 
 runCommand (CommandInsert e) st =
   either Left (Right . f)
