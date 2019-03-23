@@ -113,9 +113,10 @@ instance Show RsltView where
 -- | A vector-based tree, for viewing things like Views, Buffers, ...
 data VTree a = VTree {
   _vTreeLabel :: a
-  , _vTrees :: Vector (VTree a)
+  , _vTrees :: Vorest a
   , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
   , _vTreeIsFocused :: Bool } deriving (Eq, Show, Ord, Functor)
+type Vorest a = Vector (VTree a)
 
 data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferView  :: VTree RsltView
