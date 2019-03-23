@@ -56,9 +56,10 @@ appDraw st0 = [w] where
   w = B.center ( mainWindow
                  <=> optionalWindows )
 
-  st = st0 & buffer .~ b
+  st = st0 & stBuffer st0 .~ b where
   b = b0 & l .~ True where
-    b0 = st0 ^. buffer
+    b0 = maybe err id $  st0 ^? stBuffer st where
+      err = error "stBuffer returned Nothing in appDraw."
     l = bufferView . atPath (b0 ^. bufferPath) . vTreeIsFocused
 
   mainWindow = case st ^. showingInMainWindow of

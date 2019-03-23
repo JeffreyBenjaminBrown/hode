@@ -30,18 +30,18 @@ import Util.Misc
 initialState :: Rslt -> St
 initialState r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _buffer = let
+  , _buffers = let
       b = Buffer { _bufferQuery = ""
                  , _bufferView = VTree { _vTreeLabel = VQuery ""
                                        , _vTrees = V.empty
                                        , _vTreeFocus = 0
                                        , _vTreeIsFocused = False }
                  , _bufferPath = [] }
-      in b
---      in V.singleton $ VTree { _vTreeLabel = b
---                             , _vTrees = V.empty
---                             , _vTreeFocus = 0
---                             , _vTreeIsFocused = False }
+      in V.singleton $ VTree { _vTreeLabel = b
+                             , _vTrees = V.empty
+                             , _vTreeFocus = 0
+                             , _vTreeIsFocused = False }
+  , _vathToBuffer = (0,[])
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""
@@ -71,13 +71,15 @@ emptyCommandWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
 
 resultsText :: St -> [String]
-resultsText st = f 0 $ st ^. buffer . bufferView where
-  indent :: Int -> String -> String
-  indent i s = replicate (2*i) ' ' ++ s
+resultsText st = maybe [] (f 0) b where
+  b :: Maybe (VTree RsltView)
+  b = st ^? stBuffer st . bufferView
 
   f :: Int -> VTree RsltView -> [String]
-  f i v = indent i (vShow $ v ^. vTreeLabel)
+  f i v = indent (vShow $ v ^. vTreeLabel)
     : concatMap (f $ i+1) (V.toList $ v ^. vTrees)
+    where indent :: String -> String
+          indent s = replicate (2*i) ' ' ++ s
 
 resultView :: Rslt -> Addr -> Either String ViewResult
 resultView r a = do

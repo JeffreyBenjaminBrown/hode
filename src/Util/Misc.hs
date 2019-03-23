@@ -6,10 +6,12 @@ module Util.Misc (
     module U
 
   -- | = Lenses
+  , eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
+                                          -- -> a -> Either String a
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
-  , atPath  -- ^       Path  -> Traversal' (VTree a)  (VTree a)
-  , atPath' -- ^ (Int, Path) -> Traversal' (Vorest a) (VTree a)
+  , atPath  -- ^ Path -> Traversal' (VTree a)  (VTree a)
+  , atVath  -- ^ Vath -> Traversal' (Vorest a) (VTree a)
 
   -- | = collections
   ,  intersections      -- ^ Set (Set a) -> Set a
@@ -49,6 +51,14 @@ import           Util.UTypes as U
 
 -- | = Lenses
 
+eitherIntoTraversal ::
+  Traversal' a b -> (b -> Either String b) -> a -> Either String a
+eitherIntoTraversal l f st = do
+  (b :: b) <- let msg = "Traversal' returned Nothing."
+    in maybe (Left msg) Right $ st ^? l
+  b' <- f b
+  Right $ st & l .~ b'
+
 eitherIntoLens :: Lens' a b -> (b -> Either left b) -> a -> Either left a
 eitherIntoLens l f st = do b' <- f $ st ^. l
                            Right $ st & l .~ b'
@@ -58,8 +68,8 @@ atPath [] = lens id $ flip const -- the trivial lens
 atPath (p:ps) = vTrees . from vector
                 . ix p . atPath ps
 
-atPath' :: (Int, Path) -> Traversal' (Vorest a) (VTree a)
-atPath' (i,p) = from vector . ix i . atPath p
+atVath :: Vath -> Traversal' (Vorest a) (VTree a)
+atVath (i,p) = from vector . ix i . atPath p
 
 
 -- | = Collections

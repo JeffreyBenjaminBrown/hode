@@ -79,9 +79,9 @@ runCommand (CommandFind s h) st = do
           , _vTrees = V.empty }
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
-                          & buffer . bufferQuery .~ s
-                          & buffer . bufferPath .~ []
-                          & buffer . bufferView .~ v
+                          & stBuffer st . bufferQuery .~ s
+                          & stBuffer st . bufferPath .~ []
+                          & stBuffer st . bufferView .~ v
 
 runCommand (CommandInsert e) st =
   either Left (Right . f)

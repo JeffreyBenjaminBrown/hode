@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -114,8 +115,8 @@ makeLenses ''Buffer
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _buffer                 :: Buffer
-      -- :: Vorest Buffer
+  , _buffers                :: Vorest Buffer
+  , _vathToBuffer           :: Vath
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
@@ -127,9 +128,15 @@ data St = St {
 
 makeLenses ''St
 
+-- TODO ? Dangerous: taking an `St` argument seems like it might
+-- cause problems if lensing from an old `St` into a new one.
+-- Specifically, if the two `St` have different `vathToBuffer`s.
+stBuffer :: St -> Traversal' St Buffer
+stBuffer st = buffers . atVath (st ^. vathToBuffer) . vTreeLabel
+
 instance Show St where
   show st = "St { "
-   ++ "buffer = "               ++ show (st ^. buffer)             ++ ",\n"
+   ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"
 --   ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"
    ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
 --   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
