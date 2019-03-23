@@ -24,7 +24,7 @@ aViewTree = VTree {
   , _vTreeIsFocused = False
   , _vTreeLabel = VQuery "top"
   , _vTrees = V.fromList
-    $ map (viewLeaf . VQuery .show) [0,1 :: Int] }
+    $ map (rsltViewLeaf . VQuery .show) [0,1 :: Int] }
 
 
 test_module_ui :: T.Test

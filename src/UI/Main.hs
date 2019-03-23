@@ -39,7 +39,7 @@ uiFromSt :: St -> IO St
 uiFromSt = B.defaultMain app
 
 uiFromRslt :: Rslt -> IO St
-uiFromRslt = B.defaultMain app . initialState
+uiFromRslt = B.defaultMain app . emptySt
 
 app :: B.App St e BrickName
 app = B.App

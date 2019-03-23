@@ -7,18 +7,12 @@ module UI.Window (
   ) where
 
 import qualified Data.Map                 as M
-import qualified Data.Vector              as V
 import           Lens.Micro
 import qualified Data.Text.Zipper.Generic as TxZ
 
-import qualified Brick.Focus              as B
 import qualified Brick.Widgets.Edit       as B
 
-import Rslt.RLookup
-import Rslt.RTypes
-import Rslt.Show
 import UI.ITypes
-import Util.Misc
 
 
 hideReassurance :: St -> St

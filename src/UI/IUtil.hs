@@ -1,18 +1,18 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    initialState -- ^ Rslt -> St
+    emptySt      -- ^ Rslt -> St
+  , emptyBuffer  -- ^ Buffer
+  , rsltViewLeaf -- ^ RsltView -> VTree RsltView
   , unEitherSt   -- ^ Either String St -> St -> St
   , resultsText  -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
-  , viewLeaf     -- ^ RsltView -> VTree RsltView
   , vShow        -- ^ RsltView -> String
   ) where
 
 import qualified Data.Map                 as M
 import qualified Data.Vector              as V
 import           Lens.Micro
-import qualified Data.Text.Zipper.Generic as TxZ
 
 import qualified Brick.Focus              as B
 import qualified Brick.Widgets.Edit       as B
@@ -25,20 +25,14 @@ import UI.Window
 import Util.Misc
 
 
-initialState :: Rslt -> St
-initialState r = St {
+emptySt :: Rslt -> St
+emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _buffers = let
-      b = Buffer { _bufferQuery = ""
-                 , _bufferView = VTree { _vTreeLabel = VQuery ""
-                                       , _vTrees = V.empty
-                                       , _vTreeFocus = 0
-                                       , _vTreeIsFocused = False }
-                 , _bufferPath = [] }
-      in V.singleton $ VTree { _vTreeLabel = b
-                             , _vTrees = V.empty
-                             , _vTreeFocus = 0
-                             , _vTreeIsFocused = False }
+  , _buffers = V.singleton
+               $ VTree { _vTreeLabel = emptyBuffer
+                       , _vTrees = V.empty
+                       , _vTreeFocus = 0
+                       , _vTreeIsFocused = False }
   , _vathToBuffer = (0,[])
   , _uiError   = ""
   , _reassurance = "It's all good."
@@ -49,6 +43,18 @@ initialState r = St {
   , _showingOptionalWindows = M.fromList [ (Commands   , True)
                                          , (Reassurance, True) ]
   }
+
+emptyBuffer :: Buffer
+emptyBuffer = Buffer { _bufferQuery = ""
+                     , _bufferView = rsltViewLeaf $ VQuery ""
+                     , _bufferPath = [] }
+
+rsltViewLeaf :: RsltView -> VTree RsltView
+rsltViewLeaf v = VTree {
+    _vTreeLabel = v
+  , _vTreeFocus = 0
+  , _vTreeIsFocused = False
+  , _vTrees = V.empty }
 
 unEitherSt :: St -> Either String St -> St
 unEitherSt old (Left s) = old & showError s
@@ -71,13 +77,6 @@ resultView r a = do
                    $ addrToExpr r a >>= eShow r
   Right $ ViewResult { _viewResultAddr = a
                      , _viewResultString = s }
-
-viewLeaf :: RsltView -> VTree RsltView
-viewLeaf v = VTree {
-    _vTreeFocus = 0
-  , _vTreeIsFocused = False
-  , _vTreeLabel = v
-  , _vTrees = V.empty }
 
 -- | `vShow` is used to display a `RsltView` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `RsltView`,
