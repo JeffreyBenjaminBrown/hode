@@ -6,8 +6,6 @@
 module UI.ITypes where
 
 import Data.Map (Map)
-import Data.Functor.Foldable.TH
-import Data.Vector (Vector)
 import Lens.Micro
 import Control.Lens.TH
 

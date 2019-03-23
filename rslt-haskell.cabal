@@ -80,6 +80,7 @@ library
                 , UI.ViewTree
                 , Util.Misc
                 , Util.UParse
+                , Util.UTypes
   other-modules:
   hs-source-dirs:
       src
