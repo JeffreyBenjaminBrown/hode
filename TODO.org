@@ -53,8 +53,8 @@ pathToFocus
 **** DONE Change window name types.
 **** DONE Create the Buffer type.
 **** DONE In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
-**** In St, wrap the Buffer in a VTree Buffer.
-**** In St, add pathToBuffer
+**** DONE In St, wrap the Buffer in a VTree Buffer.
+**** DONE In St, add pathToBuffer
 PITFALL: two different kinds of paths, for two different kinds of trees.
 **** Add a way to create a new Buffer.
 **** Add a way to view the VTree Buffer, and cursor around it.

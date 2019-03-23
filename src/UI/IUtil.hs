@@ -1,12 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    initialState               -- ^ Rslt -> St
-  , unEitherSt                 -- ^ Either String St -> St -> St
-  , hideReassurance            -- ^           St -> St
-  , showError, showReassurance -- ^ String -> St -> St
-  , emptyCommandWindow         -- ^ St -> St
-  , resultsText                -- ^ St -> [String]
+    initialState -- ^ Rslt -> St
+  , unEitherSt   -- ^ Either String St -> St -> St
+  , resultsText  -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , viewLeaf     -- ^ RsltView -> VTree RsltView
   , vShow        -- ^ RsltView -> String
@@ -24,6 +21,7 @@ import Rslt.RLookup
 import Rslt.RTypes
 import Rslt.Show
 import UI.ITypes
+import UI.Window
 import Util.Misc
 
 
@@ -52,23 +50,9 @@ initialState r = St {
                                          , (Reassurance, True) ]
   }
 
-hideReassurance :: St -> St
-hideReassurance = showingOptionalWindows %~ M.insert Reassurance False
-
-showError, showReassurance :: String -> St -> St
-showError msg = (showingOptionalWindows %~ M.insert Reassurance False)
-                . (showingInMainWindow .~ Errors)
-                . (uiError .~ msg)
-showReassurance msg = (showingOptionalWindows %~ M.insert Reassurance True)
-                      . (reassurance .~ msg)
-
 unEitherSt :: St -> Either String St -> St
 unEitherSt old (Left s) = old & showError s
 unEitherSt _ (Right new) = new & showingInMainWindow .~ Results
-
-emptyCommandWindow :: St -> St
-emptyCommandWindow = commands . B.editContentsL
-                     .~ TxZ.textZipper [] Nothing
 
 resultsText :: St -> [String]
 resultsText st = maybe [] (f 0) b where

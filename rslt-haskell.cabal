@@ -78,6 +78,7 @@ library
                 , UI.Main
                 , UI.NoUI
                 , UI.ViewTree
+                , UI.Window
                 , Util.Misc
                 , Util.UParse
                 , Util.UTypes
