@@ -27,6 +27,7 @@ import UI.Clipboard
 import UI.Command
 import UI.ITypes
 import UI.IUtil
+import UI.String
 import UI.ViewTree
 import UI.Window
 import Util.Misc

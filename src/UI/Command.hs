@@ -29,6 +29,7 @@ import UI.IParse
 import UI.ITypes
 import UI.IUtil
 import UI.Window
+import UI.String
 import Util.Misc
 
 
