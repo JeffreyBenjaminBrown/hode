@@ -50,17 +50,17 @@ VTree RsltView
 pathToFocus
 **** View will no longer need the VQuery type
 *** an incremental (i.e. codable) path
-Change window name types.
-Create the Buffer type.
-In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
-In St, wrap the Buffer in a VTree Buffer.
-In St, add pathToBufferInResults and pathToBufferInBufferTree fields.
-  They are different!
-Add a way to create a new Buffer.
-Add a way to view the VTree Buffer, and cursor around it.
-From that view, add a way to switch to another Buffer.
-  That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
-  and then show Results instead of the Buffer Tree.
+**** DONE Change window name types.
+**** DONE Create the Buffer type.
+**** In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
+**** In St, wrap the Buffer in a VTree Buffer.
+**** In St, add pathToBuffer
+PITFALL: two different kinds of paths, for two different kinds of trees.
+**** Add a way to create a new Buffer.
+**** Add a way to view the VTree Buffer, and cursor around it.
+**** From that view, add a way to switch to another Buffer.
+That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
+and then show Results instead of the Buffer Tree.
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)

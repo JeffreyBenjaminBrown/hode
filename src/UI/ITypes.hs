@@ -118,6 +118,10 @@ data VTree a = VTree {
   , _vTreeIsFocused :: Bool
   } deriving (Eq, Show, Ord, Functor)
 
+data Buffer = Buffer { _bufferQuery :: ViewQuery
+                     , _bufferView  :: VTree RsltView
+                     , _bufferPath  :: Path }
+
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
@@ -132,10 +136,11 @@ data St = St {
   , _showingOptionalWindows :: Map OptionalWindowName Bool
   }
 
-makeLenses      ''St
 makeLenses      ''VTree
 makeBaseFunctor ''VTree
 makeLenses      ''VTreeF
+makeLenses      ''Buffer
+makeLenses      ''St
 
 instance Show St where
   show st = "St { "
