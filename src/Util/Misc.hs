@@ -14,7 +14,7 @@ module Util.Misc (
   , pathInBounds -- ^ VTree RsltView -> Path  -> Either String ()
   , atPath  -- ^ Path -> Traversal' (VTree a)  (VTree a)
   , atVath  -- ^ Vath -> Traversal' (Vorest a) (VTree a)
-  , moveFocus' -- ^ Direction -> (Path, VTree a)
+  , moveFocus -- ^ Direction -> (Path, VTree a)
              -- -> Either String (Path, VTree a)
 
   -- | = collections
@@ -82,12 +82,12 @@ atPath (p:ps) = vTrees . from vector
 atVath :: Vath -> Traversal' (Vorest a) (VTree a)
 atVath (i,p) = from vector . ix i . atPath p
 
-moveFocus' :: Direction -> (Path, VTree a)
+moveFocus :: Direction -> (Path, VTree a)
           -> Either String (Path, VTree a)
-moveFocus' DirUp p@([],_) = Right p
-moveFocus' DirUp (p,a)    = Right (f p, a)
+moveFocus DirUp p@([],_) = Right p
+moveFocus DirUp (p,a)    = Right (f p, a)
   where f = reverse . tail . reverse
-moveFocus' DirDown (p,a) = prefixLeft "moveFocus" $ do
+moveFocus DirDown (p,a) = prefixLeft "moveFocus" $ do
   foc <- let err = "bad focus " ++ show p
          in maybe (Left err) Right
             $ a ^? atPath p
@@ -95,7 +95,7 @@ moveFocus' DirDown (p,a) = prefixLeft "moveFocus" $ do
     then Right (p                       , a)
     else Right (p ++ [foc ^. vTreeFocus], a)
 
-moveFocus' DirPrev (p,a) = do
+moveFocus DirPrev (p,a) = do
   _ <- pathInBounds a p
   let pathToParent = take (length p - 1) p
       Just parent = -- safe b/c p is in bounds
@@ -110,7 +110,7 @@ moveFocus' DirPrev (p,a) = do
 -- TODO : This duplicates the code for DirPrev.
 -- Better: factor out the computation of newFocus,
 -- as a function of parent and an adjustment function.
-moveFocus' DirNext (p,a) = do
+moveFocus DirNext (p,a) = do
   _ <- pathInBounds a p
   let pathToParent = take (length p - 1) p
       Just parent = -- safe b/c p is in bounds

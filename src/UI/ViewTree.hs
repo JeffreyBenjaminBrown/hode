@@ -12,7 +12,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
-    moveFocus  -- Direction -> St -> Either String St
+    moveFocusedRsltView -- Direction -> St -> Either String St
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
@@ -38,11 +38,11 @@ import UI.String
 import Util.Misc
 
 
-moveFocus :: Direction -> St -> Either String St
-moveFocus d st = prefixLeft "moveFocus" $ do
+moveFocusedRsltView :: Direction -> St -> Either String St
+moveFocusedRsltView d st = prefixLeft "moveFocus" $ do
   b <- maybe (Left "Bad vathToBuffer in St.") Right
     $ st ^? stBuffer st
-  (p :: Path, vt :: VTree RsltView) <- moveFocus' d
+  (p :: Path, vt :: VTree RsltView) <- moveFocus d
     (b ^. bufferPath, b ^. bufferView)
   Right $ st & stBuffer st . bufferView .~ vt
              & stBuffer st . bufferPath .~ p
