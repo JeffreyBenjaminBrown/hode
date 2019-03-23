@@ -132,16 +132,16 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     $ emptyCommandWindow st
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus DirUp
+    $ unEitherSt st . moveFocus DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus DirDown
+    $ unEitherSt st . moveFocus DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus DirRight
+    $ unEitherSt st . moveFocus DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . (moveFocus DirLeft)
+    $ unEitherSt st . (moveFocus DirUp)
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st

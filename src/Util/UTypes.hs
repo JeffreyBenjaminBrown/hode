@@ -10,6 +10,9 @@ import Data.Vector (Vector)
 import Control.Lens.TH
 
 
+data Direction = DirPrev | DirNext | DirUp | DirDown
+  deriving (Show,Eq, Ord)
+
 -- | A `Path` through a `VTree`. The head of the list is where
 -- to go from the `VTree`'s root to its next layer.
 type Path = [Int]

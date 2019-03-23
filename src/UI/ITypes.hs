@@ -37,9 +37,6 @@ data Command = CommandInsert Expr
              | CommandLoad Folder
              | CommandSave Folder deriving (Show, Eq, Ord)
 
-data Direction = DirUp | DirDown | DirLeft | DirRight
-  deriving (Show,Eq, Ord)
-
 type Folder = String
 
 

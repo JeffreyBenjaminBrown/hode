@@ -43,11 +43,11 @@ moveFocus d st = st & prefixLeft "moveFocus"
   . eitherIntoTraversal (stBuffer st) (_moveFocus d)
 
 _moveFocus :: Direction -> Buffer -> Either String Buffer
-_moveFocus DirLeft b@( _bufferPath -> [] ) = Right b
-_moveFocus DirLeft b = Right $ b & bufferPath
+_moveFocus DirUp b@( _bufferPath -> [] ) = Right b
+_moveFocus DirUp b = Right $ b & bufferPath
                       %~ reverse . tail . reverse
 
-_moveFocus DirRight b = do
+_moveFocus DirDown b = do
   let p = b ^. bufferPath
   foc <- let err = "bad focus " ++ show p
          in maybe (Left err) Right
@@ -56,7 +56,7 @@ _moveFocus DirRight b = do
     then Right b
     else Right $ b & bufferPath %~ (++ [foc ^. vTreeFocus])
 
-_moveFocus DirUp b = do
+_moveFocus DirPrev b = do
   let topView = b ^. bufferView
       path = b ^. bufferPath
   _ <- pathInBounds topView path
@@ -72,10 +72,10 @@ _moveFocus DirUp b = do
         & bufferPath %~ replaceLast' parFoc'
         & bufferView . atPath pathToParent . vTreeFocus .~ parFoc'
 
--- TODO : This duplicates the code for DirUp.
+-- TODO : This duplicates the code for DirPrev.
 -- Instead, factor out the computation of newFocus,
 -- as a function of parent and an adjustment function.
-_moveFocus DirDown b = do
+_moveFocus DirNext b = do
   let topView = b ^. bufferView
       path = b ^. bufferPath
   _ <- pathInBounds topView path
