@@ -52,7 +52,7 @@ pathToFocus
 *** an incremental (i.e. codable) path
 **** DONE Change window name types.
 **** DONE Create the Buffer type.
-**** In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
+**** DONE In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
 **** In St, wrap the Buffer in a VTree Buffer.
 **** In St, add pathToBuffer
 PITFALL: two different kinds of paths, for two different kinds of trees.

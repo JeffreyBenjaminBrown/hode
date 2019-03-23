@@ -1,11 +1,8 @@
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
     initialState               -- ^ Rslt -> St
   , unEitherSt                 -- ^ Either String St -> St -> St
-  , liftEitherToSt -- ^ Lens' St a -> (a -> Either String a)
-                                -- -> St -> Either String St
   , hideReassurance            -- ^           St -> St
   , showError, showReassurance -- ^ String -> St -> St
   , emptyCommandWindow         -- ^ St -> St
@@ -63,11 +60,6 @@ showReassurance msg = (showingOptionalWindows %~ M.insert Reassurance True)
 unEitherSt :: St -> Either String St -> St
 unEitherSt old (Left s) = old & showError s
 unEitherSt _ (Right new) = new & showingInMainWindow .~ Results
-
-liftEitherToSt :: Lens' St a -> (a -> Either String a) -> St -> Either String St
-liftEitherToSt l f st = do b' <- f $ st ^. l
-                           Right $ st & l .~ b'
-
 
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL

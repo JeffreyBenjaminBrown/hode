@@ -57,7 +57,7 @@ atPath (p:ps) = vTrees . from vector
 
 moveFocus :: Direction -> St -> Either String St
 moveFocus d = prefixLeft "moveFocus"
-              . liftEitherToSt buffer (_moveFocus d)
+              . eitherIntoLens buffer (_moveFocus d)
 
 _moveFocus :: Direction -> Buffer -> Either String Buffer
 _moveFocus DirLeft b@( _bufferPath -> [] ) = Right b
@@ -198,7 +198,7 @@ hostRelGroup_to_view r (crv, as) = do
 
 closeSubviews_atFocus :: St -> Either String St
 closeSubviews_atFocus = prefixLeft "moveFocus"
-                        . liftEitherToSt buffer _closeSubviews_atFocus
+                        . eitherIntoLens buffer _closeSubviews_atFocus
 
 _closeSubviews_atFocus :: Buffer -> Either String Buffer
 _closeSubviews_atFocus b = prefixLeft "closeSubviews_atFocus" $ do
