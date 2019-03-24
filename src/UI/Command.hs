@@ -72,14 +72,10 @@ runCommand (CommandFind s h) st = do
                 } where
 
         v_qr :: Addr -> VTree RsltView
-        v_qr a = VTree {
-            _vTreeFocus = 0
-          , _vTreeIsFocused = False
-          , _vTreeLabel = let
+        v_qr a = vTreeLeaf $ let
               (rv :: Either String ViewResult) = resultView r a
               (err :: String -> ViewResult) = \se -> error ("runCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
-              in VResult $ either err id rv
-          , _vTrees = V.empty }
+          in VResult $ either err id rv
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
                           & stBuffer st . bufferQuery .~ s
