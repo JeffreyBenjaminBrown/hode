@@ -1,4 +1,7 @@
-module UI.BufferTree where
+module UI.BufferTree (
+    consEmptyBuffer   -- ^              St -> Either String St
+  , moveFocusedBuffer -- ^ Direction -> St -> Either String St
+  ) where
 
 import qualified Data.Vector as V
 
@@ -19,3 +22,9 @@ consEmptyBuffer st = prefixLeft "consEmptyBuffer" $ do
                          & vathToBuffer .~ (0,[])
     (i,p) -> Right $ st & buffers . atVath (i,p) . vTrees %~ theCons
                         & vathToBuffer .~ (i, replaceLast' 0 p)
+
+moveFocusedBuffer :: Direction -> St -> Either String St
+moveFocusedBuffer d st = prefixLeft "moveFocusedBuffer" $ do
+  (vath, bf) <- moveFocusInVorest d (st^.vathToBuffer, st^.buffers)
+  Right $ st & vathToBuffer .~ vath
+             & buffers .~ bf

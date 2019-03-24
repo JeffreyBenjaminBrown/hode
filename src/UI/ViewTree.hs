@@ -46,7 +46,6 @@ moveFocusedRsltView d st = prefixLeft "moveFocusedRsltView" $ do
   Right $ st & stBuffer st . bufferView .~ vt
              & stBuffer st . bufferPath .~ p
 
-
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
   (b :: Buffer) <- let msg = "bad vathToBuffer"

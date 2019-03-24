@@ -146,6 +146,8 @@ moveFocusInVorest DirPrev ((i,[]),vor) = Right ((i',[]),vor) where
 moveFocusInVorest DirNext ((i,[]),vor) = Right ((i',[]),vor) where
   i' = min (i+1) $ V.length vor - 1
 moveFocusInVorest d ((i,p),vor) = prefixLeft "moveFocusInVorest" $ do
+  -- TODO : simplify via liftEitherIntoTraversal
+  -- (where the traversal is something like `from vector . ix i`)
   inBounds' vor i
   let (t :: VTree a) = vor V.! i
   (p' :: Path, t' :: VTree a) <- moveFocusInTree d (p,t)

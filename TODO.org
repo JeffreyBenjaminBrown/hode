@@ -98,6 +98,8 @@ The root is supposed to only be a Query, but that is permitted elsewhere.
 The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child, and vice-versa.
+** Something like VTree with lists would simplify lots of code.
+It couldn't be Tree from Data.Tree, though, because I need each branching to have its own focal child.
 * TODO crawling across Exprs
 ** Move faster by crossing over some views
 When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
