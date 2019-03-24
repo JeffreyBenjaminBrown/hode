@@ -20,9 +20,10 @@ hideReassurance = showingOptionalWindows %~ M.insert Reassurance False
 
 showError, showReassurance :: String -> St -> St
 showError msg = (showingOptionalWindows %~ M.insert Reassurance False)
-                . (showingInMainWindow .~ Errors)
+                . (showingErrorWindow .~ True)
                 . (uiError .~ msg)
 showReassurance msg = (showingOptionalWindows %~ M.insert Reassurance True)
+                      . (showingErrorWindow .~ False)
                       . (reassurance .~ msg)
 
 emptyCommandWindow :: St -> St

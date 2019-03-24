@@ -31,7 +31,6 @@ data OptionalWindowName = Commands
                         | Reassurance deriving (Ord, Show, Eq)
 data MainWindowName = Buffers
                     | CommandHistory
-                    | Errors
                     | Results deriving (Ord, Show, Eq)
 
 data Command = CommandInsert Expr
@@ -123,6 +122,7 @@ data St = St {
   , _commands               :: B.Editor String BrickName
   , _commandHistory         :: [Command]
   , _appRslt                :: Rslt
+  , _showingErrorWindow     :: Bool
   , _showingInMainWindow    :: MainWindowName
   , _showingOptionalWindows :: Map OptionalWindowName Bool
   }

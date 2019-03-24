@@ -56,8 +56,9 @@ app = B.App
 -- Each `RsltViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
-  w = B.center ( mainWindow
-                 <=> optionalWindows )
+  w = B.center $
+    (if st0 ^. showingErrorWindow then errorWindow else mainWindow)
+    <=> optionalWindows
 
   st = st0 & stBuffer st0                                         .~ b
            & buffers . atVath (st^.vathToBuffer) . vTreeIsFocused .~ True
@@ -69,7 +70,6 @@ appDraw st0 = [w] where
   mainWindow = case st ^. showingInMainWindow of
     Buffers -> bufferWindow
     CommandHistory -> commandHistoryWindow
-    Errors -> errorWindow
     Results -> resultWindow
 
   optionalWindows =
@@ -186,6 +186,8 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     $ st & showingInMainWindow .~ CommandHistory
   B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Buffers
+  B.EvKey (B.KChar 'R') [B.MMeta] -> B.continue
+    $ st & showingInMainWindow .~ Results
 
   -- Window-focus-related stuff. The first two lines, which move the focus,
   -- are disabled, because so far switching focus isn't useful.
