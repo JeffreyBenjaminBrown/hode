@@ -8,7 +8,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module UI.ViewTree (
+module UI.RsltViewTree (
     moveFocusedRsltView -- Direction -> St -> Either String St
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
@@ -133,7 +133,7 @@ hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
 hostRelGroup_to_view r (crv, as) = do
   (rs :: [ViewResult]) <- ifLefts "hostRelGroup_to_view"
     $ map (resultView r) as
-  Right $ VTree { _vTreeFocus = 0
+  Right $ VTree { _vTreeFocalChild = 0
                 , _vTreeIsFocused = False
                 , _vTreeLabel = VCenterRole crv
                 , _vTrees =

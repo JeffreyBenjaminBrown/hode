@@ -11,15 +11,15 @@ import           Hash.HTypes
 import           Rslt.RTypes
 import           UI.IParse
 import           UI.ITypes
-import           UI.ViewTree
+import           UI.RsltViewTree
 import           Util.VTree
 import qualified Test.Rslt.RData as D
 
 
 
-aViewTree :: VTree RsltView
-aViewTree = VTree {
-    _vTreeFocus = 0
+aRsltViewTree :: VTree RsltView
+aRsltViewTree = VTree {
+    _vTreeFocalChild = 0
   , _vTreeIsFocused = False
   , _vTreeLabel = VQuery "top"
   , _vTrees = V.fromList

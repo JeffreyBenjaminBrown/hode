@@ -92,7 +92,7 @@ Easier to have an extra top (data) constructor than a whole parallel (function) 
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
 ** wart: HExpr and PExpr are complex and nearly isomorphic
-** wart: ViewTree is not natural
+** wart: RsltViewTree is not natural
 *** the root
 The root is supposed to only be a Query, but that is permitted elsewhere.
 The root information is(will be) duplicated by the buffer.

@@ -79,7 +79,7 @@ library
                 , UI.Main
                 , UI.NoUI
                 , UI.String
-                , UI.ViewTree
+                , UI.RsltViewTree
                 , UI.Window
                 , Util.Misc
                 , Util.UParse

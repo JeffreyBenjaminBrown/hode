@@ -8,9 +8,9 @@ module Util.VTree (
   Direction(..)
   , Path
   , Vath
-  , VTree(..), vTreeLabel, vTrees, vTreeFocus, vTreeIsFocused
+  , VTree(..), vTreeLabel, vTrees, vTreeFocalChild, vTreeIsFocused
   , Vorest
-  , VTreeF(..), vTreeLabelF, vTreesF, vTreeFocusF, vTreeIsFocusedF
+  , VTreeF(..), vTreeLabelF, vTreesF, vTreeFocalChildF, vTreeIsFocusedF
   , vTreeLeaf      -- ^ a -> VTree a
   , vorestLeaf     -- ^ a -> Vorest a
   , pathInBounds   -- ^ VTree a  -> Path -> Either String ()
@@ -50,7 +50,7 @@ type Vath = (Int, Path)
 data VTree a = VTree {
     _vTreeLabel :: a
   , _vTrees :: Vorest a
-  , _vTreeFocus :: Int -- ^ meaningless if `viewSubviews` empty
+  , _vTreeFocalChild :: Int -- ^ meaningless if `viewSubviews` empty
   , _vTreeIsFocused :: Bool } deriving (Eq, Show, Ord, Functor)
 type Vorest a = Vector (VTree a)
 
@@ -62,7 +62,7 @@ makeLenses      ''VTreeF
 vTreeLeaf :: a -> VTree a
 vTreeLeaf a = VTree { _vTreeLabel = a
                     , _vTrees = V.empty
-                    , _vTreeFocus = 0
+                    , _vTreeFocalChild = 0
                     , _vTreeIsFocused = False }
 
 vorestLeaf :: a -> Vorest a
@@ -104,19 +104,19 @@ moveFocusInTree DirDown (p,a) = prefixLeft "moveFocusInTree" $ do
             $ a ^? atPath p
   if null $ foc ^. vTrees
     then Right (p                       , a)
-    else Right (p ++ [foc ^. vTreeFocus], a)
+    else Right (p ++ [foc ^. vTreeFocalChild], a)
 
 moveFocusInTree DirPrev (p,a) = do
   _ <- pathInBounds a p
   let pathToParent = take (length p - 1) p
       Just parent = -- safe b/c p is in bounds
         a ^? atPath pathToParent
-      parFoc = parent ^. vTreeFocus
+      parFoc = parent ^. vTreeFocalChild
   _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
        else Left $ "Bad focus in parent."
   let parFoc' = max 0 $ parFoc - 1
   Right ( p & replaceLast' parFoc'
-        , a & atPath pathToParent . vTreeFocus .~ parFoc' )
+        , a & atPath pathToParent . vTreeFocalChild .~ parFoc' )
 
 -- TODO : This duplicates the code for DirPrev.
 -- Better: factor out the computation of newFocus,
@@ -126,20 +126,20 @@ moveFocusInTree DirNext (p,a) = do
   let pathToParent = take (length p - 1) p
       Just parent = -- safe b/c p is in bounds
         a ^? atPath pathToParent
-      parFoc = parent ^. vTreeFocus
+      parFoc = parent ^. vTreeFocalChild
   _ <- if inBounds (parent ^. vTrees) parFoc then Right ()
        else Left $ "Bad focus in parent."
   let parFoc' = min (parFoc + 1)
                 $ V.length (parent ^. vTrees) - 1
   Right ( p & replaceLast' parFoc'
-        , a & atPath pathToParent . vTreeFocus .~ parFoc' )
+        , a & atPath pathToParent . vTreeFocalChild .~ parFoc' )
 
 moveFocusInVorest :: forall a. Direction -> (Vath, Vorest a)
                            -> Either String (Vath, Vorest a)
 moveFocusInVorest DirUp ((i,[]),vor) = Right ((i,[]),vor)
 moveFocusInVorest DirDown ((i,[]),vor) = prefixLeft "moveFocusInVorest" $ do
   inBounds' vor i
-  let j = (vor V.! i) ^. vTreeFocus
+  let j = (vor V.! i) ^. vTreeFocalChild
   Right ((i,[j]),vor)
 moveFocusInVorest DirPrev ((i,[]),vor) = Right ((i',[]),vor) where
   i' = max (i-1) 0

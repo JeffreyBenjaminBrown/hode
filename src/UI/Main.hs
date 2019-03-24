@@ -28,7 +28,7 @@ import UI.Command
 import UI.ITypes
 import UI.IUtil
 import UI.String
-import UI.ViewTree
+import UI.RsltViewTree
 import UI.Window
 import Util.VTree
 
@@ -52,7 +52,7 @@ app = B.App
   }
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
--- Dach `ViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
+-- Each `RsltViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
   w = B.center ( mainWindow

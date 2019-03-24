@@ -64,7 +64,7 @@ runCommand (CommandFind s h) st = do
   (as :: Set Addr)   <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
 
-  let v = VTree { _vTreeFocus = 0
+  let v = VTree { _vTreeFocalChild = 0
                 , _vTreeIsFocused = False
                 , _vTreeLabel = VQuery s
                 , _vTrees =
