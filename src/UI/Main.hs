@@ -22,7 +22,7 @@ import qualified Graphics.Vty         as B
 
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
-import UI.Command
+import UI.Input
 import UI.ITypes
 import UI.IUtil
 import UI.String

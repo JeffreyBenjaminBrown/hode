@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module UI.Command (
+module UI.Input (
     handleUncaughtInput           -- ^ St -> B.Event
                                   -- -> B.EventM BrickName (B.Next St)
   , handleKeyboard_atResults      -- ^ St -> B.Event
