@@ -38,10 +38,10 @@ import Util.VTree
 -- TODO ? some clever `Traversal` work could probably make
 -- `moveFocusedRsltView` into a one-liner
 moveFocusedRsltView :: Direction -> St -> Either String St
-moveFocusedRsltView d st = prefixLeft "moveFocus" $ do
+moveFocusedRsltView d st = prefixLeft "moveFocusedRsltView" $ do
   b <- maybe (Left "Bad vathToBuffer in St.") Right
     $ st ^? stBuffer st
-  (p :: Path, vt :: VTree RsltView) <- moveFocus d
+  (p :: Path, vt :: VTree RsltView) <- moveFocusInTree d
     (b ^. bufferPath, b ^. bufferView)
   Right $ st & stBuffer st . bufferView .~ vt
              & stBuffer st . bufferPath .~ p
@@ -142,11 +142,11 @@ hostRelGroup_to_view r (crv, as) = do
 
 
 closeSubviews_atFocus :: St -> Either String St
-closeSubviews_atFocus st = st & prefixLeft "moveFocus"
+closeSubviews_atFocus st = st & prefixLeft "closeSubviews_atFocus"
   . eitherIntoTraversal (stBuffer st) _closeSubviews_atFocus
 
 _closeSubviews_atFocus :: Buffer -> Either String Buffer
-_closeSubviews_atFocus b = prefixLeft "closeSubviews_atFocus" $ do
+_closeSubviews_atFocus b = do
   _ <- pathInBounds (b ^. bufferView) (b ^. bufferPath)
   _ <- let err = "Closing the root of a view would be silly."
        in if b ^. bufferPath == [] then Left err else Right ()
