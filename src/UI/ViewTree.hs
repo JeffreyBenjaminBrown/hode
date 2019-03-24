@@ -65,8 +65,8 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
   ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus st
-  let (topOfNew :: VTree RsltView) = rsltViewLeaf $ VMembers ms
-  (leavesOfNew :: [VTree RsltView]) <- map (rsltViewLeaf . VResult)
+  let (topOfNew :: VTree RsltView) = vTreeLeaf $ VMembers ms
+  (leavesOfNew :: [VTree RsltView]) <- map (vTreeLeaf . VResult)
     <$> ifLefts "" (map (resultView (st ^. appRslt)) as)
   let (new :: VTree RsltView) =
         topOfNew & vTrees .~ V.fromList leavesOfNew
@@ -139,7 +139,7 @@ hostRelGroup_to_view r (crv, as) = do
                 , _vTreeIsFocused = False
                 , _vTreeLabel = VCenterRole crv
                 , _vTrees =
-                    V.fromList $ map (rsltViewLeaf . VResult) rs }
+                    V.fromList $ map (vTreeLeaf . VResult) rs }
 
 
 closeSubviews_atFocus :: St -> Either String St

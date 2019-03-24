@@ -11,6 +11,8 @@ module Util.VTree (
   , VTree(..), vTreeLabel, vTrees, vTreeFocus, vTreeIsFocused
   , Vorest
   , VTreeF(..), vTreeLabelF, vTreesF, vTreeFocusF, vTreeIsFocusedF
+  , vTreeLeaf      -- ^ a -> VTree a
+  , vorestLeaf     -- ^ a -> Vorest a
   , pathInBounds   -- ^ VTree a -> Path -> Either String ()
   , atPath         -- ^ Path -> Traversal' (VTree a) (VTree a)
   , atVath         -- ^ Vath -> Traversal' (Vorest a) (VTree a)
@@ -52,6 +54,15 @@ makeLenses      ''VTree
 makeBaseFunctor ''VTree
 makeLenses      ''VTreeF
 
+
+vTreeLeaf :: a -> VTree a
+vTreeLeaf a = VTree { _vTreeLabel = a
+                    , _vTrees = V.empty
+                    , _vTreeFocus = 0
+                    , _vTreeIsFocused = False }
+
+vorestLeaf :: a -> Vorest a
+vorestLeaf = V.singleton . vTreeLeaf
 
 pathInBounds :: VTree a -> Path -> Either String ()
 pathInBounds _ [] = Right ()

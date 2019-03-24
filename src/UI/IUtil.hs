@@ -5,7 +5,6 @@ module UI.IUtil (
 
   , emptySt      -- ^ Rslt -> St
   , emptyBuffer  -- ^ Buffer
-  , rsltViewLeaf -- ^ RsltView -> VTree RsltView
   ) where
 
 import qualified Data.Map                 as M
@@ -28,12 +27,7 @@ unEitherSt _ (Right new) = new & showingInMainWindow .~ Results
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _buffers = V.singleton
-               $ VTree { _vTreeLabel = emptyBuffer
-                       , _vTrees = V.empty
-                       , _vTreeFocus = 0
-                       , _vTreeIsFocused = False }
-
+  , _buffers = vorestLeaf emptyBuffer
   , _vathToBuffer = (0,[])
   , _uiError   = ""
   , _reassurance = "It's all good."
@@ -47,12 +41,5 @@ emptySt r = St {
 
 emptyBuffer :: Buffer
 emptyBuffer = Buffer { _bufferQuery = ""
-                     , _bufferView = rsltViewLeaf $ VQuery ""
+                     , _bufferView = vTreeLeaf $ VQuery ""
                      , _bufferPath = [] }
-
-rsltViewLeaf :: RsltView -> VTree RsltView
-rsltViewLeaf v = VTree {
-    _vTreeLabel = v
-  , _vTreeFocus = 0
-  , _vTreeIsFocused = False
-  , _vTrees = V.empty }

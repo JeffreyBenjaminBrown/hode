@@ -11,7 +11,6 @@ import           Hash.HTypes
 import           Rslt.RTypes
 import           UI.IParse
 import           UI.ITypes
-import           UI.IUtil
 import           UI.ViewTree
 import           Util.VTree
 import qualified Test.Rslt.RData as D
@@ -24,7 +23,7 @@ aViewTree = VTree {
   , _vTreeIsFocused = False
   , _vTreeLabel = VQuery "top"
   , _vTrees = V.fromList
-    $ map (rsltViewLeaf . VQuery .show) [0,1 :: Int] }
+    $ map (vTreeLeaf . VQuery .show) [0,1 :: Int] }
 
 
 test_module_ui :: T.Test
