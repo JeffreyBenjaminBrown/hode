@@ -179,6 +179,9 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'C') [B.MMeta] -> B.continue
     $ unEitherSt st . consEmptyChildBuffer
     $ st & hideReassurance
+  B.EvKey (B.KChar 'T') [B.MMeta] -> B.continue
+    $                 consEmptyTopBuffer
+    $ st & hideReassurance
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
 

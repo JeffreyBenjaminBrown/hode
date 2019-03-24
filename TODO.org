@@ -29,18 +29,6 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** buffer tree: impplementation path
-*** DONE Change window name types.
-*** DONE Create the Buffer type.
-*** DONE In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
-*** DONE In St, wrap the Buffer in a VTree Buffer.
-*** DONE In St, add pathToBuffer
-PITFALL: two different kinds of paths, for two different kinds of trees.
-*** DONE ? Add a way to create a new Buffer.
-*** DONE view the VTree Buffer
-*** DONE cursor around the VTree Buffer
-*** TODO Test, debug
-
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)
