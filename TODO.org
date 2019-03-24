@@ -41,7 +41,6 @@ PITFALL: two different kinds of paths, for two different kinds of trees.
 *** DONE cursor around the VTree Buffer
 *** TODO Test, debug
 unEitherSt should not force showing Results window.
-In buffer view, highlight the focus.
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)
