@@ -6,7 +6,6 @@
 
 module UI.Main where
 
-import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Map             as M
 import qualified Data.Vector          as V
 import           Lens.Micro
@@ -23,13 +22,10 @@ import qualified Graphics.Vty         as B
 
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
-import UI.BufferTree
-import UI.Clipboard
 import UI.Command
 import UI.ITypes
 import UI.IUtil
 import UI.String
-import UI.RsltViewTree
 import UI.Window
 import Util.VTree
 
@@ -136,71 +132,29 @@ appHandleEvent :: St -> B.BrickEvent BrickName e
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
-  B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertHosts_atFocus   st
-  B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertMembers_atFocus st
-  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ unEitherSt st
-    $ closeSubviews_atFocus st
-
-  B.EvKey (B.KChar 'w') [B.MMeta] -> do
-    -- TODO : slightly buggy: conjures, copies some empty lines.
-    liftIO ( toClipboard $ unlines $ resultsText st )
-    B.continue $ st
-      & showReassurance "Results window copied to clipboard."
+  -- | command window
+  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
-  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirPrev
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirNext
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirDown
-    $ st & hideReassurance
-  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirUp
-    $ st & hideReassurance
-
-  B.EvKey (B.KChar 'E') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirPrev
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'D') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirNext
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'F') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirDown
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'S') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirUp
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'C') [B.MMeta] -> B.continue
-    $ unEitherSt st . consEmptyChildBuffer
-    $ st & hideReassurance
-  B.EvKey (B.KChar 'T') [B.MMeta] -> B.continue
-    $                 consEmptyTopBuffer
-    $ st & hideReassurance
-
-  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
-
+  -- | switch main window content
   B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ CommandHistory
   B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Buffers
   B.EvKey (B.KChar 'R') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Results
+  -- Brick-focus-related stuff. So far unneeded.
+    -- PITFALL: The focused `Window` is distinct from the focused
+    -- widget within the `mainWindow`.
+    -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
+    -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  -- Window-focus-related stuff. The first two lines, which move the focus,
-  -- are disabled, because so far switching focus isn't useful.
-  -- PITFALL: The focused `Window` is distinct from the focused `RsltView`.
-  -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
-  -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
-  _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (BrickOptionalName Commands) -> B.handleEventLensed
-      (hideReassurance st) commands B.handleEditorEvent ev
-    _ -> return st
+  _ -> case st ^. showingInMainWindow of
+    Results -> handleKeyboard_atResults      st ev
+    Buffers -> handleKeyboard_atBufferWindow st ev
+    _       -> handleUncaughtInput           st ev
+
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
