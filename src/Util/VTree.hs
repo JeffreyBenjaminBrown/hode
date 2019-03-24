@@ -11,11 +11,12 @@ module Util.VTree (
   , VTree(..), vTreeLabel, vTrees, vTreeFocus, vTreeIsFocused
   , Vorest
   , VTreeF(..), vTreeLabelF, vTreesF, vTreeFocusF, vTreeIsFocusedF
-  , pathInBounds -- ^ VTree a -> Path -> Either String ()
-  , atPath       -- ^ Path -> Traversal' (VTree a) (VTree a)
-  , atVath       -- ^ Vath -> Traversal' (Vorest a) (VTree a)
-  , moveFocus    -- ^ Direction -> (Path, VTree a)
-                 -- -> Either String (Path, VTree a)
+  , pathInBounds   -- ^ VTree a -> Path -> Either String ()
+  , atPath         -- ^ Path -> Traversal' (VTree a) (VTree a)
+  , atVath         -- ^ Vath -> Traversal' (Vorest a) (VTree a)
+  , consUnderFocus -- ^ Path -> VTree a -> VTree a -> Either String (VTree a)
+  , moveFocus      -- ^ Direction -> (Path, VTree a)
+                   -- -> Either String (Path, VTree a)
   ) where
 
 import           Control.Lens.Combinators (from)
@@ -66,6 +67,11 @@ atPath (p:ps) = vTrees . from vector
 
 atVath :: Vath -> Traversal' (Vorest a) (VTree a)
 atVath (i,p) = from vector . ix i . atPath p
+
+consUnderFocus :: Path -> VTree a -> VTree a -> Either String (VTree a)
+consUnderFocus p new host = prefixLeft "consAtFocus" $ do
+  _ <- pathInBounds host p
+  Right $ host & atPath p . vTrees %~ V.cons new
 
 moveFocus :: Direction -> (Path, VTree a)
           -> Either String (Path, VTree a)

@@ -5,11 +5,8 @@
 -- (2) Zippers instead of Vectors. (This would obviate the first task.)
 -- (2a) Mutable Vectors instead of immutable ones.
 
-
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module UI.ViewTree (
     moveFocusedRsltView -- Direction -> St -> Either String St
@@ -49,6 +46,7 @@ moveFocusedRsltView d st = prefixLeft "moveFocus" $ do
     (b ^. bufferPath, b ^. bufferView)
   Right $ st & stBuffer st . bufferView .~ vt
              & stBuffer st . bufferPath .~ p
+
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
