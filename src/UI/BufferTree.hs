@@ -1,11 +1,13 @@
 module UI.BufferTree (
-    consEmptyBuffer   -- ^              St -> Either String St
+    consEmptyTopBuffer   -- ^           St -> St
+  , consEmptyChildBuffer -- ^           St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> Either String St
   ) where
 
 import qualified Data.Vector as V
 
-import           Lens.Micro hiding (has)
+import Control.Arrow
+import Lens.Micro hiding (has)
 
 import UI.ITypes
 import UI.IUtil
@@ -13,15 +15,18 @@ import Util.Misc
 import Util.VTree
 
 
-consEmptyBuffer :: St -> Either String St
-consEmptyBuffer st = prefixLeft "consEmptyBuffer" $ do
-  let v = st ^. vathToBuffer
-      theCons = V.cons $ vTreeLeaf emptyBuffer
-  case v of
-    (_,[]) -> Right $ st & buffers %~ theCons
-                         & vathToBuffer .~ (0,[])
-    (i,p) -> Right $ st & buffers . atVath (i,p) . vTrees %~ theCons
-                        & vathToBuffer .~ (i, replaceLast' 0 p)
+consEmptyTopBuffer :: St -> St
+consEmptyTopBuffer st =
+  st & buffers %~ V.cons (vTreeLeaf emptyBuffer)
+     & vathToBuffer .~ (0,[])
+
+consEmptyChildBuffer :: St -> Either String St
+consEmptyChildBuffer st = prefixLeft "consEmptyBuffer" $ do
+  _ <- vathInBounds (st^.buffers) (st^.vathToBuffer)
+  let theCons = V.cons $ vTreeLeaf emptyBuffer
+      (i,p) = st^.vathToBuffer
+  Right $ st & buffers . atVath (i,p) . vTrees %~ theCons
+             & vathToBuffer %~ second (++ [0])
 
 moveFocusedBuffer :: Direction -> St -> Either String St
 moveFocusedBuffer d st = prefixLeft "moveFocusedBuffer" $ do
