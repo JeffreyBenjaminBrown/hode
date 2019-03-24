@@ -22,8 +22,8 @@ import Util.VTree
 
 -- | = Tiny types
 
--- | Some window names are used without ever reaching Brick. Ones that reach
--- Brick must be unique across windows in the same drawn image. (Not every
+-- | PITFALL: Some window names never reach Brick. Ones that do reach
+-- Brick must be unique across windows in any drawn image. (Not every
 -- window Brick draws needs a name. Editors and viewports in particular do.)
 data BrickName = BrickOptionalName OptionalWindowName
                | BrickMainName MainWindowName deriving (Ord, Show, Eq)

@@ -30,7 +30,6 @@ import           Lens.Micro hiding (has)
 import Rslt.RLookup
 import Rslt.RTypes
 import UI.ITypes
-import UI.IUtil
 import UI.String
 import Util.Misc
 import Util.VTree

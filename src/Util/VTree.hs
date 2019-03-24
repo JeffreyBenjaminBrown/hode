@@ -13,12 +13,16 @@ module Util.VTree (
   , VTreeF(..), vTreeLabelF, vTreesF, vTreeFocusF, vTreeIsFocusedF
   , vTreeLeaf      -- ^ a -> VTree a
   , vorestLeaf     -- ^ a -> Vorest a
-  , pathInBounds   -- ^ VTree a -> Path -> Either String ()
+  , pathInBounds   -- ^ VTree a  -> Path -> Either String ()
+  , vathInBounds   -- ^ Vorest a -> Vath -> Either String ()
   , atPath         -- ^ Path -> Traversal' (VTree a) (VTree a)
   , atVath         -- ^ Vath -> Traversal' (Vorest a) (VTree a)
   , consUnderFocus -- ^ Path -> VTree a -> VTree a -> Either String (VTree a)
-  , moveFocus      -- ^ Direction -> (Path, VTree a)
-                   -- -> Either String (Path, VTree a)
+  , moveFocus         -- ^ Direction -> (Path, VTree a)
+                    -- -> Either String (Path, VTree a)
+  , moveFocusInVorest -- ^ Direction -> (Vath, Vorest a)
+                    -- -> Either String (Vath, Vorest a)
+
   ) where
 
 import           Control.Lens.Combinators (from)
@@ -70,6 +74,11 @@ pathInBounds vt (p:ps) = let vs = vt ^. vTrees
   in case inBounds vs p of
   True -> pathInBounds (vs V.! p) ps
   False -> Left $ "pathInBounds: " ++ show p ++ "isn't."
+
+vathInBounds :: Vorest a -> Vath -> Either String ()
+vathInBounds vor (i,p) = do
+  prefixLeft "vathInBounds" $ inBounds' vor i
+  pathInBounds (vor V.! i) p
 
 atPath :: Path -> Traversal' (VTree a) (VTree a)
 atPath [] = lens id $ flip const -- the trivial lens
@@ -124,3 +133,22 @@ moveFocus DirNext (p,a) = do
                 $ V.length (parent ^. vTrees) - 1
   Right ( p & replaceLast' parFoc'
         , a & atPath pathToParent . vTreeFocus .~ parFoc' )
+
+moveFocusInVorest :: forall a. Direction -> (Vath, Vorest a)
+                           -> Either String (Vath, Vorest a)
+moveFocusInVorest DirUp ((i,[]),vor) = Right ((i,[]),vor)
+moveFocusInVorest DirDown ((i,[]),vor) = prefixLeft "moveFocusInVorest" $ do
+  inBounds' vor i
+  let j = (vor V.! i) ^. vTreeFocus
+  Right ((i,[j]),vor)
+moveFocusInVorest DirPrev ((i,[]),vor) = Right ((i',[]),vor) where
+  i' = max (i-1) 0
+moveFocusInVorest DirNext ((i,[]),vor) = Right ((i',[]),vor) where
+  i' = min (i+1) $ V.length vor - 1
+moveFocusInVorest d ((i,p),vor) = prefixLeft "moveFocusInVorest" $ do
+  inBounds' vor i
+  let (t :: VTree a) = vor V.! i
+  (p' :: Path, t' :: VTree a) <- moveFocus d (p,t)
+  vor' <- let msg = "Impossible: i was already checked by inBounds'."
+    in maybe (Left msg) Right $ modifyAt i (const t') vor
+  Right ((i,p'), vor')

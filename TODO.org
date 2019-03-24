@@ -29,37 +29,17 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** buffer tree
-*** DONE ? window names
-Some windows are not buffer specific -- e.g. history.
-I think the uniqueness of window names is only required across windows being drawn at any particular frame in time.
-*** changes
-**** Window names will, I think, need to include buffer name.
-type WindowName = (BufferName, InfoName)
-type BufferName = ViewQuery
-data InfoName = OptionalInfoName OptionalInfoName
-              | MainInfoName MainInfoName deriving (Ord, Show, Eq)
-data OptionalInfoName = Commands
-                      | Reassurance deriving (Ord, Show, Eq)
-data MainInfoName = CommandHistory
-                  | Errors
-                  | Results deriving (Ord, Show, Eq)
-**** Each buffer needs its own
-VQuery
-VTree RsltView
-pathToFocus
-**** View will no longer need the VQuery type
-*** TODO an incremental (i.e. codable) path
-**** DONE Change window name types.
-**** DONE Create the Buffer type.
-**** DONE In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
-**** DONE In St, wrap the Buffer in a VTree Buffer.
-**** DONE In St, add pathToBuffer
+** buffer tree: impplementation path
+*** DONE Change window name types.
+*** DONE Create the Buffer type.
+*** DONE In St, wrap the VQuery, the VTree View and the Path into a single Buffer.
+*** DONE In St, wrap the Buffer in a VTree Buffer.
+*** DONE In St, add pathToBuffer
 PITFALL: two different kinds of paths, for two different kinds of trees.
-**** DONE ? Add a way to create a new Buffer.
-**** DONE view the VTree Bufferb
-**** cursor around the VTree Buffer
-**** From that view, add a way to switch to another Buffer.
+*** DONE ? Add a way to create a new Buffer.
+*** DONE view the VTree Buffer
+*** cursor around the VTree Buffer
+*** From that view, add a way to switch to another Buffer.
 That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
 and then show Results instead of the Buffer Tree.
 ** things that ought already to work

@@ -10,13 +10,14 @@ module Util.Misc (
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
 
-  -- | = collections
+   -- | = collections
   , intersections      -- ^ Set (Set a) -> Set a
   , replaceNth         -- ^ a -> Int -> [a] -> Either String [a]
   , replaceLast        -- ^ a -> [a] -> Either String [a]
   , replaceLast'       -- ^ a -> [a] -> [a]
   , setFromSetOfMaybes -- ^ Set (Maybe a) -> Set a
   , inBounds           -- ^ Vector a -> Int -> Bool
+  , inBounds'          -- ^ Vector a -> Int -> Bool
   , modifyAt           -- ^ Int -> (a -> a) -> Vector a
                        --   -> Maybe (Vector a)
 
@@ -91,6 +92,10 @@ inBounds :: Vector a -> Int -> Bool
 inBounds v i = i >= 0 &&
                i <= V.length v - 1
 
+inBounds' :: Vector a -> Int -> Either String ()
+inBounds' v i = if inBounds v i then Right ()
+  else Left $ "Vector index " ++ show i ++ "out of bounds."
+
 modifyAt :: Int -> (a -> a) -> Vector a -> Maybe (Vector a)
 modifyAt i f v
   | not $ inBounds v i = Nothing
@@ -161,4 +166,3 @@ ifLefts_map msg m = let
        True -> Right $ M.map (fromRight impossible) m
        False -> Left $ msg ++ " --called-> "
          ++ concat (map (fromLeft impossible) lefts)
-
