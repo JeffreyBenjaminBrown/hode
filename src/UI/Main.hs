@@ -65,6 +65,7 @@ appDraw st0 = [w] where
     l = bufferView . atPath (b0 ^. bufferPath) . vTreeIsFocused
 
   mainWindow = case st ^. showingInMainWindow of
+    Buffers -> bufferWindow
     CommandHistory -> commandHistoryWindow
     Errors -> errorWindow
     Results -> resultWindow
@@ -75,8 +76,28 @@ appDraw st0 = [w] where
     ( if (st ^. showingOptionalWindows) M.! Commands
       then commandWindow else emptyWidget )
 
-  commandWindow, errorWindow, resultWindow, reassuranceWindow, commandHistoryWindow
+  commandHistoryWindow, commandWindow, errorWindow, resultWindow, reassuranceWindow
     :: B.Widget BrickName
+
+  -- TODO: Factor: This duplicates the code for resultWindow.
+  bufferWindow = viewport (BrickMainName Buffers) B.Vertical
+    $ fShow $ st ^. buffers where
+
+    fShow :: Vorest Buffer -> B.Widget BrickName
+    fShow = vBox . map vShowRec . V.toList
+    vShowOne, vShowRec :: VTree Buffer -> B.Widget BrickName
+    vShowRec bt = vShowOne bt <=>
+                  padLeft (B.Pad 2) (fShow $ bt ^. vTrees )
+    vShowOne bt = style $ strWrap $ show $ _vTreeLabel bt
+      where style :: B.Widget BrickName
+                  -> B.Widget BrickName
+            style = if not $ bt ^. vTreeIsFocused then id
+                    else visible
+                         . withAttr (B.attrName "focused result")
+
+  commandHistoryWindow =
+    strWrap $ unlines $ map show $ st0 ^. commandHistory
+
   commandWindow = vLimit 3
     ( B.withFocusRing (st^.focusRing)
       (B.renderEditor $ str . unlines) (st^.commands) )
@@ -87,22 +108,19 @@ appDraw st0 = [w] where
       ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-    $ showRec $ b ^. bufferView where
+    $ vShowRec $ b ^. bufferView where
 
-    showOne, showRec :: VTree RsltView -> B.Widget BrickName
-    showRec vt | null $ vt ^. vTrees = showOne vt
-               | True = showOne vt <=>
-                 ( padLeft (B.Pad 2) $ vBox $ map showRec
-                   $ V.toList $ vt ^. vTrees )
-    showOne vt = style $ strWrap $ vShow $ _vTreeLabel vt
+    fShow :: Vorest RsltView -> B.Widget BrickName
+    fShow = vBox . map vShowRec . V.toList
+    vShowOne, vShowRec :: VTree RsltView -> B.Widget BrickName
+    vShowRec vt = vShowOne vt <=>
+                  padLeft (B.Pad 2) (fShow $ vt ^. vTrees )
+    vShowOne vt = style $ strWrap $ vShow $ _vTreeLabel vt
       where style :: B.Widget BrickName
                   -> B.Widget BrickName
             style = if not $ vt ^. vTreeIsFocused then id
                     else visible
                          . withAttr (B.attrName "focused result")
-
-  commandHistoryWindow =
-    strWrap $ unlines $ map show $ st0 ^. commandHistory
 
   reassuranceWindow = withAttr (B.attrName "reassurance") $
     strWrap $ st0 ^. reassurance
@@ -148,6 +166,8 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ CommandHistory
+  B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
+    $ st & showingInMainWindow .~ Buffers
 
   -- Window-focus-related stuff. The first two lines, which move the focus,
   -- are disabled, because so far switching focus isn't useful.

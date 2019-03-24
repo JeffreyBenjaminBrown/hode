@@ -56,8 +56,9 @@ pathToFocus
 **** DONE In St, wrap the Buffer in a VTree Buffer.
 **** DONE In St, add pathToBuffer
 PITFALL: two different kinds of paths, for two different kinds of trees.
-**** Add a way to create a new Buffer.
-**** Add a way to view the VTree Buffer, and cursor around it.
+**** DONE ? Add a way to create a new Buffer.
+**** DONE view the VTree Bufferb
+**** cursor around the VTree Buffer
 **** From that view, add a way to switch to another Buffer.
 That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
 and then show Results instead of the Buffer Tree.
@@ -105,6 +106,8 @@ and mention that you can use parens liberally to make it more obvious
 (Not a big deal because the cursor path is remembered.)
 Add a toggleable window above the Results window.
 * TODO coder-friendliness
+** ditch Vorest, just use vTrees
+Easier to have an extra top (data) constructor than a whole parallel (function) infrastructure.
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.

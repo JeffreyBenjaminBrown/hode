@@ -29,7 +29,8 @@ data BrickName = BrickOptionalName OptionalWindowName
                | BrickMainName MainWindowName deriving (Ord, Show, Eq)
 data OptionalWindowName = Commands
                         | Reassurance deriving (Ord, Show, Eq)
-data MainWindowName = CommandHistory
+data MainWindowName = Buffers
+                    | CommandHistory
                     | Errors
                     | Results deriving (Ord, Show, Eq)
 
@@ -106,9 +107,11 @@ instance Show RsltView where
 
 data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferView  :: VTree RsltView
-                     , _bufferPath  :: Path } deriving (Eq, Show, Ord)
+                     , _bufferPath  :: Path } deriving (Eq, Ord)
 
 makeLenses ''Buffer
+
+instance Show Buffer where show = _bufferQuery
 
 data St = St {
     _focusRing              :: B.FocusRing BrickName
