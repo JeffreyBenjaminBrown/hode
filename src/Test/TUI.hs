@@ -9,7 +9,7 @@ import           Test.HUnit hiding (Test, test)
 
 import           Hash.HTypes
 import           Rslt.RTypes
-import           UI.IParse
+import           UI.Input.IParse
 import           UI.ITypes
 import           UI.RsltViewTree
 import           Util.VTree

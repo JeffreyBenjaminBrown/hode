@@ -29,6 +29,9 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
+** refactor main
+factor out a function for commands issued to Rsults window, etc.
+** new buffer at focused rsltview
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)

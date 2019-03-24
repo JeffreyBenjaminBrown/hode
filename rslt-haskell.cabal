@@ -73,7 +73,7 @@ library
                 , UI.BufferTree
                 , UI.Clipboard
                 , UI.Command
-                , UI.IParse
+                , UI.Input.IParse
                 , UI.ITypes
                 , UI.IUtil
                 , UI.Main

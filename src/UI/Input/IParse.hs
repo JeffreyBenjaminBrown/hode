@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module UI.IParse (pCommand) where
+module UI.Input.IParse (pCommand) where
 
 import           Text.Megaparsec
 

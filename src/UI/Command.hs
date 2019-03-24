@@ -5,8 +5,8 @@
 
 module UI.Command (
   parseAndRunCommand -- ^ St -> B.EventM BrickName (B.Next St)
-  , runCommand -- ^ Command -> St
-               -- -> Either String (B.EventM BrickName (B.Next St))
+  , runCommand       -- ^ Command -> St
+                     -- -> Either String (B.EventM BrickName (B.Next St))
   ) where
 
 import           Control.Monad.IO.Class (liftIO)
@@ -25,7 +25,7 @@ import Qseq.QTypes
 import Rslt.Edit
 import Rslt.Files
 import Rslt.RTypes
-import UI.IParse
+import UI.Input.IParse
 import UI.ITypes
 import UI.IUtil
 import UI.Window
