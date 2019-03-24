@@ -29,9 +29,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** refactor main
-factor out a function for commands issued to Rsults window, etc.
 ** new buffer at focused rsltview
+** folding
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)
@@ -200,8 +199,7 @@ _ is a member of _" is a "synthetic" template. There might be others.
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
 ** buffer ring
- From the Buffer Tree view, allow the user to mark buffers with unique integer indexes. To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
-
+From the Buffer Tree view, allow the user to mark buffers with unique integer indexes. To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:

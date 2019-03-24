@@ -132,12 +132,12 @@ appHandleEvent :: St -> B.BrickEvent BrickName e
 appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
-  -- | command window
+  -- command window
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
-  -- | switch main window content
+  -- switch main window content
   B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ CommandHistory
   B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
@@ -149,6 +149,10 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     -- widget within the `mainWindow`.
     -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
     -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
+
+  -- for debugging
+  B.EvKey (B.KChar 'p') [B.MMeta] -> B.continue
+    $ st & showBufferAndViewPaths
 
   _ -> case st ^. showingInMainWindow of
     Results -> handleKeyboard_atResults      st ev
