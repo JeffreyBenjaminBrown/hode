@@ -23,6 +23,7 @@ import qualified Graphics.Vty         as B
 
 import Rslt.Index (mkRslt)
 import Rslt.RTypes
+import UI.BufferTree
 import UI.Clipboard
 import UI.Command
 import UI.ITypes
@@ -159,7 +160,23 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     $ unEitherSt st . moveFocusedRsltView DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . (moveFocusedRsltView DirUp)
+    $ unEitherSt st . moveFocusedRsltView DirUp
+    $ st & hideReassurance
+
+  B.EvKey (B.KChar 'E') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocusedBuffer DirPrev
+    $ st & hideReassurance
+  B.EvKey (B.KChar 'D') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocusedBuffer DirNext
+    $ st & hideReassurance
+  B.EvKey (B.KChar 'F') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocusedBuffer DirDown
+    $ st & hideReassurance
+  B.EvKey (B.KChar 'S') [B.MMeta] -> B.continue
+    $ unEitherSt st . moveFocusedBuffer DirUp
+    $ st & hideReassurance
+  B.EvKey (B.KChar 'C') [B.MMeta] -> B.continue
+    $ unEitherSt st . consEmptyChildBuffer
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st

@@ -38,10 +38,10 @@ see the comment leading its definition
 PITFALL: two different kinds of paths, for two different kinds of trees.
 *** DONE ? Add a way to create a new Buffer.
 *** DONE view the VTree Buffer
-*** cursor around the VTree Buffer
-*** From that view, add a way to switch to another Buffer.
-That is, copy the pathToBufferInBufferTree to the pathToBufferInResults,
-and then show Results instead of the Buffer Tree.
+*** DONE cursor around the VTree Buffer
+*** TODO Test, debug
+unEitherSt should not force showing Results window.
+In buffer view, highlight the focus.
 ** things that ought already to work
 *** not all Hash functions work
 before doing this, do the coder-friendliness task (abstract Rel and Tplt)
