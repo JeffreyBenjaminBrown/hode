@@ -27,8 +27,10 @@ module Util.Misc (
   , ifNothings      -- ^ [Maybe a] -> Maybe [a]
   , ifLefts         -- ^ String -> [Either String a] -> Either String [a]
   , ifLefts_set     -- ^ String -> Set (Either String a) -> Either String (Set a)
-  , ifLefts_mapKeys -- ^ String -> Map (Either String k) a -> Either String (Map k a)
-  , ifLefts_map     -- ^ String -> Map k (Either String a) -> Either String (Map k a)
+  , ifLefts_mapKeys -- ^ String -> Map (Either String k) a
+                    -- -> Either String (Map k a)
+  , ifLefts_map     -- ^ String -> Map k (Either String a)
+                    -- -> Either String (Map k a)
   ) where
 
 import           Data.Either hiding (lefts)

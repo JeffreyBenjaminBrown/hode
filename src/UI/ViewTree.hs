@@ -50,9 +50,11 @@ moveFocusedRsltView d st = prefixLeft "moveFocus" $ do
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
-  let (p :: Path) = st ^. stBuffer st . bufferPath
-  (foc :: VTree RsltView) <- let left = Left $ "bad path: " ++ show p
-    in maybe left Right $ st ^? stBuffer st . bufferView . atPath p
+  (b :: Buffer) <- let msg = "bad vathToBuffer"
+    in maybe (Left msg) Right $ st ^? stBuffer st
+  let (viewPath :: Path) = b ^. bufferPath
+  (foc :: VTree RsltView) <- let left = Left $ "bad path: " ++ show viewPath
+    in maybe left Right $ b ^? bufferView . atPath viewPath
   (a :: Addr) <- case foc ^. vTreeLabel of
     VResult rv -> Right $ rv ^. viewResultAddr
     _ -> Left $ "can only be called from a RsltView with an Addr."
@@ -68,9 +70,10 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
     <$> ifLefts "" (map (resultView (st ^. appRslt)) as)
   let (new :: VTree RsltView) =
         topOfNew & vTrees .~ V.fromList leavesOfNew
-      l = stBuffer st . bufferView
-        . atPath (st ^. stBuffer st . bufferPath) . vTrees
-    in Right $ st & l %~ V.cons new
+  (b :: Buffer) <- let msg = "stBuffer returned Nothing."
+                   in maybe (Left msg) Right $ st ^? stBuffer st
+  vt' <- consUnderFocus (b ^. bufferPath) new (b ^. bufferView)
+  Right $ st & stBuffer st . bufferView .~ vt'
 
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
