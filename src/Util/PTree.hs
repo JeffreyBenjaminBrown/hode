@@ -23,7 +23,7 @@ instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
 
 data PTree a = PTree { _pTreeLabel :: a
-                     , _pTreeFocused :: Bool
+                     , _pTreeHasFocus :: Bool
                      , _pMTrees :: Maybe (Porest a)
                      }
   deriving (Eq, Show, Functor, Foldable, Traversable)
@@ -38,32 +38,53 @@ pTrees = pMTrees . _Just
 
 pTreeLeaf :: a -> PTree a
 pTreeLeaf a = PTree { _pTreeLabel = a
-                    , _pTreeFocused = False
+                    , _pTreeHasFocus = False
                     , _pMTrees = Nothing }
 
 porestLeaf :: a -> Porest a
 porestLeaf = P.singleton . pTreeLeaf
 
 focusedChild :: PTree a -> Maybe (PTree a)
-focusedChild (_pTreeFocused -> True) = Nothing
+focusedChild (_pTreeHasFocus -> True) = Nothing
 focusedChild t = case _pMTrees t of
   Nothing -> Nothing
-  Just ts -> listToMaybe $ filter _pTreeFocused $ toList ts
+  Just ts -> listToMaybe $ filter _pTreeHasFocus $ toList ts
 
 focusedSubtree :: PTree a -> Maybe (PTree a)
-focusedSubtree t@(_pTreeFocused -> True) = Just t
+focusedSubtree t@(_pTreeHasFocus -> True) = Just t
 focusedSubtree t = case _pMTrees t of
   Nothing -> Nothing
   Just ts -> listToMaybe $ map fromJust $ filter isJust $
              map focusedSubtree $ toList ts
+
+getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
+getFocusedSubtree = to go where
+  go :: PTree a -> Maybe (PTree a)
+  go t@(_pTreeHasFocus -> True) = Just t
+  go t = case _pMTrees t of
+    Nothing -> Nothing
+    Just ts -> listToMaybe $ map fromJust $ filter isJust $
+               map go $ toList ts
+
+setFocusedSubtree :: Setter' (PTree a) (PTree a)
+setFocusedSubtree = sets go where
+  go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a
+  go f t@(_pTreeHasFocus -> True) = f t
+  go f t = case _pMTrees t of
+    Nothing -> f t
+    Just pts -> let
+      (ts    :: [PTree a])                     = toList pts
+      (tsRec :: [PTree a])                     = map (go f) ts
+      (x     :: Maybe (PointedList (PTree a))) = P.fromList tsRec
+      in t & pMTrees .~ x
 
 consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
 consUnderAndFocus newMember host =
   let (ts' :: [PTree a]) = case _pMTrees host of
                              Nothing -> m : []
                              Just ts -> m : toList ts
-        where m = newMember & pTreeFocused .~ True
-  in host & pTreeFocused .~ False
+        where m = newMember & pTreeHasFocus .~ True
+  in host & pTreeHasFocus .~ False
           & pMTrees .~ P.fromList ts'
 
 --moveFocusInTree :: Direction -> PTree a -> PTree a

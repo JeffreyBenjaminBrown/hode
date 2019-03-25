@@ -22,13 +22,13 @@ test_porestLeaf :: T.Test
 test_porestLeaf = TestCase $ do
   assertBool "1" $ Just (porestLeaf 1) == 
     ( P.fromList [ PTree { _pTreeLabel = 1 :: Int
-                         , _pTreeFocused = False
+                         , _pTreeHasFocus = False
                          , _pMTrees = Nothing } ] )
 
 test_consUnderAndFocus :: T.Test
 test_consUnderAndFocus = TestCase $ do
   let f    = pTreeLeaf (1 :: Int)
-      t    = f { _pTreeFocused = True }
+      t    = f { _pTreeHasFocus = True }
       f_t  = f { _pMTrees = P.fromList   [t] }
       f_ft = f { _pMTrees = P.fromList [f,t] }
   assertBool "1" $ consUnderAndFocus t f   == f_t
@@ -37,7 +37,7 @@ test_consUnderAndFocus = TestCase $ do
 test_focusedSubtree :: T.Test
 test_focusedSubtree = TestCase $ do
   let f  = pTreeLeaf (1 :: Int)
-      t  = f { _pTreeFocused = True }
+      t  = f { _pTreeHasFocus = True }
       ft = f { _pMTrees = Just $ P.singleton t }
       ff = f { _pMTrees = Just $ P.singleton f }
       tf = t { _pMTrees = Just $ P.singleton f }
@@ -50,7 +50,7 @@ test_focusedSubtree = TestCase $ do
 test_focusedChild :: T.Test -- :: PTree a -> Maybe (PTree a)
 test_focusedChild = TestCase $ do
   let f       = pTreeLeaf (1 :: Int)
-      t       = f { _pTreeFocused = True }
+      t       = f { _pTreeHasFocus = True }
       f_t     = f { _pMTrees = P.fromList [t] }
       t_f     = t { _pMTrees = P.fromList [f] }
       f_ft_tf = f { _pMTrees = P.fromList [f_t,t_f] }
