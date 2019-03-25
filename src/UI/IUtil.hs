@@ -1,10 +1,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    unEitherSt   -- ^ Either String St -> St -> St
+    unEitherSt             -- ^ Either String St -> St -> St
 
-  , emptySt      -- ^ Rslt -> St
-  , emptyBuffer  -- ^ Buffer
+  , emptySt                -- ^ Rslt -> St
+  , emptyBuffer            -- ^                                 Buffer
+  , bufferFromRsltViewTree -- ^ VTree RsltView -> Either String Buffer
   ) where
 
 import qualified Data.Map                 as M
@@ -43,3 +44,13 @@ emptyBuffer :: Buffer
 emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
                      , _bufferView = vTreeLeaf $ VQuery ""
                      , _bufferPath = [] }
+
+bufferFromRsltViewTree :: VTree RsltView -> Either String Buffer
+bufferFromRsltViewTree vt = do
+  let (rsltView :: RsltView) = _vTreeLabel vt
+  viewResult <- case rsltView of
+    VResult x -> Right x
+    _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
+  Right $ Buffer { _bufferQuery = viewResult ^. viewResultString
+                 , _bufferView = vt
+                 , _bufferPath = [] }

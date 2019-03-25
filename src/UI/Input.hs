@@ -85,6 +85,9 @@ handleKeyboard_atResults st ev = case ev of
     $ insertMembers_atFocus st
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ unEitherSt st
     $ closeSubviews_atFocus st
+  B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
+    $ unEitherSt st
+    $ st & cons_focusedViewResult_asChild
 
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
