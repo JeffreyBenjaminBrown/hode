@@ -29,26 +29,12 @@ data PTree a = PTree { _pTreeLabel :: a
   deriving (Eq, Show, Functor, Foldable, Traversable)
 type Porest a =  PointedList (PTree a)
 
+
+-- | = Lenses
+
 makeLenses      ''PTree
 makeBaseFunctor ''PTree
 makeLenses      ''PTreeF
-
-pTrees :: Traversal' (PTree a) (Porest a)
-pTrees = pMTrees . _Just
-
-pTreeLeaf :: a -> PTree a
-pTreeLeaf a = PTree { _pTreeLabel = a
-                    , _pTreeHasFocus = False
-                    , _pMTrees = Nothing }
-
-porestLeaf :: a -> Porest a
-porestLeaf = P.singleton . pTreeLeaf
-
-focusedChild :: PTree a -> Maybe (PTree a)
-focusedChild (_pTreeHasFocus -> True) = Nothing
-focusedChild t = case _pMTrees t of
-  Nothing -> Nothing
-  Just ts -> listToMaybe $ filter _pTreeHasFocus $ toList ts
 
 getFocusedChild :: Getter (PTree a) (Maybe (PTree a))
 getFocusedChild = to go where
@@ -78,6 +64,23 @@ setFocusedSubtree = sets go where
       (tsRec :: [PTree a])                     = map (go f) ts
       (x     :: Maybe (PointedList (PTree a))) = P.fromList tsRec
       in t & pMTrees .~ x
+
+
+-- | = Creators
+
+pTrees :: Traversal' (PTree a) (Porest a)
+pTrees = pMTrees . _Just
+
+pTreeLeaf :: a -> PTree a
+pTreeLeaf a = PTree { _pTreeLabel = a
+                    , _pTreeHasFocus = False
+                    , _pMTrees = Nothing }
+
+porestLeaf :: a -> Porest a
+porestLeaf = P.singleton . pTreeLeaf
+
+
+-- | = Modifiers
 
 consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
 consUnderAndFocus newMember host =
