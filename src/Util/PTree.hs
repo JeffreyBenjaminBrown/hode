@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 {-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -7,22 +9,19 @@
 module Util.PTree where
 
 import           Control.Lens.TH
-import           Data.List.PointedList
+import           Data.Foldable (toList)
+import           Data.List.PointedList (PointedList)
+import qualified Data.List.PointedList as P
 import           Data.Functor.Foldable.TH
 
-
-toList :: PointedList a -> [a]
-toList pl = reverse (_reversedPrefix pl) ++
-            [_focus pl] ++ _suffix pl
 
 instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
 
 data PTree a = PTree { _pTreeLabel :: a
-                     , _pTrees :: Maybe (Porest a) }
-  -- PITFALL: Rather than include a "focused" field, just change the
-  -- label type when focus (or other info) is needed.
-  deriving (Eq, Show, Functor)
+                     , _pTreeFocused :: Bool
+                     , _pTrees :: Maybe (Porest a)
+                     } deriving (Eq, Show, Functor)
 type Porest a =  PointedList (PTree a)
 
 makeLenses      ''PTree
@@ -31,4 +30,9 @@ makeLenses      ''PTreeF
 
 pTreeLeaf :: a -> PTree a
 pTreeLeaf a = PTree { _pTreeLabel = a
-                    , _pTrees = Nothing }
+                    , _pTreeFocused = False
+                    , _pTrees = Nothing
+                    }
+
+porestLeaf :: a -> Porest a
+porestLeaf = P.singleton . pTreeLeaf

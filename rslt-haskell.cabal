@@ -90,6 +90,7 @@ library
       src
   build-depends:
                 base
+              , binary
               , brick
               , Clipboard
               , containers
