@@ -10,7 +10,6 @@
 module Util.PTree where
 
 import           Control.Lens
-import           Control.Lens.TH
 import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
@@ -45,12 +44,18 @@ pTreeLeaf a = PTree { _pTreeLabel = a
 porestLeaf :: a -> Porest a
 porestLeaf = P.singleton . pTreeLeaf
 
+focusedChild :: PTree a -> Maybe (PTree a)
+focusedChild (_pTreeFocused -> True) = Nothing
+focusedChild t = case _pMTrees t of
+  Nothing -> Nothing
+  Just ts -> listToMaybe $ filter _pTreeFocused $ toList ts
+
 focusedSubtree :: PTree a -> Maybe (PTree a)
 focusedSubtree t@(_pTreeFocused -> True) = Just t
-focusedSubtree (_pMTrees -> Just ts) =
-  listToMaybe $ map fromJust $ filter isJust $
-  map focusedSubtree $ toList ts
-focusedSubtree _ = Nothing
+focusedSubtree t = case _pMTrees t of
+  Nothing -> Nothing
+  Just ts -> listToMaybe $ map fromJust $ filter isJust $
+             map focusedSubtree $ toList ts
 
 consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
 consUnderAndFocus newMember host =
@@ -61,3 +66,5 @@ consUnderAndFocus newMember host =
   in host & pTreeFocused .~ False
           & pMTrees .~ P.fromList ts'
 
+--moveFocusInTree :: Direction -> PTree a -> PTree a
+--moveFocusInTree Up

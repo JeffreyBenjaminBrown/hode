@@ -13,8 +13,9 @@ import           Util.PTree
 
 test_module_pTree :: T.Test
 test_module_pTree = TestList [
-    TestLabel "test_porestLeaf" test_porestLeaf
+    TestLabel "test_porestLeaf"     test_porestLeaf
   , TestLabel "test_focusedSubtree" test_focusedSubtree
+  , TestLabel "test_focusedChild"   test_focusedChild
   ]
 
 test_porestLeaf :: T.Test
@@ -23,6 +24,15 @@ test_porestLeaf = TestCase $ do
     ( P.fromList [ PTree { _pTreeLabel = 1 :: Int
                          , _pTreeFocused = False
                          , _pMTrees = Nothing } ] )
+
+test_consUnderAndFocus :: T.Test
+test_consUnderAndFocus = TestCase $ do
+  let f    = pTreeLeaf (1 :: Int)
+      t    = f { _pTreeFocused = True }
+      f_t  = f { _pMTrees = P.fromList   [t] }
+      f_ft = f { _pMTrees = P.fromList [f,t] }
+  assertBool "1" $ consUnderAndFocus t f   == f_t
+  assertBool "2" $ consUnderAndFocus t f_t == f_ft
 
 test_focusedSubtree :: T.Test
 test_focusedSubtree = TestCase $ do
@@ -37,11 +47,16 @@ test_focusedSubtree = TestCase $ do
   assertBool "4" $ focusedSubtree ff == Nothing
   assertBool "5" $ focusedSubtree tf == Just tf
 
-test_consUnderAndFocus :: T.Test
-test_consUnderAndFocus = TestCase $ do
-  let f    = pTreeLeaf (1 :: Int)
-      t    = f { _pTreeFocused = True }
-      f_t  = f { _pMTrees = P.fromList   [t] }
-      f_ft = f { _pMTrees = P.fromList [f,t] }
-  assertBool "1" $ consUnderAndFocus t f   == f_t
-  assertBool "2" $ consUnderAndFocus t f_t == f_ft
+test_focusedChild :: T.Test -- :: PTree a -> Maybe (PTree a)
+test_focusedChild = TestCase $ do
+  let f       = pTreeLeaf (1 :: Int)
+      t       = f { _pTreeFocused = True }
+      f_t     = f { _pMTrees = P.fromList [t] }
+      t_f     = t { _pMTrees = P.fromList [f] }
+      f_ft_tf = f { _pMTrees = P.fromList [f_t,t_f] }
+
+  assertBool "1" $ focusedChild f       == Nothing
+  assertBool "2" $ focusedChild t       == Nothing
+  assertBool "3" $ focusedChild f_t     == Just t
+  assertBool "3" $ focusedChild t_f     == Nothing
+  assertBool "4" $ focusedChild f_ft_tf == Just t_f
