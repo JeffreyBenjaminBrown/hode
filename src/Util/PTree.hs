@@ -10,13 +10,14 @@
 module Util.PTree where
 
 import           Control.Lens
---import           Control.Lens.Type
 import           Control.Lens.TH
 import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
 import           Data.Maybe
 import           Data.Functor.Foldable.TH
+
+import Util.Direction
 
 
 instance Ord a => Ord (PointedList a) where
@@ -59,3 +60,4 @@ consUnderAndFocus newMember host =
         where m = newMember & pTreeFocused .~ True
   in host & pTreeFocused .~ False
           & pMTrees .~ P.fromList ts'
+

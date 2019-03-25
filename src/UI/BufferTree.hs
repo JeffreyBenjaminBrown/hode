@@ -15,6 +15,7 @@ import Lens.Micro hiding (has)
 import UI.ITypes
 import UI.IUtil
 import UI.Window
+import Util.Direction
 import Util.Misc
 import Util.VTree
 

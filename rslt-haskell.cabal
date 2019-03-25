@@ -81,6 +81,7 @@ library
                 , UI.String
                 , UI.RsltViewTree
                 , UI.Window
+                , Util.Direction
                 , Util.Misc
                 , Util.UParse
                 , Util.VTree

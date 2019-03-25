@@ -31,6 +31,7 @@ import Rslt.RLookup
 import Rslt.RTypes
 import UI.ITypes
 import UI.String
+import Util.Direction
 import Util.Misc
 import Util.VTree
 

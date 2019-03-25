@@ -42,6 +42,7 @@ import UI.Input.IParse
 import UI.String
 import UI.RsltViewTree
 import UI.Window
+import Util.Direction
 import Util.Misc
 import Util.VTree
 

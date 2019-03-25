@@ -5,8 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Util.VTree (
-  Direction(..)
-  , Path
+    Path
   , Vath
   , VTree(..), vTreeLabel, vTrees, vTreeFocalChild, vTreeIsFocused
   , Vorest
@@ -33,10 +32,8 @@ import           Data.Vector.Lens
 import           Lens.Micro
 
 import Util.Misc
+import Util.Direction
 
-
-data Direction = DirPrev | DirNext | DirUp | DirDown
-  deriving (Show,Eq, Ord)
 
 -- | A `Path` through a `VTree`. The head of the list is where
 -- to go from the `VTree`'s root to its next layer.
