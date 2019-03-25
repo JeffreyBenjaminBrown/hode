@@ -9,6 +9,8 @@
 
 module Util.PTree where
 
+import           Control.Lens
+--import           Control.Lens.Type
 import           Control.Lens.TH
 import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
@@ -23,15 +25,16 @@ instance Ord a => Ord (PointedList a) where
 data PTree a = PTree { _pTreeLabel :: a
                      , _pTreeFocused :: Bool
                      , _pMTrees :: Maybe (Porest a)
-                     } deriving (Eq, Show, Functor)
+                     }
+  deriving (Eq, Show, Functor, Foldable, Traversable)
 type Porest a =  PointedList (PTree a)
 
 makeLenses      ''PTree
 makeBaseFunctor ''PTree
 makeLenses      ''PTreeF
 
--- pTrees :: Traversal' (PTree a) (Porest a)
-
+pTrees :: Traversal' (PTree a) (Porest a)
+pTrees = pMTrees . _Just
 
 pTreeLeaf :: a -> PTree a
 pTreeLeaf a = PTree { _pTreeLabel = a
@@ -48,6 +51,11 @@ focusedSubtree (_pMTrees -> Just ts) =
   map focusedSubtree $ toList ts
 focusedSubtree _ = Nothing
 
---insertUnderRight :: a -> PTree a -> Maybe (PTree a)
---insertUnderRight a (_pMTrees -> Nothing) = Nothing
---insertUnderRight a t@(_pMTrees -> Just ts) =
+consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
+consUnderAndFocus newMember host =
+  let (ts' :: [PTree a]) = case _pMTrees host of
+                             Nothing -> m : []
+                             Just ts -> m : toList ts
+        where m = newMember & pTreeFocused .~ True
+  in host & pTreeFocused .~ False
+          & pMTrees .~ P.fromList ts'
