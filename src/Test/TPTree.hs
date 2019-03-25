@@ -5,6 +5,7 @@ module Test.TPTree where
 import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
+import           Lens.Micro
 import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
 
@@ -41,11 +42,11 @@ test_focusedSubtree = TestCase $ do
       ft = f { _pMTrees = Just $ P.singleton t }
       ff = f { _pMTrees = Just $ P.singleton f }
       tf = t { _pMTrees = Just $ P.singleton f }
-  assertBool "1" $ focusedSubtree f  == Nothing
-  assertBool "2" $ focusedSubtree t  == Just t
-  assertBool "3" $ focusedSubtree ft == Just t
-  assertBool "4" $ focusedSubtree ff == Nothing
-  assertBool "5" $ focusedSubtree tf == Just tf
+  assertBool "1" $ f  ^. getFocusedSubtree == Nothing
+  assertBool "2" $ t  ^. getFocusedSubtree == Just t
+  assertBool "3" $ ft ^. getFocusedSubtree == Just t
+  assertBool "4" $ ff ^. getFocusedSubtree == Nothing
+  assertBool "5" $ tf ^. getFocusedSubtree == Just tf
 
 test_focusedChild :: T.Test -- :: PTree a -> Maybe (PTree a)
 test_focusedChild = TestCase $ do
@@ -55,8 +56,8 @@ test_focusedChild = TestCase $ do
       t_f     = t { _pMTrees = P.fromList [f] }
       f_ft_tf = f { _pMTrees = P.fromList [f_t,t_f] }
 
-  assertBool "1" $ focusedChild f       == Nothing
-  assertBool "2" $ focusedChild t       == Nothing
-  assertBool "3" $ focusedChild f_t     == Just t
-  assertBool "3" $ focusedChild t_f     == Nothing
-  assertBool "4" $ focusedChild f_ft_tf == Just t_f
+  assertBool "1" $ f       ^. getFocusedChild == Nothing
+  assertBool "2" $ t       ^. getFocusedChild == Nothing
+  assertBool "3" $ f_t     ^. getFocusedChild == Just t
+  assertBool "3" $ t_f     ^. getFocusedChild == Nothing
+  assertBool "4" $ f_ft_tf ^. getFocusedChild == Just t_f

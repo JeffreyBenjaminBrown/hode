@@ -50,12 +50,13 @@ focusedChild t = case _pMTrees t of
   Nothing -> Nothing
   Just ts -> listToMaybe $ filter _pTreeHasFocus $ toList ts
 
-focusedSubtree :: PTree a -> Maybe (PTree a)
-focusedSubtree t@(_pTreeHasFocus -> True) = Just t
-focusedSubtree t = case _pMTrees t of
-  Nothing -> Nothing
-  Just ts -> listToMaybe $ map fromJust $ filter isJust $
-             map focusedSubtree $ toList ts
+getFocusedChild :: Getter (PTree a) (Maybe (PTree a))
+getFocusedChild = to go where
+  go :: PTree a -> Maybe (PTree a)
+  go (_pTreeHasFocus -> True) = Nothing
+  go t = case _pMTrees t of
+    Nothing -> Nothing
+    Just ts -> listToMaybe $ filter _pTreeHasFocus $ toList ts
 
 getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
 getFocusedSubtree = to go where
