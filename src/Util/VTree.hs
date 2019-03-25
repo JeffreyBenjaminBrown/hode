@@ -22,7 +22,6 @@ module Util.VTree (
                     -- -> Either String (Path, VTree a)
   , moveFocusInVorest -- ^ Direction -> (Vath, Vorest a)
                     -- -> Either String (Vath, Vorest a)
-
   ) where
 
 import           Control.Lens.Combinators (from)

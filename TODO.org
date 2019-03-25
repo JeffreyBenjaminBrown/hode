@@ -28,8 +28,10 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* contribute to Data.List.PointedList
+toList
+instance Ord
 * TODO top priorities
-** new buffer at focused rsltview
 ** folding
 ** things that ought already to work
 *** not all Hash functions work

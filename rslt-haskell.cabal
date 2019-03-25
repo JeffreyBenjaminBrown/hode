@@ -84,6 +84,7 @@ library
                 , Util.Misc
                 , Util.UParse
                 , Util.VTree
+                , Util.PTree
   other-modules:
   hs-source-dirs:
       src
@@ -100,6 +101,7 @@ library
               , microlens
               , microlens-th
               , parser-combinators
+              , pointedlist
               , process
               , recursion-schemes
               , rosezipper
