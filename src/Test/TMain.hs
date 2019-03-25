@@ -19,6 +19,7 @@ import Test.Rslt.TIndex_and_Valid
 import Test.Rslt.TLookup
 import Test.Rslt.TShow
 import Test.TGraph
+import Test.TPTree
 import Test.TUI
 
 
@@ -39,5 +40,6 @@ tests = runTestTT $ TestList
   , test_modules_leaf
   , test_module_hash_convert
   , test_module_hash_parse
+  , test_module_pTree
   , test_module_ui
   ]
