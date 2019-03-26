@@ -21,7 +21,7 @@ test_module_pTree = TestList [
 
 test_porestLeaf :: T.Test
 test_porestLeaf = TestCase $ do
-  assertBool "1" $ Just (porestLeaf 1) == 
+  assertBool "1" $ Just (porestLeaf 1) ==
     ( P.fromList [ PTree { _pTreeLabel = 1 :: Int
                          , _pTreeHasFocus = False
                          , _pMTrees = Nothing } ] )
@@ -42,6 +42,16 @@ test_focusedSubtree = TestCase $ do
       ft = f { _pMTrees = Just $ P.singleton t }
       ff = f { _pMTrees = Just $ P.singleton f }
       tf = t { _pMTrees = Just $ P.singleton f }
+
+  assertBool "s1" $ (f & setFocusedSubtree . pTreeLabel %~ (+1))
+    == f
+  assertBool "s2" $ (setFocusedSubtree . pTreeLabel %~ (+1)) t
+    == (pTreeLabel .~ 2) t
+  assertBool "s3" $ (setFocusedSubtree . pTreeLabel %~ (+1)) tf
+    == (pTreeLabel .~ 2) tf
+  assertBool "s4" $ (setFocusedSubtree . pTreeLabel %~ (+1)) ft
+    == (pMTrees . _Just . P.focus . pTreeLabel .~ 2) ft
+
   assertBool "1" $ f  ^. getFocusedSubtree == Nothing
   assertBool "2" $ t  ^. getFocusedSubtree == Just t
   assertBool "3" $ ft ^. getFocusedSubtree == Just t

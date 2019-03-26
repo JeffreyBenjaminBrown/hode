@@ -44,6 +44,25 @@ getFocusedChild = to go where
     Nothing -> Nothing
     Just ts -> listToMaybe $ filter _pTreeHasFocus $ toList ts
 
+getParentOfFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
+getParentOfFocusedSubtree = to go where
+  go :: PTree a -> Maybe (PTree a)
+  go t = if isJust $ t ^. getFocusedChild then Just t else
+    case t ^. pMTrees of
+      Nothing -> Nothing
+      Just ts -> listToMaybe $ map fromJust
+                 $ filter isJust $ map go $ toList ts
+
+setParentOfFocusedSubtree :: Setter' (PTree a) (PTree a)
+setParentOfFocusedSubtree = sets go where
+  go :: (PTree a -> PTree a) -> PTree a -> PTree a
+  go f t = if isJust $ t ^. getFocusedChild
+    then f t else
+    case t ^. pMTrees of
+      Nothing -> t
+      Just ts -> let ts' = map (go f) $ toList ts
+                 in t & pMTrees .~ P.fromList ts'
+
 getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
 getFocusedSubtree = to go where
   go :: PTree a -> Maybe (PTree a)
@@ -58,12 +77,9 @@ setFocusedSubtree = sets go where
   go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a
   go f t@(_pTreeHasFocus -> True) = f t
   go f t = case _pMTrees t of
-    Nothing -> f t
-    Just pts -> let
-      (ts    :: [PTree a])                     = toList pts
-      (tsRec :: [PTree a])                     = map (go f) ts
-      (x     :: Maybe (PointedList (PTree a))) = P.fromList tsRec
-      in t & pMTrees .~ x
+    Nothing -> t
+    Just pts -> let (tsRec :: [PTree a]) = map (go f) $ toList pts
+                in t & pMTrees .~ P.fromList tsRec
 
 
 -- | = Creators
