@@ -121,27 +121,34 @@ consUnderAndFocus newMember host =
   in host & pTreeHasFocus .~ False
           & pMTrees .~ P.fromList ts'
 
-moveFocusInTree :: Direction -> PTree a -> PTree a
-moveFocusInTree DirUp t =
-  t & (setFocusedSubtree         . pTreeHasFocus .~ False)
-    . (setParentOfFocusedSubtree . pTreeHasFocus .~ True)
-moveFocusInTree DirDown t =
+moveFocusInPTree :: Direction -> PTree a -> PTree a
+moveFocusInPTree DirUp t =
+  case t ^? getParentOfFocusedSubtree . _Just of
+    Nothing -> t & pTreeHasFocus .~ True
+    Just st -> let
+      st' = st & pMTrees . _Just . P.focus . pTreeHasFocus .~ False
+               &                             pTreeHasFocus .~ True
+      in t & setParentOfFocusedSubtree .~ st'
+
+moveFocusInPTree DirDown t =
   case t ^? getFocusedSubtree . _Just . pMTrees . _Just
   of Nothing -> t
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ True
                 in t & pMTrees .~ Just ts'
                      & pTreeHasFocus .~ False
-moveFocusInTree DirPrev t =
+
+moveFocusInPTree DirPrev t =
   case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
-  of Nothing -> t -- this outcome would be very strange
+  of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
                              & prevIfPossible
                              & P.focus . pTreeHasFocus .~ True
-                in t & pMTrees .~ Just ts'
-moveFocusInTree DirNext t =
+       in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
+
+moveFocusInPTree DirNext t =
   case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
-  of Nothing -> t -- this outcome would be very strange
+  of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
                              & nextIfPossible
                              & P.focus . pTreeHasFocus .~ True
-                in t & pMTrees .~ Just ts'
+       in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'

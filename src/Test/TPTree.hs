@@ -10,6 +10,7 @@ import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
 
 import           Util.PTree
+import           Util.Direction
 
 
 test_module_pTree :: T.Test
@@ -18,7 +19,31 @@ test_module_pTree = TestList [
   , TestLabel "test_focusedSubtree" test_focusedSubtree
   , TestLabel "test_focusedChild"   test_focusedChild
   , TestLabel "test_parentOfFocusedSubtree" test_parentOfFocusedSubtree
+  , TestLabel "test_moveFocus" test_moveFocus
   ]
+
+test_moveFocus :: T.Test
+test_moveFocus = TestCase $ do
+  let f  = pTreeLeaf (1 :: Int)
+      t  = f   { _pTreeHasFocus = True }
+      f_t = f  { _pMTrees =                    P.fromList [t] }
+      t_f = t  { _pMTrees =                    P.fromList [f] }
+      f_ft = f { _pMTrees = nextIfPossible <$> P.fromList [f,t] }
+      f_tf = f { _pMTrees =                    P.fromList [t,f] }
+
+  assertBool "Next"             $ moveFocusInPTree DirNext f_tf == f_ft
+  assertBool "Next maxed out 1" $ moveFocusInPTree DirNext f_ft == f_ft
+
+  assertBool "Prev maxed out 1" $ moveFocusInPTree DirPrev f_tf == f_tf
+  assertBool "Prev"             $ moveFocusInPTree DirPrev f_ft == f_tf
+
+  assertBool "Down maxed out 1" $ moveFocusInPTree DirDown f_t == f_t
+  assertBool "Down"             $ moveFocusInPTree DirDown t_f == f_t
+
+  assertBool "Up maxed out 1"   $ moveFocusInPTree DirUp t     == t
+  assertBool "Up maxed out 2"   $ moveFocusInPTree DirUp f     == t
+  assertBool "Up maxed out 3"   $ moveFocusInPTree DirUp t_f   == t_f
+  assertBool "Up"               $ moveFocusInPTree DirUp f_t   == t_f
 
 test_porestLeaf :: T.Test
 test_porestLeaf = TestCase $ do
@@ -91,3 +116,4 @@ test_focusedChild = TestCase $ do
   assertBool "3" $ f_t     ^. getFocusedChild == Just t
   assertBool "3" $ t_f     ^. getFocusedChild == Nothing
   assertBool "4" $ f_ft_tf ^. getFocusedChild == Just t_f
+
