@@ -23,7 +23,8 @@ instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
 
 data PTree a = PTree { _pTreeLabel :: a
-                     , _pTreeHasFocus :: Bool
+                     , _pTreeHasFocus :: Bool -- ^ PITFALL: permits invalid
+  -- state. There should be only one focused node anywhere in the tree.
                      , _pMTrees :: Maybe (Porest a)
                      }
   deriving (Eq, Show, Functor, Foldable, Traversable)
@@ -35,6 +36,11 @@ type Porest a =  PointedList (PTree a)
 makeLenses      ''PTree
 makeBaseFunctor ''PTree
 makeLenses      ''PTreeF
+
+-- TODO : These lenses are inefficient, because they convert a `PointedList`
+-- to a normal list in order to find the focused element. If a subtree
+-- has focus, its parent should be focused on it. And note that
+-- there is already a nice `Functor` instance for `PointedList`.
 
 getFocusedChild :: Getter (PTree a) (Maybe (PTree a))
 getFocusedChild = to go where

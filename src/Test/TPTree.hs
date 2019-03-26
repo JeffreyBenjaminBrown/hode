@@ -17,6 +17,7 @@ test_module_pTree = TestList [
     TestLabel "test_porestLeaf"     test_porestLeaf
   , TestLabel "test_focusedSubtree" test_focusedSubtree
   , TestLabel "test_focusedChild"   test_focusedChild
+  , TestLabel "test_parentOfFocusedSubtree" test_parentOfFocusedSubtree
   ]
 
 test_porestLeaf :: T.Test
@@ -25,6 +26,25 @@ test_porestLeaf = TestCase $ do
     ( P.fromList [ PTree { _pTreeLabel = 1 :: Int
                          , _pTreeHasFocus = False
                          , _pMTrees = Nothing } ] )
+
+test_parentOfFocusedSubtree :: T.Test
+test_parentOfFocusedSubtree = TestCase $ do
+  let f  = pTreeLeaf (1 :: Int)
+      t  = f { _pTreeHasFocus = True }
+      ft = f { _pMTrees = Just $ P.singleton t }
+      ff = f { _pMTrees = Just $ P.singleton f }
+      tf = t { _pMTrees = Just $ P.singleton f }
+
+  assertBool "s1" $ (setParentOfFocusedSubtree .~ f) t  == t
+  assertBool "s2" $ (setParentOfFocusedSubtree .~ t) f  == f
+  assertBool "s3" $ (setParentOfFocusedSubtree .~ t) tf == tf
+  assertBool "s4" $ (setParentOfFocusedSubtree .~ t) ft == t
+
+  assertBool "g1" $ (t  ^. getParentOfFocusedSubtree) == Nothing
+  assertBool "g2" $ (f  ^. getParentOfFocusedSubtree) == Nothing
+  assertBool "g3" $ (ft ^. getParentOfFocusedSubtree) == Just ft
+  assertBool "g4" $ (ff ^. getParentOfFocusedSubtree) == Nothing
+  assertBool "g4" $ (tf ^. getParentOfFocusedSubtree) == Nothing
 
 test_consUnderAndFocus :: T.Test
 test_consUnderAndFocus = TestCase $ do
