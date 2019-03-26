@@ -19,8 +19,16 @@ import           Data.Functor.Foldable.TH
 import Util.Direction
 
 
+-- | == `PointedList`
+
 instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
+
+prevIfPossible, nextIfPossible :: PointedList a -> PointedList a
+prevIfPossible l = maybe l id $ P.previous l
+nextIfPossible l = maybe l id $ P.next l
+
+-- | == `PTree`, a list made of `PointedList`s
 
 data PTree a = PTree { _pTreeLabel :: a
                      , _pTreeHasFocus :: Bool -- ^ PITFALL: permits invalid
@@ -113,5 +121,27 @@ consUnderAndFocus newMember host =
   in host & pTreeHasFocus .~ False
           & pMTrees .~ P.fromList ts'
 
---moveFocusInTree :: Direction -> PTree a -> PTree a
---moveFocusInTree Up
+moveFocusInTree :: Direction -> PTree a -> PTree a
+moveFocusInTree DirUp t =
+  t & (setFocusedSubtree         . pTreeHasFocus .~ False)
+    . (setParentOfFocusedSubtree . pTreeHasFocus .~ True)
+moveFocusInTree DirDown t =
+  case t ^? getFocusedSubtree . _Just . pMTrees . _Just
+  of Nothing -> t
+     Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ True
+                in t & pMTrees .~ Just ts'
+                     & pTreeHasFocus .~ False
+moveFocusInTree DirPrev t =
+  case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
+  of Nothing -> t -- this outcome would be very strange
+     Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
+                             & prevIfPossible
+                             & P.focus . pTreeHasFocus .~ True
+                in t & pMTrees .~ Just ts'
+moveFocusInTree DirNext t =
+  case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
+  of Nothing -> t -- this outcome would be very strange
+     Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
+                             & nextIfPossible
+                             & P.focus . pTreeHasFocus .~ True
+                in t & pMTrees .~ Just ts'
