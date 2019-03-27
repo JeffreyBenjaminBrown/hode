@@ -29,13 +29,17 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
-** it's good enough; use it, probably
-Where slow it can be sped up -- currently, stupidly, it searches outside of an ancestor's focus for the focal descendent.
-I think it will simplify the using code a lot. No checking that paths are valid, for instance.
-** but better would be Data.Tree.Zipper
-Each label on the tree would be an index into the subtree there.
-Those indices would not be a list position, but rather the Addr in an Rslt, 
-or some other identifier robust to insertion.
+** TODO make a PointedList lens into a List
+to simplify passages currently of the form "P.fromList . op . toList"
+
+** DONE philosophy, and an alternative
+*** it's good enough; use it, probably
+ Where slow it can be sped up -- currently, stupidly, it searches outside of an ancestor's focus for the focal descendent.
+ I think it will simplify the using code a lot. No checking that paths are valid, for instance.
+*** but better would be Data.Tree.Zipper
+ Each label on the tree would be an index into the subtree there.
+ Those indices would not be a list position, but rather the Addr in an Rslt, 
+ or some other identifier robust to insertion.
 * TODO top priorities
 ** folding
 ** things that ought already to work

@@ -28,6 +28,20 @@ prevIfPossible, nextIfPossible :: PointedList a -> PointedList a
 prevIfPossible l = maybe l id $ P.previous l
 nextIfPossible l = maybe l id $ P.next l
 
+getList :: Getter (PointedList a) [a]
+getList = to go where
+  go :: PointedList a -> [a]
+  go = toList
+
+setList :: Setter' (PointedList a) [a]
+setList = sets go where
+  go :: ([a] -> [a]) -> PointedList a -> PointedList a
+  go f pl = case f $ toList pl of
+              [] -> pl
+              x -> maybe (error msg) id $ P.fromList x
+    where msg = "setList: Impossible: x is non-null, so P.fromList works"
+
+
 -- | == `PTree`, a list made of `PointedList`s
 
 data PTree a = PTree { _pTreeLabel :: a
