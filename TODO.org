@@ -29,6 +29,13 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
+** it's good enough; use it, probably
+Where slow it can be sped up -- currently, stupidly, it searches outside of an ancestor's focus for the focal descendent.
+I think it will simplify the using code a lot. No checking that paths are valid, for instance.
+** but better would be Data.Tree.Zipper
+Each label on the tree would be an index into the subtree there.
+Those indices would not be a list position, but rather the Addr in an Rslt, 
+or some other identifier robust to insertion.
 * TODO top priorities
 ** folding
 ** things that ought already to work
@@ -67,7 +74,7 @@ Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
 and SimpleScreenRecorder.
 Audio interface: remember to select both input and output devices.
-* TODO user-friendliness
+* user-friendliness
 ** can insertHosts_atFocus when they're already there
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
@@ -75,8 +82,6 @@ and mention that you can use parens liberally to make it more obvious
 (Not a big deal because the cursor path is remembered.)
 Add a toggleable window above the Results window.
 * TODO coder-friendliness
-** ditch Vorest, just use vTrees
-Easier to have an extra top (data) constructor than a whole parallel (function) infrastructure.
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
@@ -87,16 +92,20 @@ The root is supposed to only be a Query, but that is permitted elsewhere.
 The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child, and vice-versa.
-** Something like VTree with lists would simplify lots of code.
-It couldn't be Tree from Data.Tree, though, because I need each branching to have its own focal child.
-* TODO crawling across Exprs
+** ? ditch Vorest, just use vTrees
+Easier to have an extra top (data) constructor than a whole parallel (function) infrastructure.
+* views
+** count things
+** user language
+show flag if condition holds
+* crawling across Exprs
 ** Move faster by crossing over some views
 When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
 ** "its members*" (with a star)
 all members, submembers, etc -- probably nested
 ** maybe "its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
-* TODO UI
+* UI
 ** safer open and save
 To write, first run `git status`. If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
 
@@ -107,7 +116,7 @@ up|down to nearest higher binop (#, |, etc)
 up|down, multipurpose
   this kind goes to either of the two previous kinds of things
 left|right in same level
-* TODO Hash, the DSL for exprs
+* Hash, the DSL for exprs
 ** TODO maybe
 *** TODO ? _ #? _
  _ #? _ means it could be any kind of binary relationship template.
@@ -124,7 +133,7 @@ The assumption is that a `PRel` always refers to something reasonably specific, 
  pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
  pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
  pRelToPExpr (Closed ms js) =
-* TODO Qseq, the search metalanguage
+* Qseq, the search metalanguage
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
@@ -134,7 +143,7 @@ Example (for a singleton Subst): define "ancestors-via-is" as a function of a Va
 *** TODO why it's tricky
  It would require introducing a type for checking input-output relationships.
  Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
-* TODO re. Rslt
+* re. Rslt
 ** TODO : recursive "is", using "is a kind of"
 If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
 ** (#fast) isIn ought to return two maps, not a set
@@ -195,7 +204,6 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
 _ is a member of _" is a "synthetic" template. There might be others.
 ** relationship equivalence
 ** programmatic edits ("do _ to everything that satisfies _")
-** language for views
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
 ** buffer ring

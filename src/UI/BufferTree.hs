@@ -1,7 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.BufferTree (
-    consBufferAtTop      -- ^ Buffer -> St -> Either String St
+    consPufferAtTop      -- ^ Buffer -> St -> St
+  , consBufferAtTop      -- ^ Buffer -> St -> St
   , consBufferAsChild    -- ^ Buffer -> St -> Either String St
   , cons_focusedViewResult_asChild -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> Either String St
@@ -9,16 +10,25 @@ module UI.BufferTree (
 
 import qualified Data.Vector as V
 
-import Control.Arrow
-import Lens.Micro hiding (has)
+import           Control.Arrow
+import           Data.Foldable (toList)
+import qualified Data.List.PointedList as P
+import           Lens.Micro hiding (has)
 
 import UI.ITypes
 import UI.IUtil
 import UI.Window
 import Util.Direction
 import Util.Misc
+import Util.PTree
 import Util.VTree
 
+
+consPufferAtTop :: Buffer -> St -> St
+consPufferAtTop b st = st & puffers %~ f where
+  f :: Porest Buffer -> Porest Buffer
+  f = maybe (error msg) id . P.fromList . (:) (pTreeLeaf b) . toList
+  msg = "consPufferAtTop: Impossible: x nonempty => P.fromList x succeeds."
 
 consBufferAtTop :: Buffer -> St -> St
 consBufferAtTop b st =

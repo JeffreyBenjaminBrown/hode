@@ -116,4 +116,3 @@ test_focusedChild = TestCase $ do
   assertBool "3" $ f_t     ^. getFocusedChild == Just t
   assertBool "3" $ t_f     ^. getFocusedChild == Nothing
   assertBool "4" $ f_ft_tf ^. getFocusedChild == Just t_f
-

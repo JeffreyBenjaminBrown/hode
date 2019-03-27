@@ -17,6 +17,7 @@ import Hash.HTypes
 import Rslt.RTypes
 import Rslt.Show
 import Util.Misc
+import Util.PTree
 import Util.VTree
 
 
@@ -116,6 +117,7 @@ data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
   , _buffers                :: Vorest Buffer
+  , _puffers                :: Porest Buffer
   , _vathToBuffer           :: Vath
   , _uiError                :: String
   , _reassurance            :: String
@@ -144,3 +146,4 @@ instance Show St where
 --   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"
 --   ++ "shownInResultsWindow = " ++ show (st ^. shownInResultsWindow) ++ ",\n"
    ++ "}\n"
+
