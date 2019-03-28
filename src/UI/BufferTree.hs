@@ -11,8 +11,6 @@ module UI.BufferTree (
 import qualified Data.Vector as V
 
 import           Control.Arrow
-import           Data.Foldable (toList)
-import qualified Data.List.PointedList as P
 import           Lens.Micro hiding (has)
 
 import UI.ITypes
@@ -25,10 +23,7 @@ import Util.VTree
 
 
 consPufferAtTop :: Buffer -> St -> St
-consPufferAtTop b st = st & puffers %~ f where
-  f :: Porest Buffer -> Porest Buffer
-  f = maybe (error msg) id . P.fromList . (:) (pTreeLeaf b) . toList
-  msg = "consPufferAtTop: Impossible: x nonempty => P.fromList x succeeds."
+consPufferAtTop b st = st & puffers . setList %~ (pTreeLeaf b :)
 
 consBufferAtTop :: Buffer -> St -> St
 consBufferAtTop b st =
