@@ -125,13 +125,14 @@ porestLeaf = P.singleton . pTreeLeaf
 
 -- | = Modifiers
 
+-- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
 consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
-consUnderAndFocus newMember host =
-  let (ts' :: [PTree a]) = case _pMTrees host of
+consUnderAndFocus newFocus oldFocus =
+  let (ts' :: [PTree a]) = case _pMTrees oldFocus of
                              Nothing -> m : []
                              Just ts -> m : toList ts
-        where m = newMember & pTreeHasFocus .~ True
-  in host & pTreeHasFocus .~ False
+        where m = newFocus & pTreeHasFocus .~ True
+  in oldFocus & pTreeHasFocus .~ False
           & pMTrees .~ P.fromList ts'
 
 moveFocusInPTree :: Direction -> PTree a -> PTree a

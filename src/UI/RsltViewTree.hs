@@ -14,6 +14,8 @@ module UI.RsltViewTree (
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
   , members_atFocus_puffer -- ^ St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
+  , insertMembers_atFocus_puffer -- ^ St -> Either String St
+
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
   , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
@@ -23,6 +25,7 @@ module UI.RsltViewTree (
   ) where
 
 import           Data.Map (Map)
+import qualified Data.List.PointedList as P
 import qualified Data.Map    as M
 import qualified Data.Set    as S
 import qualified Data.Vector as V
@@ -83,7 +86,7 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
   ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus st
   let (topOfNew :: VTree RsltView) = vTreeLeaf $ VMembers ms
   (leavesOfNew :: [VTree RsltView]) <- map (vTreeLeaf . VResult)
-    <$> ifLefts "" (map (resultView (st ^. appRslt)) as)
+    <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
   let (new :: VTree RsltView) =
         topOfNew & vTrees .~ V.fromList leavesOfNew
   (b :: Buffer) <- let msg = "stBuffer returned Nothing."
@@ -91,6 +94,17 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
   vt' <- consUnderFocus (b ^. bufferPath) new (b ^. bufferView)
   Right $ st & stBuffer st . bufferView .~ vt'
 
+insertMembers_atFocus_puffer :: St -> Either String St
+insertMembers_atFocus_puffer st = prefixLeft "insertMembers_atFocus" $ do
+  ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus_puffer st
+  let (topOfNew :: PTree RsltView) = pTreeLeaf $ VMembers ms
+  (leavesOfNew :: [PTree RsltView]) <- map (pTreeLeaf . VResult)
+    <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
+  (leavesOfNew' :: Porest RsltView) <- let msg = "Expr has no members."
+    in maybe (error msg) Right $ P.fromList leavesOfNew
+  let (new :: PTree RsltView) = topOfNew & pMTrees . _Just .~ leavesOfNew'
+  Right $ st & stSetPuffer . pufferView . setFocusedSubtree
+    %~ consUnderAndFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels r a0 = do
