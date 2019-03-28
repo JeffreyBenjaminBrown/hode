@@ -109,7 +109,7 @@ data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferView  :: VTree RsltView
                      , _bufferPath  :: Path } deriving (Eq, Ord)
 data Puffer = Puffer { _pufferQuery :: ViewQuery
-                     , _pufferView  :: VTree RsltView
+                     , _pufferView  :: PTree RsltView
                      } deriving (Eq, Ord)
 
 makeLenses ''Buffer

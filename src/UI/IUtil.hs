@@ -5,6 +5,8 @@ module UI.IUtil (
 
   , emptySt                -- ^ Rslt -> St
   , emptyBuffer            -- ^                                 Buffer
+  , emptyPuffer            -- ^                                 Puffer
+  , pufferFromRsltViewTree -- ^ PTree RsltView -> Either String Puffer
   , bufferFromRsltViewTree -- ^ VTree RsltView -> Either String Buffer
   ) where
 
@@ -49,7 +51,17 @@ emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
 
 emptyPuffer :: Puffer
 emptyPuffer = Puffer { _pufferQuery = "(empty puffer)"
-                     , _pufferView = vTreeLeaf $ VQuery "" }
+                     , _pufferView = pTreeLeaf $ VQuery "" }
+
+-- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
+pufferFromRsltViewTree :: PTree RsltView -> Either String Puffer
+pufferFromRsltViewTree vt = do
+  let (rsltView :: RsltView) = _pTreeLabel vt
+  viewResult <- case rsltView of
+    VResult x -> Right x
+    _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
+  Right $ Puffer { _pufferQuery = viewResult ^. viewResultString
+                 , _pufferView = vt }
 
 bufferFromRsltViewTree :: VTree RsltView -> Either String Buffer
 bufferFromRsltViewTree vt = do

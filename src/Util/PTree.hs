@@ -49,7 +49,7 @@ data PTree a = PTree { _pTreeLabel :: a
   -- state. There should be only one focused node anywhere in the tree.
                      , _pMTrees :: Maybe (Porest a)
                      }
-  deriving (Eq, Show, Functor, Foldable, Traversable)
+  deriving (Eq, Show, Ord, Functor, Foldable, Traversable)
 type Porest a =  PointedList (PTree a)
 
 
