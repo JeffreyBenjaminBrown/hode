@@ -6,9 +6,9 @@
 
 module UI.ITypes where
 
-import Data.Map (Map)
-import Lens.Micro
-import Control.Lens.TH
+import           Control.Lens
+import           Data.Map (Map)
+import qualified Data.List.PointedList as P
 
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
@@ -140,6 +140,17 @@ makeLenses ''St
 -- Specifically, if the two `St` have different `vathToBuffer`s.
 stBuffer :: St -> Traversal' St Buffer
 stBuffer st = buffers . atVath (st ^. vathToBuffer) . vTreeLabel
+
+stGetPuffer :: Getter St (Maybe Puffer)
+stGetPuffer = to go where
+  go :: St -> Maybe Puffer
+  go st = st ^? puffers . P.focus . getFocusedSubtree . _Just . pTreeLabel
+
+stSetPuffer :: Setter' St Puffer
+stSetPuffer = sets go where
+  go :: (Puffer -> Puffer) -> St -> St
+  go f = puffers . P.focus . setFocusedSubtree .
+         pTreeLabel %~ f
 
 instance Show St where
   show st = "St { "
