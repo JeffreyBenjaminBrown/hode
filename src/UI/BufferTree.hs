@@ -3,6 +3,7 @@
 module UI.BufferTree (
     consPufferAtTop      -- ^ Buffer -> St -> St
   , consBufferAtTop      -- ^ Buffer -> St -> St
+  , consPufferAsChild    -- ^ Buffer -> St -> St
   , consBufferAsChild    -- ^ Buffer -> St -> Either String St
   , cons_focusedViewResult_asChild -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> Either String St
@@ -11,6 +12,7 @@ module UI.BufferTree (
 import qualified Data.Vector as V
 
 import           Control.Arrow
+import qualified Data.List.PointedList as P
 import           Lens.Micro hiding (has)
 
 import UI.ITypes
@@ -30,14 +32,21 @@ consBufferAtTop b st =
   st & buffers %~ V.cons (vTreeLeaf b)
      & vathToBuffer .~ (0,[])
 
---consPufferAsChild :: Buffer -> St -> St
---consPufferAsChild b st = let
---  focus :: Bool -> Buffer -> Buffer
---  focus bool = pTreeHasFocus .~ bool
---  newSubtree :: PTree Buffer
---  newSubtree = pTreeLeaf b & pTreeHasFocus .~ True
---  in st & puffers . setFocusedSubtree . pMTrees . _Just . setList %~ (newSubtree :)
-  
+consPufferAsChild :: Buffer -> St -> St
+consPufferAsChild b st = let
+  newFocus :: PTree Buffer
+  newFocus = pTreeLeaf b & pTreeHasFocus .~ True
+  consNewFocus :: St -> St
+  consNewFocus = puffers . P.focus .
+                   setFocusedSubtree . pMTrees . _Just .
+                   setList %~ (newFocus :)
+  unFocusOldFocus :: St -> St
+  unFocusOldFocus = puffers . P.focus . setFocusedSubtree .
+                    pTreeHasFocus .~ False
+  -- PITFALL: Order of these ops matters. The old focus should only be
+  -- unfocused after the new focus is inserted; otherwise the place to
+  -- insert cannot be found. (& is left-infix.)
+  in st & consNewFocus & unFocusOldFocus
 
 consBufferAsChild :: Buffer -> St -> Either String St
 consBufferAsChild b st = prefixLeft "consEmptyBuffer" $ do
