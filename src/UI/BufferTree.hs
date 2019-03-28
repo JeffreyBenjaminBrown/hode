@@ -70,3 +70,6 @@ moveFocusedBuffer d st = prefixLeft "moveFocusedBuffer" $ do
   (vath, bf) <- moveFocusInVorest d (st^.vathToBuffer, st^.buffers)
   Right $ st & vathToBuffer .~ vath
              & buffers .~ bf
+
+moveFocusedPuffer :: Direction -> St -> St
+moveFocusedPuffer d st = st & puffers . P.focus %~ moveFocusInPTree d
