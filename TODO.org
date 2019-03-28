@@ -29,9 +29,9 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
+** TODO next: continue converting UI.RsltViewTree from Buffer to Puffer
 ** untested functions
-moveFocusedPuffer :: Direction -> St -> St
-consPufferAsChild    -- ^ Buffer -> St -> St
+All the Puffer functions in UI.BufferTree, RsltViewTree
 ** ? add a function to check the validity of its focii fields
 Only one should be true.
 ** DONE philosophy, and an alternative

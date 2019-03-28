@@ -10,7 +10,9 @@
 
 module UI.RsltViewTree (
     moveFocusedRsltView -- Direction -> St -> Either String St
+  , moveFocusedRsltView_puffer -- ^ Direction -> St -> St
   , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
+  , members_atFocus_puffer -- ^ St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
@@ -33,6 +35,7 @@ import UI.ITypes
 import UI.String
 import Util.Direction
 import Util.Misc
+import Util.PTree
 import Util.VTree
 
 
@@ -47,6 +50,10 @@ moveFocusedRsltView d st = prefixLeft "moveFocusedRsltView" $ do
   Right $ st & stBuffer st . bufferView .~ vt
              & stBuffer st . bufferPath .~ p
 
+moveFocusedRsltView_puffer :: Direction -> St -> St
+moveFocusedRsltView_puffer d st =
+  st & stSetPuffer . pufferView %~ moveFocusInPTree d
+
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
   (b :: Buffer) <- let msg = "bad vathToBuffer"
@@ -60,6 +67,16 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
   (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
   Right ( ViewMembers a, as )
 
+members_atFocus_puffer :: St -> Either String (ViewMembers, [Addr])
+members_atFocus_puffer st = prefixLeft "members_atFocus" $ do
+  (foc :: PTree RsltView) <- let msg = "focused RsltView not found."
+    in maybe (error msg) Right $
+       st ^? stGetPuffer . _Just . pufferView . getFocusedSubtree . _Just
+  (a :: Addr) <- case foc ^. pTreeLabel of
+    VResult rv -> Right $ rv ^. viewResultAddr
+    _ -> Left $ "can only be called from a RsltView with an Addr."
+  (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
+  Right (ViewMembers a, as)
 
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
