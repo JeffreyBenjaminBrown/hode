@@ -29,7 +29,7 @@ emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _buffers = vorestLeaf emptyBuffer
-  , _puffers = porestLeaf emptyBuffer
+  , _puffers = porestLeaf emptyPuffer
   , _vathToBuffer = (0,[])
   , _uiError   = ""
   , _reassurance = "It's all good."
@@ -46,6 +46,10 @@ emptyBuffer :: Buffer
 emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
                      , _bufferView = vTreeLeaf $ VQuery ""
                      , _bufferPath = [] }
+
+emptyPuffer :: Puffer
+emptyPuffer = Puffer { _pufferQuery = "(empty puffer)"
+                     , _pufferView = vTreeLeaf $ VQuery "" }
 
 bufferFromRsltViewTree :: VTree RsltView -> Either String Buffer
 bufferFromRsltViewTree vt = do

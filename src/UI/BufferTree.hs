@@ -7,6 +7,7 @@ module UI.BufferTree (
   , consBufferAsChild    -- ^ Buffer -> St -> Either String St
   , cons_focusedViewResult_asChild -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> Either String St
+  , moveFocusedPuffer -- ^ Direction -> St -> St
   ) where
 
 import qualified Data.Vector as V
@@ -24,7 +25,7 @@ import Util.PTree
 import Util.VTree
 
 
-consPufferAtTop :: Buffer -> St -> St
+consPufferAtTop :: Puffer -> St -> St
 consPufferAtTop b st = st & puffers . setList %~ (pTreeLeaf b :)
 
 consBufferAtTop :: Buffer -> St -> St
@@ -32,9 +33,9 @@ consBufferAtTop b st =
   st & buffers %~ V.cons (vTreeLeaf b)
      & vathToBuffer .~ (0,[])
 
-consPufferAsChild :: Buffer -> St -> St
+consPufferAsChild :: Puffer -> St -> St
 consPufferAsChild b st = let
-  newFocus :: PTree Buffer
+  newFocus :: PTree Puffer
   newFocus = pTreeLeaf b & pTreeHasFocus .~ True
   consNewFocus :: St -> St
   consNewFocus = puffers . P.focus .

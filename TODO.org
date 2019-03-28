@@ -29,6 +29,9 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
+** untested functions
+moveFocusedPuffer :: Direction -> St -> St
+consPufferAsChild    -- ^ Buffer -> St -> St
 ** ? add a function to check the validity of its focii fields
 Only one should be true.
 ** DONE philosophy, and an alternative
@@ -37,7 +40,7 @@ Only one should be true.
  I think it will simplify the using code a lot. No checking that paths are valid, for instance.
 *** but better would be Data.Tree.Zipper
  Each label on the tree would be an index into the subtree there.
- Those indices would not be a list position, but rather the Addr in an Rslt, 
+ Those indices would not be a list position, but rather the Addr in an Rslt,
  or some other identifier robust to insertion.
 * TODO top priorities
 ** folding
@@ -85,7 +88,7 @@ and mention that you can use parens liberally to make it more obvious
 (Not a big deal because the cursor path is remembered.)
 Add a toggleable window above the Results window.
 * TODO coder-friendliness
-** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr 
+** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr
 and maybe HExpr and PExpr.
 This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
 ** wart: HExpr and PExpr are complex and nearly isomorphic

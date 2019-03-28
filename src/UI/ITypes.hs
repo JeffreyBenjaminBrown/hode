@@ -108,8 +108,12 @@ instance Show RsltView where
 data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferView  :: VTree RsltView
                      , _bufferPath  :: Path } deriving (Eq, Ord)
+data Puffer = Puffer { _pufferQuery :: ViewQuery
+                     , _pufferView  :: VTree RsltView
+                     } deriving (Eq, Ord)
 
 makeLenses ''Buffer
+makeLenses ''Puffer
 
 instance Show Buffer where show = _bufferQuery
 
@@ -117,7 +121,7 @@ data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
   , _buffers                :: Vorest Buffer
-  , _puffers                :: Porest Buffer
+  , _puffers                :: Porest Puffer
   , _vathToBuffer           :: Vath
   , _uiError                :: String
   , _reassurance            :: String
