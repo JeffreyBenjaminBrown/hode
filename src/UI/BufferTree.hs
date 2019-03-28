@@ -5,6 +5,7 @@ module UI.BufferTree (
   , consBufferAtTop      -- ^ Buffer -> St -> St
   , consPufferAsChild    -- ^ Buffer -> St -> St
   , consBufferAsChild    -- ^ Buffer -> St -> Either String St
+  , cons_focusedViewResult_asChild_inPuffer -- ^ St -> Either String St
   , cons_focusedViewResult_asChild -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> Either String St
   , moveFocusedPuffer -- ^ Direction -> St -> St
@@ -37,10 +38,10 @@ consPufferAsChild :: Puffer -> St -> St
 consPufferAsChild b st = let
   newFocus :: PTree Puffer
   newFocus = pTreeLeaf b & pTreeHasFocus .~ True
-  consNewFocus :: St -> St
-  consNewFocus = puffers . P.focus .
-                   setFocusedSubtree . pMTrees . _Just .
-                   setList %~ (newFocus :)
+  consNewFocus    :: St -> St
+  consNewFocus    = puffers . P.focus . setFocusedSubtree .
+                    pMTrees . _Just .
+                    setList %~ (newFocus :)
   unFocusOldFocus :: St -> St
   unFocusOldFocus = puffers . P.focus . setFocusedSubtree .
                     pTreeHasFocus .~ False
@@ -55,6 +56,17 @@ consBufferAsChild b st = prefixLeft "consEmptyBuffer" $ do
   let vath = st^.vathToBuffer
   Right $ st & buffers . atVath vath . vTrees %~ V.cons (vTreeLeaf b)
              & vathToBuffer %~ second (++ [0])
+
+cons_focusedViewResult_asChild_inPuffer :: St -> Either String St
+cons_focusedViewResult_asChild_inPuffer st =
+  prefixLeft "cons_focusedViewResult_asChild" $ do
+  p <- let s = "stPuffer returned Nothing."
+    in maybe (Left s) Right $ st ^. stGetPuffer
+  (pt :: PTree RsltView) <-
+    let s = "getFocusedSubtree returned Nothing from pufferView."
+    in maybe (Left s) Right $ (p^.pufferView) ^. getFocusedSubtree
+  p' <- pufferFromRsltViewTree pt
+  Right $ st & hideReassurance & consPufferAsChild p'
 
 cons_focusedViewResult_asChild :: St -> Either String St
 cons_focusedViewResult_asChild st =
