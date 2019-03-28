@@ -30,6 +30,15 @@ consBufferAtTop b st =
   st & buffers %~ V.cons (vTreeLeaf b)
      & vathToBuffer .~ (0,[])
 
+--consPufferAsChild :: Buffer -> St -> St
+--consPufferAsChild b st = let
+--  focus :: Bool -> Buffer -> Buffer
+--  focus bool = pTreeHasFocus .~ bool
+--  newSubtree :: PTree Buffer
+--  newSubtree = pTreeLeaf b & pTreeHasFocus .~ True
+--  in st & puffers . setFocusedSubtree . pMTrees . _Just . setList %~ (newSubtree :)
+  
+
 consBufferAsChild :: Buffer -> St -> Either String St
 consBufferAsChild b st = prefixLeft "consEmptyBuffer" $ do
   _ <- vathInBounds (st^.buffers) (st^.vathToBuffer)

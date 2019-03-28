@@ -75,30 +75,30 @@ getFocusedChild = to go where
 getParentOfFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
 getParentOfFocusedSubtree = to go where
   go :: PTree a -> Maybe (PTree a)
-  go t = if isJust $ t ^. getFocusedChild then Just t else
-    case t ^. pMTrees of
-      Nothing -> Nothing
-      Just ts -> listToMaybe $ map fromJust
-                 $ filter isJust $ map go $ toList ts
+  go t = if t ^. pTreeHasFocus            then Nothing
+    else if isJust $ t ^. getFocusedChild then Just t
+    else case t ^. pMTrees of
+           Nothing -> Nothing
+           Just ts -> go $ ts ^. P.focus
 
 setParentOfFocusedSubtree :: Setter' (PTree a) (PTree a)
 setParentOfFocusedSubtree = sets go where
   go :: (PTree a -> PTree a) -> PTree a -> PTree a
-  go f t = if isJust $ t ^. getFocusedChild
-    then f t else
+  go f t = if t ^. pTreeHasFocus          then t
+    else if isJust $ t ^. getFocusedChild then f t else
     case t ^. pMTrees of
       Nothing -> t
-      Just ts -> let ts' = map (go f) $ toList ts
-                 in t & pMTrees .~ P.fromList ts'
+      Just _ -> t & pMTrees . _Just . P.focus %~ go f
 
+-- | If the `PTree` has (it sohuldn't) more than one subtree for which
+-- `pTreeHasFocus` is true, this returns the first such.
 getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
 getFocusedSubtree = to go where
   go :: PTree a -> Maybe (PTree a)
   go t@(_pTreeHasFocus -> True) = Just t
   go t = case _pMTrees t of
     Nothing -> Nothing
-    Just ts -> listToMaybe $ map fromJust $ filter isJust $
-               map go $ toList ts
+    Just ts -> go $ ts ^. P.focus
 
 setFocusedSubtree :: Setter' (PTree a) (PTree a)
 setFocusedSubtree = sets go where
@@ -106,8 +106,7 @@ setFocusedSubtree = sets go where
   go f t@(_pTreeHasFocus -> True) = f t
   go f t = case _pMTrees t of
     Nothing -> t
-    Just pts -> let (tsRec :: [PTree a]) = map (go f) $ toList pts
-                in t & pMTrees .~ P.fromList tsRec
+    Just _ -> t & pMTrees . _Just . P.focus %~ go f
 
 
 -- | = Creators

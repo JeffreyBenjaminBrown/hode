@@ -29,9 +29,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
-** TODO make a PointedList lens into a List
-to simplify passages currently of the form "P.fromList . op . toList"
-
+** ? add a function to check the validity of its focii fields
+Only one should be true.
 ** DONE philosophy, and an alternative
 *** it's good enough; use it, probably
  Where slow it can be sped up -- currently, stupidly, it searches outside of an ancestor's focus for the focal descendent.
