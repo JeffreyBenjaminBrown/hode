@@ -61,7 +61,7 @@ cons_focusedViewResult_asChild_inPuffer :: St -> Either String St
 cons_focusedViewResult_asChild_inPuffer st =
   prefixLeft "cons_focusedViewResult_asChild" $ do
   p <- let s = "stPuffer returned Nothing."
-    in maybe (Left s) Right $ st ^. stGetPuffer
+    in maybe (Left s) Right $ st ^. stGetFocusedPuffer
   (pt :: PTree RsltView) <-
     let s = "getFocusedSubtree returned Nothing from pufferView."
     in maybe (Left s) Right $ (p^.pufferView) ^. getFocusedSubtree

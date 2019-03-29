@@ -141,13 +141,13 @@ makeLenses ''St
 stBuffer :: St -> Traversal' St Buffer
 stBuffer st = buffers . atVath (st ^. vathToBuffer) . vTreeLabel
 
-stGetPuffer :: Getter St (Maybe Puffer)
-stGetPuffer = to go where
+stGetFocusedPuffer :: Getter St (Maybe Puffer)
+stGetFocusedPuffer = to go where
   go :: St -> Maybe Puffer
   go st = st ^? puffers . P.focus . getFocusedSubtree . _Just . pTreeLabel
 
-stSetPuffer :: Setter' St Puffer
-stSetPuffer = sets go where
+stSetFocusedPuffer :: Setter' St Puffer
+stSetFocusedPuffer = sets go where
   go :: (Puffer -> Puffer) -> St -> St
   go f = puffers . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
@@ -155,12 +155,12 @@ stSetPuffer = sets go where
 stGetFocusedRsltViewPTree :: Getter St (Maybe (PTree RsltView))
 stGetFocusedRsltViewPTree = to go where
   go :: St -> Maybe (PTree RsltView)
-  go st = st ^? stGetPuffer . _Just . pufferView . getFocusedSubtree . _Just
+  go st = st ^? stGetFocusedPuffer . _Just . pufferView . getFocusedSubtree . _Just
 
 stSetFocusedRsltViewPTree :: Setter' St (PTree RsltView)
 stSetFocusedRsltViewPTree = sets go where
   go :: (PTree RsltView -> PTree RsltView) -> St -> St
-  go f = stSetPuffer . pufferView . setFocusedSubtree %~ f
+  go f = stSetFocusedPuffer . pufferView . setFocusedSubtree %~ f
 
 instance Show St where
   show st = "St { "

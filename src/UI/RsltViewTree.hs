@@ -58,7 +58,7 @@ moveFocusedRsltView d st = prefixLeft "moveFocusedRsltView" $ do
 
 moveFocusedRsltView_puffer :: Direction -> St -> St
 moveFocusedRsltView_puffer d st =
-  st & stSetPuffer . pufferView %~ moveFocusInPTree d
+  st & stSetFocusedPuffer . pufferView %~ moveFocusInPTree d
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
