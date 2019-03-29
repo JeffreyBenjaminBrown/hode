@@ -152,6 +152,16 @@ stSetPuffer = sets go where
   go f = puffers . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
+stGetFocusedRsltViewPTree :: Getter St (Maybe (PTree RsltView))
+stGetFocusedRsltViewPTree = to go where
+  go :: St -> Maybe (PTree RsltView)
+  go st = st ^? stGetPuffer . _Just . pufferView . getFocusedSubtree . _Just
+
+stSetFocusedRsltViewPTree :: Setter' St (PTree RsltView)
+stSetFocusedRsltViewPTree = sets go where
+  go :: (PTree RsltView -> PTree RsltView) -> St -> St
+  go f = stSetPuffer . pufferView . setFocusedSubtree %~ f
+
 instance Show St where
   show st = "St { "
    ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"

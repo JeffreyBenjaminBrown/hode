@@ -77,7 +77,7 @@ members_atFocus_puffer :: St -> Either String (ViewMembers, [Addr])
 members_atFocus_puffer st = prefixLeft "members_atFocus" $ do
   (foc :: PTree RsltView) <- let msg = "focused RsltView not found."
     in maybe (error msg) Right $
-       st ^? stGetPuffer . _Just . pufferView . getFocusedSubtree . _Just
+       st ^? stGetFocusedRsltViewPTree . _Just
   (a :: Addr) <- case foc ^. pTreeLabel of
     VResult rv -> Right $ rv ^. viewResultAddr
     _ -> Left $ "can only be called from a RsltView with an Addr."
@@ -106,8 +106,7 @@ insertMembers_atFocus_puffer st = prefixLeft "insertMembers_atFocus" $ do
   (leavesOfNew' :: Porest RsltView) <- let msg = "Expr has no members."
     in maybe (error msg) Right $ P.fromList leavesOfNew
   let (new :: PTree RsltView) = topOfNew & pMTrees . _Just .~ leavesOfNew'
-  Right $ st & ( stSetPuffer . pufferView . setFocusedSubtree
-                 %~ consUnderAndFocus new )
+  Right $ st & stSetFocusedRsltViewPTree %~ consUnderAndFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels r a0 = do
@@ -150,8 +149,9 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
 groupHostRels_atFocus_puffer :: St -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels_atFocus_puffer st = prefixLeft "groupHostRels_atFocus'" $ do
   a :: Addr <- let errMsg = "Buffer not found or focused RsltView not found."
-    in maybe (Left errMsg) Right
-       $ st ^? stGetPuffer . _Just . pufferView . getFocusedSubtree . _Just . pTreeLabel . _VResult . viewResultAddr
+    in maybe (Left errMsg) Right $
+       st ^? stGetFocusedRsltViewPTree . _Just .
+       pTreeLabel . _VResult . viewResultAddr
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
