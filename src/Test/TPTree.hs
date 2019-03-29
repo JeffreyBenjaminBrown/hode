@@ -6,7 +6,6 @@ import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
 import           Lens.Micro
-import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
 
 import           Util.PTree
