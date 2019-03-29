@@ -23,10 +23,12 @@ module UI.RsltViewTree (
                                 -- -> Either String (VTree RsltView)
   , hostRelGroup_to_view_puffer -- Rslt -> (ViewCenterRole, [Addr])
                                 -- -> Either String (PTree RsltView)
-  , insertHosts_atFocus    -- St -> Either String St
+  , insertHosts_atFocus        -- St -> Either String St
+  , insertHosts_atFocus_puffer -- St -> Either String St
   , closeSubviews_atFocus  -- St -> Either String St
   ) where
 
+import           Data.Foldable (toList)
 import           Data.Map (Map)
 import qualified Data.List.PointedList as P
 import qualified Data.Map    as M
@@ -166,6 +168,22 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
         (preexist :: [VTree RsltView]) =  V.toList $ vt ^. vTrees
   Right $ st & stBuffer st . bufferView
     . atPath (st ^. stBuffer st . bufferPath) %~ insert
+
+insertHosts_atFocus_puffer :: St -> Either String St
+insertHosts_atFocus_puffer st = prefixLeft "insertHosts_atFocus" $ do
+  (groups :: [(ViewCenterRole, [Addr])]) <-
+    groupHostRels_atFocus_puffer st
+  (newTrees :: [PTree RsltView]) <- ifLefts ""
+    $ map (hostRelGroup_to_view_puffer $ st ^. appRslt) groups
+  (preexist :: Maybe (Porest RsltView)) <-
+    let errMsg = "focused RsltView not found."
+    in maybe (Left errMsg) Right $ st ^?
+       stGetFocusedRsltViewPTree . _Just . pMTrees
+  let (preexist' :: [PTree RsltView]) = maybe [] toList preexist
+      insert :: PTree RsltView -> PTree RsltView
+      insert foc = foc & pMTrees .~
+                  P.fromList (foldr (:) preexist' newTrees)
+  Right $ st & stSetFocusedRsltViewPTree %~ insert
 
 hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
                      -> Either String (VTree RsltView)
