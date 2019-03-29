@@ -15,11 +15,14 @@ module UI.RsltViewTree (
   , members_atFocus_puffer -- ^ St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
   , insertMembers_atFocus_puffer -- ^ St -> Either String St
-
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
-  , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
-                         -- -> Either String (VTree RsltView)
+  , groupHostRels_atFocus_puffer
+                            -- St -> Either String [(ViewCenterRole, [Addr])]
+  , hostRelGroup_to_view        -- Rslt -> (ViewCenterRole, [Addr])
+                                -- -> Either String (VTree RsltView)
+  , hostRelGroup_to_view_puffer -- Rslt -> (ViewCenterRole, [Addr])
+                                -- -> Either String (PTree RsltView)
   , insertHosts_atFocus    -- St -> Either String St
   , closeSubviews_atFocus  -- St -> Either String St
   ) where
@@ -103,8 +106,8 @@ insertMembers_atFocus_puffer st = prefixLeft "insertMembers_atFocus" $ do
   (leavesOfNew' :: Porest RsltView) <- let msg = "Expr has no members."
     in maybe (error msg) Right $ P.fromList leavesOfNew
   let (new :: PTree RsltView) = topOfNew & pMTrees . _Just .~ leavesOfNew'
-  Right $ st & stSetPuffer . pufferView . setFocusedSubtree
-    %~ consUnderAndFocus new
+  Right $ st & ( stSetPuffer . pufferView . setFocusedSubtree
+                 %~ consUnderAndFocus new )
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels r a0 = do
@@ -130,13 +133,12 @@ groupHostRels r a0 = do
           tplt a = es where Right (Tplt es) = addrToExpr r a
   Right $ map package $ M.toList groups
 
-
 groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
-  let noBuffer = Left "Cannot be done when there is no buffer."
-  (top :: VTree RsltView) <- maybe noBuffer Right
+  let noBufferMsg = Left "Cannot be done when there is no buffer."
+  (top :: VTree RsltView) <- maybe noBufferMsg Right
     $ st ^? stBuffer st . bufferView
-  (p   :: Path)           <- maybe noBuffer Right
+  (p   :: Path)           <- maybe noBufferMsg Right
     $ st ^? stBuffer st . bufferPath
   _ <- pathInBounds top p
   a :: Addr <-
@@ -145,6 +147,12 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
        $ top ^? atPath p . vTreeLabel . _VResult . viewResultAddr
   groupHostRels (st ^. appRslt) a
 
+groupHostRels_atFocus_puffer :: St -> Either String [(ViewCenterRole, [Addr])]
+groupHostRels_atFocus_puffer st = prefixLeft "groupHostRels_atFocus'" $ do
+  a :: Addr <- let errMsg = "Buffer not found or focused RsltView not found."
+    in maybe (Left errMsg) Right
+       $ st ^? stGetPuffer . _Just . pufferView . getFocusedSubtree . _Just . pTreeLabel . _VResult . viewResultAddr
+  groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
@@ -159,7 +167,6 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
   Right $ st & stBuffer st . bufferView
     . atPath (st ^. stBuffer st . bufferPath) %~ insert
 
-
 hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
                      -> Either String (VTree RsltView)
 hostRelGroup_to_view r (crv, as) = do
@@ -171,16 +178,28 @@ hostRelGroup_to_view r (crv, as) = do
                 , _vTrees =
                     V.fromList $ map (vTreeLeaf . VResult) rs }
 
+hostRelGroup_to_view_puffer :: Rslt -> (ViewCenterRole, [Addr])
+                     -> Either String (PTree RsltView)
+hostRelGroup_to_view_puffer r (crv, as) = do
+  case as of [] -> Left "There are no host Exprs to show."
+             _ -> Right ()
+  let mustBeOkay = "Impossible: as is nonempty, so P.fromList must work."
+  (rs :: [ViewResult]) <- ifLefts "hostRelGroup_to_view"
+    $ map (resultView r) as
+  Right $ PTree { _pTreeLabel = VCenterRole crv
+                , _pTreeHasFocus = False
+                , _pMTrees = maybe (error mustBeOkay) Just $
+                    P.fromList $ map (pTreeLeaf . VResult) rs }
 
 closeSubviews_atFocus :: St -> Either String St
 closeSubviews_atFocus st = st & prefixLeft "closeSubviews_atFocus"
-  . eitherIntoTraversal (stBuffer st) _closeSubviews_atFocus
+  . eitherIntoTraversal (stBuffer st) go where
 
-_closeSubviews_atFocus :: Buffer -> Either String Buffer
-_closeSubviews_atFocus b = do
-  _ <- pathInBounds (b ^. bufferView) (b ^. bufferPath)
-  _ <- let err = "Closing the root of a view would be silly."
-       in if b ^. bufferPath == [] then Left err else Right ()
-  let close :: VTree RsltView -> VTree RsltView
-      close = vTrees .~ mempty
-  Right $ b & bufferView . atPath (b ^. bufferPath) %~ close
+  go :: Buffer -> Either String Buffer
+  go b = do
+    _ <- pathInBounds (b ^. bufferView) (b ^. bufferPath)
+    _ <- let err = "Closing the root of a view would be silly."
+         in if b ^. bufferPath == [] then Left err else Right ()
+    let close :: VTree RsltView -> VTree RsltView
+        close = vTrees .~ mempty
+    Right $ b & bufferView . atPath (b ^. bufferPath) %~ close
