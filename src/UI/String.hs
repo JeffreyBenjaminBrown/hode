@@ -1,12 +1,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.String (
-    resultsText  -- ^ St -> [String]
+    resultsText        -- ^ St -> [String]
+  , resultsText_puffer -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , vShow        -- ^ RsltView -> String
   ) where
 
-import qualified Data.Vector              as V
+import           Data.Foldable (toList)
+import qualified Data.Vector           as V
 import           Lens.Micro
 
 import Rslt.RLookup
@@ -14,6 +16,7 @@ import Rslt.RTypes
 import Rslt.Show
 import UI.ITypes
 import Util.Misc
+import Util.PTree
 import Util.VTree
 
 
@@ -25,6 +28,17 @@ resultsText st = maybe [] (f 0) b where
   f :: Int -> VTree RsltView -> [String]
   f i v = indent (vShow $ v ^. vTreeLabel)
     : concatMap (f $ i+1) (V.toList $ v ^. vTrees)
+    where indent :: String -> String
+          indent s = replicate (2*i) ' ' ++ s
+
+resultsText_puffer :: St -> [String]
+resultsText_puffer st = maybe [] (go 0) p where
+  p :: Maybe (PTree RsltView)
+  p = st ^? stGetFocusedPuffer . _Just . pufferView
+
+  go :: Int -> PTree RsltView -> [String]
+  go i tv = indent (vShow $ tv ^. pTreeLabel)
+    : concatMap (go $ i+1) (maybe [] id $ toList <$> tv ^. pMTrees)
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s
 
