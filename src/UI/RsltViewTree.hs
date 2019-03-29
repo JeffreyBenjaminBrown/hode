@@ -25,7 +25,8 @@ module UI.RsltViewTree (
                                 -- -> Either String (PTree RsltView)
   , insertHosts_atFocus        -- St -> Either String St
   , insertHosts_atFocus_puffer -- St -> Either String St
-  , closeSubviews_atFocus  -- St -> Either String St
+  , closeSubviews_atFocus        -- St -> Either String St
+  , closeSubviews_atFocus_puffer -- St -> St
   ) where
 
 import           Data.Foldable (toList)
@@ -221,3 +222,7 @@ closeSubviews_atFocus st = st & prefixLeft "closeSubviews_atFocus"
     let close :: VTree RsltView -> VTree RsltView
         close = vTrees .~ mempty
     Right $ b & bufferView . atPath (b ^. bufferPath) %~ close
+
+closeSubviews_atFocus_puffer :: St -> St
+closeSubviews_atFocus_puffer =
+  stSetFocusedRsltViewPTree . pMTrees .~ Nothing
