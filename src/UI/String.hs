@@ -22,7 +22,7 @@ import Util.VTree
 resultsText_puffer :: St -> [String]
 resultsText_puffer st = maybe [] (go 0) p where
   p :: Maybe (PTree RsltView)
-  p = st ^? stGetFocusedPuffer . _Just . pufferView
+  p = st ^? stGetFocusedPuffer . _Just . pufferRsltViewTree
 
   go :: Int -> PTree RsltView -> [String]
   go i tv = indent (vShow $ tv ^. pTreeLabel)
@@ -45,5 +45,5 @@ vShow (VQuery vq)  = vq
 vShow (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
 vShow (VMembers a) = "memebers of Expr at Addr "
-                     ++ show (a ^. mvCenter)
-vShow (VCenterRole crv) = show crv
+                     ++ show (a ^. viewMembersCenter)
+vShow (VCenterRole vcr) = show vcr

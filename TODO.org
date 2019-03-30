@@ -93,7 +93,7 @@ Add a toggleable window above the Results window.
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr
 and maybe HExpr and PExpr.
-This would let me, for example, make ViewCenterRole.crvTplt :: [Expr] safer.
+This would let me, for example, make ViewCenterRole.vcrTplt :: [Expr] safer.
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root

@@ -62,7 +62,7 @@ appDraw st0 = [w] where
 
   st = st0 & stSetFocusedPuffer .~ b
            & puffers . P.focus . setFocusedSubtree . pTreeHasFocus .~ True
-           & stSetFocusedRsltViewPTree . pTreeHasFocus .~ True
+           & stSetFocusedRsltViewTree . pTreeHasFocus .~ True
   (b :: Puffer) = maybe err id $  st0 ^? stGetFocusedPuffer . _Just where
       err = error "Focused Puffer not found."
 
@@ -114,7 +114,7 @@ appDraw st0 = [w] where
                          . withAttr (B.attrName "focused result")
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-                 $ vShowRec $ b ^. pufferView where
+                 $ vShowRec $ b ^. pufferRsltViewTree where
     fShow :: Porest RsltView -> B.Widget BrickName
     fShow = vBox . map vShowRec . toList
 

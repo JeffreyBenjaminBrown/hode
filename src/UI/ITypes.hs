@@ -50,7 +50,7 @@ data ViewResult = ViewResult {
     _viewResultAddr :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
-data ViewMembers = ViewMembers { _mvCenter :: Addr }
+data ViewMembers = ViewMembers { _viewMembersCenter :: Addr }
   deriving (Show, Eq, Ord)
 
 -- | PITFALL: In the case of `VTree RsltView`,
@@ -63,13 +63,13 @@ data RsltView = VQuery      ViewQuery
               | VCenterRole ViewCenterRole deriving (Eq, Ord)
 
 -- | `ViewCenterRole` is used to group relationships in which the `Expr`at
--- `crvCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
+-- `vcrCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
 -- then `ViewCenterRole 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
 data ViewCenterRole = ViewCenterRole {
-    _crvCenter :: Addr
-  , _crvRole   :: Role
-  , _crvTplt   :: [Expr] } deriving (Eq, Ord)
+    _vcrCenter :: Addr
+  , _vcrRole   :: Role
+  , _vcrTplt   :: [Expr] } deriving (Eq, Ord)
 
 makePrisms ''RsltView -- prisms!
 makeLenses ''ViewResult
@@ -78,16 +78,16 @@ makeLenses ''ViewCenterRole
 
 instance Show ViewCenterRole where
   show vcr = let
-    tplt = vcr ^. crvTplt
+    tplt = vcr ^. vcrTplt
     noLeft     = error "show ViewCenterRole: impossible"
     noRslt     = error "show ViewCenterRole: Rslt irrelevant"
     noMiscount = error "show ViewCenterRole: This math is good."
     showTplt = either (const noLeft) id
                $ eShow noRslt (Tplt tplt)
-    in if vcr ^. crvRole == RoleTplt
+    in if vcr ^. vcrRole == RoleTplt
        then "Tplt " ++ showTplt
        else let (ar :: Arity) = length tplt - 1
-                RoleMember (n :: Int) = vcr ^. crvRole
+                RoleMember (n :: Int) = vcr ^. vcrRole
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
@@ -106,7 +106,7 @@ instance Show RsltView where
 -- PITFALL: These types must come last in order to derive `Show`.
 
 data Puffer = Puffer { _pufferQuery :: ViewQuery
-                     , _pufferView  :: PTree RsltView
+                     , _pufferRsltViewTree  :: PTree RsltView
                      } deriving (Eq, Ord)
 makeLenses ''Puffer
 
@@ -136,12 +136,12 @@ stSetFocusedPuffer = sets go where
   go f = puffers . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
-stGetFocusedRsltViewPTree :: Getter St (Maybe (PTree RsltView))
-stGetFocusedRsltViewPTree = to go where
+stGetFocusedRsltViewTree :: Getter St (Maybe (PTree RsltView))
+stGetFocusedRsltViewTree = to go where
   go :: St -> Maybe (PTree RsltView)
-  go st = st ^? stGetFocusedPuffer . _Just . pufferView . getFocusedSubtree . _Just
+  go st = st ^? stGetFocusedPuffer . _Just . pufferRsltViewTree . getFocusedSubtree . _Just
 
-stSetFocusedRsltViewPTree :: Setter' St (PTree RsltView)
-stSetFocusedRsltViewPTree = sets go where
+stSetFocusedRsltViewTree :: Setter' St (PTree RsltView)
+stSetFocusedRsltViewTree = sets go where
   go :: (PTree RsltView -> PTree RsltView) -> St -> St
-  go f = stSetFocusedPuffer . pufferView . setFocusedSubtree %~ f
+  go f = stSetFocusedPuffer . pufferRsltViewTree . setFocusedSubtree %~ f

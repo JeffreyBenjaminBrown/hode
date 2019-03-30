@@ -47,8 +47,8 @@ cons_focusedViewResult_asChild_inPuffer st =
   p <- let s = "stPuffer returned Nothing."
     in maybe (Left s) Right $ st ^. stGetFocusedPuffer
   (pt :: PTree RsltView) <-
-    let s = "getFocusedSubtree returned Nothing from pufferView."
-    in maybe (Left s) Right $ (p^.pufferView) ^. getFocusedSubtree
+    let s = "getFocusedSubtree returned Nothing from pufferRsltViewTree."
+    in maybe (Left s) Right $ (p^.pufferRsltViewTree) ^. getFocusedSubtree
   p' <- pufferFromRsltViewTree pt
   Right $ st & hideReassurance & consPufferAsChild p'
 

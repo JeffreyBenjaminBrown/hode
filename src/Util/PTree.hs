@@ -29,9 +29,7 @@ prevIfPossible l = maybe l id $ P.previous l
 nextIfPossible l = maybe l id $ P.next l
 
 getList :: Getter (PointedList a) [a]
-getList = to go where
-  go :: PointedList a -> [a]
-  go = toList
+getList = to toList
 
 setList :: Setter' (PointedList a) [a]
 setList = sets go where

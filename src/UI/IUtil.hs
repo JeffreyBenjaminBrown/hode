@@ -44,7 +44,7 @@ emptySt r = St {
 
 emptyPuffer :: Puffer
 emptyPuffer = Puffer { _pufferQuery = "(empty puffer)"
-                     , _pufferView = pTreeLeaf $ VQuery "" }
+                     , _pufferRsltViewTree = pTreeLeaf $ VQuery "" }
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
 pufferFromRsltViewTree :: PTree RsltView -> Either String Puffer
@@ -54,4 +54,4 @@ pufferFromRsltViewTree vt = do
     VResult x -> Right x
     _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
   Right $ Puffer { _pufferQuery = viewResult ^. viewResultString
-                 , _pufferView = vt }
+                 , _pufferRsltViewTree = vt }

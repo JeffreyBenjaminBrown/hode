@@ -37,14 +37,14 @@ test_groupHostRels = TestCase $ do
   assertBool "1" $ (S.fromList <$> groupHostRels D.big 2) == Right
     ( S.fromList
       [ ( ViewCenterRole
-          { _crvCenter = 2
-          , _crvRole = RoleMember 1
-          , _crvTplt = [Phrase "0",Phrase "0",Phrase "0"] }
+          { _vcrCenter = 2
+          , _vcrRole = RoleMember 1
+          , _vcrTplt = [Phrase "0",Phrase "0",Phrase "0"] }
         ,[9] )
       , ( ViewCenterRole
-          { _crvCenter = 2
-          , _crvRole = RoleMember 2
-          , _crvTplt = [Phrase "0",Phrase "0",Phrase "0"] }
+          { _vcrCenter = 2
+          , _vcrRole = RoleMember 2
+          , _vcrTplt = [Phrase "0",Phrase "0",Phrase "0"] }
         ,[7] ) ] )
 
 test_pCommand :: T.Test

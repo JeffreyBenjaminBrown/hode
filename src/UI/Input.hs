@@ -157,7 +157,7 @@ runParsedCommand_puffer (CommandFind s h) st = do
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
                           & stSetFocusedPuffer . pufferQuery .~ s
-                          & stSetFocusedPuffer . pufferView .~ v
+                          & stSetFocusedPuffer . pufferRsltViewTree .~ v
 
 runParsedCommand_puffer (CommandInsert e) st =
   either Left (Right . f)
