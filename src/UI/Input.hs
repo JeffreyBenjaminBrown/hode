@@ -284,7 +284,7 @@ runParsedCommand_puffer (CommandFind s h) st = do
     $ hExprToAddrs r (mempty :: Subst Addr) h
 
   let v = PTree { _pTreeLabel = VQuery s
-                , _pTreeHasFocus = False
+                , _pTreeHasFocus = True
                 , _pMTrees =
                   P.fromList $ map v_qr $ S.toList as
                 } where

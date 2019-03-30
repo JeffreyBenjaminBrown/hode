@@ -10,11 +10,12 @@ module UI.IUtil (
   , bufferFromRsltViewTree -- ^ VTree RsltView -> Either String Buffer
   ) where
 
-import qualified Data.Map                 as M
+import qualified Data.List.PointedList as P
+import qualified Data.Map              as M
 import           Lens.Micro
 
-import qualified Brick.Focus              as B
-import qualified Brick.Widgets.Edit       as B
+import qualified Brick.Focus           as B
+import qualified Brick.Widgets.Edit    as B
 
 import Rslt.RTypes
 import UI.ITypes
@@ -32,6 +33,7 @@ emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _buffers = vorestLeaf emptyBuffer
   , _puffers = porestLeaf emptyPuffer
+               & P.focus . pTreeHasFocus .~ True
   , _vathToBuffer = (0,[])
   , _uiError   = ""
   , _reassurance = "It's all good."

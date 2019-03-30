@@ -52,7 +52,7 @@ resultView r a = do
 -- | `vShow` is used to display a `RsltView` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `RsltView`,
 -- whereas `vShow` hides things that are already clear in the UI context.
-vShow :: RsltView -> String
+vShow :: RsltView -> String -- TODO : rename vShow
 vShow (VQuery vq)  = vq
 vShow (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)

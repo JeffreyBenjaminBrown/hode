@@ -196,7 +196,7 @@ appDraw_puffer st0 = [w] where
             rest = case mpts of
                      Nothing -> emptyWidget
                      Just pts -> padLeft (B.Pad 2) $ fShow pts
-    vShowOne bt = style $ strWrap $ show $ _pTreeLabel bt
+    vShowOne bt = style $ strWrap $ vShow $ _pTreeLabel bt
       where style :: B.Widget BrickName
                   -> B.Widget BrickName
             style = if not $ bt ^. pTreeHasFocus then id

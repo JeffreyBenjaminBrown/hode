@@ -107,7 +107,7 @@ insertMembers_atFocus_puffer st = prefixLeft "insertMembers_atFocus" $ do
   (leavesOfNew :: [PTree RsltView]) <- map (pTreeLeaf . VResult)
     <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
   (leavesOfNew' :: Porest RsltView) <- let msg = "Expr has no members."
-    in maybe (error msg) Right $ P.fromList leavesOfNew
+    in maybe (Left msg) Right $ P.fromList leavesOfNew
   let (new :: PTree RsltView) = topOfNew & pMTrees . _Just .~ leavesOfNew'
   Right $ st & stSetFocusedRsltViewPTree %~ consUnderAndFocus new
 

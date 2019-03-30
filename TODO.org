@@ -29,7 +29,10 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
-** TODO next: convert UI.Input, then UI.Main
+** TODO bugs
+Can't escape error window.
+Cursoring doesn't work.
+Focused Puffer can be lost.
 ** untested functions
 All the Puffer functions in UI.BufferTree, RsltViewTree
 ** ? add a function to check the validity of its focii fields
