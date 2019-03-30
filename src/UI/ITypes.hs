@@ -30,7 +30,7 @@ data BrickName = BrickOptionalName OptionalWindowName
                | BrickMainName MainWindowName deriving (Ord, Show, Eq)
 data OptionalWindowName = Commands
                         | Reassurance deriving (Ord, Show, Eq)
-data MainWindowName = Buffers
+data MainWindowName = Buffers | Puffers
                     | CommandHistory
                     | Results deriving (Ord, Show, Eq)
 
