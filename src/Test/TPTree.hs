@@ -38,18 +38,11 @@ test_pListLenses = TestCase $ do
 test_moveFocus_inPorest :: T.Test
 test_moveFocus_inPorest = TestCase $ do
   let -- In these names, u=up, d=down, and otherwise n=next is implicit
-    f          = pTreeLeaf (1 :: Int)
-    t          = f { _pTreeHasFocus = True }
-    f_dt       = f { _pMTrees =                    P.fromList [t] }
-    t_df       = t { _pMTrees =                    P.fromList [f] }
-    f_df_t     = f { _pMTrees = nextIfPossible <$> P.fromList [f,t] }
-    f_dt_f     = f { _pMTrees =                    P.fromList [t,f] }
-    f_dt_df_uf = f { _pMTrees =                    P.fromList [t_df,f] }
-    f_df_dt_uf = f { _pMTrees =                    P.fromList [f_dt,f] }
-
     pList :: [a] -> P.PointedList a
     pList = maybe (error "impossible unless given [].") id . P.fromList
-    nip = nextIfPossible
+    nip   = nextIfPossible
+    f     = pTreeLeaf (1 :: Int)
+    t     = f { _pTreeHasFocus = True }
     _f_nt = nip $ pList [f,t]
     _t_nf =       pList [t,f]
 
@@ -61,7 +54,6 @@ test_moveFocus_inPorest = TestCase $ do
                                           == _t_nf
   assertBool "2" $ moveFocusInPorest DirPrev _f_nt
                                           == _t_nf
-  assertBool "todo: more tests along those lines" False
 
 test_moveFocus_inPTree :: T.Test
 test_moveFocus_inPTree = TestCase $ do

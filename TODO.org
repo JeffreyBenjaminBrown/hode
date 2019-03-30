@@ -33,7 +33,7 @@ see the comment leading its definition
 ITypes: everything* in it is tested.
   (except getList and setList, which are trivial)
 ** TODO bugs
-consBufferAsChild doesn't work.
+cons_focusedViewResult_asChildOfBuffer (M-b from Results window)
 ** untested functions
 All the Buffer functions in UI.BufferTree, RsltViewTree
 ** ? add a function to check the validity of its focii fields
