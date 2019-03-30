@@ -34,9 +34,9 @@ ITypes: everything* in it is tested.
   (except getList and setList, which are trivial)
 ** TODO bugs
 Cursoring doesn't work.
-Focused Puffer can be lost.
+Focused Buffer can be lost.
 ** untested functions
-All the Puffer functions in UI.BufferTree, RsltViewTree
+All the Buffer functions in UI.BufferTree, RsltViewTree
 ** ? add a function to check the validity of its focii fields
 Only one should be true.
 ** DONE philosophy, and an alternative

@@ -4,8 +4,8 @@ module UI.IUtil (
     unEitherSt             -- ^ Either String St -> St -> St
 
   , emptySt                -- ^ Rslt -> St
-  , emptyPuffer            -- ^                                 Puffer
-  , pufferFromRsltViewTree -- ^ PTree RsltView -> Either String Puffer
+  , emptyBuffer            -- ^                                 Buffer
+  , bufferFromRsltViewTree -- ^ PTree RsltView -> Either String Buffer
   ) where
 
 import qualified Data.List.PointedList as P
@@ -19,7 +19,6 @@ import Rslt.RTypes
 import UI.ITypes
 import UI.Window
 import Util.PTree
-import Util.VTree
 
 
 unEitherSt :: St -> Either String St -> St
@@ -29,7 +28,7 @@ unEitherSt _ (Right new) = new & showingErrorWindow .~ False
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _puffers = porestLeaf emptyPuffer
+  , _buffers = porestLeaf emptyBuffer
                & P.focus . pTreeHasFocus .~ True
   , _uiError   = ""
   , _reassurance = "It's all good."
@@ -42,16 +41,16 @@ emptySt r = St {
                                          , (Reassurance, True) ]
   }
 
-emptyPuffer :: Puffer
-emptyPuffer = Puffer { _pufferQuery = "(empty puffer)"
-                     , _pufferRsltViewTree = pTreeLeaf $ VQuery "" }
+emptyBuffer :: Buffer
+emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
+                     , _bufferRsltViewTree = pTreeLeaf $ VQuery "" }
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
-pufferFromRsltViewTree :: PTree RsltView -> Either String Puffer
-pufferFromRsltViewTree vt = do
+bufferFromRsltViewTree :: PTree RsltView -> Either String Buffer
+bufferFromRsltViewTree vt = do
   let (rsltView :: RsltView) = _pTreeLabel vt
   viewResult <- case rsltView of
     VResult x -> Right x
     _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
-  Right $ Puffer { _pufferQuery = viewResult ^. viewResultString
-                 , _pufferRsltViewTree = vt }
+  Right $ Buffer { _bufferQuery = viewResult ^. viewResultString
+                 , _bufferRsltViewTree = vt }

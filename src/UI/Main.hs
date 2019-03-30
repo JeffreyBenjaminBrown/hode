@@ -9,7 +9,6 @@ module UI.Main where
 import           Data.Foldable (toList)
 import qualified Data.List.PointedList as P
 import qualified Data.Map             as M
-import qualified Data.Vector          as V
 import           Lens.Micro
 
 import qualified Brick.Main           as B
@@ -30,7 +29,6 @@ import UI.IUtil
 import UI.String
 import UI.Window
 import Util.PTree
-import Util.VTree
 
 
 ui :: IO St
@@ -60,14 +58,14 @@ appDraw st0 = [w] where
     (if st0 ^. showingErrorWindow then errorWindow else mainWindow)
     <=> optionalWindows
 
-  st = st0 & stSetFocusedPuffer .~ b
-           & puffers . P.focus . setFocusedSubtree . pTreeHasFocus .~ True
+  st = st0 & stSetFocusedBuffer .~ b
+           & buffers . P.focus . setFocusedSubtree . pTreeHasFocus .~ True
            & stSetFocusedRsltViewTree . pTreeHasFocus .~ True
-  (b :: Puffer) = maybe err id $  st0 ^? stGetFocusedPuffer . _Just where
-      err = error "Focused Puffer not found."
+  (b :: Buffer) = maybe err id $  st0 ^? stGetFocusedBuffer . _Just where
+      err = error "Focused Buffer not found."
 
   mainWindow = case st ^. showingInMainWindow of
-    Buffers -> pufferWindow
+    Buffers -> bufferWindow
     CommandHistory -> commandHistoryWindow
     Results -> resultWindow
 
@@ -77,7 +75,7 @@ appDraw st0 = [w] where
     ( if (st ^. showingOptionalWindows) M.! Commands
       then commandWindow else emptyWidget )
 
-  commandHistoryWindow, commandWindow, errorWindow, resultWindow, reassuranceWindow, pufferWindow :: B.Widget BrickName
+  commandHistoryWindow, commandWindow, errorWindow, resultWindow, reassuranceWindow, bufferWindow :: B.Widget BrickName
 
   commandHistoryWindow =
     strWrap $ unlines $ map show $ st0 ^. commandHistory
@@ -94,18 +92,18 @@ appDraw st0 = [w] where
     $ strWrap $ st0 ^. reassurance
 
  -- TODO: Factor: This duplicates the code for resultWindow.
-  pufferWindow = viewport (BrickMainName Buffers) B.Vertical
-                 $ fShow $ st ^. puffers where
-    fShow :: Porest Puffer -> B.Widget BrickName
+  bufferWindow = viewport (BrickMainName Buffers) B.Vertical
+                 $ fShow $ st ^. buffers where
+    fShow :: Porest Buffer -> B.Widget BrickName
     fShow = vBox . map vShowRec . toList
 
-    vShowOne, vShowRec :: PTree Puffer -> B.Widget BrickName
+    vShowOne, vShowRec :: PTree Buffer -> B.Widget BrickName
     vShowRec bt = vShowOne bt <=> rest
       where mpts = bt ^. pMTrees
             rest = case mpts of
                      Nothing -> emptyWidget
                      Just pts -> padLeft (B.Pad 2) $ fShow pts
-    vShowOne bt = style $ strWrap $ _pufferQuery $ _pTreeLabel bt
+    vShowOne bt = style $ strWrap $ _bufferQuery $ _pTreeLabel bt
       where style :: B.Widget BrickName
                   -> B.Widget BrickName
             style = if not $ bt ^. pTreeHasFocus then id
@@ -113,7 +111,7 @@ appDraw st0 = [w] where
                          . withAttr (B.attrName "focused result")
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-                 $ vShowRec $ b ^. pufferRsltViewTree where
+                 $ vShowRec $ b ^. bufferRsltViewTree where
     fShow :: Porest RsltView -> B.Widget BrickName
     fShow = vBox . map vShowRec . toList
 
@@ -142,7 +140,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
   -- command window
-  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand_puffer st
+  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand_buffer st
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
@@ -163,8 +161,8 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   _ -> case st ^. showingInMainWindow of
-    Results -> handleKeyboard_atResults_puffer      st ev
-    Buffers -> handleKeyboard_atBufferWindow_puffer st ev
+    Results -> handleKeyboard_atResults_buffer      st ev
+    Buffers -> handleKeyboard_atBufferWindow_buffer st ev
     _       -> handleUncaughtInput                  st ev
 
 appHandleEvent st _ = B.continue st

@@ -18,7 +18,6 @@ import Rslt.RTypes
 import Rslt.Show
 import Util.Misc
 import Util.PTree
-import Util.VTree
 
 
 -- | = Tiny types
@@ -105,15 +104,15 @@ instance Show RsltView where
 
 -- PITFALL: These types must come last in order to derive `Show`.
 
-data Puffer = Puffer { _pufferQuery :: ViewQuery
-                     , _pufferRsltViewTree  :: PTree RsltView
+data Buffer = Buffer { _bufferQuery :: ViewQuery
+                     , _bufferRsltViewTree  :: PTree RsltView
                      } deriving (Eq, Ord)
-makeLenses ''Puffer
+makeLenses ''Buffer
 
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _puffers                :: Porest Puffer
+  , _buffers                :: Porest Buffer
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
@@ -125,23 +124,23 @@ data St = St {
   }
 makeLenses ''St
 
-stGetFocusedPuffer :: Getter St (Maybe Puffer)
-stGetFocusedPuffer = to go where
-  go :: St -> Maybe Puffer
-  go st = st ^? puffers . P.focus . getFocusedSubtree . _Just . pTreeLabel
+stGetFocusedBuffer :: Getter St (Maybe Buffer)
+stGetFocusedBuffer = to go where
+  go :: St -> Maybe Buffer
+  go st = st ^? buffers . P.focus . getFocusedSubtree . _Just . pTreeLabel
 
-stSetFocusedPuffer :: Setter' St Puffer
-stSetFocusedPuffer = sets go where
-  go :: (Puffer -> Puffer) -> St -> St
-  go f = puffers . P.focus . setFocusedSubtree .
+stSetFocusedBuffer :: Setter' St Buffer
+stSetFocusedBuffer = sets go where
+  go :: (Buffer -> Buffer) -> St -> St
+  go f = buffers . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
 stGetFocusedRsltViewTree :: Getter St (Maybe (PTree RsltView))
 stGetFocusedRsltViewTree = to go where
   go :: St -> Maybe (PTree RsltView)
-  go st = st ^? stGetFocusedPuffer . _Just . pufferRsltViewTree . getFocusedSubtree . _Just
+  go st = st ^? stGetFocusedBuffer . _Just . bufferRsltViewTree . getFocusedSubtree . _Just
 
 stSetFocusedRsltViewTree :: Setter' St (PTree RsltView)
 stSetFocusedRsltViewTree = sets go where
   go :: (PTree RsltView -> PTree RsltView) -> St -> St
-  go f = stSetFocusedPuffer . pufferRsltViewTree . setFocusedSubtree %~ f
+  go f = stSetFocusedBuffer . bufferRsltViewTree . setFocusedSubtree %~ f

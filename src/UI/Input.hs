@@ -6,13 +6,13 @@
 module UI.Input (
     handleUncaughtInput                  -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atResults_puffer      -- ^ St -> B.Event ->
+  , handleKeyboard_atResults_buffer      -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow_puffer -- ^ St -> B.Event ->
+  , handleKeyboard_atBufferWindow_buffer -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , parseAndRunCommand_puffer            -- ^ St ->
+  , parseAndRunCommand_buffer            -- ^ St ->
                                          -- B.EventM BrickName (B.Next St)
-  , runParsedCommand_puffer -- ^ Command -> St ->
+  , runParsedCommand_buffer -- ^ Command -> St ->
                             -- Either String (B.EventM BrickName (B.Next St))
   ) where
 
@@ -20,7 +20,6 @@ import           Control.Monad.IO.Class (liftIO)
 import qualified Data.List.PointedList as P
 import           Data.Set (Set)
 import qualified Data.Set              as S
-import qualified Data.Vector           as V
 import           Lens.Micro
 import           System.Directory
 
@@ -46,7 +45,6 @@ import UI.Window
 import Util.Direction
 import Util.Misc
 import Util.PTree
-import Util.VTree
 
 
 handleUncaughtInput :: St -> B.Event -> B.EventM BrickName (B.Next St)
@@ -56,70 +54,70 @@ handleUncaughtInput st ev =
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 
-handleKeyboard_atBufferWindow_puffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atBufferWindow_puffer st ev = case ev of
+handleKeyboard_atBufferWindow_buffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atBufferWindow_buffer st ev = case ev of
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirPrev
+    $ moveFocusedBuffer DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirNext
+    $ moveFocusedBuffer DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirDown
+    $ moveFocusedBuffer DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirUp
+    $ moveFocusedBuffer DirUp
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
-    $ consPufferAsChild emptyPuffer
+    $ consBufferAsChild emptyBuffer
     $ st & hideReassurance
   B.EvKey (B.KChar 't') [B.MMeta] -> B.continue
-    $ consPufferAtTop emptyPuffer
+    $ consBufferAtTop emptyBuffer
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
 
-handleKeyboard_atResults_puffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atResults_puffer st ev = case ev of
+handleKeyboard_atResults_buffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atResults_buffer st ev = case ev of
   B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertHosts_atFocus_puffer   st
+    $ insertHosts_atFocus_buffer   st
   B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertMembers_atFocus_puffer st
+    $ insertMembers_atFocus_buffer st
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
-    $ closeSubviews_atFocus_puffer st
+    $ closeSubviews_atFocus_buffer st
   B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
     $ unEitherSt st
-    $ st & cons_focusedViewResult_asChild_inPuffer
+    $ st & cons_focusedViewResult_asChild_inBuffer
 
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
-    liftIO ( toClipboard $ unlines $ resultsText_puffer st )
+    liftIO ( toClipboard $ unlines $ resultsText_buffer st )
     B.continue $ st
       & showReassurance "Results window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirPrev
+    $ moveFocusedRsltView_buffer DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirNext
+    $ moveFocusedRsltView_buffer DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirDown
+    $ moveFocusedRsltView_buffer DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirUp
+    $ moveFocusedRsltView_buffer DirUp
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
 
-parseAndRunCommand_puffer :: St -> B.EventM BrickName (B.Next St)
-parseAndRunCommand_puffer st =
+parseAndRunCommand_buffer :: St -> B.EventM BrickName (B.Next St)
+parseAndRunCommand_buffer st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
     Left parseErr -> B.continue $ unEitherSt st $ Left parseErr
       -- PITFALL: these two Lefts have different types.
-    Right parsedCmd -> case runParsedCommand_puffer parsedCmd st of
+    Right parsedCmd -> case runParsedCommand_buffer parsedCmd st of
       Left runErr -> B.continue $ unEitherSt st $ Left runErr
         -- PITFALL: these two Lefts have different types.
       Right evNextSt -> (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
@@ -133,10 +131,10 @@ parseAndRunCommand_puffer st =
 -- than `Event ... St`, but it needs IO to load and save.
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
-runParsedCommand_puffer ::
+runParsedCommand_buffer ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand_puffer (CommandFind s h) st = do
+runParsedCommand_buffer (CommandFind s h) st = do
   let r = st ^. appRslt
       title = "runParsedCommand, called on CommandFind"
 
@@ -156,10 +154,10 @@ runParsedCommand_puffer (CommandFind s h) st = do
           in VResult $ either err id rv
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
-                          & stSetFocusedPuffer . pufferQuery .~ s
-                          & stSetFocusedPuffer . pufferRsltViewTree .~ v
+                          & stSetFocusedBuffer . bufferQuery .~ s
+                          & stSetFocusedBuffer . bufferRsltViewTree .~ v
 
-runParsedCommand_puffer (CommandInsert e) st =
+runParsedCommand_buffer (CommandInsert e) st =
   either Left (Right . f)
   $ exprToAddrInsert (st ^. appRslt) e
   where
@@ -168,7 +166,7 @@ runParsedCommand_puffer (CommandInsert e) st =
               & showReassurance ("Expr added at Addr " ++ show a)
               & showingInMainWindow .~ Results
 
-runParsedCommand_puffer (CommandLoad f) st = Right $ do
+runParsedCommand_buffer (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   if bad
     then B.continue $ st & showError ("Non-existent folder: " ++ f)
@@ -177,7 +175,7 @@ runParsedCommand_puffer (CommandLoad f) st = Right $ do
                             & showReassurance "Rslt loaded."
                             & showingInMainWindow .~ Results
 
-runParsedCommand_puffer (CommandSave f) st = Right $ do
+runParsedCommand_buffer (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
     then return $ st & showError ("Non-existent folder: " ++ f)

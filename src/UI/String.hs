@@ -1,13 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.String (
-    resultsText_puffer -- ^ St -> [String]
+    resultsText_buffer -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , vShow        -- ^ RsltView -> String
   ) where
 
 import           Data.Foldable (toList)
-import qualified Data.Vector           as V
 import           Lens.Micro
 
 import Rslt.RLookup
@@ -16,13 +15,12 @@ import Rslt.Show
 import UI.ITypes
 import Util.Misc
 import Util.PTree
-import Util.VTree
 
 
-resultsText_puffer :: St -> [String]
-resultsText_puffer st = maybe [] (go 0) p where
+resultsText_buffer :: St -> [String]
+resultsText_buffer st = maybe [] (go 0) p where
   p :: Maybe (PTree RsltView)
-  p = st ^? stGetFocusedPuffer . _Just . pufferRsltViewTree
+  p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewTree
 
   go :: Int -> PTree RsltView -> [String]
   go i tv = indent (vShow $ tv ^. pTreeLabel)
