@@ -29,6 +29,7 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * PTree
+** TODO next: convert UI.Input, then UI.Main
 ** untested functions
 All the Puffer functions in UI.BufferTree, RsltViewTree
 ** ? add a function to check the validity of its focii fields
@@ -99,6 +100,7 @@ The root information is(will be) duplicated by the buffer.
 It should be that each ViewResult can only have a Host or Members as a child, and vice-versa.
 ** ? ditch Vorest, just use vTrees
 Easier to have an extra top (data) constructor than a whole parallel (function) infrastructure.
+* note order
 * views
 ** count things
 ** user language

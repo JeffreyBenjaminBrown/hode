@@ -6,6 +6,7 @@
 
 module UI.Main where
 
+import           Data.Foldable (toList)
 import qualified Data.List.PointedList as P
 import qualified Data.Map             as M
 import qualified Data.Vector          as V
@@ -43,9 +44,9 @@ uiFromRslt = B.defaultMain app . emptySt
 
 app :: B.App St e BrickName
 app = B.App
-  { B.appDraw         = appDraw
+  { B.appDraw         = appDraw_puffer
   , B.appChooseCursor = appChooseCursor
-  , B.appHandleEvent  = appHandleEvent
+  , B.appHandleEvent  = appHandleEvent_puffer
   , B.appStartEvent   = return
   , B.appAttrMap      = const appAttrMap
   }
@@ -88,7 +89,7 @@ appDraw st0 = [w] where
     vShowOne, vShowRec :: VTree Buffer -> B.Widget BrickName
     vShowRec bt = vShowOne bt <=>
                   padLeft (B.Pad 2) (fShow $ bt ^. vTrees )
-    vShowOne bt = style $ strWrap $ show $ _vTreeLabel bt
+    vShowOne bt = style $ strWrap $ _bufferQuery $ _vTreeLabel bt
       where style :: B.Widget BrickName
                   -> B.Widget BrickName
             style = if not $ bt ^. vTreeIsFocused then id
@@ -165,40 +166,42 @@ appDraw_puffer st0 = [w] where
   reassuranceWindow = withAttr (B.attrName "reassurance")
     $ strWrap $ st0 ^. reassurance
 
-  pufferWindow = error ""
---  -- TODO: Factor: This duplicates the code for resultWindow.
---  pufferWindow = viewport (BrickMainName Puffers) B.Vertical
---    $ fShow $ st ^. puffers where
---
---    fShow :: Vorest Puffer -> B.Widget BrickName
---    fShow = vBox . map vShowRec . V.toList
---    vShowOne, vShowRec :: PTree Puffer -> B.Widget BrickName
---    vShowRec bt = vShowOne bt <=>
---                  padLeft (B.Pad 2) (fShow $ bt ^. pTrees )
---    vShowOne bt = style $ strWrap $ show $ _pTreeLabel bt
---      where style :: B.Widget BrickName
---                  -> B.Widget BrickName
---            style = if not $ bt ^. pTreeHasFocus then id
---                    else visible
---                         . withAttr (B.attrName "focused result")
+ -- TODO: Factor: This duplicates the code for resultWindow.
+  pufferWindow = viewport (BrickMainName Puffers) B.Vertical
+                 $ fShow $ st ^. puffers where
+    fShow :: Porest Puffer -> B.Widget BrickName
+    fShow = vBox . map vShowRec . toList
 
-  resultWindow = error ""
--- --  resultWindow = viewport (BrickMainName Results) B.Vertical
--- --    $ vShowRec $ b ^. pufferView where
--- --
--- --    fShow :: Porest RsltView -> B.Widget BrickName
--- --    fShow = vBox . map vShowRec . V.toList
--- --    vShowOne, vShowRec :: PTree RsltView -> B.Widget BrickName
--- --    vShowRec vt = vShowOne vt <=>
--- --                  padLeft (B.Pad 2) (fShow $ vt ^. pMTrees )
--- --    vShowOne vt = style $ strWrap $ vShow $ _pTreeLabel vt
--- --      where style :: B.Widget BrickName
--- --                  -> B.Widget BrickName
--- --            style = if not $ vt ^. pTreeHasFocus then id
--- --                    else visible
--- --                         . withAttr (B.attrName "focused result")
+    vShowOne, vShowRec :: PTree Puffer -> B.Widget BrickName
+    vShowRec bt = vShowOne bt <=> rest
+      where mpts = bt ^. pMTrees
+            rest = case mpts of
+                     Nothing -> emptyWidget
+                     Just pts -> padLeft (B.Pad 2) $ fShow pts
+    vShowOne bt = style $ strWrap $ _pufferQuery $ _pTreeLabel bt
+      where style :: B.Widget BrickName
+                  -> B.Widget BrickName
+            style = if not $ bt ^. pTreeHasFocus then id
+                    else visible
+                         . withAttr (B.attrName "focused result")
 
+  resultWindow = viewport (BrickMainName Puffers) B.Vertical
+                 $ vShowRec $ b ^. pufferView where
+    fShow :: Porest RsltView -> B.Widget BrickName
+    fShow = vBox . map vShowRec . toList
 
+    vShowOne, vShowRec :: PTree RsltView -> B.Widget BrickName
+    vShowRec bt = vShowOne bt <=> rest
+      where mpts = bt ^. pMTrees
+            rest = case mpts of
+                     Nothing -> emptyWidget
+                     Just pts -> padLeft (B.Pad 2) $ fShow pts
+    vShowOne bt = style $ strWrap $ show $ _pTreeLabel bt
+      where style :: B.Widget BrickName
+                  -> B.Widget BrickName
+            style = if not $ bt ^. pTreeHasFocus then id
+                    else visible
+                         . withAttr (B.attrName "focused result")
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]
                 -> Maybe (B.CursorLocation BrickName)

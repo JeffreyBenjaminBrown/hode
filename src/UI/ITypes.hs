@@ -115,8 +115,6 @@ data Puffer = Puffer { _pufferQuery :: ViewQuery
 makeLenses ''Buffer
 makeLenses ''Puffer
 
-instance Show Buffer where show = _bufferQuery
-
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
@@ -164,7 +162,6 @@ stSetFocusedRsltViewPTree = sets go where
 
 instance Show St where
   show st = "St { "
-   ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"
 --   ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"
    ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
 --   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
