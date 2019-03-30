@@ -164,3 +164,13 @@ moveFocusInPTree DirNext t =
                              & nextIfPossible
                              & P.focus . pTreeHasFocus .~ True
        in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
+
+moveFocusInPorest :: Direction -> Porest a -> Porest a
+moveFocusInPorest d as =
+  case as ^. P.focus . pTreeHasFocus
+  of False -> as & P.focus %~ moveFocusInPTree d
+     True -> case d of
+       DirUp   -> as & P.focus %~ moveFocusInPTree d
+       DirDown -> as & P.focus %~ moveFocusInPTree d
+       DirNext -> as & nextIfPossible
+       DirPrev -> as & prevIfPossible

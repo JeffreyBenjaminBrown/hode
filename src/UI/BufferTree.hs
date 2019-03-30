@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module UI.BufferTree (
     consBufferAtTop      -- ^ Buffer -> St -> St
@@ -49,4 +50,4 @@ cons_focusedViewResult_asChildOfBuffer st =
   Right $ st & hideReassurance & consBufferAsChild p'
 
 moveFocusedBuffer :: Direction -> St -> St
-moveFocusedBuffer d st = st & buffers . P.focus %~ moveFocusInPTree d
+moveFocusedBuffer d = buffers %~ moveFocusInPorest d
