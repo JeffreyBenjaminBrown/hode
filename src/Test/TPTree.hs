@@ -21,28 +21,44 @@ test_module_pTree = TestList [
   , TestLabel "test_moveFocus" test_moveFocus
   ]
 
+
+
+f          = pTreeLeaf (1 :: Int)
+t          = f { _pTreeHasFocus = True }
+f_dt       = f { _pMTrees =                    P.fromList [t] }
+t_df       = t { _pMTrees =                    P.fromList [f] }
+f_df_t     = f { _pMTrees = nextIfPossible <$> P.fromList [f,t] }
+f_dt_f     = f { _pMTrees =                    P.fromList [t,f] }
+f_dt_df_uf = f { _pMTrees =                    P.fromList [t_df,f] }
+f_df_dt_uf = f { _pMTrees =                    P.fromList [f_dt,f] }
+
 test_moveFocus :: T.Test
 test_moveFocus = TestCase $ do
-  let f  = pTreeLeaf (1 :: Int)
-      t  = f   { _pTreeHasFocus = True }
-      f_t = f  { _pMTrees =                    P.fromList [t] }
-      t_f = t  { _pMTrees =                    P.fromList [f] }
-      f_ft = f { _pMTrees = nextIfPossible <$> P.fromList [f,t] }
-      f_tf = f { _pMTrees =                    P.fromList [t,f] }
+  let -- In these names, u=up, d=down, and otherwise n=next is implicit
+    f          = pTreeLeaf (1 :: Int)
+    t          = f { _pTreeHasFocus = True }
+    f_dt       = f { _pMTrees =                    P.fromList [t] }
+    t_df       = t { _pMTrees =                    P.fromList [f] }
+    f_df_t     = f { _pMTrees = nextIfPossible <$> P.fromList [f,t] }
+    f_dt_f     = f { _pMTrees =                    P.fromList [t,f] }
+    f_dt_df_uf = f { _pMTrees =                    P.fromList [t_df,f] }
+    f_df_dt_uf = f { _pMTrees =                    P.fromList [f_dt,f] }
 
-  assertBool "Next"             $ moveFocusInPTree DirNext f_tf == f_ft
-  assertBool "Next maxed out 1" $ moveFocusInPTree DirNext f_ft == f_ft
+  assertBool "Next"             $ moveFocusInPTree DirNext f_dt_f == f_df_t
+  assertBool "Next maxed out 1" $ moveFocusInPTree DirNext f_df_t == f_df_t
 
-  assertBool "Prev maxed out 1" $ moveFocusInPTree DirPrev f_tf == f_tf
-  assertBool "Prev"             $ moveFocusInPTree DirPrev f_ft == f_tf
+  assertBool "Prev maxed out 1" $ moveFocusInPTree DirPrev f_dt_f == f_dt_f
+  assertBool "Prev"             $ moveFocusInPTree DirPrev f_df_t == f_dt_f
 
-  assertBool "Down maxed out 1" $ moveFocusInPTree DirDown f_t == f_t
-  assertBool "Down"             $ moveFocusInPTree DirDown t_f == f_t
+  assertBool "Down maxed out 1" $ moveFocusInPTree DirDown f_dt == f_dt
+  assertBool "Down"             $ moveFocusInPTree DirDown t_df == f_dt
+  assertBool "Down from middle" $ moveFocusInPTree DirDown f_dt_df_uf
+                                                        == f_df_dt_uf
 
   assertBool "Up maxed out 1"   $ moveFocusInPTree DirUp t     == t
   assertBool "Up maxed out 2"   $ moveFocusInPTree DirUp f     == t
-  assertBool "Up maxed out 3"   $ moveFocusInPTree DirUp t_f   == t_f
-  assertBool "Up"               $ moveFocusInPTree DirUp f_t   == t_f
+  assertBool "Up maxed out 3"   $ moveFocusInPTree DirUp t_df   == t_df
+  assertBool "Up"               $ moveFocusInPTree DirUp f_dt   == t_df
 
 test_porestLeaf :: T.Test
 test_porestLeaf = TestCase $ do
