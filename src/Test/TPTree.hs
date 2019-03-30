@@ -21,17 +21,6 @@ test_module_pTree = TestList [
   , TestLabel "test_moveFocus" test_moveFocus
   ]
 
-
-
-f          = pTreeLeaf (1 :: Int)
-t          = f { _pTreeHasFocus = True }
-f_dt       = f { _pMTrees =                    P.fromList [t] }
-t_df       = t { _pMTrees =                    P.fromList [f] }
-f_df_t     = f { _pMTrees = nextIfPossible <$> P.fromList [f,t] }
-f_dt_f     = f { _pMTrees =                    P.fromList [t,f] }
-f_dt_df_uf = f { _pMTrees =                    P.fromList [t_df,f] }
-f_df_dt_uf = f { _pMTrees =                    P.fromList [f_dt,f] }
-
 test_moveFocus :: T.Test
 test_moveFocus = TestCase $ do
   let -- In these names, u=up, d=down, and otherwise n=next is implicit

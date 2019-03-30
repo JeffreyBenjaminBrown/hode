@@ -146,8 +146,8 @@ moveFocusInPTree DirDown t =
   case t ^? getFocusedSubtree . _Just . pMTrees . _Just
   of Nothing -> t
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ True
-                in t & pMTrees .~ Just ts'
-                     & pTreeHasFocus .~ False
+                in t & setFocusedSubtree . pMTrees .~ Just ts'
+                     & setFocusedSubtree . pTreeHasFocus .~ False
 
 moveFocusInPTree DirPrev t =
   case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
