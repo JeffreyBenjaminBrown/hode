@@ -33,8 +33,7 @@ see the comment leading its definition
 ITypes: everything* in it is tested.
   (except getList and setList, which are trivial)
 ** TODO bugs
-Cursoring in Buffer window doesn't work.
-Focused Buffer can be lost.
+consBufferAsChild doesn't work.
 ** untested functions
 All the Buffer functions in UI.BufferTree, RsltViewTree
 ** ? add a function to check the validity of its focii fields
@@ -226,6 +225,9 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
    https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
  more:
    https://www.fpcomplete.com/blog/defining-exceptions-in-haskell
+** TODO maybe: focusPorestOnFocusedPTree
+A Porest is a list of PTrees. Exactly one of those PTrees should have focus. This function would move the focus of the Porest to align with the first PTree that has focus.
+
 * DONE explaining some design decisions
 ** why the focus within the Results window is coded by hand
 (where "by hand" = instead of using Brick's built-in focus concept).

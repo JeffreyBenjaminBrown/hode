@@ -2,8 +2,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.BufferTree (
-    consBufferAtTop      -- ^ Buffer -> St -> St
-  , consBufferAsChild    -- ^ Buffer -> St -> St
+    consBuffer_topNext -- ^ Buffer -> St -> St
+  , consBufferAsChild  -- ^ Buffer -> St -> St
   , cons_focusedViewResult_asChildOfBuffer -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> St
   ) where
@@ -19,8 +19,8 @@ import Util.Misc
 import Util.PTree
 
 
-consBufferAtTop :: Buffer -> St -> St
-consBufferAtTop b st = st & buffers . setPList %~ (pTreeLeaf b :)
+consBuffer_topNext :: Buffer -> St -> St
+consBuffer_topNext b = buffers %~ cons_topNext b
 
 consBufferAsChild :: Buffer -> St -> St
 consBufferAsChild b st = let

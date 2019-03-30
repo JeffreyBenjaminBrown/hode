@@ -9,6 +9,7 @@
 
 module Util.PTree where
 
+import           Control.Arrow ((>>>), (<<<))
 import           Control.Lens
 import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
@@ -122,6 +123,12 @@ porestLeaf = P.singleton . pTreeLeaf
 
 
 -- | = Modifiers
+
+cons_topNext :: a -> Porest a -> Porest a
+cons_topNext a =
+  P.focus . pTreeHasFocus .~ False >>>
+  P.insertRight (pTreeLeaf a)      >>>
+  P.focus . pTreeHasFocus .~ True
 
 -- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
 consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a

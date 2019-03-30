@@ -19,8 +19,8 @@ test_module_pTree = TestList [
   , TestLabel "test_focusedChild"   test_focusedChild
   , TestLabel "test_parentOfFocusedSubtree" test_parentOfFocusedSubtree
   , TestLabel "test_moveFocus_inPTree" test_moveFocus_inPTree
-  , TestLabel "test_pListLenses" test_pListLenses
   , TestLabel "test_moveFocus_inPorest" test_moveFocus_inPorest
+  , TestLabel "test_pListLenses" test_pListLenses
   ]
 
 test_pListLenses :: T.Test
