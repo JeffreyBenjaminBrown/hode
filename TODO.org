@@ -28,9 +28,11 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* PTree
+* TODO PTree
+** TODO parts I've checked
+ITypes: everything* in it is tested.
+  (except getList and setList, which are trivial)
 ** TODO bugs
-Can't escape error window.
 Cursoring doesn't work.
 Focused Puffer can be lost.
 ** untested functions

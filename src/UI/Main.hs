@@ -88,8 +88,7 @@ appDraw st0 = [w] where
 
   errorWindow = vBox
     [ strWrap $ st ^. uiError
-    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, "
-      ++ "press Alt-e, Alt-f, Alt-d or Alt-s.)" ]
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press Alt-R (to go to Results), Alt-B (Buffers), or Alt-H (command History)." ]
 
   reassuranceWindow = withAttr (B.attrName "reassurance")
     $ strWrap $ st0 ^. reassurance
@@ -150,10 +149,13 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   -- switch main window content
   B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ CommandHistory
+         & showingErrorWindow .~ False
   B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Buffers
+         & showingErrorWindow .~ False
   B.EvKey (B.KChar 'R') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Results
+         & showingErrorWindow .~ False
   -- Brick-focus-related stuff. So far unneeded.
     -- PITFALL: The focused `Window` is distinct from the focused
     -- widget within the `mainWindow`.
