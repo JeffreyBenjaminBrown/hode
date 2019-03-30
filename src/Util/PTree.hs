@@ -28,11 +28,11 @@ prevIfPossible, nextIfPossible :: PointedList a -> PointedList a
 prevIfPossible l = maybe l id $ P.previous l
 nextIfPossible l = maybe l id $ P.next l
 
-getList :: Getter (PointedList a) [a]
-getList = to toList
+getPList :: Getter (PointedList a) [a]
+getPList = to toList
 
-setList :: Setter' (PointedList a) [a]
-setList = sets go where
+setPList :: Setter' (PointedList a) [a]
+setPList = sets go where
   go :: ([a] -> [a]) -> PointedList a -> PointedList a
   go f pl = case f $ toList pl of
               [] -> pl

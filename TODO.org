@@ -33,7 +33,7 @@ see the comment leading its definition
 ITypes: everything* in it is tested.
   (except getList and setList, which are trivial)
 ** TODO bugs
-Cursoring doesn't work.
+Cursoring in Buffer window doesn't work.
 Focused Buffer can be lost.
 ** untested functions
 All the Buffer functions in UI.BufferTree, RsltViewTree

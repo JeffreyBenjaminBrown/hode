@@ -21,6 +21,18 @@ test_module_pTree = TestList [
   , TestLabel "test_moveFocus" test_moveFocus
   ]
 
+test_pListLenses :: T.Test
+test_pListLenses = TestCase $ do
+  let toPList = maybe (error "impossible: P.fromList fails only on []") id
+                . P.fromList
+      l  = [1..3 :: Int]
+      l' = [4..6 :: Int]
+      pl  = toPList l
+      pl' = toPList l'
+  assertBool "get"         $  pl ^. getPList        == l
+  assertBool "set"         $ (pl &  setPList .~ l') == pl'
+  assertBool "fail to set" $ (pl &  setPList .~ []) == pl
+
 test_moveFocus :: T.Test
 test_moveFocus = TestCase $ do
   let -- In these names, u=up, d=down, and otherwise n=next is implicit
@@ -44,10 +56,13 @@ test_moveFocus = TestCase $ do
   assertBool "Down from middle" $ moveFocusInPTree DirDown f_dt_df_uf
                                                         == f_df_dt_uf
 
-  assertBool "Up maxed out 1"   $ moveFocusInPTree DirUp t     == t
-  assertBool "Up maxed out 2"   $ moveFocusInPTree DirUp f     == t
-  assertBool "Up maxed out 3"   $ moveFocusInPTree DirUp t_df   == t_df
-  assertBool "Up"               $ moveFocusInPTree DirUp f_dt   == t_df
+  assertBool "Up maxed out 1"   $ moveFocusInPTree DirUp t    == t
+  assertBool "Up maxed out 2"   $ moveFocusInPTree DirUp f    == t
+  assertBool "Up maxed out 3"   $ moveFocusInPTree DirUp t_df == t_df
+  assertBool "Up"               $ moveFocusInPTree DirUp f_dt == t_df
+  assertBool "Up from bottom of 3 layers"
+                                $ moveFocusInPTree DirUp f_df_dt_uf
+                                                      == f_dt_df_uf
 
 test_porestLeaf :: T.Test
 test_porestLeaf = TestCase $ do

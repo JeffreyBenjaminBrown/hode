@@ -19,7 +19,7 @@ import Util.PTree
 
 
 consBufferAtTop :: Buffer -> St -> St
-consBufferAtTop b st = st & buffers . setList %~ (pTreeLeaf b :)
+consBufferAtTop b st = st & buffers . setPList %~ (pTreeLeaf b :)
 
 consBufferAsChild :: Buffer -> St -> St
 consBufferAsChild b st = let
@@ -28,7 +28,7 @@ consBufferAsChild b st = let
   consNewFocus    :: St -> St
   consNewFocus    = buffers . P.focus . setFocusedSubtree .
                     pMTrees . _Just .
-                    setList %~ (newFocus :)
+                    setPList %~ (newFocus :)
   unFocusOldFocus :: St -> St
   unFocusOldFocus = buffers . P.focus . setFocusedSubtree .
                     pTreeHasFocus .~ False
