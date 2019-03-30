@@ -26,7 +26,7 @@ instance Ord a => Ord (PointedList a) where
 
 prevIfPossible, nextIfPossible :: PointedList a -> PointedList a
 prevIfPossible l = maybe l id $ P.previous l
-nextIfPossible l = maybe l id $ P.next l
+nextIfPossible l = maybe l id $ P.next     l
 
 getPList :: Getter (PointedList a) [a]
 getPList = to toList
@@ -172,5 +172,9 @@ moveFocusInPorest d as =
      True -> case d of
        DirUp   -> as & P.focus %~ moveFocusInPTree d
        DirDown -> as & P.focus %~ moveFocusInPTree d
-       DirNext -> as & nextIfPossible
-       DirPrev -> as & prevIfPossible
+       DirNext -> as & P.focus . pTreeHasFocus .~ False
+                     & nextIfPossible
+                     & P.focus . pTreeHasFocus .~ True
+       DirPrev -> as & P.focus . pTreeHasFocus .~ False
+                     & prevIfPossible
+                     & P.focus . pTreeHasFocus .~ True
