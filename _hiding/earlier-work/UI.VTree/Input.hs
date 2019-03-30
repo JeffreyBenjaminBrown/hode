@@ -3,16 +3,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module UI.Input (
-    handleUncaughtInput                  -- ^ St -> B.Event ->
+module UI.VTree.Input (
+  handleKeyboard_atResults             -- ^ St -> B.Event ->
+                                       -- B.EventM BrickName (B.Next St)
+  , handleKeyboard_atBufferWindow        -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atResults_puffer      -- ^ St -> B.Event ->
-                                         -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow_puffer -- ^ St -> B.Event ->
-                                         -- B.EventM BrickName (B.Next St)
-  , parseAndRunCommand_puffer            -- ^ St ->
-                                         -- B.EventM BrickName (B.Next St)
-  , runParsedCommand_puffer -- ^ Command -> St ->
+
+  , parseAndRunCommand        -- ^ St -> B.EventM BrickName (B.Next St)
+  , runParsedCommand        -- ^ Command -> St ->
                             -- Either String (B.EventM BrickName (B.Next St))
   ) where
 
@@ -37,11 +35,14 @@ import Rslt.Files
 import Rslt.RTypes
 import UI.BufferTree
 import UI.Clipboard
+import UI.Input
 import UI.ITypes
 import UI.IUtil
 import UI.Input.IParse
 import UI.String
 import UI.RsltViewTree
+import UI.VTree.String
+import UI.VTree.RsltViewTree
 import UI.Window
 import Util.Direction
 import Util.Misc
@@ -49,77 +50,71 @@ import Util.PTree
 import Util.VTree
 
 
-handleUncaughtInput :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleUncaughtInput st ev =
-  B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (BrickOptionalName Commands) -> B.handleEventLensed
-      (hideReassurance st) commands B.handleEditorEvent ev
-    _ -> return st
 
-handleKeyboard_atBufferWindow_puffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atBufferWindow_puffer st ev = case ev of
+handleKeyboard_atBufferWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atBufferWindow st ev = case ev of
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirPrev
+    $ unEitherSt st . moveFocusedBuffer DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirNext
+    $ unEitherSt st . moveFocusedBuffer DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirDown
+    $ unEitherSt st . moveFocusedBuffer DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ moveFocusedPuffer DirUp
+    $ unEitherSt st . moveFocusedBuffer DirUp
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
-    $ consPufferAsChild emptyPuffer
+    $ unEitherSt st . consBufferAsChild emptyBuffer
     $ st & hideReassurance
   B.EvKey (B.KChar 't') [B.MMeta] -> B.continue
-    $ consPufferAtTop emptyPuffer
+    $                 consBufferAtTop emptyBuffer
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
 
-handleKeyboard_atResults_puffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atResults_puffer st ev = case ev of
+handleKeyboard_atResults :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atResults st ev = case ev of
   B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertHosts_atFocus_puffer   st
+    $ insertHosts_atFocus   st
   B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertMembers_atFocus_puffer st
-  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
-    $ closeSubviews_atFocus_puffer st
+    $ insertMembers_atFocus st
+  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue $ unEitherSt st
+    $ closeSubviews_atFocus st
   B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
     $ unEitherSt st
-    $ st & cons_focusedViewResult_asChild_inPuffer
+    $ st & cons_focusedViewResult_asChild
 
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
-    liftIO ( toClipboard $ unlines $ resultsText_puffer st )
+    liftIO ( toClipboard $ unlines $ resultsText st )
     B.continue $ st
       & showReassurance "Results window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirPrev
+    $ unEitherSt st . moveFocusedRsltView DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirNext
+    $ unEitherSt st . moveFocusedRsltView DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirDown
+    $ unEitherSt st . moveFocusedRsltView DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_puffer DirUp
+    $ unEitherSt st . moveFocusedRsltView DirUp
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
 
-parseAndRunCommand_puffer :: St -> B.EventM BrickName (B.Next St)
-parseAndRunCommand_puffer st =
+parseAndRunCommand :: St -> B.EventM BrickName (B.Next St)
+parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
     Left parseErr -> B.continue $ unEitherSt st $ Left parseErr
       -- PITFALL: these two Lefts have different types.
-    Right parsedCmd -> case runParsedCommand_puffer parsedCmd st of
+    Right parsedCmd -> case runParsedCommand parsedCmd st of
       Left runErr -> B.continue $ unEitherSt st $ Left runErr
         -- PITFALL: these two Lefts have different types.
       Right evNextSt -> (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
@@ -133,33 +128,35 @@ parseAndRunCommand_puffer st =
 -- than `Event ... St`, but it needs IO to load and save.
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
-runParsedCommand_puffer ::
+runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand_puffer (CommandFind s h) st = do
+runParsedCommand (CommandFind s h) st = do
   let r = st ^. appRslt
       title = "runParsedCommand, called on CommandFind"
 
   (as :: Set Addr)   <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
 
-  let v = PTree { _pTreeLabel = VQuery s
-                , _pTreeHasFocus = True
-                , _pMTrees =
-                  P.fromList $ map v_qr $ S.toList as
+  let v = VTree { _vTreeFocalChild = 0
+                , _vTreeIsFocused = False
+                , _vTreeLabel = VQuery s
+                , _vTrees =
+                  V.fromList $ map v_qr $ S.toList as
                 } where
 
-        v_qr :: Addr -> PTree RsltView
-        v_qr a = pTreeLeaf $ let
+        v_qr :: Addr -> VTree RsltView
+        v_qr a = vTreeLeaf $ let
               (rv :: Either String ViewResult) = resultView r a
               (err :: String -> ViewResult) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
           in VResult $ either err id rv
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
-                          & stSetFocusedPuffer . pufferQuery .~ s
-                          & stSetFocusedPuffer . pufferView .~ v
+                          & stBuffer st . bufferQuery .~ s
+                          & stBuffer st . bufferPath .~ []
+                          & stBuffer st . bufferView .~ v
 
-runParsedCommand_puffer (CommandInsert e) st =
+runParsedCommand (CommandInsert e) st =
   either Left (Right . f)
   $ exprToAddrInsert (st ^. appRslt) e
   where
@@ -168,7 +165,7 @@ runParsedCommand_puffer (CommandInsert e) st =
               & showReassurance ("Expr added at Addr " ++ show a)
               & showingInMainWindow .~ Results
 
-runParsedCommand_puffer (CommandLoad f) st = Right $ do
+runParsedCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   if bad
     then B.continue $ st & showError ("Non-existent folder: " ++ f)
@@ -177,7 +174,7 @@ runParsedCommand_puffer (CommandLoad f) st = Right $ do
                             & showReassurance "Rslt loaded."
                             & showingInMainWindow .~ Results
 
-runParsedCommand_puffer (CommandSave f) st = Right $ do
+runParsedCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
     then return $ st & showError ("Non-existent folder: " ++ f)

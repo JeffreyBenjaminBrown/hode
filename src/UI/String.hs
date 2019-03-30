@@ -1,8 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.String (
-    resultsText        -- ^ St -> [String]
-  , resultsText_puffer -- ^ St -> [String]
+    resultsText_puffer -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , vShow        -- ^ RsltView -> String
   ) where
@@ -19,17 +18,6 @@ import Util.Misc
 import Util.PTree
 import Util.VTree
 
-
-resultsText :: St -> [String]
-resultsText st = maybe [] (f 0) b where
-  b :: Maybe (VTree RsltView)
-  b = st ^? stBuffer st . bufferView
-
-  f :: Int -> VTree RsltView -> [String]
-  f i v = indent (vShow $ v ^. vTreeLabel)
-    : concatMap (f $ i+1) (V.toList $ v ^. vTrees)
-    where indent :: String -> String
-          indent s = replicate (2*i) ' ' ++ s
 
 resultsText_puffer :: St -> [String]
 resultsText_puffer st = maybe [] (go 0) p where
