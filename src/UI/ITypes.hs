@@ -30,7 +30,7 @@ data BrickName = BrickOptionalName OptionalWindowName
                | BrickMainName MainWindowName deriving (Ord, Show, Eq)
 data OptionalWindowName = Commands
                         | Reassurance deriving (Ord, Show, Eq)
-data MainWindowName = Buffers | Puffers
+data MainWindowName = Buffers
                     | CommandHistory
                     | Results deriving (Ord, Show, Eq)
 
@@ -105,22 +105,15 @@ instance Show RsltView where
 
 -- PITFALL: These types must come last in order to derive `Show`.
 
-data Buffer = Buffer { _bufferQuery :: ViewQuery
-                     , _bufferView  :: VTree RsltView
-                     , _bufferPath  :: Path } deriving (Eq, Ord)
 data Puffer = Puffer { _pufferQuery :: ViewQuery
                      , _pufferView  :: PTree RsltView
                      } deriving (Eq, Ord)
-
-makeLenses ''Buffer
 makeLenses ''Puffer
 
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _buffers                :: Vorest Buffer
   , _puffers                :: Porest Puffer
-  , _vathToBuffer           :: Vath
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
@@ -130,14 +123,7 @@ data St = St {
   , _showingInMainWindow    :: MainWindowName
   , _showingOptionalWindows :: Map OptionalWindowName Bool
   }
-
 makeLenses ''St
-
--- TODO ? Dangerous: taking an `St` argument seems like it might
--- cause problems if lensing from an old `St` into a new one.
--- Specifically, if the two `St` have different `vathToBuffer`s.
-stBuffer :: St -> Traversal' St Buffer
-stBuffer st = buffers . atVath (st ^. vathToBuffer) . vTreeLabel
 
 stGetFocusedPuffer :: Getter St (Maybe Puffer)
 stGetFocusedPuffer = to go where
@@ -159,13 +145,3 @@ stSetFocusedRsltViewPTree :: Setter' St (PTree RsltView)
 stSetFocusedRsltViewPTree = sets go where
   go :: (PTree RsltView -> PTree RsltView) -> St -> St
   go f = stSetFocusedPuffer . pufferView . setFocusedSubtree %~ f
-
-instance Show St where
-  show st = "St { "
---   ++ "buffer = "               ++ show (st ^. buffers)             ++ ",\n"
-   ++ "uiError = "              ++ show (st ^. uiError)              ++ ",\n"
---   ++ "commands = "             ++ show (st ^. commands)             ++ ",\n"
---   ++ "appRslt = "              ++ show (st ^. appRslt)              ++ ",\n"
---   ++ "shownInResultsWindow = " ++ show (st ^. shownInResultsWindow) ++ ",\n"
-   ++ "}\n"
-

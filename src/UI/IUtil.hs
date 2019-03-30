@@ -4,10 +4,8 @@ module UI.IUtil (
     unEitherSt             -- ^ Either String St -> St -> St
 
   , emptySt                -- ^ Rslt -> St
-  , emptyBuffer            -- ^                                 Buffer
   , emptyPuffer            -- ^                                 Puffer
   , pufferFromRsltViewTree -- ^ PTree RsltView -> Either String Puffer
-  , bufferFromRsltViewTree -- ^ VTree RsltView -> Either String Buffer
   ) where
 
 import qualified Data.List.PointedList as P
@@ -31,10 +29,8 @@ unEitherSt _ (Right new) = new & showingErrorWindow .~ False
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _buffers = vorestLeaf emptyBuffer
   , _puffers = porestLeaf emptyPuffer
                & P.focus . pTreeHasFocus .~ True
-  , _vathToBuffer = (0,[])
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""
@@ -45,11 +41,6 @@ emptySt r = St {
   , _showingOptionalWindows = M.fromList [ (Commands   , True)
                                          , (Reassurance, True) ]
   }
-
-emptyBuffer :: Buffer
-emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
-                     , _bufferView = vTreeLeaf $ VQuery ""
-                     , _bufferPath = [] }
 
 emptyPuffer :: Puffer
 emptyPuffer = Puffer { _pufferQuery = "(empty puffer)"
@@ -64,13 +55,3 @@ pufferFromRsltViewTree vt = do
     _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
   Right $ Puffer { _pufferQuery = viewResult ^. viewResultString
                  , _pufferView = vt }
-
-bufferFromRsltViewTree :: VTree RsltView -> Either String Buffer
-bufferFromRsltViewTree vt = do
-  let (rsltView :: RsltView) = _vTreeLabel vt
-  viewResult <- case rsltView of
-    VResult x -> Right x
-    _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
-  Right $ Buffer { _bufferQuery = viewResult ^. viewResultString
-                 , _bufferView = vt
-                 , _bufferPath = [] }

@@ -67,7 +67,7 @@ appDraw st0 = [w] where
       err = error "Focused Puffer not found."
 
   mainWindow = case st ^. showingInMainWindow of
-    Puffers -> pufferWindow
+    Buffers -> pufferWindow
     CommandHistory -> commandHistoryWindow
     Results -> resultWindow
 
@@ -95,7 +95,7 @@ appDraw st0 = [w] where
     $ strWrap $ st0 ^. reassurance
 
  -- TODO: Factor: This duplicates the code for resultWindow.
-  pufferWindow = viewport (BrickMainName Puffers) B.Vertical
+  pufferWindow = viewport (BrickMainName Buffers) B.Vertical
                  $ fShow $ st ^. puffers where
     fShow :: Porest Puffer -> B.Widget BrickName
     fShow = vBox . map vShowRec . toList
@@ -113,7 +113,7 @@ appDraw st0 = [w] where
                     else visible
                          . withAttr (B.attrName "focused result")
 
-  resultWindow = viewport (BrickMainName Puffers) B.Vertical
+  resultWindow = viewport (BrickMainName Results) B.Vertical
                  $ vShowRec $ b ^. pufferView where
     fShow :: Porest RsltView -> B.Widget BrickName
     fShow = vBox . map vShowRec . toList
@@ -151,7 +151,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ CommandHistory
   B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
-    $ st & showingInMainWindow .~ Puffers
+    $ st & showingInMainWindow .~ Buffers
   B.EvKey (B.KChar 'R') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Results
   -- Brick-focus-related stuff. So far unneeded.
@@ -160,13 +160,9 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
     -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
-  -- for debugging
-  B.EvKey (B.KChar 'p') [B.MMeta] -> B.continue
-    $ st & showBufferAndViewPaths
-
   _ -> case st ^. showingInMainWindow of
     Results -> handleKeyboard_atResults_puffer      st ev
-    Puffers -> handleKeyboard_atBufferWindow_puffer st ev
+    Buffers -> handleKeyboard_atBufferWindow_puffer st ev
     _       -> handleUncaughtInput                  st ev
 
 appHandleEvent st _ = B.continue st

@@ -3,7 +3,6 @@
 module UI.Window (
     hideReassurance            -- ^           St -> St
   , showError, showReassurance -- ^ String -> St -> St
-  , showBufferAndViewPaths     -- ^           St -> St
   , emptyCommandWindow         -- ^           St -> St
   ) where
 
@@ -28,12 +27,6 @@ showReassurance msg =
   (showingOptionalWindows %~ M.insert Reassurance True)
   . (showingErrorWindow .~ False)
   . (reassurance .~ msg)
-
-showBufferAndViewPaths :: St -> St -- ^ for debugging
-showBufferAndViewPaths st =
-  showReassurance (s ++ "\n" ++ t) st where
-  s = "Path to RlstView: " ++ show (st ^. stBuffer st . bufferPath)
-  t = "Vath to Buffer: "   ++ show (st ^. vathToBuffer)
 
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
