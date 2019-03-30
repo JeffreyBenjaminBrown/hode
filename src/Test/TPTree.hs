@@ -53,6 +53,10 @@ test_moveFocus_inPorest = TestCase $ do
     _f_nt = nip $ pList [f,t]
     _t_nf =       pList [t,f]
 
+  assertBool "1" $ moveFocusInPorest DirNext _t_nf
+                                          == _f_nt
+  assertBool "2" $ moveFocusInPorest DirNext _f_nt
+                                          == _f_nt
   assertBool "1" $ moveFocusInPorest DirPrev _t_nf
                                           == _t_nf
   assertBool "2" $ moveFocusInPorest DirPrev _f_nt

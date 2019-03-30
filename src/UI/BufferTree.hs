@@ -23,20 +23,8 @@ consBuffer_topNext :: Buffer -> St -> St
 consBuffer_topNext b = buffers %~ cons_topNext b
 
 consBufferAsChild :: Buffer -> St -> St
-consBufferAsChild b st = let
-  newFocus :: PTree Buffer
-  newFocus = pTreeLeaf b & pTreeHasFocus .~ True
-  consNewFocus    :: St -> St
-  consNewFocus    = buffers . P.focus . setFocusedSubtree .
-                    pMTrees . _Just .
-                    setPList %~ (newFocus :)
-  unFocusOldFocus :: St -> St
-  unFocusOldFocus = buffers . P.focus . setFocusedSubtree .
-                    pTreeHasFocus .~ False
-  -- PITFALL: Order of these ops matters. The old focus should only be
-  -- unfocused after the new focus is inserted; otherwise the place to
-  -- insert cannot be found. (& is left-infix.)
-  in st & consNewFocus & unFocusOldFocus
+consBufferAsChild b st = st & buffers . P.focus . setFocusedSubtree
+                            %~ consUnderAndFocus (pTreeLeaf b)
 
 cons_focusedViewResult_asChildOfBuffer :: St -> Either String St
 cons_focusedViewResult_asChildOfBuffer st =
