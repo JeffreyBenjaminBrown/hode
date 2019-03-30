@@ -119,7 +119,9 @@ test_consUnderAndFocus = TestCase $ do
       f_t  = f { _pMTrees = P.fromList   [t] }
       f_ft = f { _pMTrees = P.fromList [f,t] }
   assertBool "1" $ consUnderAndFocus t f   == f_t
-  assertBool "2" $ consUnderAndFocus t f_t == f_ft
+  assertBool "2" $ consUnderAndFocus t t   == f_t
+  assertBool "3" $ consUnderAndFocus f t   == f_t
+  assertBool "4" $ consUnderAndFocus t f_t == f_ft
 
 test_focusedSubtree :: T.Test
 test_focusedSubtree = TestCase $ do

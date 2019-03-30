@@ -106,7 +106,7 @@ instance Show RsltView where
 
 data Buffer = Buffer { _bufferQuery :: ViewQuery
                      , _bufferRsltViewTree  :: PTree RsltView
-                     } deriving (Eq, Ord)
+                     } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
 data St = St {

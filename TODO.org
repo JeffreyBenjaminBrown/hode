@@ -28,24 +28,6 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* TODO PTree
-** TODO parts I've checked
-ITypes: everything* in it is tested.
-  (except getList and setList, which are trivial)
-** TODO bugs
-cons_focusedViewResult_asChildOfBuffer (M-b from Results window)
-** untested functions
-All the Buffer functions in UI.BufferTree, RsltViewTree
-** ? add a function to check the validity of its focii fields
-Only one should be true.
-** DONE philosophy, and an alternative
-*** it's good enough; use it, probably
- Where slow it can be sped up -- currently, stupidly, it searches outside of an ancestor's focus for the focal descendent.
- I think it will simplify the using code a lot. No checking that paths are valid, for instance.
-*** but better would be Data.Tree.Zipper
- Each label on the tree would be an index into the subtree there.
- Those indices would not be a list position, but rather the Addr in an Rslt,
- or some other identifier robust to insertion.
 * TODO top priorities
 ** folding
 ** things that ought already to work
@@ -225,9 +207,10 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
    https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html
  more:
    https://www.fpcomplete.com/blog/defining-exceptions-in-haskell
-** TODO maybe: focusPorestOnFocusedPTree
-A Porest is a list of PTrees. Exactly one of those PTrees should have focus. This function would move the focus of the Porest to align with the first PTree that has focus.
-
+** more safety with PTree focus
+*** a function to check the validity of its focii fields
+*** focusPorestOnFocusedPTree
+ A Porest is a list of PTrees. Exactly one of those PTrees should have focus. This function would move the focus of the Porest to align with the first PTree that has focus.
 * DONE explaining some design decisions
 ** why the focus within the Results window is coded by hand
 (where "by hand" = instead of using Brick's built-in focus concept).

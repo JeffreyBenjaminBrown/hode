@@ -9,7 +9,7 @@
 
 module Util.PTree where
 
-import           Control.Arrow ((>>>), (<<<))
+import           Control.Arrow ((>>>))
 import           Control.Lens
 import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
@@ -133,12 +133,15 @@ cons_topNext a =
 -- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
 consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
 consUnderAndFocus newFocus oldFocus =
-  let (ts' :: [PTree a]) = case _pMTrees oldFocus of
-                             Nothing -> m : []
-                             Just ts -> m : toList ts
-        where m = newFocus & pTreeHasFocus .~ True
+  let (ts'' :: [PTree a]) =
+        let m = newFocus & pTreeHasFocus .~ True
+        in case _pMTrees oldFocus of
+             Nothing -> m : []
+             Just ts ->
+               let ts' = ts & P.focus . pTreeHasFocus .~ False
+               in m : toList ts'
   in oldFocus & pTreeHasFocus .~ False
-          & pMTrees .~ P.fromList ts'
+              & pMTrees .~ P.fromList ts''
 
 moveFocusInPTree :: Direction -> PTree a -> PTree a
 moveFocusInPTree DirUp t =

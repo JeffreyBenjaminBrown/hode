@@ -61,7 +61,7 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
     <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
   (leavesOfNew' :: Porest RsltView) <- let msg = "Expr has no members."
     in maybe (Left msg) Right $ P.fromList leavesOfNew
-  let (new :: PTree RsltView) = topOfNew & pMTrees . _Just .~ leavesOfNew'
+  let (new :: PTree RsltView) = topOfNew & pMTrees .~ Just leavesOfNew'
   Right $ st & stSetFocusedRsltViewTree %~ consUnderAndFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
