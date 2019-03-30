@@ -6,13 +6,13 @@
 module UI.Input (
     handleUncaughtInput                  -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atResults_buffer      -- ^ St -> B.Event ->
+  , handleKeyboard_atResultsWindow      -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow_buffer -- ^ St -> B.Event ->
+  , handleKeyboard_atBufferWindow -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
-  , parseAndRunCommand_buffer            -- ^ St ->
+  , parseAndRunCommand            -- ^ St ->
                                          -- B.EventM BrickName (B.Next St)
-  , runParsedCommand_buffer -- ^ Command -> St ->
+  , runParsedCommand -- ^ Command -> St ->
                             -- Either String (B.EventM BrickName (B.Next St))
   ) where
 
@@ -54,8 +54,8 @@ handleUncaughtInput st ev =
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 
-handleKeyboard_atBufferWindow_buffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atBufferWindow_buffer st ev = case ev of
+handleKeyboard_atBufferWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atBufferWindow st ev = case ev of
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
     $ moveFocusedBuffer DirPrev
     $ st & hideReassurance
@@ -78,46 +78,46 @@ handleKeyboard_atBufferWindow_buffer st ev = case ev of
 
   _ -> handleUncaughtInput st ev
 
-handleKeyboard_atResults_buffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atResults_buffer st ev = case ev of
+handleKeyboard_atResultsWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atResultsWindow st ev = case ev of
   B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertHosts_atFocus_buffer   st
+    $ insertHosts_atFocus   st
   B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ unEitherSt st
-    $ insertMembers_atFocus_buffer st
+    $ insertMembers_atFocus st
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
-    $ closeSubviews_atFocus_buffer st
+    $ closeSubviews_atFocus st
   B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
     $ unEitherSt st
-    $ st & cons_focusedViewResult_asChild_inBuffer
+    $ st & cons_focusedViewResult_asChildOfBuffer
 
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
-    liftIO ( toClipboard $ unlines $ resultsText_buffer st )
+    liftIO ( toClipboard $ unlines $ resultsText st )
     B.continue $ st
       & showReassurance "Results window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_buffer DirPrev
+    $ moveFocusedRsltView DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_buffer DirNext
+    $ moveFocusedRsltView DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_buffer DirDown
+    $ moveFocusedRsltView DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView_buffer DirUp
+    $ moveFocusedRsltView DirUp
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
 
-parseAndRunCommand_buffer :: St -> B.EventM BrickName (B.Next St)
-parseAndRunCommand_buffer st =
+parseAndRunCommand :: St -> B.EventM BrickName (B.Next St)
+parseAndRunCommand st =
   let cmd = unlines $ B.getEditContents $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
     Left parseErr -> B.continue $ unEitherSt st $ Left parseErr
       -- PITFALL: these two Lefts have different types.
-    Right parsedCmd -> case runParsedCommand_buffer parsedCmd st of
+    Right parsedCmd -> case runParsedCommand parsedCmd st of
       Left runErr -> B.continue $ unEitherSt st $ Left runErr
         -- PITFALL: these two Lefts have different types.
       Right evNextSt -> (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
@@ -131,10 +131,10 @@ parseAndRunCommand_buffer st =
 -- than `Event ... St`, but it needs IO to load and save.
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
-runParsedCommand_buffer ::
+runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand_buffer (CommandFind s h) st = do
+runParsedCommand (CommandFind s h) st = do
   let r = st ^. appRslt
       title = "runParsedCommand, called on CommandFind"
 
@@ -157,7 +157,7 @@ runParsedCommand_buffer (CommandFind s h) st = do
                           & stSetFocusedBuffer . bufferQuery .~ s
                           & stSetFocusedBuffer . bufferRsltViewTree .~ v
 
-runParsedCommand_buffer (CommandInsert e) st =
+runParsedCommand (CommandInsert e) st =
   either Left (Right . f)
   $ exprToAddrInsert (st ^. appRslt) e
   where
@@ -166,7 +166,7 @@ runParsedCommand_buffer (CommandInsert e) st =
               & showReassurance ("Expr added at Addr " ++ show a)
               & showingInMainWindow .~ Results
 
-runParsedCommand_buffer (CommandLoad f) st = Right $ do
+runParsedCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   if bad
     then B.continue $ st & showError ("Non-existent folder: " ++ f)
@@ -175,7 +175,7 @@ runParsedCommand_buffer (CommandLoad f) st = Right $ do
                             & showReassurance "Rslt loaded."
                             & showingInMainWindow .~ Results
 
-runParsedCommand_buffer (CommandSave f) st = Right $ do
+runParsedCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
     then return $ st & showError ("Non-existent folder: " ++ f)

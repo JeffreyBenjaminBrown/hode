@@ -9,16 +9,16 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.RsltViewTree (
-    moveFocusedRsltView_buffer -- ^ Direction -> St -> St
-  , members_atFocus_buffer -- ^ St -> Either String (ViewMembers, [Addr])
-  , insertMembers_atFocus_buffer -- ^ St -> Either String St
+    moveFocusedRsltView -- ^ Direction -> St -> St
+  , members_atFocus -- ^ St -> Either String (ViewMembers, [Addr])
+  , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels -- Rslt -> Addr -> Either String [(ViewCenterRole, [Addr])]
-  , groupHostRels_atFocus_buffer
+  , groupHostRels_atFocus
                             -- St -> Either String [(ViewCenterRole, [Addr])]
-  , hostRelGroup_to_view_buffer -- Rslt -> (ViewCenterRole, [Addr])
+  , hostRelGroup_to_view -- Rslt -> (ViewCenterRole, [Addr])
                                 -- -> Either String (PTree RsltView)
-  , insertHosts_atFocus_buffer -- St -> Either String St
-  , closeSubviews_atFocus_buffer -- St -> St
+  , insertHosts_atFocus -- St -> Either String St
+  , closeSubviews_atFocus -- St -> St
   ) where
 
 import           Data.Foldable (toList)
@@ -38,12 +38,12 @@ import Util.Misc
 import Util.PTree
 
 
-moveFocusedRsltView_buffer :: Direction -> St -> St
-moveFocusedRsltView_buffer d st =
+moveFocusedRsltView :: Direction -> St -> St
+moveFocusedRsltView d st =
   st & stSetFocusedBuffer . bufferRsltViewTree %~ moveFocusInPTree d
 
-members_atFocus_buffer :: St -> Either String (ViewMembers, [Addr])
-members_atFocus_buffer st = prefixLeft "members_atFocus" $ do
+members_atFocus :: St -> Either String (ViewMembers, [Addr])
+members_atFocus st = prefixLeft "members_atFocus" $ do
   (foc :: PTree RsltView) <- let msg = "focused RsltView not found."
     in maybe (error msg) Right $
        st ^? stGetFocusedRsltViewTree . _Just
@@ -53,9 +53,9 @@ members_atFocus_buffer st = prefixLeft "members_atFocus" $ do
   (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
   Right (ViewMembers a, as)
 
-insertMembers_atFocus_buffer :: St -> Either String St
-insertMembers_atFocus_buffer st = prefixLeft "insertMembers_atFocus" $ do
-  ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus_buffer st
+insertMembers_atFocus :: St -> Either String St
+insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
+  ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus st
   let (topOfNew :: PTree RsltView) = pTreeLeaf $ VMembers ms
   (leavesOfNew :: [PTree RsltView]) <- map (pTreeLeaf . VResult)
     <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
@@ -88,20 +88,20 @@ groupHostRels r a0 = do
           tplt a = es where Right (Tplt es) = addrToExpr r a
   Right $ map package $ M.toList groups
 
-groupHostRels_atFocus_buffer :: St -> Either String [(ViewCenterRole, [Addr])]
-groupHostRels_atFocus_buffer st = prefixLeft "groupHostRels_atFocus'" $ do
+groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
+groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   a :: Addr <- let errMsg = "Buffer not found or focused RsltView not found."
     in maybe (Left errMsg) Right $
        st ^? stGetFocusedRsltViewTree . _Just .
        pTreeLabel . _VResult . viewResultAddr
   groupHostRels (st ^. appRslt) a
 
-insertHosts_atFocus_buffer :: St -> Either String St
-insertHosts_atFocus_buffer st = prefixLeft "insertHosts_atFocus" $ do
+insertHosts_atFocus :: St -> Either String St
+insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
   (groups :: [(ViewCenterRole, [Addr])]) <-
-    groupHostRels_atFocus_buffer st
+    groupHostRels_atFocus st
   (newTrees :: [PTree RsltView]) <- ifLefts ""
-    $ map (hostRelGroup_to_view_buffer $ st ^. appRslt) groups
+    $ map (hostRelGroup_to_view $ st ^. appRslt) groups
   (preexist :: Maybe (Porest RsltView)) <-
     let errMsg = "focused RsltView not found."
     in maybe (Left errMsg) Right $ st ^?
@@ -112,9 +112,9 @@ insertHosts_atFocus_buffer st = prefixLeft "insertHosts_atFocus" $ do
                   P.fromList (foldr (:) preexist' newTrees)
   Right $ st & stSetFocusedRsltViewTree %~ insert
 
-hostRelGroup_to_view_buffer :: Rslt -> (ViewCenterRole, [Addr])
+hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
                      -> Either String (PTree RsltView)
-hostRelGroup_to_view_buffer r (vcr, as) = do
+hostRelGroup_to_view r (vcr, as) = do
   case as of [] -> Left "There are no host Exprs to show."
              _ -> Right ()
   let mustBeOkay = "Impossible: as is nonempty, so P.fromList must work."
@@ -125,6 +125,6 @@ hostRelGroup_to_view_buffer r (vcr, as) = do
                 , _pMTrees = maybe (error mustBeOkay) Just $
                     P.fromList $ map (pTreeLeaf . VResult) rs }
 
-closeSubviews_atFocus_buffer :: St -> St
-closeSubviews_atFocus_buffer =
+closeSubviews_atFocus :: St -> St
+closeSubviews_atFocus =
   stSetFocusedRsltViewTree . pMTrees .~ Nothing

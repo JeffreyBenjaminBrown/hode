@@ -140,7 +140,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   B.EvKey B.KEsc [B.MMeta] -> B.halt st
 
   -- command window
-  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand_buffer st
+  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
   B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
     $ emptyCommandWindow st
 
@@ -161,8 +161,8 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   _ -> case st ^. showingInMainWindow of
-    Results -> handleKeyboard_atResults_buffer      st ev
-    Buffers -> handleKeyboard_atBufferWindow_buffer st ev
+    Results -> handleKeyboard_atResultsWindow      st ev
+    Buffers -> handleKeyboard_atBufferWindow st ev
     _       -> handleUncaughtInput                  st ev
 
 appHandleEvent st _ = B.continue st

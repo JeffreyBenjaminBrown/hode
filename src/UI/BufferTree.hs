@@ -3,7 +3,7 @@
 module UI.BufferTree (
     consBufferAtTop      -- ^ Buffer -> St -> St
   , consBufferAsChild    -- ^ Buffer -> St -> St
-  , cons_focusedViewResult_asChild_inBuffer -- ^ St -> Either String St
+  , cons_focusedViewResult_asChildOfBuffer -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> St
   ) where
 
@@ -37,8 +37,8 @@ consBufferAsChild b st = let
   -- insert cannot be found. (& is left-infix.)
   in st & consNewFocus & unFocusOldFocus
 
-cons_focusedViewResult_asChild_inBuffer :: St -> Either String St
-cons_focusedViewResult_asChild_inBuffer st =
+cons_focusedViewResult_asChildOfBuffer :: St -> Either String St
+cons_focusedViewResult_asChildOfBuffer st =
   prefixLeft "cons_focusedViewResult_asChild" $ do
   p <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st ^. stGetFocusedBuffer

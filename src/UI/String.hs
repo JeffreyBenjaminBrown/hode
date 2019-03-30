@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.String (
-    resultsText_buffer -- ^ St -> [String]
+    resultsText -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
   , vShow        -- ^ RsltView -> String
   ) where
@@ -17,8 +17,8 @@ import Util.Misc
 import Util.PTree
 
 
-resultsText_buffer :: St -> [String]
-resultsText_buffer st = maybe [] (go 0) p where
+resultsText :: St -> [String]
+resultsText st = maybe [] (go 0) p where
   p :: Maybe (PTree RsltView)
   p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewTree
 
