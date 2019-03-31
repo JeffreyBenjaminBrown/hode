@@ -49,7 +49,7 @@ test_exprToAddrInsert = TestCase $ do
              , 9 )
 
   assertBool "4" $ R.exprToAddrInsert D.rslt
-    ( Par [ ("The Tplt", ExprTplt $ map Addr [0,3,0])
+    ( ExprPar [ ("The Tplt", ExprTplt $ map Addr [0,3,0])
                , ("could use a", Phrase "taxi") ] "" )
     == Right ( fromRight (error "wut")
                $ R.insertAt 8 (Par' [ ("The Tplt", 4)

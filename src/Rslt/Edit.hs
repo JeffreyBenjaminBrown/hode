@@ -68,7 +68,7 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   r3 <- insertAt a (Rel' $ Rel mas ta) r2
   Right (r3,a)
 
-exprToAddrInsert_rootNotFound r0 (Par ps s) = do
+exprToAddrInsert_rootNotFound r0 (ExprPar ps s) = do
   let (ss, is) = unzip ps
   (r1,as) <- prefixLeft "exprToAddrInsert_rootNotFound"
             $ exprToAddrInsert_list r0 is

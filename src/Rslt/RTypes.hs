@@ -36,7 +36,7 @@ data Expr =
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | ExprTplt (Tplt Expr) -- ^ Template for a `Rel`, ala "_ gives _ money".
                         -- The `Addr`s should probably be `Phrase`s.
-  | Par [(String, Expr)] String -- ^ "Paragraph".
+  | ExprPar [(String, Expr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
     -- `Par`s are like `Tplt`s, in that |Members| + 1 = |`String`s|.

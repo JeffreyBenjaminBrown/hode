@@ -24,8 +24,8 @@ test_eShow = TestCase $ do
     ( ExprRel ( Rel ( map Phrase ["a","b"] )
                 $ ExprTplt $ map Phrase ["","=",""] ) )
     == Right "a #= b"
-  assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Phrase "cat")
-                                           , (", hello", Addr 1) ]
+  assertBool "4" $ eShow D.rslt ( ExprPar [ ("Hello", Phrase "cat")
+                                          , (", hello", Addr 1) ]
                                   ", nice to meet you both." )
     == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
 

@@ -31,7 +31,7 @@ test_refExprToExpr = TestCase $ do
                                        , Phrase "" ] )
     == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
-  assertBool "par" $ Right ( Par [ ( "You can't eat"
+  assertBool "par" $ Right ( ExprPar [ ( "You can't eat"
                                    , Phrase "oxygen" ) ]
                              "silly" )
     == refExprToExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )

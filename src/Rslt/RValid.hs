@@ -52,7 +52,7 @@ validExpr r = para f where
   f (ExprTpltF js)     = ifLefts err (map snd js)
                      >> return ()
     where err = "validExpr called on " ++ show (ExprTplt $ map fst js)
-  f (ParF pairs _) = ifLefts err (map (snd . snd) pairs)
+  f (ExprParF pairs _) = ifLefts err (map (snd . snd) pairs)
                      >> return ()
     where err = "validExpr called on a Par."
 

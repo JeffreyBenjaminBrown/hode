@@ -34,7 +34,7 @@ refExprToExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
   (es  :: [RefExpr]) <- ifLefts "refExprToExpr" $ map (addrToRefExpr r) as
   (eis :: [Expr])    <- ifLefts "refExprToExpr" $ map (refExprToExpr r) es
-  Right $ Par (zip ss eis) s
+  Right $ ExprPar (zip ss eis) s
 
 
 -- | == Lookup from an `Expr`
@@ -56,7 +56,7 @@ exprToAddr x img =
     ma <- pel $ exprToAddr x i
     pel $ refExprToAddr x (Rel' $ Rel mas ma)
 
-  Par _ _ -> Left $ "exprToAddr: Pars are not in index, "
+  ExprPar _ _ -> Left $ "exprToAddr: Pars are not in index, "
     ++ "cannot be looked up.\n"
 
 

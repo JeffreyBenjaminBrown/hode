@@ -76,7 +76,7 @@ eShow r = para f where
   f x@(ExprRelF _) = Left $ "eShow: ExprRel with non-Tplt for Tplt: "
                      ++ show (embed $ fmap fst x)
 
-  f (ParF triples s0) = do
+  f (ExprParF triples s0) = do
     let (ss :: [String], ps)               = unzip triples
         (_, ess :: [Either String String]) = unzip ps
     (mis :: [String]) <- ifLefts "eShow Par" ess

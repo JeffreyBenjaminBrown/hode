@@ -19,7 +19,7 @@ depth = cata f where
   f (PhraseF _)             = 0
   f (ExprRelF (Rel mems _)) = 1 + maximum mems
   f (ExprTpltF _)           = 0
-  f (ParF sis _)            = 1 + maximum (map snd sis)
+  f (ExprParF sis _)            = 1 + maximum (map snd sis)
 
 
 -- | for `RefExpr`s
