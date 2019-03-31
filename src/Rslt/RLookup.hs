@@ -50,7 +50,7 @@ arity r (ExprRel (Rel ms t)) = do
   if ta == length ms then Right ta
     else Left $ "arity: Rel Tplt " ++ show t
          ++ " does not match number of Rel members " ++ show ms ++ ".\n"
-arity _ (Tplt x)  = Right $ length x - 1
+arity _ (ExprTplt x)  = Right $ length x - 1
 arity _ (Par x _) = Right $ length x
 
 

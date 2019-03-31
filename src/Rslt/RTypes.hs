@@ -33,8 +33,8 @@ data Expr =
   | ExprRel (Rel Expr) -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
-  | Tplt [Expr] -- ^ A "Tplt" for a `Rel`, like "_ needs _ sometimes."
-                 -- The `Addr`s should probably be `Phrase`s.
+  | ExprTplt [Expr] -- ^ A "Tplt" for a `Rel`, like "_ needs _ sometimes."
+                   -- The `Addr`s should probably be `Phrase`s.
   | Par [(String, Expr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.

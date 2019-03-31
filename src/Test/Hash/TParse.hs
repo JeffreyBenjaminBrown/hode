@@ -27,8 +27,10 @@ test_parse_hExpr = TestCase $ do
       ( parse pExpr "doh!" "/hash /_ #e w" )
       >>= pExprToHExpr )
     == ( Right $ HMap $ M.fromList
-         [ ( RoleTplt    , HExpr $ Tplt [ Phrase "",Phrase "e",Phrase "" ] )
-         , ( RoleMember 2, HExpr $ Phrase "w" ) ] )
+         [ ( RoleTplt
+           , HExpr $ ExprTplt [ Phrase "",Phrase "e",Phrase "" ] )
+         , ( RoleMember 2
+           , HExpr $ Phrase "w" ) ] )
 
 test_parse_pExpr :: Test
 test_parse_pExpr = TestCase $ do
@@ -43,7 +45,7 @@ test_parse_pExpr = TestCase $ do
     ( PMap $ M.fromList
       [ ( RoleMember 1, PExpr $ Phrase "a" )
       , ( RoleMember 2, PExpr $ Phrase "b" )
-      , ( RoleTplt, PExpr $ Tplt $ map Phrase
+      , ( RoleTplt, PExpr $ ExprTplt $ map Phrase
           ["sees","whenever there is","because"] )
       ] )
 

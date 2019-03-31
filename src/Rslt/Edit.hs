@@ -52,7 +52,7 @@ exprToAddrInsert_rootNotFound r0 (Phrase w) = do
   r1 <- insertAt a (Phrase' w) r0
   Right (r1,a)
 
-exprToAddrInsert_rootNotFound r0 (Tplt js) = do
+exprToAddrInsert_rootNotFound r0 (ExprTplt js) = do
   (r1,as) <- prefixLeft "exprToAddrInsert_rootNotFound"
             $ exprToAddrInsert_list r0 js
   a <- nextAddr r1
@@ -122,7 +122,7 @@ _replaceInRefExpr r spot new host = do
           then Right $ Rel' $ Rel as new
           else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
                 ++ " is not a valid Tplt in " ++ show host ++ ".\n"
-      _ -> Left $ "_replaceInRefExpr: nothing plays the role of Tplt in "
+      _ -> Left $ "_replaceInRefExpr: nothing plays the role of ExprTplt in "
                 ++ show host ++ ".\n"
 
     RoleMember k -> do

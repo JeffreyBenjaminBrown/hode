@@ -18,11 +18,11 @@ test_module_rslt_show = TestList [
 test_eShow :: Test
 test_eShow = TestCase $ do
   assertBool "1" $ eShow D.rslt (Phrase "hello") == Right "hello"
-  assertBool "2" $ eShow D.rslt (Tplt $ map Phrase ["a","b","c"] )
+  assertBool "2" $ eShow D.rslt (ExprTplt $ map Phrase ["a","b","c"] )
     == Right "a _ b _ c"
   assertBool "3" $ eShow D.rslt
     ( ExprRel ( Rel ( map Phrase ["a","b"] )
-                $ Tplt $ map Phrase ["","=",""] ) )
+                $ ExprTplt $ map Phrase ["","=",""] ) )
     == Right "a #= b"
   assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Phrase "cat")
                                            , (", hello", Addr 1) ]

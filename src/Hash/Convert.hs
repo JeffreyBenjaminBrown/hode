@@ -38,7 +38,7 @@ import Util.Misc
 -- In an HExpr, nothing is absent, but joints can be empty.
 -- For every outer member of a PRel that is not Absent,
 -- there should be an empty string added to that side of the
--- Tplt in the corresponding HExpr.
+-- ExprTplt in the corresponding HExpr.
 
 pRelToHExpr :: PRel -> Either String HExpr
 pRelToHExpr = para f where
@@ -49,7 +49,7 @@ pRelToHExpr = para f where
   f (OpenF _ ms js) = f $ ClosedF ms js
 
   f (ClosedF ms js0) = do
-    let t = Tplt $ map Phrase js2 where
+    let t = ExprTplt $ map Phrase js2 where
           absentLeft, absentRight :: Bool
           absentLeft  = case head ms of (Absent,_) -> True; _ -> False
           absentRight = case last ms of (Absent,_) -> True; _ -> False

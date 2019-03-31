@@ -32,7 +32,7 @@ test_pRelToHExpr = TestCase $ do
                                  [ pnrPhrase "a", pnrPhrase "b" ]
                                  [ "is" ] )
     == Right ( HMap $ M.fromList
-               [ ( RoleTplt, HExpr $ Tplt $ map Phrase [ "", "is", "" ] )
+               [ ( RoleTplt, HExpr $ ExprTplt $ map Phrase [ "", "is", "" ] )
                , ( RoleMember 1, HExpr $ Phrase "a" )
                , ( RoleMember 2, HExpr $ Phrase "b" ) ] )
   assertBool "3" $ let meh = error "irrelevant"
@@ -46,10 +46,10 @@ test_pRelToHExpr = TestCase $ do
                                  [ "is", "because" ] )
     == Right
     ( HMap $ M.fromList
-      [ ( RoleTplt    , HExpr $ Tplt $ map Phrase ["", "is", "because", "" ] )
+      [ ( RoleTplt    , HExpr $ ExprTplt $ map Phrase ["", "is", "because", "" ] )
       , ( RoleMember 1, HExpr $ Phrase "a" )
       , ( RoleMember 2, HMap $ M.fromList
-                        [ ( RoleTplt    , ( HExpr $ Tplt $ map Phrase
+                        [ ( RoleTplt    , ( HExpr $ ExprTplt $ map Phrase
                                             [ "","to", "" ] ) )
                         , ( RoleMember 1, HExpr $ Phrase "c" )
                         , ( RoleMember 2, HExpr $ Phrase "d" ) ] )
@@ -59,12 +59,12 @@ test_pExprToHExpr :: Test
 test_pExprToHExpr = TestCase $ do
   assertBool "1" $ ( pExprToHExpr
                      ( PEval $ PMap $ M.fromList
-                       [ ( RoleTplt, PExpr $ Tplt [ Phrase "is" ] )
+                       [ ( RoleTplt, PExpr $ ExprTplt [ Phrase "is" ] )
                        , ( RoleMember 1, It Nothing ) ] ) )
     == Right ( HEval
                ( HMap $ M.fromList
                  [ ( RoleTplt
-                   , HExpr ( Tplt [ Phrase "is" ] ) ) ] )
+                   , HExpr ( ExprTplt [ Phrase "is" ] ) ) ] )
                [ [ RoleMember 1 ] ] )
 
   assertBool "2" $
@@ -77,7 +77,7 @@ test_pExprToHExpr = TestCase $ do
       [ "enjoy", "because" ]
     ) == Right ( HEval
                  ( HMap $ M.fromList
-                   [ ( RoleTplt, ( HExpr $ Tplt $ map Phrase
+                   [ ( RoleTplt, ( HExpr $ ExprTplt $ map Phrase
                                    ["", "enjoy", "because", "" ] ) )
                    , ( RoleMember 1, HMap $ M.singleton
                                      ( RoleMember 1 )

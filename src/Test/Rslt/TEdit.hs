@@ -27,17 +27,17 @@ test_module_rslt_edit = TestList [
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do
-  assertBool "1" $ R.exprToAddrInsert D.rslt ( Tplt [ Addr 0
+  assertBool "1" $ R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
                                                      , Addr 3
                                                      , Addr 0 ] )
     == Right (D.rslt, 4)
-  assertBool "2" $ R.exprToAddrInsert D.rslt ( Tplt [ Addr 0
+  assertBool "2" $ R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
                                                      , Addr 1
                                                      , Addr 0 ] )
     == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt' [0,1,0]) D.rslt
              , 7 )
 
-  assertBool "3" $ R.exprToAddrInsert D.rslt ( Tplt [ Phrase "bar"
+  assertBool "3" $ R.exprToAddrInsert D.rslt ( ExprTplt [ Phrase "bar"
                                                      , Phrase ""
                                                      , Phrase "foo" ] )
     == Right ( fromRight (error "wut")
@@ -49,7 +49,7 @@ test_exprToAddrInsert = TestCase $ do
              , 9 )
 
   assertBool "4" $ R.exprToAddrInsert D.rslt
-    ( Par [ ("The Tplt", Tplt $ map Addr [0,3,0])
+    ( Par [ ("The Tplt", ExprTplt $ map Addr [0,3,0])
                , ("could use a", Phrase "taxi") ] "" )
     == Right ( fromRight (error "wut")
                $ R.insertAt 8 (Par' [ ("The Tplt", 4)
@@ -62,11 +62,11 @@ test_exprToAddrInsert = TestCase $ do
     Right (r,a) = R.exprToAddrInsert D.rslt
                   ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
                                                   , Phrase "empty" ]
-                               ( Tplt [ Phrase ""
+                               ( ExprTplt [ Phrase ""
                                            , Phrase "is"
                                            , Addr 0 ] )
                              , Phrase "suck" ]
-                    ( Tplt [ Phrase "That"
+                    ( ExprTplt [ Phrase "That"
                                 , Phrase "does"
                                 , Addr 0 ] ) )
     (n16 :: Expr) =

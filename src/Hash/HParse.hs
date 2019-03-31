@@ -103,7 +103,7 @@ pTplt = lexeme  ( foldr1 (<|>)
         >> _pTplt
 
 _pTplt :: Parser Expr
-_pTplt = lexeme $ Tplt . map Phrase
+_pTplt = lexeme $ ExprTplt . map Phrase
          <$> some (hashIdentifier <|> parens phrase)
 
 pMap :: Parser PExpr

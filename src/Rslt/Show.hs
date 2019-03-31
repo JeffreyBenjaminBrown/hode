@@ -55,10 +55,10 @@ eShow r = para f where
 
   f (PhraseF w) = Right w
 
-  f (TpltF pairs) = ifLefts "eShow Tplt" (map snd pairs)
+  f (ExprTpltF pairs) = ifLefts "eShow ExprTplt" (map snd pairs)
                   >>= Right . concat . L.intersperse " _ "
 
-  f relf@(ExprRelF (Rel ms (Tplt js, _))) = do
+  f relf@(ExprRelF (Rel ms (ExprTplt js, _))) = do
   -- The recursive argument (second member of the pair) is unused, hence
   -- not computed. Instead, each joint in `js` is `eShow`n separately.
     mss <- ifLefts "eShow ExprRel" $ map snd ms

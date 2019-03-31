@@ -85,7 +85,7 @@ groupHostRels r a0 = do
                              , _vcrRole = role
                              , _vcrTplt = tplt t } where
           tplt :: Addr -> [Expr]
-          tplt a = es where Right (Tplt es) = addrToExpr r a
+          tplt a = es where Right (ExprTplt es) = addrToExpr r a
   Right $ map package $ M.toList groups
 
 groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]

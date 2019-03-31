@@ -17,7 +17,7 @@ refExprToExpr r (Tplt' jointAs) = do
     ifLefts "refExprToExpr" $ map (addrToRefExpr r) jointAs
   (jointEis :: [Expr]) <-
     ifLefts "refExprToExpr" $ map (refExprToExpr r) jointEs
-  Right $ Tplt jointEis
+  Right $ ExprTplt jointEis
 
 refExprToExpr r (Rel' (Rel memAs tA)) = do
   (memEs  :: [RefExpr]) <- ifLefts    "refExprToExpr"
@@ -47,7 +47,7 @@ exprToAddr x img =
 
   Addr a -> pel (addrToRefExpr x a) >>= const (Right a)
 
-  Tplt is -> do
+  ExprTplt is -> do
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
     pel $ refExprToAddr x $ Tplt' mas
 

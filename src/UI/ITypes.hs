@@ -82,7 +82,7 @@ instance Show ViewCenterRole where
     noRslt     = error "show ViewCenterRole: Rslt irrelevant"
     noMiscount = error "show ViewCenterRole: This math is good."
     showTplt = either (const noLeft) id
-               $ eShow noRslt (Tplt tplt)
+               $ eShow noRslt (ExprTplt tplt)
     in if vcr ^. vcrRole == RoleTplt
        then "Tplt " ++ showTplt
        else let (ar :: Arity) = length tplt - 1
@@ -91,7 +91,7 @@ instance Show ViewCenterRole where
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
             in either (const noLeft) id
-               $ eShow noRslt $ ExprRel $ Rel mbrs $ Tplt tplt
+               $ eShow noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
 instance Show RsltView where
   show (VQuery x)      = "VQuery "      ++ show x

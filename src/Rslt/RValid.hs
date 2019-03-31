@@ -49,9 +49,9 @@ validExpr r = para f where
     if ta == length ms then Right ()
       else Left $ err ++ " with Tplt " ++ show tx ++ ": arity mismatch."
 
-  f (TpltF js)     = ifLefts err (map snd js)
+  f (ExprTpltF js)     = ifLefts err (map snd js)
                      >> return ()
-    where err = "validExpr called on " ++ show (Tplt $ map fst js)
+    where err = "validExpr called on " ++ show (ExprTplt $ map fst js)
   f (ParF pairs _) = ifLefts err (map (snd . snd) pairs)
                      >> return ()
     where err = "validExpr called on a Par."

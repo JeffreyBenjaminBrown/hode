@@ -35,7 +35,7 @@ hExprToExpr r h@(HMap mh) = do
   (t :: Expr) <-
     maybe (Left $ "hExprToExpr: no Tplt in " ++ show h)
     Right $ M.lookup RoleTplt me
-  case t of Tplt _ -> Right ()
+  case t of ExprTplt _ -> Right ()
             x -> Left $ "hExprToExpr: in " ++ show h
                  ++ ", the expression " ++ show x ++ " is not a Tplt."
   ta <- prefixLeft "hExprToExpr" $ arity r t

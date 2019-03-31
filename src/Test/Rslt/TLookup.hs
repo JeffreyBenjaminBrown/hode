@@ -26,18 +26,18 @@ test_module_rslt_exprToAddr = TestList [
 
 test_refExprToExpr :: Test
 test_refExprToExpr = TestCase $ do
-  assertBool "tplt" $ Right ( Tplt [ Phrase ""
-                                           , Phrase "needs"
-                                           , Phrase "" ] )
+  assertBool "tplt" $ Right ( ExprTplt [ Phrase ""
+                                       , Phrase "needs"
+                                       , Phrase "" ] )
     == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
   assertBool "par" $ Right ( Par [ ( "You can't eat"
-                                        , Phrase "oxygen" ) ]
+                                   , Phrase "oxygen" ) ]
                              "silly" )
     == refExprToExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
 
   assertBool "rel, recursive" $
-    let ti = Tplt [ Phrase ""
+    let ti = ExprTplt [ Phrase ""
                                                       , Phrase "needs"
                                                       , Phrase "" ]
     in Right ( ExprRel $ Rel [ Phrase "dog"
@@ -56,7 +56,7 @@ test_exprToAddr = TestCase $ do
   assertBool "4" $ (R.exprToAddr D.rslt $ either (error "wut") id
                     $ refExprToExpr D.rslt $ Tplt' [0,3,0])  == Right 4
   assertBool "5" $ Right 4 ==
-    R.exprToAddr D.rslt ( Tplt [ Addr 0
+    R.exprToAddr D.rslt ( ExprTplt [ Addr 0
                                 , Phrase "needs"
                                 , Phrase ""] )
 

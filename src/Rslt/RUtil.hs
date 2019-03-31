@@ -18,7 +18,7 @@ depth = cata f where
   f (AddrF _)               = 0
   f (PhraseF _)             = 0
   f (ExprRelF (Rel mems _)) = 1 + maximum mems
-  f (TpltF _)               = 0
+  f (ExprTpltF _)           = 0
   f (ParF sis _)            = 1 + maximum (map snd sis)
 
 
