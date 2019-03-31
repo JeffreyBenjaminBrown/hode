@@ -1,9 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.String (
-    resultsText -- ^ St -> [String]
+    resultsText  -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
-  , vShow        -- ^ RsltView -> String
+  , showRsltView -- ^ RsltView -> String
   ) where
 
 import           Data.Foldable (toList)
@@ -23,7 +23,7 @@ resultsText st = maybe [] (go 0) p where
   p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewTree
 
   go :: Int -> PTree RsltView -> [String]
-  go i tv = indent (vShow $ tv ^. pTreeLabel)
+  go i tv = indent (showRsltView $ tv ^. pTreeLabel)
     : concatMap (go $ i+1) (maybe [] id $ toList <$> tv ^. pMTrees)
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s
@@ -35,13 +35,13 @@ resultView r a = do
   Right $ ViewResult { _viewResultAddr = a
                      , _viewResultString = s }
 
--- | `vShow` is used to display a `RsltView` in the UI. It is distinct
+-- | `showRsltView` is used to display a `RsltView` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `RsltView`,
--- whereas `vShow` hides things that are already clear in the UI context.
-vShow :: RsltView -> String -- TODO : rename vShow
-vShow (VQuery vq)  = vq
-vShow (VResult qr) = show (qr ^. viewResultAddr)
+-- whereas `showRsltView` hides things that the UI already makes clear.
+showRsltView :: RsltView -> String -- TODO : rename showRsltView
+showRsltView (VQuery vq)  = vq
+showRsltView (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
-vShow (VMembers a) = "memebers of Expr at Addr "
+showRsltView (VMembers a) = "memebers of Expr at Addr "
                      ++ show (a ^. viewMembersCenter)
-vShow (VCenterRole vcr) = show vcr
+showRsltView (VCenterRole vcr) = show vcr

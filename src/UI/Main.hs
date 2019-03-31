@@ -95,15 +95,15 @@ appDraw st0 = [w] where
   bufferWindow = viewport (BrickMainName Buffers) B.Vertical
                  $ fShow $ st ^. buffers where
     fShow :: Porest Buffer -> B.Widget BrickName
-    fShow = vBox . map vShowRec . toList
+    fShow = vBox . map showTreeRec . toList
 
-    vShowOne, vShowRec :: PTree Buffer -> B.Widget BrickName
-    vShowRec bt = vShowOne bt <=> rest
+    showTreeOne, showTreeRec :: PTree Buffer -> B.Widget BrickName
+    showTreeRec bt = showTreeOne bt <=> rest
       where mpts = bt ^. pMTrees
             rest = case mpts of
                      Nothing -> emptyWidget
                      Just pts -> padLeft (B.Pad 2) $ fShow pts
-    vShowOne bt = style $ strWrap $ _bufferQuery $ _pTreeLabel bt
+    showTreeOne bt = style $ strWrap $ _bufferQuery $ _pTreeLabel bt
       where style :: B.Widget BrickName
                   -> B.Widget BrickName
             style = if not $ bt ^. pTreeHasFocus then id
@@ -111,17 +111,17 @@ appDraw st0 = [w] where
                          . withAttr (B.attrName "focused result")
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-                 $ vShowRec $ b ^. bufferRsltViewTree where
+                 $ showTreeRec $ b ^. bufferRsltViewTree where
     fShow :: Porest RsltView -> B.Widget BrickName
-    fShow = vBox . map vShowRec . toList
+    fShow = vBox . map showTreeRec . toList
 
-    vShowOne, vShowRec :: PTree RsltView -> B.Widget BrickName
-    vShowRec bt = vShowOne bt <=> rest
+    showTreeOne, showTreeRec :: PTree RsltView -> B.Widget BrickName
+    showTreeRec bt = showTreeOne bt <=> rest
       where mpts = bt ^. pMTrees
             rest = case mpts of
                      Nothing -> emptyWidget
                      Just pts -> padLeft (B.Pad 2) $ fShow pts
-    vShowOne bt = style $ strWrap $ vShow $ _pTreeLabel bt
+    showTreeOne bt = style $ strWrap $ showRsltView $ _pTreeLabel bt
       where style :: B.Widget BrickName
                   -> B.Widget BrickName
             style = if not $ bt ^. pTreeHasFocus then id
