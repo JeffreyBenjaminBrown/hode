@@ -29,10 +29,8 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** folding
 ** things that ought already to work
 *** not all Hash functions work
-before doing this, do the coder-friendliness task (abstract Rel and Tplt)
 *** pExprIsSpecific should address PDiff, PAnd, POr
 **** where it is used
   In pRelToHExpr, only specific things can be converted.
@@ -45,9 +43,10 @@ before doing this, do the coder-friendliness task (abstract Rel and Tplt)
     But that's not how it's implemented -- both parts have to be found,
     then the one is subtracted from the other.
 *** pathsToIts_pExpr called on PAnd, POr, PDiff
- probably just return []
-
- ** incremental view updates
+probably just return []
+** include relationship "is member of paragraph" in insertHosts
+** folding
+** incremental view updates
 Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.
 ** video
 Use screenkey to show key presses:
@@ -68,9 +67,6 @@ Add a toggleable window above the Results window.
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
 * TODO coder-friendliness
-** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr
-and maybe HExpr and PExpr.
-This would let me, for example, make ViewCenterRole.vcrTplt :: [Expr] safer.
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root

@@ -72,6 +72,22 @@ pRelToHExpr = para f where
     Right $ HMap $ M.insert RoleTplt (HExpr t)
       $ M.fromList hms'
 
+-- | Using a recursion scheme for `pExprToHExpr` is hard.
+-- c.f. the "WTF" comment below.
+--
+--  pExprToHExpr' :: PExpr -> Either String HExpr
+--  pExprToHExpr' = para go where
+--    pExprIsSpecificF :: Base PExpr (PExpr, Either String HExpr) -> Bool
+--    pExprIsSpecificF = pExprIsSpecific . embed . fmap fst
+--
+--    go :: Base PExpr (PExpr, Either String HExpr) -> Either String HExpr
+--    go p@(pExprIsSpecificF -> False) = Left $ "pExprToHExpr: " ++
+--      show (embed $ fmap fst p) ++ " is not specific enough."
+--    go p@(PExprF s) = Right $ HExpr s
+--   go (PMapF s) = Right $ HMap $ ifLefts_map err $ fmap snd s
+--      -- WTF?
+--      where err = Left ""
+--    go _ = error "todo: even more"
 
 pExprToHExpr :: PExpr -> Either String HExpr
 pExprToHExpr px@(pExprIsSpecific -> False) = Left
@@ -92,8 +108,8 @@ pExprToHExpr (PAnd xs)       = do
 pExprToHExpr (POr xs)       = do
   (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map pExprToHExpr xs
   return $ HOr l
-pExprToHExpr (It (Just pnr)) = pExprToHExpr pnr
-pExprToHExpr (PRel pr)       = pRelToHExpr pr
+pExprToHExpr (It (Just pnr))        = pExprToHExpr pnr
+pExprToHExpr (PRel pr)              = pRelToHExpr pr
 pExprToHExpr (PPar (Par spPairs s)) =
   let spPairs' = map (_2 %~ pExprToHExpr) spPairs
   in error "HExpr cannot yet accommodate paragraphs."

@@ -46,8 +46,8 @@ type HMap = Map Role HExpr
 
 -- | = For parsing an HExpr
 
-data PExpr -- ^ intermediate type, on the way to parsing a `Rel`
-  = PExpr Expr
+data PExpr = -- ^ intermediate type, on the way to parsing a `Rel`
+    PExpr Expr
   | PMap PMap
   | PEval PExpr
   | PVar Var
