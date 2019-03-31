@@ -68,7 +68,7 @@ data RsltView = VQuery      ViewQuery
 data ViewCenterRole = ViewCenterRole {
     _vcrCenter :: Addr
   , _vcrRole   :: Role
-  , _vcrTplt   :: [Expr] } deriving (Eq, Ord)
+  , _vcrTplt   :: Tplt Expr } deriving (Eq, Ord)
 
 makePrisms ''RsltView -- prisms!
 makeLenses ''ViewResult

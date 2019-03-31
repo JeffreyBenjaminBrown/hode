@@ -24,6 +24,7 @@ type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
 
 data Rel a = Rel [a] a
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
+type Tplt a = [a]
 
 data Expr =
     Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
@@ -33,8 +34,8 @@ data Expr =
   | ExprRel (Rel Expr) -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
-  | ExprTplt [Expr] -- ^ A "Tplt" for a `Rel`, like "_ needs _ sometimes."
-                   -- The `Addr`s should probably be `Phrase`s.
+  | ExprTplt (Tplt Expr) -- ^ Template for a `Rel`, ala "_ gives _ money".
+                        -- The `Addr`s should probably be `Phrase`s.
   | Par [(String, Expr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.
     -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
@@ -62,7 +63,7 @@ data Rslt = Rslt {
 data RefExpr =
     Phrase' String
   | Rel' (Rel Addr)
-  | Tplt' [Addr]
+  | Tplt' (Tplt Addr)
   | Par' [(String, Addr)] String
   deriving (Eq, Ord, Read, Show)
 

@@ -20,15 +20,15 @@ refExprToExpr r (Tplt' jointAs) = do
   Right $ ExprTplt jointEis
 
 refExprToExpr r (Rel' (Rel memAs tA)) = do
-  (memEs  :: [RefExpr]) <- ifLefts    "refExprToExpr"
+  (memREs  :: [RefExpr]) <- ifLefts    "refExprToExpr"
                           $ map (addrToRefExpr r) memAs
-  (memEis :: [Expr])    <- ifLefts    "refExprToExpr"
-                           $ map (refExprToExpr r) memEs
+  (memEs :: [Expr])    <- ifLefts    "refExprToExpr"
+                           $ map (refExprToExpr r) memREs
   (tE     :: RefExpr)   <- prefixLeft "refExprToExpr"
                            $ addrToRefExpr r tA
   (tEi    :: Expr)      <- prefixLeft "refExprToExpr"
                            $ refExprToExpr r tE
-  Right $ ExprRel $ Rel memEis tEi
+  Right $ ExprRel $ Rel memEs tEi
 
 refExprToExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
