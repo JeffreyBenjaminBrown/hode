@@ -38,7 +38,7 @@ import Util.Misc
 -- In an HExpr, nothing is absent, but joints can be empty.
 -- For every outer member of a PRel that is not Absent,
 -- there should be an empty string added to that side of the
--- template in the corresponding HExpr.
+-- Tplt in the corresponding HExpr.
 
 pRelToHExpr :: PRel -> Either String HExpr
 pRelToHExpr = para f where

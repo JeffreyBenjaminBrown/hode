@@ -45,9 +45,9 @@ validExpr r = para f where
     (tx :: Expr) <-    exprToAddr r t >>= addrToExpr r
       -- looks silly, but this ensures tx is not an `Addr`
     if tc == TpltCtr   then Right ()
-      else Left $ err ++ ": non-template in template position."
+      else Left $ err ++ ": non-Tplt in Tplt position."
     if ta == length ms then Right ()
-      else Left $ err ++ " with template " ++ show tx ++ ": arity mismatch."
+      else Left $ err ++ " with Tplt " ++ show tx ++ ": arity mismatch."
 
   f (TpltF js)     = ifLefts err (map snd js)
                      >> return ()
@@ -96,7 +96,7 @@ validRslt :: Rslt -> Either String ()
 validRslt r = do
   let unmatched = relsWithoutMatchingTplts r
       in if null unmatched then Right ()
-         else Left $ "validRslt: rels without matching templates:\n"
+         else Left $ "validRslt: rels without matching Tplts:\n"
               ++ show unmatched ++ ".\n"
   let unfillable = collectionsWithAbsentAddrs r
       in if null unfillable then Right ()

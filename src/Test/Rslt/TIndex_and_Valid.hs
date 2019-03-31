@@ -28,7 +28,7 @@ test_validExpr = TestCase $ do
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "ExprRel, invalid member" $ isLeft
     $  validExpr D.big (ExprRel $ Rel [ Addr 100 ] $ Addr 101 )
-  assertBool "ExprRel, false template" $ isLeft
+  assertBool "ExprRel, false Tplt" $ isLeft
     $  validExpr D.big ( ExprRel $ Rel [ Addr 0, Addr 0 ] $ Addr 0)
   assertBool "ExprRel, arity mismatch" $ isLeft
     $  validExpr D.big ( ExprRel $ Rel [] $ Addr 4)
@@ -45,7 +45,7 @@ test_validRefExpr = TestCase $ do
     validRefExpr D.rslt (Rel' $ Rel [1,2] 4)
   assertBool "absent members" $ isLeft $
     validRefExpr D.rslt (Rel' $ Rel [100,200] 4)
-  assertBool "absent template" $ isLeft $
+  assertBool "absent Tplt" $ isLeft $
     validRefExpr D.rslt (Rel' $ Rel [1,2] 44)
   assertBool "arity mismatch" $ isLeft $
     validRefExpr D.rslt (Rel' $ Rel [] 4)

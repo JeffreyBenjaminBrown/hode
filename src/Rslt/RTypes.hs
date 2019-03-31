@@ -13,9 +13,9 @@ import           Data.Set (Set)
 type Addr = Int -- ^ Address
 type Arity = Int
 
--- | = Every relationship has a "template" and some "members".
+-- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"
--- and "beef", and template "_ like _".
+-- and "beef", and Tplt "_ like _".
 data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
@@ -33,7 +33,7 @@ data Expr =
   | ExprRel (Rel Expr) -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
-  | Tplt [Expr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
+  | Tplt [Expr] -- ^ A "Tplt" for a `Rel`, like "_ needs _ sometimes."
                  -- The `Addr`s should probably be `Phrase`s.
   | Par [(String, Expr)] String -- ^ "Paragraph".
     -- The `String`s in a `Par` are like a single-use `Tplt`.

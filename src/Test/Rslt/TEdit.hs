@@ -49,10 +49,10 @@ test_exprToAddrInsert = TestCase $ do
              , 9 )
 
   assertBool "4" $ R.exprToAddrInsert D.rslt
-    ( Par [ ("The template", Tplt $ map Addr [0,3,0])
+    ( Par [ ("The Tplt", Tplt $ map Addr [0,3,0])
                , ("could use a", Phrase "taxi") ] "" )
     == Right ( fromRight (error "wut")
-               $ R.insertAt 8 (Par' [ ("The template", 4)
+               $ R.insertAt 8 (Par' [ ("The Tplt", 4)
                                    , ("could use a", 7) ] "")
                $ fromRight (error "wut")
                $ R.insertAt 7 (Phrase' "taxi") D.rslt
@@ -87,7 +87,7 @@ test_replace = TestCase $ do
           , (7, Phrase' "foo")
           ] )
 
-  assertBool "replace word in template" $
+  assertBool "replace word in Tplt" $
     either (error "wut") id (R.replace (Phrase' "foo") 0 D.rslt)
     == mkRslt ( M.fromList
          [ (7, Phrase' "foo")
@@ -191,7 +191,7 @@ test_insert = TestCase $ do
 
   assertBool "address collision" $ isLeft $
     R.insertAt 1 (Phrase' "nuyck") D.rslt
-  assertBool "non-matching template" $ isLeft $
+  assertBool "non-matching Tplt" $ isLeft $
     R.insertAt 1 (Rel' $ Rel [1,2,3] 4) D.rslt
   assertBool "nonexistent references" $ isLeft $
     R.insertAt 1 (Rel' $ Rel [11,22] 4) D.rslt

@@ -33,7 +33,7 @@ hExprToExpr r h@(HMap mh) = do
   (me :: Map Role Expr) <- ifLefts_map "hExprToExpr"
     $ M.map (hExprToExpr r) mh
   (t :: Expr) <-
-    maybe (Left $ "hExprToExpr: no template in " ++ show h)
+    maybe (Left $ "hExprToExpr: no Tplt in " ++ show h)
     Right $ M.lookup RoleTplt me
   case t of Tplt _ -> Right ()
             x -> Left $ "hExprToExpr: in " ++ show h

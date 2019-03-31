@@ -70,8 +70,8 @@ eShow r = para f where
       $ zip ("" : mss) jss
 
   f (ExprRelF (Rel ms (a@(Addr _), _))) = do
-    templateExpr <- unAddr r a
-    eShow r $ ExprRel $ Rel (map fst ms) templateExpr
+    tpltExpr <- unAddr r a
+    eShow r $ ExprRel $ Rel (map fst ms) tpltExpr
 
   f x@(ExprRelF _) = Left $ "eShow: ExprRel with non-Tplt for Tplt: "
                      ++ show (embed $ fmap fst x)

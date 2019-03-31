@@ -30,7 +30,7 @@ import Hash.HTypes
 -- from user input, which will then be turned into an `HExpr`. A `PRel`
 -- can have absent members, because not every # has a member on both sides;
 -- however the resulting `Rel` will always have a number of members
--- equal to the arity of its template.
+-- equal to the arity of its Tplt.
 --
 -- For instance, a `PRel`
 -- like `Closed [Absent, Leaf "not"] ["maybe"]` becomes the `HExpr`

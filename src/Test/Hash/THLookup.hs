@@ -24,8 +24,8 @@ test_module_rslt_hash = TestList [
 
 test_hExprToExpr :: Test
 test_hExprToExpr = TestCase $ do
-  assertBool "no template" $ isLeft $ hExprToExpr D.big $ HMap M.empty
-  assertBool "false template" $ isLeft $ hExprToExpr D.big $ HMap
+  assertBool "no Tplt" $ isLeft $ hExprToExpr D.big $ HMap M.empty
+  assertBool "false Tplt" $ isLeft $ hExprToExpr D.big $ HMap
     $ M.singleton (RoleTplt) $ HExpr $ Phrase "galk"
   assertBool "non-convertible member" $ isLeft $ hExprToExpr D.big $ HMap
     $ M.fromList [ (RoleTplt    , HExpr $ Phrase "galk")
