@@ -86,7 +86,7 @@ test_pExprToHExpr = TestCase $ do
                  [ [ RoleMember 1, RoleMember 2 ] ] )
 
   assertBool "3" $ let meh = error "meh"
-                   in isRight $ pExprToHExpr (PPar meh meh)
+                   in isRight $ pExprToHExpr (PPar $ Par meh meh)
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

@@ -44,14 +44,14 @@ variety r a = maybe err Right $ M.lookup a $ _variety r
 
 arity :: Rslt -> Expr -> Either String Arity
 arity r (Addr a)  = snd <$> variety r a
-arity _ (Phrase _)  = Right 0
+arity _ (Phrase _)           = Right 0
 arity r (ExprRel (Rel ms t)) = do
   ta <- arity r t
   if ta == length ms then Right ta
     else Left $ "arity: Rel Tplt " ++ show t
          ++ " does not match number of Rel members " ++ show ms ++ ".\n"
-arity _ (ExprTplt x)  = Right $ length x - 1
-arity _ (ExprPar x _) = Right $ length x
+arity _ (ExprTplt x)         = Right $ length x - 1
+arity _ (ExprPar (Par x _))  = Right $ length x
 
 
 -- | `has r a` finds the `RefExpr` `re` at `a` in `r`, and returns

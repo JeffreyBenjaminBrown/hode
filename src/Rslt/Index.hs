@@ -41,8 +41,8 @@ mkRslt es = go es' where
 imgDb :: Map Addr RefExpr -> Map RefExpr Addr
 imgDb = M.fromList . catMaybes . map f . M.toList where
   f (addr, expr) = case expr of
-    Par' _ _ -> Nothing
-    _        -> Just (expr, addr)
+    Par' _ -> Nothing
+    _      -> Just (expr, addr)
 
 
 -- | == Given an address, look up what it's connected to.
@@ -59,7 +59,7 @@ refExprPositions expr =
     Phrase' _          -> []
     Tplt' mas          ->                 map r (zip [1..]           mas)
     Rel'  (Rel mas ta) -> (RoleTplt,ta) : map r (zip [1..]           mas)
-    Par'  sas _        ->                 map r (zip [1..] $ map snd sas)
+    Par'  (Par sas _)  ->                 map r (zip [1..] $ map snd sas)
 
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map

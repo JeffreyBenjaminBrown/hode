@@ -49,11 +49,11 @@ test_exprToAddrInsert = TestCase $ do
              , 9 )
 
   assertBool "4" $ R.exprToAddrInsert D.rslt
-    ( ExprPar [ ("The Tplt", ExprTplt $ map Addr [0,3,0])
-               , ("could use a", Phrase "taxi") ] "" )
+    ( ExprPar $ Par [ ("The Tplt", ExprTplt $ map Addr [0,3,0])
+                    , ("could use a", Phrase "taxi") ] "" )
     == Right ( fromRight (error "wut")
-               $ R.insertAt 8 (Par' [ ("The Tplt", 4)
-                                   , ("could use a", 7) ] "")
+               $ R.insertAt 8 (Par' ( Par [ ("The Tplt", 4)
+                                          , ("could use a", 7) ] "") )
                $ fromRight (error "wut")
                $ R.insertAt 7 (Phrase' "taxi") D.rslt
              , 8 )
@@ -83,7 +83,8 @@ test_replace = TestCase $ do
           , (3, Phrase' "needs")
           , (4, Tplt' [0,3,0])
           , (5, Rel' $ Rel [7,2] 4) -- all changes involve address 7
-          , (6, Par' [("The first relationship in this graph is ", 5)] ".")
+          , (6, Par' ( Par [("The first relationship in this graph is ", 5)]
+                       ".") )
           , (7, Phrase' "foo")
           ] )
 
@@ -96,7 +97,8 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (4, Tplt' [7,3,7]) -- all changes involve address 7
          , (5, Rel' $ Rel [1,2] 4)
-         , (6, Par' [("The first relationship in this graph is ", 5)] ".")
+         , (6, Par' ( Par [("The first relationship in this graph is ", 5)]
+                      ".") )
          ] )
 
   assertBool "replace rel" $
@@ -108,7 +110,8 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (4, Tplt' [0,3,0])
          , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
-         , (6, Par' [("The first relationship in this graph is ", 7)] ".")
+         , (6, Par' ( Par [("The first relationship in this graph is ", 7)]
+                      ".") )
          ] )
 
   assertBool "todo : replace tplt" $
@@ -120,7 +123,8 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (7, Tplt' [2,2,2])
          , (5, Rel' $ Rel [1,2] 7) -- all changes involve address 7
-         , (6, Par' [("The first relationship in this graph is ", 5)] ".")
+         , (6, Par' ( Par [("The first relationship in this graph is ", 5)]
+                      "." ) )
          ] )
 
 test_replaceInRole :: Test

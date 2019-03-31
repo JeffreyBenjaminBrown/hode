@@ -94,7 +94,7 @@ pExprToHExpr (POr xs)       = do
   return $ HOr l
 pExprToHExpr (It (Just pnr)) = pExprToHExpr pnr
 pExprToHExpr (PRel pr)       = pRelToHExpr pr
-pExprToHExpr (PPar spPairs s) =
+pExprToHExpr (PPar (Par spPairs s)) =
   let spPairs' = map (_2 %~ pExprToHExpr) spPairs
   in error "HExpr cannot yet accommodate paragraphs."
 
@@ -137,7 +137,7 @@ pathsToIts_sub_pExpr = para f where
   f AnyF             = []
   f (ItF Nothing)    = [[]]
   f (ItF (Just pnr)) = [] : snd pnr
-  f x@(PParF _ _)    = err x
+  f x@(PParF _)      = err x
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
 pathsToIts_sub_pRel :: PRel -> [RolePath]

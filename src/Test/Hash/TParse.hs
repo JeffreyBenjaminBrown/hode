@@ -69,64 +69,64 @@ test_parse_pExpr = TestCase $ do
         [""] ) )
 
   assertBool "par, simplest" $ parse pPar "wut" "/par a" == Right
-    (PPar [] "a")
+    (PPar $ Par [] "a")
 
   assertBool "par, balanced, one sub-Expr" $
     parse pPar "wut" "/par a (/hash x # y) b"
     == Right
-    ( PPar [ ( "a"
-             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x"
-                               , PNonRel $ PExpr $ Phrase "y" ]
-                        [""] ) ) ]
-      "b" )
+    ( PPar ( Par [ ( "a"
+                   , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x"
+                                     , PNonRel $ PExpr $ Phrase "y" ]
+                              [""] ) ) ]
+             "b" ) )
 
   assertBool "par, balanced, two sub-Exprs" $
     ( simplifyPExpr <$> parse pPar "wut"
       "/par a a (/hash x x #(j j) y y) b b (/hash z z) c d" )
     == Right
-    ( PPar [ ( "a a"
-             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
-                               , PNonRel $ PExpr $ Phrase "y y" ]
-                        ["j j"] ) )
-           , ( "b b", PExpr $ Phrase "z z" )
-           ]
-      "c d" )
+    ( PPar ( Par [ ( "a a"
+                   , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
+                                     , PNonRel $ PExpr $ Phrase "y y" ]
+                              ["j j"] ) )
+                 , ( "b b", PExpr $ Phrase "z z" )
+                 ]
+             "c d" ) )
 
   assertBool "par, left-absent, two sub-Exprs" $
     ( simplifyPExpr <$> parse pPar "wut"
       "/par (/hash x x #(j j) y y) b b (/hash z z) c d" )
     == Right
-    ( PPar [ ( ""
-             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
-                               , PNonRel $ PExpr $ Phrase "y y" ]
-                        ["j j"] ) )
-           , ( "b b", PExpr $ Phrase "z z" )
-           ]
-      "c d" )
+    ( PPar ( Par [ ( ""
+                   , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
+                                     , PNonRel $ PExpr $ Phrase "y y" ]
+                              ["j j"] ) )
+                 , ( "b b", PExpr $ Phrase "z z" )
+                 ]
+             "c d" ) )
 
   assertBool "par, right-absent, two sub-Exprs" $
     ( simplifyPExpr <$> parse pPar "wut"
       "/par (/hash x x #(j j) y y) b b (/hash z z)" )
     == Right
-    ( PPar [ ( ""
-             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
-                               , PNonRel $ PExpr $ Phrase "y y" ]
-                        ["j j"] ) )
-           , ( "b b", PExpr $ Phrase "z z" )
-           ]
-      "" )
+    ( PPar ( Par [ ( ""
+                   , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
+                                     , PNonRel $ PExpr $ Phrase "y y" ]
+                              ["j j"] ) )
+                 , ( "b b", PExpr $ Phrase "z z" )
+                 ]
+             "" ) )
 
   assertBool "par, middle-absent, two sub-Exprs" $
     ( simplifyPExpr <$> parse pPar "wut"
       "/par (/hash x x #(j j) y y) (/hash z z)" )
     == Right
-    ( PPar [ ( ""
-             , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
-                               , PNonRel $ PExpr $ Phrase "y y" ]
-                        ["j j"] ) )
-           , ( "", PExpr $ Phrase "z z" )
-           ]
-      "" )
+    ( PPar ( Par [ ( ""
+                   , PRel $ ( Open 1 [ PNonRel $ PExpr $ Phrase "x x"
+                                     , PNonRel $ PExpr $ Phrase "y y" ]
+                              ["j j"] ) )
+                 , ( "", PExpr $ Phrase "z z" )
+                 ]
+             "" ) )
 
 test_parse_rels :: Test
 test_parse_rels = TestCase $ do

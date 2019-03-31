@@ -151,7 +151,7 @@ pPar = do
                     $ map (try . string) ["/par","/p"] )
   us <- many unit
   ap <- maybePhrase
-  return $ PPar us ap
+  return $ PPar $ Par us ap
 
 
 -- | like `phrase`, but includes every character that's not special

@@ -31,15 +31,16 @@ test_refExprToExpr = TestCase $ do
                                        , Phrase "" ] )
     == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
-  assertBool "par" $ Right ( ExprPar [ ( "You can't eat"
-                                   , Phrase "oxygen" ) ]
-                             "silly" )
-    == refExprToExpr D.rslt ( Par' [("You can't eat", 2)] "silly" )
+  assertBool "par" $ Right ( ExprPar ( Par [ ( "You can't eat"
+                                             , Phrase "oxygen" ) ]
+                                       "silly" ) )
+    == refExprToExpr D.rslt ( Par' ( Par [("You can't eat", 2)]
+                                     "silly" ) )
 
   assertBool "rel, recursive" $
     let ti = ExprTplt [ Phrase ""
-                                                      , Phrase "needs"
-                                                      , Phrase "" ]
+                      , Phrase "needs"
+                      , Phrase "" ]
     in Right ( ExprRel $ Rel [ Phrase "dog"
                              , ExprRel $ Rel [ Phrase "dog"
                                              , Phrase "oxygen" ]

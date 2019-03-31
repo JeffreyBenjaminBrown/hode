@@ -19,7 +19,7 @@ depth = cata f where
   f (PhraseF _)             = 0
   f (ExprRelF (Rel mems _)) = 1 + maximum mems
   f (ExprTpltF _)           = 0
-  f (ExprParF sis _)            = 1 + maximum (map snd sis)
+  f (ExprParF (Par sis _))  = 1 + maximum (map snd sis)
 
 
 -- | for `RefExpr`s
@@ -28,13 +28,13 @@ refExprVariety :: RefExpr -> (ExprCtr, Arity)
 refExprVariety   (Phrase'  _) = (PhraseCtr, 0)
 refExprVariety e@(Tplt'  _)   = (TpltCtr, refExprArity e)
 refExprVariety e@(Rel' _)     = (RelCtr , refExprArity e)
-refExprVariety e@(Par' _ _)   = (ParCtr , refExprArity e)
+refExprVariety e@(Par' _)     = (ParCtr , refExprArity e)
 
 refExprArity :: RefExpr -> Arity
 refExprArity (Phrase' _)      = 0
 refExprArity (Rel' (Rel x _)) = length x
 refExprArity (Tplt' x)        = length x - 1
-refExprArity (Par' x _)       = length x
+refExprArity (Par' (Par x _)) = length x
 
 
 -- | = for `Rslt`s
