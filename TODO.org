@@ -28,7 +28,12 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* TODO cleaning
+** rename vcr* fields of InRole
+** default Show instance for RelGroupHosts is not good for UI
+and for InRel and InPar, too, there should be separate UI and debugging shows
 * TODO top priorities
+** include relationship "is member of paragraph" in insertHosts
 ** things that ought already to work
 *** not all Hash functions work
 *** pExprIsSpecific should address PDiff, PAnd, POr
@@ -44,7 +49,6 @@ see the comment leading its definition
     then the one is subtracted from the other.
 *** pathsToIts_pExpr called on PAnd, POr, PDiff
 probably just return []
-** include relationship "is member of paragraph" in insertHosts
 ** folding
 ** incremental view updates
 Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.

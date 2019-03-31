@@ -20,7 +20,9 @@ data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
 type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.
--- | = `Expr` is the fundamental type
+
+
+-- | = `Expr` is the fundamental type.
 
 data Rel a = Rel [a] a
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)

@@ -44,4 +44,4 @@ showRsltView (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
 showRsltView (VMembers a) = "memebers of Expr at Addr "
                      ++ show (a ^. viewMembersCenter)
-showRsltView (VCenterRole vcr) = show vcr
+showRsltView (VRelGroup rg) = show rg

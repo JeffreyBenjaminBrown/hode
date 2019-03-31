@@ -56,48 +56,59 @@ data ViewMembers = ViewMembers { _viewMembersCenter :: Addr }
 -- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
 -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
 -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
-data RsltView = VQuery      ViewQuery
-              | VResult     ViewResult
-              | VMembers    ViewMembers
-              | VCenterRole ViewCenterRole deriving (Eq, Ord)
+data RsltView = VQuery    ViewQuery
+              | VResult   ViewResult
+              | VMembers  ViewMembers
+              | VRelGroup RelGroup deriving (Eq, Ord)
 
--- | `ViewCenterRole` is used to group relationships in which the `Expr`at
+data RelGroup = RelGroupRelHosts RelHosts
+              | RelGroupParHosts ParHosts
+  deriving (Eq, Ord, Show)
+
+-- | `RelHosts` is used to group relationships in which the `Expr`at
 -- `vcrCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
--- then `ViewCenterRole 3 (RoleMember 1) ["", "helps", ""]` will
+-- then `RelHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
-data ViewCenterRole = ViewCenterRole {
-    _vcrCenter :: Addr
-  , _vcrRole   :: Role
-  , _vcrTplt   :: Tplt Expr } deriving (Eq, Ord)
+data RelHosts = RelHosts {
+    _vcrCenter :: Addr      -- ^ the thing being hosted
+  , _vcrRole   :: Role      -- ^ the role it plays
+  , _vcrTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
+  } deriving (Eq, Ord)
+data ParHosts = ParHosts {
+  _inParagraphAddr :: Addr  -- ^ the thing being hosted
+  } deriving (Eq, Ord)
 
-makePrisms ''RsltView -- prisms!
-makeLenses ''ViewResult
-makeLenses ''ViewMembers
-makeLenses ''ViewCenterRole
-
-instance Show ViewCenterRole where
+instance Show RelHosts where
   show vcr = let
-    tplt = vcr ^. vcrTplt
-    noLeft     = error "show ViewCenterRole: impossible"
-    noRslt     = error "show ViewCenterRole: Rslt irrelevant"
-    noMiscount = error "show ViewCenterRole: This math is good."
+    tplt = _vcrTplt vcr
+    noLeft     = error "show RelHosts: impossible"
+    noRslt     = error "show RelHosts: Rslt irrelevant"
+    noMiscount = error "show RelHosts: This math is good."
     showTplt = either (const noLeft) id
                $ eShow noRslt (ExprTplt tplt)
-    in if vcr ^. vcrRole == RoleTplt
+    in if _vcrRole vcr == RoleTplt
        then "Tplt " ++ showTplt
        else let (ar :: Arity) = length tplt - 1
-                RoleMember (n :: Int) = vcr ^. vcrRole
+                RoleMember (n :: Int) = _vcrRole vcr
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
             in either (const noLeft) id
                $ eShow noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
+instance Show ParHosts where
+  show _ = "in-paragraph appearances"
+
 instance Show RsltView where
-  show (VQuery x)      = "VQuery "      ++ show x
-  show (VResult x)     = "VResult "     ++ show x
-  show (VMembers x)    = "VMembers "    ++ show x
-  show (VCenterRole x) = "VCenterRole " ++ show x
+  show (VQuery x)    = "VQuery "    ++ show x
+  show (VResult x)   = "VResult "   ++ show x
+  show (VMembers x)  = "VMembers "  ++ show x
+  show (VRelGroup x) = "VRelGroup " ++ show x
+
+makePrisms ''RsltView -- prisms!
+makeLenses ''ViewResult
+makeLenses ''ViewMembers
+makeLenses ''RelHosts
 
 
 -- | = Huge types.
