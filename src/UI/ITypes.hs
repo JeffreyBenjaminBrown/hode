@@ -56,13 +56,14 @@ data ViewMembers = ViewMembers { _viewMembersCenter :: Addr }
 -- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
 -- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
 -- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
-data RsltView = VQuery    ViewQuery
-              | VResult   ViewResult
-              | VMembers  ViewMembers
-              | VRelGroup RelGroup deriving (Eq, Ord)
+data RsltView = VQuery     ViewQuery
+              | VResult    ViewResult
+              | VMembers   ViewMembers
+              | VHostGroup HostGroup
+  deriving (Eq, Ord)
 
-data RelGroup = RelGroupRelHosts RelHosts
-              | RelGroupParHosts ParHosts
+data HostGroup = HostGroup_Role RelHosts
+               | HostGroup_Pars ParHosts
   deriving (Eq, Ord, Show)
 
 -- | `RelHosts` is used to group relationships in which the `Expr`at
@@ -100,10 +101,10 @@ instance Show ParHosts where
   show _ = "in-paragraph appearances"
 
 instance Show RsltView where
-  show (VQuery x)    = "VQuery "    ++ show x
-  show (VResult x)   = "VResult "   ++ show x
-  show (VMembers x)  = "VMembers "  ++ show x
-  show (VRelGroup x) = "VRelGroup " ++ show x
+  show (VQuery x)     = "VQuery "     ++ show x
+  show (VResult x)    = "VResult "    ++ show x
+  show (VMembers x)   = "VMembers "   ++ show x
+  show (VHostGroup x) = "VHostGroup " ++ show x
 
 makePrisms ''RsltView -- prisms!
 makeLenses ''ViewResult
