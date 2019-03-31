@@ -10,6 +10,7 @@ import Hash.Convert
 import Hash.HParse
 import Hash.HTypes
 import Hash.HUtil
+import Rslt.Index
 import Rslt.RTypes
 
 
@@ -22,10 +23,11 @@ test_module_hash_parse = TestList [
 
 test_parse_hExpr :: Test
 test_parse_hExpr = TestCase $ do
+  let r = mkRslt mempty
   assertBool "1" $
     ( either (Left . show) Right
       ( parse pExpr "doh!" "/hash /_ #e w" )
-      >>= pExprToHExpr )
+      >>= pExprToHExpr r)
     == ( Right $ HMap $ M.fromList
          [ ( RoleTplt
            , HExpr $ ExprTplt [ Phrase "",Phrase "e",Phrase "" ] )

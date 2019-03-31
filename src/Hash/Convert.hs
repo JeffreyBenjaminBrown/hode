@@ -18,8 +18,8 @@ import qualified Data.Map       as M
 
 import Control.Arrow (second)
 import Data.Functor (void)
-import Lens.Micro
 
+import Hash.HLookup
 import Hash.HTypes
 import Hash.HUtil
 import Rslt.RTypes
@@ -41,11 +41,11 @@ import Util.Misc
 -- there should be an empty string added to that side of the
 -- ExprTplt in the corresponding HExpr.
 
-pRelToHExpr :: PRel -> Either String HExpr
-pRelToHExpr = para f where
+pRelToHExpr :: Rslt -> PRel -> Either String HExpr
+pRelToHExpr r = para f where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
-  f (PNonRelF pn) = pExprToHExpr pn -- PITFALL: must recurse by hand.
+  f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
   f AbsentF = Left "pRelToHExpr: Absent represents no HExpr."
   f (OpenF _ ms js) = f $ ClosedF ms js
 
@@ -90,44 +90,44 @@ pRelToHExpr = para f where
 --      where err = Left ""
 --    go _ = error "todo: even more"
 
-pExprToHExpr :: PExpr -> Either String HExpr
-pExprToHExpr px@(pExprIsSpecific -> False) = Left
+pExprToHExpr :: Rslt -> PExpr -> Either String HExpr
+pExprToHExpr _ px@(pExprIsSpecific -> False) = Left
   $ "pExprToHExpr: " ++ show px ++ " is not specific enough."
 
-pExprToHExpr (PExpr s)       = Right $ HExpr s
-pExprToHExpr (PMap m)        = HMap <$> pMapToHMap m
-pExprToHExpr (PEval pnr)     = do
-  (x :: HExpr)  <- pExprToHExpr pnr
+pExprToHExpr _ (PExpr s)       = Right $ HExpr s
+pExprToHExpr r (PMap m)        = HMap <$> pMapToHMap r m
+pExprToHExpr r (PEval pnr)     = do
+  (x :: HExpr) <- pExprToHExpr r pnr
   Right $ HEval x $ pathsToIts_pExpr pnr
-pExprToHExpr (PVar s)        = Right $ HVar s
-pExprToHExpr (PDiff a b)     = do a' <- pExprToHExpr a
-                                  b' <- pExprToHExpr b
-                                  return $ HDiff a' b'
-pExprToHExpr (PAnd xs)       = do
-  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map pExprToHExpr xs
+pExprToHExpr _ (PVar s)        = Right $ HVar s
+pExprToHExpr r (PDiff a b)     = do a' <- pExprToHExpr r a
+                                    b' <- pExprToHExpr r b
+                                    return $ HDiff a' b'
+pExprToHExpr r (PAnd xs)       = do
+  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map (pExprToHExpr r) xs
   return $ HAnd l
-pExprToHExpr (POr xs)       = do
-  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map pExprToHExpr xs
+pExprToHExpr r (POr xs)       = do
+  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map (pExprToHExpr r) xs
   return $ HOr l
-pExprToHExpr (It (Just pnr))        = pExprToHExpr pnr
-pExprToHExpr (PRel pr)              = pRelToHExpr pr
-pExprToHExpr (PPar p@(Par pairs _)) = prefixLeft "pExprToHExpr" $ do
+pExprToHExpr r (It (Just pnr))        = pExprToHExpr r pnr
+pExprToHExpr r (PRel pr)              = pRelToHExpr r pr
+pExprToHExpr r (PPar p@(Par pairs _)) = prefixLeft "pExprToHExpr" $ do
   if and $ map (pExprIsUnique . snd) pairs then Right ()
     else Left $ "Paragraph not specific enough."
-  (Par pairs' s' :: Par HExpr) <-
-    ifLefts_par "" $ fmap pExprToHExpr p
-  error "pExprToHExpr cannot yet handle paragraphs."
+  (p'  :: Par HExpr) <- ifLefts_par "" $ fmap (pExprToHExpr r) p
+  (p'' :: Par Expr)  <- ifLefts_par "" $ fmap (hExprToExpr  r) p'
+  Right $ HExpr $ ExprPar p''
 
 -- These redundant checks (to keep GHCI from warning me) should come last.
-pExprToHExpr Any =
+pExprToHExpr _ Any =
   Left $ "pExprToHExpr: Any is not specific enough."
-pExprToHExpr (It Nothing) = Left
+pExprToHExpr _ (It Nothing) = Left
   $ "pExprToHExpr: It (Nothing) is not specific enough."
 
 
-pMapToHMap :: PMap -> Either String HMap
-pMapToHMap = ifLefts_map "pMapToHMap"
-  . M.map pExprToHExpr
+pMapToHMap :: Rslt -> PMap -> Either String HMap
+pMapToHMap r = ifLefts_map "pMapToHMap"
+  . M.map (pExprToHExpr r)
   . M.filter pExprIsSpecific
 
 

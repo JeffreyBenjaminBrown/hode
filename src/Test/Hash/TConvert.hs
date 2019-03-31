@@ -9,6 +9,7 @@ import           Test.HUnit
 import Hash.Convert
 import Hash.HTypes
 import Hash.HUtil
+import Rslt.Index
 import Rslt.RTypes
 
 
@@ -26,26 +27,29 @@ test_module_hash_convert = TestList [
 
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
-  assertBool "1" $ isLeft $ pRelToHExpr Absent
-  assertBool "2" $ pRelToHExpr ( Closed
-                                 [ pnrPhrase "a", pnrPhrase "b" ]
-                                 [ "is" ] )
+  let r = mkRslt mempty
+  assertBool "1" $ isLeft $ pRelToHExpr r Absent
+  assertBool "2" $ pRelToHExpr r ( Closed
+                                   [ pnrPhrase "a", pnrPhrase "b" ]
+                                   [ "is" ] )
     == Right ( HMap $ M.fromList
                [ ( RoleTplt, HExpr $ ExprTplt $ map Phrase [ "", "is", "" ] )
                , ( RoleMember 1, HExpr $ Phrase "a" )
                , ( RoleMember 2, HExpr $ Phrase "b" ) ] )
   assertBool "3" $ let meh = error "irrelevant"
-    in pRelToHExpr ( Open meh [ pnrPhrase "a", pnrPhrase "b" ] [ "is" ] )
-    == pRelToHExpr ( Closed   [ pnrPhrase "a", pnrPhrase "b" ] [ "is" ] )
+    in pRelToHExpr r ( Open meh [ pnrPhrase "a", pnrPhrase "b" ] [ "is" ] )
+    == pRelToHExpr r ( Closed   [ pnrPhrase "a", pnrPhrase "b" ] [ "is" ] )
 
-  assertBool "4" $ pRelToHExpr ( Closed
-                                 [ pnrPhrase "a"
-                                 , Closed [ pnrPhrase "c", pnrPhrase "d" ] [ "to"]
-                                 , pnrPhrase "b" ]
-                                 [ "is", "because" ] )
+  assertBool "4" $ pRelToHExpr r
+    ( Closed
+      [ pnrPhrase "a"
+      , Closed [ pnrPhrase "c", pnrPhrase "d" ] [ "to"]
+      , pnrPhrase "b" ]
+      [ "is", "because" ] )
     == Right
     ( HMap $ M.fromList
-      [ ( RoleTplt    , HExpr $ ExprTplt $ map Phrase ["", "is", "because", "" ] )
+      [ ( RoleTplt
+        , HExpr $ ExprTplt $ map Phrase ["", "is", "because", "" ] )
       , ( RoleMember 1, HExpr $ Phrase "a" )
       , ( RoleMember 2, HMap $ M.fromList
                         [ ( RoleTplt    , ( HExpr $ ExprTplt $ map Phrase
@@ -56,7 +60,8 @@ test_pRelToHExpr = TestCase $ do
 
 test_pExprToHExpr :: Test
 test_pExprToHExpr = TestCase $ do
-  assertBool "1" $ ( pExprToHExpr
+  let r = mkRslt mempty
+  assertBool "1" $ ( pExprToHExpr r
                      ( PEval $ PMap $ M.fromList
                        [ ( RoleTplt, PExpr $ ExprTplt [ Phrase "is" ] )
                        , ( RoleMember 1, It Nothing ) ] ) )
@@ -67,7 +72,7 @@ test_pExprToHExpr = TestCase $ do
                [ [ RoleMember 1 ] ] )
 
   assertBool "2" $
-    pExprToHExpr ( PEval $ PRel $ Open (error "irrelevant")
+    pExprToHExpr r ( PEval $ PRel $ Open (error "irrelevant")
       [ PNonRel $ PMap $ M.fromList
         [ ( RoleMember 1, PExpr $ Phrase "bugs" )
         , ( RoleMember 2, It Nothing ) ]
@@ -84,7 +89,7 @@ test_pExprToHExpr = TestCase $ do
                      ( RoleMember 2, HExpr $ Phrase "sassafras" ) ] )
                  [ [ RoleMember 1, RoleMember 2 ] ] )
 
-  assertBool "3" $ isRight $ pExprToHExpr $
+  assertBool "3" $ isRight $ pExprToHExpr r $
     PPar ( Par [("I like ", PExpr $ Phrase "turtles")]
            " because they swim and stuff." )
 

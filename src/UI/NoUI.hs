@@ -25,14 +25,14 @@ import Util.Misc
 pInsert :: Rslt -> String -> Either String (Rslt, Addr)
 pInsert r s = prefixLeft "pInsert"
   $ mapLeft show (parse pExpr "doh!" s)
-  >>= pExprToHExpr
+  >>= pExprToHExpr r
   >>= hExprToExpr r
   >>= exprToAddrInsert r
 
 pFindAddrs :: Rslt -> String -> Either String (Set Addr)
 pFindAddrs r s = prefixLeft "pFindAddrs"
   $ mapLeft show (parse pExpr "doh!" s)
-  >>= pExprToHExpr
+  >>= pExprToHExpr r
   >>= hExprToAddrs r (mempty :: Subst Addr)
 
 pFindStrings :: Rslt -> String -> Either String (Set String)
