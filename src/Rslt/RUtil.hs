@@ -2,12 +2,38 @@
 
 module Rslt.RUtil where
 
-import Data.Functor.Foldable
+import           Control.Lens
+import           Data.Functor.Foldable
+import           Data.Either
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 
 import Rslt.RTypes
 import Util.Misc
+
+
+-- | = For Par and Rel
+
+ifLefts_par :: String -> Par (Either String a) -> Either String (Par a)
+ifLefts_par errMsg (Par pairs s) = let
+  lefts = filter isLeft $ map snd pairs
+  impossible = error "ifLefts: impossible."
+  in case null lefts of
+       True -> Right $ Par (map (_2 %~ fromRight impossible) pairs) s
+       False -> Left $ errMsg ++ ": "
+                ++ concat (map (fromLeft impossible) lefts)
+
+ifLefts_rel :: String -> Rel (Either String a) -> Either String (Rel a)
+ifLefts_rel errMsg (Rel es e) = let
+  es' = e : es
+  lefts = filter isLeft es'
+  impossible = error "ifLefts: impossible."
+  in case null lefts of
+       True -> let
+         es'' = map (fromRight impossible) es'
+         in Right $ Rel (tail es'') (head es'')
+       False -> Left $ errMsg ++ ": "
+                ++ concat (map (fromLeft impossible) lefts)
 
 
 -- | = For `Expr`s

@@ -20,10 +20,9 @@ test_module_hash_convert = TestList [
   --, TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
   ]
 
---test_pathsToIts_pExpr :: Test
+--test_pathsToIts_pExpr :: Test -- TODO
 --test_pathsToIts_pExpr = TestCase $ do
 --  assertBool "1" $ pathsToIts_pExpr
-
 
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
@@ -85,8 +84,10 @@ test_pExprToHExpr = TestCase $ do
                      ( RoleMember 2, HExpr $ Phrase "sassafras" ) ] )
                  [ [ RoleMember 1, RoleMember 2 ] ] )
 
-  assertBool "3" $ let meh = error "meh"
-                   in isRight $ pExprToHExpr (PPar $ Par meh meh)
+  assertBool "3" $ isRight $ pExprToHExpr $
+    PPar ( Par [("I like ", PExpr $ Phrase "turtles")]
+           " because they swim and stuff." )
+
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

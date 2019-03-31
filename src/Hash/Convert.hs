@@ -1,7 +1,7 @@
-{-# LANGUAGE PartialTypeSignatures #-}
 -- | After parsing, the next step is to
 -- create `HExpr`s from `PExpr`s and `PRel`s.
 
+{-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -23,6 +23,7 @@ import Lens.Micro
 import Hash.HTypes
 import Hash.HUtil
 import Rslt.RTypes
+import Rslt.RUtil
 import Util.Misc
 
 
@@ -110,9 +111,12 @@ pExprToHExpr (POr xs)       = do
   return $ HOr l
 pExprToHExpr (It (Just pnr))        = pExprToHExpr pnr
 pExprToHExpr (PRel pr)              = pRelToHExpr pr
-pExprToHExpr (PPar (Par spPairs s)) =
-  let spPairs' = map (_2 %~ pExprToHExpr) spPairs
-  in error "HExpr cannot yet accommodate paragraphs."
+pExprToHExpr (PPar p@(Par pairs _)) = prefixLeft "pExprToHExpr" $ do
+  if and $ map (pExprIsUnique . snd) pairs then Right ()
+    else Left $ "Paragraph not specific enough."
+  (Par pairs' s' :: Par HExpr) <-
+    ifLefts_par "" $ fmap pExprToHExpr p
+  error "pExprToHExpr cannot yet handle paragraphs."
 
 -- These redundant checks (to keep GHCI from warning me) should come last.
 pExprToHExpr Any =

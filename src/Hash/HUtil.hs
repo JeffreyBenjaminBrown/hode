@@ -5,11 +5,12 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Hash.HUtil (
-    hVars           -- HExpr  -> Set Var
-  , pnrPhrase       -- String -> PRel
-  , pExprIsSpecific -- PExpr  -> Bool
-  , simplifyPRel    -- PRel   -> PRel
-  , simplifyPExpr   -- PExpr  -> PExpr
+    hVars           -- ^ HExpr  -> Set Var
+  , pnrPhrase       -- ^ String -> PRel
+  , pExprIsSpecific -- ^ PExpr  -> Bool
+  , pExprIsUnique   -- ^ PExpr  -> Bool
+  , simplifyPRel    -- ^ PRel   -> PRel
+  , simplifyPExpr   -- ^ PExpr  -> PExpr
   ) where
 
 import           Data.Functor.Foldable
@@ -52,6 +53,9 @@ pExprIsSpecific = cata f where
   f (ItF (Just px)) = px
   f _               = True
 
+pExprIsUnique :: PExpr -> Bool
+pExprIsUnique = \case PExpr _ -> True
+                      _       -> False
 
 -- | To simplify a `PRel` or `PExpr` is to flatten sections of the form
 -- `PNonRel (PRel x)` into `x`, and similarly sections of the form
