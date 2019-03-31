@@ -60,7 +60,7 @@ test_exprToAddrInsert = TestCase $ do
 
   assertBool "5" $ let
     Right (r,a) = R.exprToAddrInsert D.rslt
-                  ( Rel [ Rel [ Phrase "space"
+                  ( ExprRel [ ExprRel [ Phrase "space"
                                         , Phrase "empty" ]
                                ( Tplt [ Phrase ""
                                            , Phrase "is"

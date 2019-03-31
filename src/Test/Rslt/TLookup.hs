@@ -40,8 +40,8 @@ test_refExprToExpr = TestCase $ do
     let ti = Tplt [ Phrase ""
                                                       , Phrase "needs"
                                                       , Phrase "" ]
-    in Right ( Rel [ Phrase "dog"
-                        , Rel [ Phrase "dog"
+    in Right ( ExprRel [ Phrase "dog"
+                        , ExprRel [ Phrase "dog"
                                    , Phrase "oxygen" ]
                           ti ]
                ti )
@@ -61,11 +61,11 @@ test_exprToAddr = TestCase $ do
                                 , Phrase ""] )
 
   assertBool "6" $ Right 5 ==
-    R.exprToAddr D.rslt ( Rel [ Addr 1
+    R.exprToAddr D.rslt ( ExprRel [ Addr 1
                                , Phrase "oxygen"]
                       $ Addr 4 )
   assertBool "7" $ isLeft $
-    R.exprToAddr D.rslt ( Rel [ Addr 1
+    R.exprToAddr D.rslt ( ExprRel [ Addr 1
                                , Phrase "oxygen"]
                       $ Addr 6 )
 

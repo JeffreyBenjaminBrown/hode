@@ -36,7 +36,7 @@ validExpr r = para f where
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
 
-  f rel@(RelF memEis (t,te)) = do
+  f rel@(ExprRelF memEis (t,te)) = do
     let (ms :: [Expr], es :: [Either String ()]) = unzip memEis
         err = "validExpr called on " ++ show (embed $ fmap fst rel)
     void $ ifLefts err $ te : es

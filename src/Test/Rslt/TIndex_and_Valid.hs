@@ -26,14 +26,14 @@ test_validExpr = TestCase $ do
   assertBool "1" $ isLeft $    validExpr D.big (Addr 100)
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
-  assertBool "Rel, invalid member" $ isLeft
-    $  validExpr D.big (Rel [ Addr 100 ] $ Addr 101 )
-  assertBool "Rel, false template" $ isLeft
-    $  validExpr D.big ( Rel [ Addr 0, Addr 0 ] $ Addr 0 )
-  assertBool "Rel, arity mismatch" $ isLeft
-    $  validExpr D.big ( Rel [] $ Addr 4 )
-  assertBool "Rel"                 $ Right ()
-    == validExpr D.big ( Rel [Addr 0] $ Addr 4 )
+  assertBool "ExprRel, invalid member" $ isLeft
+    $  validExpr D.big (ExprRel [ Addr 100 ] $ Addr 101 )
+  assertBool "ExprRel, false template" $ isLeft
+    $  validExpr D.big ( ExprRel [ Addr 0, Addr 0 ] $ Addr 0 )
+  assertBool "ExprRel, arity mismatch" $ isLeft
+    $  validExpr D.big ( ExprRel [] $ Addr 4 )
+  assertBool "ExprRel"                 $ Right ()
+    == validExpr D.big ( ExprRel [Addr 0] $ Addr 4 )
 
 test_validRefExpr :: Test
 test_validRefExpr = TestCase $ do
@@ -41,7 +41,7 @@ test_validRefExpr = TestCase $ do
   -- Could do in a future-proof manner by using enum error types rather
   -- than strings, (But I checked by hand in GHCI; each `validRefExpr ...`
   -- expression below produces the correct kind of complaint.)
-  assertBool "good Rel" $ isRight $ validRefExpr D.rslt (Rel' [1,2] $ 4)
+  assertBool "good ExprRel" $ isRight $ validRefExpr D.rslt (Rel' [1,2] $ 4)
   assertBool "absent members" $ isLeft $ validRefExpr D.rslt (Rel' [100,200] $ 4)
   assertBool "absent template" $ isLeft $ validRefExpr D.rslt (Rel' [1,2] $ 44)
   assertBool "arity mismatch" $ isLeft $ validRefExpr D.rslt (Rel' [] $ 4)

@@ -27,7 +27,7 @@ data Expr =
      -- The other `Expr` constructors are meaningful on their own, but this
     -- one requires some `Rslt` for context.
   | Phrase String   -- ^ (Could be a phrase too.)
-  | Rel  [Expr] Expr -- ^ "Relationship".
+  | ExprRel [Expr] Expr -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | Tplt [Expr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."

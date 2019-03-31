@@ -20,7 +20,7 @@ test_eShow = TestCase $ do
   assertBool "1" $ eShow D.rslt (Phrase "hello") == Right "hello"
   assertBool "2" $ eShow D.rslt (Tplt $ map Phrase ["a","b","c"] )
     == Right "a _ b _ c"
-  assertBool "3" $ eShow D.rslt ( Rel ( map Phrase ["a","b"] )
+  assertBool "3" $ eShow D.rslt ( ExprRel ( map Phrase ["a","b"] )
                                      $ Tplt $ map Phrase ["","=",""] )
     == Right "a #= b"
   assertBool "4" $ eShow D.rslt ( Par [ ("Hello", Phrase "cat")

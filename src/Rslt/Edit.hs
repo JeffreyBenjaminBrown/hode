@@ -59,7 +59,7 @@ exprToAddrInsert_rootNotFound r0 (Tplt js) = do
   r2 <- insertAt a (Tplt' $ as) r1
   Right (r2, a)
 
-exprToAddrInsert_rootNotFound r0 (Rel ms t) = do
+exprToAddrInsert_rootNotFound r0 (ExprRel ms t) = do
   (r1,ta)  <- prefixLeft "exprToAddrInsert_rootNotFound"
             $ exprToAddrInsert r0 t
   (r2,mas) <- prefixLeft "exprToAddrInsert_rootNotFound"

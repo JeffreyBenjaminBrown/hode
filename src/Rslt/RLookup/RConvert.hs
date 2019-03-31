@@ -28,7 +28,7 @@ refExprToExpr r (Rel' memAs tA) = do
                            $ addrToRefExpr r tA
   (tEi    :: Expr)      <- prefixLeft "refExprToExpr"
                            $ refExprToExpr r tE
-  Right $ Rel memEis tEi
+  Right $ ExprRel memEis tEi
 
 refExprToExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
@@ -51,7 +51,7 @@ exprToAddr x img =
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
     pel $ refExprToAddr x $ Tplt' mas
 
-  Rel is i -> do
+  ExprRel is i -> do
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
     ma <- pel $ exprToAddr x i
     pel $ refExprToAddr x (Rel' mas ma)

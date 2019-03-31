@@ -49,18 +49,6 @@ before doing this, do the coder-friendliness task (abstract Rel and Tplt)
 
  ** incremental view updates
 Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.
-** marking things in a tree
-*** buffer nicknames
-Let the user add a nickname to a buffer, and then switch to that buffer via the nickname. Begin with some auto-generated nicknames (numbers? letters?).
-*** batch add
-Toggle a checkbox window at the side of the main window.
-Introduce an /each keyword for expression-insertion purposes.
-** insertion list
-*** data St = ...
-+  , _insertionHistory :: [Addr]
-*** complications
-(1) inserting a compound expression inserts subexpressions
-(2) don't record insertion if it already existed
 ** video
 Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
@@ -73,6 +61,12 @@ and mention that you can use parens liberally to make it more obvious
 ** show path to here
 (Not a big deal because the cursor path is remembered.)
 Add a toggleable window above the Results window.
+** insertion list
+*** data St = ...
++  , _insertionHistory :: [Addr]
+*** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existed
 * TODO coder-friendliness
 ** There should be abstract types Rel, Tplt and Par, used by Expr, RefExpr
 and maybe HExpr and PExpr.
@@ -84,10 +78,14 @@ The root is supposed to only be a Query, but that is permitted elsewhere.
 The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child, and vice-versa.
-** ? ditch Vorest, just use vTrees
-Easier to have an extra top (data) constructor than a whole parallel (function) infrastructure.
 * note order
 * views
+** marking things in a tree
+*** buffer nicknames
+Let the user add a nickname to a buffer, and then switch to that buffer via the nickname. Begin with some auto-generated nicknames (numbers? letters?).
+*** batch add
+Toggle a checkbox window at the side of the main window.
+Introduce an /each keyword for expression-insertion purposes.
 ** count things
 ** user language
 show flag if condition holds
