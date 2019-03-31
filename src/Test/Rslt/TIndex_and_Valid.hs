@@ -27,13 +27,13 @@ test_validExpr = TestCase $ do
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "ExprRel, invalid member" $ isLeft
-    $  validExpr D.big (ExprRel [ Addr 100 ] $ Addr 101 )
+    $  validExpr D.big (ExprRel $ Rel [ Addr 100 ] $ Addr 101 )
   assertBool "ExprRel, false template" $ isLeft
-    $  validExpr D.big ( ExprRel [ Addr 0, Addr 0 ] $ Addr 0 )
+    $  validExpr D.big ( ExprRel $ Rel [ Addr 0, Addr 0 ] $ Addr 0)
   assertBool "ExprRel, arity mismatch" $ isLeft
-    $  validExpr D.big ( ExprRel [] $ Addr 4 )
+    $  validExpr D.big ( ExprRel $ Rel [] $ Addr 4)
   assertBool "ExprRel"                 $ Right ()
-    == validExpr D.big ( ExprRel [Addr 0] $ Addr 4 )
+    == validExpr D.big ( ExprRel $ Rel [Addr 0] $ Addr 4)
 
 test_validRefExpr :: Test
 test_validRefExpr = TestCase $ do
@@ -41,17 +41,24 @@ test_validRefExpr = TestCase $ do
   -- Could do in a future-proof manner by using enum error types rather
   -- than strings, (But I checked by hand in GHCI; each `validRefExpr ...`
   -- expression below produces the correct kind of complaint.)
-  assertBool "good ExprRel" $ isRight $ validRefExpr D.rslt (Rel' [1,2] $ 4)
-  assertBool "absent members" $ isLeft $ validRefExpr D.rslt (Rel' [100,200] $ 4)
-  assertBool "absent template" $ isLeft $ validRefExpr D.rslt (Rel' [1,2] $ 44)
-  assertBool "arity mismatch" $ isLeft $ validRefExpr D.rslt (Rel' [] $ 4)
-  assertBool "tplt not a tplt" $ isLeft $ validRefExpr D.rslt (Rel' [4] $ 0)
-  assertBool "word" $ isRight $ validRefExpr D.rslt (Phrase' "meh")
+  assertBool "good ExprRel" $ isRight $
+    validRefExpr D.rslt (Rel' $ Rel [1,2] 4)
+  assertBool "absent members" $ isLeft $
+    validRefExpr D.rslt (Rel' $ Rel [100,200] 4)
+  assertBool "absent template" $ isLeft $
+    validRefExpr D.rslt (Rel' $ Rel [1,2] 44)
+  assertBool "arity mismatch" $ isLeft $
+    validRefExpr D.rslt (Rel' $ Rel [] 4)
+  assertBool "tplt not a tplt" $ isLeft $
+    validRefExpr D.rslt (Rel' $ Rel [4] 0)
+  assertBool "word" $ isRight $
+    validRefExpr D.rslt (Phrase' "meh")
 
 test_checkDb :: Test
 test_checkDb = TestCase $ do
   assertBool "1" $ M.toList (relsWithoutMatchingTplts $ mkRslt D.badRefExprs)
-    == [(1001, Rel' [1,2] 5), (1002, Rel' [1, 2] $ -1000)]
+    == [ (1001, Rel' $ Rel [1,2] 5)
+       , (1002, Rel' $ Rel [1, 2] $ -1000) ]
   assertBool "2" $ M.toList (collectionsWithAbsentAddrs $ mkRslt D.badRefExprs)
     == [(1002, [-1000])]
 

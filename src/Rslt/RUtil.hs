@@ -15,11 +15,11 @@ import Util.Misc
 depth :: Expr -> Int
 depth = cata f where
   f :: Base Expr Int -> Int
-  f (AddrF _)         = 0
-  f (PhraseF _)       = 0
-  f (ExprRelF mems _) = 1 + maximum mems
-  f (TpltF _)         = 0
-  f (ParF sis _)      = 1 + maximum (map snd sis)
+  f (AddrF _)               = 0
+  f (PhraseF _)             = 0
+  f (ExprRelF (Rel mems _)) = 1 + maximum mems
+  f (TpltF _)               = 0
+  f (ParF sis _)            = 1 + maximum (map snd sis)
 
 
 -- | for `RefExpr`s
@@ -27,14 +27,14 @@ depth = cata f where
 refExprVariety :: RefExpr -> (ExprCtr, Arity)
 refExprVariety   (Phrase'  _) = (PhraseCtr, 0)
 refExprVariety e@(Tplt'  _)   = (TpltCtr, refExprArity e)
-refExprVariety e@(Rel' _ _)   = (RelCtr , refExprArity e)
+refExprVariety e@(Rel' _)     = (RelCtr , refExprArity e)
 refExprVariety e@(Par' _ _)   = (ParCtr , refExprArity e)
 
 refExprArity :: RefExpr -> Arity
-refExprArity (Phrase' _) = 0
-refExprArity (Rel' x _)  = length x
-refExprArity (Tplt' x)   = length x - 1
-refExprArity (Par' x _)  = length x
+refExprArity (Phrase' _)      = 0
+refExprArity (Rel' (Rel x _)) = length x
+refExprArity (Tplt' x)        = length x - 1
+refExprArity (Par' x _)       = length x
 
 
 -- | = for `Rslt`s

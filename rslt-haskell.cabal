@@ -29,8 +29,6 @@ library
   exposed-modules:
                   Data.Graph
 --                , Data.Relation
-                , Experim.MyFocus
-                , Experim.ScrollNest
                 , Hash.Convert
                 , Hash.EitherExpr
                 , Hash.HLookup
@@ -54,6 +52,7 @@ library
                 , Rslt.RValid
                 , Rslt.Show
                 , Test.Hash.TConvert
+                , Test.Hash.THLookup
                 , Test.Hash.TParse
                 , Test.Qseq.TLeaf
                 , Test.Qseq.TProgram
@@ -63,7 +62,6 @@ library
                 , Test.Rslt.RData
                 , Test.Rslt.RProgram
                 , Test.Rslt.TEdit
-                , Test.Rslt.THash
                 , Test.Rslt.TIndex_and_Valid
                 , Test.Rslt.TLookup
                 , Test.Rslt.TShow

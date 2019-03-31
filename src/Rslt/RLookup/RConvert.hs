@@ -19,7 +19,7 @@ refExprToExpr r (Tplt' jointAs) = do
     ifLefts "refExprToExpr" $ map (refExprToExpr r) jointEs
   Right $ Tplt jointEis
 
-refExprToExpr r (Rel' memAs tA) = do
+refExprToExpr r (Rel' (Rel memAs tA)) = do
   (memEs  :: [RefExpr]) <- ifLefts    "refExprToExpr"
                           $ map (addrToRefExpr r) memAs
   (memEis :: [Expr])    <- ifLefts    "refExprToExpr"
@@ -28,7 +28,7 @@ refExprToExpr r (Rel' memAs tA) = do
                            $ addrToRefExpr r tA
   (tEi    :: Expr)      <- prefixLeft "refExprToExpr"
                            $ refExprToExpr r tE
-  Right $ ExprRel memEis tEi
+  Right $ ExprRel $ Rel memEis tEi
 
 refExprToExpr r (Par' sas s) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas
@@ -51,10 +51,10 @@ exprToAddr x img =
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
     pel $ refExprToAddr x $ Tplt' mas
 
-  ExprRel is i -> do
+  ExprRel (Rel is i) -> do
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
     ma <- pel $ exprToAddr x i
-    pel $ refExprToAddr x (Rel' mas ma)
+    pel $ refExprToAddr x (Rel' $ Rel mas ma)
 
   Par _ _ -> Left $ "exprToAddr: Pars are not in index, "
     ++ "cannot be looked up.\n"

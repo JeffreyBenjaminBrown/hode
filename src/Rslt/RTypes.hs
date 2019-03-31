@@ -22,12 +22,15 @@ type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.
 -- | = `Expr` is the fundamental type
 
+data Rel a = Rel [a] a
+  deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
+
 data Expr =
     Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
      -- The other `Expr` constructors are meaningful on their own, but this
     -- one requires some `Rslt` for context.
   | Phrase String   -- ^ (Could be a phrase too.)
-  | ExprRel [Expr] Expr -- ^ "Relationship".
+  | ExprRel (Rel Expr) -- ^ "Relationship".
     -- The last `Addr` (the one not in the list) should be of a `Tplt`.
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | Tplt [Expr] -- ^ A "template" for a `Rel`, like "_ needs _ sometimes."
@@ -39,7 +42,6 @@ data Expr =
     -- `Par`s are like lists, in that the weird bit comes last.
     -- `Par` is the only kind of `RefExpr` not in the `Index`.
   deriving (Eq, Ord, Read, Show)
-
 makeBaseFunctor ''Expr
 
 
@@ -59,7 +61,7 @@ data Rslt = Rslt {
 -- it requires the context of an `Rslt`.
 data RefExpr =
     Phrase' String
-  | Rel' [Addr] Addr
+  | Rel' (Rel Addr)
   | Tplt' [Addr]
   | Par' [(String, Addr)] String
   deriving (Eq, Ord, Read, Show)

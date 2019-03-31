@@ -59,13 +59,13 @@ exprToAddrInsert_rootNotFound r0 (Tplt js) = do
   r2 <- insertAt a (Tplt' $ as) r1
   Right (r2, a)
 
-exprToAddrInsert_rootNotFound r0 (ExprRel ms t) = do
+exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   (r1,ta)  <- prefixLeft "exprToAddrInsert_rootNotFound"
             $ exprToAddrInsert r0 t
   (r2,mas) <- prefixLeft "exprToAddrInsert_rootNotFound"
              $ exprToAddrInsert_list r1 ms
   a <- nextAddr r2
-  r3 <- insertAt a (Rel' mas ta) r2
+  r3 <- insertAt a (Rel' $ Rel mas ta) r2
   Right (r3,a)
 
 exprToAddrInsert_rootNotFound r0 (Par ps s) = do
@@ -117,9 +117,9 @@ _replaceInRefExpr r spot new host = do
 
   case spot of
     RoleTplt -> case host of
-      Rel' as _ -> do
+      Rel' (Rel as _) -> do
         if variety r new == Right (TpltCtr, length as)
-          then Right $ Rel' as new
+          then Right $ Rel' $ Rel as new
           else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
                 ++ " is not a valid Tplt in " ++ show host ++ ".\n"
       _ -> Left $ "_replaceInRefExpr: nothing plays the role of Tplt in "
@@ -128,9 +128,9 @@ _replaceInRefExpr r spot new host = do
     RoleMember k -> do
       case host of
 
-        Rel' as a -> do
+        Rel' (Rel as a) -> do
           as' <- pel $ replaceNth new k as
-          Right $ Rel' as' a
+          Right $ Rel' $ Rel as' a
 
         Tplt' as -> do
           as' <- pel $ replaceNth new k as

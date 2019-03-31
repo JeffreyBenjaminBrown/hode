@@ -58,7 +58,7 @@ eShow r = para f where
   f (TpltF pairs) = ifLefts "eShow Tplt" (map snd pairs)
                   >>= Right . concat . L.intersperse " _ "
 
-  f relf@(ExprRelF ms (Tplt js, _)) = do
+  f relf@(ExprRelF (Rel ms (Tplt js, _))) = do
   -- The recursive argument (second member of the pair) is unused, hence
   -- not computed. Instead, each joint in `js` is `eShow`n separately.
     mss <- ifLefts "eShow ExprRel" $ map snd ms
@@ -69,12 +69,12 @@ eShow r = para f where
       $ map (\(m,j) -> m ++ " " ++ j ++ " ")
       $ zip ("" : mss) jss
 
-  f (ExprRelF ms (a@(Addr _), _)) = do
+  f (ExprRelF (Rel ms (a@(Addr _), _))) = do
     templateExpr <- unAddr r a
-    eShow r $ ExprRel (map fst ms) templateExpr
+    eShow r $ ExprRel $ Rel (map fst ms) templateExpr
 
-  f x@(ExprRelF _ _) = Left $ "eShow: ExprRel with non-Tplt for Tplt: "
-                   ++ show (embed $ fmap fst x)
+  f x@(ExprRelF _) = Left $ "eShow: ExprRel with non-Tplt for Tplt: "
+                     ++ show (embed $ fmap fst x)
 
   f (ParF triples s0) = do
     let (ss :: [String], ps)               = unzip triples

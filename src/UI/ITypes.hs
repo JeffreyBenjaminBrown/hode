@@ -91,7 +91,7 @@ instance Show ViewCenterRole where
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
             in either (const noLeft) id
-               $ eShow noRslt $ ExprRel mbrs $ Tplt tplt
+               $ eShow noRslt $ ExprRel $ Rel mbrs $ Tplt tplt
 
 instance Show RsltView where
   show (VQuery x)      = "VQuery "      ++ show x

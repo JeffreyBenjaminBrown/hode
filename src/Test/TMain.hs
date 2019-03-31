@@ -14,7 +14,7 @@ import Test.Qseq.TValid
 import Test.Rslt.RData
 import Test.Rslt.RProgram
 import Test.Rslt.TEdit
-import Test.Rslt.THash
+import Test.Hash.THLookup
 import Test.Rslt.TIndex_and_Valid
 import Test.Rslt.TLookup
 import Test.Rslt.TShow

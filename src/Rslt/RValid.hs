@@ -36,7 +36,7 @@ validExpr r = para f where
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
 
-  f rel@(ExprRelF memEis (t,te)) = do
+  f rel@(ExprRelF (Rel memEis (t,te))) = do
     let (ms :: [Expr], es :: [Either String ()]) = unzip memEis
         err = "validExpr called on " ++ show (embed $ fmap fst rel)
     void $ ifLefts err $ te : es
@@ -67,7 +67,7 @@ validRefExpr r e = do validTplt r e
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
 validTplt :: Rslt -> RefExpr -> Either String ()
-validTplt r (Rel' aMembers aTplt) = do
+validTplt r (Rel' (Rel aMembers aTplt)) = do
   (ctr,ar) <- prefixLeft "validTplt" $ variety r aTplt
   if ctr == TpltCtr        then Right ()
     else Left $ "validTplt: expr at " ++ show aTplt ++ " not a Tplt.\n"
@@ -84,10 +84,10 @@ refExprRefsExist r e = let
     Left absent -> Left
       $ "refExprRefsExist: These Addrs are absent: " ++ show absent
   in case e of
-       Rel' aMembers aTplt -> f $ aTplt : aMembers
-       Tplt' as            -> f as
-       Par' sas _          -> f $ map snd sas
-       Phrase' _             -> Right ()
+       Rel' (Rel aMembers aTplt) -> f $ aTplt : aMembers
+       Tplt' as                  -> f as
+       Par' sas _                -> f $ map snd sas
+       Phrase' _                 -> Right ()
 
 
 -- | == Check the database
@@ -112,10 +112,10 @@ collectionsWithAbsentAddrs r = res where
   absent = isNothing . flip M.lookup (_variety r)
 
   involved :: RefExpr -> [Addr]
-  involved (Phrase' _)    = error "impossible"
-  involved (Tplt' as)   = as
-  involved (Rel' as a)  = a : as
-  involved (Par' sas _) = map snd sas
+  involved (Phrase' _)       = error "impossible"
+  involved (Tplt' as)        = as
+  involved (Rel' (Rel as a)) = a : as
+  involved (Par' sas _)      = map snd sas
 
   collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where
@@ -127,16 +127,17 @@ relsWithoutMatchingTplts r = res where
   res = M.filter (not . relMatchesTpltArity) rels
 
   relMatchesTpltArity :: RefExpr -> Bool
-  relMatchesTpltArity e@(Rel' _ t) = case M.lookup t $ _variety r of
-    Nothing         -> False
-    Just (ctr, art) -> case ctr of
-      TpltCtr -> refExprArity e == art
-      _       -> False
+  relMatchesTpltArity e@(Rel' (Rel _ t)) =
+    case M.lookup t $ _variety r of
+      Nothing         -> False
+      Just (ctr, art) -> case ctr of
+        TpltCtr -> refExprArity e == art
+        _       -> False
   relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
 
   rels = M.filter isRel $ _addrToRefExpr r where
-    isRel (Rel' _ _) = True
-    isRel _         = False
+    isRel (Rel' _) = True
+    isRel _        = False
 
 
 -- | = A utility

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Rslt.THash where
+module Test.Hash.THLookup where
 
 import           Data.Either
 import qualified Data.Map       as M
@@ -86,7 +86,7 @@ test_hExprToAddrs = TestCase $ do
 
 test_subExprs :: Test
 test_subExprs = TestCase $ do
-  let r = fromRight (error "wut") $ insertAt 7 (Rel' [5,5] 4) D.rslt
+  let r = fromRight (error "wut") $ insertAt 7 (Rel' $ Rel [5,5] 4) D.rslt
   assertBool "1" $ subExprs r [ [RoleMember 1, RoleMember 1] ] 7
     == Right (S.fromList [1])
   assertBool "2" $ subExprs r [ [RoleMember 2, RoleMember 2] ] 7

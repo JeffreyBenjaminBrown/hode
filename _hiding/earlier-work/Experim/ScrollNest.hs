@@ -1,3 +1,6 @@
+-- | I'm not sure this idea makes sense: If there are nested
+-- scroll windows, how big should each one be?
+
 -- | Run `main` and the use `Ctrl-[i,j,k,l]` to move around.
 -- Press `Shift` to move faster vertically.
 

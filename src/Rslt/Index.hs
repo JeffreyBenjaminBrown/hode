@@ -56,10 +56,10 @@ refExprPositions expr =
   let r :: (Int, Addr) -> (Role, Addr)
       r (n,a) = (RoleMember n, a)
   in case expr of
-    Phrase' _      -> []
-    Tplt' mas    ->                 map r (zip [1..]           mas)
-    Rel'  mas ta -> (RoleTplt,ta) : map r (zip [1..]           mas)
-    Par'  sas _  ->                 map r (zip [1..] $ map snd sas)
+    Phrase' _          -> []
+    Tplt' mas          ->                 map r (zip [1..]           mas)
+    Rel'  (Rel mas ta) -> (RoleTplt,ta) : map r (zip [1..]           mas)
+    Par'  sas _        ->                 map r (zip [1..] $ map snd sas)
 
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map

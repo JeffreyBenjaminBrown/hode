@@ -60,8 +60,8 @@ test_exprToAddrInsert = TestCase $ do
 
   assertBool "5" $ let
     Right (r,a) = R.exprToAddrInsert D.rslt
-                  ( ExprRel [ ExprRel [ Phrase "space"
-                                        , Phrase "empty" ]
+                  ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
+                                                  , Phrase "empty" ]
                                ( Tplt [ Phrase ""
                                            , Phrase "is"
                                            , Addr 0 ] )
@@ -82,7 +82,7 @@ test_replace = TestCase $ do
           , (2, Phrase' "oxygen")
           , (3, Phrase' "needs")
           , (4, Tplt' [0,3,0])
-          , (5, Rel' [7,2] 4) -- all changes involve address 7
+          , (5, Rel' $ Rel [7,2] 4) -- all changes involve address 7
           , (6, Par' [("The first relationship in this graph is ", 5)] ".")
           , (7, Phrase' "foo")
           ] )
@@ -95,19 +95,19 @@ test_replace = TestCase $ do
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
          , (4, Tplt' [7,3,7]) -- all changes involve address 7
-         , (5, Rel' [1,2] 4)
+         , (5, Rel' $ Rel [1,2] 4)
          , (6, Par' [("The first relationship in this graph is ", 5)] ".")
          ] )
 
   assertBool "replace rel" $
-    either (error "wut") id (R.replace (Rel' [2,1] 4) 5 D.rslt)
+    either (error "wut") id (R.replace (Rel' $ Rel [2,1] 4) 5 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
          , (1, Phrase' "dog")
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
          , (4, Tplt' [0,3,0])
-         , (7, Rel' [2,1] 4) -- all changes involve address 7
+         , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
          , (6, Par' [("The first relationship in this graph is ", 7)] ".")
          ] )
 
@@ -119,7 +119,7 @@ test_replace = TestCase $ do
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
          , (7, Tplt' [2,2,2])
-         , (5, Rel' [1,2] 7) -- all changes involve address 7
+         , (5, Rel' $ Rel [1,2] 7) -- all changes involve address 7
          , (6, Par' [("The first relationship in this graph is ", 5)] ".")
          ] )
 
@@ -148,11 +148,11 @@ test_replaceInRole = TestCase $ do
 test_deleteUnused :: Test
 test_deleteUnused = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel'5)
-  -- and insert at 6 (Rel' [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
+  -- and insert at 6 (Rel' $ Rel [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
   let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.refExprs
       (with_new_rel :: Rslt) = either (error "wut") id
-                               $ R.insertAt 6 (Rel' [1,1] 4) without_6
+                               $ R.insertAt 6 (Rel' $ Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
                                $ R.deleteUnused 5 with_new_rel
   assertBool "valid 1" $ isRight $ validRslt without_6
@@ -175,7 +175,7 @@ test_deleteUnused = TestCase $ do
 test_insert :: Test
 test_insert = TestCase $ do
   let r2 = either (error "wut") id
-           $ R.insertAt 7 (Rel' [1,1] 4) D.rslt
+           $ R.insertAt 7 (Rel' $ Rel [1,1] 4) D.rslt
   assertBool "valid 1" $ isRight $ validRslt r2
 
   assertBool "1" $ isIn r2 4 == Right (S.fromList [ (RoleTplt    , 7     )
@@ -192,6 +192,6 @@ test_insert = TestCase $ do
   assertBool "address collision" $ isLeft $
     R.insertAt 1 (Phrase' "nuyck") D.rslt
   assertBool "non-matching template" $ isLeft $
-    R.insertAt 1 (Rel' [1,2,3] 4) D.rslt
+    R.insertAt 1 (Rel' $ Rel [1,2,3] 4) D.rslt
   assertBool "nonexistent references" $ isLeft $
-    R.insertAt 1 (Rel' [11,22] 4) D.rslt
+    R.insertAt 1 (Rel' $ Rel [11,22] 4) D.rslt
