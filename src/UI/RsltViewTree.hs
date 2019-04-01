@@ -5,6 +5,7 @@
 -- (2) Zippers instead of Vectors. (This would obviate the first task.)
 -- (2a) Mutable Vectors instead of immutable ones.
 
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -12,11 +13,10 @@ module UI.RsltViewTree (
     moveFocusedRsltView   -- ^ Direction -> St -> St
   , members_atFocus       -- ^ St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
-  , groupHostRels         -- ^ Rslt -> Addr ->
-                          -- Either String [(RelHosts, [Addr])]
-  , groupHostRels_atFocus -- ^ St ->
-                          -- Either String [(RelHosts, [Addr])]
-  , hostHostGroup_to_view  -- ^ Rslt -> (RelHosts, [Addr]) ->
+  , groupHostRels  -- ^ Rslt -> Addr -> Either String [(RelHosts, [Addr])]
+  , groupHostRels' -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
+  , groupHostRels_atFocus -- ^ St ->    Either String [(RelHosts, [Addr])]
+  , hostHostGroup_to_view -- ^ Rslt -> (RelHosts, [Addr]) ->
                           -- Either String (PTree RsltView)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
@@ -24,9 +24,10 @@ module UI.RsltViewTree (
 
 import           Data.Foldable (toList)
 import           Data.Map (Map)
+import qualified Data.List             as L
 import qualified Data.List.PointedList as P
-import qualified Data.Map    as M
-import qualified Data.Set    as S
+import qualified Data.Map              as M
+import qualified Data.Set              as S
 
 import           Lens.Micro hiding (has)
 
@@ -74,6 +75,42 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
         topOfNew & pMTrees .~ Just leavesOfNew'
   Right $ st & stSetFocusedRsltViewTree %~ consUnderAndFocus new
 
+groupHostRels' :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
+groupHostRels' r a0 = prefixLeft "groupHostRels" $ do
+  ras :: [(Role, Addr)] <- let
+    msg = "computing ras from " ++ show a0
+    in prefixLeft msg $ S.toList <$> isIn r a0
+  vs :: [ExprCtr] <- map fst <$>
+    ( ifLefts "computing varieties" $
+      map (variety r . snd) ras )
+  let ravs :: [((Role, Addr), ExprCtr)] = zip ras vs
+      (ras_par, ras_other) :: ([(Role,Addr)], [(Role,Addr)]) =
+        both %~ map fst $ L.partition ((==) ParCtr . snd) ravs
+  tplts_other <- let tpltOf :: Addr -> Either String Addr
+                     tpltOf a = prefixLeft msg $ fills r (RoleTplt, a)
+                       where msg = "computing tpltOf of " ++ show a
+                 in ifLefts "" $ map (tpltOf . snd) ras_other
+
+  let groups_other :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
+      groups_other = foldr f M.empty $ zip ras_other tplts_other where
+        f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
+                                  -> Map (Role, Addr) [Addr]
+        f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
+          -- `f` is efficient: `a` is prepended, not appended.
+      package_other :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
+      package_other ((role,t),as) = (HostGroup_Role vcr, as) where
+        vcr = RelHosts { _vcrCenter = a0
+                       , _vcrRole = role
+                       , _vcrTplt = tplt t } where
+          tplt :: Addr -> [Expr]
+          tplt a = es where Right (ExprTplt es) = addrToExpr r a
+
+  let parHosts :: [Addr] = map snd ras_par
+      parHostGroups = if null parHosts then []
+        else [(HostGroup_Pars $ ParHosts a0, parHosts)]
+  Right $ parHostGroups ++
+    map package_other (M.toList groups_other)
+
 groupHostRels :: Rslt -> Addr -> Either String [(RelHosts, [Addr])]
 groupHostRels r a0 = prefixLeft "groupHostRels" $ do
   ras :: [(Role, Addr)] <- let
@@ -90,6 +127,7 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
         f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
                                   -> Map (Role, Addr) [Addr]
         f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
+          -- `f` is efficient: `a` is prepended, not appended.
       package :: ((Role, Addr),[Addr]) -> (RelHosts, [Addr])
       package ((role,t),as) = (vcr, as) where
         vcr = RelHosts { _vcrCenter = a0
