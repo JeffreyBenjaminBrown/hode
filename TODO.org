@@ -29,7 +29,7 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO cleaning
-** rename vcr* fields of InRole
+** rename relHosts* fields of InRole
 * TODO top priorities
 ** include relationship "is member of paragraph" in insertHosts
 ** things that ought already to work

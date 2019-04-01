@@ -67,30 +67,30 @@ data HostGroup = HostGroup_Role RelHosts
   deriving (Eq, Ord, Show)
 
 -- | `RelHosts` is used to group relationships in which the `Expr`at
--- `vcrCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
+-- `relHostsCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
 -- then `RelHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
 data RelHosts = RelHosts {
-    _vcrCenter :: Addr      -- ^ the thing being hosted
-  , _vcrRole   :: Role      -- ^ the role it plays
-  , _vcrTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
+    _relHostsCenter :: Addr      -- ^ the thing being hosted
+  , _relHostsRole   :: Role      -- ^ the role it plays
+  , _relHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
   } deriving (Eq, Ord)
 data ParHosts = ParHosts {
   _inParagraphAddr :: Addr  -- ^ the thing being hosted
   } deriving (Eq, Ord)
 
 instance Show RelHosts where
-  show vcr = let
-    tplt = _vcrTplt vcr
+  show relHosts = let
+    tplt = _relHostsTplt relHosts
     noLeft     = error "show RelHosts: impossible"
     noRslt     = error "show RelHosts: Rslt irrelevant"
     noMiscount = error "show RelHosts: This math is good."
     showTplt = either (const noLeft) id
                $ eShow noRslt (ExprTplt tplt)
-    in if _vcrRole vcr == RoleTplt
+    in if _relHostsRole relHosts == RoleTplt
        then "Tplt " ++ showTplt
        else let (ar :: Arity) = length tplt - 1
-                RoleMember (n :: Int) = _vcrRole vcr
+                RoleMember (n :: Int) = _relHostsRole relHosts
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"

@@ -97,10 +97,10 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
         f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
           -- `f` is efficient: `a` is prepended, not appended.
       package_other :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
-      package_other ((role,t),as) = (HostGroup_Role vcr, as) where
-        vcr = RelHosts { _vcrCenter = a0
-                       , _vcrRole = role
-                       , _vcrTplt = tplt t } where
+      package_other ((role,t),as) = (HostGroup_Role relHosts, as) where
+        relHosts = RelHosts { _relHostsCenter = a0
+                       , _relHostsRole = role
+                       , _relHostsTplt = tplt t } where
           tplt :: Addr -> [Expr]
           tplt a = es where Right (ExprTplt es) = addrToExpr r a
 
