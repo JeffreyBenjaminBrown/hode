@@ -74,4 +74,4 @@ eShow r = para f where
     (mis :: [String]) <- ifLefts "eShow Par" ess
     let showPair :: (String, String) -> String
         showPair (s,mi) = s ++ " (" ++ mi ++ ") "
-    Right $ concat (map showPair $ zip ss mis) ++ " " ++ s0
+    Right $ concat (map showPair $ zip ss mis) ++ s0

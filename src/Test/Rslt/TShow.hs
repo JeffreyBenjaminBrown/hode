@@ -27,7 +27,7 @@ test_eShow = TestCase $ do
   assertBool "4" $ eShow D.rslt ( ExprPar $ Par [ ("Hello", Phrase "cat")
                                                 , (", hello", Addr 1) ]
                                   ", nice to meet you both." )
-    == Right "Hello ⦑cat⦒ , hello ⦑dog⦒  , nice to meet you both."
+    == Right "Hello (cat) , hello (dog) , nice to meet you both."
 
 test_hashUnlessEmptyStartOrEnd :: Test
 test_hashUnlessEmptyStartOrEnd = TestCase $ do
