@@ -15,7 +15,7 @@ module UI.RsltViewTree (
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
   , groupHostRels_atFocus -- ^ St ->    Either String [(RelHosts, [Addr])]
-  , hostHostGroup_to_view -- ^ Rslt -> (RelHosts, [Addr]) ->
+  , hostGroup_to_view     -- ^ Rslt -> (RelHosts, [Addr]) ->
                           -- Either String (PTree RsltView)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
@@ -124,7 +124,7 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
   (groups :: [(HostGroup, [Addr])]) <-
     groupHostRels_atFocus st
   (newTrees :: [PTree RsltView]) <- ifLefts ""
-    $ map (hostHostGroup_to_view $ st ^. appRslt) groups
+    $ map (hostGroup_to_view $ st ^. appRslt) groups
   (preexist :: Maybe (Porest RsltView)) <-
     let errMsg = "focused RsltView not found."
     in maybe (Left errMsg) Right $ st ^?
@@ -135,15 +135,15 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
                   P.fromList (foldr (:) preexist' newTrees)
   Right $ st & stSetFocusedRsltViewTree %~ insert
 
-hostHostGroup_to_view :: Rslt -> (HostGroup, [Addr])
+hostGroup_to_view :: Rslt -> (HostGroup, [Addr])
                      -> Either String (PTree RsltView)
-hostHostGroup_to_view r (vcr, as) = do
+hostGroup_to_view r (hg, as) = do
   case as of [] -> Left "There are no host Exprs to show."
              _ -> Right ()
   let mustBeOkay = "Impossible: as is nonempty, so P.fromList must work."
-  (rs :: [ViewResult]) <- ifLefts "hostHostGroup_to_view"
+  (rs :: [ViewResult]) <- ifLefts "hostGroup_to_view"
     $ map (resultView r) as
-  Right $ PTree { _pTreeLabel = VHostGroup vcr
+  Right $ PTree { _pTreeLabel = VHostGroup hg
                 , _pTreeHasFocus = False
                 , _pMTrees = maybe (error mustBeOkay) Just $
                     P.fromList $ map (pTreeLeaf . VResult) rs }
