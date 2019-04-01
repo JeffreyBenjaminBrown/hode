@@ -13,8 +13,7 @@ module UI.RsltViewTree (
     moveFocusedRsltView   -- ^ Direction -> St -> St
   , members_atFocus       -- ^ St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
-  , groupHostRels  -- ^ Rslt -> Addr -> Either String [(RelHosts, [Addr])]
-  , groupHostRels' -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
+  , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
   , groupHostRels_atFocus -- ^ St ->    Either String [(RelHosts, [Addr])]
   , hostHostGroup_to_view -- ^ Rslt -> (RelHosts, [Addr]) ->
                           -- Either String (PTree RsltView)
@@ -75,8 +74,8 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
         topOfNew & pMTrees .~ Just leavesOfNew'
   Right $ st & stSetFocusedRsltViewTree %~ consUnderAndFocus new
 
-groupHostRels' :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
-groupHostRels' r a0 = prefixLeft "groupHostRels" $ do
+groupHostRels :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
+groupHostRels r a0 = prefixLeft "groupHostRels" $ do
   ras :: [(Role, Addr)] <- let
     msg = "computing ras from " ++ show a0
     in prefixLeft msg $ S.toList <$> isIn r a0
@@ -111,33 +110,7 @@ groupHostRels' r a0 = prefixLeft "groupHostRels" $ do
   Right $ parHostGroups ++
     map package_other (M.toList groups_other)
 
-groupHostRels :: Rslt -> Addr -> Either String [(RelHosts, [Addr])]
-groupHostRels r a0 = prefixLeft "groupHostRels" $ do
-  ras :: [(Role, Addr)] <- let
-    msg = "computing ras from center " ++ show a0
-    in prefixLeft msg $ S.toList <$> isIn r a0
-  ts :: [Addr] <- let -- TODO! bug: assumes there's a Tplt. Not true for Par.
-    tpltAddr :: Addr -> Either String Addr
-    tpltAddr a = prefixLeft msg $ fills r (RoleTplt, a)
-      where msg = "computing tpltAddr of " ++ show a
-    in ifLefts "" $ map (tpltAddr . snd) ras
-
-  let groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
-      groups = foldr f M.empty $ zip ras ts where
-        f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
-                                  -> Map (Role, Addr) [Addr]
-        f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
-          -- `f` is efficient: `a` is prepended, not appended.
-      package :: ((Role, Addr),[Addr]) -> (RelHosts, [Addr])
-      package ((role,t),as) = (vcr, as) where
-        vcr = RelHosts { _vcrCenter = a0
-                       , _vcrRole = role
-                       , _vcrTplt = tplt t } where
-          tplt :: Addr -> [Expr]
-          tplt a = es where Right (ExprTplt es) = addrToExpr r a
-  Right $ map package $ M.toList groups
-
-groupHostRels_atFocus :: St -> Either String [(RelHosts, [Addr])]
+groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   a :: Addr <-
     let errMsg = "Buffer not found or focused RsltView not found."
@@ -148,7 +121,7 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
-  (groups :: [(RelHosts, [Addr])]) <-
+  (groups :: [(HostGroup, [Addr])]) <-
     groupHostRels_atFocus st
   (newTrees :: [PTree RsltView]) <- ifLefts ""
     $ map (hostHostGroup_to_view $ st ^. appRslt) groups
@@ -162,7 +135,7 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
                   P.fromList (foldr (:) preexist' newTrees)
   Right $ st & stSetFocusedRsltViewTree %~ insert
 
-hostHostGroup_to_view :: Rslt -> (RelHosts, [Addr])
+hostHostGroup_to_view :: Rslt -> (HostGroup, [Addr])
                      -> Either String (PTree RsltView)
 hostHostGroup_to_view r (vcr, as) = do
   case as of [] -> Left "There are no host Exprs to show."
@@ -170,7 +143,7 @@ hostHostGroup_to_view r (vcr, as) = do
   let mustBeOkay = "Impossible: as is nonempty, so P.fromList must work."
   (rs :: [ViewResult]) <- ifLefts "hostHostGroup_to_view"
     $ map (resultView r) as
-  Right $ PTree { _pTreeLabel = VHostGroup $ HostGroup_Role vcr
+  Right $ PTree { _pTreeLabel = VHostGroup vcr
                 , _pTreeHasFocus = False
                 , _pMTrees = maybe (error mustBeOkay) Just $
                     P.fromList $ map (pTreeLeaf . VResult) rs }
