@@ -13,14 +13,6 @@ import Util.Misc
 import Util.UParse
 
 
--- https://unicode-search.net/unicode-namesearch.pl?term=bracket
-bracket_angle_big_left, bracket_angle_big_right, bracket_angle_small_left, bracket_angle_small_right :: Char
-bracket_angle_big_left    = '⦑' -- C-x 8 Ret 2991
-bracket_angle_big_right   = '⦒' -- C-x 8 Ret 2992
-bracket_angle_small_left  = '«' -- C-x 8 <
-bracket_angle_small_right = '»' -- C-x 8 >
-
-
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
 hashUnlessEmptyStartOrEnd k0 joints = case joints' of
   [] -> []
@@ -81,6 +73,5 @@ eShow r = para f where
         (_, ess :: [Either String String]) = unzip ps
     (mis :: [String]) <- ifLefts "eShow Par" ess
     let showPair :: (String, String) -> String
-        showPair (s,mi) = s ++ " " ++ [bracket_angle_big_left]
-          ++ mi ++ [bracket_angle_big_right] ++ " "
+        showPair (s,mi) = s ++ " (" ++ mi ++ ") "
     Right $ concat (map showPair $ zip ss mis) ++ " " ++ s0

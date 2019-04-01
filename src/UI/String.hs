@@ -42,6 +42,6 @@ showRsltView :: RsltView -> String -- TODO : rename showRsltView
 showRsltView (VQuery vq)  = vq
 showRsltView (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
-showRsltView (VMembers a) = "memebers of Expr at Addr "
-                     ++ show (a ^. viewMembersCenter)
-showRsltView (VHostGroup rg) = show rg
+showRsltView (VMembers _) = "its members"
+showRsltView (VHostGroup (HostGroup_Role x)) = show x
+showRsltView (VHostGroup (HostGroup_Pars x)) = show x

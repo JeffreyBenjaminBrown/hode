@@ -30,8 +30,6 @@ when it ought to be this:
 see the comment leading its definition
 * TODO cleaning
 ** rename vcr* fields of InRole
-** default Show instance for RelGroupHosts is not good for UI
-and for InRel and InPar, too, there should be separate UI and debugging shows
 * TODO top priorities
 ** include relationship "is member of paragraph" in insertHosts
 ** things that ought already to work
