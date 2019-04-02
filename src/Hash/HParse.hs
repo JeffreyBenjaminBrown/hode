@@ -104,7 +104,7 @@ pTplt = lexeme  ( foldr1 (<|>)
 
 _pTplt :: Parser Expr
 _pTplt = lexeme $ ExprTplt . map Phrase
-         <$> some (hashIdentifier <|> parens phrase)
+         <$> some (hashIdentifier <|> parens hashPhrase)
 
 pMap :: Parser PExpr
 pMap = lexeme (string "/map" <|> string "/roles")
@@ -141,7 +141,7 @@ pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
 pPar :: Parser PExpr
 pPar = do
   let maybePhrase :: Parser String
-      maybePhrase = try phrase <|> return ""
+      maybePhrase = try hashPhrase <|> return ""
       unit :: Parser (String,PExpr)
       unit = try $ do p <- maybePhrase
                       e <- pExpr
@@ -184,6 +184,7 @@ hashPhrase =
   nonEscape :: Parser Char
   nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"
 
+-- | Every character that isn't special Hash syntax.
 hashIdentifier :: Parser String
 hashIdentifier = lexeme $ some $ foldr1 (<|>)
   ( alphaNumChar : map char

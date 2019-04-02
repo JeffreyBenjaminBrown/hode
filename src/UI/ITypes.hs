@@ -106,7 +106,7 @@ instance Show RsltView where
   show (VMembers x)   = "VMembers "   ++ show x
   show (VHostGroup x) = "VHostGroup " ++ show x
 
-makePrisms ''RsltView -- prisms!
+makePrisms ''RsltView -- prisms
 makeLenses ''ViewResult
 makeLenses ''ViewMembers
 makeLenses ''RelHosts

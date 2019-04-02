@@ -30,6 +30,20 @@ when it ought to be this:
 see the comment leading its definition
 * TODO top priorities
 ** things that ought already to work
+*** Paragraphs are buggy
+**** Paragraphs don't work with quoted strings.
+ e.g. the following paragraph does not parse
+ /a /par "I" (am) a truck.
+**** searching not always working with paragraphs
+ this shows up if I search for hosts under the Expr "is":
+ /a /par under the sea (is) a good son
+
+ but if I use quotes when defining such a paragraph:
+ /a /par "how high the moon" (is) a song
+ then I can't find the Expr "is":
+ /f is
+**** searching for a nonexistent paragraph crashes
+ /f /par "how high the moon" (is) a song
 *** not all Hash functions work
 *** pExprIsSpecific should address PDiff, PAnd, POr
 **** where it is used
