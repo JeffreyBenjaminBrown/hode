@@ -30,6 +30,7 @@ library
                   Data.Graph
 --                , Data.Relation
                 , Hash.Convert
+                , Hash.Convert'
                 , Hash.EitherExpr
                 , Hash.HLookup
                 , Hash.HParse

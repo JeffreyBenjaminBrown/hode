@@ -139,7 +139,7 @@ runParsedCommand (CommandFind s h) st = do
   let r = st ^. appRslt
       title = "runParsedCommand, called on CommandFind"
 
-  (as :: Set Addr)   <- prefixLeft title
+  as :: Set Addr <- prefixLeft title
     $ hExprToAddrs r (mempty :: Subst Addr) h
 
   let v = PTree { _pTreeLabel = VQuery s

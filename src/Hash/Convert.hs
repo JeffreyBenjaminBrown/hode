@@ -11,6 +11,8 @@ module Hash.Convert (
   , pExprToHExpr     -- PExpr -> Either String HExpr
   , pMapToHMap       -- PMap  -> Either String HMap
   , pathsToIts_pExpr -- PExpr -> [RolePath]
+  , pathsToIts_sub_pExpr -- TEMPORARY
+  , pathsToIts_sub_pRel -- TEMPORARY
 ) where
 
 import           Data.Functor.Foldable

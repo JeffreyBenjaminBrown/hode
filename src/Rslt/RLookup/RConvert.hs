@@ -57,7 +57,7 @@ exprToAddr x img =
     pel $ refExprToAddr x (Rel' $ Rel mas ma)
 
   ExprPar _ -> Left $ "exprToAddr: Pars are not in index, "
-    ++ "cannot be looked up.\n"
+    ++ "hence cannot be looked up (except by Addr).\n"
 
 
 -- | == Lookup from `Addr`s or `RefExpr`s. (These are convenience
