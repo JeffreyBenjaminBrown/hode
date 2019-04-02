@@ -43,9 +43,10 @@ pCommand_find :: Rslt -> String -> Either String Command
 pCommand_find r s = do
   (e1 :: PExpr) <- prefixLeft "pCommand_find"
     $ mapLeft show (parse pExpr "doh!" s)
-  let e2 = case pathsToIts_pExpr e1 of
-             [] -> e1
-             _ -> PEval e1
+  e2 <- case pathsToIts_pExpr e1 of
+          Left msg -> Left msg
+          Right [] -> Right $ e1
+          Right _  -> Right $ PEval e1
   CommandFind s <$> pExprToHExpr r e2
 
 pCommand_load :: String -> Either String Command

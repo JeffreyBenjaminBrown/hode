@@ -7,16 +7,17 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hash.Convert (
-    pRelToHExpr      -- PRel  -> Either String HExpr
-  , pExprToHExpr     -- PExpr -> Either String HExpr
-  , pMapToHMap       -- PMap  -> Either String HMap
-  , pathsToIts_pExpr -- PExpr -> [RolePath]
-  , pathsToIts_sub_pExpr -- TEMPORARY
-  , pathsToIts_sub_pRel -- TEMPORARY
+    pRelToHExpr          -- ^ PRel  -> Either String HExpr
+  , pExprToHExpr         -- ^ PExpr -> Either String HExpr
+  , pMapToHMap           -- ^ PMap  -> Either String HMap
+  , pathsToIts_pExpr     -- ^ PExpr -> Either String [RolePath]
+  , pathsToIts_sub_pExpr -- ^ PExpr -> Either String [RolePath]
+  , pathsToIts_sub_pRel  -- ^ PRel  -> Either String [RolePath]
 ) where
 
 import           Data.Functor.Foldable
-import qualified Data.Map       as M
+import           Data.Map (Map)
+import qualified Data.Map as M
 
 import Control.Arrow (second)
 import Data.Functor (void)
@@ -100,7 +101,8 @@ pExprToHExpr _ (PExpr s)       = Right $ HExpr s
 pExprToHExpr r (PMap m)        = HMap <$> pMapToHMap r m
 pExprToHExpr r (PEval pnr)     = do
   (x :: HExpr) <- pExprToHExpr r pnr
-  Right $ HEval x $ pathsToIts_pExpr pnr
+  ps <- pathsToIts_pExpr pnr
+  Right $ HEval x ps
 pExprToHExpr _ (PVar s)        = Right $ HVar s
 pExprToHExpr r (PDiff a b)     = do a' <- pExprToHExpr r a
                                     b' <- pExprToHExpr r b
@@ -135,39 +137,46 @@ pMapToHMap r = ifLefts_map "pMapToHMap"
 
 -- | = Finding the `It`s for a `PEval` to evaluate.
 
-pathsToIts_pExpr :: PExpr -> [RolePath]
+pathsToIts_pExpr :: PExpr -> Either String [RolePath]
 pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
 pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
-pathsToIts_sub_pExpr :: PExpr -> [RolePath]
-pathsToIts_sub_pExpr = para f where
-  err :: Base PExpr (PExpr, [RolePath]) -> [RolePath]
-  err x = error $ "pathsToIts_sub_pExpr called too late, on "
-          ++ show (embed $ fmap fst x)
+pathsToIts_sub_pExpr :: PExpr -> Either String [RolePath]
+pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr" . para f where
+  tooLate :: Base PExpr (PExpr, Either String [RolePath])
+           -> Either String [RolePath]
+  tooLate x = Left $ "pathsToIts_sub_pExpr called too late (too far leafward in the PExpr), on " ++ show (embed $ fmap fst x)
 
-  f :: Base PExpr (PExpr, [RolePath]) -> [RolePath]
-  f (PExprF _)       = []
-  f (PMapF m)        = concatMap g $ M.toList $ M.map snd m
-    where g (role, paths) = map ((:) role) paths
-  f (PEvalF _)       = []
+  f :: Base PExpr (PExpr, Either String [RolePath])
+    -> Either String [RolePath]
+  f (PExprF _) = Right []
+  f (PMapF m)  = do (m' :: Map Role [RolePath]) <-
+                      ifLefts_map "" $ M.map snd m
+                    let g :: (Role, [RolePath]) -> [RolePath]
+                        g (role, paths) = map ((:) role) paths
+                    Right $ concatMap g $ M.toList m'
+  f (PEvalF _) = Right []
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
-  f (PVarF _)        = []
-  f x@(PDiffF _ _)   = err x
-  f x@(PAndF _)      = err x
-  f x@(POrF _)       = err x
-  f AnyF             = []
-  f (ItF Nothing)    = [[]]
-  f (ItF (Just pnr)) = [] : snd pnr
-  f x@(PParF _)      = err x
+  f (PVarF _)        = Right []
+  f x@(PDiffF _ _)   = tooLate x
+  f x@(PAndF _)      = tooLate x
+  f x@(POrF _)       = tooLate x
+  f AnyF             = Right []
+  f (ItF Nothing)    = Right [[]]
+  f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
+  f (PParF _)        = Left "case of Par not permitted."
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
-pathsToIts_sub_pRel :: PRel -> [RolePath]
-pathsToIts_sub_pRel = cata f where
-  f :: Base PRel [RolePath] -> [RolePath]
-  f AbsentF         = []
+pathsToIts_sub_pRel :: PRel -> Either String [RolePath]
+pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel" . cata f where
+  f :: Base PRel (Either String [RolePath])
+    -> Either String [RolePath]
+  f AbsentF         = Right []
   f (PNonRelF pnr)  = pathsToIts_sub_pExpr pnr
   f (OpenF _ ms js) = f $ ClosedF ms js
-  f (ClosedF ms _)  = concatMap g $ zip [1..] ms where
-    g :: (Int,[RolePath]) -> [RolePath]
-    g (i,ps) = map ((:) $ RoleMember i) ps
+  f (ClosedF ms _)  = do
+    let g :: (Int,[RolePath]) -> [RolePath]
+        g (i,ps) = map ((:) $ RoleMember i) ps
+    ms' <- ifLefts "" ms
+    Right $ concatMap g $ zip [1..] ms'

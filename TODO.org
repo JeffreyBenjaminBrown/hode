@@ -28,10 +28,6 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
-* cleaning
-** erase the temporary exports from Hash and *.cabal
-once done rewriting pathsToIts_pExpr
-(in the cabal file its the (Convert') line)
 * TODO top priorities
 ** things that ought already to work
 *** Paragraphs are buggy
