@@ -91,7 +91,9 @@ appDraw st0 = [w] where
   reassuranceWindow = withAttr (B.attrName "reassurance")
     $ strWrap $ st0 ^. reassurance
 
- -- TODO: Factor: This duplicates the code for resultWindow.
+  -- TODO: Factor: This duplicates the code for resultWindow.
+  -- Also I bet it could be a catamorphism.
+  -- (c.f. _hiding/guidance/top-down-catamorphism.hs)
   bufferWindow = viewport (BrickMainName Buffers) B.Vertical
                  $ fShow $ st ^. buffers where
     fShow :: Porest Buffer -> B.Widget BrickName

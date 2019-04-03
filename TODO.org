@@ -29,20 +29,16 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
+** TODO ? ditch paragraphs
 ** things that ought already to work
 *** Paragraphs are buggy
-**** Paragraphs don't work with quoted strings.
- e.g. the following paragraph does not parse
- /a /par "I" (am) a truck.
-**** searching not always working with paragraphs
- this shows up if I search for hosts under the Expr "is":
- /a /par under the sea (is) a good son
-
- but if I use quotes when defining such a paragraph:
- /a /par "how high the moon" (is) a song
- then I can't find the Expr "is":
- /f is
-**** searching for a paragraph
+**** duplicate paragraphs can be added
+**** Paragraphs with quoted strings usually don't parse beyond the quotation marks.
+***** e.g. the following paragraph does not parse
+/a /par "I" (am) a truck.
+/a /par I (am) "a bird" (and) stuff ...
+***** but weirdly, this almost parses correctly
+/a /par I (am) "a bird".
 *** not all Hash functions work
 *** pExprIsSpecific should address PDiff, PAnd, POr
 **** where it is used
@@ -59,7 +55,12 @@ see the comment leading its definition
 probably just return []
 ** folding
 ** incremental view updates
-Each time an Expr `e` is added, test each search for whether it would include *only* `e`. Do this by creating a temporary Rslt containing nothing but the terms involved in `e` and the search, and searching in that.
+*** goal
+Each time an Expr `a` is added, test each search for whether it would include *only* `a`.
+*** method
+Call each layer in each ViewTree a "spot". Each is associated with some kind of Hash expression `h`. Decompose `h` into its constituents, and save those at the spot.
+
+When an Expr `a` is added, break that into its constituents too. Then, for each spot, create a Rslt `r` consisting of (1) the constituents of `e` and (2) the constituents of the hash expression associated with that spot. Now search r for h, and add (in the map-insertion sense) anything found to the contents already at h.
 ** video
 Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
