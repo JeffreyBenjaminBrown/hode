@@ -102,9 +102,8 @@ _substitute new old r0 = do
   S.foldl f (Right r0) roles
 
 _replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
-_replaceInRefExpr r spot new host = do
-  let pel = prefixLeft "_replaceInRefExpr"
-  void $ pel $ addrToRefExpr r new
+_replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr" $ do
+  void $ addrToRefExpr r new
 
   case spot of
     RoleTplt -> case host of
@@ -120,29 +119,28 @@ _replaceInRefExpr r spot new host = do
       case host of
 
         Rel' (Rel as a) -> do
-          as' <- pel $ replaceNth new k as
+          as' <- replaceNth new k as
           Right $ Rel' $ Rel as' a
 
         Tplt' as -> do
-          as' <- pel $ replaceNth new k as
+          as' <- replaceNth new k as
           Right $ Tplt' as'
 
         _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
              ++ " has no members.\n"
 
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
-replaceInRole spot new host r = do
-  let pel = prefixLeft "replaceInRole"
-  _                          <- pel $ addrToRefExpr r new
-  oldHostRefExpr             <- pel $ addrToRefExpr r host
-  (hostHas :: Map Role Addr) <- pel $ has r host
+replaceInRole spot new host r = prefixLeft "replaceInRole" $ do
+  _                          <- addrToRefExpr r new
+  oldHostRefExpr             <- addrToRefExpr r host
+  (hostHas :: Map Role Addr) <- has r host
   (old :: Addr) <- let err = Left $ "replaceInRole: RefExpr at " ++ show host
                              ++ " includes no position " ++ show spot ++ "\n."
     in maybe err Right $ M.lookup spot hostHas
 
   (newHostRefExpr :: RefExpr) <-
-    pel $ _replaceInRefExpr r spot new oldHostRefExpr
-  (newIsAlreadyIn :: Set (Role,Addr)) <- pel $ isIn r new
+    _replaceInRefExpr r spot new oldHostRefExpr
+  (newIsAlreadyIn :: Set (Role,Addr)) <- isIn r new
 
   Right $ r {
       _addrToRefExpr = M.insert host newHostRefExpr

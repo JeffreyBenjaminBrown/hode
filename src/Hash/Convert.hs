@@ -22,11 +22,9 @@ import qualified Data.Map as M
 import Control.Arrow (second)
 import Data.Functor (void)
 
-import Hash.HLookup
 import Hash.HTypes
 import Hash.HUtil
 import Rslt.RTypes
-import Rslt.RUtil
 import Util.Misc
 
 

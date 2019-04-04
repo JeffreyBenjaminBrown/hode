@@ -34,21 +34,19 @@ refExprToExpr r (Rel' (Rel memAs tA)) = do
 -- | == Lookup from an `Expr`
 
 exprToAddr :: Rslt -> Expr -> Either String Addr
-exprToAddr x img =
-  let pel = prefixLeft "exprToAddr"
-  in case img of
-  Phrase w -> pel $ refExprToAddr x $ Phrase' w
+exprToAddr x img = prefixLeft "exprToAddr" $ case img of
+  Phrase w -> refExprToAddr x $ Phrase' w
 
-  Addr a -> pel (addrToRefExpr x a) >>= const (Right a)
+  Addr a -> addrToRefExpr x a >>= const (Right a)
 
   ExprTplt is -> do
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
-    pel $ refExprToAddr x $ Tplt' mas
+    refExprToAddr x $ Tplt' mas
 
   ExprRel (Rel is i) -> do
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
-    ma <- pel $ exprToAddr x i
-    pel $ refExprToAddr x (Rel' $ Rel mas ma)
+    ma <- exprToAddr x i
+    refExprToAddr x (Rel' $ Rel mas ma)
 
 
 -- | == Lookup from `Addr`s or `RefExpr`s. (These are convenience
