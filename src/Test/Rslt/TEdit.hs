@@ -73,6 +73,7 @@ test_replace = TestCase $ do
           , (3, Phrase' "needs")
           , (4, Tplt' [0,3,0])
           , (5, Rel' $ Rel [7,2] 4) -- all changes involve address 7
+          , (6, Rel' $ Rel [5,2] 4)
           , (7, Phrase' "foo")
           ] )
 
@@ -85,6 +86,7 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (4, Tplt' [7,3,7]) -- all changes involve address 7
          , (5, Rel' $ Rel [1,2] 4)
+         , (6, Rel' $ Rel [5,2] 4)
          ] )
 
   assertBool "replace rel" $
@@ -95,6 +97,7 @@ test_replace = TestCase $ do
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
          , (4, Tplt' [0,3,0])
+         , (6, Rel' $ Rel [7,2] 4)
          , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
          ] )
 
@@ -105,8 +108,10 @@ test_replace = TestCase $ do
          , (1, Phrase' "dog")
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
+         -- all changes involve address 7
          , (7, Tplt' [2,2,2])
-         , (5, Rel' $ Rel [1,2] 7) -- all changes involve address 7
+         , (5, Rel' $ Rel [1,2] 7)
+         , (6, Rel' $ Rel [5,2] 7)
          ] )
 
 test_replaceInRole :: Test
@@ -120,7 +125,7 @@ test_replaceInRole = TestCase $ do
   assertBool "identity" $ D.rslt == unchanged
   assertBool "1" $ isIn r 1 == Right ( S.fromList [ (RoleMember 1, 5)
                                                   , (RoleMember 2, 5) ] )
-  assertBool "2" $ isIn r 2 == Right S.empty
+  assertBool "2" $ isIn r 6 == Right S.empty
   assertBool "3" $ has r 5 == Right ( M.fromList [ (RoleMember 1, 1)
                                                  , (RoleMember 2, 1)
                                                  , (RoleTplt    , 4) ] )
@@ -166,6 +171,7 @@ test_insert = TestCase $ do
   assertBool "valid 1" $ isRight $ validRslt r2
 
   assertBool "1" $ isIn r2 4 == Right (S.fromList [ (RoleTplt    , 7     )
+                                                  , (RoleTplt    , 6     )
                                                   , (RoleTplt    , 5     ) ] )
   assertBool "2" $ isIn r2 1 == Right (S.fromList [ (RoleMember 1, 7     )
                                                   , (RoleMember 2, 7     )

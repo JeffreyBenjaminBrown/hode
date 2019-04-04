@@ -83,7 +83,8 @@ test_isIn = TestCase $ do
     == Right ( S.fromList [ (RoleMember 1, 4)
                           , (RoleMember 3, 4) ] )
   assertBool "2" $ isIn D.rslt 4
-    == Right ( S.fromList [ (RoleTplt, 5) ] )
+    == Right ( S.fromList [ (RoleTplt, 5)
+                          , (RoleTplt, 6) ] )
   assertBool "3" $ let r' = either (error "wut") id
                             $ R.insertAt 7 (Phrase' "pizza") D.rslt
                    in isIn r' 7 == Right S.empty
