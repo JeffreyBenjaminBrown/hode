@@ -115,12 +115,6 @@ pExprToHExpr r (POr xs)       = do
   return $ HOr l
 pExprToHExpr r (It (Just pnr))        = pExprToHExpr r pnr
 pExprToHExpr r (PRel pr)              = pRelToHExpr r pr
-pExprToHExpr r (PPar p@(Par pairs _)) = prefixLeft "pExprToHExpr" $ do
-  if and $ map (pExprIsUnique . snd) pairs then Right ()
-    else Left $ "Paragraph not specific enough."
-  (p'  :: Par HExpr) <- ifLefts_par "" $ fmap (pExprToHExpr r) p
-  (p'' :: Par Expr)  <- ifLefts_par "" $ fmap (hExprToExpr  r) p'
-  Right $ HExpr $ ExprPar p''
 
 -- These redundant checks (to keep GHCI from warning me) should come last.
 pExprToHExpr _ Any =
@@ -165,7 +159,6 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr" . para f where
   f AnyF             = Right []
   f (ItF Nothing)    = Right [[]]
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
-  f (PParF _)        = Left "case of Par not permitted."
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
 pathsToIts_sub_pRel :: PRel -> Either String [RolePath]

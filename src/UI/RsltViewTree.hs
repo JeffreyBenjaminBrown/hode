@@ -79,36 +79,26 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
   ras :: [(Role, Addr)] <- let
     msg = "computing ras from " ++ show a0
     in prefixLeft msg $ S.toList <$> isIn r a0
-  vs :: [ExprCtr] <- map fst <$>
-    ( ifLefts "computing varieties" $
-      map (variety r . snd) ras )
-  let ravs :: [((Role, Addr), ExprCtr)] = zip ras vs
-      (ras_par, ras_other) :: ([(Role,Addr)], [(Role,Addr)]) =
-        both %~ map fst $ L.partition ((==) ParCtr . snd) ravs
-  tplts_other <- let tpltOf :: Addr -> Either String Addr
-                     tpltOf a = prefixLeft msg $ fills r (RoleTplt, a)
-                       where msg = "computing tpltOf of " ++ show a
-                 in ifLefts "" $ map (tpltOf . snd) ras_other
+  tplts <- let tpltOf :: Addr -> Either String Addr
+               tpltOf a = prefixLeft msg $ fills r (RoleTplt, a)
+                 where msg = "computing tpltOf of " ++ show a
+           in ifLefts "" $ map (tpltOf . snd) ras
 
-  let groups_other :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
-      groups_other = foldr f M.empty $ zip ras_other tplts_other where
+  let groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
+      groups = foldr f M.empty $ zip ras tplts where
         f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
                                   -> Map (Role, Addr) [Addr]
         f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
           -- `f` is efficient: `a` is prepended, not appended.
-      package_other :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
-      package_other ((role,t),as) = (HostGroup_Role relHosts, as) where
+      package :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
+      package ((role,t),as) = (HostGroup_Role relHosts, as) where
         relHosts = RelHosts { _relHostsCenter = a0
                        , _relHostsRole = role
                        , _relHostsTplt = tplt t } where
           tplt :: Addr -> [Expr]
           tplt a = es where Right (ExprTplt es) = addrToExpr r a
 
-  let parHosts :: [Addr] = map snd ras_par
-      parHostGroups = if null parHosts then []
-        else [(HostGroup_Pars $ ParHosts a0, parHosts)]
-  Right $ parHostGroups ++
-    map package_other (M.toList groups_other)
+  Right $ map package $ M.toList groups
 
 groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do

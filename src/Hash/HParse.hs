@@ -83,7 +83,6 @@ pExpr = simplifyPExpr <$>
     , pVar
     , pAny
     , pIt
-    , pPar
     , lexeme ( foldr1 (<|>)
                $ map (try . string) ["/hash","/h"] )
       >> PRel <$> pRel
@@ -137,21 +136,6 @@ pAny = lexeme ( foldr1 (<|>)
 pIt :: Parser PExpr
 pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
       <|> (lexeme (string "/it")  >> return (It Nothing))
-
-pPar :: Parser PExpr
-pPar = do
-  let maybePhrase :: Parser String
-      maybePhrase = try hashPhrase <|> return ""
-      unit :: Parser (String,PExpr)
-      unit = try $ do p <- maybePhrase
-                      e <- pExpr
-                      return (p,e)
-
-  void $ lexeme $ ( foldr1 (<|>)
-                    $ map (try . string) ["/par","/p"] )
-  us <- many unit
-  ap <- maybePhrase
-  return $ PPar $ Par us ap
 
 
 -- | like `phrase`, but includes every character that's not special

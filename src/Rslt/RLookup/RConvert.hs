@@ -30,12 +30,6 @@ refExprToExpr r (Rel' (Rel memAs tA)) = do
                            $ refExprToExpr r tE
   Right $ ExprRel $ Rel memEs tEi
 
-refExprToExpr r (Par' (Par sas s)) = do
-  let ((ss, as) :: ([String],[Addr])) = unzip sas
-  (es  :: [RefExpr]) <- ifLefts "refExprToExpr" $ map (addrToRefExpr r) as
-  (eis :: [Expr])    <- ifLefts "refExprToExpr" $ map (refExprToExpr r) es
-  Right $ ExprPar $ Par (zip ss eis) s
-
 
 -- | == Lookup from an `Expr`
 
@@ -55,9 +49,6 @@ exprToAddr x img =
     mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
     ma <- pel $ exprToAddr x i
     pel $ refExprToAddr x (Rel' $ Rel mas ma)
-
-  ExprPar _ -> Left $ "exprToAddr: Pars are not in index, "
-    ++ "hence cannot be looked up (except by Addr).\n"
 
 
 -- | == Lookup from `Addr`s or `RefExpr`s. (These are convenience

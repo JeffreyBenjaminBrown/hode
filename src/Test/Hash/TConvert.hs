@@ -89,10 +89,6 @@ test_pExprToHExpr = TestCase $ do
                      ( RoleMember 2, HExpr $ Phrase "sassafras" ) ] )
                  [ [ RoleMember 1, RoleMember 2 ] ] )
 
-  assertBool "3" $ isRight $ pExprToHExpr r $
-    PPar ( Par [("I like ", PExpr $ Phrase "turtles")]
-           " because they swim and stuff." )
-
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

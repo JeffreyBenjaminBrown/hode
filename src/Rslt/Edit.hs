@@ -68,14 +68,6 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   r3 <- insertAt a (Rel' $ Rel mas ta) r2
   Right (r3,a)
 
-exprToAddrInsert_rootNotFound r0 (ExprPar (Par ps s)) = do
-  let (ss, is) = unzip ps
-  (r1,as) <- prefixLeft "exprToAddrInsert_rootNotFound"
-            $ exprToAddrInsert_list r0 is
-  a <- nextAddr r1
-  r2 <- insertAt a (Par' $ Par (zip ss as) s) r1
-  Right (r2,a)
-
 
 exprToAddrInsert_list :: Rslt -> [Expr] -> Either String (Rslt, [Addr])
 exprToAddrInsert_list r0 is = do
@@ -136,11 +128,6 @@ _replaceInRefExpr r spot new host = do
           as' <- pel $ replaceNth new k as
           Right $ Tplt' as'
 
-        Par' (Par sas s) -> do
-          let (ss,as) = unzip sas
-          as' <- pel $ replaceNth new k as
-          Right $ Par' $ Par (zip ss as') s
-
         _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
              ++ " has no members.\n"
 
@@ -159,11 +146,11 @@ replaceInRole spot new host r = do
   (newIsAlreadyIn :: Set (Role,Addr)) <- pel $ isIn r new
 
   Right $ r {
-      _addrToRefExpr = M.insert host newHostRefExpr $ _addrToRefExpr r
-    , _refExprToAddr = let f = case newHostRefExpr of
-                             Par' _ -> id
-                             _      -> M.insert newHostRefExpr host
-                in f $ M.delete oldHostRefExpr $ _refExprToAddr r
+      _addrToRefExpr = M.insert host newHostRefExpr
+                       $ _addrToRefExpr r
+    , _refExprToAddr = M.insert newHostRefExpr host
+                       $ M.delete oldHostRefExpr
+                       $ _refExprToAddr r
 
     , _has    = M.adjust (M.insert spot new) host $ _has r
 

@@ -10,6 +10,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
+import           Data.Tuple
 
 import Rslt.RTypes
 import Rslt.RUtil
@@ -39,10 +40,7 @@ mkRslt es = go es' where
 -- | == Given an expression, look up an address.
 
 imgDb :: Map Addr RefExpr -> Map RefExpr Addr
-imgDb = M.fromList . catMaybes . map f . M.toList where
-  f (addr, expr) = case expr of
-    Par' _ -> Nothing
-    _      -> Just (expr, addr)
+imgDb = M.fromList . catMaybes . map (Just . swap) . M.toList where
 
 
 -- | == Given an address, look up what it's connected to.
@@ -59,7 +57,6 @@ refExprPositions expr =
     Phrase' _          -> []
     Tplt' mas          ->                 map r (zip [1..]           mas)
     Rel'  (Rel mas ta) -> (RoleTplt,ta) : map r (zip [1..]           mas)
-    Par'  (Par sas _)  ->                 map r (zip [1..] $ map snd sas)
 
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map

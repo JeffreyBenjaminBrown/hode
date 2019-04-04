@@ -67,11 +67,3 @@ eShow r = para f where
 
   f x@(ExprRelF _) = Left $ "eShow: ExprRel with non-Tplt for Tplt: "
                      ++ show (embed $ fmap fst x)
-
-  f (ExprParF (Par triples s0)) = do
-    let (ss :: [String], ps)               = unzip triples
-        (_, ess :: [Either String String]) = unzip ps
-    (mis :: [String]) <- ifLefts "eShow Par" ess
-    let showPair :: (String, String) -> String
-        showPair (s,mi) = s ++ " (" ++ mi ++ ") "
-    Right $ concat (map showPair $ zip ss mis) ++ s0

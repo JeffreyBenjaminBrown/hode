@@ -48,16 +48,6 @@ test_exprToAddrInsert = TestCase $ do
                $ R.insertAt 7 (Phrase' "bar") D.rslt
              , 9 )
 
-  assertBool "4" $ R.exprToAddrInsert D.rslt
-    ( ExprPar $ Par [ ("The Tplt", ExprTplt $ map Addr [0,3,0])
-                    , ("could use a", Phrase "taxi") ] "" )
-    == Right ( fromRight (error "wut")
-               $ R.insertAt 8 (Par' ( Par [ ("The Tplt", 4)
-                                          , ("could use a", 7) ] "") )
-               $ fromRight (error "wut")
-               $ R.insertAt 7 (Phrase' "taxi") D.rslt
-             , 8 )
-
   assertBool "5" $ let
     Right (r,a) = R.exprToAddrInsert D.rslt
                   ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
@@ -83,8 +73,6 @@ test_replace = TestCase $ do
           , (3, Phrase' "needs")
           , (4, Tplt' [0,3,0])
           , (5, Rel' $ Rel [7,2] 4) -- all changes involve address 7
-          , (6, Par' ( Par [("The first relationship in this graph is ", 5)]
-                       ".") )
           , (7, Phrase' "foo")
           ] )
 
@@ -97,8 +85,6 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (4, Tplt' [7,3,7]) -- all changes involve address 7
          , (5, Rel' $ Rel [1,2] 4)
-         , (6, Par' ( Par [("The first relationship in this graph is ", 5)]
-                      ".") )
          ] )
 
   assertBool "replace rel" $
@@ -110,8 +96,6 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (4, Tplt' [0,3,0])
          , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
-         , (6, Par' ( Par [("The first relationship in this graph is ", 7)]
-                      ".") )
          ] )
 
   assertBool "todo : replace tplt" $
@@ -123,8 +107,6 @@ test_replace = TestCase $ do
          , (3, Phrase' "needs")
          , (7, Tplt' [2,2,2])
          , (5, Rel' $ Rel [1,2] 7) -- all changes involve address 7
-         , (6, Par' ( Par [("The first relationship in this graph is ", 5)]
-                      "." ) )
          ] )
 
 test_replaceInRole :: Test
@@ -151,6 +133,7 @@ test_replaceInRole = TestCase $ do
 
 test_deleteUnused :: Test
 test_deleteUnused = TestCase $ do
+  -- TODO : now that Expr 6 is deleted, this test does not do what it claims.
   -- from D.rslt, remove the Par called 6 (because it uses the Rel'5)
   -- and insert at 6 (Rel' $ Rel [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.

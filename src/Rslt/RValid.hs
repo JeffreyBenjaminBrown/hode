@@ -52,9 +52,6 @@ validExpr r = para f where
   f (ExprTpltF js)           = ifLefts err (map snd js)
                                >> return ()
     where err = "validExpr called on " ++ show (ExprTplt $ map fst js)
-  f (ExprParF (Par pairs _)) = ifLefts err (map (snd . snd) pairs)
-                               >> return ()
-    where err = "validExpr called on a Par."
 
 
 -- | == Check a `RefExpr`
@@ -86,7 +83,6 @@ refExprRefsExist r e = let
   in case e of
        Rel' (Rel aMembers aTplt) -> f $ aTplt : aMembers
        Tplt' as                  -> f as
-       Par' (Par sas _)          -> f $ map snd sas
        Phrase' _                 -> Right ()
 
 
@@ -115,7 +111,6 @@ collectionsWithAbsentAddrs r = res where
   involved (Phrase' _)        = error "impossible"
   involved (Tplt' as)         = as
   involved (Rel' (Rel as a))  = a : as
-  involved (Par' (Par sas _)) = map snd sas
 
   collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where

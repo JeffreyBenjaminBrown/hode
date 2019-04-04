@@ -27,8 +27,6 @@ type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
 data Rel a = Rel [a] a
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
 type Tplt a = [a]
-data Par a = Par [(String, a)] String
-  deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
 
 data Expr =
     Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
@@ -40,12 +38,6 @@ data Expr =
     -- `Rel`s are like lists in that the weird bit (`Nil|Tplt`) comes last.
   | ExprTplt (Tplt Expr) -- ^ Template for a `Rel`, ala "_ gives _ money".
                         -- The `Addr`s should probably be `Phrase`s.
-  | ExprPar (Par Expr) -- ^ "Paragraph".
-    -- The `String`s in a `Par` are like a single-use `Tplt`.
-    -- A `Par` has Members, but (unlike a `Rel`) no `Tplt`.
-    -- `Par`s are like `Tplt`s, in that |Members| + 1 = |`String`s|.
-    -- `Par`s are like lists, in that the weird bit comes last.
-    -- `Par` is the only kind of `RefExpr` not in the `Index`.
   deriving (Eq, Ord, Read, Show)
 makeBaseFunctor ''Expr
 
@@ -68,9 +60,8 @@ data RefExpr =
     Phrase' String
   | Rel' (Rel Addr)
   | Tplt' (Tplt Addr)
-  | Par' (Par Addr)
   deriving (Eq, Ord, Read, Show)
 
 -- | The constructor that a `RefExpr` uses.
-data ExprCtr = PhraseCtr | RelCtr | TpltCtr | ParCtr
+data ExprCtr = PhraseCtr | RelCtr | TpltCtr
   deriving (Eq, Ord, Read, Show)
