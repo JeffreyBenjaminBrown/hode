@@ -30,25 +30,6 @@ when it ought to be this:
 see the comment leading its definition
 * TODO top priorities
 ** things that ought already to work
-*** not all Hash functions work
-**** data
-/a /h x # y
-/a /h x # z
-/a /h y # z
-/a /h x # z ## a
-/a /h x # z ## z
-**** work
-/f /h x # /_
-/f /h x # /it
-**** don't work
-***** so far, any /eval with an /it under it
-***** /f /eval x # /it
-and variations
-/f /eval /h (x # /it)
-/f /eval (/h (x # /it))
-/f (/eval (/h (x # /it)))
-***** eval && eval
-/f /h (/eval /h x # /it) && (/eval /h /it # z)
 *** pExprIsSpecific should address PDiff, PAnd, POr
 **** where it is used
   In pRelToHExpr, only specific things can be converted.
@@ -60,8 +41,6 @@ and variations
     Theoretically, the part being subtracted could be vague.
     But that's not how it's implemented -- both parts have to be found,
     then the one is subtracted from the other.
-*** pathsToIts_pExpr called on PAnd, POr, PDiff
-probably just return []
 ** folding
 ** incremental view updates
 *** goal
