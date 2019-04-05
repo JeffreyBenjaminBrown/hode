@@ -8,6 +8,7 @@ import Hash.Convert
 import Hash.HLookup
 import Hash.HParse
 import Hash.HTypes
+import Hash.HUtil
 import Rslt.RTypes
 import UI.ITypes
 import Util.Misc
@@ -40,13 +41,12 @@ pCommand_insert r s = CommandInsert <$>
 pCommand_find :: Rslt -> String -> Either String Command
 -- PITFALL: Don't add an implicit Eval at the top of every search parsed in
 -- the UI, because an Eval will return nothing if there are no Its below.
-pCommand_find r s = do
-  (e1 :: PExpr) <- prefixLeft "pCommand_find"
-    $ mapLeft show (parse pExpr "doh!" s)
+pCommand_find r s = prefixLeft "pCommand_find" $ do
+  (e1 :: PExpr) <- mapLeft show (parse pExpr "doh!" s)
   e2 <- case pathsToIts_pExpr e1 of
           Left msg -> Left msg
           Right [] -> Right $ e1
-          Right _  -> Right $ PEval e1
+          Right _  -> Right $ simplifyPExpr $ PEval e1
   CommandFind s <$> pExprToHExpr r e2
 
 pCommand_load :: String -> Either String Command
