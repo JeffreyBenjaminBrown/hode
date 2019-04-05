@@ -1,9 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.Window (
-    hideReassurance            -- ^           St -> St
-  , showError, showReassurance -- ^ String -> St -> St
-  , emptyCommandWindow         -- ^           St -> St
+    hideReassurance                         -- ^ St -> St
+  , showError, showReassurance    -- ^ String -> St -> St
+  , emptyCommandWindow                      -- ^ St -> St
+  , replaceCommand                          -- ^ St -> St
   ) where
 
 import qualified Data.Map                 as M
@@ -31,3 +32,14 @@ showReassurance msg =
 emptyCommandWindow :: St -> St
 emptyCommandWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
+
+-- | Replace the command shown in the `Command` window with
+-- the last successful search run from this buffer.
+replaceCommand :: St -> St
+replaceCommand st = maybe st f query where
+  query :: Maybe String
+  query = st ^? stGetFocusedBuffer . _Just . bufferQuery
+
+  f :: String -> St
+  f s = st & commands . B.editContentsL
+        .~ TxZ.textZipper ["/f " ++ s] Nothing

@@ -42,8 +42,6 @@ see the comment leading its definition
    then the one is subtracted from the other.
 
 * TODO top priorities
-** a successful search should hide the error message
-** shortcut to replace command with what was last successfully run in this buffer
 ** folding
 ** incremental view updates
 *** goal

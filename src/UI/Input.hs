@@ -20,6 +20,7 @@ import           Control.Monad.IO.Class (liftIO)
 import qualified Data.List.PointedList as P
 import           Data.Set (Set)
 import qualified Data.Set              as S
+import qualified Data.Text             as T
 import           Lens.Micro
 import           System.Directory
 
@@ -91,6 +92,8 @@ handleKeyboard_atResultsWindow st ev = case ev of
     $ unEitherSt st
     $ st & cons_focusedViewResult_asChildOfBuffer
 
+  B.EvKey (B.KChar 'r') [B.MMeta] -> B.continue
+    $ replaceCommand st
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
@@ -154,10 +157,13 @@ runParsedCommand (CommandFind s h) st = do
               (err :: String -> ViewResult) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
           in VResult $ either err id rv
 
-  Right $ B.continue $ st & showingInMainWindow .~ Results
-                          & showingErrorWindow .~ False
-                          & stSetFocusedBuffer . bufferQuery .~ s
-                          & stSetFocusedBuffer . bufferRsltViewTree .~ v
+  Right $ B.continue $ st
+    & showingInMainWindow .~ Results
+    & showingErrorWindow .~ False
+    & (let strip :: String -> String
+           strip = T.unpack . T.strip . T.pack
+       in stSetFocusedBuffer . bufferQuery .~ strip s)
+    & stSetFocusedBuffer . bufferRsltViewTree .~ v
 
 runParsedCommand (CommandInsert e) st =
   either Left (Right . f)
