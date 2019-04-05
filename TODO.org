@@ -28,19 +28,22 @@ when it ought to be this:
                                                  , M.singleton a 2 ] ) ] ) ]
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
+* might come back to haunt me
+** pExprIsSpecific should address PDiff, PAnd, POr
+*** where it is used
+ In pRelToHExpr, only specific things can be converted.
+ In pMapToHMap, only specific things are retained.
+*** how to do it, I think
+ if anything in a POr is not specific, then it is not
+ if anything in a PAnd is specific, then it is
+ if both parts of a Diff are specific, then it is
+   Theoretically, the part being subtracted could be vague.
+   But that's not how it's implemented -- both parts have to be found,
+   then the one is subtracted from the other.
+
 * TODO top priorities
-** things that ought already to work
-*** pExprIsSpecific should address PDiff, PAnd, POr
-**** where it is used
-  In pRelToHExpr, only specific things can be converted.
-  In pMapToHMap, only specific things are retained.
-**** how to do it, I think
-  if anything in a POr is not specific, then it is not
-  if anything in a PAnd is specific, then it is
-  if both parts of a Diff are specific, then it is
-    Theoretically, the part being subtracted could be vague.
-    But that's not how it's implemented -- both parts have to be found,
-    then the one is subtracted from the other.
+** a successful search should hide the error message
+** shortcut to replace command with what was last successfully run in this buffer
 ** folding
 ** incremental view updates
 *** goal

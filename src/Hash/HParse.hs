@@ -6,6 +6,7 @@
 module Hash.HParse where
 
 import           Control.Monad (void)
+import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.List (intersperse)
 import           Text.Megaparsec hiding (label)
@@ -38,7 +39,10 @@ pTerm = close <$> parens _pRel
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
-  label <- option "" $ hashIdentifier <|> parens hashPhrase
+  label <- option ""
+    $ hashIdentifier
+    <|> parens ( concat . L.intersperse " "
+                 <$> some (lexeme hashPhrase) )
   return $ hash n label
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -189,4 +193,4 @@ hashIdentifier :: Parser String
 hashIdentifier = lexeme $ some $ foldr1 (<|>)
   ( alphaNumChar : map char
     [ '!','@','%','^','*','+','=','-','`','~','_','[',']'
-    ,'{','}',':',';','"','<','>','?',',','.' ] )
+    ,'{','}',':',';','<','>','?',',','.' ] )
