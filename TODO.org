@@ -40,16 +40,20 @@ see the comment leading its definition
    Theoretically, the part being subtracted could be vague.
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
-
 * TODO top priorities
 ** folding
+** manual update
 ** incremental view updates
 *** goal
 Each time an Expr `a` is added, test each search for whether it would include *only* `a`.
 *** method
-Call each layer in each ViewTree a "spot". Each is associated with some kind of Hash expression `h`. Decompose `h` into its constituents, and save those at the spot.
+Call each layer in each ViewTree a "spot".
+Each is associated with some kind of Hash expression `h`.
+Decompose `h` into its constituents, and save those at the spot.
 
-When an Expr `a` is added, break that into its constituents too. Then, for each spot, create a Rslt `r` consisting of (1) the constituents of `e` and (2) the constituents of the hash expression associated with that spot. Now search r for h, and add (in the map-insertion sense) anything found to the contents already at h.
+When an Expr `a` is added, break that into its constituents too.
+Then, for each spot, create a Rslt `r` consisting of (1) the constituents of `e` and (2) the constituents of the hash expression associated with that spot.
+Now search r for h, and add (in the map-insertion sense) anything found to the contents already at h.
 ** video
 Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
@@ -69,7 +73,8 @@ Add a toggleable window above the Results window.
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
 ** safer open and save
-To write, first run `git status`. If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
+To write, first run `git status`.
+If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
 
 If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
@@ -83,7 +88,8 @@ It should be that each ViewResult can only have a Host or Members as a child, an
 * TODO views, rad
 ** marking things in a tree
 *** buffer nicknames
-Let the user add a nickname to a buffer, and then switch to that buffer via the nickname. Begin with some auto-generated nicknames (numbers? letters?).
+Let the user add a nickname to a buffer, and then switch to that buffer via the nickname.
+Begin with some auto-generated nicknames (numbers? letters?).
 *** batch add
 Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
@@ -93,7 +99,8 @@ Introduce an /each keyword for expression-insertion purposes.
 show flag if condition holds
 * crawling across Exprs
 ** Move faster by crossing over some views
-When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it; cross from its children to its parent, or vice-versa.
+When pressing left or right, if there is a view collection like "ViewCenterRole" with no siblings, do not stop on it.
+Instead cross from its children to its parent, or vice-versa.
 ** "its members*" (with a star)
 all members, submembers, etc -- probably nested
 ** maybe "its rels*" (with a star)
@@ -109,7 +116,9 @@ left|right in same level
 _ #? _ means it could be any kind of binary relationship template.
 _ #? _ #? _ could be any ternary, etc.
 ** TODO ? eventually, may need to test PRels for specificity too
-The assumption is that a `PRel` always refers to something reasonably specific, because at the very least the template is determined. But with more language features it might not be. (And actually restricting to a certain member will in many cases yield fewer matches than restricting to a certain template.)
+The assumption is that a `PRel` always refers to something reasonably specific, because at the very least the template is determined.
+But with more language features it might not be.
+(And actually restricting to a certain member will in many cases yield fewer matches than restricting to a certain template.)
 
  Currently there exists `pExprIsSpecific`, but no `pRelIsSpecific`.
    (`pExprToHExpr` calls `pExprIsSpecific` to find whether conversion is possible.)
@@ -123,13 +132,14 @@ pRelToPExpr (Closed ms js) =
 * TODO Qseq, the search metalanguage
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
-Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc. This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
+Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc.
+This allows the set-valued function of v to be referred to by subsequent Queries, without having to recompute the set.
 ** TODO ? searches that take both Subst and Possible arguments
 ** TODO ? solve: mkVTestIO': naming errors cause silent failure
 *** See the comment leading its definition for detail.
 *** TODO why it's tricky
- It would require introducing a type for checking input-output relationships.
- Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
+It would require introducing a type for checking input-output relationships.
+Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * re. Rslt
 ** TODO : recursive "is", using "is a kind of"
 If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
@@ -140,7 +150,8 @@ a map from Addr to Set Role
    because the item in question could (although this will be rare) hold
    multiple Roles within the same Expr
 ** ? To avoid redundant tree-climbing
-Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive. It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
+Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive.
+It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
@@ -148,7 +159,8 @@ The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
 ** for jumping around the view
-Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr. (If it's in the buffer multiple times, cycle between them.)
+Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr.
+(If it's in the buffer multiple times, cycle between them.)
 ** if moving focus ever gets slow
 replace those vectors of subviews with zippers
 ** redundant cases should be last among definitions
@@ -158,17 +170,22 @@ example: In this:
       $ "pExprToHExpr: " ++ show px ++ " is not specific enough."
     pExprToHExpr Any =
       Left $ "pExprToHExpr: Any is not specific enough."
-I only wrote the Any case to make GHCI not issue a warning. It should come last.
+I only wrote the Any case to make GHCI not issue a warning.
+It should come last.
 ** use lists in some places for fusion, short-circuiting, instead of maps, sets
 Example: mapping over a map, and then looking for lefts, is slower than turning the map into a list, mapping over the list, and short-circuiting at the first Left.
 hExprToAddrs (the Hash language find routine) called on the HMap constructor, for instance, does this.
 ** speed when asking for multiple variables that determined a given one
- For varPossibilities, just use the unconditional found values.
- For the input-output criteria, just use VarTest.
+For varPossibilities, just use the unconditional found values.
+For the input-output criteria, just use VarTest.
 *** once that's complete, ditch some unused functions in Subst.hs
 *** for more speed, while still pretty simple
 (*much* simpler than the input-output-matching varPossibilities strategy I was working on)
-Track inputs and outputs. Then, to cut down on the number of varPossibilities tried, allow the user to ask for one flavor (variable name) of input or output to one found Query result. Any additional input-output-matching criteria are imposed via VarTest.
+
+Track inputs and outputs.
+Then, to cut down on the number of varPossibilities tried, allow the user to ask for one flavor (variable name) of input or output to one found Query result.
+Any additional input-output-matching criteria are imposed via VarTest.
+
 How inputs are tracked (already true):
   Look up a result Var in the Possible.
   In the resulting CondElts, look up a value for the same Var.
@@ -194,7 +211,8 @@ _ is a member of _" is a "synthetic" template. There might be others.
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
 ** buffer ring
-From the Buffer Tree view, allow the user to mark buffers with unique integer indexes. To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
+From the Buffer Tree view, allow the user to mark buffers with unique integer indexes.
+To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:
@@ -204,12 +222,16 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
 ** more safety with PTree focus
 *** a function to check the validity of its focii fields
 *** focusPorestOnFocusedPTree
- A Porest is a list of PTrees. Exactly one of those PTrees should have focus. This function would move the focus of the Porest to align with the first PTree that has focus.
+A Porest is a list of PTrees.
+Exactly one of those PTrees should have focus.
+This function would move the focus of the Porest to align with the first PTree that has focus.
 * DONE explaining some design decisions
 ** why the focus within the Results window is coded by hand
 (where "by hand" = instead of using Brick's built-in focus concept).
 *** in brief
-Brick's "focus" selects among named Widgets. Few things can be named: lists, editors, viewports and `cached`s. In particular, a strWrap cannot be.
+Brick's "focus" selects among named Widgets.
+Few things can be named: lists, editors, viewports and `cached`s.
+In particular, a strWrap cannot be.
 
 I could wrap the strWrap in a List, but that feels awkward.
 *** things that can be named
@@ -276,10 +298,13 @@ viewport -- would be infinite-sized, because nested
  Z <- for some W, Z knows W
 *** The first (problematic) query should be valid
 *** But in that case certian result requests are meaningless
- The user cannot ask for X(Z) or Y(Z).
+The user cannot ask for X(Z) or Y(Z).
 *** Only common dependencies survive disjunction
- When taking the disjunction of two queries, retain any variable dependencies that are defined for every member of the disjunction. So, for instance, if one query is dependent on nothing, then no variable dependencies will be recorded.
+When taking the disjunction of two queries, retain any variable dependencies that are defined for every member of the disjunction.
+So, for instance, if one query is dependent on nothing, then no variable dependencies will be recorded.
 *** A simple solution
- In the course of binding variable X, only those bindings the binding depends on will be recorded. This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y. When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
+In the course of binding variable X, only those bindings the binding depends on will be recorded.
+This means, for instance, that there might be one value of X dependent on a binding for Y and not on Z, and another binding of X dependent on Z but not on Y.
+When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 ** temporary user burdens: query order, dependency validity
- Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
+Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
