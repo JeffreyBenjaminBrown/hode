@@ -4,16 +4,16 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module UI.Input (
-    handleUncaughtInput                  -- ^ St -> B.Event ->
-                                         -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atResultsWindow      -- ^ St -> B.Event ->
-                                         -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow -- ^ St -> B.Event ->
-                                         -- B.EventM BrickName (B.Next St)
-  , parseAndRunCommand            -- ^ St ->
-                                         -- B.EventM BrickName (B.Next St)
-  , runParsedCommand -- ^ Command -> St ->
-                            -- Either String (B.EventM BrickName (B.Next St))
+    handleUncaughtInput            -- ^ St -> B.Event ->
+                                   -- B.EventM BrickName (B.Next St)
+  , handleKeyboard_atResultsWindow -- ^ St -> B.Event ->
+                                   -- B.EventM BrickName (B.Next St)
+  , handleKeyboard_atBufferWindow  -- ^ St -> B.Event ->
+                                   -- B.EventM BrickName (B.Next St)
+  , parseAndRunCommand             -- ^ St ->
+                                   -- B.EventM BrickName (B.Next St)
+  , runParsedCommand    -- ^ Command -> St ->
+                    -- Either String (B.EventM BrickName (B.Next St))
   ) where
 
 import           Control.Monad.IO.Class (liftIO)
@@ -155,6 +155,7 @@ runParsedCommand (CommandFind s h) st = do
           in VResult $ either err id rv
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
+                          & showingErrorWindow .~ False
                           & stSetFocusedBuffer . bufferQuery .~ s
                           & stSetFocusedBuffer . bufferRsltViewTree .~ v
 
@@ -164,6 +165,7 @@ runParsedCommand (CommandInsert e) st =
   where
     f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
     f (r,a) = B.continue $ st & appRslt .~ r
+              & showingErrorWindow .~ False
               & showReassurance ("Expr added at Addr " ++ show a)
               & showingInMainWindow .~ Results
 
@@ -175,6 +177,7 @@ runParsedCommand (CommandLoad f) st = Right $ do
             B.continue $ st & appRslt .~ r
                             & showReassurance "Rslt loaded."
                             & showingInMainWindow .~ Results
+                            & showingErrorWindow .~ False
 
 runParsedCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
@@ -182,5 +185,6 @@ runParsedCommand (CommandSave f) st = Right $ do
     then return $ st & showError ("Non-existent folder: " ++ f)
     else do liftIO $ writeRslt f $ st ^. appRslt
             return $ st & showingInMainWindow .~ Results
-                   & showReassurance "Rslt saved."
+                        & showingErrorWindow .~ False
+                        & showReassurance "Rslt saved."
   B.continue st'
