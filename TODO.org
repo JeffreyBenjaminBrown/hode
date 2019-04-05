@@ -29,16 +29,7 @@ when it ought to be this:
 ** PITFALL : mkVTestIO' : naming error => silent failure
 see the comment leading its definition
 * TODO top priorities
-** TODO ? ditch paragraphs
 ** things that ought already to work
-*** Paragraphs are buggy
-**** duplicate paragraphs can be added
-**** Paragraphs with quoted strings usually don't parse beyond the quotation marks.
-***** e.g. the following paragraph does not parse
-/a /par "I" (am) a truck.
-/a /par I (am) "a bird" (and) stuff ...
-***** but weirdly, this almost parses correctly
-/a /par I (am) "a bird".
 *** not all Hash functions work
 *** pExprIsSpecific should address PDiff, PAnd, POr
 **** where it is used

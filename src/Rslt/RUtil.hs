@@ -4,7 +4,7 @@ module Rslt.RUtil where
 
 import           Control.Lens
 import           Data.Functor.Foldable
-import           Data.Either
+import           Data.Either hiding (lefts)
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 
