@@ -9,7 +9,6 @@ Instead of writing /hash, you can write /h, etc. So far these are all the keywor
 /eval -> /e
 /find -> /f
 /hash -> /h
-/par  -> /p
 /tplt -> /t
 /var  -> /v
 ```

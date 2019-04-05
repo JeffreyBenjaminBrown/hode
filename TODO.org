@@ -40,6 +40,15 @@ see the comment leading its definition
    Theoretically, the part being subtracted could be vague.
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
+* TODO elimiante the /hash keyword
+Anytime I /add or /find, what follows will be a hash expression.
+** related: bug: /it not working
+ /a /h x # b
+ /f (/eval /it # b)       -- fails
+ /f /h (/eval /it # a)    -- fails
+ /f /h (/eval /h /it # b) -- succeeds
+ /f (/eval /h /it # b)    -- succeeds
+** and then: delete /hash from the documentation
 * TODO top priorities
 ** folding
 ** manual update

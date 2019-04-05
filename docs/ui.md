@@ -1,13 +1,16 @@
 # The UI
 
-The UI lets you load, save, add to, and search for data. It also offers a few keyboard shortcuts for moving text around, which you'll want to do because the text editor in the UI is minimal.
+The UI lets you load, save, add to, and search for data.
+It also offers a few keyboard shortcuts for moving text around,
+which you'll want to do because the text editor in the UI is minimal.
 
-Switch focus between the two windows using the Tab key. The top one is for displayuing results, and the bottom one is for entering commands.
+The big black top window usually displays a search results buffer. It can also sometimes show errors, or the set of available search result buffers.
 
 
 ## Starting it
 
-The easiest way to start the UI is with an empty `Rslt`, by calling `ui` from inside GHCI.
+The easiest way to start the UI is with an empty `Rslt`,
+by calling `ui` from inside GHCI.
 
 
 ## Copy focused window's entire contents to clipboard: Alt-w
@@ -15,21 +18,19 @@ The easiest way to start the UI is with an empty `Rslt`, by calling `ui` from in
 (At least, Alt is the modifier key to use on my system. YMMV.)
 
 
-## Delete all text in the command window: Alt-k
+## Delete all text in the Command window: Alt-k
 
 
 ## Execute a command: Alt-x
 
 First type the command in the control window, then type Alt-x.
 
-Errors are displayed. Success is silent, except for successful `/find` commands, which display something in the results window.
-
 These are the commands you can execute:
 
 
 ### Load a Rslt from disk
 
-Type something like `/load folder/subfolder/subfolder`. Point it at a folder, not a file: The Rslt is saved as a lot of tiny `.rslt` files, so it'll need a whole directory to put them in. Write the in absolute terms or relative to wherever you started GHCI from.
+Type something like `/load folder/subfolder/subfolder`. Point it at a folder, not a file: The Rslt is saved as a lot of tiny (human-readable) `.rslt` files, so it'll need a whole directory to put them in. Write the path in absolute terms, or relative to wherever you started GHCI from.
 
 
 ## Save a Rslt to disk
@@ -56,12 +57,12 @@ See the documentation on Hash for details. Here's an incomplete refresher:
 
 `/find bob`
 
-`/find /addr 1`
+`/find /hash /addr 1`
 
-`/find bob #likes pizza with pineapple ##because _`
+`/find /hash bob #likes (pizza #with pineapple) ##because _`
 
-`/find bob #likes pizza with pineapple ##because /it`
+`/find /hash (/eval /hash bob #likes pizza ##with pineapple ###because /it)`
   -- Returns only the reason, not the full "because" relationship.
 
-`/find bob #likes _ || bob #dislikes _`
+`/find /hash bob #likes _ || bob #dislikes _`
   -- Every #likes and every #dislikes statement with bob on the left.
