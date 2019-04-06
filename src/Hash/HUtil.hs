@@ -57,9 +57,10 @@ pExprIsUnique :: PExpr -> Bool
 pExprIsUnique = \case PExpr _ -> True
                       _       -> False
 
--- | To simplify a `PRel` or `PExpr` is to flatten sections of the form
--- `PNonRel (PRel x)` into `x`, and similarly sections of the form
--- `PRel (PNonRel x)`.
+-- | To simplify a `PRel` or `PExpr` is to
+-- (1) flatten sections of the form `PNonRel (PRel x)` into `x`
+-- (2) flatten sections of the form `PRel (PNonRel x)` into `x`
+-- (3) unwrap any "Rel" with one member and no joints.
 
 simplifyPRel :: PRel -> PRel
 simplifyPRel = cata f where
@@ -67,8 +68,8 @@ simplifyPRel = cata f where
   -- If I unified PRel and PExpr as an indexed type family,
   -- this clause could be eliminated. c.f. https://www.reddit.com/r/haskell/comments/3sm1j1/how_to_mix_the_base_functorrecursion_scheme_stuff/
   f :: Base PRel PRel -> PRel
-  f (PNonRelF (PRel x)) =           simplifyPRel  x
-  f (PNonRelF x)        = PNonRel $ simplifyPExpr x
+  f (PNonRelF (PRel x))      =           simplifyPRel  x
+  f (PNonRelF x)             = PNonRel $ simplifyPExpr x
   f (OpenF _ [PNonRel x] []) = PNonRel x
   f (ClosedF [PNonRel x] []) = PNonRel x
   f x                        = embed x

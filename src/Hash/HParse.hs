@@ -33,8 +33,8 @@ _pRel = eMakeExprParser pTerm
 
 pTerm :: Parser PRel
 pTerm = close <$> parens _pRel
-        <|> PNonRel <$> pExpr
-        <|> pAbsentMember
+              <|> PNonRel <$> pExpr
+              <|> pAbsentMember
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
@@ -77,7 +77,7 @@ pExpr = simplifyPExpr <$> ( foldl1 (<|>) ps ) where
 
        -- the PExpr constructor
        , PExpr <$> pAddr
-       , pPhrase -- not really necessary -- could use /hash instead
+       , pPhrase
        , PExpr <$> pTplt
 
          -- other constructors
