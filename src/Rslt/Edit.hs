@@ -86,19 +86,24 @@ exprToAddrInsert_list r0 is = do
 -- | = Pure editing
 
 replaceExpr :: Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
-replaceExpr e0 a0 r0 = prefixLeft "replaceExpr" $ do
-  (r1, a1) <- exprToAddrInsert r0 e0
-  rx1 <- addrToRefExpr r1 a1
-  r2 <- replace rx1 a0 r1
+replaceExpr e a r = prefixLeft "replaceExpr" $ do
+  (r1 :: Rslt, a1 :: Addr) <- exprToAddrInsert r e
+  rx1 :: RefExpr           <- addrToRefExpr r1 a1
+  r2 :: Rslt               <- replace rx1 a r1
   Right (r2,a1)
 
 replace :: RefExpr -> Addr -> Rslt -> Either String Rslt
-replace e oldAddr r0 = prefixLeft "replace" $ do
-  newAddr <- nextAddr r0
-  _       <- validRefExpr r0 e
-  r1      <- insertAt newAddr e r0
-  r2      <- _substitute newAddr oldAddr r1
-  deleteIfUnused oldAddr r2
+replace re oldAddr r0 = prefixLeft "replace" $
+  case refExprToAddr r0 re of
+    Right newAddr -> do
+      r2 <- _substitute newAddr oldAddr r0
+      deleteIfUnused oldAddr r2
+    Left _ -> do
+      newAddr <- nextAddr r0
+      _       <- validRefExpr r0 re
+      r1      <- insertAt newAddr re r0
+      r2      <- _substitute newAddr oldAddr r1
+      deleteIfUnused oldAddr r2
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r0 = do

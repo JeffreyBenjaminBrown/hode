@@ -88,20 +88,16 @@ followed by what should be there.
 
 For instance, `/replace 3 x # y` would replace
 whatever used to be at address 3 with the expression `x # y`.
-Note, however, that it will no longer be at the same address.
 
-This operation destroys the old expression entirely.
+### Caveats
+Note that the replacement expression will not
+have the same address as the replaced expression.
+
+Note also that replacement destroys the old expression.
 Any superexpression it used to appear in
 now contains the new expression instead.
-This does *not*, however,
+Replacement does *not*, however,
 destroy the old expression's sub-expressions.
-
-PITFALL: replacement currently has a bug
-that creates some duplicate information.
-If you see such duplicates and want to get rid of them,
-you can save your Rslt to a folder,
-delete the offending files,
-and then reload it.
 
 
 ## Add an expression

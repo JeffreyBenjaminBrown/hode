@@ -41,7 +41,15 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
+** TODO insertion list
+*** data St = ...
++  , _insertionHistory :: [Addr]
+*** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existed
 ** count hosts at left
+** show a range of addresses
+** a way to kill buffers
 ** folding
 ** manual update
 ** incremental view updates
@@ -67,12 +75,6 @@ and mention that you can use parens liberally to make it more obvious
 ** show path to here
 (Not a big deal because the cursor path is remembered.)
 Add a toggleable window above the Results window.
-** insertion list
-*** data St = ...
-+  , _insertionHistory :: [Addr]
-*** complications
-(1) inserting a compound expression inserts subexpressions
-(2) don't record insertion if it already existed
 ** safer open and save
 To write, first run `git status`.
 If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
@@ -158,8 +160,6 @@ Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
-* TODO : bug: replaceExpr
-It creates duplicate data.
 * ? safety, speed
 ** for jumping around the view
 Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr.
