@@ -214,6 +214,8 @@ _ is a member of _" is a "synthetic" template. There might be others.
 ** buffer ring
 From the Buffer Tree view, allow the user to mark buffers with unique integer indexes.
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
+* TODO collect use cases
+** view notes from a text ordered by source text or topic
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:
