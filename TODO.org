@@ -50,6 +50,7 @@ Anytime I /add or /find, what follows will be a hash expression.
  /f (/eval /h /it # b)    -- succeeds
 ** and then: delete /hash from the documentation
 * TODO top priorities
+** count hosts at left
 ** folding
 ** manual update
 ** incremental view updates

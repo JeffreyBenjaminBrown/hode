@@ -72,26 +72,24 @@ pAbsentMember = const Absent <$> f
 -- | = parse a PExpr
 
 pExpr :: Parser PExpr
-pExpr = simplifyPExpr <$>
-  ( foldl1 (<|>)
-    [ parens pExpr
+pExpr = simplifyPExpr <$> ( foldl1 (<|>) ps ) where
+  ps = [ parens pExpr
 
-  -- the PExpr constructor
-    , PExpr <$> pAddr
-    , pPhrase -- not really necessary -- could use /hash instead
-    , PExpr <$> pTplt
+       -- the PExpr constructor
+       , PExpr <$> pAddr
+       , pPhrase -- not really necessary -- could use /hash instead
+       , PExpr <$> pTplt
 
-  -- other constructors
-    , pMap
-    , pEval
-    , pVar
-    , pAny
-    , pIt
-    , pPar
-    , lexeme ( foldr1 (<|>)
-               $ map (try . string) ["/hash","/h"] )
-      >> PRel <$> pRel
-  ] )
+         -- other constructors
+       , pMap
+       , pEval
+       , pVar
+       , pAny
+       , pIt
+       , lexeme ( foldr1 (<|>)
+                  $ map (try . string) ["/hash","/h"] )
+         >> PRel <$> pRel
+       ]
 
 pAddr :: Parser Expr
 pAddr = lexeme  ( foldr1 (<|>)
@@ -141,21 +139,6 @@ pAny = lexeme ( foldr1 (<|>)
 pIt :: Parser PExpr
 pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
       <|> (lexeme (string "/it")  >> return (It Nothing))
-
-pPar :: Parser PExpr
-pPar = do
-  let maybePhrase :: Parser String
-      maybePhrase = try hashPhrase <|> return ""
-      unit :: Parser (String,PExpr)
-      unit = try $ do p <- maybePhrase
-                      e <- pExpr
-                      return (p,e)
-
-  void $ lexeme $ ( foldr1 (<|>)
-                    $ map (try . string) ["/par","/p"] )
-  us <- many unit
-  ap <- maybePhrase
-  return $ PPar $ Par us ap
 
 
 -- | like `phrase`, but includes every character that's not special
