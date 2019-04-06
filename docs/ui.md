@@ -40,15 +40,16 @@ The buffer buffer is described below.
 When an error happens,
 the main window will automatically switch to the `error buffer`.
 You can also manually switch to the error buffer with `M-S-e`.
-(There are lots of ways to escape the error window --
-for instance, by switching to the results window,
+(There are lots of ways to escape the error buffer --
+for instance, by switching to the results buffer,
 as described above.)
 
 
 # Language commands vs. keyboard commands
 
-The human brain supposedly divides into a language half and a gemoetric half.
-That's actually nonsense, but it's true of commands in this application.
+The human brain has been supposed to divide neatly into a language half and a gemoetric half.
+That's actually nonsense,
+but it's really true of commands in this application.
 Some commands require you to type a statement into the command window,
 and then execute the statement.
 Other commands resemble using the cursor keys in a text editor.
@@ -91,12 +92,12 @@ See the documentation on Hash for details. Here's an incomplete refresher:
 
 `/find /addr 1`
 
-`/find bob #likes (pizza #with pineapple) ##because _`
+`/find bob #likes (pizza #with pineapple) ##because /_`
 
 `/find /eval bob #likes pizza ##with pineapple ###because /it)`
   -- Returns only the reason, not the full "because" relationship.
 
-`/find bob #likes _ || bob #dislikes _`
+`/find bob #likes /_ || bob #dislikes /_`
   -- Every #likes and every #dislikes statement with bob on the left.
 
 
@@ -112,15 +113,24 @@ One result in the results buffer is always focused.
 Similarly, one buffer in the buffer buffer is always focused.
 These move that around.
 
+PITFALL: There are two separate kinds of focus.
+Every results buffer has a focused result;
+it's the bit that shows in green when you're looking at that results buffer.
+Exactly one of the results buffers is itself focused;
+it's the buffer that shows in green when you look at the buffer buffer.
+
+
 ### `M-x`: Execute command
 
 ### `M-k`: Delete all text in the Command window
 
 ### Switch the kind of buffer shown
 
-Show results buffer: `M-r`
-Show buffer buffer: `M-b`
-Show error buffer: `M-e`
+Show (the currently focused) results buffer: `M-r`
+
+Show (the) buffer buffer: `M-b`
+
+Show (the) error buffer: `M-e`
 
 
 ## Keyboard commands that work from the Results buffer

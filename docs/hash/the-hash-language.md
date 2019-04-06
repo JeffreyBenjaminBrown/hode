@@ -22,7 +22,7 @@ For instance, `/add Kurt #played guitar` creates a "played" relationship between
 If any of those things ("Kurt", or "guitar", or the "_ played _" relationship) didn't exist before,
 they do now.
 
-(Because I feel like writing out the word /add is too much work,
+(Because I feel like writing out the word `/add` is too much work,
 there are 2-character abbreviations available for every common keyword.
 See the "abbreviations" file in the documentation.)
 
@@ -85,8 +85,8 @@ For instance, if (in the database) bob has flattered alice and chuck,
 then the command `/find bob #flattered /_`
 would return `bob #flattered alice` and `bob #flattered chuck`.
 
-If you only want it to return alice and chuck,
-rather than the entire #flattered relationship,
+If you only want it to return "alice" and "chuck",
+rather than the entire "flattered" relationship,
 you can use the keywords `/eval` and `/it`
 (see the "advanced queries" section below).
 
@@ -117,9 +117,9 @@ If (in the database) bob has flattered both alice and chuck,
 then the command `/find /eval bob #flattered /it` would return "alice" and "chuck".
 
 That tells the interpreter
-"I am looking for the thing in the superexpression marked /eval that occupies the position marked /it.
-Rather than returning the /eval superexpression,
-only return the /it subexpression."
+"I am looking for the thing in the superexpression marked `/eval` that occupies the position marked `/it`.
+Rather than returning the `/eval` superexpression,
+only return the `/it` subexpression."
 
 The `/eval` keyword is necessary because otherwise the parser would not know which superexpression to replace witht the expression in the `/it` position.
 
@@ -141,9 +141,9 @@ and then find the subset of those X-values for which `X eats bugs`,
 and return a set of expressions of the form `X eats bugs`.
 For instance, it might return `the venus flytrap #eats bugs`.
 
-(You can actually include more than one `/it` in an `/eval` statement.
+You can actually include more than one `/it` in an `/eval` statement.
 For instance, `/eval /it #married /it` would return every married person,
-regardless of whether they are listed first or second in the marriage relationship.)
+regardless of whether they are listed first or second in the marriage relationship.
 
 
 ### Count `&`, `|` and `\` symbols like `#` symbols
