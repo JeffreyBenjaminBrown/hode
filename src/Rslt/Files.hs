@@ -17,6 +17,9 @@ import Rslt.Index
 -- > x <- readRslt "test-io"
 -- > x == D.rslt
 
+-- | PITFALL: `Rel`s are stored in a format that looks like it has an
+-- unmatched trailing parenthesis, due to the use of _brief and _unbrief.
+
 readRslt :: FilePath -> IO (Rslt)
 readRslt p0 = do
   files <- filter (\f -> takeExtension f == ".rslt")

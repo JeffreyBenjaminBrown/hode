@@ -19,7 +19,7 @@ import qualified Test.Rslt.RData as D
 test_module_rslt_edit :: Test
 test_module_rslt_edit = TestList [
     TestLabel "test_insert" test_insert
-  , TestLabel "test_deleteUnused" test_deleteUnused
+  , TestLabel "test_deleteIfUnused" test_deleteIfUnused
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
   , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
@@ -136,8 +136,8 @@ test_replaceInRole = TestCase $ do
            $ R.insertAt 8 (Phrase' "foo") D.rslt
   assertBool "4" $ isIn r2 8 == Right (S.singleton (RoleMember 2, 5))
 
-test_deleteUnused :: Test
-test_deleteUnused = TestCase $ do
+test_deleteIfUnused :: Test
+test_deleteIfUnused = TestCase $ do
   -- TODO : now that Expr 6 is deleted, this test does not do what it claims.
   -- from D.rslt, remove the Par called 6 (because it uses the Rel'5)
   -- and insert at 6 (Rel' $ Rel [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
@@ -146,12 +146,12 @@ test_deleteUnused = TestCase $ do
       (with_new_rel :: Rslt) = either (error "wut") id
                                $ R.insertAt 6 (Rel' $ Rel [1,1] 4) without_6
       (r            :: Rslt) = either (error "wut") id
-                               $ R.deleteUnused 5 with_new_rel
+                               $ R.deleteIfUnused 5 with_new_rel
   assertBool "valid 1" $ isRight $ validRslt without_6
   assertBool "valid 2" $ isRight $ validRslt with_new_rel
   assertBool "valid 3" $ isRight $ validRslt r
 
-  assertBool "1" $ isLeft $ R.deleteUnused 5 D.rslt
+  assertBool "1" $ isLeft $ R.deleteIfUnused 5 D.rslt
   assertBool "addrToRefExpr of deleted" $ isLeft $ addrToRefExpr r 5
   assertBool "refExprToAddr missing"    $ isLeft $
     either (error "wut") (refExprToAddr r) (addrToRefExpr D.rslt 5)

@@ -8,7 +8,7 @@ module Rslt.Edit (
   , replaceInRole     -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
   , insert            -- ^ RefExpr -> Rslt              -> Either String Rslt
   , insertAt          -- ^ Addr -> RefExpr -> Rslt      -> Either String Rslt
-  , deleteUnused      -- ^ Addr -> Rslt                 -> Either String Rslt
+  , deleteIfUnused    -- ^ Addr -> Rslt                 -> Either String Rslt
   ) where
 
 import           Data.Functor (void)
@@ -90,7 +90,7 @@ replace e oldAddr r0 = prefixLeft "replace" $ do
   _       <- validRefExpr r0 e
   r1      <- insertAt newAddr e r0
   r2      <- _substitute newAddr oldAddr r1
-  deleteUnused oldAddr r2
+  deleteIfUnused oldAddr r2
 
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r0 = do
@@ -191,7 +191,7 @@ _insert a e r = Rslt {
 -- | PITFALL: `_deleteInternalMentionsOf` could put the Rslt into an
 -- invalid state, if it was run on an RefExpr that appears in other
 -- RefExprs. This only deletes mentions in which it is the container
---or "the thing", but not the contained.
+-- or "the thing", but not the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r = do
   (aHas       ::           Map Role Addr) <-
@@ -218,10 +218,10 @@ _deleteInternalMentionsOf a r = do
     , _refExprToAddr = _refExprToAddr2
     }
 
-deleteUnused :: Addr -> Rslt -> Either String Rslt
-deleteUnused a r = do
-  users <- prefixLeft "deleteUnused: " $ isIn r a
+deleteIfUnused :: Addr -> Rslt -> Either String Rslt
+deleteIfUnused a r = do
+  users <- prefixLeft "deleteIfUnused: " $ isIn r a
   if null users
     then _deleteInternalMentionsOf a r
-    else Left $ "deleteUnused: Addr " ++ show a
+    else Left $ "deleteIfUnused: Addr " ++ show a
          ++ " is used in other RefExprs.\n"
