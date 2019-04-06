@@ -1,6 +1,6 @@
 # Abbreviations for common keywords
 
-Instead of writing /hash, you can write /h, etc. So far these are all the keywords:
+Instead of writing /find, you can write /f, etc. So far these are all the keywords:
 
 ```
 /add  -> /a

@@ -44,7 +44,7 @@ The documentation on the Rslt and Hash provide details; here's a refresher:
 
 `/add dogs`
 
-`/add /hash dogs #eat grass`
+`/add dogs #eat grass`
 
 `/add /addr 1 #because /addr 2`
 
@@ -57,12 +57,12 @@ See the documentation on Hash for details. Here's an incomplete refresher:
 
 `/find bob`
 
-`/find /hash /addr 1`
+`/find /addr 1`
 
-`/find /hash bob #likes (pizza #with pineapple) ##because _`
+`/find bob #likes (pizza #with pineapple) ##because _`
 
-`/find /hash (/eval /hash bob #likes pizza ##with pineapple ###because /it)`
+`/find /eval bob #likes pizza ##with pineapple ###because /it)`
   -- Returns only the reason, not the full "because" relationship.
 
-`/find /hash bob #likes _ || bob #dislikes _`
+`/find bob #likes _ || bob #dislikes _`
   -- Every #likes and every #dislikes statement with bob on the left.

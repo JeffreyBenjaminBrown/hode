@@ -86,10 +86,20 @@ pExpr = simplifyPExpr <$> ( foldl1 (<|>) ps ) where
        , pVar
        , pAny
        , pIt
-       , lexeme ( foldr1 (<|>)
-                  $ map (try . string) ["/hash","/h"] )
-         >> PRel <$> pRel
+       , pHashExpr
        ]
+
+pHashExpr :: Parser PExpr
+pHashExpr = lexeme ( foldr1 (<|>)
+                  $ map (try . string) ["/hash","/h"] )
+         >> _pHashExpr
+
+-- | PITFALL: This used to be part of pHashExpr; there was no word
+-- for parsing a Hash expression without a leading /hash keyword.
+-- Not requiring that keyword is nice for the user,
+-- might (I don't know) cause headaches for the coder.
+_pHashExpr :: Parser PExpr
+_pHashExpr = PRel <$> pRel
 
 pAddr :: Parser Expr
 pAddr = lexeme  ( foldr1 (<|>)
@@ -123,7 +133,8 @@ pMap = lexeme (string "/map" <|> string "/roles")
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)
                  $ map (try . string) ["/eval","/e"] )
-         >> PEval <$> pExpr
+         >> ( PEval
+              <$> _pHashExpr )
 
 pVar :: Parser PExpr
 pVar = do void $ lexeme
