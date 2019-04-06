@@ -37,9 +37,9 @@ one has to be aware of them.
 To enter a `Phrase` involving any of those special characters,
 just enclose it in parentheses.
 Within those parentheses,
-if you need to write a literal quotation mark or \ character,
+if you need to write a literal quotation mark or `\` character,
 you can do so by "escaping" it,
-that is, by putting a "\\" in front of it.
+that is, by putting a `\` in front of it.
 
 For instance, 
 `"I said, \"Hi!\" (It was easy.)"` 
@@ -97,14 +97,14 @@ For instance, if "bob" is stored at `Addr` 1,
 then `/f /@ 1 #flattered /_` will find every expression of the form "bob #flattered /_".
 
 
-### Set operations: union (|), interseciton (&), and difference (\)
+### Set operations: union (`|`), interseciton (`&`), and difference (`\`)
 
 `(/eval I #like /it) & (/eval you #like /it)` will return everything that you and I both like.
 `(/eval I #like /it) | (/eval you #like /it)` will return everything that at least one of us likes.
 `&` is called the "intersection" operator,
 and `|` the "union" operator.
 
-`\\` represents the "difference" operator.
+`\` represents the "difference" operator.
 `(/eval you #like /it) \ (/eval I #(cannot afford) /it)`
 will list the things you like, minus the ones I cannot afford.
 
@@ -146,7 +146,7 @@ For instance, "/eval /it #married /it" would return every married person,
 regardless of whether they are listed first or second in the marriage relationship.)
 
 
-### Count &, | and \ symbols like # symbols
+### Count `&`, `|` and `\` symbols like `#` symbols
 
 The set operators `&`, `|` and `\` can be repeated,
 just like the `#` symbol,
@@ -181,7 +181,6 @@ For instance,
 the `Expr` "bob #flattered alice",
 if it is present.
 
-I have tried to render the /hash keyword unnecessary.
-I may have entirely eliminated the need for it,
+I have tried to render the `/hash` keyword unnecessary,
 but if you find something's not parsing that ought to,
 it might help.
