@@ -51,7 +51,6 @@ arity r (ExprRel (Rel ms t)) = do
     else Left $ "arity: Rel Tplt " ++ show t
          ++ " does not match number of Rel members " ++ show ms ++ ".\n"
 arity _ (ExprTplt x)         = Right $ length x - 1
-arity _ (ExprPar (Par x _))  = Right $ length x
 
 
 -- | `has r a` finds the `RefExpr` `re` at `a` in `r`, and returns

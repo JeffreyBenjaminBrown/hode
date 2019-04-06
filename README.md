@@ -63,3 +63,15 @@ Clone the repo,
 then run `stack run` from the command line.
 The first time you run it,
 it will take a long time to load.
+
+
+# Hode does not back up your data. I recommend Git for that.
+
+Hode has a simple mechanism for saving to disk and reading from disk.
+It has, however, no backup mechanism and no safety features
+-- if you ask it to overwrite a big beautiful graph with a tiny ugly one,
+it will oblige.
+
+Hode saves every expression as a separate text file.
+Thus if you use Git (or some other version control system),
+the diffs will be readable.

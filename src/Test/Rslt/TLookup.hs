@@ -31,12 +31,6 @@ test_refExprToExpr = TestCase $ do
                                        , Phrase "" ] )
     == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
 
-  assertBool "par" $ Right ( ExprPar ( Par [ ( "You can't eat"
-                                             , Phrase "oxygen" ) ]
-                                       "silly" ) )
-    == refExprToExpr D.rslt ( Par' ( Par [("You can't eat", 2)]
-                                     "silly" ) )
-
   assertBool "rel, recursive" $
     let ti = ExprTplt [ Phrase ""
                       , Phrase "needs"
@@ -80,8 +74,6 @@ test_has = TestCase $ do
     == Right ( M.fromList [ ( RoleMember 1, 1 )
                          , ( RoleMember 2, 2 )
                          , ( RoleTplt    , 4 ) ] )
-  assertBool "par" $ has D.rslt 6
-    == Right ( M.fromList [ ( RoleMember 1, 5 ) ] )
   assertBool "no content" $ has D.rslt 0 == Right M.empty
   assertBool "absent" $ isLeft $ has D.rslt 7
 
@@ -91,7 +83,8 @@ test_isIn = TestCase $ do
     == Right ( S.fromList [ (RoleMember 1, 4)
                           , (RoleMember 3, 4) ] )
   assertBool "2" $ isIn D.rslt 4
-    == Right ( S.fromList [ (RoleTplt, 5) ] )
+    == Right ( S.fromList [ (RoleTplt, 5)
+                          , (RoleTplt, 6) ] )
   assertBool "3" $ let r' = either (error "wut") id
                             $ R.insertAt 7 (Phrase' "pizza") D.rslt
                    in isIn r' 7 == Right S.empty
@@ -110,16 +103,11 @@ test_fills = TestCase $ do
     $ fills D.rslt (RoleMember 3, 5)
   assertBool "tplt in rel"
     $ fills D.rslt (RoleTplt    , 5) == Right 4
-  assertBool "nonexistent (tplt in par)" $ isLeft
-    $ fills D.rslt (RoleTplt    , 6)
-  assertBool "first in par"
-    $ fills D.rslt (RoleMember 1, 6) == Right 5
 
 test_variety :: Test
 test_variety = TestCase $ do
   assertBool "1" $ variety D.rslt 3 == Right (PhraseCtr,0)
   assertBool "2" $ variety D.rslt 4 == Right (TpltCtr,2)
   assertBool "3" $ variety D.rslt 5 == Right (RelCtr,2)
-  assertBool "4" $ variety D.rslt 6 == Right (ParCtr,1)
   assertBool "5" $ isLeft
                  $ variety D.rslt (-133)

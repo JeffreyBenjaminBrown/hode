@@ -36,7 +36,8 @@ refExprs = M.fromList
   , (3, Phrase' "needs")
   , (4, Tplt' [0,3,0])
   , (5, Rel' $ Rel [1,2] 4)
-  , (6, Par' $ Par [("The first relationship in this graph is ", 5)] ".")
+  , (6, Rel' $ Rel [5,2] 4) -- This is a nonsense phrase.
+    -- I would have to add Exprs to make it not so, which would break things.
   ]
 
 badRefExprs :: Map Addr RefExpr
