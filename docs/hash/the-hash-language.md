@@ -14,7 +14,8 @@ and *way* simpler than other graph query languages (such as Sparql or Gremlin).
 
 # Writing to a Rslt with Hash
 
-If you've read about [the Rslt](docs/the-rslt.md), you know how to write `Expr`s.
+If you've read about [the Rslt](docs/the-rslt.md),
+you know how to write `Expr`s.
 To add them to a `Rslt` using the UI,
 you'll only need one extra symbols: `/add` (or `/a`).
 
@@ -41,8 +42,8 @@ if you need to write a literal quotation mark or `\` character,
 you can do so by "escaping" it,
 that is, by putting a `\` in front of it.
 
-For instance, 
-`"I said, \"Hi!\" (It was easy.)"` 
+For instance,
+`"I said, \"Hi!\" (It was easy.)"`
 is a valid `Phrase`.
 The parentheses don't need escaping,
 because they are inside quotation marks.

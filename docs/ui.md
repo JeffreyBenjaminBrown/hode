@@ -54,7 +54,10 @@ Some commands require you to type a statement into the command window,
 and then execute the statement.
 Other commands resemble using the cursor keys in a text editor.
 
-I will call the first kind `language commands` and the second kind `keyboard commands`. Note that while language commands can be executed from anywhere, keyboard commands depend on what is shown in the main window.
+I will call the first kind `language commands`
+and the second kind `keyboard commands`.
+Note that while language commands can be executed from anywhere,
+keyboard commands depend on what is shown in the main window.
 
 
 # Language commands
@@ -63,7 +66,12 @@ These are entered in the command window, and executed with `M-x`.
 
 ## Load a Rslt from disk
 
-Type something like `/load folder/subfolder/subfolder`. Point it at a folder, not a file: The Rslt is saved as a lot of tiny (human-readable) `.rslt` files, so it'll need a whole directory to put them in. Write the path in absolute terms, or relative to wherever you started GHCI from.
+Type something like `/load folder/subfolder/subfolder`.
+Point it at a folder, not a file:
+The Rslt is saved as a lot of tiny (human-readable) `.rslt` files,
+so it'll need a whole directory to put them in.
+Write the path in absolute terms,
+or relative to wherever you started GHCI from.
 
 
 ## Save a Rslt to disk
@@ -73,7 +81,8 @@ Type something like `/load folder/subfolder/subfolder`. Point it at a folder, no
 
 ## Add an expression
 
-The documentation on the Rslt and Hash provide details; here's a refresher:
+The documentation on the Rslt and Hash provide details;
+here's a refresher:
 
 `/add dogs`
 
@@ -86,7 +95,8 @@ The documentation on the Rslt and Hash provide details; here's a refresher:
 
 ## Search for a Hash expression
 
-See the documentation on Hash for details. Here's an incomplete refresher:
+See the documentation on Hash for details.
+Here's an incomplete refresher:
 
 `/find bob`
 
@@ -169,7 +179,8 @@ even if it does not all fit on the screen.
 
 ## Commands that work from the buffer buffer
 
-From the buffer window you can create new buffers and switch between them by moving focus (as described above).
+From the buffer window you can create new buffers
+and switch between them by moving focus (as described above).
 Once you've moved focus to the buffer you'd like to see,
 you can switch back to the results buffer with `M-S-r`.
 
