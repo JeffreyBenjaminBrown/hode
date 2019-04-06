@@ -64,6 +64,7 @@ keyboard commands depend on what is shown in the main window.
 
 These are entered in the command window, and executed with `M-x`.
 
+
 ## Load a Rslt from disk
 
 Type something like `/load folder/subfolder/subfolder`.
@@ -77,6 +78,21 @@ or relative to wherever you started GHCI from.
 ## Save a Rslt to disk
 
 `/save folder/subfolder/subfolder`
+
+
+## Replace the expression at some address
+
+Write `/replace` (or `/r`),
+followed by the address,
+followed by what should be there.
+
+For instance, `/replace 3 x # y` would replace
+whatever used to be at address 3 with the expression `x # y`.
+Note, however, that it will no longer be at the same address.
+
+This operation destroys the old expression entirely.
+Any superexpression it used to appear in
+now contains the new expression instead.
 
 
 ## Add an expression

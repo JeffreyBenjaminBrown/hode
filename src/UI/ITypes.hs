@@ -33,7 +33,8 @@ data MainWindowName = Buffers
                     | CommandHistory
                     | Results deriving (Ord, Show, Eq)
 
-data Command = CommandInsert Expr
+data Command = CommandInsert       Expr
+             | CommandReplace Addr Expr
              | CommandFind String HExpr
              | CommandLoad Folder
              | CommandSave Folder deriving (Show, Eq, Ord)

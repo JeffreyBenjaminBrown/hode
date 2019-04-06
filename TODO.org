@@ -41,7 +41,6 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** TODO deletion
 ** count hosts at left
 ** folding
 ** manual update
@@ -159,6 +158,8 @@ Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
+* TODO : bug: replaceExpr
+It creates duplicate data.
 * ? safety, speed
 ** for jumping around the view
 Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr.

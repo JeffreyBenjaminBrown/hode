@@ -18,14 +18,17 @@ pCommand :: Rslt -> String -> Either String Command
 pCommand r s =
   let (h,t) = splitAfterFirstLexeme s
   in case h of
-    "/add"  -> pCommand_insert r t
-    "/a"    -> pCommand_insert r t
-    "/find" -> pCommand_find   r t
-    "/f"    -> pCommand_find   r t
-    "/load" -> pCommand_load     t
-    "/save" -> pCommand_save     t
-    _       -> Left $ "Commands must start with "
-                 ++ "/add (or /a), /find (or /f), /load or /save."
+    "/add"     -> pCommand_insert r t
+    "/a"       -> pCommand_insert r t
+    "/find"    -> pCommand_find   r t
+    "/f"       -> pCommand_find   r t
+    "/replace" -> pCommand_replace r t
+    "/r"       -> pCommand_replace r t
+    "/load"    -> pCommand_load     t
+    "/save"    -> pCommand_save     t
+    _          -> Left $ "Commands must start with "
+                  ++ "/add (or /a), /find (or /f), /replace (or /r),"
+                  ++ " /load or /save."
 
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
@@ -33,6 +36,16 @@ pCommand_insert r s = CommandInsert <$>
     $ mapLeft show (parse _pHashExpr "doh!" s)
     >>= pExprToHExpr r
     >>= hExprToExpr r )
+
+pCommand_replace :: Rslt -> String -> Either String Command
+pCommand_replace r s = prefixLeft "pCommand_replace" $ do
+  (a,px) <- let p :: Parser (Addr, PExpr)
+                p = do a <- fromIntegral <$> lexeme integer
+                       px <- _pHashExpr
+                       return (a,px)
+    in mapLeft show $ parse p "doh!" s
+  e <- pExprToHExpr r px >>= hExprToExpr r
+  Right $ CommandReplace a e
 
 -- | `pCommand_find` looks for any naked `/it` sub-expressions.
 -- (Here naked means not inside an /eval expression.) If there are

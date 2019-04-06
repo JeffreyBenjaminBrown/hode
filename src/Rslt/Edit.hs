@@ -4,6 +4,7 @@
 module Rslt.Edit (
     exprToAddrInsert      -- ^ Rslt -> Expr   -> Either String (Rslt, Addr)
   , exprToAddrInsert_list -- ^ Rslt -> [Expr] -> Either String (Rslt, [Addr])
+  , replaceExpr       -- ^ Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
   , replace           -- ^ RefExpr -> Addr -> Rslt      -> Either String Rslt
   , replaceInRole     -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
   , insert            -- ^ RefExpr -> Rslt              -> Either String Rslt
@@ -83,6 +84,13 @@ exprToAddrInsert_list r0 is = do
 
 
 -- | = Pure editing
+
+replaceExpr :: Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
+replaceExpr e0 a0 r0 = prefixLeft "replaceExpr" $ do
+  (r1, a1) <- exprToAddrInsert r0 e0
+  rx1 <- addrToRefExpr r1 a1
+  r2 <- replace rx1 a0 r1
+  Right (r2,a1)
 
 replace :: RefExpr -> Addr -> Rslt -> Either String Rslt
 replace e oldAddr r0 = prefixLeft "replace" $ do
