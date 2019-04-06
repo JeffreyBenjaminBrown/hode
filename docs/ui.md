@@ -93,6 +93,15 @@ Note, however, that it will no longer be at the same address.
 This operation destroys the old expression entirely.
 Any superexpression it used to appear in
 now contains the new expression instead.
+This does *not*, however,
+destroy the old expression's sub-expressions.
+
+PITFALL: replacement currently has a bug
+that creates some duplicate information.
+If you see such duplicates and want to get rid of them,
+you can save your Rslt to a folder,
+delete the offending files,
+and then reload it.
 
 
 ## Add an expression
