@@ -26,7 +26,7 @@ Once you have typed a command worth executing,
 you can execute it by pressing `M-x` (i.e., probably, `Alt x`).
 
 Most of the time,
-the main window will display a "results buffer".
+the main window will display a `results buffer`.
 There can be multiple buffers open at the same time,
 each corresponding to a (probably) different search.
 Whatever the main window is currently showing,
@@ -34,11 +34,11 @@ you can switch to the current results buffer by pressing `M-S-r`
 (that is, probably, `Alt + Shift + r`).
 
 Sometimes you wiill want to show all the results buffers at once.
-Switch to the "buffer buffer" to do that, with `M-S-b`.
+Switch to the `buffer buffer` to do that, with `M-S-b`.
 The buffer buffer is described below.
 
 When an error happens,
-the main window will automatically switch to the "error buffer".
+the main window will automatically switch to the `error buffer`.
 You can also manually switch to the error buffer with `M-S-e`.
 (There are lots of ways to escape the error window --
 for instance, by switching to the results window,
@@ -53,7 +53,7 @@ Some commands require you to type a statement into the command window,
 and then execute the statement.
 Other commands resemble using the cursor keys in a text editor.
 
-I will call the first kind "language commands" and the second kind "keyboard commands". Note that while language commands can be executed from anywhere, keyboard commands depend on what is shown in the main window.
+I will call the first kind `language commands` and the second kind `keyboard commands`. Note that while language commands can be executed from anywhere, keyboard commands depend on what is shown in the main window.
 
 
 # Language commands

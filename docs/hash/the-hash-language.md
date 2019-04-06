@@ -16,7 +16,7 @@ and *way* simpler than other graph query languages (such as Sparql or Gremlin).
 
 If you've read about [the Rslt](docs/the-rslt.md), you know how to write `Expr`s.
 To add them to a `Rslt` using the UI,
-you'll only need one extra symbols: "/add" (or "/a").
+you'll only need one extra symbols: `/add` (or `/a`).
 
 For instance, `/add Kurt #played guitar` creates a "played" relationship between "Kurt" and "guitar".
 If any of those things ("Kurt", or "guitar", or the "_ played _" relationship) didn't exist before,
@@ -59,7 +59,7 @@ We still use the same language, Hash,
 but we introduce a few "reserved words".
 Each of them is preceded by the `/` symbol.
 
-Every query starts with the symbol "/find" (or "/f").
+Every query starts with the symbol `/find` (or `/f`).
 
 
 ## Basic queries
@@ -83,7 +83,7 @@ if it is present.
 
 For instance, if (in the database) bob has flattered alice and chuck,
 then the command `/find bob #flattered /_`
-would return "bob #flattered alice" and "bob #flattered chuck".
+would return `bob #flattered alice` and `bob #flattered chuck`.
 
 If you only want it to return alice and chuck,
 rather than the entire #flattered relationship,
@@ -94,17 +94,17 @@ you can use the keywords `/eval` and `/it`
 ### Query for an Addr with /addr (or /@), followed by a number
 
 For instance, if "bob" is stored at `Addr` 1,
-then `/f /@ 1 #flattered /_` will find every expression of the form "bob #flattered /_".
+then `/f /@ 1 #flattered /_` will find every expression of the form `bob #flattered /_`.
 
 
 ### Set operations: union (`|`), interseciton (`&`), and difference (`\`)
 
 `(/eval I #like /it) & (/eval you #like /it)` will return everything that you and I both like.
 `(/eval I #like /it) | (/eval you #like /it)` will return everything that at least one of us likes.
-`&` is called the "intersection" operator,
-and `|` the "union" operator.
+`&` is called the `intersection` operator,
+and `|` the `union` operator.
 
-`\` represents the "difference" operator.
+`\` represents the `difference` operator.
 `(/eval you #like /it) \ (/eval I #(cannot afford) /it)`
 will list the things you like, minus the ones I cannot afford.
 
@@ -132,17 +132,17 @@ For instance, consider the following two similar-looking queries:
 
 The first query doesn't make sense.
 It will look for arity-3 expressions of the form
-"/it #breathes CO2 #eats bugs",
+`/it #breathes CO2 #eats bugs`,
 and return the `/it`.
 
 The second query is reasonable.
-It will first find every expression X for which "X breathes CO2",
-and then find the subset of those X-values for which "X eats bugs",
-and return a set of expressions of the form "X eats bugs".
-For instance, it might return "the venus flytrap #eats bugs".
+It will first find every expression X for which `X breathes CO2`,
+and then find the subset of those X-values for which `X eats bugs`,
+and return a set of expressions of the form `X eats bugs`.
+For instance, it might return `the venus flytrap #eats bugs`.
 
 (You can actually include more than one `/it` in an `/eval` statement.
-For instance, "/eval /it #married /it" would return every married person,
+For instance, `/eval /it #married /it` would return every married person,
 regardless of whether they are listed first or second in the marriage relationship.)
 
 
