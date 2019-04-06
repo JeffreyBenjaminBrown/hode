@@ -104,6 +104,7 @@ library
               , parser-combinators
               , pointedlist
               , process
+              , regex-compat
               , recursion-schemes
               , rosezipper
               , text

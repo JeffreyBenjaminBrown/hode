@@ -41,8 +41,7 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** TODO delete
-** TODO make the format more terse
+** TODO deletion
 ** count hosts at left
 ** folding
 ** manual update
