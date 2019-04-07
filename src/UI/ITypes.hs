@@ -63,29 +63,29 @@ data RsltView = VQuery     ViewQuery
               | VHostGroup HostGroup
   deriving (Eq, Ord)
 
-data HostGroup = HostGroup_Role RelHosts
-               | HostGroup_Pars ParHosts
+data HostGroup = MemberHostGroup MemberHosts
+               | TemplateGroup Templates
   deriving (Eq, Ord, Show)
 
--- | `RelHosts` is used to group relationships in which the `Expr`at
+-- | `MemberHosts` is used to group relationships in which the `Expr`at
 -- `relHostsCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
--- then `RelHosts 3 (RoleMember 1) ["", "helps", ""]` will
+-- then `MemberHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
-data RelHosts = RelHosts {
+data MemberHosts = MemberHosts {
     _relHostsCenter :: Addr      -- ^ the thing being hosted
   , _relHostsRole   :: Role      -- ^ the role it plays
   , _relHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
   } deriving (Eq, Ord)
-data ParHosts = ParHosts {
-  _inParagraphAddr :: Addr  -- ^ the thing being hosted
-  } deriving (Eq, Ord)
 
-instance Show RelHosts where
+data Templates = Templates { _templatesCenter :: Addr }
+  deriving (Eq, Ord, Show)
+
+instance Show MemberHosts where
   show relHosts = let
     tplt = _relHostsTplt relHosts
-    noLeft     = error "show RelHosts: impossible"
-    noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: This math is good."
+    noLeft     = error "show MemberHosts: impossible"
+    noRslt     = error "show MemberHosts: Rslt irrelevant"
+    noMiscount = error "show MemberHosts: This math is good."
     showTplt = either (const noLeft) id
                $ eShow noRslt (ExprTplt tplt)
     in if _relHostsRole relHosts == RoleTplt
@@ -98,9 +98,6 @@ instance Show RelHosts where
             in either (const noLeft) id
                $ eShow noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
-instance Show ParHosts where
-  show _ = "in-paragraph appearances"
-
 instance Show RsltView where
   show (VQuery x)     = "VQuery "     ++ show x
   show (VResult x)    = "VResult "    ++ show x
@@ -110,7 +107,7 @@ instance Show RsltView where
 makePrisms ''RsltView -- prisms
 makeLenses ''ViewResult
 makeLenses ''ViewMembers
-makeLenses ''RelHosts
+makeLenses ''MemberHosts
 
 
 -- | = Huge types.

@@ -43,5 +43,5 @@ showRsltView (VQuery vq)  = vq
 showRsltView (VResult qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
 showRsltView (VMembers _) = "its members"
-showRsltView (VHostGroup (HostGroup_Role x)) = show x
-showRsltView (VHostGroup (HostGroup_Pars x)) = show x
+showRsltView (VHostGroup (MemberHostGroup x)) = show x
+showRsltView (VHostGroup (TemplateGroup x)) = show x

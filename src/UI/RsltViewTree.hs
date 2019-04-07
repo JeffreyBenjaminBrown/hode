@@ -14,8 +14,8 @@ module UI.RsltViewTree (
   , members_atFocus       -- ^ St -> Either String (ViewMembers, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
-  , groupHostRels_atFocus -- ^ St ->    Either String [(RelHosts, [Addr])]
-  , hostGroup_to_view     -- ^ Rslt -> (RelHosts, [Addr]) ->
+  , groupHostRels_atFocus -- ^ St ->    Either String [(MemberHosts, [Addr])]
+  , hostGroup_to_view     -- ^ Rslt -> (MemberHosts, [Addr]) ->
                           -- Either String (PTree RsltView)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
@@ -23,6 +23,7 @@ module UI.RsltViewTree (
 
 import           Data.Foldable (toList)
 import           Data.Map (Map)
+import qualified Data.List             as L
 import qualified Data.List.PointedList as P
 import qualified Data.Map              as M
 import qualified Data.Set              as S
@@ -78,26 +79,41 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
   ras :: [(Role, Addr)] <- let
     msg = "computing ras from " ++ show a0
     in prefixLeft msg $ S.toList <$> isIn r a0
-  tplts <- let tpltOf :: Addr -> Either String Addr
-               tpltOf a = prefixLeft msg $ fills r (RoleTplt, a)
-                 where msg = "computing tpltOf of " ++ show a
-           in ifLefts "" $ map (tpltOf . snd) ras
+  vs :: [ExprCtr] <- map fst <$>
+    ( ifLefts "while computing varieties" $
+      map (variety r . snd) ras )
+  let (tplt_ras :: [(Role,Addr)], rel_ras :: [(Role,Addr)]) =
+        both %~ map fst $ L.partition isTplt ravs
+        where ravs :: [((Role,Addr),ExprCtr)] = zip ras vs
+              isTplt :: ((Role,Addr),ExprCtr) -> Bool
+              isTplt = (\case TpltCtr -> True; _ -> False) . snd
 
-  let groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
-      groups = foldr f M.empty $ zip ras tplts where
-        f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
-                                  -> Map (Role, Addr) [Addr]
-        f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
+  let tplt_group = TemplateGroup $ Templates a0
+      tplt_pacakge :: (HostGroup, [Addr]) =
+        (tplt_group, map snd tplt_ras)
+
+  rel_tplts <- let tpltOf :: Addr -> Either String Addr
+                   tpltOf a = fills r (RoleTplt, a)
+               in ifLefts "while computing rel_tplts" $
+                  map (tpltOf . snd) rel_ras
+
+  let rel_groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
+      rel_groups = foldr f M.empty $ zip rel_ras rel_tplts
+        where f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
+                                        -> Map (Role, Addr) [Addr]
+              f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
           -- `f` is efficient: `a` is prepended, not appended.
-      package :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
-      package ((role,t),as) = (HostGroup_Role relHosts, as) where
-        relHosts = RelHosts { _relHostsCenter = a0
-                       , _relHostsRole = role
-                       , _relHostsTplt = tplt t } where
-          tplt :: Addr -> [Expr]
-          tplt a = es where Right (ExprTplt es) = addrToExpr r a
 
-  Right $ map package $ M.toList groups
+      package_rel_groups :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
+      package_rel_groups ((role,t),as) = (MemberHostGroup relHosts, as)
+        where relHosts = MemberHosts { _relHostsCenter = a0
+                                     , _relHostsRole = role
+                                     , _relHostsTplt = tplt t }
+                where tplt :: Addr -> [Expr]
+                      tplt a = es
+                        where Right (ExprTplt es) = addrToExpr r a
+
+  Right $ tplt_pacakge : map package_rel_groups (M.toList rel_groups)
 
 groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do

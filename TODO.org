@@ -41,14 +41,19 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** TODO insertion list
+** TODO RelHosts and TpltHosts are better names
+for the tpyes used in HostGroup
+** TODO bug: the empty unary relationship
+"# x" is treated the same as "x #"
+and it displays the same as "x"
+** TODO show a range of addresses
+** insertion list
 *** data St = ...
 +  , _insertionHistory :: [Addr]
 *** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
 ** count hosts at left
-** show a range of addresses
 ** a way to kill buffers
 ** folding
 ** manual update
@@ -81,6 +86,9 @@ If anything is modified, ask "are you sure? Your repo has uncommitted changes; s
 
 If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
+** TODO remove the string argument from ifLefts*
+use prefixLeft for that, when needed.
+Otherwise something can confusingly extend the error message when calling itself.
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root
