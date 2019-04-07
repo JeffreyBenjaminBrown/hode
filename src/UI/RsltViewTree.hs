@@ -88,7 +88,7 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
               isTplt :: ((Role,Addr),ExprCtr) -> Bool
               isTplt = (\case TpltCtr -> True; _ -> False) . snd
 
-  let tplt_group = TemplateGroup $ Templates a0
+  let tplt_group = TpltHostGroup $ Templates a0
       tplt_pacakge :: (HostGroup, [Addr]) =
         (tplt_group, map snd tplt_ras)
 
@@ -105,7 +105,7 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
           -- `f` is efficient: `a` is prepended, not appended.
 
       package_rel_groups :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
-      package_rel_groups ((role,t),as) = (MemberHostGroup relHosts, as)
+      package_rel_groups ((role,t),as) = (RelHostGroup relHosts, as)
         where relHosts = MemberHosts { _relHostsCenter = a0
                                      , _relHostsRole = role
                                      , _relHostsTplt = tplt t }

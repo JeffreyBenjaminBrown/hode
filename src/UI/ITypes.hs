@@ -63,8 +63,9 @@ data RsltView = VQuery     ViewQuery
               | VHostGroup HostGroup
   deriving (Eq, Ord)
 
-data HostGroup = MemberHostGroup MemberHosts
-               | TemplateGroup Templates
+data HostGroup =
+  RelHostGroup MemberHosts -- ^ `Rel`s that the center is a member of
+  | TpltHostGroup Templates -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
 -- | `MemberHosts` is used to group relationships in which the `Expr`at
