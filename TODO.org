@@ -41,19 +41,14 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** TODO RelHosts and TpltHosts are better names
-for the tpyes used in HostGroup
-** TODO bug: the empty unary relationship
-"# x" is treated the same as "x #"
-and it displays the same as "x"
-** TODO show a range of addresses
-** insertion list
+** show a range of addresses
+** TODO insertion list
 *** data St = ...
 +  , _insertionHistory :: [Addr]
 *** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
-** count hosts at left
+** TODO count hosts at left
 ** a way to kill buffers
 ** folding
 ** manual update
@@ -226,6 +221,11 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
 * TODO collect use cases
 ** view notes from a text ordered by source text or topic
+* unimportant bugs
+** the empty unary relationship
+"# x" is treated the same as "x #"
+and it displays the same as "x"
+
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:

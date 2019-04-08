@@ -82,15 +82,20 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
   vs :: [ExprCtr] <- map fst <$>
     ( ifLefts "while computing varieties" $
       map (variety r . snd) ras )
+
+  -- The rest of the work divides into grouping the `Rel`s that a0 is in,
+  -- and building one group of `Tplt`s, if it's nonempty.
   let (tplt_ras :: [(Role,Addr)], rel_ras :: [(Role,Addr)]) =
         both %~ map fst $ L.partition isTplt ravs
         where ravs :: [((Role,Addr),ExprCtr)] = zip ras vs
               isTplt :: ((Role,Addr),ExprCtr) -> Bool
               isTplt = (\case TpltCtr -> True; _ -> False) . snd
 
-  let tplt_group = TpltHostGroup $ Templates a0
-      tplt_pacakge :: (HostGroup, [Addr]) =
-        (tplt_group, map snd tplt_ras)
+  let maybeConsTpltPackage :: [(HostGroup, [Addr])] -> [(HostGroup, [Addr])]
+      maybeConsTpltPackage = if null tplt_ras then id else (:) tplt_package
+        where tplt_package :: (HostGroup, [Addr]) =
+                (tplt_group, map snd tplt_ras)
+                where tplt_group = TpltHostGroup $ Templates a0
 
   rel_tplts <- let tpltOf :: Addr -> Either String Addr
                    tpltOf a = fills r (RoleTplt, a)
@@ -106,14 +111,16 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
 
       package_rel_groups :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
       package_rel_groups ((role,t),as) = (RelHostGroup relHosts, as)
-        where relHosts = MemberHosts { _relHostsCenter = a0
-                                     , _relHostsRole = role
-                                     , _relHostsTplt = tplt t }
-                where tplt :: Addr -> [Expr]
-                      tplt a = es
-                        where Right (ExprTplt es) = addrToExpr r a
+        where
+          relHosts = MemberHosts { _relHostsCenter = a0
+                                 , _relHostsRole = role
+                                 , _relHostsTplt = tplt t }
+            where tplt :: Addr -> [Expr]
+                  tplt a = es
+                    where Right (ExprTplt es) = addrToExpr r a
 
-  Right $ tplt_pacakge : map package_rel_groups (M.toList rel_groups)
+  Right $ maybeConsTpltPackage
+    $ map package_rel_groups (M.toList rel_groups)
 
 groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
 groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
