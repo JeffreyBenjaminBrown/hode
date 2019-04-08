@@ -79,7 +79,13 @@ data MemberHosts = MemberHosts {
   } deriving (Eq, Ord)
 
 data Templates = Templates { _templatesCenter :: Addr }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show RsltView where
+  show (VQuery x)     = "VQuery "     ++ show x
+  show (VResult x)    = "VResult "    ++ show x
+  show (VMembers x)   = "VMembers "   ++ show x
+  show (VHostGroup x) = "VHostGroup " ++ show x
 
 instance Show MemberHosts where
   show relHosts = let
@@ -87,10 +93,8 @@ instance Show MemberHosts where
     noLeft     = error "show MemberHosts: impossible"
     noRslt     = error "show MemberHosts: Rslt irrelevant"
     noMiscount = error "show MemberHosts: This math is good."
-    showTplt = either (const noLeft) id
-               $ eShow noRslt (ExprTplt tplt)
     in if _relHostsRole relHosts == RoleTplt
-       then "Tplt " ++ showTplt
+       then "Rels using it (as a Tplt)"
        else let (ar :: Arity) = length tplt - 1
                 RoleMember (n :: Int) = _relHostsRole relHosts
                 mbrs = either (const noMiscount) id
@@ -99,11 +103,8 @@ instance Show MemberHosts where
             in either (const noLeft) id
                $ eShow noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
-instance Show RsltView where
-  show (VQuery x)     = "VQuery "     ++ show x
-  show (VResult x)    = "VResult "    ++ show x
-  show (VMembers x)   = "VMembers "   ++ show x
-  show (VHostGroup x) = "VHostGroup " ++ show x
+instance Show Templates where
+  show _ = "Templates in which it is a joint:"
 
 makePrisms ''RsltView -- prisms
 makeLenses ''ViewResult
