@@ -6,7 +6,6 @@
 
 module UI.Main where
 
-import           Data.Foldable (toList)
 import qualified Data.List.PointedList as P
 import qualified Data.Map             as M
 import           Lens.Micro
@@ -26,6 +25,7 @@ import Rslt.RTypes
 import UI.Input
 import UI.ITypes
 import UI.IUtil
+import UI.ShowPTree
 import UI.String
 import UI.Window
 import Util.PTree
@@ -92,44 +92,17 @@ appDraw st0 = [w] where
   reassuranceWindow = withAttr (B.attrName "reassurance")
     $ strWrap $ st0 ^. reassurance
 
-  -- TODO: Factor: This duplicates the code for resultWindow.
-  -- Also I bet it could be a catamorphism.
-  -- (c.f. _hiding/guidance/top-down-catamorphism.hs)
-  bufferWindow = viewport (BrickMainName SearchBuffers) B.Vertical
-                 $ fShow $ st ^. searchBuffers where
-    fShow :: Porest Buffer -> B.Widget BrickName
-    fShow = vBox . map showTreeRec . toList
+  focusStyle :: PTree a -> B.Widget BrickName
+                        -> B.Widget BrickName
+  focusStyle bt = if not $ bt ^. pTreeHasFocus then id
+                  else visible
+                       . withAttr (B.attrName "focused result")
 
-    showTreeOne, showTreeRec :: PTree Buffer -> B.Widget BrickName
-    showTreeRec bt = showTreeOne bt <=> rest
-      where mpts = bt ^. pMTrees
-            rest = case mpts of
-                     Nothing -> emptyWidget
-                     Just pts -> padLeft (B.Pad 2) $ fShow pts
-    showTreeOne bt = style $ strWrap $ _bufferQuery $ _pTreeLabel bt
-      where style :: B.Widget BrickName
-                  -> B.Widget BrickName
-            style = if not $ bt ^. pTreeHasFocus then id
-                    else visible
-                         . withAttr (B.attrName "focused result")
+  bufferWindow = viewport (BrickMainName SearchBuffers) B.Vertical
+    $ porestToWidget _bufferQuery focusStyle $ st ^. searchBuffers
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-                 $ fShow $ b ^. bufferRsltViewPorest where
-    fShow :: Porest RsltView -> B.Widget BrickName
-    fShow = vBox . map showTreeRec . toList
-
-    showTreeOne, showTreeRec :: PTree RsltView -> B.Widget BrickName
-    showTreeRec bt = showTreeOne bt <=> rest
-      where mpts = bt ^. pMTrees
-            rest = case mpts of
-                     Nothing -> emptyWidget
-                     Just pts -> padLeft (B.Pad 2) $ fShow pts
-    showTreeOne bt = style $ strWrap $ showRsltView $ _pTreeLabel bt
-      where style :: B.Widget BrickName
-                  -> B.Widget BrickName
-            style = if not $ bt ^. pTreeHasFocus then id
-                    else visible
-                         . withAttr (B.attrName "focused result")
+    $ porestToWidget showRsltView focusStyle $ b ^. bufferRsltViewPorest
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]
