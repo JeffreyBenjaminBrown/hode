@@ -29,13 +29,14 @@ consBufferAsChild b = searchBuffers . P.focus . setFocusedSubtree
 cons_focusedViewResult_asChildOfBuffer :: St -> Either String St
 cons_focusedViewResult_asChildOfBuffer st =
   prefixLeft "cons_focusedViewResult_asChild" $ do
-  p <- let s = "stBuffer returned Nothing."
+  b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st ^. stGetFocusedBuffer
   (pt :: PTree RsltView) <-
     let s = "getFocusedSubtree returned Nothing from bufferRsltViewPorest."
-    in maybe (Left s) Right $ (p^.bufferRsltViewPorest) ^. getFocusedSubtree
-  p' <- bufferFromRsltViewTree pt
-  Right $ st & hideReassurance & consBufferAsChild p'
+    in maybe (Left s) Right $
+       b ^. bufferRsltViewPorest getFocusedSubtree
+  b' <- bufferFromRsltViewTree pt
+  Right $ st & hideReassurance & consBufferAsChild b'
 
 moveFocusedBuffer :: Direction -> St -> St
 moveFocusedBuffer d = searchBuffers %~ moveFocusInPorest d
