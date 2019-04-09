@@ -66,7 +66,7 @@ appDraw st0 = [w] where
       err = error "Focused Buffer not found."
 
   mainWindow = case st ^. showingInMainWindow of
-    Buffers        -> bufferWindow
+    SearchBuffers  -> bufferWindow
     CommandHistory -> commandHistoryWindow
     Results        -> resultWindow
 
@@ -87,7 +87,7 @@ appDraw st0 = [w] where
 
   errorWindow = vBox
     [ strWrap $ st ^. uiError
-    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press Alt-R (to go to Results), Alt-B (Buffers), or Alt-H (command History)." ]
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press Alt-R (to go to Results), Alt-B (SearchBuffers), or Alt-H (command History)." ]
 
   reassuranceWindow = withAttr (B.attrName "reassurance")
     $ strWrap $ st0 ^. reassurance
@@ -95,7 +95,7 @@ appDraw st0 = [w] where
   -- TODO: Factor: This duplicates the code for resultWindow.
   -- Also I bet it could be a catamorphism.
   -- (c.f. _hiding/guidance/top-down-catamorphism.hs)
-  bufferWindow = viewport (BrickMainName Buffers) B.Vertical
+  bufferWindow = viewport (BrickMainName SearchBuffers) B.Vertical
                  $ fShow $ st ^. searchBuffers where
     fShow :: Porest Buffer -> B.Widget BrickName
     fShow = vBox . map showTreeRec . toList
@@ -152,7 +152,7 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     $ st & showingInMainWindow .~ CommandHistory
          & showingErrorWindow .~ False
   B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
-    $ st & showingInMainWindow .~ Buffers
+    $ st & showingInMainWindow .~ SearchBuffers
          & showingErrorWindow .~ False
   B.EvKey (B.KChar 'R') [B.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Results
@@ -164,9 +164,9 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   _ -> case st ^. showingInMainWindow of
-    Results -> handleKeyboard_atResultsWindow      st ev
-    Buffers -> handleKeyboard_atBufferWindow st ev
-    _       -> handleUncaughtInput                  st ev
+    Results       -> handleKeyboard_atResultsWindow      st ev
+    SearchBuffers -> handleKeyboard_atBufferWindow st ev
+    _             -> handleUncaughtInput                  st ev
 
 appHandleEvent st _ = B.continue st
 
