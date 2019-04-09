@@ -117,7 +117,7 @@ makeLenses ''MemberHosts
 -- PITFALL: These types must come last in order to derive `Show`.
 
 data Buffer = Buffer { _bufferQuery :: ViewQuery
-                     , _bufferRsltViewTree  :: PTree RsltView
+                     , _bufferRsltViewPorest  :: Porest RsltView
                      } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
@@ -151,9 +151,10 @@ stSetFocusedBuffer = sets go where
 stGetFocusedRsltViewTree :: Getter St (Maybe (PTree RsltView))
 stGetFocusedRsltViewTree = to go where
   go :: St -> Maybe (PTree RsltView)
-  go st = st ^? stGetFocusedBuffer . _Just . bufferRsltViewTree . getFocusedSubtree . _Just
+  go st = st ^? stGetFocusedBuffer . _Just . bufferRsltViewPorest . P.focus . getFocusedSubtree . _Just
 
 stSetFocusedRsltViewTree :: Setter' St (PTree RsltView)
 stSetFocusedRsltViewTree = sets go where
   go :: (PTree RsltView -> PTree RsltView) -> St -> St
-  go f = stSetFocusedBuffer . bufferRsltViewTree . setFocusedSubtree %~ f
+  go f = stSetFocusedBuffer . bufferRsltViewPorest . P.focus .
+         setFocusedSubtree %~ f

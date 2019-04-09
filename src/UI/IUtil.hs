@@ -41,16 +41,25 @@ emptySt r = St {
                                          , (Reassurance, True) ]
   }
 
+dummyResltView :: RsltView
+dummyResltView = VQuery "There's nothing here (yet)."
+
 emptyBuffer :: Buffer
-emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
-                     , _bufferRsltViewTree = pTreeLeaf $ VQuery "" }
+emptyBuffer = Buffer {
+    _bufferQuery = "(empty buffer)"
+  , _bufferRsltViewPorest =
+    porestLeaf dummyResltView }
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
 bufferFromRsltViewTree :: PTree RsltView -> Either String Buffer
 bufferFromRsltViewTree vt = do
-  let (rsltView :: RsltView) = _pTreeLabel vt
-  viewResult <- case rsltView of
+  let (rsltView :: RsltView) = vt ^. pTreeLabel
+  vr :: ViewResult <- case rsltView of
     VResult x -> Right x
     _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
-  Right $ Buffer { _bufferQuery = viewResult ^. viewResultString
-                 , _bufferRsltViewTree = vt }
+  Right $ Buffer {
+      _bufferQuery = vr ^. viewResultString
+    , _bufferRsltViewPorest =
+        maybe (porestLeaf dummyResltView) id $
+        vt ^. pMTrees
+    }

@@ -41,7 +41,7 @@ import Util.PTree
 
 moveFocusedRsltView :: Direction -> St -> St
 moveFocusedRsltView d st =
-  st & stSetFocusedBuffer . bufferRsltViewTree %~ moveFocusInPTree d
+  st & stSetFocusedBuffer . bufferRsltViewPorest %~ moveFocusInPorest d
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do

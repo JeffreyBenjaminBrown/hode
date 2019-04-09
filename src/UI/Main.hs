@@ -81,7 +81,7 @@ appDraw st0 = [w] where
   commandHistoryWindow =
     strWrap $ unlines $ map show $ st0 ^. commandHistory
 
-  commandWindow = vLimit 3
+  commandWindow = vLimit 1
     ( B.withFocusRing (st^.focusRing)
       (B.renderEditor $ str . unlines) (st^.commands) )
 
@@ -114,7 +114,7 @@ appDraw st0 = [w] where
                          . withAttr (B.attrName "focused result")
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-                 $ showTreeRec $ b ^. bufferRsltViewTree where
+                 $ showTreeRec $ b ^. bufferRsltViewPorest where
     fShow :: Porest RsltView -> B.Widget BrickName
     fShow = vBox . map showTreeRec . toList
 
