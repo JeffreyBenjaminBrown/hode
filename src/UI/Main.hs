@@ -59,15 +59,16 @@ appDraw st0 = [w] where
     <=> optionalWindows
 
   st = st0 & stSetFocusedBuffer .~ b
-           & buffers . P.focus . setFocusedSubtree . pTreeHasFocus .~ True
+           & ( searchBuffers . P.focus . setFocusedSubtree . pTreeHasFocus
+               .~ True )
            & stSetFocusedRsltViewTree . pTreeHasFocus .~ True
   (b :: Buffer) = maybe err id $  st0 ^? stGetFocusedBuffer . _Just where
       err = error "Focused Buffer not found."
 
   mainWindow = case st ^. showingInMainWindow of
-    Buffers -> bufferWindow
+    Buffers        -> bufferWindow
     CommandHistory -> commandHistoryWindow
-    Results -> resultWindow
+    Results        -> resultWindow
 
   optionalWindows =
     ( if (st ^. showingOptionalWindows) M.! Reassurance
@@ -95,7 +96,7 @@ appDraw st0 = [w] where
   -- Also I bet it could be a catamorphism.
   -- (c.f. _hiding/guidance/top-down-catamorphism.hs)
   bufferWindow = viewport (BrickMainName Buffers) B.Vertical
-                 $ fShow $ st ^. buffers where
+                 $ fShow $ st ^. searchBuffers where
     fShow :: Porest Buffer -> B.Widget BrickName
     fShow = vBox . map showTreeRec . toList
 

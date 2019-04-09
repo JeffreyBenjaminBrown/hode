@@ -43,8 +43,11 @@ see the comment leading its definition
 * TODO top priorities
 ** show a range of addresses
 ** TODO insertion list
-*** data St = ...
-+  , _insertionHistory :: [Addr]
+*** plan
+**** data St = ...
++  , _insertionBuffer :: Buffer
+**** initially, just add the final result of insertions
+**** then refactor insertion so it returns the full history of added things
 *** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
