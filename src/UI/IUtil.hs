@@ -41,14 +41,11 @@ emptySt r = St {
                                          , (Reassurance, True) ]
   }
 
-dummyResltView :: RsltView
-dummyResltView = VQuery "There's nothing here (yet)."
-
 emptyBuffer :: Buffer
 emptyBuffer = Buffer {
     _bufferQuery = "(empty buffer)"
   , _bufferRsltViewPorest =
-    porestLeaf dummyResltView }
+    porestLeaf $ VQuery "There are no search results to show here (yet)." }
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
 bufferFromRsltViewTree :: PTree RsltView -> Either String Buffer
@@ -60,6 +57,7 @@ bufferFromRsltViewTree vt = do
   Right $ Buffer {
       _bufferQuery = vr ^. viewResultString
     , _bufferRsltViewPorest =
-        maybe (porestLeaf dummyResltView) id $
-        vt ^. pMTrees
+      let dummy = porestLeaf $ VQuery
+            "There are no search results to show here (yet)."
+      in maybe dummy id $ vt ^. pMTrees
     }

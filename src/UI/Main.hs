@@ -114,7 +114,7 @@ appDraw st0 = [w] where
                          . withAttr (B.attrName "focused result")
 
   resultWindow = viewport (BrickMainName Results) B.Vertical
-                 $ showTreeRec $ b ^. bufferRsltViewPorest where
+                 $ fShow $ b ^. bufferRsltViewPorest where
     fShow :: Porest RsltView -> B.Widget BrickName
     fShow = vBox . map showTreeRec . toList
 

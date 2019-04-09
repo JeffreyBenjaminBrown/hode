@@ -138,24 +138,22 @@ parseAndRunCommand st =
 runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand (CommandFind s h) st = do
+runParsedCommand (CommandFind s h) st =
+  prefixLeft "runParsedCommand, called on CommandFind" $ do
   let r = st ^. appRslt
-      title = "runParsedCommand, called on CommandFind"
 
-  as :: Set Addr <- prefixLeft title
-    $ hExprToAddrs r (mempty :: Subst Addr) h
+  as :: Set Addr <-
+    hExprToAddrs r (mempty :: Subst Addr) h
 
-  let v = PTree { _pTreeLabel = VQuery s
-                , _pTreeHasFocus = True
-                , _pMTrees =
-                  P.fromList $ map v_qr $ S.toList as
-                } where
-
+  let p :: Porest RsltView
+      p = maybe (porestLeaf $ VQuery "No matches found.") id $
+          P.fromList $ map v_qr $ S.toList as
+        where
         v_qr :: Addr -> PTree RsltView
-        v_qr a = pTreeLeaf $ let
-              (rv :: Either String ViewResult) = resultView r a
-              (err :: String -> ViewResult) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
-          in VResult $ either err id rv
+        v_qr a = pTreeLeaf $ VResult $ either err id rv
+          where
+          (rv :: Either String ViewResult) = resultView r a
+          (err :: String -> ViewResult) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
 
   Right $ B.continue $ st
     & showingInMainWindow .~ Results
@@ -163,7 +161,7 @@ runParsedCommand (CommandFind s h) st = do
     & (let strip :: String -> String
            strip = T.unpack . T.strip . T.pack
        in stSetFocusedBuffer . bufferQuery .~ strip s)
-    & stSetFocusedBuffer . bufferRsltViewPorest .~ v
+    & stSetFocusedBuffer . bufferRsltViewPorest .~ p
 
 runParsedCommand (CommandReplace a e) st =
   either Left (Right . f)
