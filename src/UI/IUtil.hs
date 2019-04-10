@@ -28,8 +28,8 @@ unEitherSt _ (Right new) = new & showingErrorWindow .~ False
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _searchBuffers = porestLeaf emptyBuffer
-                     & P.focus . pTreeHasFocus .~ True
+  , _searchBuffers = Just $ porestLeaf emptyBuffer
+                          & P.focus . pTreeHasFocus .~ True
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""

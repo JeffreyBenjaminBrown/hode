@@ -20,10 +20,10 @@ import Util.PTree
 
 
 consBuffer_topNext :: Buffer -> St -> St
-consBuffer_topNext b = searchBuffers %~ cons_topNext b
+consBuffer_topNext b = searchBuffers . _Just %~ cons_topNext b
 
 consBufferAsChild :: Buffer -> St -> St
-consBufferAsChild b = searchBuffers . P.focus . setFocusedSubtree
+consBufferAsChild b = searchBuffers . _Just . P.focus . setFocusedSubtree
                       %~ consUnderAndFocus (pTreeLeaf b)
 
 cons_focusedViewResult_asChildOfBuffer :: St -> Either String St
@@ -39,4 +39,4 @@ cons_focusedViewResult_asChildOfBuffer st =
   Right $ st & hideReassurance & consBufferAsChild b'
 
 moveFocusedBuffer :: Direction -> St -> St
-moveFocusedBuffer d = searchBuffers %~ moveFocusInPorest d
+moveFocusedBuffer d = searchBuffers . _Just %~ moveFocusInPorest d

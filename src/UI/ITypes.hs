@@ -124,7 +124,7 @@ makeLenses ''Buffer
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, although technically used.
-  , _searchBuffers          :: Porest Buffer
+  , _searchBuffers          :: Maybe (Porest Buffer)
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
@@ -139,13 +139,13 @@ makeLenses ''St
 stGetFocusedBuffer :: Getter St (Maybe Buffer)
 stGetFocusedBuffer = to go where
   go :: St -> Maybe Buffer
-  go st = st ^? searchBuffers .
+  go st = st ^? searchBuffers . _Just .
     P.focus . getFocusedSubtree . _Just . pTreeLabel
 
 stSetFocusedBuffer :: Setter' St Buffer
 stSetFocusedBuffer = sets go where
   go :: (Buffer -> Buffer) -> St -> St
-  go f = searchBuffers . P.focus . setFocusedSubtree .
+  go f = searchBuffers . _Just . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
 stGetFocusedRsltViewTree :: Getter St (Maybe (PTree RsltView))

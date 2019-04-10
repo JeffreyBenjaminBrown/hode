@@ -59,8 +59,8 @@ appDraw st0 = [w] where
     <=> optionalWindows
 
   st = st0 & stSetFocusedBuffer .~ b
-           & ( searchBuffers . P.focus . setFocusedSubtree . pTreeHasFocus
-               .~ True )
+           & ( searchBuffers . _Just . P.focus
+               . setFocusedSubtree . pTreeHasFocus .~ True )
            & stSetFocusedRsltViewTree . pTreeHasFocus .~ True
   (b :: Buffer) = maybe err id $  st0 ^? stGetFocusedBuffer . _Just where
       err = error "Focused Buffer not found."
@@ -98,8 +98,10 @@ appDraw st0 = [w] where
                   else visible
                        . withAttr (B.attrName "focused result")
 
-  bufferWindow = viewport (BrickMainName SearchBuffers) B.Vertical
-    $ porestToWidget _bufferQuery focusStyle $ st ^. searchBuffers
+  bufferWindow = case st ^. searchBuffers of
+    Nothing -> str "There are no results to show. Add one with M-S-t."
+    Just p -> viewport (BrickMainName SearchBuffers) B.Vertical
+              $ porestToWidget _bufferQuery focusStyle p
 
   resultWindow = case b ^. bufferRsltViewPorest of
     Nothing -> str "There are no results to show (yet)."
