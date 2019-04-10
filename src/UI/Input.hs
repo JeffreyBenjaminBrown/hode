@@ -161,9 +161,9 @@ runParsedCommand (CommandFind s h) st =
     & (let strip :: String -> String
            strip = T.unpack . T.strip . T.pack
        in stSetFocusedBuffer . bufferQuery .~ strip s)
-    & stSetFocusedBuffer . bufferRsltViewPorest .~ p
-    & ( stSetFocusedBuffer . bufferRsltViewPorest . P.focus . pTreeHasFocus
-        .~ True )
+    & stSetFocusedBuffer . bufferRsltViewPorest . _Just .~ p
+    & ( stSetFocusedBuffer . bufferRsltViewPorest . _Just .
+        P.focus . pTreeHasFocus .~ True )
 
 runParsedCommand (CommandReplace a e) st =
   either Left (Right . f)

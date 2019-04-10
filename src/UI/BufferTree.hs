@@ -33,8 +33,8 @@ cons_focusedViewResult_asChildOfBuffer st =
     in maybe (Left s) Right $ st ^. stGetFocusedBuffer
   (pt :: PTree RsltView) <-
     let s = "getFocusedSubtree returned Nothing from bufferRsltViewPorest."
-    in maybe (Left s) Right $
-       b ^. bufferRsltViewPorest . P.focus . getFocusedSubtree
+    in maybe (Left s) (maybe (Left s) Right) $
+       b ^? bufferRsltViewPorest . _Just . P.focus . getFocusedSubtree
   b' <- bufferFromRsltViewTree pt
   Right $ st & hideReassurance & consBufferAsChild b'
 

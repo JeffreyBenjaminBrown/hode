@@ -20,7 +20,7 @@ import Util.PTree
 resultsText :: St -> [String]
 resultsText st = maybe [] (concatMap $ go 0) p where
   p :: Maybe (Porest RsltView)
-  p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewPorest
+  p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewPorest . _Just
 
   go :: Int -> PTree RsltView -> [String]
   go i tv = indent (showRsltView $ tv ^. pTreeLabel)

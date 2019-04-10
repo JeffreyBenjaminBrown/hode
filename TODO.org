@@ -41,6 +41,7 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
+** TODO refactor Porest into a Maybe PList, not a PList
 ** show a range of addresses
 ** TODO insertion list
 *** plan
@@ -54,6 +55,8 @@ see the comment leading its definition
 ** TODO count hosts at left
 ** a way to kill buffers
 ** folding
+** mark HostGroups s salient
+and store that info, and permit viewing only the salient ones
 ** manual update
 ** incremental view updates
 *** goal
