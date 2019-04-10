@@ -23,7 +23,22 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
   , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
+  , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
   ]
+
+test_renameAddr_unsafe :: Test
+test_renameAddr_unsafe = TestCase $ do
+  let x = M.fromList [(0,Phrase' "")
+                     ,(1,Tplt' [0,0,0])
+                     ,(2,Phrase' "x")
+                     ,(3,Phrase' "y")
+                     ,(4,Rel' (Rel [2,3] 1))
+                     ,(5,Rel' (Rel [4,2] 1))]
+      r :: Rslt = mkRslt x
+      s :: Rslt = mkRslt $ M.delete 4
+                  $ M.insert 6 (Rel' (Rel [2,3] 1))
+                  $ M.insert 5 (Rel' (Rel [6,2] 1)) x
+  assertBool "1" $ R.renameAddr_unsafe 4 6 r == s
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do
