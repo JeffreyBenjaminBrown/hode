@@ -4,14 +4,16 @@
 module Rslt.Edit (
     exprToAddrInsert      -- ^ Rslt -> Expr   -> Either String (Rslt, Addr)
   , exprToAddrInsert_list -- ^ Rslt -> [Expr] -> Either String (Rslt, [Addr])
-  , replaceExpr       -- ^ Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
-  , replace           -- ^ RefExpr -> Addr -> Rslt      -> Either String Rslt
-  , replaceInRole     -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
-  , insert            -- ^ RefExpr -> Rslt              -> Either String Rslt
-  , insertAt          -- ^ Addr -> RefExpr -> Rslt      -> Either String Rslt
-  , deleteIfUnused    -- ^ Addr -> Rslt                 -> Either String Rslt
+  , renameAddr_unsafe     -- ^ Addr -> Addr -> Rslt -> Rslt
+  , replaceExpr    -- ^ Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
+  , replace        -- ^ RefExpr -> Addr -> Rslt      -> Either String Rslt
+  , replaceInRole  -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
+  , insert         -- ^ RefExpr -> Rslt              -> Either String Rslt
+  , insertAt       -- ^ Addr -> RefExpr -> Rslt      -> Either String Rslt
+  , deleteIfUnused -- ^ Addr -> Rslt                 -> Either String Rslt
   ) where
 
+import           Control.Lens hiding (has, re)
 import           Data.Functor (void)
 import qualified Data.List      as L
 import           Data.Map (Map)
@@ -84,6 +86,32 @@ exprToAddrInsert_list r0 is = do
 
 
 -- | = Pure editing
+
+-- | `renameAddr_unsafe` could do harm, if the new `Addr` was
+-- already present. However, that might also be appropriate --
+-- for instance, after having replaced an old `Expr` at `old` with
+-- a new one at `new`, or after having discovered a duplicate.
+renameAddr_unsafe :: Addr -> Addr -> Rslt -> Rslt
+renameAddr_unsafe old new r = let
+  aa :: Addr -> Addr
+  aa a = if a == old then new else a
+
+  rere :: RefExpr -> RefExpr
+  rere e@(Phrase' _) = e
+  rere (Rel' rel)    = Rel' $ fmap aa rel
+  rere (Tplt' tplt)  = Tplt' $ fmap aa tplt
+
+  in Rslt { _addrToRefExpr = _addrToRefExpr r &
+                             M.mapKeys aa . M.map rere
+          , _refExprToAddr = _refExprToAddr r &
+                             M.mapKeys rere . M.map aa
+          , _variety = _variety r &
+                       M.mapKeys aa
+          , _has = _has r &
+                   M.mapKeys aa . M.map (M.map aa)
+          , _isIn = _isIn r &
+                    M.mapKeys aa . M.map (S.map $ _2 %~ aa)
+          }
 
 replaceExpr :: Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
 replaceExpr e a r = prefixLeft "replaceExpr" $ do
