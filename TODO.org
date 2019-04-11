@@ -41,7 +41,6 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** TODO document: show a range of addresses
 ** insertion list
 *** plan
 **** data St = ...

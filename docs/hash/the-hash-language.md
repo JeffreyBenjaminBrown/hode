@@ -92,10 +92,15 @@ you can use the keywords `/eval` and `/it`
 (see the "advanced queries" section below).
 
 
-### Query for an Addr with /addr (or /@), followed by a number
+### Query for an `Addr` with `/addr` (or `/@`), followed by a number
 
 For instance, if "bob" is stored at `Addr` 1,
 then `/f /@ 1 #flattered /_` will find every expression of the form `bob #flattered /_`.
+
+
+### Query for multiple `Addrs` with `/addrs` (or `/@s`), followed by numbers and (dash-separated) ranges of numbers
+
+For instance, the command "/f /@s 1 10-12 42" would display the five `Expr`s located at the following `Addr` values: 1, 10, 11, 12 and 42.
 
 
 ### Set operations: union (`|`), interseciton (`&`), and difference (`\`)

@@ -5,6 +5,7 @@ Instead of writing /find, you can write /f, etc. So far these are all the keywor
 ```
 /add     -> /a
 /addr    -> /@
+/addrs   -> /@s
 /any     -> /_
 /eval    -> /e
 /find    -> /f
