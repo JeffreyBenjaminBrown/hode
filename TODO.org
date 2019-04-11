@@ -226,8 +226,8 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
 * TODO collect use cases
 ** view notes from a text ordered by source text or topic
-* unimportant bugs
-** the empty unary relationship
+* bugs
+** meh: the empty unary relationship
 "# x" is treated the same as "x #"
 and it displays the same as "x"
 * DONE ? overly cautious

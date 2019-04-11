@@ -114,6 +114,8 @@ will list the things you like, minus the ones I cannot afford.
 
 ### Replace a superexpression with a subexpression using `/eval` and `/it`
 
+(Note: This is about replacement within search results. To replace one `Expr` with another in an `Rslt`, see the section on the `/replace` keyword in [the ui documentation](docs/ui.md).)
+
 If (in the database) bob has flattered both alice and chuck,
 then the command `/find /eval bob #flattered /it` would return "alice" and "chuck".
 

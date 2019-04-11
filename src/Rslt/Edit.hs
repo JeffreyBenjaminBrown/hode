@@ -14,6 +14,7 @@ module Rslt.Edit (
   ) where
 
 import           Control.Lens hiding (has, re)
+import           Data.Either
 import           Data.Functor (void)
 import qualified Data.List      as L
 import           Data.Map (Map)
@@ -115,16 +116,28 @@ renameAddr_unsafe old new r = let
 
 -- | `replaceExpr a e r` replaces the `Expr` at `a`. The set of `Addr`s in
 -- `r` remains unchanged.
--- TODO|PITFALL: If the new `Expr` contains the old one, this will crash.
 replaceExpr :: Addr -> Expr -> Rslt -> Either String Rslt
--- The easiest way to remove that pitfall would be to first replace with a dummy
--- expression not yet present (ideally without needing randomness), then
--- replace that with the desired one.
-replaceExpr a e r = prefixLeft "replaceExpr" $ do
-  (r1 :: Rslt, a1 :: Addr) <- exprToAddrInsert r e
-  rx1 :: RefExpr           <- addrToRefExpr r1 a1
-  r2 :: Rslt               <- replace rx1 a r1
-  Right $ renameAddr_unsafe a1 a r2
+replaceExpr a0 e0 r0 = prefixLeft "replaceExpr" $
+                       go a0 anAbsentPhrase r0 >>=
+                       go a0 e0
+  where
+
+    -- PITFALL: If the new `Expr` contains the old one, `go` will crash.
+    -- That's why `anAbsentPhrase` is used.
+    go :: Addr -> Expr -> Rslt -> Either String Rslt
+    go a e r = prefixLeft "replaceExpr" $ do
+      (r1 :: Rslt, a1 :: Addr) <- exprToAddrInsert r e
+      rx1 :: RefExpr           <- addrToRefExpr r1 a1
+      r2 :: Rslt               <- replace rx1 a r1
+      Right $ renameAddr_unsafe a1 a r2
+
+    anAbsentPhrase :: Expr
+    anAbsentPhrase = Phrase $ aap s0 where
+      s0 = "&b(;HG65Lcsd.21%^!#$o6tB6*)"
+      aap :: String -> String
+      aap s = if isRight $ refExprToAddr r0 (Phrase' s)
+              then s else s ++ s
+
 
 -- | deletes the `Expr` at `oldAddr`, creates or finds the `RefExpr` at `newAddr`,
 -- substitutes the new one for the old one everywhere the old one appeared.
