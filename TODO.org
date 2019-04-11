@@ -41,10 +41,6 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** write a test for, and use, renameAddr_unsafe: Addr -> Addr -> Rslt -> Rslt
-Will make it easy to make `replace` behave as expected.
-  Rather than introducing a new Addr.
-Will make it easier (if needed) to detect and delete duplicates.
 ** show a range of addresses
 ** TODO insertion list
 *** plan

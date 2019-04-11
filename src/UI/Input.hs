@@ -167,14 +167,13 @@ runParsedCommand (CommandFind s h) st =
 
 runParsedCommand (CommandReplace a e) st =
   either Left (Right . f)
-  $ replaceExpr e a (st ^. appRslt)
-  where f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
-        f (r,a') = B.continue $ st & appRslt .~ r
-                   & showingErrorWindow .~ False
-                   & showReassurance msg
-                   & showingInMainWindow .~ Results
-          where msg = "Expr that was at " ++ show a
-                  ++ " replaced with the (maybe new) one at " ++ show a'
+  $ replaceExpr a e (st ^. appRslt)
+  where f :: Rslt -> B.EventM BrickName (B.Next St)
+        f r = B.continue $ st & appRslt .~ r
+                              & showingErrorWindow .~ False
+                              & showReassurance msg
+                              & showingInMainWindow .~ Results
+          where msg = "Replaced Expr at " ++ show a ++ "."
 
 runParsedCommand (CommandInsert e) st =
   either Left (Right . f)
