@@ -107,12 +107,20 @@ pAddr = lexeme  ( foldr1 (<|>)
                   $ map (try . string) ["/addr","/@"] )
         >> Addr . fromIntegral <$> integer
 
+-- | `pAddrs` parses the string "/@s 1-10 100 30-40 101"
+-- to be the disjunction (POr) of 22 `Addr`s.
 pAddrs :: Parser PExpr
 pAddrs = do
   _ <- lexeme $ foldr1 (<|>) $
        map (try . string) ["/addrs","/@s"]
-  as <- some $ lexeme integer
-  return $ POr $ map (PExpr . Addr . fromIntegral) as
+  let range :: Parser [Integer]
+      range = do min0 <- lexeme integer
+                 _    <- lexeme $ char '-'
+                 max0 <- lexeme integer
+                 return [min0 .. max0]
+  as <- some $ lexeme $
+        try range <|> ((: []) <$> integer)
+  return $ POr $ map (PExpr . Addr . fromIntegral) $ concat as
 
 pPhrase :: Parser PExpr
 pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
