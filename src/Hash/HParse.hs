@@ -72,10 +72,11 @@ pAbsentMember = const Absent <$> f
 -- | = parse a PExpr
 
 pExpr :: Parser PExpr
-pExpr = simplifyPExpr <$> ( foldl1 (<|>) ps ) where
+pExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
   ps = [ parens pExpr
 
        -- the PExpr constructor
+       , pAddrs
        , PExpr <$> pAddr
        , pPhrase
        , PExpr <$> pTplt
@@ -105,6 +106,13 @@ pAddr :: Parser Expr
 pAddr = lexeme  ( foldr1 (<|>)
                   $ map (try . string) ["/addr","/@"] )
         >> Addr . fromIntegral <$> integer
+
+pAddrs :: Parser PExpr
+pAddrs = do
+  _ <- lexeme $ foldr1 (<|>) $
+       map (try . string) ["/addrs","/@s"]
+  as <- some $ lexeme integer
+  return $ POr $ map (PExpr . Addr . fromIntegral) as
 
 pPhrase :: Parser PExpr
 pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase

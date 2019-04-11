@@ -33,7 +33,7 @@ pCommand r s =
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
   ( prefixLeft "pCommand_insert"
-    $ mapLeft show (parse _pHashExpr "doh!" s)
+    $ mapLeft show (parse _pHashExpr "doh 1!" s)
     >>= pExprToHExpr r
     >>= hExprToExpr r )
 
@@ -43,7 +43,7 @@ pCommand_replace r s = prefixLeft "pCommand_replace" $ do
                 p = do a <- fromIntegral <$> lexeme integer
                        px <- _pHashExpr
                        return (a,px)
-    in mapLeft show $ parse p "doh!" s
+    in mapLeft show $ parse p "doh 2!" s
   e <- pExprToHExpr r px >>= hExprToExpr r
   Right $ CommandReplace a e
 
@@ -54,15 +54,15 @@ pCommand_find :: Rslt -> String -> Either String Command
 -- PITFALL: Don't add an implicit Eval at the top of every search parsed in
 -- the UI, because an Eval will return nothing if there are no Its below.
 pCommand_find r s = prefixLeft "pCommand_find" $ do
-  (e1 :: PExpr) <- mapLeft show (parse _pHashExpr "doh!" s)
+  (e1 :: PExpr) <- mapLeft show (parse _pHashExpr "doh 3!" s)
   CommandFind s <$> pExprToHExpr r e1
 
 pCommand_load :: String -> Either String Command
 pCommand_load s = CommandLoad <$>
   ( prefixLeft "pCommand_load"
-    $ mapLeft show (parse filepath "doh!" s) )
+    $ mapLeft show (parse filepath "doh 4!" s) )
 
 pCommand_save :: String -> Either String Command
 pCommand_save s = CommandSave <$>
   ( prefixLeft "pCommand_save"
-    $ mapLeft show (parse filepath "doh!" s) )
+    $ mapLeft show (parse filepath "doh 5!" s) )
