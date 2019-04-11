@@ -5,6 +5,7 @@ module Test.Rslt.TEdit where
 import           Data.Either
 import qualified Data.Map       as M
 import qualified Data.Set       as S
+import           Lens.Micro hiding (has)
 import           Test.HUnit
 
 import           Rslt.RLookup hiding (exprToAddr)
@@ -23,6 +24,7 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replace" test_replace
   , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
+  , TestLabel "test_replaceExpr" test_replaceExpr
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
   ]
 
@@ -39,6 +41,16 @@ test_renameAddr_unsafe = TestCase $ do
                   $ M.insert 6 (Rel' (Rel [2,3] 1))
                   $ M.insert 5 (Rel' (Rel [6,2] 1)) x
   assertBool "1" $ R.renameAddr_unsafe 4 6 r == s
+
+test_replaceExpr :: Test
+test_replaceExpr = TestCase $ do
+  let newRel      :: Rel Addr = Rel [1,3] 4
+      new_refExpr :: RefExpr  = Rel' newRel
+      new_expr    :: Expr     = ExprRel $ fmap Addr newRel
+      refExprs    :: M.Map Addr RefExpr =
+        D.refExprs & M.insert 5 new_refExpr
+  assertBool "1" $ R.replaceExpr 5 new_expr D.rslt ==
+    Right (mkRslt refExprs)
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do

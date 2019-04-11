@@ -41,10 +41,6 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
-** use renameAddr_unsafe: Addr -> Addr -> Rslt -> Rslt
-Will make it easy to make `replace` behave as expected.
-  Rather than introducing a new Addr.
-Will make it easier (if needed) to detect and delete duplicates.
 ** show a range of addresses
 ** TODO insertion list
 *** plan
@@ -230,8 +226,8 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
 * TODO collect use cases
 ** view notes from a text ordered by source text or topic
-* unimportant bugs
-** the empty unary relationship
+* bugs
+** meh: the empty unary relationship
 "# x" is treated the same as "x #"
 and it displays the same as "x"
 * DONE ? overly cautious
