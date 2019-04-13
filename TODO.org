@@ -41,6 +41,10 @@ see the comment leading its definition
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
 * TODO top priorities
+** TODO bug: cons_focusedViewResult_asChildOfBuffer
+Only works when called from a focused RsltView that has children.
+Use this function for debugging it:
+  debugging_cons_focusedViewResult_asChildOfBuffer
 ** insertion list
 *** plan
 **** data St = ...

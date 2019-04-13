@@ -24,10 +24,10 @@ pCommand r s =
     "/f"       -> pCommand_find    r t
     "/replace" -> pCommand_replace r t
     "/r"       -> pCommand_replace r t
-    "/delete"  -> pCommand_delete  r t
-    "/d"       -> pCommand_delete  r t
-    "/load"    -> pCommand_load     t
-    "/save"    -> pCommand_save     t
+    "/delete"  -> pCommand_delete    t
+    "/d"       -> pCommand_delete    t
+    "/load"    -> pCommand_load      t
+    "/save"    -> pCommand_save      t
     _          -> Left $ "Unrecognized start of command."
 
 pCommand_insert :: Rslt -> String -> Either String Command
@@ -47,8 +47,8 @@ pCommand_replace r s = prefixLeft "pCommand_replace" $ do
   e <- pExprToHExpr r px >>= hExprToExpr r
   Right $ CommandReplace a e
 
-pCommand_delete :: Rslt -> String -> Either String Command
-pCommand_delete r s = prefixLeft "pCommand_delete" $ do
+pCommand_delete :: String -> Either String Command
+pCommand_delete s = prefixLeft "pCommand_delete" $ do
   a <- let p = fromIntegral <$> lexeme integer
        in mapLeft show $ parse p "doh 2!" s
   Right $ CommandDelete a
