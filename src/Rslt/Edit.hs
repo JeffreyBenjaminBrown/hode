@@ -5,12 +5,13 @@ module Rslt.Edit (
     exprToAddrInsert      -- ^ Rslt -> Expr   -> Either String (Rslt, Addr)
   , exprToAddrInsert_list -- ^ Rslt -> [Expr] -> Either String (Rslt, [Addr])
   , renameAddr_unsafe     -- ^ Addr -> Addr -> Rslt -> Rslt
-  , replaceExpr    -- ^ Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
-  , replace        -- ^ RefExpr -> Addr -> Rslt      -> Either String Rslt
+  , delete         -- ^ Addr ->                 Rslt -> Either String Rslt
+  , replaceExpr    -- ^ Expr -> Addr ->         Rslt -> Either String (Rslt, Addr)
+  , replaceRefExpr -- ^ RefExpr -> Addr ->      Rslt -> Either String Rslt
   , replaceInRole  -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
-  , insert         -- ^ RefExpr -> Rslt              -> Either String Rslt
-  , insertAt       -- ^ Addr -> RefExpr -> Rslt      -> Either String Rslt
-  , deleteIfUnused -- ^ Addr -> Rslt                 -> Either String Rslt
+  , insert         -- ^ RefExpr ->              Rslt -> Either String Rslt
+  , insertAt       -- ^ Addr -> RefExpr ->      Rslt -> Either String Rslt
+  , deleteIfUnused -- ^ Addr ->                 Rslt -> Either String Rslt
   ) where
 
 import           Control.Lens hiding (has, re)
@@ -114,6 +115,13 @@ renameAddr_unsafe old new r = let
                     M.mapKeys aa . M.map (S.map $ _2 %~ aa)
           }
 
+delete :: Addr -> Rslt -> Either String Rslt
+delete a r = prefixLeft "delete" $ do
+  hosts <- isIn r a
+  if not $ null hosts
+    then Left "Expr to be deleted is a member of other Exprs."
+    else replaceExpr a (Phrase "") r
+
 -- | `replaceExpr a e r` replaces the `Expr` at `a`. The set of `Addr`s in
 -- `r` remains unchanged.
 replaceExpr :: Addr -> Expr -> Rslt -> Either String Rslt
@@ -128,7 +136,7 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr" $
     go a e r = prefixLeft "replaceExpr" $ do
       (r1 :: Rslt, a1 :: Addr) <- exprToAddrInsert r e
       rx1 :: RefExpr           <- addrToRefExpr r1 a1
-      r2 :: Rslt               <- replace rx1 a r1
+      r2 :: Rslt               <- replaceRefExpr rx1 a r1
       Right $ renameAddr_unsafe a1 a r2
 
     anAbsentPhrase :: Expr
@@ -141,8 +149,8 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr" $
 
 -- | deletes the `Expr` at `oldAddr`, creates or finds the `RefExpr` at `newAddr`,
 -- substitutes the new one for the old one everywhere the old one appeared.
-replace :: RefExpr -> Addr -> Rslt -> Either String Rslt
-replace re oldAddr r0 = prefixLeft "replace" $
+replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
+replaceRefExpr re oldAddr r0 = prefixLeft "replace" $
   case refExprToAddr r0 re of
     Right newAddr -> do
       r2 <- _substitute newAddr oldAddr r0

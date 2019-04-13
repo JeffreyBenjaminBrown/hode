@@ -80,24 +80,31 @@ or relative to wherever you started GHCI from.
 `/save folder/subfolder/subfolder`
 
 
-## Replace the expression at some address
+## Replace an expression
 
 Write `/replace` (or `/r`),
-followed by the address,
+followed by the expression's address,
 followed by what should be there.
 
 For instance, `/replace 3 x # y` would replace
 whatever used to be at address 3 with the expression `x # y`.
 
-### Caveats
-Note that the replacement expression will not
-have the same address as the replaced expression.
 
-Note also that replacement destroys the old expression.
+### Caveat
+
+Note that replacement destroys the old expression.
 Any superexpression it used to appear in
 now contains the new expression instead.
+
 Replacement does *not*, however,
 destroy the old expression's sub-expressions.
+
+
+## Delete an expression
+
+Deletion is only possible for a top-level expression -- that is, an expression that is not a member of any other expressions. (If you deleted "seaweed", what would happen to "I #(must buy) seaweed"?)
+
+The syntax is `/delete a` or `/d a`, where "a" is the address of the expression to be deleted.
 
 
 ## Add an expression
@@ -160,6 +167,8 @@ it's the buffer that shows in green when you look at the buffer buffer.
 Show (the currently focused) results buffer: `M-r`
 
 Show (the) buffer buffer: `M-b`
+
+Show (the) command history buffer: `M-h`
 
 Show (the) error buffer: `M-e`
 

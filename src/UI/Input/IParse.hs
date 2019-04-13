@@ -18,17 +18,17 @@ pCommand :: Rslt -> String -> Either String Command
 pCommand r s =
   let (h,t) = splitAfterFirstLexeme s
   in case h of
-    "/add"     -> pCommand_insert r t
-    "/a"       -> pCommand_insert r t
-    "/find"    -> pCommand_find   r t
-    "/f"       -> pCommand_find   r t
+    "/add"     -> pCommand_insert  r t
+    "/a"       -> pCommand_insert  r t
+    "/find"    -> pCommand_find    r t
+    "/f"       -> pCommand_find    r t
     "/replace" -> pCommand_replace r t
     "/r"       -> pCommand_replace r t
+    "/delete"  -> pCommand_delete  r t
+    "/d"       -> pCommand_delete  r t
     "/load"    -> pCommand_load     t
     "/save"    -> pCommand_save     t
-    _          -> Left $ "Commands must start with "
-                  ++ "/add (or /a), /find (or /f), /replace (or /r),"
-                  ++ " /load or /save."
+    _          -> Left $ "Unrecognized start of command."
 
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
@@ -46,6 +46,12 @@ pCommand_replace r s = prefixLeft "pCommand_replace" $ do
     in mapLeft show $ parse p "doh 2!" s
   e <- pExprToHExpr r px >>= hExprToExpr r
   Right $ CommandReplace a e
+
+pCommand_delete :: Rslt -> String -> Either String Command
+pCommand_delete r s = prefixLeft "pCommand_delete" $ do
+  a <- let p = fromIntegral <$> lexeme integer
+       in mapLeft show $ parse p "doh 2!" s
+  Right $ CommandDelete a
 
 -- | `pCommand_find` looks for any naked `/it` sub-expressions.
 -- (Here naked means not inside an /eval expression.) If there are

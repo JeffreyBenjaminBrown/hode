@@ -50,10 +50,10 @@ see the comment leading its definition
 *** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
-** TODO count hosts at left
+** TODO count hosts at left; show members recursively
 ** a way to kill buffers
 ** folding
-** mark HostGroups s salient
+** mark HostGroups as salient
 and store that info, and permit viewing only the salient ones
 ** manual update
 ** incremental view updates

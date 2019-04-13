@@ -93,7 +93,7 @@ test_exprToAddrInsert = TestCase $ do
 test_replace :: Test
 test_replace = TestCase $ do
   assertBool "replace word in rel" $
-    either (error "wut") id (R.replace (Phrase' "foo") 1 D.rslt)
+    either (error "wut") id (R.replaceRefExpr (Phrase' "foo") 1 D.rslt)
     == mkRslt ( M.fromList
           [ (0, Phrase' "")
           , (2, Phrase' "oxygen")
@@ -105,7 +105,7 @@ test_replace = TestCase $ do
           ] )
 
   assertBool "replace word in Tplt" $
-    either (error "wut") id (R.replace (Phrase' "foo") 0 D.rslt)
+    either (error "wut") id (R.replaceRefExpr (Phrase' "foo") 0 D.rslt)
     == mkRslt ( M.fromList
          [ (7, Phrase' "foo")
          , (1, Phrase' "dog")
@@ -117,7 +117,7 @@ test_replace = TestCase $ do
          ] )
 
   assertBool "replace rel" $
-    either (error "wut") id (R.replace (Rel' $ Rel [2,1] 4) 5 D.rslt)
+    either (error "wut") id (R.replaceRefExpr (Rel' $ Rel [2,1] 4) 5 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
          , (1, Phrase' "dog")
@@ -129,7 +129,7 @@ test_replace = TestCase $ do
          ] )
 
   assertBool "todo : replace tplt" $
-    either (error "wut") id (R.replace (Tplt' [2,2,2]) 4 D.rslt)
+    either (error "wut") id (R.replaceRefExpr (Tplt' [2,2,2]) 4 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
          , (1, Phrase' "dog")

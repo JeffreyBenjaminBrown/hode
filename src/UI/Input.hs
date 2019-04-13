@@ -94,6 +94,7 @@ handleKeyboard_atResultsWindow st ev = case ev of
 
   B.EvKey (B.KChar 'r') [B.MMeta] -> B.continue
     $ replaceCommand st
+
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
@@ -174,6 +175,15 @@ runParsedCommand (CommandReplace a e) st =
                               & showReassurance msg
                               & showingInMainWindow .~ Results
           where msg = "Replaced Expr at " ++ show a ++ "."
+
+runParsedCommand (CommandDelete a) st =
+  either Left (Right . f)
+  $ delete a (st ^. appRslt)
+  where f :: Rslt -> B.EventM BrickName (B.Next St)
+        f r = B.continue $ st & appRslt .~ r
+                              & showingErrorWindow .~ False
+                              & showReassurance msg
+          where msg = "Deleted Expr at " ++ show a ++ "."
 
 runParsedCommand (CommandInsert e) st =
   either Left (Right . f)

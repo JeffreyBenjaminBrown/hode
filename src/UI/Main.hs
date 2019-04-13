@@ -27,7 +27,6 @@ import UI.ITypes
 import UI.IUtil
 import UI.ShowPTree
 import UI.String
-import UI.Window
 import Util.PTree
 
 
@@ -121,8 +120,6 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
 
   -- command window
   B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
-  B.EvKey (B.KChar 'k') [B.MMeta] -> B.continue
-    $ emptyCommandWindow st
 
   -- switch main window content
   B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
