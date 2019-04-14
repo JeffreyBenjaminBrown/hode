@@ -1,6 +1,15 @@
 See below for how to install.
 
 
+# There are video introductions
+
+The video on navigation is probably more interesting. I suspect it will make sense even if you haven't watched the video on editing, but I'm not sure.
+
+[Video: How to navigate (search and crawl)](https://www.youtube.com/watch?v=o6yifYdKlU0).
+
+[Video: How to edit](https://www.youtube.com/watch?v=fuCREbf1m9k).
+
+
 # What this is
 
 Hode is an editor for higher-order data.
