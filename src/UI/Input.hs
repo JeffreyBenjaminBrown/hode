@@ -139,10 +139,11 @@ parseAndRunCommand st =
 runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
+runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
+                          $ g c0 st0
   where
 
-  f (CommandFind s h) st =
+  g (CommandFind s h) st =
     prefixLeft ", called on CommandFind" $ do
     let r = st ^. appRslt
 
@@ -169,7 +170,7 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
       & ( stSetFocusedBuffer . bufferRsltViewPorest . _Just .
           P.focus . pTreeHasFocus .~ True )
 
-  f (CommandReplace a e) st =
+  g (CommandReplace a e) st =
     either Left (Right . f)
     $ replaceExpr a e (st ^. appRslt)
     where f :: Rslt -> B.EventM BrickName (B.Next St)
@@ -179,7 +180,7 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
                                 & showingInMainWindow .~ Results
             where msg = "Replaced Expr at " ++ show a ++ "."
 
-  f (CommandDelete a) st =
+  g (CommandDelete a) st =
     either Left (Right . f)
     $ delete a (st ^. appRslt)
     where f :: Rslt -> B.EventM BrickName (B.Next St)
@@ -188,7 +189,7 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
                                 & showReassurance msg
             where msg = "Deleted Expr at " ++ show a ++ "."
 
-  f (CommandInsert e) st =
+  g (CommandInsert e) st =
     either Left (Right . f)
     $ exprToAddrInsert (st ^. appRslt) e
     where
@@ -198,7 +199,7 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
                 & showReassurance ("Expr added at Addr " ++ show a)
                 & showingInMainWindow .~ Results
 
-  f (CommandLoad f) st = Right $ do
+  g (CommandLoad f) st = Right $ do
     (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
     if bad
       then B.continue $ st & showError ("Non-existent folder: " ++ f)
@@ -208,7 +209,7 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
                               & showingInMainWindow .~ Results
                               & showingErrorWindow .~ False
 
-  f (CommandSave f) st = Right $ do
+  g (CommandSave f) st = Right $ do
     (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
     st' <- if bad
       then return $ st & showError ("Non-existent folder: " ++ f)

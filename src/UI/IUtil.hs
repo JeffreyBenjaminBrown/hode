@@ -56,7 +56,6 @@ bufferFromRsltViewTree vt = do
     VResult x -> Right x
     _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
   Right $ Buffer {
-      _bufferQuery = vr ^. viewResultString
-    , _bufferRsltViewPorest =
-      maybe Nothing Just $ vt ^. pMTrees
+      _bufferQuery          = vr ^. viewResultString
+    , _bufferRsltViewPorest = P.fromList [vt]
     }

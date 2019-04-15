@@ -5,8 +5,6 @@ module UI.BufferTree (
     consBuffer_topNext -- ^ Buffer -> St -> St
   , consBufferAsChild  -- ^ Buffer -> St -> St
   , cons_focusedViewResult_asChildOfBuffer -- ^ St -> Either String St
-  , debugging_cons_focusedViewResult_asChildOfBuffer
-    -- ^ St -> Either String (Buffer, PTree RsltView, Buffer)
   , moveFocusedBuffer -- ^ Direction -> St -> St
   ) where
 
@@ -39,19 +37,6 @@ cons_focusedViewResult_asChildOfBuffer st =
        b ^? bufferRsltViewPorest . _Just . P.focus . getFocusedSubtree
   b' <- bufferFromRsltViewTree ptrv
   Right $ st & hideReassurance & consBufferAsChild b'
-
-debugging_cons_focusedViewResult_asChildOfBuffer ::
-  St -> Either String (Buffer, PTree RsltView, Buffer)
-debugging_cons_focusedViewResult_asChildOfBuffer st =
-  prefixLeft "cons_focusedViewResult_asChild" $ do
-  b :: Buffer <- let s = "stBuffer returned Nothing."
-    in maybe (Left s) Right $ st ^. stGetFocusedBuffer
-  (ptrv :: PTree RsltView) <-
-    let s = "getFocusedSubtree returned Nothing from bufferRsltViewPorest."
-    in maybe (Left s) (maybe (Left s) Right) $
-       b ^? bufferRsltViewPorest . _Just . P.focus . getFocusedSubtree
-  b' <- bufferFromRsltViewTree ptrv
-  Right $ (b, ptrv, b')
 
 moveFocusedBuffer :: Direction -> St -> St
 moveFocusedBuffer d = searchBuffers . _Just %~ moveFocusInPorest d
