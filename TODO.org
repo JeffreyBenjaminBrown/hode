@@ -56,14 +56,13 @@ Use this function for debugging it:
 (2) don't record insertion if it already existed
 ** TODO count hosts at left; show members recursively
 ** a way to kill buffers
-** folding
-** mark HostGroups as salient
-and store that info, and permit viewing only the salient ones
-** manual update
-** incremental view updates
-*** goal
+** TODO folding
+** TODO update
+*** manual update
+*** automatic update
+**** goal
 Each time an Expr `a` is added, test each search for whether it would include *only* `a`.
-*** method
+**** method
 Call each layer in each ViewTree a "spot".
 Each is associated with some kind of Hash expression `h`.
 Decompose `h` into its constituents, and save those at the spot.
@@ -89,9 +88,6 @@ If anything is modified, ask "are you sure? Your repo has uncommitted changes; s
 
 If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
-** TODO remove the string argument from ifLefts*
-use prefixLeft for that, when needed.
-Otherwise something can confusingly extend the error message when calling itself.
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root
@@ -109,6 +105,10 @@ Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
 ** count things
 ** note order
+** store views
+e.g. mark HostGroups as salient,
+and store that info,
+and permit viewing only the salient ones
 ** user language
 show flag if condition holds
 * crawling across Exprs

@@ -26,12 +26,10 @@ module Util.Misc (
   , mapLeft         -- ^ (a -> a') -> Either a b -> Either a' b
   , prefixLeft      -- ^ String -> Either String a -> Either String a
   , ifNothings      -- ^ [Maybe a] -> Maybe [a]
-  , ifLefts         -- ^ String -> [Either String a] -> Either String [a]
-  , ifLefts_set     -- ^ String -> Set (Either String a) -> Either String (Set a)
-  , ifLefts_mapKeys -- ^ String -> Map (Either String k) a
-                    -- -> Either String (Map k a)
-  , ifLefts_map     -- ^ String -> Map k (Either String a)
-                    -- -> Either String (Map k a)
+  , ifLefts         -- ^ [Either String a]       -> Either String [a]
+  , ifLefts_set     -- ^ Set (Either String a)   -> Either String (Set a)
+  , ifLefts_mapKeys -- ^ Map (Either String k) a -> Either String (Map k a)
+  , ifLefts_map     -- ^ Map k (Either String a) -> Either String (Map k a)
   ) where
 
 import           Data.Either hiding (lefts)
@@ -128,41 +126,35 @@ ifNothings ms = let
        True -> Just $ map fromJust ms
        False -> Nothing
 
-ifLefts :: String -> [Either String a] -> Either String [a]
-ifLefts msg es = let
+ifLefts :: [Either String a] -> Either String [a]
+ifLefts es = let
   lefts = filter isLeft es
   impossible = error "ifLefts: impossible."
   in case null lefts of
        True -> Right $ map (fromRight impossible) es
-       False -> Left $ msg ++ " --called-> "
-         ++ concat (map (fromLeft impossible) lefts)
+       False -> Left $ concat (map (fromLeft impossible) lefts)
 
-ifLefts_set :: Ord a
-  => String -> Set (Either String a) -> Either String (Set a)
-ifLefts_set msg es = let
+ifLefts_set :: Ord a => Set (Either String a) -> Either String (Set a)
+ifLefts_set es = let
   lefts = S.filter isLeft es
   impossible = error "ifLefts_set: impossible."
   in case null lefts of
        True -> Right $ S.map (fromRight impossible) es
-       False -> Left $ msg ++ " --called-> "
-         ++ concat (S.map (fromLeft impossible) lefts)
+       False -> Left $ concat (S.map (fromLeft impossible) lefts)
 
 ifLefts_mapKeys :: Ord k
-  => String -> Map (Either String k) a -> Either String (Map k a)
-ifLefts_mapKeys msg m = let
+  => Map (Either String k) a -> Either String (Map k a)
+ifLefts_mapKeys m = let
   lefts = S.filter isLeft $ M.keysSet m
   impossible = error "ifLefts_mapKeys: impossible."
   in case null lefts of
        True -> Right $ M.mapKeys (fromRight impossible) m
-       False -> Left $ msg ++ " --called-> "
-         ++ concat (S.map (fromLeft impossible) lefts)
+       False -> Left $ concat $ S.map (fromLeft impossible) lefts
 
-ifLefts_map :: Ord k
-  => String -> Map k (Either String a) -> Either String (Map k a)
-ifLefts_map msg m = let
+ifLefts_map :: Ord k => Map k (Either String a) -> Either String (Map k a)
+ifLefts_map m = let
   lefts = filter isLeft $ M.elems m
   impossible = error "ifLefts_map: impossible."
   in case null lefts of
        True -> Right $ M.map (fromRight impossible) m
-       False -> Left $ msg ++ " --called-> "
-         ++ concat (map (fromLeft impossible) lefts)
+       False -> Left $ concat $ map (fromLeft impossible) lefts

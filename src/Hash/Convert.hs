@@ -43,11 +43,11 @@ import Util.Misc
 -- ExprTplt in the corresponding HExpr.
 
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
-pRelToHExpr r = para f where
+pRelToHExpr r = prefixLeft "-> pRelToHExpr" . para f where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
   f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
-  f AbsentF = Left "pRelToHExpr: Absent represents no HExpr."
+  f AbsentF = Left ", Absent represents no HExpr."
   f (OpenF _ ms js) = f $ ClosedF ms js
 
   f (ClosedF ms js0) = do
@@ -68,7 +68,7 @@ pRelToHExpr r = para f where
         hms :: [(Role, Either String HExpr)]
         hms = map (second snd) ms'
 
-    void $ ifLefts "pRelToHExpr" $ map snd hms
+    void $ ifLefts $ map snd hms
     let (hms' :: [(Role, HExpr)]) =
           map (second $ either (error "impossible") id) hms
     Right $ HMap $ M.insert RoleTplt (HExpr t)
@@ -92,37 +92,38 @@ pRelToHExpr r = para f where
 --    go _ = error "todo: even more"
 
 pExprToHExpr :: Rslt -> PExpr -> Either String HExpr
-pExprToHExpr _ px@(pExprIsSpecific -> False) = Left
-  $ "pExprToHExpr: " ++ show px ++ " is not specific enough."
+pExprToHExpr r0 pe0 = prefixLeft "-> pExprToHExpr" $ f r0 pe0 where
+  f _ px@(pExprIsSpecific -> False) =
+    Left $ show px ++ " is not specific enough."
 
-pExprToHExpr _ (PExpr s)       = Right $ HExpr s
-pExprToHExpr r (PMap m)        = HMap <$> pMapToHMap r m
-pExprToHExpr r (PEval pnr)     = do
-  (x :: HExpr) <- pExprToHExpr r pnr
-  ps <- pathsToIts_pExpr pnr
-  Right $ HEval x ps
-pExprToHExpr _ (PVar s)        = Right $ HVar s
-pExprToHExpr r (PDiff a b)     = do a' <- pExprToHExpr r a
-                                    b' <- pExprToHExpr r b
-                                    return $ HDiff a' b'
-pExprToHExpr r (PAnd xs)       = do
-  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map (pExprToHExpr r) xs
-  return $ HAnd l
-pExprToHExpr r (POr xs)       = do
-  (l :: [HExpr]) <- ifLefts "pExprToHExpr" $ map (pExprToHExpr r) xs
-  return $ HOr l
-pExprToHExpr r (It (Just pnr))        = pExprToHExpr r pnr
-pExprToHExpr r (PRel pr)              = pRelToHExpr r pr
+  f _ (PExpr s)       = Right $ HExpr s
+  f r (PMap m)        = HMap <$> pMapToHMap r m
+  f r (PEval pnr)     = do (x :: HExpr) <- pExprToHExpr r pnr
+                           ps <- pathsToIts_pExpr pnr
+                           Right $ HEval x ps
+  f _ (PVar s)        = Right $ HVar s
+  f r (PDiff a b)     = do a' <- pExprToHExpr r a
+                           b' <- pExprToHExpr r b
+                           return $ HDiff a' b'
+  f r (PAnd xs)       = do
+    (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
+    return $ HAnd l
+  f r (POr xs)        = do
+    (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
+    return $ HOr l
+  f r (It (Just pnr)) = pExprToHExpr r pnr
+  f r (PRel pr)       = pRelToHExpr r pr
 
--- These redundant checks (to keep GHCI from warning me) should come last.
-pExprToHExpr _ Any =
-  Left $ "pExprToHExpr: Any is not specific enough."
-pExprToHExpr _ (It Nothing) = Left
-  $ "pExprToHExpr: It (Nothing) is not specific enough."
+  -- These redundant checks (to keep GHCI from warning me) should come last.
+  f _ Any =
+    Left $ "pExprToHExpr: Any is not specific enough."
+  f _ (It Nothing) = Left
+    $ "pExprToHExpr: It (Nothing) is not specific enough."
 
 
 pMapToHMap :: Rslt -> PMap -> Either String HMap
-pMapToHMap r = ifLefts_map "pMapToHMap"
+pMapToHMap r = prefixLeft "-> pMapToHMap"
+  . ifLefts_map
   . M.map (pExprToHExpr r)
   . M.filter pExprIsSpecific
 
@@ -134,7 +135,7 @@ pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
 pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
 pathsToIts_sub_pExpr :: PExpr -> Either String [RolePath]
-pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr" . para f where
+pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   tooLate :: Base PExpr (PExpr, Either String [RolePath])
            -> Either String [RolePath]
   tooLate x = Left $ "pathsToIts_sub_pExpr called too late (too far leafward in the PExpr), on " ++ show (embed $ fmap fst x)
@@ -143,7 +144,7 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr" . para f where
     -> Either String [RolePath]
   f (PExprF _) = Right []
   f (PMapF m)  = do (m' :: Map Role [RolePath]) <-
-                      ifLefts_map "" $ M.map snd m
+                      ifLefts_map $ M.map snd m
                     let g :: (Role, [RolePath]) -> [RolePath]
                         g (role, paths) = map ((:) role) paths
                     Right $ concatMap g $ M.toList m'
@@ -160,7 +161,7 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr" . para f where
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
 pathsToIts_sub_pRel :: PRel -> Either String [RolePath]
-pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel" . cata f where
+pathsToIts_sub_pRel = prefixLeft "-> pathsToIts_sub_pRel" . cata f where
   f :: Base PRel (Either String [RolePath])
     -> Either String [RolePath]
   f AbsentF         = Right []
@@ -169,5 +170,5 @@ pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel" . cata f where
   f (ClosedF ms _)  = do
     let g :: (Int,[RolePath]) -> [RolePath]
         g (i,ps) = map ((:) $ RoleMember i) ps
-    ms' <- ifLefts "" ms
+    ms' <- ifLefts ms
     Right $ concatMap g $ zip [1..] ms'

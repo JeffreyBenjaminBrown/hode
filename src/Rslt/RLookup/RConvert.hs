@@ -12,39 +12,37 @@ import Util.Misc
 
 refExprToExpr :: Rslt -> RefExpr -> Either String Expr
 refExprToExpr _ (Phrase' w) = Right $ Phrase w
-refExprToExpr r (Tplt' jointAs) = do
-  (jointEs  :: [RefExpr])   <-
-    ifLefts "refExprToExpr" $ map (addrToRefExpr r) jointAs
-  (jointEis :: [Expr]) <-
-    ifLefts "refExprToExpr" $ map (refExprToExpr r) jointEs
-  Right $ ExprTplt jointEis
+refExprToExpr r (Tplt' jointAs) =
+  prefixLeft "-> refExprToExpr: " $ do
+    (jointEs  :: [RefExpr])   <-
+      ifLefts $ map (addrToRefExpr r) jointAs
+    (jointEis :: [Expr]) <-
+      ifLefts $ map (refExprToExpr r) jointEs
+    Right $ ExprTplt jointEis
 
-refExprToExpr r (Rel' (Rel memAs tA)) = do
-  (memREs  :: [RefExpr]) <- ifLefts    "refExprToExpr"
-                          $ map (addrToRefExpr r) memAs
-  (memEs :: [Expr])    <- ifLefts    "refExprToExpr"
-                           $ map (refExprToExpr r) memREs
-  (tE     :: RefExpr)   <- prefixLeft "refExprToExpr"
-                           $ addrToRefExpr r tA
-  (tEi    :: Expr)      <- prefixLeft "refExprToExpr"
-                           $ refExprToExpr r tE
-  Right $ ExprRel $ Rel memEs tEi
+refExprToExpr r (Rel' (Rel memAs tA)) =
+  prefixLeft "-> refExprToExpr: " $ do
+    (memREs  :: [RefExpr]) <- ifLefts $ map (addrToRefExpr r) memAs
+    (memEs :: [Expr])      <- ifLefts $ map (refExprToExpr r) memREs
+    (tE     :: RefExpr)    <- addrToRefExpr r tA
+    (tEi    :: Expr)       <- refExprToExpr r tE
+    Right $ ExprRel $ Rel memEs tEi
 
 
 -- | == Lookup from an `Expr`
 
 exprToAddr :: Rslt -> Expr -> Either String Addr
-exprToAddr x img = prefixLeft "exprToAddr" $ case img of
+exprToAddr x img = prefixLeft "-> exprToAddr: " $ case img of
   Phrase w -> refExprToAddr x $ Phrase' w
 
   Addr a -> addrToRefExpr x a >>= const (Right a)
 
   ExprTplt is -> do
-    mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
+    mas <- ifLefts $ map (exprToAddr x) is
     refExprToAddr x $ Tplt' mas
 
   ExprRel (Rel is i) -> do
-    mas <- ifLefts "exprToAddr" $ map (exprToAddr x) is
+    mas <- ifLefts $ map (exprToAddr x) is
     ma <- exprToAddr x i
     refExprToAddr x (Rel' $ Rel mas ma)
 

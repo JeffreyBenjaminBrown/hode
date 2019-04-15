@@ -44,12 +44,13 @@ drawVar p s src res = do
 reconcileDetsAcrossVars :: forall e. (Ord e, Show e)
                         => Possible e -> Subst e -> Set Var
                         -> Either String (Set (Subst e))
-reconcileDetsAcrossVars    p           s        dets
-  | null dets = Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
-  | True = do
-      (se :: Set (Set (Subst e))) <- ifLefts_set "reconcileDetsAcrossVars"
-                                     $ S.map (inputSubsts p s) dets
-      Right $ reconcile se
+reconcileDetsAcrossVars p s dets =
+  prefixLeft "-> reconcileDetsAcrossVars: " $
+  case null dets of
+    True -> Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
+    False -> do (se :: Set (Set (Subst e))) <-
+                  ifLefts_set $ S.map (inputSubsts p s) dets
+                Right $ reconcile se
 
 -- | `inputSubsts p s v` gives all the input sets that can lead to v --
 -- that is, the `Set` of `Subst`s that p associates with v=v0,

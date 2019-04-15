@@ -45,7 +45,7 @@ moveFocusedRsltView d st =
      %~ moveFocusInPorest d
 
 members_atFocus :: St -> Either String (ViewMembers, [Addr])
-members_atFocus st = prefixLeft "members_atFocus" $ do
+members_atFocus st = prefixLeft "-> members_atFocus" $ do
   foc :: PTree RsltView <-
     let msg = "focused RsltView not found."
     in maybe (error msg) Right $
@@ -60,14 +60,14 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
   Right (ViewMembers a, as)
 
 insertMembers_atFocus :: St -> Either String St
-insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
+insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
   (ms,as) :: (ViewMembers, [Addr]) <-
     members_atFocus st
   let topOfNew :: PTree RsltView =
         pTreeLeaf $ VMembers ms
   leavesOfNew :: [PTree RsltView] <-
     map (pTreeLeaf . VResult)
-    <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
+    <$> ifLefts (map (resultView $ st ^. appRslt) as)
   leavesOfNew' :: Porest RsltView <-
     let msg = "Expr has no members."
     in maybe (Left msg) Right $ P.fromList leavesOfNew
@@ -76,13 +76,13 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
   Right $ st & stSetFocusedRsltViewTree %~ consUnderAndFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
-groupHostRels r a0 = prefixLeft "groupHostRels" $ do
-  ras :: [(Role, Addr)] <- let
-    msg = "computing ras from " ++ show a0
-    in prefixLeft msg $ S.toList <$> isIn r a0
-  vs :: [ExprCtr] <- map fst <$>
-    ( ifLefts "while computing varieties" $
-      map (variety r . snd) ras )
+groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
+  ras :: [(Role, Addr)] <-
+    prefixLeft ("computing ras from " ++ show a0)
+    $ S.toList <$> isIn r a0
+  vs :: [ExprCtr] <- prefixLeft ", computing varieties"
+    $ map fst
+    <$> ifLefts (map (variety r . snd) ras)
 
   -- The rest of the work divides into grouping the `Rel`s that a0 is in,
   -- and building one group of `Tplt`s, if it's nonempty.
@@ -100,8 +100,8 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
 
   rel_tplts <- let tpltOf :: Addr -> Either String Addr
                    tpltOf a = fills r (RoleTplt, a)
-               in ifLefts "while computing rel_tplts" $
-                  map (tpltOf . snd) rel_ras
+               in prefixLeft "while computing rel_tplts"
+                  $ ifLefts $ map (tpltOf . snd) rel_ras
 
   let rel_groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
       rel_groups = foldr f M.empty $ zip rel_ras rel_tplts
@@ -124,7 +124,7 @@ groupHostRels r a0 = prefixLeft "groupHostRels" $ do
     $ map package_rel_groups (M.toList rel_groups)
 
 groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
-groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
+groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
   a :: Addr <-
     let errMsg = "Buffer not found or focused RsltView not found."
     in maybe (Left errMsg) Right $
@@ -133,11 +133,11 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
-insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
+insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
   (groups :: [(HostGroup, [Addr])]) <-
     groupHostRels_atFocus st
-  (newTrees :: [PTree RsltView]) <- ifLefts ""
-    $ map (hostGroup_to_view $ st ^. appRslt) groups
+  (newTrees :: [PTree RsltView]) <-
+    ifLefts $ map (hostGroup_to_view $ st ^. appRslt) groups
   (preexist :: Maybe (Porest RsltView)) <-
     let errMsg = "focused RsltView not found."
     in maybe (Left errMsg) Right $ st ^?
@@ -150,12 +150,12 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
 
 hostGroup_to_view :: Rslt -> (HostGroup, [Addr])
                      -> Either String (PTree RsltView)
-hostGroup_to_view r (hg, as) = do
+hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   case as of [] -> Left "There are no host Exprs to show."
              _ -> Right ()
   let mustBeOkay = "Impossible: as is nonempty, so P.fromList must work."
-  (rs :: [ViewResult]) <- ifLefts "hostGroup_to_view"
-    $ map (resultView r) as
+  (rs :: [ViewResult]) <-
+    ifLefts $ map (resultView r) as
   Right $ PTree { _pTreeLabel = VHostGroup hg
                 , _pTreeHasFocus = False
                 , _pMTrees = maybe (error mustBeOkay) Just $

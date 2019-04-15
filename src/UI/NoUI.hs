@@ -23,26 +23,23 @@ import Util.Misc
 
 
 pInsert :: Rslt -> String -> Either String (Rslt, Addr)
-pInsert r s = prefixLeft "pInsert"
+pInsert r s = prefixLeft "-> pInsert"
   $ mapLeft show (parse pExpr "doh!" s)
   >>= pExprToHExpr r
   >>= hExprToExpr r
   >>= exprToAddrInsert r
 
 pFindAddrs :: Rslt -> String -> Either String (Set Addr)
-pFindAddrs r s = prefixLeft "pFindAddrs"
+pFindAddrs r s = prefixLeft "-> pFindAddrs"
   $ mapLeft show (parse pExpr "doh!" s)
   >>= pExprToHExpr r
   >>= hExprToAddrs r (mempty :: Subst Addr)
 
 pFindStrings :: Rslt -> String -> Either String (Set String)
-pFindStrings r s = do
-  (as :: Set Addr) <- prefixLeft "pFindExprs"
-                      $ pFindAddrs r s
-  (es :: Set Expr) <- ifLefts_set "pFindExprs"
-                      $ S.map ( addrToExpr r ) as
-  (ss :: Set String) <- ifLefts_set "pFindExprs"
-                        $ S.map (eShow r) es
+pFindStrings r s = prefixLeft "-> pFindExprs" $ do
+  (as :: Set Addr)   <- pFindAddrs r s
+  (es :: Set Expr)   <- ifLefts_set $ S.map ( addrToExpr r ) as
+  (ss :: Set String) <- ifLefts_set $ S.map (eShow r) es
   return ss
 
 pFindStringsIO :: Rslt -> String -> IO ()

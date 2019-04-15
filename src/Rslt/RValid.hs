@@ -31,15 +31,15 @@ import Util.Misc
 -- | == Check an `Expr`
 
 validExpr :: Rslt -> Expr -> Either String ()
-validExpr r = para f where
+validExpr r = prefixLeft "-> validExpr" . para f where
   f :: Base Expr (Expr, Either String ()) -> Either String ()
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
 
   f rel@(ExprRelF (Rel memEis (t,te))) = do
     let (ms :: [Expr], es :: [Either String ()]) = unzip memEis
-        err = "validExpr called on " ++ show (embed $ fmap fst rel)
-    void $ ifLefts err $ te : es
+        err = "called on " ++ show (embed $ fmap fst rel)
+    void $ prefixLeft err $ ifLefts $ te : es
     ((tc,ta) :: (ExprCtr,Arity)) <-
       prefixLeft err $ exprToAddr r t >>= variety r
     (tx :: Expr) <-    exprToAddr r t >>= addrToExpr r
@@ -49,9 +49,9 @@ validExpr r = para f where
     if ta == length ms then Right ()
       else Left $ err ++ " with Tplt " ++ show tx ++ ": arity mismatch."
 
-  f (ExprTpltF js)           = ifLefts err (map snd js)
+  f (ExprTpltF js)           = prefixLeft err $ ifLefts (map snd js)
                                >> return ()
-    where err = "validExpr called on " ++ show (ExprTplt $ map fst js)
+    where err = ", called on " ++ show (ExprTplt $ map fst js)
 
 
 -- | == Check a `RefExpr`
@@ -64,22 +64,23 @@ validRefExpr r e = do validTplt r e
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
 validTplt :: Rslt -> RefExpr -> Either String ()
-validTplt r (Rel' (Rel aMembers aTplt)) = do
-  (ctr,ar) <- prefixLeft "validTplt" $ variety r aTplt
-  if ctr == TpltCtr        then Right ()
-    else Left $ "validTplt: expr at " ++ show aTplt ++ " not a Tplt.\n"
-  if ar == length aMembers then Right ()
-    else Left $ "validTplt: expr at " ++ show aTplt
-    ++ " does not match arity of " ++ show aMembers ++ ".\n"
+validTplt r (Rel' (Rel aMembers aTplt)) =
+  prefixLeft "-> validTplt" $ do
+    (ctr,ar) <- variety r aTplt
+    if ctr == TpltCtr        then Right ()
+      else Left $ "expr at " ++ show aTplt ++ " not a Tplt.\n"
+    if ar == length aMembers then Right ()
+      else Left $ "expr at " ++ show aTplt
+           ++ " does not match arity of " ++ show aMembers ++ ".\n"
 validTplt _ _ = Right ()
 
 refExprRefsExist :: Rslt -> RefExpr -> Either String ()
-refExprRefsExist r e = let
+refExprRefsExist r e = prefixLeft "-> refExprRefsExist" $ let
   f :: [Addr] -> Either String ()
   f as = case allAddrsPresent r as of
     Right () -> Right ()
     Left absent -> Left
-      $ "refExprRefsExist: These Addrs are absent: " ++ show absent
+      $ "These Addrs are absent: " ++ show absent
   in case e of
        Rel' (Rel aMembers aTplt) -> f $ aTplt : aMembers
        Tplt' as                  -> f as
@@ -89,14 +90,14 @@ refExprRefsExist r e = let
 -- | == Check the database
 
 validRslt :: Rslt -> Either String ()
-validRslt r = do
+validRslt r = prefixLeft "-> validRslt" $ do
   let unmatched = relsWithoutMatchingTplts r
       in if null unmatched then Right ()
-         else Left $ "validRslt: rels without matching Tplts:\n"
+         else Left $ "rels without matching Tplts:\n"
               ++ show unmatched ++ ".\n"
   let unfillable = collectionsWithAbsentAddrs r
       in if null unfillable then Right ()
-         else Left $ "validRslt: collections with absent Addrs:\n"
+         else Left $ "collections with absent Addrs:\n"
               ++ show unfillable
 
 collectionsWithAbsentAddrs :: Rslt -> Map Addr [Addr]
@@ -115,7 +116,7 @@ collectionsWithAbsentAddrs r = res where
   collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where
     isCollection expr = case expr of Phrase' _ -> False
-                                     _       -> True
+                                     _         -> True
 
 relsWithoutMatchingTplts :: Rslt -> Map Addr RefExpr
 relsWithoutMatchingTplts r = res where
@@ -128,7 +129,8 @@ relsWithoutMatchingTplts r = res where
       Just (ctr, art) -> case ctr of
         TpltCtr -> refExprArity e == art
         _       -> False
-  relMatchesTpltArity _ = error "relMatchesTpltArity: impossible."
+  relMatchesTpltArity _ =
+    error "relMatchesTpltArity: impossible."
 
   rels = M.filter isRel $ _addrToRefExpr r where
     isRel (Rel' _) = True
@@ -138,6 +140,7 @@ relsWithoutMatchingTplts r = res where
 -- | = A utility
 
 allAddrsPresent :: Rslt -> [Addr] -> Either String ()
-allAddrsPresent r as = do
-  void $ ifLefts "allAddrsPresent: " $ map (addrToRefExpr r) as
-  Right ()
+allAddrsPresent r as =
+  prefixLeft "-> allAddrsPresent"
+  $ void (ifLefts $ map (addrToRefExpr r) as)
+  >> Right ()

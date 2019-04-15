@@ -39,31 +39,38 @@ hashUnlessEmptyStartOrEnd k0 joints = case joints' of
                                   : hashUnlessEmptyEnd k ss
 
 eShow :: Rslt -> Expr -> Either String String
-eShow r = para f where
+eShow r = prefixLeft "-> eShow" . para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
 
-  f e@(AddrF _) = prefixLeft "eShow Addr" $
-    unAddr r (embed $ fmap fst e) >>= eShow r
+  f e@(AddrF _) =
+    prefixLeft ", called on Addr"
+    $ unAddr r (embed $ fmap fst e)
+    >>= eShow r
 
   f (PhraseF w) = Right w
 
-  f (ExprTpltF pairs) = ifLefts "eShow ExprTplt" (map snd pairs)
-                  >>= Right . concat . L.intersperse " _ "
+  f (ExprTpltF pairs) =
+    prefixLeft ", claled on ExprTplt"
+    $ ifLefts (map snd pairs)
+    >>= Right . concat . L.intersperse " _ "
 
-  f relf@(ExprRelF (Rel ms (ExprTplt js, _))) = do
+  f relf@(ExprRelF (Rel ms (ExprTplt js, _))) =
   -- The recursive argument (second member of the pair) is unused, hence
   -- not computed. Instead, each joint in `js` is `eShow`n separately.
-    mss <- ifLefts "eShow ExprRel" $ map snd ms
+    prefixLeft ", called on ExprRel" $ do
+    mss <- ifLefts $ map snd ms
     jss <- let rel = embed $ fmap fst relf
            in hashUnlessEmptyStartOrEnd (depth rel)
-              <$> ifLefts "eShow ExprRel" ( map (eShow r) js )
+              <$> ifLefts ( map (eShow r) js )
     Right $ unpack . strip . pack $ concat
       $ map (\(m,j) -> m ++ " " ++ j ++ " ")
       $ zip ("" : mss) jss
 
-  f (ExprRelF (Rel ms (a@(Addr _), _))) = do
+  f (ExprRelF (Rel ms (a@(Addr _), _))) =
+    prefixLeft ", called on Rel" $ do
     tpltExpr <- unAddr r a
     eShow r $ ExprRel $ Rel (map fst ms) tpltExpr
 
-  f x@(ExprRelF _) = Left $ "eShow: ExprRel with non-Tplt for Tplt: "
-                     ++ show (embed $ fmap fst x)
+  f x@(ExprRelF _) =
+    Left $ ": ExprRel with non-Tplt for Tplt: "
+    ++ show (embed $ fmap fst x)

@@ -45,10 +45,10 @@ variety r a = maybe err Right $ M.lookup a $ _variety r
 arity :: Rslt -> Expr -> Either String Arity
 arity r (Addr a)  = snd <$> variety r a
 arity _ (Phrase _)           = Right 0
-arity r (ExprRel (Rel ms t)) = do
+arity r (ExprRel (Rel ms t)) = prefixLeft "arity" $ do
   ta <- arity r t
   if ta == length ms then Right ta
-    else Left $ "arity: Rel Tplt " ++ show t
+    else Left $ "Rel Tplt " ++ show t
          ++ " does not match number of Rel members " ++ show ms ++ ".\n"
 arity _ (ExprTplt x)         = Right $ length x - 1
 
@@ -56,24 +56,24 @@ arity _ (ExprTplt x)         = Right $ length x - 1
 -- | `has r a` finds the `RefExpr` `re` at `a` in `r`, and returns
 -- every position contained in `re`.
 has :: Rslt -> Addr -> Either String (Map Role Addr)
-has r a = do
-  void $ either (\s -> Left $ "has: " ++ s) Right $ addrToRefExpr r a
+has r a = prefixLeft "-> has" $ do
+  void $ addrToRefExpr r a
   maybe (Right M.empty) Right $ M.lookup a $ _has r
 
 -- | `isIn r a` finds the `RefExpr` `e` at `a` in `r`, and returns
 -- every position that `re` occupies.
 isIn :: Rslt -> Addr -> Either String (Set (Role,Addr))
-isIn r a = do
-  void $ either (\s -> Left $ "isIn: " ++ s) Right $ addrToRefExpr r a
+isIn r a =
+  prefixLeft "-> isIn" $ do
+  void $ addrToRefExpr r a
   maybe (Right S.empty) Right $ M.lookup a $ _isIn r
 
 -- | `fills r (role,a)` finds the `Addr` of the `Expr` that
 -- occupies `role` in `a`.
 fills :: Rslt -> (Role, Addr) -> Either String Addr
-fills x (r,a) = do
-  (positions :: Map Role Addr) <-
-    prefixLeft "fills" $ has x a
-  let err = Left $ "fills: role " ++ show r
+fills x (r,a) = prefixLeft "-> fills" $ do
+  (positions :: Map Role Addr) <- has x a
+  let err = Left $ "role " ++ show r
             ++ " not among positions in RefExpr at " ++ show a
   maybe err Right $ M.lookup r positions
 
@@ -90,18 +90,18 @@ findSubExprs paths = mkFindFrom f where
 
 subExprs :: Rslt -> [RolePath] -> Addr -> Either String (Set Addr)
 subExprs r rls a =
-  S.fromList <$> ifLefts "subExprs" its
+  prefixLeft "-> subExprs" $ S.fromList <$> ifLefts its
   where its :: [Either String Addr]
         its = map (subExpr r a) rls
 
 subExpr :: Rslt -> Addr -> RolePath -> Either String Addr
 subExpr _ a [] = Right a
-subExpr r a (rl : rls) = do
+subExpr r a (rl : rls) = prefixLeft "-> subExpr" $ do
   (aHas :: Map Role Addr) <-
-    prefixLeft ("subExpr, looking up Addr" ++ show a)
+    prefixLeft (", looking up Addr" ++ show a)
     $ has r a
   (member_of_a :: Addr) <-
-    maybe (Left $ "subExpr, looking up Role " ++ show rl ++ ".") Right
+    maybe (Left $ "looking up Role " ++ show rl ++ ".") Right
     $ M.lookup rl aHas
   subExpr r member_of_a rls
 
