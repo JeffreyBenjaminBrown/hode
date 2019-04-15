@@ -139,78 +139,81 @@ parseAndRunCommand st =
 runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand (CommandFind s h) st =
-  prefixLeft "runParsedCommand, called on CommandFind" $ do
-  let r = st ^. appRslt
-
-  as :: Set Addr <-
-    hExprToAddrs r (mempty :: Subst Addr) h
-
-  let p :: Porest RsltView
-      p = maybe (porestLeaf $ VQuery "No matches found.") id $
-          P.fromList $ map v_qr $ S.toList as
-        where
-        v_qr :: Addr -> PTree RsltView
-        v_qr a = pTreeLeaf $ VResult $ either err id rv
-          where
-          (rv :: Either String ViewResult) = resultView r a
-          (err :: String -> ViewResult) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
-
-  Right $ B.continue $ st
-    & showingInMainWindow .~ Results
-    & showingErrorWindow .~ False
-    & (let strip :: String -> String
-           strip = T.unpack . T.strip . T.pack
-       in stSetFocusedBuffer . bufferQuery .~ strip s)
-    & stSetFocusedBuffer . bufferRsltViewPorest . _Just .~ p
-    & ( stSetFocusedBuffer . bufferRsltViewPorest . _Just .
-        P.focus . pTreeHasFocus .~ True )
-
-runParsedCommand (CommandReplace a e) st =
-  either Left (Right . f)
-  $ replaceExpr a e (st ^. appRslt)
-  where f :: Rslt -> B.EventM BrickName (B.Next St)
-        f r = B.continue $ st & appRslt .~ r
-                              & showingErrorWindow .~ False
-                              & showReassurance msg
-                              & showingInMainWindow .~ Results
-          where msg = "Replaced Expr at " ++ show a ++ "."
-
-runParsedCommand (CommandDelete a) st =
-  either Left (Right . f)
-  $ delete a (st ^. appRslt)
-  where f :: Rslt -> B.EventM BrickName (B.Next St)
-        f r = B.continue $ st & appRslt .~ r
-                              & showingErrorWindow .~ False
-                              & showReassurance msg
-          where msg = "Deleted Expr at " ++ show a ++ "."
-
-runParsedCommand (CommandInsert e) st =
-  either Left (Right . f)
-  $ exprToAddrInsert (st ^. appRslt) e
+runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand" $ f c0 st0
   where
-    f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
-    f (r,a) = B.continue $ st & appRslt .~ r
-              & showingErrorWindow .~ False
-              & showReassurance ("Expr added at Addr " ++ show a)
-              & showingInMainWindow .~ Results
 
-runParsedCommand (CommandLoad f) st = Right $ do
-  (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
-  if bad
-    then B.continue $ st & showError ("Non-existent folder: " ++ f)
-    else do r <- liftIO $ readRslt f
-            B.continue $ st & appRslt .~ r
-                            & showReassurance "Rslt loaded."
-                            & showingInMainWindow .~ Results
-                            & showingErrorWindow .~ False
+  f (CommandFind s h) st =
+    prefixLeft ", called on CommandFind" $ do
+    let r = st ^. appRslt
 
-runParsedCommand (CommandSave f) st = Right $ do
-  (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
-  st' <- if bad
-    then return $ st & showError ("Non-existent folder: " ++ f)
-    else do liftIO $ writeRslt f $ st ^. appRslt
-            return $ st & showingInMainWindow .~ Results
-                        & showingErrorWindow .~ False
-                        & showReassurance "Rslt saved."
-  B.continue st'
+    as :: Set Addr <-
+      hExprToAddrs r (mempty :: Subst Addr) h
+
+    let p :: Porest RsltView
+        p = maybe (porestLeaf $ VQuery "No matches found.") id $
+            P.fromList $ map v_qr $ S.toList as
+          where
+          v_qr :: Addr -> PTree RsltView
+          v_qr a = pTreeLeaf $ VResult $ either err id rv
+            where
+            (rv :: Either String ViewResult) = resultView r a
+            (err :: String -> ViewResult) = \se -> error ("called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+
+    Right $ B.continue $ st
+      & showingInMainWindow .~ Results
+      & showingErrorWindow .~ False
+      & (let strip :: String -> String
+             strip = T.unpack . T.strip . T.pack
+         in stSetFocusedBuffer . bufferQuery .~ strip s)
+      & stSetFocusedBuffer . bufferRsltViewPorest . _Just .~ p
+      & ( stSetFocusedBuffer . bufferRsltViewPorest . _Just .
+          P.focus . pTreeHasFocus .~ True )
+
+  f (CommandReplace a e) st =
+    either Left (Right . f)
+    $ replaceExpr a e (st ^. appRslt)
+    where f :: Rslt -> B.EventM BrickName (B.Next St)
+          f r = B.continue $ st & appRslt .~ r
+                                & showingErrorWindow .~ False
+                                & showReassurance msg
+                                & showingInMainWindow .~ Results
+            where msg = "Replaced Expr at " ++ show a ++ "."
+
+  f (CommandDelete a) st =
+    either Left (Right . f)
+    $ delete a (st ^. appRslt)
+    where f :: Rslt -> B.EventM BrickName (B.Next St)
+          f r = B.continue $ st & appRslt .~ r
+                                & showingErrorWindow .~ False
+                                & showReassurance msg
+            where msg = "Deleted Expr at " ++ show a ++ "."
+
+  f (CommandInsert e) st =
+    either Left (Right . f)
+    $ exprToAddrInsert (st ^. appRslt) e
+    where
+      f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
+      f (r,a) = B.continue $ st & appRslt .~ r
+                & showingErrorWindow .~ False
+                & showReassurance ("Expr added at Addr " ++ show a)
+                & showingInMainWindow .~ Results
+
+  f (CommandLoad f) st = Right $ do
+    (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
+    if bad
+      then B.continue $ st & showError ("Non-existent folder: " ++ f)
+      else do r <- liftIO $ readRslt f
+              B.continue $ st & appRslt .~ r
+                              & showReassurance "Rslt loaded."
+                              & showingInMainWindow .~ Results
+                              & showingErrorWindow .~ False
+
+  f (CommandSave f) st = Right $ do
+    (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
+    st' <- if bad
+      then return $ st & showError ("Non-existent folder: " ++ f)
+      else do liftIO $ writeRslt f $ st ^. appRslt
+              return $ st & showingInMainWindow .~ Results
+                          & showingErrorWindow .~ False
+                          & showReassurance "Rslt saved."
+    B.continue st'

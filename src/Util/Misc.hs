@@ -117,7 +117,7 @@ mapLeft f (Left x) = Left $ f x
 
 prefixLeft :: String -> Either String a -> Either String a
 prefixLeft prefix =
-  either (\s -> Left $ prefix ++ " --called-> " ++ s) Right
+  either (\s -> Left $ prefix ++ " " ++ s) Right
 
 ifNothings :: [Maybe a] -> Maybe [a]
 ifNothings ms = let

@@ -60,4 +60,4 @@ addrToExpr r a = addrToRefExpr r a >>= refExprToExpr r
 
 refExprToAddr :: Rslt -> RefExpr -> Either String Addr
 refExprToAddr r e = maybe err Right $ M.lookup e $ _refExprToAddr r
-  where err = Left $ "refExprToAddr: RefExpr " ++ show e ++ " not found.\n"
+  where err = Left $ "-> refExprToAddr: RefExpr " ++ show e ++ " not found.\n"
