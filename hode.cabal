@@ -27,8 +27,9 @@ source-repository head
 
 library
   exposed-modules:
-                  Hode.Data.Graph
-                , Hode.Data.Relation
+                  Hode.Hode
+                , Hode.Data.Graph
+--                , Hode.Data.Relation
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
                 , Hode.Hash.HLookup
