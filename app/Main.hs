@@ -1,6 +1,6 @@
 module Main where
 
-import UI.Main
+import Hode.UI.Main
 
 main :: IO ()
 main = ui >> return ()
