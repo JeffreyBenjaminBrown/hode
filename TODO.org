@@ -40,7 +40,12 @@ see the comment leading its definition
    Theoretically, the part being subtracted could be vague.
    But that's not how it's implemented -- both parts have to be found,
    then the one is subtracted from the other.
-* TODO top priorities
+* video
+Use screenkey to show key presses:
+   https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
+and SimpleScreenRecorder.
+Audio interface: remember to select both input and output devices.
+* user-friendliness
 ** insertion list
 *** plan
 **** data St = ...
@@ -50,28 +55,6 @@ see the comment leading its definition
 *** complications
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existed
-** TODO count hosts at left; show members recursively
-** a way to kill buffers
-** TODO folding
-** TODO update
-*** manual update
-*** automatic update
-**** goal
-Each time an Expr `a` is added, test each search for whether it would include *only* `a`.
-**** method
-Call each layer in each ViewTree a "spot".
-Each is associated with some kind of Hash expression `h`.
-Decompose `h` into its constituents, and save those at the spot.
-
-When an Expr `a` is added, break that into its constituents too.
-Then, for each spot, create a Rslt `r` consisting of (1) the constituents of `e` and (2) the constituents of the hash expression associated with that spot.
-Now search r for h, and add (in the map-insertion sense) anything found to the contents already at h.
-** video
-Use screenkey to show key presses:
-   https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
-and SimpleScreenRecorder.
-Audio interface: remember to select both input and output devices.
-* user-friendliness
 ** can insertHosts_atFocus when they're already there
 ** document the precedence order of the language
 and mention that you can use parens liberally to make it more obvious
@@ -92,15 +75,31 @@ The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child, and vice-versa.
 * TODO views, rad
-** marking things in a tree
+** a way to kill buffers
+** TODO marking things in a tree
 *** buffer nicknames
 Let the user add a nickname to a buffer, and then switch to that buffer via the nickname.
 Begin with some auto-generated nicknames (numbers? letters?).
 *** batch add
 Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
-** count things
-** note order
+*** TODO count hosts at left; show members recursively
+** TODO folding
+** TODO update
+*** manual update
+*** automatic update
+**** goal
+Each time an Expr `a` is added, test each search for whether it would include *only* `a`.
+**** method
+Call each layer in each ViewTree a "spot".
+Each is associated with some kind of Hash expression `h`.
+Decompose `h` into its constituents, and save those at the spot.
+
+When an Expr `a` is added, break that into its constituents too.
+Then, for each spot, create a Rslt `r` consisting of (1) the constituents of `e` and (2) the constituents of the hash expression associated with that spot.
+Now search r for h, and add (in the map-insertion sense) anything found to the contents already at h.
+** TODO note order
+see "transitivity", elsewhere
 ** store views
 e.g. mark HostGroups as salient,
 and store that info,
@@ -139,7 +138,7 @@ pRelToPExpr :: PRel -> Either String PExpr
 pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
 pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
 pRelToPExpr (Closed ms js) =
-* TODO Qseq, the search metalanguage
+ * TODO Qseq, the search metalanguage
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc.
@@ -150,9 +149,10 @@ This allows the set-valued function of v to be referred to by subsequent Queries
 *** TODO why it's tricky
 It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
-* re. Rslt
-** TODO : recursive "is", using "is a kind of"
+* TODO re. Rslt
+** TODO transitivity
 If "brilliant #(is a kind of) bright", I should be able to search for everything that #is bright, and have brilliant things returned, without needing them to be labeled bright.
+** TODO reflexivity
 ** (#fast) isIn ought to return two maps, not a set
 a map from Role to Set Addr
    because the item in question often holds the same Role in multiple Exprs
@@ -223,7 +223,7 @@ _ is a member of _" is a "synthetic" template. There might be others.
 ** buffer ring
 From the Buffer Tree view, allow the user to mark buffers with unique integer indexes.
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
-* TODO collect use cases
+'* TODO collect use cases
 ** view notes from a text ordered by source text or topic
 * bugs
 ** meh: the empty unary relationship
