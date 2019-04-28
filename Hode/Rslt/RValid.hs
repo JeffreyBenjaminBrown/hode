@@ -4,16 +4,18 @@
 
 module Hode.Rslt.RValid (
   -- | = validate individual expressions
-  validExpr                  -- Rslt -> Expr    -> Either String ()
-, validRefExpr               -- Rslt -> RefExpr -> Either String ()
-, validTplt                  -- Rslt -> RefExpr -> Either String ()
-, refExprRefsExist           -- Rslt -> RefExpr -> Either String ()
+  verifyVariety -- ^ Rslt -> Addr -> (Maybe ExprCtr, Maybe Arity)
+                -- -> Either String ()
+  , validExpr                  -- ^ Rslt -> Expr    -> Either String ()
+  , validRefExpr               -- ^ Rslt -> RefExpr -> Either String ()
+  , validTplt                  -- ^ Rslt -> RefExpr -> Either String ()
+  , refExprRefsExist           -- ^ Rslt -> RefExpr -> Either String ()
 
 -- | = validate an entire `Rslt`
-, validRslt                  -- Rslt            -> Either String ()
-, collectionsWithAbsentAddrs -- Rslt -> Map Addr [Addr]
-, relsWithoutMatchingTplts   -- Rslt -> Map Addr RefExpr
-, allAddrsPresent            -- Rslt -> [Addr]  -> Either String ()
+  , validRslt                  -- ^ Rslt            -> Either String ()
+  , collectionsWithAbsentAddrs -- ^ Rslt -> Map Addr [Addr]
+  , relsWithoutMatchingTplts   -- ^ Rslt -> Map Addr RefExpr
+  , allAddrsPresent            -- ^ Rslt -> [Addr]  -> Either String ()
   ) where
 
 import           Data.Functor.Foldable
@@ -29,6 +31,17 @@ import Hode.Util.Misc
 
 
 -- | == Check an `Expr`
+
+verifyVariety :: Rslt -> Addr -> (Maybe ExprCtr, Maybe Arity)
+              -> Either String ()
+verifyVariety r a (mc,ma) = do
+  (ctr,ar) <- variety r a
+  if mc == Nothing then Right () else
+    if mc == Just ctr then Right () else
+      Left $ "Expr at " ++ show a ++ " does not match " ++ show ctr
+  if ma == Nothing then Right () else
+    if ma == Just ar then Right () else
+      Left $ "Expr at " ++ show a ++ " does not have arity " ++ show ma
 
 validExpr :: Rslt -> Expr -> Either String ()
 validExpr r = prefixLeft "-> validExpr" . para f where
