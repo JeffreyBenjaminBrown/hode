@@ -20,7 +20,31 @@ test_module_rslt_hash = TestList [
     TestLabel "test_subExprs" test_subExprs
   , TestLabel "test_hExprToAddrs" test_hExprToAddrs
   , TestLabel "test_hExprToExpr" test_hExprToExpr
+  , TestLabel "testHMatches" testHMatches
   ]
+
+testHMatches :: Test
+testHMatches = TestCase $ do
+  -- hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
+  let r = D.b2
+  assertBool "HExpr" $ hMatches r (HExpr $ Phrase "fish") 2 == Right True
+  assertBool "HExpr false" $ hMatches r (HExpr $ Phrase "donkey") 2
+    == Right False
+  assertBool "HExpr left" $ isLeft $ hMatches r (HExpr $ Phrase "donkey") 1000
+
+  assertBool "HMap" $ hMatches r
+    (HMap $ M.singleton (RoleMember 1) (HExpr $ Phrase "fish")) 10
+    == Right True
+  assertBool "HMap false" $ hMatches r
+    (HMap $ M.singleton (RoleMember 1) (HExpr $ Phrase "merp")) 10
+    == Right False
+
+  assertBool "HEval" $ hMatches r
+    (HEval (HExpr $ Addr 10) [[RoleMember 1]]) 2
+    == Right True
+  assertBool "HEval false" $ hMatches r
+    (HEval (HExpr $ Addr 10) [[RoleMember 2]]) 2
+    == Right False
 
 test_hExprToExpr :: Test
 test_hExprToExpr = TestCase $ do
