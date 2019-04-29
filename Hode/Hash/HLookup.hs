@@ -24,6 +24,9 @@ hFind :: HExpr -> Find Addr Rslt
 hFind he = Find f $ hVars he
   where f rslt subst = hExprToAddrs rslt subst he
 
+-- | The idea of `hMatches` is to determine whether an `HExpr`
+-- matches the `Expr` at an `Addr`, without having to find everything
+-- else that matches the `HExpr`. It isn't totally implemented.
 hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
 hMatches r h0 a0 = prefixLeft "hMatches: " $ do
   e0 :: Expr <- addrToExpr r a0
@@ -42,7 +45,28 @@ hMatches r h0 a0 = prefixLeft "hMatches: " $ do
         M.map (uncurry $ hMatches r) mPairs
       Right $ and mCompares
 
-    _ -> error "TODO: more cases."
+    (HEval _ _) -> do -- TODO ? speed: Arguably, this branch cheats.
+    -- It finds everything that `h0` matches, and then sees if  `a0`
+    -- is in that set. But to search up from a0 instead of down from h0
+    --  would still be a tree search, so it's not clear which is better.
+    -- (If a0 is a member of many things, better to search from h0.)
+      hImages :: Set Addr <- hExprToAddrs r mempty h0
+      Right $ S.member a0 hImages
+
+    HVar _ -> Left "HVar: not implemented."
+
+    HDiff beIn beNotIn -> do
+      bi :: Bool <- hMatches r beIn a0
+      bni :: Bool <- hMatches r beNotIn a0
+      Right $ bi && not bni
+
+    HAnd hs -> do
+      bs :: [Bool] <- ifLefts $ map (\h -> hMatches r h a0) hs
+      Right $ and bs
+
+    HOr hs -> do
+      bs :: [Bool] <- ifLefts $ map (\h -> hMatches r h a0) hs
+      Right $ or bs
 
 
 -- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
