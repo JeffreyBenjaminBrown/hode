@@ -32,7 +32,7 @@ hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
 hMatches r h0 a0 = prefixLeft "hMatches: " $ do
   e0 :: Expr <- addrToExpr r a0
   case h0 of
-    HExpr e -> Right $ e == e0
+    HExpr e -> unAddr r e >>= Right . (== e0)
 
     HMap (mh :: Map Role HExpr) -> do
       ma :: Map Role Addr <- ifLefts_map $
