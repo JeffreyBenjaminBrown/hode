@@ -5,6 +5,7 @@ module Hode.Rslt.RLookup (
     variety -- ^ Rslt -> Addr -> Either String (ExprCtr, Arity)
   , arity   -- ^ Rslt -> Expr -> Either String Arity
   , has     -- ^ Rslt -> Addr -> Either String (Map Role Addr)
+  , hasInRole -- ^ Rslt -> Role -> Addr -> Either String Addr
   , isIn    -- ^ Rslt -> Addr -> Either String (Set (Role,Addr))
   , fills   -- ^ Rslt -> (Role, Addr) -> Either String Addr
 
@@ -59,6 +60,14 @@ has :: Rslt -> Addr -> Either String (Map Role Addr)
 has r a = prefixLeft "-> has" $ do
   void $ addrToRefExpr r a
   maybe (Right M.empty) Right $ M.lookup a $ _has r
+
+-- | hasInRole r rl maybeMbr host` determines whether
+-- `host` contains `maybeMbr` in the `rl` position.
+hasInRole :: Rslt -> Role -> Addr -> Either String Addr
+hasInRole r rl a = prefixLeft "hasInRole: " $ do
+  x :: Maybe Addr <- M.lookup rl <$> has r a
+  maybe (Left $ show a ++ "not found") Right x
+
 
 -- | `isIn r a` finds the `RefExpr` `e` at `a` in `r`, and returns
 -- every position that `re` occupies.

@@ -6,6 +6,7 @@ module Hode.Hash.HLookup (
   , hExprToAddrs -- Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
   ) where
 
+import           Data.Functor.Foldable
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -23,9 +24,28 @@ hFind :: HExpr -> Find Addr Rslt
 hFind he = Find f $ hVars he
   where f rslt subst = hExprToAddrs rslt subst he
 
+hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
+hMatches r h0 a0 = prefixLeft "hMatches: " $ do
+  e0 :: Expr <- addrToExpr r a0
+  case h0 of
+    HExpr e -> Right $ e == e0
+
+    HMap (mh :: Map Role HExpr) -> do
+      ma :: Map Role Addr <- ifLefts_map $
+        M.mapWithKey (\rol _ -> hasInRole r rol a0) mh
+      let mPairs :: Map Role (HExpr,Addr) =
+            M.mapWithKey f mh where
+            f rol h = (h,a) where
+              a = maybe (error "impossible") id $
+                  M.lookup rol ma
+      mCompares :: Map Role Bool <- ifLefts_map $
+        M.map (uncurry $ hMatches r) mPairs
+      Right $ and mCompares
+
+    _ -> error "TODO: more cases."
+
 
 -- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
-
 hExprToExpr :: Rslt -> HExpr -> Either String Expr
 hExprToExpr _ (HExpr e) = Right e
 

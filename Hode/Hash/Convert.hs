@@ -43,7 +43,7 @@ import Hode.Util.Misc
 -- ExprTplt in the corresponding HExpr.
 
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
-pRelToHExpr r = prefixLeft "-> pRelToHExpr" . para f where
+pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
   f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
