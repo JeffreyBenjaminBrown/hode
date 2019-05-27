@@ -96,7 +96,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
       maybeConsTpltPackage = if null tplt_ras then id else (:) tplt_package
         where tplt_package :: (HostGroup, [Addr]) =
                 (tplt_group, map snd tplt_ras)
-                where tplt_group = TpltHostGroup $ Templates a0
+                where tplt_group = TpltHostGroup $ JointHosts a0
 
   rel_tplts <- let tpltOf :: Addr -> Either String Addr
                    tpltOf a = fills r (RoleTplt, a)

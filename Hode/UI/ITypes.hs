@@ -35,7 +35,7 @@ data MainWindowName = CommandHistory
 
 data Command = CommandInsert       Expr
              | CommandReplace Addr Expr
-             | CommandDelete Addr
+             | CommandDelete  Addr
              | CommandFind String HExpr
              | CommandLoad Folder
              | CommandSave Folder deriving (Show, Eq, Ord)
@@ -48,16 +48,16 @@ type Folder = String
 type ViewQuery = String
 
 data ViewResult = ViewResult {
-    _viewResultAddr :: Addr
+    _viewResultAddr   :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
 data ViewMembers = ViewMembers { _viewMembersCenter :: Addr }
   deriving (Show, Eq, Ord)
 
--- | PITFALL: In the case of `VTree RsltView`,
--- permits invalid state. Subviews of `VQuery`, `VMember`, `VCenterRole`
--- must be `VResult`s. The subviews of a `VResult` must be `VMember`s
--- or `VCenterRole`s. A `VQuery` can be nowhere but the top of the tree.
+-- | PITFALL: `VTree RsltView` permits invalid state.
+-- A `VQuery` should be nowhere but the top of the tree.
+-- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VResult`s.
+-- The subviews of a `VResult` should be `VMember`s or `VCenterRole`s.
 data RsltView = VQuery     ViewQuery
               | VResult    ViewResult
               | VMembers   ViewMembers
@@ -65,8 +65,8 @@ data RsltView = VQuery     ViewQuery
   deriving (Eq, Ord)
 
 data HostGroup =
-  RelHostGroup MemberHosts -- ^ `Rel`s that the center is a member of
-  | TpltHostGroup Templates -- ^ `Tplt`s that the center is a joint in
+  RelHostGroup MemberHosts  -- ^ `Rel`s  that the center is a member of
+  | TpltHostGroup JointHosts -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
 -- | `MemberHosts` is used to group relationships in which the `Expr`at
@@ -79,7 +79,7 @@ data MemberHosts = MemberHosts {
   , _relHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
   } deriving (Eq, Ord)
 
-data Templates = Templates { _templatesCenter :: Addr }
+data JointHosts = JointHosts { _templatesCenter :: Addr }
   deriving (Eq, Ord)
 
 instance Show RsltView where
@@ -104,8 +104,8 @@ instance Show MemberHosts where
             in either (const noLeft) id
                $ eShow noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
-instance Show Templates where
-  show _ = "Templates in which it is a joint:"
+instance Show JointHosts where
+  show _ = "JointHosts in which it is a joint:"
 
 makePrisms ''RsltView -- prisms
 makeLenses ''ViewResult
