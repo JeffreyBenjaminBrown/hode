@@ -45,6 +45,11 @@ type Folder = String
 
 -- | = Views
 
+-- | An `RsltView` is a node in a collecction of search results.
+-- Each search returns a flat list of such nodes, but then the user
+-- can choose to view the members and hosts of any node, recursively,
+-- resulting in a tree.
+--
 -- | PITFALL: `VTree RsltView` permits invalid state.
 -- A `VQuery` should be nowhere but the top of the tree.
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
@@ -55,15 +60,20 @@ data RsltView = VQuery       ViewQuery
               | VHostGroup   HostGroup
   deriving (Eq, Ord)
 
-type ViewQuery = String
+type ViewQuery = String -- ^ What the user asked for
 
 data ViewExpr = ViewExpr {
     _viewResultAddr   :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
+-- | The members of some "center" `Expr`.
 data MembersGroup = MembersGroup { _viewMembersCenter :: Addr }
   deriving (Show, Eq, Ord)
 
+-- | The hosts of some "center" `Expr`.
+-- If `Expr` `h` hosts the center `Expr` `c`, it could be because
+-- (1) `h` is a `Rel`, of which `c` is a member, or
+-- (2) `h` is a `Tplt`, in which `c` is a joint
 data HostGroup =
   RelHostGroup MemberHosts  -- ^ `Rel`s  that the center is a member of
   | TpltHostGroup JointHosts -- ^ `Tplt`s that the center is a joint in
@@ -83,10 +93,10 @@ data JointHosts = JointHosts { _templatesCenter :: Addr }
   deriving (Eq, Ord)
 
 instance Show RsltView where
-  show (VQuery x)     = "VQuery "     ++ show x
-  show (VExpr x)    = "VExpr "    ++ show x
-  show (VMemberGroup x)   = "VMemberGroup "   ++ show x
-  show (VHostGroup x) = "VHostGroup " ++ show x
+  show (VQuery x)       = "VQuery "     ++ show x
+  show (VExpr x)        = "VExpr "    ++ show x
+  show (VMemberGroup x) = "VMemberGroup "   ++ show x
+  show (VHostGroup x)   = "VHostGroup " ++ show x
 
 instance Show MemberHosts where
   show relHosts = let
@@ -117,14 +127,17 @@ makeLenses ''MemberHosts
 
 -- PITFALL: These types must come last in order to derive `Show`.
 
-data Buffer = Buffer { _bufferQuery :: ViewQuery
-                     , _bufferRsltViewPorest  :: Maybe (Porest RsltView)
+-- | A `Buffer` displays search results.
+-- A user will spend most of their time looking at one of these.
+data Buffer = Buffer { _bufferQuery          :: ViewQuery
+                     , _bufferRsltViewPorest :: Maybe (Porest RsltView)
                      } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
+-- | The entire state of the app.
 data St = St {
     _focusRing              :: B.FocusRing BrickName
-    -- ^ So far `focusRing` is unused in spirit, although technically used.
+    -- ^ So far `focusRing` is unused in spirit, but technically used.
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _uiError                :: String
   , _reassurance            :: String

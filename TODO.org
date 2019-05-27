@@ -1,5 +1,16 @@
-* TODO comment
-** in UI.ITypes, are ViewMembers and HostGroup equivalent?
+* TODO next: the BufferRow type
+** data BufferRow = BufferRow RsltView ColumnProps OtherProps
+Buffers will hold a Porest of these, not of RsltViews.
+** ColumnProps (column properties)
+The user will choose which column properties are on display,
+on a per-buffer basis.
+*** examples
+"number of parents"
+"satisfies HExpr _"
+** OtherProps
+"IsChecked", for use in batch adds.
+"IsFolded".
+"Order" (?)
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
