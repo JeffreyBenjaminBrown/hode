@@ -45,24 +45,24 @@ type Folder = String
 
 -- | = Views
 
+-- | PITFALL: `VTree RsltView` permits invalid state.
+-- A `VQuery` should be nowhere but the top of the tree.
+-- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
+-- The subviews of a `VExpr` should be `VMember`s or `VCenterRole`s.
+data RsltView = VQuery       ViewQuery
+              | VExpr        ViewExpr
+              | VMemberGroup MembersGroup
+              | VHostGroup   HostGroup
+  deriving (Eq, Ord)
+
 type ViewQuery = String
 
-data ViewResult = ViewResult {
+data ViewExpr = ViewExpr {
     _viewResultAddr   :: Addr
   , _viewResultString :: String } deriving (Show, Eq, Ord)
 
-data ViewMembers = ViewMembers { _viewMembersCenter :: Addr }
+data MembersGroup = MembersGroup { _viewMembersCenter :: Addr }
   deriving (Show, Eq, Ord)
-
--- | PITFALL: `VTree RsltView` permits invalid state.
--- A `VQuery` should be nowhere but the top of the tree.
--- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VResult`s.
--- The subviews of a `VResult` should be `VMember`s or `VCenterRole`s.
-data RsltView = VQuery     ViewQuery
-              | VResult    ViewResult
-              | VMembers   ViewMembers
-              | VHostGroup HostGroup
-  deriving (Eq, Ord)
 
 data HostGroup =
   RelHostGroup MemberHosts  -- ^ `Rel`s  that the center is a member of
@@ -84,8 +84,8 @@ data JointHosts = JointHosts { _templatesCenter :: Addr }
 
 instance Show RsltView where
   show (VQuery x)     = "VQuery "     ++ show x
-  show (VResult x)    = "VResult "    ++ show x
-  show (VMembers x)   = "VMembers "   ++ show x
+  show (VExpr x)    = "VExpr "    ++ show x
+  show (VMemberGroup x)   = "VMemberGroup "   ++ show x
   show (VHostGroup x) = "VHostGroup " ++ show x
 
 instance Show MemberHosts where
@@ -108,8 +108,8 @@ instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
 
 makePrisms ''RsltView -- prisms
-makeLenses ''ViewResult
-makeLenses ''ViewMembers
+makeLenses ''ViewExpr
+makeLenses ''MembersGroup
 makeLenses ''MemberHosts
 
 

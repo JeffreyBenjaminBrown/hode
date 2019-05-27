@@ -85,7 +85,7 @@ handleKeyboard_atResults st ev = case ev of
     $ closeSubviews_atFocus st
   B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
     $ unEitherSt st
-    $ st & cons_focusedViewResult_asChild
+    $ st & cons_focusedViewExpr_asChild
 
   B.EvKey (B.KChar 'w') [B.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
@@ -147,9 +147,9 @@ runParsedCommand (CommandFind s h) st = do
 
         v_qr :: Addr -> VTree RsltView
         v_qr a = vTreeLeaf $ let
-              (rv :: Either String ViewResult) = resultView r a
-              (err :: String -> ViewResult) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
-          in VResult $ either err id rv
+              (rv :: Either String ViewExpr) = resultView r a
+              (err :: String -> ViewExpr) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+          in VExpr $ either err id rv
 
   Right $ B.continue $ st & showingInMainWindow .~ Results
                           & stBuffer st . bufferQuery .~ s

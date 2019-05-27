@@ -11,7 +11,7 @@
 
 module Hode.UI.RsltViewTree (
     moveFocusedRsltView   -- ^ Direction -> St -> St
-  , members_atFocus       -- ^ St -> Either String (ViewMembers, [Addr])
+  , members_atFocus       -- ^ St -> Either String (MembersGroup, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
   , groupHostRels_atFocus -- ^ St ->    Either String [(MemberHosts, [Addr])]
@@ -44,7 +44,7 @@ moveFocusedRsltView d st =
   st & stSetFocusedBuffer . bufferRsltViewPorest . _Just
      %~ moveFocusInPorest d
 
-members_atFocus :: St -> Either String (ViewMembers, [Addr])
+members_atFocus :: St -> Either String (MembersGroup, [Addr])
 members_atFocus st = prefixLeft "-> members_atFocus" $ do
   foc :: PTree RsltView <-
     let msg = "focused RsltView not found."
@@ -52,21 +52,21 @@ members_atFocus st = prefixLeft "-> members_atFocus" $ do
        st ^? stGetFocusedRsltViewTree . _Just
   a :: Addr <-
     case foc ^. pTreeLabel of
-      VResult rv -> Right $ rv ^. viewResultAddr
+      VExpr rv -> Right $ rv ^. viewResultAddr
       _          -> Left $
         "can only be called from a RsltView with an Addr."
   as :: [Addr] <-
     M.elems <$> has (st ^. appRslt) a
-  Right (ViewMembers a, as)
+  Right (MembersGroup a, as)
 
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
-  (ms,as) :: (ViewMembers, [Addr]) <-
+  (ms,as) :: (MembersGroup, [Addr]) <-
     members_atFocus st
   let topOfNew :: PTree RsltView =
-        pTreeLeaf $ VMembers ms
+        pTreeLeaf $ VMemberGroup ms
   leavesOfNew :: [PTree RsltView] <-
-    map (pTreeLeaf . VResult)
+    map (pTreeLeaf . VExpr)
     <$> ifLefts (map (resultView $ st ^. appRslt) as)
   leavesOfNew' :: Porest RsltView <-
     let msg = "Expr has no members."
@@ -129,7 +129,7 @@ groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
     let errMsg = "Buffer not found or focused RsltView not found."
     in maybe (Left errMsg) Right $
        st ^? stGetFocusedRsltViewTree . _Just .
-       pTreeLabel . _VResult . viewResultAddr
+       pTreeLabel . _VExpr . viewResultAddr
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
@@ -154,12 +154,12 @@ hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   case as of [] -> Left "There are no host Exprs to show."
              _ -> Right ()
   let mustBeOkay = "Impossible: as is nonempty, so P.fromList must work."
-  (rs :: [ViewResult]) <-
+  (rs :: [ViewExpr]) <-
     ifLefts $ map (resultView r) as
   Right $ PTree { _pTreeLabel = VHostGroup hg
                 , _pTreeHasFocus = False
                 , _pMTrees = maybe (error mustBeOkay) Just $
-                    P.fromList $ map (pTreeLeaf . VResult) rs }
+                    P.fromList $ map (pTreeLeaf . VExpr) rs }
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =

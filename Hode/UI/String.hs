@@ -2,7 +2,7 @@
 
 module Hode.UI.String (
     resultsText  -- ^ St -> [String]
-  , resultView   -- ^ Rslt -> Addr -> Either String ViewResult
+  , resultView   -- ^ Rslt -> Addr -> Either String ViewExpr
   , showRsltView -- ^ RsltView -> String
   ) where
 
@@ -28,11 +28,11 @@ resultsText st = maybe [] (concatMap $ go 0) p where
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s
 
-resultView :: Rslt -> Addr -> Either String ViewResult
+resultView :: Rslt -> Addr -> Either String ViewExpr
 resultView r a = do
   (s :: String) <- prefixLeft "resultView"
                    $ addrToExpr r a >>= eShow r
-  Right $ ViewResult { _viewResultAddr = a
+  Right $ ViewExpr { _viewResultAddr = a
                      , _viewResultString = s }
 
 -- | `showRsltView` is used to display a `RsltView` in the UI. It is distinct
@@ -40,8 +40,8 @@ resultView r a = do
 -- whereas `showRsltView` hides things that the UI already makes clear.
 showRsltView :: RsltView -> String -- TODO : rename showRsltView
 showRsltView (VQuery vq)  = vq
-showRsltView (VResult qr) = show (qr ^. viewResultAddr)
+showRsltView (VExpr qr) = show (qr ^. viewResultAddr)
   ++ ": " ++ show (qr ^. viewResultString)
-showRsltView (VMembers _) = "its members"
+showRsltView (VMemberGroup _) = "its members"
 showRsltView (VHostGroup (RelHostGroup x)) = show x
 showRsltView (VHostGroup (TpltHostGroup x)) = show x

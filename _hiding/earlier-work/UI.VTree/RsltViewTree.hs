@@ -10,7 +10,7 @@
 
 module UI.VTree.RsltViewTree (
     moveFocusedRsltView -- Direction -> St -> Either String St
-  , members_atFocus         -- St -> Either String (ViewMembers, [Addr])
+  , members_atFocus         -- St -> Either String (MembersGroup, [Addr])
   , insertMembers_atFocus   -- St -> Either String St
   , groupHostRels_atFocus   -- St -> Either String [(ViewCenterRole, [Addr])]
   , hostRelGroup_to_view        -- Rslt -> (ViewCenterRole, [Addr])
@@ -50,7 +50,7 @@ moveFocusedRsltView d st = prefixLeft "moveFocusedRsltView" $ do
   Right $ st & stBuffer st . bufferView .~ vt
              & stBuffer st . bufferPath .~ p
 
-members_atFocus :: St -> Either String (ViewMembers, [Addr])
+members_atFocus :: St -> Either String (MembersGroup, [Addr])
 members_atFocus st = prefixLeft "members_atFocus" $ do
   (b :: Buffer) <- let msg = "bad vathToBuffer"
     in maybe (Left msg) Right $ st ^? stBuffer st
@@ -58,16 +58,16 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
   (foc :: VTree RsltView) <- let left = Left $ "bad path: " ++ show viewPath
     in maybe left Right $ b ^? bufferView . atPath viewPath
   (a :: Addr) <- case foc ^. vTreeLabel of
-    VResult rv -> Right $ rv ^. viewResultAddr
+    VExpr rv -> Right $ rv ^. viewResultAddr
     _ -> Left $ "can only be called from a RsltView with an Addr."
   (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
-  Right ( ViewMembers a, as )
+  Right ( MembersGroup a, as )
 
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
-  ((ms,as) :: (ViewMembers, [Addr])) <- members_atFocus st
-  let (topOfNew :: VTree RsltView) = vTreeLeaf $ VMembers ms
-  (leavesOfNew :: [VTree RsltView]) <- map (vTreeLeaf . VResult)
+  ((ms,as) :: (MembersGroup, [Addr])) <- members_atFocus st
+  let (topOfNew :: VTree RsltView) = vTreeLeaf $ VMemberGroup ms
+  (leavesOfNew :: [VTree RsltView]) <- map (vTreeLeaf . VExpr)
     <$> ifLefts "" (map (resultView $ st ^. appRslt) as)
   let (new :: VTree RsltView) =
         topOfNew & vTrees .~ V.fromList leavesOfNew
@@ -87,7 +87,7 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   a :: Addr <-
     let err = Left "Either target RsltView has no Addr, or bad bufferPath."
     in maybe err Right
-       $ top ^? atPath p . vTreeLabel . _VResult . viewResultAddr
+       $ top ^? atPath p . vTreeLabel . _VExpr . viewResultAddr
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
@@ -106,13 +106,13 @@ insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
 hostRelGroup_to_view :: Rslt -> (ViewCenterRole, [Addr])
                      -> Either String (VTree RsltView)
 hostRelGroup_to_view r (crv, as) = do
-  (rs :: [ViewResult]) <- ifLefts "hostRelGroup_to_view"
+  (rs :: [ViewExpr]) <- ifLefts "hostRelGroup_to_view"
     $ map (resultView r) as
   Right $ VTree { _vTreeFocalChild = 0
                 , _vTreeIsFocused = False
                 , _vTreeLabel = VCenterRole crv
                 , _vTrees =
-                    V.fromList $ map (vTreeLeaf . VResult) rs }
+                    V.fromList $ map (vTreeLeaf . VExpr) rs }
 
 closeSubviews_atFocus :: St -> Either String St
 closeSubviews_atFocus st = st & prefixLeft "closeSubviews_atFocus"

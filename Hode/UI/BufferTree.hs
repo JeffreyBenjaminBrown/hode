@@ -4,7 +4,7 @@
 module Hode.UI.BufferTree (
     consBuffer_topNext -- ^ Buffer -> St -> St
   , consBufferAsChild  -- ^ Buffer -> St -> St
-  , cons_focusedViewResult_asChildOfBuffer -- ^ St -> Either String St
+  , cons_focusedViewExpr_asChildOfBuffer -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> St
   ) where
 
@@ -26,9 +26,9 @@ consBufferAsChild :: Buffer -> St -> St
 consBufferAsChild b = searchBuffers . _Just . P.focus . setFocusedSubtree
                       %~ consUnderAndFocus (pTreeLeaf b)
 
-cons_focusedViewResult_asChildOfBuffer :: St -> Either String St
-cons_focusedViewResult_asChildOfBuffer st =
-  prefixLeft "cons_focusedViewResult_asChild" $ do
+cons_focusedViewExpr_asChildOfBuffer :: St -> Either String St
+cons_focusedViewExpr_asChildOfBuffer st =
+  prefixLeft "cons_focusedViewExpr_asChild" $ do
   b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st ^. stGetFocusedBuffer
   (ptrv :: PTree RsltView) <-

@@ -52,9 +52,9 @@ emptyBuffer = Buffer {
 bufferFromRsltViewTree :: PTree RsltView -> Either String Buffer
 bufferFromRsltViewTree vt = do
   let (rsltView :: RsltView) = vt ^. pTreeLabel
-  vr :: ViewResult <- case rsltView of
-    VResult x -> Right x
-    _ -> Left $ "bufferFromRsltViewTree called from a non-VResult."
+  vr :: ViewExpr <- case rsltView of
+    VExpr x -> Right x
+    _ -> Left $ "bufferFromRsltViewTree called from a non-VExpr."
   Right $ Buffer {
       _bufferQuery          = vr ^. viewResultString
     , _bufferRsltViewPorest = P.fromList [vt]

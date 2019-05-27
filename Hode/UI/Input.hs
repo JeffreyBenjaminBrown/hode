@@ -90,7 +90,7 @@ handleKeyboard_atResultsWindow st ev = case ev of
 
   B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
     $ unEitherSt st
-    $ st & cons_focusedViewResult_asChildOfBuffer
+    $ st & cons_focusedViewExpr_asChildOfBuffer
 
   B.EvKey (B.KChar 'r') [B.MMeta] -> B.continue
     $ replaceCommand st
@@ -155,10 +155,10 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
             P.fromList $ map v_qr $ S.toList as
           where
           v_qr :: Addr -> PTree RsltView
-          v_qr a = pTreeLeaf $ VResult $ either err id rv
+          v_qr a = pTreeLeaf $ VExpr $ either err id rv
             where
-            (rv :: Either String ViewResult) = resultView r a
-            (err :: String -> ViewResult) = \se -> error ("called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+            (rv :: Either String ViewExpr) = resultView r a
+            (err :: String -> ViewExpr) = \se -> error ("called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
 
     Right $ B.continue $ st
       & showingInMainWindow .~ Results
