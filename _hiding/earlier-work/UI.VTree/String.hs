@@ -20,10 +20,10 @@ import Util.VTree
 
 resultsText :: St -> [String]
 resultsText st = maybe [] (f 0) b where
-  b :: Maybe (VTree RsltView)
+  b :: Maybe (VTree ViewExprNode)
   b = st ^? stBuffer st . bufferView
 
-  f :: Int -> VTree RsltView -> [String]
+  f :: Int -> VTree ViewExprNode -> [String]
   f i v = indent (vShow $ v ^. vTreeLabel)
     : concatMap (f $ i+1) (V.toList $ v ^. vTrees)
     where indent :: String -> String

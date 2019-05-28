@@ -10,13 +10,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.BufferRowTree (
-    moveFocusedRsltView   -- ^ Direction -> St -> St
+    moveFocusedViewExprNode   -- ^ Direction -> St -> St
   , members_atFocus       -- ^ St -> Either String (MembersGroup, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
   , groupHostRels_atFocus -- ^ St ->    Either String [(MemberHosts, [Addr])]
   , hostGroup_to_view     -- ^ Rslt -> (MemberHosts, [Addr]) ->
-                          -- Either String (PTree RsltView)
+                          -- Either String (PTree ViewExprNode)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
   ) where
@@ -39,21 +39,21 @@ import Hode.Util.Misc
 import Hode.Util.PTree
 
 
-moveFocusedRsltView :: Direction -> St -> St
-moveFocusedRsltView d =
+moveFocusedViewExprNode :: Direction -> St -> St
+moveFocusedViewExprNode d =
   stSetFocusedBuffer . bufferRowPorest . _Just
   %~ moveFocusInPorest d
 
 members_atFocus :: St -> Either String (MembersGroup, [Addr])
 members_atFocus st = prefixLeft "-> members_atFocus" $ do
   foc :: PTree BufferRow <-
-    let msg = "focused RsltView not found."
+    let msg = "focused ViewExprNode not found."
     in maybe (error msg) Right $
-       st ^? stGetFocusedRsltViewTree . _Just
+       st ^? stGetFocusedViewExprNodeTree . _Just
   a :: Addr <-
-    case foc ^. pTreeLabel . rsltView of
+    case foc ^. pTreeLabel . viewExprNode of
       VExpr rv -> Right $ rv ^. viewResultAddr
-      _        -> Left $ "can only be called from a RsltView with an Addr."
+      _        -> Left $ "can only be called from a ViewExprNode with an Addr."
   as :: [Addr] <-
     M.elems <$> has (st ^. appRslt) a
   Right (MembersGroup a, as)
@@ -67,7 +67,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
   let topOfNew :: PTree BufferRow =
         pTreeLeaf $ BufferRow (VMemberGroup ms) () ()
   leavesOfNew :: [PTree BufferRow] <-
-    map (pTreeLeaf . bufferRow_from_rsltView . VExpr)
+    map (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
     <$> ifLefts (map (resultView $ st ^. appRslt) as)
   leavesOfNew' :: Porest BufferRow <-
     let msg = "Expr has no members."
@@ -75,7 +75,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
   let new :: PTree BufferRow =
         topOfNew & pMTrees .~ Just leavesOfNew'
 
-  Right $ st & stSetFocusedRsltViewTree %~ consUnderAndFocus new
+  Right $ st & stSetFocusedViewExprNodeTree %~ consUnderAndFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
 groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
@@ -128,10 +128,10 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
 groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
 groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
   a :: Addr <-
-    let errMsg = "Buffer not found or focused RsltView not found."
+    let errMsg = "Buffer not found or focused ViewExprNode not found."
     in maybe (Left errMsg) Right $
-       st ^? stGetFocusedRsltViewTree . _Just .
-       pTreeLabel . rsltView . _VExpr . viewResultAddr
+       st ^? stGetFocusedViewExprNodeTree . _Just .
+       pTreeLabel . viewExprNode . _VExpr . viewResultAddr
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
@@ -141,15 +141,15 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
   (newTrees :: [PTree BufferRow]) <-
     ifLefts $ map (hostGroup_to_view $ st ^. appRslt) groups
   (preexist :: Maybe (Porest BufferRow)) <-
-    let errMsg = "focused RsltView not found."
+    let errMsg = "focused ViewExprNode not found."
     in maybe (Left errMsg) Right $ st ^?
-       stGetFocusedRsltViewTree . _Just . pMTrees
+       stGetFocusedViewExprNodeTree . _Just . pMTrees
   let preexist' :: [PTree BufferRow]
       preexist' = maybe [] toList preexist
       insert :: PTree BufferRow -> PTree BufferRow
       insert foc = foc & pMTrees .~
                    P.fromList (foldr (:) preexist' newTrees)
-  Right $ st & stSetFocusedRsltViewTree %~ insert
+  Right $ st & stSetFocusedViewExprNodeTree %~ insert
 
 hostGroup_to_view :: Rslt -> (HostGroup, [Addr])
                   -> Either String (PTree BufferRow)
@@ -159,13 +159,13 @@ hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   let mustBeOkay = "Impossible: `as` is nonempty, so P.fromList must work."
   (rs :: [ViewExpr]) <-
     ifLefts $ map (resultView r) as
-  Right $ PTree { _pTreeLabel = bufferRow_from_rsltView $ VHostGroup hg
+  Right $ PTree { _pTreeLabel = bufferRow_from_viewExprNode $ VHostGroup hg
                 , _pTreeHasFocus = False
                 , _pMTrees = let
-                    toLeaf = (pTreeLeaf . bufferRow_from_rsltView . VExpr)
+                    toLeaf = (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
                     in maybe (error mustBeOkay) Just $
                        P.fromList $ map toLeaf rs }
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =
-  stSetFocusedRsltViewTree . pMTrees .~ Nothing
+  stSetFocusedViewExprNodeTree . pMTrees .~ Nothing

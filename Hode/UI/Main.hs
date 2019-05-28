@@ -50,7 +50,7 @@ app = B.App
 
 
 -- | The focused subview is recalculated at each call to `appDisplay`.
--- Each `RsltViewTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
+-- Each `ViewExprNodeTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
   w = B.center $
@@ -60,7 +60,7 @@ appDraw st0 = [w] where
   st = st0 & stSetFocusedBuffer .~ b
            & ( searchBuffers . _Just . P.focus
                . setFocusedSubtree . pTreeHasFocus .~ True )
-           & stSetFocusedRsltViewTree . pTreeHasFocus .~ True
+           & stSetFocusedViewExprNodeTree . pTreeHasFocus .~ True
   (b :: Buffer) = maybe err id $  st0 ^? stGetFocusedBuffer . _Just where
       err = error "Focused Buffer not found."
 
@@ -105,7 +105,7 @@ appDraw st0 = [w] where
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
     Just p -> viewport (BrickMainName Results) B.Vertical
-              $ porestToWidget (showRsltView . _rsltView) focusStyle $ p
+              $ porestToWidget (showViewExprNode . _viewExprNode) focusStyle $ p
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]

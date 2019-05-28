@@ -46,26 +46,33 @@ type Folder = String
 -- | = Views
 
 data BufferRow = BufferRow {
-    _rsltView :: RsltView
+    _viewExprNode :: ViewExprNode
   , _columnProps :: ()
   , _otherProps :: () } deriving (Show, Eq, Ord)
 
-bufferRow_from_rsltView :: RsltView -> BufferRow
-bufferRow_from_rsltView rv = BufferRow rv () ()
+bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
+bufferRow_from_viewExprNode rv = BufferRow rv () ()
 
--- | An `RsltView` is a node in a collecction of search results.
--- Each search returns a flat list of such nodes, but then the user
--- can choose to view the members and hosts of any node, recursively,
--- resulting in a tree.
+-- | A `ViewExprNode` is a node in a tree of descendents of search results.
+-- Each search returns a flat list of `ViewExprNode`s.
+-- The user can then choose to view members and hosts of any node,
+-- recursively, thus building a "view tree".
 --
--- | PITFALL: `VTree RsltView` permits invalid state.
+-- A
+-- A `VMemberGroup`  or `VHostGroup` announces the relationship
+-- between its parent in the view tree and its children.
+--
+-- | PITFALL: `VTree ViewExprNode` permits invalid state.
 -- A `VQuery` should be nowhere but the top of the tree.
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
--- The subviews of a `VExpr` should be `VMember`s or `VCenterRole`s.
-data RsltView = VQuery       ViewQuery
-              | VExpr        ViewExpr
-              | VMemberGroup MembersGroup
-              | VHostGroup   HostGroup
+-- The subviews of a `VExpr` should be `VMemberGroup`s or `VHostGroup`s.
+data ViewExprNode =
+    VQuery       ViewQuery    -- ^ The top of every view tree is this.
+  | VExpr        ViewExpr     -- ^ Corresponds to some `Expr`.
+  | VMemberGroup MembersGroup -- ^ Announces the relationship between its
+                              -- parent in the view tree and its children.
+  | VHostGroup   HostGroup    -- ^ Announces the relationship between its
+                              -- parent in the view tree and its children.
   deriving (Eq, Ord)
 
 type ViewQuery = String -- ^ What the user asked for
@@ -83,8 +90,8 @@ data MembersGroup = MembersGroup { _viewMembersCenter :: Addr }
 -- (1) `h` is a `Rel`, of which `c` is a member, or
 -- (2) `h` is a `Tplt`, in which `c` is a joint
 data HostGroup =
-  RelHostGroup MemberHosts  -- ^ `Rel`s  that the center is a member of
-  | TpltHostGroup JointHosts -- ^ `Tplt`s that the center is a joint in
+    RelHostGroup MemberHosts  -- ^ `Rel`s  that the center is a member of
+  | TpltHostGroup JointHosts  -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
 -- | `MemberHosts` is used to group relationships in which the `Expr`at
@@ -100,7 +107,7 @@ data MemberHosts = MemberHosts {
 data JointHosts = JointHosts { _templatesCenter :: Addr }
   deriving (Eq, Ord)
 
-instance Show RsltView where
+instance Show ViewExprNode where
   show (VQuery x)       = "VQuery "     ++ show x
   show (VExpr x)        = "VExpr "    ++ show x
   show (VMemberGroup x) = "VMemberGroup "   ++ show x
@@ -126,7 +133,7 @@ instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
 
 makeLenses ''BufferRow
-makePrisms ''RsltView -- prisms
+makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MembersGroup
 makeLenses ''MemberHosts
@@ -138,7 +145,7 @@ makeLenses ''MemberHosts
 
 -- | A `Buffer` displays search results.
 -- A user will spend most of their time looking at one of these.
-data Buffer = Buffer { _bufferQuery          :: ViewQuery
+data Buffer = Buffer { _bufferQuery     :: ViewQuery
                      , _bufferRowPorest :: Maybe (Porest BufferRow)
                      } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
@@ -171,15 +178,15 @@ stSetFocusedBuffer = sets go where
   go f = searchBuffers . _Just . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
-stGetFocusedRsltViewTree :: Getter St (Maybe (PTree BufferRow))
-stGetFocusedRsltViewTree = to go where
+stGetFocusedViewExprNodeTree :: Getter St (Maybe (PTree BufferRow))
+stGetFocusedViewExprNodeTree = to go where
   go :: St -> Maybe (PTree BufferRow)
   go st = st ^? stGetFocusedBuffer . _Just .
     bufferRowPorest . _Just .
     P.focus . getFocusedSubtree . _Just
 
-stSetFocusedRsltViewTree :: Setter' St (PTree BufferRow)
-stSetFocusedRsltViewTree = sets go where
+stSetFocusedViewExprNodeTree :: Setter' St (PTree BufferRow)
+stSetFocusedViewExprNodeTree = sets go where
   go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
   go f = stSetFocusedBuffer . bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f

@@ -102,16 +102,16 @@ handleKeyboard_atResultsWindow st ev = case ev of
       & showReassurance "Results window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView DirPrev
+    $ moveFocusedViewExprNode DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView DirNext
+    $ moveFocusedViewExprNode DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView DirDown
+    $ moveFocusedViewExprNode DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ moveFocusedRsltView DirUp
+    $ moveFocusedViewExprNode DirUp
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
@@ -151,12 +151,12 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
       hExprToAddrs r (mempty :: Subst Addr) h
 
     let p :: Porest BufferRow
-        p = maybe ( porestLeaf $ bufferRow_from_rsltView $
+        p = maybe ( porestLeaf $ bufferRow_from_viewExprNode $
                     VQuery "No matches found.") id $
             P.fromList $ map v_qr $ S.toList as
           where
           v_qr :: Addr -> PTree BufferRow
-          v_qr a = pTreeLeaf $ bufferRow_from_rsltView $
+          v_qr a = pTreeLeaf $ bufferRow_from_viewExprNode $
                    VExpr $ either err id rv
             where
             (rv :: Either String ViewExpr) = resultView r a

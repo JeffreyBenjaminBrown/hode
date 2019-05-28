@@ -17,8 +17,8 @@ import qualified Hode.Test.Rslt.RData as D
 
 
 
-aRsltViewTree :: VTree RsltView
-aRsltViewTree = VTree {
+aViewExprNodeTree :: VTree ViewExprNode
+aViewExprNodeTree = VTree {
     _vTreeFocalChild = 0
   , _vTreeIsFocused = False
   , _vTreeLabel = VQuery "top"

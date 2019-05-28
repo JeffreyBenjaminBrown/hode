@@ -1,5 +1,5 @@
 data Buffer = Buffer { _bufferQuery :: ViewQuery
-                     , _bufferView  :: VTree RsltView
+                     , _bufferView  :: VTree ViewExprNode
                      , _bufferPath  :: Path } deriving (Eq, Ord)
 makeLenses ''Buffer
 

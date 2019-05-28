@@ -40,9 +40,9 @@ import UI.ITypes
 import UI.IUtil
 import UI.Input.IParse
 import UI.String
-import UI.RsltViewTree
+import UI.ViewExprNodeTree
 import UI.VTree.String
-import UI.VTree.RsltViewTree
+import UI.VTree.ViewExprNodeTree
 import UI.Window
 import Util.Direction
 import Util.Misc
@@ -94,16 +94,16 @@ handleKeyboard_atResults st ev = case ev of
       & showReassurance "Results window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirPrev
+    $ unEitherSt st . moveFocusedViewExprNode DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirNext
+    $ unEitherSt st . moveFocusedViewExprNode DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirDown
+    $ unEitherSt st . moveFocusedViewExprNode DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedRsltView DirUp
+    $ unEitherSt st . moveFocusedViewExprNode DirUp
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
@@ -145,7 +145,7 @@ runParsedCommand (CommandFind s h) st = do
                   V.fromList $ map v_qr $ S.toList as
                 } where
 
-        v_qr :: Addr -> VTree RsltView
+        v_qr :: Addr -> VTree ViewExprNode
         v_qr a = vTreeLeaf $ let
               (rv :: Either String ViewExpr) = resultView r a
               (err :: String -> ViewExpr) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
