@@ -62,11 +62,13 @@ It lets you combine multiple searches in some underlying search language.
 # How to install
 
 First you'll need `Stack` (the Haskell toolkit) installed.
-You'll also need `xsel`.
+If you want to be able to traffic to and from the clipboard using the keyboard
+(which can be handy if your data does not fit on screen at once)
+you'll also need to have `xsel` installed.
 
 You might need a few more things I can't remember
 (`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
-If you really do, Stack will let you know.
+If so, Stack will let you know.
 
 Clone the repo,
 then run `stack run` from the command line.
@@ -76,7 +78,7 @@ it will take a long time to load.
 
 # Hode does not back up your data. I recommend Git for that.
 
-Hode has a simple mechanism for saving to disk and reading from disk.
+Hode uses a simple human-readable format for saving to and reading from disk.
 It has, however, no backup mechanism and no safety features
 -- if you ask it to overwrite a big beautiful graph with a tiny ugly one,
 it will oblige.
