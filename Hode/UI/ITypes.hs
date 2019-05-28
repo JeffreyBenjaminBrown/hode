@@ -139,7 +139,7 @@ makeLenses ''MemberHosts
 -- | A `Buffer` displays search results.
 -- A user will spend most of their time looking at one of these.
 data Buffer = Buffer { _bufferQuery          :: ViewQuery
-                     , _bufferRsltViewPorest :: Maybe (Porest BufferRow)
+                     , _bufferRowPorest :: Maybe (Porest BufferRow)
                      } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
@@ -175,11 +175,11 @@ stGetFocusedRsltViewTree :: Getter St (Maybe (PTree BufferRow))
 stGetFocusedRsltViewTree = to go where
   go :: St -> Maybe (PTree BufferRow)
   go st = st ^? stGetFocusedBuffer . _Just .
-    bufferRsltViewPorest . _Just .
+    bufferRowPorest . _Just .
     P.focus . getFocusedSubtree . _Just
 
 stSetFocusedRsltViewTree :: Setter' St (PTree BufferRow)
 stSetFocusedRsltViewTree = sets go where
   go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
-  go f = stSetFocusedBuffer . bufferRsltViewPorest . _Just .
+  go f = stSetFocusedBuffer . bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f

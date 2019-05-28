@@ -34,7 +34,7 @@ import Hode.UI.Main as X
 import Hode.UI.NoUI as X
 import Hode.UI.ShowPTree as X
 import Hode.UI.String as X
-import Hode.UI.RsltViewTree as X
+import Hode.UI.BufferRowTree as X
 import Hode.UI.Window as X
 import Hode.Util.Direction as X
 import Hode.Util.Misc as X

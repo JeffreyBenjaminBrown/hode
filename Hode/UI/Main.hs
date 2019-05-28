@@ -102,7 +102,7 @@ appDraw st0 = [w] where
     Just p -> viewport (BrickMainName SearchBuffers) B.Vertical
               $ porestToWidget _bufferQuery focusStyle p
 
-  resultWindow = case b ^. bufferRsltViewPorest of
+  resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
     Just p -> viewport (BrickMainName Results) B.Vertical
               $ porestToWidget (showRsltView . _rsltView) focusStyle $ p

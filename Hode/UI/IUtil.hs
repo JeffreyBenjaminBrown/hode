@@ -5,7 +5,7 @@ module Hode.UI.IUtil (
 
   , emptySt                -- ^ Rslt -> St
   , emptyBuffer            -- ^                                 Buffer
-  , bufferFromRsltViewTree -- ^ PTree RsltView -> Either String Buffer
+  , buffer_from_bufferRowTree -- ^ PTree RsltView -> Either String Buffer
   ) where
 
 import qualified Data.List.PointedList as P
@@ -44,18 +44,18 @@ emptySt r = St {
 emptyBuffer :: Buffer
 emptyBuffer = Buffer {
     _bufferQuery = "(empty buffer)"
-  , _bufferRsltViewPorest =
+  , _bufferRowPorest =
     Just $ porestLeaf $ bufferRow_from_rsltView $ VQuery
     "There are no search results to show here (yet)." }
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
-bufferFromRsltViewTree :: PTree BufferRow -> Either String Buffer
-bufferFromRsltViewTree vt = do
+buffer_from_bufferRowTree :: PTree BufferRow -> Either String Buffer
+buffer_from_bufferRowTree vt = do
   let (br :: BufferRow) = vt ^. pTreeLabel
   vr :: ViewExpr <- case br ^. rsltView of
     VExpr x -> Right x
-    _ -> Left $ "bufferFromRsltViewTree called from a non-VExpr."
+    _ -> Left $ "buffer_from_bufferRowTree called from a non-VExpr."
   Right $ Buffer {
       _bufferQuery          = vr ^. viewResultString
-    , _bufferRsltViewPorest = P.fromList [vt]
+    , _bufferRowPorest = P.fromList [vt]
     }

@@ -9,7 +9,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.RsltViewTree (
+module Hode.UI.BufferRowTree (
     moveFocusedRsltView   -- ^ Direction -> St -> St
   , members_atFocus       -- ^ St -> Either String (MembersGroup, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
@@ -41,7 +41,7 @@ import Hode.Util.PTree
 
 moveFocusedRsltView :: Direction -> St -> St
 moveFocusedRsltView d =
-  stSetFocusedBuffer . bufferRsltViewPorest . _Just
+  stSetFocusedBuffer . bufferRowPorest . _Just
   %~ moveFocusInPorest d
 
 members_atFocus :: St -> Either String (MembersGroup, [Addr])

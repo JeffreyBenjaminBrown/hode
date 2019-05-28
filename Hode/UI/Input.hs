@@ -41,7 +41,7 @@ import Hode.UI.ITypes
 import Hode.UI.IUtil
 import Hode.UI.Input.IParse
 import Hode.UI.String
-import Hode.UI.RsltViewTree
+import Hode.UI.BufferRowTree
 import Hode.UI.Window
 import Hode.Util.Direction
 import Hode.Util.Misc
@@ -168,8 +168,8 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
       & (let strip :: String -> String
              strip = T.unpack . T.strip . T.pack
          in stSetFocusedBuffer . bufferQuery .~ strip s)
-      & stSetFocusedBuffer . bufferRsltViewPorest . _Just .~ p
-      & ( stSetFocusedBuffer . bufferRsltViewPorest . _Just .
+      & stSetFocusedBuffer . bufferRowPorest . _Just .~ p
+      & ( stSetFocusedBuffer . bufferRowPorest . _Just .
           P.focus . pTreeHasFocus .~ True )
 
   g (CommandReplace a e) st =

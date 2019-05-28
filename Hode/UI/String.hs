@@ -20,7 +20,7 @@ import Hode.Util.PTree
 resultsText :: St -> [String]
 resultsText st = maybe [] (concatMap $ go 0) p where
   p :: Maybe (Porest BufferRow)
-  p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewPorest . _Just
+  p = st ^? stGetFocusedBuffer . _Just . bufferRowPorest . _Just
 
   go :: Int -> PTree BufferRow -> [String]
   go i tv = indent (showRsltView $ tv ^. pTreeLabel . rsltView)

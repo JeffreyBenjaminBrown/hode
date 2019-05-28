@@ -11,7 +11,7 @@ import           Hode.Hash.HTypes
 import           Hode.Rslt.RTypes
 import           Hode.UI.Input.IParse
 import           Hode.UI.ITypes
-import           Hode.UI.RsltViewTree
+import           Hode.UI.BufferRowTree
 import           Hode.Util.VTree
 import qualified Hode.Test.Rslt.RData as D
 
