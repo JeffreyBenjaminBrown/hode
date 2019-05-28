@@ -75,7 +75,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
   let new :: PTree BufferRow =
         topOfNew & pMTrees .~ Just leavesOfNew'
 
-  Right $ st & stSetFocusedViewExprNodeTree %~ consUnder_andFocus new
+  Right $ st & stSetFocused_ViewExprNode_Tree %~ consUnder_andFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
 groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
@@ -149,7 +149,7 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
       insert :: PTree BufferRow -> PTree BufferRow
       insert foc = foc & pMTrees .~
                    P.fromList (foldr (:) preexist' newTrees)
-  Right $ st & stSetFocusedViewExprNodeTree %~ insert
+  Right $ st & stSetFocused_ViewExprNode_Tree %~ insert
 
 hostGroup_to_view :: Rslt -> (HostGroup, [Addr])
                   -> Either String (PTree BufferRow)
@@ -168,4 +168,4 @@ hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =
-  stSetFocusedViewExprNodeTree . pMTrees .~ Nothing
+  stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing

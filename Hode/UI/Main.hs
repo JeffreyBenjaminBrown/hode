@@ -60,7 +60,7 @@ appDraw st0 = [w] where
   st = st0 & stSetFocusedBuffer .~ b
            & ( searchBuffers . _Just . P.focus
                . setFocusedSubtree . pTreeHasFocus .~ True )
-           & stSetFocusedViewExprNodeTree . pTreeHasFocus .~ True
+           & stSetFocused_ViewExprNode_Tree . pTreeHasFocus .~ True
   (b :: Buffer) = maybe err id $  st0 ^? stGetFocused_Buffer . _Just where
       err = error "Focused Buffer not found."
 

@@ -185,8 +185,8 @@ stGetFocused_ViewExprNode_Tree = to go where
     bufferRowPorest . _Just .
     P.focus . getFocusedSubtree . _Just
 
-stSetFocusedViewExprNodeTree :: Setter' St (PTree BufferRow)
-stSetFocusedViewExprNodeTree = sets go where
+stSetFocused_ViewExprNode_Tree :: Setter' St (PTree BufferRow)
+stSetFocused_ViewExprNode_Tree = sets go where
   go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
   go f = stSetFocusedBuffer . bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f
