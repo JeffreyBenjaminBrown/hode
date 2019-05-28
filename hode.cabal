@@ -92,7 +92,6 @@ library
                 base
               , binary
               , brick
-              , Clipboard
               , containers
               , directory
               , filepath
