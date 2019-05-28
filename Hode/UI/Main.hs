@@ -61,7 +61,7 @@ appDraw st0 = [w] where
            & ( searchBuffers . _Just . P.focus
                . setFocusedSubtree . pTreeHasFocus .~ True )
            & stSetFocusedViewExprNodeTree . pTreeHasFocus .~ True
-  (b :: Buffer) = maybe err id $  st0 ^? stGetFocusedBuffer . _Just where
+  (b :: Buffer) = maybe err id $  st0 ^? stGetFocused_Buffer . _Just where
       err = error "Focused Buffer not found."
 
   mainWindow = case st ^. showingInMainWindow of
@@ -105,7 +105,7 @@ appDraw st0 = [w] where
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
     Just p -> viewport (BrickMainName Results) B.Vertical
-              $ porestToWidget (showViewExprNode . _viewExprNode) focusStyle $ p
+              $ porestToWidget (show_ViewExprNode . _viewExprNode) focusStyle $ p
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]

@@ -131,8 +131,8 @@ cons_topNext a =
   P.focus . pTreeHasFocus .~ True
 
 -- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
-consUnderAndFocus :: forall a. PTree a -> PTree a -> PTree a
-consUnderAndFocus newFocus oldFocus =
+consUnder_andFocus :: forall a. PTree a -> PTree a -> PTree a
+consUnder_andFocus newFocus oldFocus =
   let (ts'' :: [PTree a]) =
         let m = newFocus & pTreeHasFocus .~ True
         in case _pMTrees oldFocus of

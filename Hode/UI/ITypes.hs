@@ -78,11 +78,11 @@ data ViewExprNode =
 type ViewQuery = String -- ^ What the user asked for
 
 data ViewExpr = ViewExpr {
-    _viewResultAddr   :: Addr
-  , _viewResultString :: String } deriving (Show, Eq, Ord)
+    _viewExpr_Addr   :: Addr
+  , _viewResult_String :: String } deriving (Show, Eq, Ord)
 
 -- | The members of some "center" `Expr`.
-data MembersGroup = MembersGroup { _viewMembersCenter :: Addr }
+data MembersGroup = MembersGroup { _membersGroupCenter :: Addr }
   deriving (Show, Eq, Ord)
 
 -- | The hosts of some "center" `Expr`.
@@ -95,16 +95,16 @@ data HostGroup =
   deriving (Eq, Ord, Show)
 
 -- | `MemberHosts` is used to group relationships in which the `Expr`at
--- `relHostsCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
+-- `memberHostsCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
 -- then `MemberHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
 data MemberHosts = MemberHosts {
-    _relHostsCenter :: Addr      -- ^ the thing being hosted
-  , _relHostsRole   :: Role      -- ^ the role it plays
-  , _relHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
+    _memberHostsCenter :: Addr      -- ^ the thing being hosted
+  , _memberHostsRole   :: Role      -- ^ the role it plays
+  , _memberHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
   } deriving (Eq, Ord)
 
-data JointHosts = JointHosts { _templatesCenter :: Addr }
+data JointHosts = JointHosts { _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
 instance Show ViewExprNode where
@@ -115,14 +115,14 @@ instance Show ViewExprNode where
 
 instance Show MemberHosts where
   show relHosts = let
-    tplt = _relHostsTplt relHosts
+    tplt = _memberHostsTplt relHosts
     noLeft     = error "show MemberHosts: impossible"
     noRslt     = error "show MemberHosts: Rslt irrelevant"
     noMiscount = error "show MemberHosts: This math is good."
-    in if _relHostsRole relHosts == RoleTplt
+    in if _memberHostsRole relHosts == RoleTplt
        then "Rels using it (as a Tplt)"
        else let (ar :: Arity) = length tplt - 1
-                RoleMember (n :: Int) = _relHostsRole relHosts
+                RoleMember (n :: Int) = _memberHostsRole relHosts
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
@@ -166,8 +166,8 @@ data St = St {
   }
 makeLenses ''St
 
-stGetFocusedBuffer :: Getter St (Maybe Buffer)
-stGetFocusedBuffer = to go where
+stGetFocused_Buffer :: Getter St (Maybe Buffer)
+stGetFocused_Buffer = to go where
   go :: St -> Maybe Buffer
   go st = st ^? searchBuffers . _Just .
     P.focus . getFocusedSubtree . _Just . pTreeLabel
@@ -178,10 +178,10 @@ stSetFocusedBuffer = sets go where
   go f = searchBuffers . _Just . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
-stGetFocusedViewExprNodeTree :: Getter St (Maybe (PTree BufferRow))
-stGetFocusedViewExprNodeTree = to go where
+stGetFocused_ViewExprNode_Tree :: Getter St (Maybe (PTree BufferRow))
+stGetFocused_ViewExprNode_Tree = to go where
   go :: St -> Maybe (PTree BufferRow)
-  go st = st ^? stGetFocusedBuffer . _Just .
+  go st = st ^? stGetFocused_Buffer . _Just .
     bufferRowPorest . _Just .
     P.focus . getFocusedSubtree . _Just
 

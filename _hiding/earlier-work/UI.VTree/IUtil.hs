@@ -30,6 +30,6 @@ buffer_from_bufferRowTree vt = do
   viewResult <- case viewExprNode of
     VExpr x -> Right x
     _ -> Left $ "buffer_from_bufferRowTree called from a non-VExpr."
-  Right $ Buffer { _bufferQuery = viewResult ^. viewResultString
+  Right $ Buffer { _bufferQuery = viewResult ^. viewResult_String
                  , _bufferView = vt
                  , _bufferPath = [] }

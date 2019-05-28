@@ -38,7 +38,7 @@ emptyCommandWindow = commands . B.editContentsL
 replaceCommand :: St -> St
 replaceCommand st = maybe st f query where
   query :: Maybe String
-  query = st ^? stGetFocusedBuffer . _Just . bufferQuery
+  query = st ^? stGetFocused_Buffer . _Just . bufferQuery
 
   f :: String -> St
   f s = st & commands . B.editContentsL

@@ -49,10 +49,10 @@ members_atFocus st = prefixLeft "-> members_atFocus" $ do
   foc :: PTree BufferRow <-
     let msg = "focused ViewExprNode not found."
     in maybe (error msg) Right $
-       st ^? stGetFocusedViewExprNodeTree . _Just
+       st ^? stGetFocused_ViewExprNode_Tree . _Just
   a :: Addr <-
     case foc ^. pTreeLabel . viewExprNode of
-      VExpr rv -> Right $ rv ^. viewResultAddr
+      VExpr rv -> Right $ rv ^. viewExpr_Addr
       _        -> Left $ "can only be called from a ViewExprNode with an Addr."
   as :: [Addr] <-
     M.elems <$> has (st ^. appRslt) a
@@ -75,7 +75,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
   let new :: PTree BufferRow =
         topOfNew & pMTrees .~ Just leavesOfNew'
 
-  Right $ st & stSetFocusedViewExprNodeTree %~ consUnderAndFocus new
+  Right $ st & stSetFocusedViewExprNodeTree %~ consUnder_andFocus new
 
 groupHostRels :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
 groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
@@ -115,9 +115,9 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
       package_rel_groups :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
       package_rel_groups ((role,t),as) = (RelHostGroup relHosts, as)
         where
-          relHosts = MemberHosts { _relHostsCenter = a0
-                                 , _relHostsRole = role
-                                 , _relHostsTplt = tplt t }
+          relHosts = MemberHosts { _memberHostsCenter = a0
+                                 , _memberHostsRole = role
+                                 , _memberHostsTplt = tplt t }
             where tplt :: Addr -> [Expr]
                   tplt a = es
                     where Right (ExprTplt es) = addrToExpr r a
@@ -130,8 +130,8 @@ groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
   a :: Addr <-
     let errMsg = "Buffer not found or focused ViewExprNode not found."
     in maybe (Left errMsg) Right $
-       st ^? stGetFocusedViewExprNodeTree . _Just .
-       pTreeLabel . viewExprNode . _VExpr . viewResultAddr
+       st ^? stGetFocused_ViewExprNode_Tree . _Just .
+       pTreeLabel . viewExprNode . _VExpr . viewExpr_Addr
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
@@ -143,7 +143,7 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
   (preexist :: Maybe (Porest BufferRow)) <-
     let errMsg = "focused ViewExprNode not found."
     in maybe (Left errMsg) Right $ st ^?
-       stGetFocusedViewExprNodeTree . _Just . pMTrees
+       stGetFocused_ViewExprNode_Tree . _Just . pMTrees
   let preexist' :: [PTree BufferRow]
       preexist' = maybe [] toList preexist
       insert :: PTree BufferRow -> PTree BufferRow

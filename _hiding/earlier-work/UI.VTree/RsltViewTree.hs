@@ -58,7 +58,7 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
   (foc :: VTree ViewExprNode) <- let left = Left $ "bad path: " ++ show viewPath
     in maybe left Right $ b ^? bufferView . atPath viewPath
   (a :: Addr) <- case foc ^. vTreeLabel of
-    VExpr rv -> Right $ rv ^. viewResultAddr
+    VExpr rv -> Right $ rv ^. viewExpr_Addr
     _ -> Left $ "can only be called from a ViewExprNode with an Addr."
   (as :: [Addr]) <- M.elems <$> has (st ^. appRslt) a
   Right ( MembersGroup a, as )
@@ -87,7 +87,7 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   a :: Addr <-
     let err = Left "Either target ViewExprNode has no Addr, or bad bufferPath."
     in maybe err Right
-       $ top ^? atPath p . vTreeLabel . _VExpr . viewResultAddr
+       $ top ^? atPath p . vTreeLabel . _VExpr . viewExpr_Addr
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
