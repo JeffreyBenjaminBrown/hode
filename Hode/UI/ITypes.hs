@@ -45,6 +45,14 @@ type Folder = String
 
 -- | = Views
 
+data BufferRow = BufferRow {
+    _rsltView :: RsltView
+  , _columnProps :: ()
+  , _otherProps :: () } deriving (Show, Eq, Ord)
+
+bufferRow_from_rsltView :: RsltView -> BufferRow
+bufferRow_from_rsltView rv = BufferRow rv () ()
+
 -- | An `RsltView` is a node in a collecction of search results.
 -- Each search returns a flat list of such nodes, but then the user
 -- can choose to view the members and hosts of any node, recursively,
@@ -117,6 +125,7 @@ instance Show MemberHosts where
 instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
 
+makeLenses ''BufferRow
 makePrisms ''RsltView -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MembersGroup
@@ -130,7 +139,7 @@ makeLenses ''MemberHosts
 -- | A `Buffer` displays search results.
 -- A user will spend most of their time looking at one of these.
 data Buffer = Buffer { _bufferQuery          :: ViewQuery
-                     , _bufferRsltViewPorest :: Maybe (Porest RsltView)
+                     , _bufferRsltViewPorest :: Maybe (Porest BufferRow)
                      } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
@@ -162,15 +171,15 @@ stSetFocusedBuffer = sets go where
   go f = searchBuffers . _Just . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
-stGetFocusedRsltViewTree :: Getter St (Maybe (PTree RsltView))
+stGetFocusedRsltViewTree :: Getter St (Maybe (PTree BufferRow))
 stGetFocusedRsltViewTree = to go where
-  go :: St -> Maybe (PTree RsltView)
+  go :: St -> Maybe (PTree BufferRow)
   go st = st ^? stGetFocusedBuffer . _Just .
     bufferRsltViewPorest . _Just .
     P.focus . getFocusedSubtree . _Just
 
-stSetFocusedRsltViewTree :: Setter' St (PTree RsltView)
+stSetFocusedRsltViewTree :: Setter' St (PTree BufferRow)
 stSetFocusedRsltViewTree = sets go where
-  go :: (PTree RsltView -> PTree RsltView) -> St -> St
+  go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
   go f = stSetFocusedBuffer . bufferRsltViewPorest . _Just .
          P.focus . setFocusedSubtree %~ f

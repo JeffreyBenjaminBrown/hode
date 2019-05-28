@@ -45,14 +45,14 @@ emptyBuffer :: Buffer
 emptyBuffer = Buffer {
     _bufferQuery = "(empty buffer)"
   , _bufferRsltViewPorest =
-    Just $ porestLeaf $ VQuery
+    Just $ porestLeaf $ bufferRow_from_rsltView $ VQuery
     "There are no search results to show here (yet)." }
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
-bufferFromRsltViewTree :: PTree RsltView -> Either String Buffer
+bufferFromRsltViewTree :: PTree BufferRow -> Either String Buffer
 bufferFromRsltViewTree vt = do
-  let (rsltView :: RsltView) = vt ^. pTreeLabel
-  vr :: ViewExpr <- case rsltView of
+  let (br :: BufferRow) = vt ^. pTreeLabel
+  vr :: ViewExpr <- case br ^. rsltView of
     VExpr x -> Right x
     _ -> Left $ "bufferFromRsltViewTree called from a non-VExpr."
   Right $ Buffer {

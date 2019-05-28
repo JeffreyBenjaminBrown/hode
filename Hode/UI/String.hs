@@ -19,11 +19,11 @@ import Hode.Util.PTree
 
 resultsText :: St -> [String]
 resultsText st = maybe [] (concatMap $ go 0) p where
-  p :: Maybe (Porest RsltView)
+  p :: Maybe (Porest BufferRow)
   p = st ^? stGetFocusedBuffer . _Just . bufferRsltViewPorest . _Just
 
-  go :: Int -> PTree RsltView -> [String]
-  go i tv = indent (showRsltView $ tv ^. pTreeLabel)
+  go :: Int -> PTree BufferRow -> [String]
+  go i tv = indent (showRsltView $ tv ^. pTreeLabel . rsltView)
     : concatMap (go $ i+1) (maybe [] id $ toList <$> tv ^. pMTrees)
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s

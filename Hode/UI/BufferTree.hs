@@ -31,7 +31,7 @@ cons_focusedViewExpr_asChildOfBuffer st =
   prefixLeft "cons_focusedViewExpr_asChild" $ do
   b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st ^. stGetFocusedBuffer
-  (ptrv :: PTree RsltView) <-
+  (ptrv :: PTree BufferRow) <-
     let s = "getFocusedSubtree returned Nothing from bufferRsltViewPorest."
     in maybe (Left s) (maybe (Left s) Right) $
        b ^? bufferRsltViewPorest . _Just . P.focus . getFocusedSubtree

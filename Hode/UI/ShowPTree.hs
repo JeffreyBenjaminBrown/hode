@@ -12,10 +12,10 @@ import Hode.UI.ITypes
 import Hode.Util.PTree
 
 
-porestToWidget :: forall a
-  . (a -> String)
+porestToWidget :: forall a.
+     (a -> String)
   -> (PTree a -> B.Widget BrickName -> B.Widget BrickName)
-    -- ^ currently used to show the focused node differently
+     -- ^ currently used to show the focused node differently
   -> Porest a -- ^ The Porest to show
   -> B.Widget BrickName
 porestToWidget show0 style p = fShow p where

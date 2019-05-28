@@ -105,7 +105,7 @@ appDraw st0 = [w] where
   resultWindow = case b ^. bufferRsltViewPorest of
     Nothing -> str "There are no results to show (yet)."
     Just p -> viewport (BrickMainName Results) B.Vertical
-              $ porestToWidget showRsltView focusStyle $ p
+              $ porestToWidget (showRsltView . _rsltView) focusStyle $ p
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]

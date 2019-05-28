@@ -150,12 +150,14 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
     as :: Set Addr <-
       hExprToAddrs r (mempty :: Subst Addr) h
 
-    let p :: Porest RsltView
-        p = maybe (porestLeaf $ VQuery "No matches found.") id $
+    let p :: Porest BufferRow
+        p = maybe ( porestLeaf $ bufferRow_from_rsltView $
+                    VQuery "No matches found.") id $
             P.fromList $ map v_qr $ S.toList as
           where
-          v_qr :: Addr -> PTree RsltView
-          v_qr a = pTreeLeaf $ VExpr $ either err id rv
+          v_qr :: Addr -> PTree BufferRow
+          v_qr a = pTreeLeaf $ bufferRow_from_rsltView $
+                   VExpr $ either err id rv
             where
             (rv :: Either String ViewExpr) = resultView r a
             (err :: String -> ViewExpr) = \se -> error ("called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
