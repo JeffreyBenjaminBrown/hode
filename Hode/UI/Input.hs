@@ -87,6 +87,8 @@ handleKeyboard_atResultsWindow st ev = case ev of
     $ insertMembers_atFocus st
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
     $ closeSubviews_atFocus st
+  B.EvKey (B.KChar 'F') [B.MMeta] -> B.continue
+    $ foldSubviews_atFocus st
 
   B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
     $ unEitherSt st

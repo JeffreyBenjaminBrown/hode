@@ -14,11 +14,12 @@ import Hode.Util.PTree
 
 porestToWidget :: forall a.
      (a -> String)
+  -> (a -> Bool) -- ^ whether to hide a node's children
   -> (PTree a -> B.Widget BrickName -> B.Widget BrickName)
      -- ^ currently used to show the focused node differently
   -> Porest a -- ^ The Porest to show
   -> B.Widget BrickName
-porestToWidget show0 style p = fShow p where
+porestToWidget show0 folded style p = fShow p where
   fShow :: Porest a -> B.Widget BrickName
   fShow = vBox . map showTreeRec . toList
 
@@ -28,4 +29,6 @@ porestToWidget show0 style p = fShow p where
     where mpts = pt ^. pMTrees
           rest = case mpts of
                    Nothing -> emptyWidget
-                   Just pts -> padLeft (B.Pad 2) $ fShow pts
+                   Just pts -> case folded $ _pTreeLabel pt of
+                     True -> emptyWidget
+                     False -> padLeft (B.Pad 2) $ fShow pts

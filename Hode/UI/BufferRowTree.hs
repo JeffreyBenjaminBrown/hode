@@ -19,6 +19,7 @@ module Hode.UI.BufferRowTree (
                           -- Either String (PTree ViewExprNode)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
+  , foldSubviews_atFocus  -- ^ St -> St
   ) where
 
 import           Data.Foldable (toList)
@@ -28,7 +29,7 @@ import qualified Data.List.PointedList as P
 import qualified Data.Map              as M
 import qualified Data.Set              as S
 
-import           Lens.Micro hiding (has)
+import           Lens.Micro hiding (has, folded)
 
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
@@ -65,7 +66,8 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
 
   -- The new subtree has two levels: a top, and leaves.
   let topOfNew :: PTree BufferRow =
-        pTreeLeaf $ BufferRow (VMemberGroup ms) () ()
+        pTreeLeaf $ BufferRow (VMemberGroup ms) () $
+        OtherProps False
   leavesOfNew :: [PTree BufferRow] <-
     map (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
     <$> ifLefts (map (resultView $ st ^. appRslt) as)
@@ -169,3 +171,9 @@ hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =
   stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing
+
+foldSubviews_atFocus :: St -> St
+foldSubviews_atFocus =
+    ( stSetFocused_ViewExprNode_Tree . pTreeLabel
+      . otherProps . folded )
+    %~ not

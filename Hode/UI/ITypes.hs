@@ -20,7 +20,7 @@ import Hode.Util.Misc
 import Hode.Util.PTree
 
 
--- | = Tiny types
+-- | = Tiny types: names for windows, commands, folders
 
 -- | PITFALL: Some window names never reach Brick. Ones that do reach
 -- Brick must be unique across windows in any drawn image. (Not every
@@ -48,10 +48,15 @@ type Folder = String
 data BufferRow = BufferRow {
     _viewExprNode :: ViewExprNode
   , _columnProps :: ()
-  , _otherProps :: () } deriving (Show, Eq, Ord)
+  , _otherProps :: OtherProps } deriving (Show, Eq, Ord)
+
+data OtherProps = OtherProps {
+  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
+  } deriving (Show, Eq, Ord)
 
 bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
-bufferRow_from_viewExprNode rv = BufferRow rv () ()
+bufferRow_from_viewExprNode rv =
+  BufferRow rv () $ OtherProps False
 
 -- | A `ViewExprNode` is a node in a tree of descendents of search results.
 -- Each search returns a flat list of `ViewExprNode`s.
@@ -133,6 +138,7 @@ instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
 
 makeLenses ''BufferRow
+makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MembersGroup
