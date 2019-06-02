@@ -1,11 +1,20 @@
 * TODO next: the BufferRow type
-** ColumnProps (column properties)
-The user will choose which column properties are on display,
-on a per-buffer basis.
-*** examples
-**** "satisfies HExpr _"
-special case: "number of hosts"
-**** "number satisfying HExpr _"
+** count stuff with ColumnProps
+*** columns to show "(Expr in this row) satisfies (HExpr _)"
+**** moidfy HExpr so it can refer to the "this node" variable
+Maybe by redefining
+type Var = String
+to
+data Var = VarString String | VarRow
+**** St: add "stColumnHExprs :: [HExpr]" field
+First, default that to holding a fixed HExpr
+**** change BufferRow._columnProps to type Map HExpr Int
+**** compute the _columnProps field of each BufferRow
+*** later
+**** let the user add HExprs
+**** let each HExpr column can be given a title
+by changing columnHExprs to Map String [HExpr]
+**** let each buffer can use its own set of columns.
 ** OtherProps
 *** "Checked", for use in batch adds.
 *** DONE "Folded"
@@ -99,7 +108,6 @@ Begin with some auto-generated nicknames (numbers? letters?).
 Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
 *** TODO count hosts at left; show members recursively
-** TODO folding
 ** TODO update
 *** manual update
 *** automatic update
@@ -250,7 +258,7 @@ _ is a member of _" is a "synthetic" template. There might be others.
 ** buffer ring
 From the Buffer Tree view, allow the user to mark buffers with unique integer indexes.
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
-'* TODO collect use cases
+* TODO collect use cases
 ** view notes from a text ordered by source text or topic
 * bugs
 ** meh: the empty unary relationship
