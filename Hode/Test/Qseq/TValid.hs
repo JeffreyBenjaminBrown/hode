@@ -14,6 +14,9 @@ import Hode.Qseq.QTypes
 
 type QIGI = Query Int (Graph Int)
 
+vs :: String -> Var
+vs = VarString
+
 testModuleQueryClassify :: T.Test
 testModuleQueryClassify = TestList [
     TestLabel "test_findlike" test_findlike
@@ -33,39 +36,44 @@ test_usesNoSourceBeforeItExists :: T.Test
 test_usesNoSourceBeforeItExists = TestCase $ do
   assertBool "no sources. (use is different from sourcing.)" $ Right ()
     == usesNoSourceBeforeItExists
-    [ ("c", QJunct $ QAnd [ QFind $ findParents $ Right "a"
-                          , QFind $ findParents $ Right "b" ] :: QIGI )
-    , ("d", QJunct $ QAnd [ QFind $ findParents $ Right "c"
-                          , QFind $ findParents $ Right "d" ] ) ]
+    [ ((vs "c"), QJunct $ QAnd [ QFind $ findParents $ Right (vs "a")
+                               , QFind $ findParents $ Right (vs "b") ]
+                 :: QIGI )
+    , ((vs "d"), QJunct $ QAnd [ QFind $ findParents $ Right (vs "c")
+                               , QFind $ findParents $ Right (vs "d") ] ) ]
   assertBool "3" $ Right ()
     == usesNoSourceBeforeItExists
-    [ ("a", QFind $ findParents $ Left 3 :: QIGI)
-    , ("b", QQuant $ ForSome "a1" "a" $ QFind $ findParents $ Right "a") ]
+    [ ((vs "a"), QFind $ findParents $ Left 3 :: QIGI)
+    , ((vs "b"), QQuant $ ForSome (vs "a1") (vs "a") $
+                 QFind $ findParents $ Right (vs "a")) ]
   assertBool "3" $ Left (
     "validProgram: variables used before being defined: "
-    ++ show (S.singleton "x") ++ ".\n" )
+    ++ show (S.singleton $ vs "x") ++ ".\n" )
     == usesNoSourceBeforeItExists
-    [ ("a", QFind $ findParents $ Left 3 :: QIGI)
-    , ("b", QQuant $ ForSome "y" "x" $ QFind $ findParents $ Right "a") ]
+    [ ((vs "a"), QFind $ findParents $ Left 3 :: QIGI)
+    , ((vs "b"), QQuant $ ForSome (vs "y") (vs "x") $
+                 QFind $ findParents $ Right (vs "a")) ]
 
 test_usesOnlyIntroducedVars :: T.Test
 test_usesOnlyIntroducedVars = TestCase $ do
   assertBool "1" $ isLeft $ usesOnlyIntroducedVars
-    ( QJunct $ QAnd [ QFind $ findParents $ Right "a"
-                    , QFind $ findParents $ Right "b" ] :: QIGI )
+    ( QJunct $ QAnd [ QFind $ findParents $ Right (vs "a")
+                    , QFind $ findParents $ Right (vs "b") ] :: QIGI )
   assertBool "3" $ isRight $ usesOnlyIntroducedVars
-    ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "a1" :: QIGI ) )
+    ( QQuant $ ForSome (vs "a1") (vs "a")
+      ( QFind $ findParents $ Right (vs "a1") :: QIGI ) )
   assertBool "3" $ isLeft $ usesOnlyIntroducedVars
-    ( QQuant $ ForSome "a1" "a" ( QFind $ findParents $ Right "b" :: QIGI ) )
+    ( QQuant $ ForSome (vs "a1") (vs "a")
+      ( QFind $ findParents $ Right (vs "b") :: QIGI ) )
 
 test_noIntroducedVarMasked :: T.Test
 test_noIntroducedVarMasked = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> Right S.empty) S.empty
-      [x,x2,y] = ["x","x2","y"]
-      qx  = QQuant $ ForSome  "x" x qf
-      qy  = QQuant $ ForSome  "y" y qf
-      qx1 = QQuant $ ForSome "x1" x qf
-      qy1 = QQuant $ ForSome "y1" y qf
+      [x,x2,y] = map vs ["x","x2","y"]
+      qx  = QQuant $ ForSome (vs "x") x qf
+      qy  = QQuant $ ForSome (vs "y") y qf
+      qx1 = QQuant $ ForSome (vs "x1") x qf
+      qy1 = QQuant $ ForSome (vs "y1") y qf
       qxy = QJunct $ QOr [qx1,qy1]
       t = noIntroducedVarMasked
 
@@ -80,7 +88,7 @@ test_noIntroducedVarMasked = TestCase $ do
 test_noAndCollisions :: T.Test
 test_noAndCollisions = TestCase $ do
   let qf  = QFind $ Find (\_ _ -> Right S.empty) S.empty
-      [x,x1,y,y1,z] = ["x","x1","y","y1","z"]
+      [x,x1,y,y1,z] = map vs ["x","x1","y","y1","z"]
       qx  = QQuant $ ForSome  x x qf
       qy  = QQuant $ ForSome  y y qf
       qx1 = QQuant $ ForSome x1 x qf
@@ -99,7 +107,7 @@ test_noAndCollisions = TestCase $ do
 
 test_drawsFromVars :: T.Test
 test_drawsFromVars = TestCase $ do
-  let [a,b,c,d,e] = ["a","b","c","d","e"]
+  let [a,b,c,d,e] = map vs ["a","b","c","d","e"]
       -- These queries are named for their internal and external variables.
       c_de, c_a :: QIGI
       c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
@@ -120,7 +128,7 @@ test_drawsFromVars = TestCase $ do
 
 test_usesVars :: T.Test
 test_usesVars = TestCase $ do
-  let [a,b,c,d,e,f] = ["a","b","c","d","e","f"]
+  let [a,b,c,d,e,f] = map vs ["a","b","c","d","e","f"]
       -- These queries are named for their internal and external variables.
       c_de, c_a :: QIGI
       c_de = QQuant $ ForSome c d -- d was: (Source' d $ S.singleton a)
@@ -143,7 +151,7 @@ test_usesVars = TestCase $ do
 
 test_introducesVars :: T.Test
 test_introducesVars = TestCase $ do
-  let [x,y,z] = ["x","y","z"]
+  let [x,y,z] = map vs ["x","y","z"]
       q = QFind $ Find (\_ _ -> Right $ S.singleton (1 :: Int)) S.empty
   assertBool "1" $ introducesVars
     ( QJunct $ QOr [ QQuant $ ForAll x x (QJunct $ QAnd []) q

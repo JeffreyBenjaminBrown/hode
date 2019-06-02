@@ -9,11 +9,15 @@ import           Test.HUnit
 
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
+import Hode.Qseq.QTypes (Var(..))
 import Hode.Rslt.Edit
 import Hode.Rslt.RTypes
 import Hode.Rslt.RLookup
 import qualified Hode.Test.Rslt.RData as D
 
+
+vs :: String -> Var
+vs = VarString
 
 test_module_rslt_hash :: Test
 test_module_rslt_hash = TestList [
@@ -53,7 +57,7 @@ test_hExprToExpr = TestCase $ do
     $ M.singleton (RoleTplt) $ HExpr $ Phrase "galk"
   assertBool "non-convertible member" $ isLeft $ hExprToExpr D.big $ HMap
     $ M.fromList [ (RoleTplt    , HExpr $ Phrase "galk")
-                 , (RoleMember 1, HVar "x") ]
+                 , (RoleMember 1, HVar (vs "x")) ]
   assertBool "arity mismatch" $ isLeft $ hExprToExpr D.big $ HMap
     $ M.singleton RoleTplt $ HExpr $ Addr 4
   assertBool "good" $ isLeft $ hExprToExpr D.big $ HMap

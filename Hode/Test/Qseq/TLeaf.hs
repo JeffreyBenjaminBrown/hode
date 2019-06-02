@@ -13,6 +13,9 @@ import Hode.Data.Graph
 import Hode.Qseq.QTypes
 
 
+vs :: String -> Var
+vs = VarString
+
 test_modules_leaf :: T.Test
 test_modules_leaf = TestList [
     TestLabel "test_runVarTest_compare" test_runVarTest_compare
@@ -25,7 +28,7 @@ test_runTest :: T.Test
 test_runTest = TestCase $ do
   -- I wrote tests for this function twice by accident. They are collected
   -- here, and probably redundant.
-  let [a,b,c,x] = ["a","b","c","x"]
+  let [a,b,c,x] = map vs ["a","b","c","x"]
       g = mkGraph [ (1, [11, 12    ] )
                   , (2, [    12, 22] ) ] :: Graph Int
       (a2 :: (Subst Int)) = M.singleton a 2
@@ -53,7 +56,7 @@ test_runTest = TestCase $ do
 
 test_runFind :: T.Test
 test_runFind = TestCase $ do
-  let (a,b) = ("a","b")
+  let [a,b] = map vs ["a","b"]
       g = mkGraph [ (1, [2,3] ) ] :: Graph Int
       s = M.fromList [(a, 1), (b, 2)]
   assertBool "1" $ runFind g s (findChildren $ Left 1)  ==
@@ -67,7 +70,7 @@ test_runFind = TestCase $ do
 test_runVarTest_ioTest :: T.Test
 test_runVarTest_ioTest = TestCase $ do
   let g = mkGraph [] :: Graph Int
-      [a,b] = ["a","b"]
+      [a,b] = map vs ["a","b"]
       (p :: Possible Int) = M.fromList
         [ (a, M.fromList [ ( 1, S.singleton M.empty)
                          , ( 2, S.singleton M.empty)] )
@@ -86,11 +89,11 @@ test_runVarTest_ioTest = TestCase $ do
 
 test_runVarTest_compare :: T.Test
 test_runVarTest_compare = TestCase $ do
-  let a_lt_1 = mkVTestCompare (>) (Left 1)    $ Right "a"
-      b_lt_1 = mkVTestCompare (>) (Left 1)    $ Right "b"
-      a_gt_b = mkVTestCompare (>) (Right "a") $ Right "b"
-      b_gt_a = mkVTestCompare (>) (Right "b") $ Right "a"
-      subst = M.fromList [("a",0),("b",2)] :: Subst Int
+  let a_lt_1 = mkVTestCompare (>) (Left 1)         $ Right (vs "a")
+      b_lt_1 = mkVTestCompare (>) (Left 1)         $ Right (vs "b")
+      a_gt_b = mkVTestCompare (>) (Right (vs "a")) $ Right (vs "b")
+      b_gt_a = mkVTestCompare (>) (Right (vs "b")) $ Right (vs "a")
+      subst = M.fromList [((vs "a"),0),((vs "b"),2)] :: Subst Int
       meh = error "whatever"
   assertBool "1" $ Right True  == runVarTest meh meh subst a_lt_1
   assertBool "2" $ Right False == runVarTest meh meh subst b_lt_1

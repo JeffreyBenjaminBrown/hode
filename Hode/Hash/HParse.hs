@@ -16,6 +16,7 @@ import           Hode.Hash.EitherExpr
 import           Hode.Hash.Hash
 import           Hode.Hash.HTypes
 import           Hode.Hash.HUtil
+import           Hode.Qseq.QTypes (Var(..))
 import           Hode.Rslt.RTypes
 import           Hode.Util.UParse
 
@@ -156,7 +157,7 @@ pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
               $ map (try . string) ["/var","/v"] )
-          lexeme hashIdentifier >>= return . PVar
+          lexeme hashIdentifier >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)

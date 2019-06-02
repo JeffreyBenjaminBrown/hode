@@ -13,6 +13,9 @@ import Hode.Data.Graph
 import Hode.Qseq.QTypes
 
 
+vs :: String -> Var
+vs = VarString
+
 test_module_Program :: T.Test
 test_module_Program = TestList [
   TestLabel "test_runProgram" test_runProgram
@@ -21,7 +24,7 @@ test_module_Program = TestList [
 
 test_runNestedQuants :: T.Test
 test_runNestedQuants = TestCase $ do
-  let [a0,a1] = ["a0","a1"]
+  let [a0,a1] = map vs ["a0","a1"]
 
   assertBool ( "every c for which all of c's children "
                ++ "which are also 3's children are < 10" ) $
@@ -29,33 +32,35 @@ test_runNestedQuants = TestCase $ do
                     , (2, [  2,20     ] )
                     , (3, [  2,3,30   ] ) ] :: Graph Int
         res = runProgram d
-                [ ( "all", QFind $ mkFindReturn' $ graphNodes d )
-                , ( "children", QQuant $ ForSome a0 "all"
-                                $ QFind $ findChildren $ Right a0 )
-                , ( "children of 3", QFind $ findChildren $ Left 3)
+                [ ( (vs "all"), QFind $ mkFindReturn' $ graphNodes d )
+                , ( (vs "children"), QQuant $ ForSome a0 (vs "all")
+                                     $ QFind $ findChildren $ Right a0 )
+                , ( (vs "children of 3"), QFind $ findChildren $ Left 3)
                 , ( lastKey
-                  , QQuant $ ForSome a1 "all"
+                  , QQuant $ ForSome a1 (vs "all")
                     $ QJunct $ QAnd
                     [ QFind $ mkFindReturn $ Right a1
                     , QVTest $ mkVTestCompare (<) (Right a1) $ Left 10
                     , ( -- this query is varTestlike
-                        QQuant $ ForAll "c of a1" "children"
+                        QQuant $ ForAll (vs "c of a1") (vs "children")
                         ( -- restrict to children of a1
-                          QVTest $ mkVTestIO' (a1,a0) ("c of a1","children") )
-                        $ QQuant $ ForAll "c of 3" "children of 3"
+                          QVTest $ mkVTestIO' (a1,a0) $
+                          (vs "c of a1", vs "children") )
+                        $ QQuant $ ForAll (vs "c of 3") (vs "children of 3")
                         ( QJunct $ QAnd [] )
-                        $ QVTest ( mkVTestCompare (/=) (Right "c of a1")
-                                   $ Right "c of 3" ) )
+                        $ QVTest ( mkVTestCompare (/=)
+                                   (Right $ vs "c of a1")
+                                   (Right $ vs "c of 3") ) )
                     ] ) ]
-        lastKey = "under 10 and its children don't overlap those of 3"
+        lastKey = (vs "under 10 and its children don't overlap those of 3")
     in M.lookup lastKey (fromRight (error "donkeys") res)
        == Just ( M.fromList [ (1, S.singleton $ M.singleton a1 1)
                             , (4, S.singleton $ M.singleton a1 4) ] )
 
 test_runProgram :: T.Test
 test_runProgram = TestCase $ do
-  let [a,b] = ["a","b"]
-      [a2] = ["a2"]
+  let [a,b] = map vs ["a","b"]
+      [a2]  = map vs ["a2"]
       d = mkGraph [ (0, [1,2        ] )
                   , (3, [  2,3,4    ] )
                   , (10,[11, 23     ] ) ]

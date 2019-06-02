@@ -1,11 +1,7 @@
 * TODO next: the BufferRow type
 ** count stuff with ColumnProps
 *** columns to show "(Expr in this row) satisfies (HExpr _)"
-**** moidfy HExpr so it can refer to the "this node" variable
-Maybe by redefining
-type Var = String
-to
-data Var = VarString String | VarRow
+**** DONE moidfy Var so it can refer to the "this node" variable
 **** St: add "stColumnHExprs :: [HExpr]" field
 First, default that to holding a fixed HExpr
 **** change BufferRow._columnProps to type Map HExpr Int

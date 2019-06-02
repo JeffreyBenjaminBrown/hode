@@ -13,6 +13,9 @@ import Hode.Qseq.MkLeaf
 import Hode.Qseq.QTypes
 
 
+vs :: String -> Var
+vs = VarString
+
 test_module_query :: T.Test
 test_module_query = TestList [
     TestLabel "test_runFindlike_Find" test_runFindlike_Find
@@ -26,8 +29,8 @@ test_module_query = TestList [
 
 test_runVarTestlike_complex :: T.Test
 test_runVarTestlike_complex = TestCase $ do
-  let [a,b,c] = ["a","b","c"]
-      [a1,b1,c1] = ["a1","b1","c1"]
+  let [a,b,c] = map vs ["a","b","c"]
+      [a1,b1,c1] = map vs ["a1","b1","c1"]
       (p :: Possible Int) = M.fromList
         [ (a, M.fromList [ (1, S.singleton M.empty)
                          , (2, S.singleton M.empty) ] )
@@ -62,15 +65,15 @@ test_runVarTestlike_complex = TestCase $ do
   assertBool ( "\nA ForAll with a condition:\n Find all x s.t for all a0 in"
                ++ " {a | a0 > 10], x is a child of a0.\n" )
     $ let sp = mkGraph [ (  5, [])
-                       , ( 15, [20,30,40   ] )
+                       , ( 15, [20,30,40    ] )
                        , ( 25, [   30,40, 50] ) ]
           (p4 :: Possible Int) =
-            M.singleton "a" $ M.fromList [ (5, S.singleton M.empty)
-                                         , (15, S.singleton M.empty)
-                                         , (25, S.singleton M.empty) ]
-          q = QQuant $ ForAll "a0" "a"
-              ( QVTest $ mkVTestCompare (<) (Left 10) $ Right "a0" )
-              $ QFind $ findChildren $ Right "a0"
+            M.singleton (vs "a") $ M.fromList [ (5, S.singleton M.empty)
+                                              , (15, S.singleton M.empty)
+                                              , (25, S.singleton M.empty) ]
+          q = QQuant $ ForAll (vs "a0") (vs "a")
+              ( QVTest $ mkVTestCompare (<) (Left 10) $ Right (vs "a0") )
+              $ QFind $ findChildren $ Right (vs "a0")
       in runFindlike sp p4 M.empty q
          == Right ( M.fromList [ (30, S.singleton M.empty )
                                , (40, S.singleton M.empty ) ] )
@@ -122,9 +125,9 @@ test_runVarTestlike_complex = TestCase $ do
 
 test_runFindlike_mixed :: T.Test
 test_runFindlike_mixed = TestCase $ do
-  let [a,b] = ["a","b"]
-      [a1,b1] = ["a1","b1"]
-      [a2] = ["a2"]
+  let [a,b]   = map vs ["a","b"]
+      [a1,b1] = map vs ["a1","b1"]
+      [a2]    = [(vs "a2")]
       isnt v = QTest $ mkTest (/=) $ Right v
       d = mkGraph [ (0, [1,2        ] )
                   , (3, [  2,3,4    ] )
@@ -155,7 +158,7 @@ test_runFindlike_mixed = TestCase $ do
 
 testRunAnd :: T.Test
 testRunAnd = TestCase $ do
-  let [a] = ["a"]
+  let [a] = map vs ["a"]
       nota = QTest $ mkTest (/=) $ Right a
       d = mkGraph [ (0, [1,2    ] )
                   , (3, [  2,3,4] ) ]
@@ -172,8 +175,8 @@ testRunAnd = TestCase $ do
 
 test_runTestlike :: T.Test
 test_runTestlike = TestCase $ do
-  let [a,x] = ["a","x"]
-      [a1] = ["a1"]
+  let [a,x] = map vs ["a","x"]
+      [a1]  = map vs ["a1"]
       (a2 :: (Subst Int)) = M.singleton a 2
       (not3 :: Test Int (Graph Int)) = mkTest (/=) $ Left 3
       (nota :: Test Int (Graph Int)) = mkTest (/=) $ Right a
@@ -224,8 +227,8 @@ test_runFindlike_ForAll :: T.Test
 test_runFindlike_ForAll = TestCase $ do
   let g = mkGraph [ (1, [11, 12    ] )
                   , (2, [    12, 22] ) ]
-      [a,b,c,x] = ["a","b","c","x"]
-      [a1,b1,c1] = ["a1","b1","c1"]
+      [a,b,c,x]  = map vs ["a","b","c","x"]
+      [a1,b1,c1] = map vs ["a1","b1","c1"]
       (p :: (Possible Int)) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton   M.empty) ] )
@@ -266,8 +269,8 @@ test_runFindlike_ForSome :: T.Test
 test_runFindlike_ForSome = TestCase $ do
   let g = mkGraph [ (1, [11, 21] )
                   , (2, [12, 22] ) ]
-      [a,b] = ["a","b"]
-      [a1,b1] = ["a1","b1"]
+      [a,b]   = map vs ["a","b"]
+      [a1,b1] = map vs ["a1","b1"]
       (p:: Possible Int) = M.fromList
           [ ( a, M.fromList [ (1, S.singleton   M.empty)
                             , (2, S.singleton   M.empty) ] )
@@ -302,7 +305,7 @@ test_runFindlike_Find :: T.Test
 test_runFindlike_Find = TestCase $ do
   let g = mkGraph [ (1, [11, 21] )
                   , (2, [12, 22] ) ]
-      [x,y] = ["x","y"]
+      [x,y] = map vs ["x","y"]
       f1 = QFind $ findChildren $ Left 1
       fy = QFind $ findChildren $ Right y
       s = M.fromList [(x,1), (y,2)] :: Subst Int

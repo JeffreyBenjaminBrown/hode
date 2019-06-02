@@ -10,9 +10,13 @@ import Hode.Hash.Convert
 import Hode.Hash.HParse
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil
+import Hode.Qseq.QTypes (Var(..))
 import Hode.Rslt.Index
 import Hode.Rslt.RTypes
 
+
+vs :: String -> Var
+vs = VarString
 
 test_module_hash_parse :: Test
 test_module_hash_parse = TestList [
@@ -54,7 +58,7 @@ test_parse_pExpr = TestCase $ do
   assertBool "any" $ parse pAny "any" "/_ "
     == Right Any
   assertBool "var" $ parse pVar "wut" "/var x1 "
-    == Right (PVar "x1")
+    == Right (PVar $ vs "x1")
   assertBool "it nothing" $ parse pIt "wut" "/it "
     == Right (It Nothing)
   assertBool "it $ just a # b" $ parse pIt "wut" "/it= /hash a # b" == Right

@@ -12,12 +12,15 @@ import           Data.Set (Set)
 --instance Space e (Graph e)
 
 
-type Var = String
-  -- ^ When a `Query` creates a `Var`, the result has no `varDets`.
-  -- However, sometimes a Var is created by subsetting an earlier one.
-  -- In that case, suppose it decomposes as `v@(Var _ (source, dets))`.
-  -- "source" is the earlier Var, and "dets" is a set of variables
-  -- that were calculated based on source's earlier calculation.
+-- | When a `Query` creates a `Var`, the result has no `varDets`.
+-- However, sometimes a Var is created by subsetting an earlier one.
+-- In that case, suppose it decomposes as `v@(Var _ (source, dets))`.
+-- "source" is the earlier Var, and "dets" is a set of variables
+-- that were calculated based on source's earlier calculation.
+data Var = VarString String -- ^ user-defined variables
+         | VarRowNode -- ^ a builtin variable representing
+                      -- "the item shown in some row of some buffer"
+    deriving (Show, Eq, Ord)
 
 data Query e sp = QFind  (Find       e sp)
                 | QTest  (Test       e sp)
