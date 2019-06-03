@@ -161,6 +161,7 @@ data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ So far `focusRing` is unused in spirit, but technically used.
   , _searchBuffers          :: Maybe (Porest Buffer)
+  , _columnHExprs           :: [HExpr]
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName

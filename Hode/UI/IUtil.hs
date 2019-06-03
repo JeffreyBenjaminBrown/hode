@@ -15,7 +15,9 @@ import           Lens.Micro
 import qualified Brick.Focus           as B
 import qualified Brick.Widgets.Edit    as B
 
+import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
+import Hode.Qseq.QTypes (Var(..))
 import Hode.UI.ITypes
 import Hode.UI.Window
 import Hode.Util.PTree
@@ -30,6 +32,12 @@ emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
+  , _columnHExprs = -- TODO : This is a hack. In TODO.org,
+      -- see the section called  (HExpr: add a symbol for "involves")
+      [ HOr [ HMap $ M.singleton RoleTplt $ HVar VarRowNode
+            , HMap $ M.singleton (RoleMember 1) $ HVar VarRowNode
+            , HMap $ M.singleton (RoleMember 2) $ HVar VarRowNode
+            , HMap $ M.singleton (RoleMember 3) $ HVar VarRowNode ] ]
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""

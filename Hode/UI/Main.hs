@@ -101,14 +101,14 @@ appDraw st0 = [w] where
     Nothing -> str "There are no results to show. Add one with M-S-t."
     Just p ->
       viewport (BrickMainName SearchBuffers) B.Vertical $
-      porestToWidget _bufferQuery (const True) focusStyle p
+      porestToWidget (const "") _bufferQuery (const True) focusStyle p
 
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
     Just p -> let showNode = show_ViewExprNode . _viewExprNode
                   getFolded = _folded . _otherProps
       in viewport (BrickMainName Results) B.Vertical $
-         porestToWidget showNode getFolded focusStyle $ p
+         porestToWidget (const "X") showNode getFolded focusStyle $ p
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]
