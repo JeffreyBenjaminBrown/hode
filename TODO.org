@@ -1,11 +1,29 @@
+* roadmap|pressing (duplicative)
+count stuff in left columns
+reduce redunddancy in views
+use parens in views
+transitivity, order
+update
 * TODO next: the BufferRow type
 ** count stuff with ColumnProps
 *** columns to show "(Expr in this row) satisfies (HExpr _)"
 **** DONE moidfy Var so it can refer to the "this node" variable
-**** St: add "stColumnHExprs :: [HExpr]" field
-First, default that to holding a fixed HExpr
+**** HExpr: add a symbol for "involves"
+***** what it means
+A Tplt involves all its joints.
+A Rel involves its template and all its members.
+***** Involves does not play nicely with pathsToIts
+Even the Involves that only goes 1 layer deep is confusing.
+Once it is implemented, Paths need to not be integers lists;
+they will have to be lists of (Integer | Wildcard),
+where a Wildcard stands for "any number could go here".
+***** Add involves*
+**** St: add "columnHExprs :: [HExpr]" field
+Apply the patch "St.columnExprs.diff" to restore a little work.
+Default it to initially holding a fixed HExpr.
 **** change BufferRow._columnProps to type Map HExpr Int
 **** compute the _columnProps field of each BufferRow
+**** display that stuff
 *** later
 **** let the user add HExprs
 **** let each HExpr column can be given a title
@@ -94,6 +112,17 @@ The root information is(will be) duplicated by the buffer.
 It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
 * TODO views, rad
+** TODO reduce redundancy in views
+this
+  <complex expr>
+    it #is _
+      <complex expr> #is <condition 1>
+could be reduced to this
+  <complex expr>
+    it #is _
+      it #is <condition 1>
+** TODO use parens in views
+Wrap every Expr with a depth of 3 in parens.
 ** a way to kill buffers
 ** TODO marking things in a tree
 *** buffer nicknames
@@ -103,7 +132,6 @@ Begin with some auto-generated nicknames (numbers? letters?).
 *** batch add
 Toggle a checkbox window at the side of the main window.
 Introduce an /each keyword for expression-insertion purposes.
-*** TODO count hosts at left; show members recursively
 ** TODO update
 *** manual update
 *** automatic update
@@ -287,6 +315,7 @@ cached
 editor
 viewport -- would be infinite-sized, because nested
 * DONE ? obvious|stale
+** untested : Hode.Util.PTree.writeLevels
 ** forall and exists clauses for variable functions of variables
 *** Example
  [ (X, ..)

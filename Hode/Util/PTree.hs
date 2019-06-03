@@ -15,6 +15,7 @@ import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
 import           Data.Maybe
+import           Data.Functor.Foldable
 import           Data.Functor.Foldable.TH
 
 import Hode.Util.Direction
@@ -123,6 +124,16 @@ porestLeaf = P.singleton . pTreeLeaf
 
 
 -- | = Modifiers
+
+-- | The root has level 0, its children level 1, etc.
+writeLevels :: PTree a -> PTree (Int,a)
+writeLevels pt = f 0 pt where
+  f :: Int -> PTree a -> PTree (Int, a)
+  f i pt = pt
+    { _pTreeLabel = (i, _pTreeLabel pt)
+    , _pMTrees = fmap (fmap $ f $ i+1) $ _pMTrees pt }
+      -- The outer fmap gets into the Maybe,
+      -- and the inner gets into the PointedList.
 
 cons_topNext :: a -> Porest a -> Porest a
 cons_topNext a =
