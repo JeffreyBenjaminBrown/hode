@@ -159,14 +159,15 @@ hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   case as of [] -> Left "There are no host Exprs to show."
              _  -> Right ()
   let mustBeOkay = "Impossible: `as` is nonempty, so P.fromList must work."
-  (rs :: [ViewExpr]) <-
+  rs :: [ViewExpr] <-
     ifLefts $ map (resultView r) as
-  Right $ PTree { _pTreeLabel = bufferRow_from_viewExprNode $ VHostGroup hg
-                , _pTreeHasFocus = False
-                , _pMTrees = let
-                    toLeaf = (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
-                    in maybe (error mustBeOkay) Just $
-                       P.fromList $ map toLeaf rs }
+  Right $ PTree {
+      _pTreeLabel    = bufferRow_from_viewExprNode $ VHostGroup hg
+    , _pTreeHasFocus = False
+    , _pMTrees       = let
+        toLeaf = (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
+        in maybe (error mustBeOkay) Just $
+           P.fromList $ map toLeaf rs }
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =

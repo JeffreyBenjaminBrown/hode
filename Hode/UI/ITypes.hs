@@ -65,22 +65,6 @@ bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
 bufferRow_from_viewExprNode n =
   BufferRow n mempty $ OtherProps False
 
- -- >>>
-bufferRow_from_viewExprNode'
-  :: Rslt -> [HExpr] -> ViewExprNode
-  -> Either String BufferRow
-bufferRow_from_viewExprNode' r hs0 n@(VExpr (ViewExpr a _)) =
-  prefixLeft "bufferRow_from_viewExprNode': " $ do
-  let sub :: Map Var Addr = M.singleton VarRowNode a
-  matches :: Map HExpr (Set Addr) <-
-    let f h = (h, hExprToAddrs r sub h)
-    in ifLefts_map $ M.fromList $ map f hs0
-  let matchCounts :: Map HExpr Int =
-        M.map S.size matches
-  Right $ BufferRow n matchCounts $ OtherProps False
-bufferRow_from_viewExprNode' _ _ n =
-  Right $ BufferRow n mempty $ OtherProps False
-
 -- | A `ViewExprNode` is a node in a tree of descendents of search results.
 -- Each search returns a flat list of `ViewExprNode`s.
 -- The user can then choose to view members and hosts of any node,
@@ -195,6 +179,22 @@ data St = St {
   , _showingOptionalWindows :: Map OptionalWindowName Bool
   }
 makeLenses ''St
+
+bufferRow_from_viewExprNode'
+  :: St -> ViewExprNode -> Either String BufferRow
+bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _)) =
+  prefixLeft "bufferRow_from_viewExprNode': " $ do
+  let r = st ^. appRslt
+      hs = st ^. columnHExprs
+      sub :: Map Var Addr = M.singleton VarRowNode a
+  matches :: Map HExpr (Set Addr) <-
+    let f h = (h, hExprToAddrs r sub h)
+    in ifLefts_map $ M.fromList $ map f hs
+  let matchCounts :: Map HExpr Int =
+        M.map S.size matches
+  Right $ BufferRow n matchCounts $ OtherProps False
+bufferRow_from_viewExprNode' _ n =
+  Right $ BufferRow n mempty $ OtherProps False
 
 stGetFocused_Buffer :: Getter St (Maybe Buffer)
 stGetFocused_Buffer = to go where
