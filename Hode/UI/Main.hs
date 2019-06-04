@@ -107,8 +107,11 @@ appDraw st0 = [w] where
     Nothing -> str "There are no results to show (yet)."
     Just p -> let showNode = show_ViewExprNode . _viewExprNode
                   getFolded = _folded . _otherProps
+                  showColumns :: BufferRow -> String
+                  showColumns bfr =
+                    concatMap show $ M.elems $ _columnProps bfr
       in viewport (BrickMainName Results) B.Vertical $
-         porestToWidget (const "X") showNode getFolded focusStyle $ p
+         porestToWidget showColumns showNode getFolded focusStyle p
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]

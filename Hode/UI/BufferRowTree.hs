@@ -68,14 +68,16 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
   let topOfNew :: PTree BufferRow =
         pTreeLeaf $ BufferRow (VMemberGroup ms) mempty $
         OtherProps False
-  leavesOfNew :: [PTree BufferRow] <-
-    map (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
-    <$> ifLefts (map (resultView $ st ^. appRslt) as)
-  leavesOfNew' :: Porest BufferRow <-
+  leaves0 :: [ViewExprNode] <-
+    map VExpr <$> ifLefts (map (resultView $ st ^. appRslt) as)
+  leaves1 :: [BufferRow] <- ifLefts $
+    map (bufferRow_from_viewExprNode' st) leaves0
+  let leaves2 :: [PTree BufferRow] = map pTreeLeaf leaves1
+  leaves3 :: Porest BufferRow <-
     let msg = "Expr has no members."
-    in maybe (Left msg) Right $ P.fromList leavesOfNew
+    in maybe (Left msg) Right $ P.fromList leaves2
   let new :: PTree BufferRow =
-        topOfNew & pMTrees .~ Just leavesOfNew'
+        topOfNew & pMTrees .~ Just leaves3
 
   Right $ st & stSetFocused_ViewExprNode_Tree %~ consUnder_andFocus new
 
@@ -141,7 +143,7 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
   (groups :: [(HostGroup, [Addr])]) <-
     groupHostRels_atFocus st
   (newTrees :: [PTree BufferRow]) <-
-    ifLefts $ map (hostGroup_to_view $ st ^. appRslt) groups
+    ifLefts $ map (hostGroup_to_view st) groups
   (preexist :: Maybe (Porest BufferRow)) <-
     let errMsg = "focused ViewExprNode not found."
     in maybe (Left errMsg) Right $ st ^?
@@ -153,21 +155,26 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
                    P.fromList (foldr (:) preexist' newTrees)
   Right $ st & stSetFocused_ViewExprNode_Tree %~ insert
 
-hostGroup_to_view :: Rslt -> (HostGroup, [Addr])
+hostGroup_to_view :: St -> (HostGroup, [Addr])
                   -> Either String (PTree BufferRow)
-hostGroup_to_view r (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
+hostGroup_to_view st (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   case as of [] -> Left "There are no host Exprs to show."
              _  -> Right ()
   let mustBeOkay = "Impossible: `as` is nonempty, so P.fromList must work."
+      r = st ^. appRslt
   rs :: [ViewExpr] <-
     ifLefts $ map (resultView r) as
+
+  -- The new subtree has two layers: the top and the leaves
+  topOfNew <- bufferRow_from_viewExprNode' st $ VHostGroup hg
+  let leaves0 :: [ViewExprNode] = map VExpr rs
+  leaves1 :: [BufferRow] <- ifLefts $
+    map (bufferRow_from_viewExprNode' st) leaves0
   Right $ PTree {
-      _pTreeLabel    = bufferRow_from_viewExprNode $ VHostGroup hg
+      _pTreeLabel    = topOfNew
     , _pTreeHasFocus = False
-    , _pMTrees       = let
-        toLeaf = (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)
-        in maybe (error mustBeOkay) Just $
-           P.fromList $ map toLeaf rs }
+    , _pMTrees       = maybe (error mustBeOkay) Just $
+                       P.fromList $ map pTreeLeaf leaves1 }
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =
