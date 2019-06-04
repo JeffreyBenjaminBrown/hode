@@ -1,3 +1,5 @@
+-- Currently, this is entirely exported from Hode.Rslt.RLookup.
+
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.RLookup.RConvert where

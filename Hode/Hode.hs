@@ -19,7 +19,8 @@ import Hode.Rslt.Edit as X
 import Hode.Rslt.Files as X
 import Hode.Rslt.Index as X
 import Hode.Rslt.RLookup as X
-import Hode.Rslt.RLookup.RConvert as X
+-- import Hode.Rslt.RLookup.RConvert as X
+  -- Currently, this is entirely exported from Hode.Rslt.RLookup.
 import Hode.Rslt.RTypes as X
 import Hode.Rslt.RUtil as X
 import Hode.Rslt.RValid as X

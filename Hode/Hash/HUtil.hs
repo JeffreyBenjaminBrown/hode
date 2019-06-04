@@ -6,6 +6,7 @@
 
 module Hode.Hash.HUtil (
     hVars           -- ^ HExpr  -> Set Var
+  , hSub            -- ^ M.Map Var HExpr -> HExpr -> HExpr
   , pnrPhrase       -- ^ String -> PRel
   , pExprIsSpecific -- ^ PExpr  -> Bool
   , pExprIsUnique   -- ^ PExpr  -> Bool
@@ -36,6 +37,13 @@ hVars = cata f where
   f (HDiffF h i) = S.union h i
   f (HAndF hs)   = S.unions hs
   f (HOrF hs)    = S.unions hs
+
+-- | Substitute something(s) for the variable(s) in an `HExpr`.
+hSub :: M.Map Var HExpr -> HExpr -> HExpr
+hSub m = cata f where
+  f :: Base HExpr HExpr -> HExpr
+  f hv@(HVarF v) = maybe (HVar v) id $ M.lookup v m
+  f bh           = embed bh
 
 
 -- | = for parsing Hash

@@ -11,6 +11,7 @@ update
 **** DONE St: add "columnHExprs :: [HExpr]" field
 Apply the patch "St.columnExprs.diff" to restore a little work.
 Default it to initially holding a fixed HExpr.
+**** in an HExpr, write a way to substitute (HExpr $ Addr _) for VarRowNode
 **** change BufferRow._columnProps to type Map HExpr Int
 **** compute the _columnProps field of each BufferRow
 **** display that stuff

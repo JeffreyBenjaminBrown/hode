@@ -20,7 +20,7 @@ porestToWidget :: forall a.
      -- ^ currently used to show the focused node differently
   -> Porest a -- ^ The Porest to show
   -> B.Widget BrickName
-porestToWidget showColumns showIndented folded style p0 =
+porestToWidget showColumns showIndented isFolded style p0 =
   fShow p where
 
   p :: Porest (Int, a) = fmap writeLevels p0
@@ -44,6 +44,6 @@ porestToWidget showColumns showIndented folded style p0 =
     rest = case pt ^. pMTrees of
              Nothing -> emptyWidget
              Just pts ->
-               case folded $ snd $ _pTreeLabel pt of
+               case isFolded $ snd $ _pTreeLabel pt of
                True -> emptyWidget
                False -> fShow pts
