@@ -2,7 +2,7 @@
 
 module Hode.Hash.HLookup (
     hFind        -- ^ HExpr -> Find Addr Rslt
-  , hMatches     -- ^ Rslt -> HExpr -> Addr -> Either String Bool
+  , hMatches     -- ^ Rslt -> HExpr -> Addr       -> Either String Bool
   , hExprToExpr  -- ^ Rslt -> HExpr               -> Either String Expr
   , hExprToAddrs -- ^ Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
   ) where

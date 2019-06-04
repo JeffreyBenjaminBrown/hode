@@ -66,7 +66,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
 
   -- The new subtree has two levels: a top, and leaves.
   let topOfNew :: PTree BufferRow =
-        pTreeLeaf $ BufferRow (VMemberGroup ms) () $
+        pTreeLeaf $ BufferRow (VMemberGroup ms) mempty $
         OtherProps False
   leavesOfNew :: [PTree BufferRow] <-
     map (pTreeLeaf . bufferRow_from_viewExprNode . VExpr)

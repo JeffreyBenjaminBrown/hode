@@ -7,18 +7,22 @@
 module Hode.UI.ITypes where
 
 import           Control.Lens
+import qualified Data.Map as M
 import           Data.Map (Map)
+import qualified Data.Set as S
+import           Data.Set (Set)
 import qualified Data.List.PointedList as P
 
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
+import Hode.Hash.HLookup
 import Hode.Hash.HTypes
+import Hode.Qseq.QTypes
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
 import Hode.Util.Misc
 import Hode.Util.PTree
-
 
 -- | = Tiny types: names for windows, commands, folders
 
@@ -47,16 +51,35 @@ type Folder = String
 
 data BufferRow = BufferRow {
     _viewExprNode :: ViewExprNode
-  , _columnProps :: ()
-  , _otherProps :: OtherProps } deriving (Show, Eq, Ord)
+  , _columnProps  :: ColumnProps
+  , _otherProps   :: OtherProps
+  } deriving (Show, Eq, Ord)
+
+type ColumnProps = Map HExpr Int
 
 data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
   } deriving (Show, Eq, Ord)
 
 bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
-bufferRow_from_viewExprNode rv =
-  BufferRow rv () $ OtherProps False
+bufferRow_from_viewExprNode n =
+  BufferRow n mempty $ OtherProps False
+
+ -- >>>
+bufferRow_from_viewExprNode'
+  :: Rslt -> [HExpr] -> ViewExprNode
+  -> Either String BufferRow
+bufferRow_from_viewExprNode' r hs0 n@(VExpr (ViewExpr a _)) =
+  prefixLeft "bufferRow_from_viewExprNode': " $ do
+  let sub :: Map Var Addr = M.singleton VarRowNode a
+  matches :: Map HExpr (Set Addr) <-
+    let f h = (h, hExprToAddrs r sub h)
+    in ifLefts_map $ M.fromList $ map f hs0
+  let matchCounts :: Map HExpr Int =
+        M.map S.size matches
+  Right $ BufferRow n matchCounts $ OtherProps False
+bufferRow_from_viewExprNode' _ _ n =
+  Right $ BufferRow n mempty $ OtherProps False
 
 -- | A `ViewExprNode` is a node in a tree of descendents of search results.
 -- Each search returns a flat list of `ViewExprNode`s.
