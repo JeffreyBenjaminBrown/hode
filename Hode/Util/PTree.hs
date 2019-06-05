@@ -15,7 +15,6 @@ import           Data.Foldable (toList)
 import           Data.List.PointedList (PointedList)
 import qualified Data.List.PointedList as P
 import           Data.Maybe
-import           Data.Functor.Foldable
 import           Data.Functor.Foldable.TH
 
 import Hode.Util.Direction
@@ -127,7 +126,7 @@ porestLeaf = P.singleton . pTreeLeaf
 
 -- | The root has level 0, its children level 1, etc.
 writeLevels :: PTree a -> PTree (Int,a)
-writeLevels pt = f 0 pt where
+writeLevels = f 0 where
   f :: Int -> PTree a -> PTree (Int, a)
   f i pt = pt
     { _pTreeLabel = (i, _pTreeLabel pt)

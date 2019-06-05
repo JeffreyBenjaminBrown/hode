@@ -7,7 +7,6 @@ module Hode.Hash.HLookup (
   , hExprToAddrs -- ^ Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
   ) where
 
-import           Data.Functor.Foldable
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)

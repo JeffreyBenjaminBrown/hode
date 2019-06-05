@@ -3,7 +3,6 @@
 {-# LANGUAGE ViewPatterns #-}
 module Hode.Qseq.QValid where
 
-import           Data.Functor (void)
 import           Data.Set (Set)
 import qualified Data.Set       as S
 

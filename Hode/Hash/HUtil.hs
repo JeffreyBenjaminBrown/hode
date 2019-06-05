@@ -42,8 +42,8 @@ hVars = cata f where
 hSub :: M.Map Var HExpr -> HExpr -> HExpr
 hSub m = cata f where
   f :: Base HExpr HExpr -> HExpr
-  f hv@(HVarF v) = maybe (HVar v) id $ M.lookup v m
-  f bh           = embed bh
+  f (HVarF v) = maybe (HVar v) id $ M.lookup v m
+  f bh        = embed bh
 
 
 -- | = for parsing Hash

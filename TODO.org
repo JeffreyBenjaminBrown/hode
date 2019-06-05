@@ -1,29 +1,12 @@
 * roadmap|pressing (duplicative)
-count stuff in left columns
-reduce redunddancy in views
-use parens in views
-transitivity, order
-update
-* TODO next: the BufferRow type
-** count stuff with ColumnProps
-*** columns to show "(Expr in this row) satisfies (HExpr _)"
-**** DONE moidfy Var so it can refer to the "this node" variable
-**** DONE St: add "columnHExprs :: [HExpr]" field
-Apply the patch "St.columnExprs.diff" to restore a little work.
-Default it to initially holding a fixed HExpr.
-**** in an HExpr, write a way to substitute (HExpr $ Addr _) for VarRowNode
-**** change BufferRow._columnProps to type Map HExpr Int
-**** compute the _columnProps field of each BufferRow
-**** display that stuff
-*** later
-**** let the user add HExprs
-**** let each HExpr column can be given a title
-by changing columnHExprs to Map String [HExpr]
-**** let each buffer can use its own set of columns.
-** OtherProps
-*** "Checked", for use in batch adds.
-*** DONE "Folded"
-*** "Order" (?)
+** use parens in views
+Rslt.Show:
+  eShow :: Rslt -> Expr -> Either String String
+** color special symbols differently
+https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557
+** reduce redunddancy in views
+** transitivity, order
+** update
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
@@ -103,6 +86,13 @@ The root information is(will be) duplicated by the buffer.
 It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
 * TODO views, rad
+** TODO more of : count stuff in the left column(s)
+*** St._columnHExprs: let the user add HExprs
+Currently it's fixed at a single HExpr,
+which indicates how many Rels or Tplts it's a top-level member of.
+*** let each HExpr column can be given a title
+by changing columnHExprs to Map String [HExpr]
+*** let each buffer keep its own list of HExprs
 ** TODO reduce redundancy in views
 this
   <complex expr>
@@ -122,6 +112,7 @@ and then switch to that buffer via the nickname.
 Begin with some auto-generated nicknames (numbers? letters?).
 *** batch add
 Toggle a checkbox window at the side of the main window.
+Add (_isChecked :: Bool) to OtherProps.
 Introduce an /each keyword for expression-insertion purposes.
 ** TODO update
 *** manual update

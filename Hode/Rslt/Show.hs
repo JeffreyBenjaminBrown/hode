@@ -43,21 +43,21 @@ eShow r = prefixLeft "-> eShow" . para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
 
   f e@(AddrF _) =
-    prefixLeft ", called on Addr"
+    prefixLeft ", called on Addr: "
     $ unAddr r (embed $ fmap fst e)
     >>= eShow r
 
   f (PhraseF w) = Right w
 
   f (ExprTpltF pairs) =
-    prefixLeft ", claled on ExprTplt"
+    prefixLeft ", called on ExprTplt: "
     $ ifLefts (map snd pairs)
     >>= Right . concat . L.intersperse " _ "
 
   f relf@(ExprRelF (Rel ms (ExprTplt js, _))) =
   -- The recursive argument (second member of the pair) is unused, hence
   -- not computed. Instead, each joint in `js` is `eShow`n separately.
-    prefixLeft ", called on ExprRel" $ do
+    prefixLeft ", called on ExprRel: " $ do
     mss <- ifLefts $ map snd ms
     jss <- let rel = embed $ fmap fst relf
            in hashUnlessEmptyStartOrEnd (depth rel)
@@ -67,7 +67,7 @@ eShow r = prefixLeft "-> eShow" . para f where
       $ zip ("" : mss) jss
 
   f (ExprRelF (Rel ms (a@(Addr _), _))) =
-    prefixLeft ", called on Rel" $ do
+    prefixLeft ", called on Rel: " $ do
     tpltExpr <- unAddr r a
     eShow r $ ExprRel $ Rel (map fst ms) tpltExpr
 
