@@ -1,7 +1,29 @@
 * roadmap|pressing (duplicative)
 ** use parens in views
+*** target: modify Rslt.Show.eShow
 Rslt.Show:
   eShow :: Rslt -> Expr -> Either String String
+*** plan
+Show anything Wrapped in parens, otherwise not.
+
+data Wrap = Wrapped | Naked
+newtype ExprFWith b a = EFW (b, ExprF a)
+
+wrapAtDepth :: Depth -> Expr -> Fix WrapExprF
+wrapAtDepth
+
+depth :: Expr -> Int
+depth = cata f where
+  f :: Base Expr (Wrap, Expr
+  f (Wrap _) = 0
+  f (Naked (Phrase _)) = 0
+  f (Naked (Addr _)) = 0
+  f (Naked (Rel ms t)) =
+*** later, for speed
+pairWithDepths :: Expr -> ExprF (Int, ExprF (Int, ExprF ...))
+I'm not sure how to write that signature.
+But the idea is to traverse an Expr once, rather than many times,
+to compute the depth of each sub-Expr in it.
 ** color special symbols differently
 https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557
 ** reduce redunddancy in views

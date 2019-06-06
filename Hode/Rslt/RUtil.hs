@@ -1,6 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.RUtil where
+module Hode.Rslt.RUtil (
+    ifLefts_rel    -- ^ String -> Rel (Either String a)
+                   --          -> Either String (Rel a)
+  , exprWithout    -- ^ Fix (ExprFWith b) -> Expr
+  , depth          -- ^ Expr -> Int
+  , refExprVariety -- ^ RefExpr -> (ExprCtr, Arity)
+  , refExprArity   -- ^ RefExpr -> Arity
+  , maxAddr        -- ^ Rslt -> Either String Addr
+  , nextAddr       -- ^ Rslt -> Either String Addr
+  ) where
 
 import           Data.Functor.Foldable
 import           Data.Either hiding (lefts)
@@ -24,6 +33,18 @@ ifLefts_rel errMsg (Rel es e) = let
          in Right $ Rel (tail es'') (head es'')
        False -> Left $ errMsg ++ ": "
                 ++ concat (map (fromLeft impossible) lefts)
+
+
+-- | = ExprFWith
+
+exprWithout :: Fix (ExprFWith b) -> Expr
+exprWithout (Fix (EFW (_, x))) = f x where
+  f :: ExprF (Fix (ExprFWith b)) -> Expr
+  f (AddrF a) = Addr a
+  f (PhraseF p) = Phrase p
+  f (ExprTpltF js) = ExprTplt $ map exprWithout js
+  f (ExprRelF (Rel ms t)) = ExprRel $
+    Rel (map exprWithout ms) $ exprWithout t
 
 
 -- | = For `Expr`s

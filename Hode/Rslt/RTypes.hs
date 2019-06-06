@@ -41,10 +41,13 @@ data Expr =
   deriving (Eq, Ord, Read, Show)
 makeBaseFunctor ''Expr
 
-
+newtype ExprFWith b a = EFW (b, ExprF a)
+  -- ^ example: use it to add an Int to every level of an Expr
+  -- import Data.Functor.Foldable (Fix)
+  -- x :: Fix (ExprFWith Int)
+  -- x = Fix $ EFW (1 , ExprRelF $ Rel [...] $ Fix $ EFW (2, ...))
 -- | = A `Rslt` is a database of `Expr`s. It stores `RefExpr`s rather
 -- than `Expr`s, for speed and compactness.
-
 data Rslt = Rslt {
     _addrToRefExpr :: Map Addr RefExpr
   , _refExprToAddr :: Map RefExpr Addr
