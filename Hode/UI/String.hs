@@ -31,7 +31,7 @@ resultsText st = maybe [] (concatMap $ go 0) p where
 resultView :: Rslt -> Addr -> Either String ViewExpr
 resultView r a = do
   (s :: String) <- prefixLeft "resultView"
-                   $ addrToExpr r a >>= eShow r
+                   $ addrToExpr r a >>= eWrapShow 2 r
   Right $ ViewExpr { _viewExpr_Addr = a
                      , _viewResult_String = s }
 

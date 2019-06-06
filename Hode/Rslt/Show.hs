@@ -1,7 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show (
-  eShow -- ^ Rslt -> Expr -> Either String String
+    eShow     -- ^        Rslt -> Expr -> Either String String
+  , eWrapShow -- ^ Int -> Rslt -> Expr -> Either String String
+
   , hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
   , exprFWithDepth -- ^ Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
   , Wrap(..)
@@ -68,11 +70,11 @@ eShow r = prefixLeft "-> eShow" . para f where
   -- not computed. Instead, each joint in `js` is `eShow`n separately.
     prefixLeft ", called on ExprRel: " $ do
     mss <- ifLefts $ map snd ms
-    jss <- let rel = embed $ fmap fst relf
+    jss <- let rel :: Expr = embed $ fmap fst relf
            in hashUnlessEmptyStartOrEnd (depth rel)
               <$> ifLefts ( map (eShow r) js )
-    Right $ unpack . strip . pack $ concat
-      $ map (\(m,j) -> m ++ " " ++ j ++ " ")
+    Right $ unpack . strip . pack
+      $ concatMap (\(m,j) -> m ++ " " ++ j ++ " ")
       $ zip ("" : mss) jss
 
   f (ExprRelF (Rel ms (a@(Addr _), _))) =
@@ -144,3 +146,39 @@ wrapExprAtDepth maxDepth = g where
           nakedDepth :: (Int,Wrap) -> Int
           nakedDepth (_,Wrapped) = 0
           nakedDepth (i,_) = i
+
+eWrapShow :: Int -> Rslt -> Expr -> Either String String
+eWrapShow maxDepth r e0 =
+  prefixLeft "eWrapShow: " $
+  unAddrRec r e0 >>=
+  f . wrapExprAtDepth maxDepth . toExprWith () where
+
+  wrap :: String -> String
+  wrap s = "(" ++ s ++ ")"
+
+  f :: Fix (ExprFWith (Int,Wrap)) -> Either String String
+  f (Fix (EFW ((i,Wrapped),e))) = wrap <$> g (i,e)
+  f (Fix (EFW ((i,Naked)  ,e))) =          g (i,e)
+
+  -- PITFALL: `f` peels off the first `Wrap`, not all of them.
+  g :: (Int, ExprF (Fix (ExprFWith (Int,Wrap))))
+    -> Either String String
+  g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
+  g (_, PhraseF p) = Right p
+
+  g (_, ExprTpltF js0) =
+    prefixLeft "g of Tplt: " $ do
+    js1 <- ifLefts $ map f js0
+    Right . concat . L.intersperse " _ " $ js1
+
+  g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF js0))))) =
+    prefixLeft "g of Rel: " $ do
+    ms1 <- ifLefts $ map f ms0
+    js1 <- hashUnlessEmptyStartOrEnd n
+           <$> ifLefts (map f js0)
+    Right $ unpack . strip . pack
+      $ concatMap (\(m,j) -> m ++ " " ++ j ++ " ")
+      $ zip ("" : ms1) js1
+
+  g (_, ExprRelF (Rel _ _)) = Left $
+    "g given a Rel with a non-Tplt in the Tplt position."
