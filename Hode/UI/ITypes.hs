@@ -139,7 +139,7 @@ instance Show MemberHosts where
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
             in either (const noLeft) id
-               $ eWrapShow 2 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
+               $ eWrapShow 3 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
 instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"

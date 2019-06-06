@@ -151,7 +151,7 @@ eWrapShow :: Int -> Rslt -> Expr -> Either String String
 eWrapShow maxDepth r e0 =
   prefixLeft "eWrapShow: " $
   unAddrRec r e0 >>=
-  f . wrapExprAtDepth maxDepth . toExprWith () where
+  fo . wrapExprAtDepth maxDepth . toExprWith () where
 
   wrap :: String -> String
   wrap s = "(" ++ s ++ ")"
@@ -159,6 +159,12 @@ eWrapShow maxDepth r e0 =
   f :: Fix (ExprFWith (Int,Wrap)) -> Either String String
   f (Fix (EFW ((i,Wrapped),e))) = wrap <$> g (i,e)
   f (Fix (EFW ((i,Naked)  ,e))) =          g (i,e)
+
+  -- `fo` = `f, outermost`. For the top-level Expr,
+  -- even if it has a Wrapped flag attached,
+  -- it is printed without surrounding parentheses.
+  fo :: Fix (ExprFWith (Int,Wrap)) -> Either String String
+  fo (Fix (EFW ((i,_),e))) = g (i,e)
 
   -- PITFALL: `f` peels off the first `Wrap`, not all of them.
   g :: (Int, ExprF (Fix (ExprFWith (Int,Wrap))))
