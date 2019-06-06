@@ -3,8 +3,11 @@
 module Hode.Rslt.RUtil (
     ifLefts_rel    -- ^ String -> Rel (Either String a)
                    --          -> Either String (Rel a)
+
   , toExprWith     -- ^ b -> Expr -> Fix (ExprFWith b)
-  , exprWithout    -- ^ Fix (ExprFWith b) -> Expr
+  , exprWithout    -- ^             Fix (ExprFWith b) -> Expr
+  , mapExprFWith   -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
+
   , depth          -- ^ Expr -> Int
   , refExprVariety -- ^ RefExpr -> (ExprCtr, Arity)
   , refExprArity   -- ^ RefExpr -> Arity
@@ -53,9 +56,21 @@ exprWithout (Fix (EFW (_, x))) = f x where
   f :: ExprF (Fix (ExprFWith b)) -> Expr
   f (AddrF a) = Addr a
   f (PhraseF p) = Phrase p
-  f (ExprTpltF js) = ExprTplt $ map exprWithout js
   f (ExprRelF (Rel ms t)) = ExprRel $
     Rel (map exprWithout ms) $ exprWithout t
+  f (ExprTpltF js) = ExprTplt $
+         map exprWithout js
+
+mapExprFWith :: forall b c.
+  (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
+mapExprFWith f (Fix (EFW (b,x))) = Fix $ EFW (f b, g x) where
+  g :: ExprF (Fix (ExprFWith b)) -> ExprF (Fix (ExprFWith c))
+  g (AddrF a) = AddrF a
+  g (PhraseF a) = PhraseF a
+  g (ExprRelF (Rel ms t)) = ExprRelF $ Rel
+    (map (mapExprFWith f) ms) $ mapExprFWith f t
+  g (ExprTpltF js) = ExprTpltF $
+     map (mapExprFWith f) js
 
 
 -- | = For `Expr`s
@@ -65,8 +80,8 @@ depth = cata f where
   f :: Base Expr Int -> Int
   f (AddrF _)               = 0
   f (PhraseF _)             = 0
-  f (ExprRelF (Rel mems _)) =
-    1 + (if null mems then 0 else maximum mems)
+  f (ExprRelF (Rel mems _)) = 1 +
+    (if null mems then 0 else maximum mems)
   f (ExprTpltF _)           = 0
 
 
