@@ -3,6 +3,7 @@
 module Hode.Rslt.RUtil (
     ifLefts_rel    -- ^ String -> Rel (Either String a)
                    --          -> Either String (Rel a)
+  , toExprWith     -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout    -- ^ Fix (ExprFWith b) -> Expr
   , depth          -- ^ Expr -> Int
   , refExprVariety -- ^ RefExpr -> (ExprCtr, Arity)
@@ -36,6 +37,16 @@ ifLefts_rel errMsg (Rel es e) = let
 
 
 -- | = ExprFWith
+
+toExprWith :: forall b. b -> Expr -> Fix (ExprFWith b)
+toExprWith b x = Fix $ EFW (b, f x) where
+  f :: Expr -> ExprF (Fix (ExprFWith b))
+  f (Addr a)             = AddrF a
+  f (Phrase p)           = PhraseF p
+  f (ExprTplt js)        = ExprTpltF $
+         map (toExprWith b) js
+  f (ExprRel (Rel ms t)) = ExprRelF $
+    Rel (map (toExprWith b) ms) (toExprWith b t)
 
 exprWithout :: Fix (ExprFWith b) -> Expr
 exprWithout (Fix (EFW (_, x))) = f x where
