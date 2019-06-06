@@ -4,6 +4,8 @@ module Hode.Rslt.Show (
   eShow -- ^ Rslt -> Expr -> Either String String
   , hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
   , exprFWithDepth -- ^ Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
+  , wrapExprAtDepth -- ^ Int -> Fix (ExprFWith ())
+                    --       -> Fix (ExprFWith (Int,Wrap))
   ) where
 
 import           Data.Functor.Foldable
@@ -82,6 +84,8 @@ eShow r = prefixLeft "-> eShow" . para f where
 
 -- | = New style: wrapping depth-3 Exprs in parens
 
+-- | This isn't used, but it might be helpful
+-- for understanding `wrapExprAtDepth`.
 exprFWithDepth :: Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
 exprFWithDepth (Fix (EFW x)) =
   Fix . EFW $ f x where
@@ -99,3 +103,32 @@ exprFWithDepth (Fix (EFW x)) =
              else maximum $ map g msWithDepth
     in ( ( 1+maxMemberDepth, b)
        , ExprRelF $ Rel msWithDepth $ exprFWithDepth t)
+
+data Wrap = Wrapped | Naked
+
+wrapExprAtDepth :: Int -> Fix (ExprFWith ())
+                       -> Fix (ExprFWith (Int,Wrap))
+wrapExprAtDepth maxDepth = g where
+  g (Fix (EFW ((), x))) = Fix $ EFW $ f x
+  f ::              ExprF (Fix (ExprFWith ()))
+    -> ((Int,Wrap), ExprF (Fix (ExprFWith (Int,Wrap))))
+  f (AddrF a)      =
+    ( (0,Naked), AddrF a)
+  f (PhraseF p)    =
+    ( (0,Naked), PhraseF p)
+
+  f (ExprTpltF js) =
+    ( (0,Wrapped)
+    , ExprTpltF $
+      map (wrapExprAtDepth maxDepth) js )
+  f (ExprRelF (Rel ms t)) =
+    ( (d, if d >= maxDepth then Wrapped else Naked)
+    , ExprRelF $ Rel
+      ms' $
+      wrapExprAtDepth maxDepth t) where
+    ms' = map (wrapExprAtDepth maxDepth) ms
+    d = maximum $ map h ms' where
+      h = nakedDepth . \(Fix (EFW (b,_))) -> b where
+        nakedDepth :: (Int,Wrap) -> Int
+        nakedDepth (_,Wrapped) = 0
+        nakedDepth (i,_) = i
