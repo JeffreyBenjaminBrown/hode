@@ -4,6 +4,7 @@ module Hode.Rslt.Show (
   eShow -- ^ Rslt -> Expr -> Either String String
   , hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
   , exprFWithDepth -- ^ Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
+  , Wrap(..)
   , wrapExprAtDepth -- ^ Int -> Fix (ExprFWith ())
                     --       -> Fix (ExprFWith (Int,Wrap))
   ) where
@@ -104,31 +105,40 @@ exprFWithDepth (Fix (EFW x)) =
     in ( ( 1+maxMemberDepth, b)
        , ExprRelF $ Rel msWithDepth $ exprFWithDepth t)
 
-data Wrap = Wrapped | Naked
+data Wrap = Wrapped | Naked deriving (Show, Eq, Ord)
+
+-- | Attaches a depth (Int) and a Wrap to each subExpr of an Expr.
+-- Anything Wrapped will be shown in parens.
+-- The depth of a Rel is the maximum nakedDepth of its members,
+-- where nakedDepth is like normal depth, except Wrapped things
+-- contribute 0 depth.
+-- The depth of any non-Rel is 0.
+-- A Rel of depth > maxDepth is Wrapped.
+-- Templates are also Wrapped (which might not be necessary).
 
 wrapExprAtDepth :: Int -> Fix (ExprFWith ())
                        -> Fix (ExprFWith (Int,Wrap))
 wrapExprAtDepth maxDepth = g where
-  g (Fix (EFW ((), x))) = Fix $ EFW $ f x
-  f ::              ExprF (Fix (ExprFWith ()))
-    -> ((Int,Wrap), ExprF (Fix (ExprFWith (Int,Wrap))))
-  f (AddrF a)      =
-    ( (0,Naked), AddrF a)
-  f (PhraseF p)    =
-    ( (0,Naked), PhraseF p)
+  g (Fix (EFW ((), x))) = Fix $ EFW $ f x where
 
-  f (ExprTpltF js) =
-    ( (0,Wrapped)
-    , ExprTpltF $
-      map (wrapExprAtDepth maxDepth) js )
-  f (ExprRelF (Rel ms t)) =
-    ( (d, if d >= maxDepth then Wrapped else Naked)
-    , ExprRelF $ Rel
-      ms' $
-      wrapExprAtDepth maxDepth t) where
-    ms' = map (wrapExprAtDepth maxDepth) ms
-    d = maximum $ map h ms' where
-      h = nakedDepth . \(Fix (EFW (b,_))) -> b where
-        nakedDepth :: (Int,Wrap) -> Int
-        nakedDepth (_,Wrapped) = 0
-        nakedDepth (i,_) = i
+    f ::              ExprF (Fix (ExprFWith ()))
+      -> ((Int,Wrap), ExprF (Fix (ExprFWith (Int,Wrap))))
+    f (AddrF a)      =
+      ( (0,Naked), AddrF a)
+    f (PhraseF p)    =
+      ( (0,Naked), PhraseF p)
+
+    f (ExprTpltF js) =
+      ( (0,Wrapped)
+      , ExprTpltF $
+        map (wrapExprAtDepth maxDepth) js )
+    f (ExprRelF (Rel ms t)) =
+      ( (d, if d >= maxDepth then Wrapped else Naked)
+      , ExprRelF $ Rel ms' $
+        wrapExprAtDepth maxDepth t) where
+      ms' = map (wrapExprAtDepth maxDepth) ms
+      d = (+1) $ maximum $ map h ms' where
+        h = nakedDepth . \(Fix (EFW (b,_))) -> b where
+          nakedDepth :: (Int,Wrap) -> Int
+          nakedDepth (_,Wrapped) = 0
+          nakedDepth (i,_) = i
