@@ -80,6 +80,8 @@ eShow r = prefixLeft "-> eShow" . para f where
     ++ show (embed $ fmap fst x)
 
 
+-- | = New style: wrapping depth-3 Exprs in parens
+
 exprFWithDepth :: Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
 exprFWithDepth (Fix (EFW x)) =
   Fix . EFW $ f x where
@@ -93,6 +95,7 @@ exprFWithDepth (Fix (EFW x)) =
     let msWithDepth = map exprFWithDepth ms
         maxMemberDepth =
           let g (Fix (EFW ((i,_),_))) = i
-          in maximum $ map g msWithDepth
-    in ( (1+maxMemberDepth,b)
+          in if null msWithDepth then 0
+             else maximum $ map g msWithDepth
+    in ( ( 1+maxMemberDepth, b)
        , ExprRelF $ Rel msWithDepth $ exprFWithDepth t)

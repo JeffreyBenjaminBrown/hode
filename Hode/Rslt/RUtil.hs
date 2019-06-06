@@ -65,7 +65,8 @@ depth = cata f where
   f :: Base Expr Int -> Int
   f (AddrF _)               = 0
   f (PhraseF _)             = 0
-  f (ExprRelF (Rel mems _)) = 1 + maximum mems
+  f (ExprRelF (Rel mems _)) =
+    1 + (if null mems then 0 else maximum mems)
   f (ExprTpltF _)           = 0
 
 

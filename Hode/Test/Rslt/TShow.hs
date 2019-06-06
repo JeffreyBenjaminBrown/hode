@@ -2,18 +2,35 @@
 
 module Hode.Test.Rslt.TShow where
 
+import           Data.Functor.Foldable
 import           Test.HUnit
 
 import           Hode.Rslt.RTypes
+import           Hode.Rslt.RUtil
 import           Hode.Rslt.Show
 import qualified Hode.Test.Rslt.RData as D
 
 
 test_module_rslt_show :: Test
 test_module_rslt_show = TestList [
-  TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
+    TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
   , TestLabel "test_eShow" test_eShow
+  , TestLabel "test_exprFWithDepth" test_exprFWithDepth
   ]
+
+test_exprFWithDepth :: Test
+test_exprFWithDepth = TestCase $ do
+  let e :: Int -> Expr
+      e 0 = Addr 0
+      e n = ExprRel $ Rel [e $ n-1] $ e 0
+      fe :: Int -> Fix (ExprFWith (Int,()))
+      fe 0 = Fix $ EFW ( (0,()), AddrF 0 )
+      fe n = ( Fix $
+              EFW ( (n,()), ExprRelF $ Rel [fe $ n-1] $ fe 0 ) )
+  assertBool "1" $
+    ( exprFWithDepth $ toExprWith () $ e 1 ) == fe 1
+  assertBool "1" $
+    ( exprFWithDepth $ toExprWith () $ e 2 ) == fe 2
 
 test_eShow :: Test
 test_eShow = TestCase $ do

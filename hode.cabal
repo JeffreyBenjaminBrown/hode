@@ -93,6 +93,7 @@ library
               , binary
               , brick
               , containers
+              , deriving-compat
               , directory
               , filepath
               , HUnit

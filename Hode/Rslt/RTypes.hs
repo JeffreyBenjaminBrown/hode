@@ -1,10 +1,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
+{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable, DeriveGeneric #-}
 
 module Hode.Rslt.RTypes where
 
+import Data.Functor.Classes
 import Data.Functor.Foldable.TH
+import Text.Show.Deriving
+import Data.Eq.Deriving
 
 import           Data.Map (Map)
 import           Data.Set (Set)
@@ -26,6 +29,9 @@ type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
 
 data Rel a = Rel [a] a
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
+deriveShow1 ''Rel
+deriveEq1 ''Rel
+
 type Tplt a = [a]
 
 data Expr =
@@ -40,12 +46,17 @@ data Expr =
                         -- The `Addr`s should probably be `Phrase`s.
   deriving (Eq, Ord, Read, Show)
 makeBaseFunctor ''Expr
+deriveShow1 ''ExprF
+deriveEq1 ''ExprF
 
+-- ^ `ExprFWith` example: add an Int to every level of an Expr
+-- import Data.Functor.Foldable (Fix)
+-- x :: Fix (ExprFWith Int)
+-- x = Fix $ EFW (1 , ExprRelF $ Rel [...] $ Fix $ EFW (2, ...))
 newtype ExprFWith b a = EFW (b, ExprF a)
-  -- ^ example: use it to add an Int to every level of an Expr
-  -- import Data.Functor.Foldable (Fix)
-  -- x :: Fix (ExprFWith Int)
-  -- x = Fix $ EFW (1 , ExprRelF $ Rel [...] $ Fix $ EFW (2, ...))
+deriveShow1 ''ExprFWith
+deriveEq1 ''ExprFWith
+
 -- | = A `Rslt` is a database of `Expr`s. It stores `RefExpr`s rather
 -- than `Expr`s, for speed and compactness.
 data Rslt = Rslt {
