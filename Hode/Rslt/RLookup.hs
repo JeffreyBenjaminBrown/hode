@@ -21,9 +21,11 @@ module Hode.Rslt.RLookup (
   , subExprs     -- ^ Rslt -> [RolePath] -> Addr -> Either String (Set Addr)
   , subExpr      -- ^ Rslt -> Addr -> RolePath   -> Either String Addr
   , unAddr       -- ^ Rslt -> Expr               -> Either String Expr
+  , unAddrRec    -- ^ Rslt -> Expr               -> Either String Expr
   ) where
 
 import           Data.Functor (void)
+import           Data.Functor.Foldable
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -120,3 +122,14 @@ subExpr r a (rl : rls) = prefixLeft "-> subExpr" $ do
 unAddr :: Rslt -> Expr -> Either String Expr
 unAddr r (Addr a) = addrToExpr r a
 unAddr _ e        = Right e
+
+unAddrRec :: Rslt -> Expr -> Either String Expr
+unAddrRec r = cata f where
+  f :: Base Expr (Either String Expr) -> Either String Expr
+  f (AddrF a) = addrToExpr r a
+  f (PhraseF p) = Right $ Phrase p
+  f (ExprRelF (Rel ms t)) = do ms' <- ifLefts ms
+                               t' <- t
+                               Right $ ExprRel $ Rel ms' t'
+  f (ExprTpltF js) = do js' <- ifLefts js
+                        Right $ ExprTplt js'

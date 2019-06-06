@@ -20,6 +20,8 @@ import Hode.Util.Misc
 import Hode.Util.UParse
 
 
+-- | `hashUnlessEmptyStartOrEnd k js` adds `k` #-marks to every joint
+-- in `js`, unless it's first or last and the empty string.
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
 hashUnlessEmptyStartOrEnd k0 joints = case joints' of
   [] -> []

@@ -22,7 +22,16 @@ test_module_rslt_exprToAddr = TestList [
   , TestLabel "test_has" test_has
   , TestLabel "test_exprToAddr" test_exprToAddr
   , TestLabel "test_refExprToExpr" test_refExprToExpr
+  , TestLabel "test_unAddr" test_unAddr
   ]
+
+test_unAddr :: Test
+test_unAddr = TestCase $ do
+  assertBool "" $ unAddr D.r0 (Addr 0) == Right (Phrase "")
+  assertBool "" $
+    unAddrRec D.r0 ( ExprRel $ Rel
+                     [ Addr 0, Phrase "dog" ] $ Phrase "" ) ==
+    Right (ExprRel $ Rel [ Phrase "", Phrase "dog" ] $ Phrase "")
 
 test_refExprToExpr :: Test
 test_refExprToExpr = TestCase $ do
