@@ -156,5 +156,5 @@ appAttrMap = B.attrMap B.defAttr
     [ (B.editAttr                  , B.white `on` B.blue)
     , (B.editFocusedAttr           , B.black `on` B.yellow)
     , (B.attrName "reassurance"    , B.black `on` B.blue)
-    , (B.attrName "focused result" , B.black `on` B.green)
+    , (B.attrName "focused result" , B.black `on` B.cyan)
     ]
