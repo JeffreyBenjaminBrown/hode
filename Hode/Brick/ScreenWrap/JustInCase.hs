@@ -1,8 +1,9 @@
--- | Wrap
+-- | Unused, but potentially helpful (particularly `demo`)
+-- for understanding Hode.Brick.ScreenWrap.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Brick.Wrap.JustInCase (
+module Hode.Brick.ScreenWrap.JustInCase (
     demo      -- ^ IO ()
   , toWidget' -- ^ [(String,V.Attr)] -> Widget n
   ) where

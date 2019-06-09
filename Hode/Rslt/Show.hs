@@ -15,6 +15,7 @@ import           Data.Functor.Foldable
 import qualified Data.List as L
 import           Data.Text (strip, pack, unpack)
 
+import Hode.Brick.ScreenWrap
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil

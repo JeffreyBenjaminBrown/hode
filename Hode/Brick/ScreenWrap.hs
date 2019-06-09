@@ -1,8 +1,8 @@
--- | Wrap
+-- | Wraps a list of `String`s with `Attr`s attached.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Brick.Wrap (
+module Hode.Brick.ScreenWrap (
     toWidget -- ^        [(String,V.Attr)] -> Widget n
   , toLines  -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
   ) where
