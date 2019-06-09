@@ -1,6 +1,3 @@
--- | Based on the demos in the programs/ folder of Brick,
--- particularly `EditDemo.hs`.
-
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 

@@ -94,6 +94,7 @@ library
               , brick
               , containers
               , deriving-compat
+              , deepseq
               , directory
               , filepath
               , HUnit
