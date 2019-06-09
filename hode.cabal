@@ -28,6 +28,8 @@ source-repository head
 library
   exposed-modules:
                   Hode.Hode
+                , Hode.Brick.Wrap
+--                , Hode.Brick.Wrap.JustInCase
                 , Hode.Data.Graph
 --                , Hode.Data.Relation
                 , Hode.Hash.Convert
