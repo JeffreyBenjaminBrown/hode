@@ -93,9 +93,10 @@ appDraw st0 = [w] where
 
   focusStyle :: PTree a -> B.Widget BrickName
                         -> B.Widget BrickName
-  focusStyle bt = if not $ bt ^. pTreeHasFocus then id
-                  else visible
-                       . withAttr (B.attrName "focused result")
+  focusStyle bt = visible .  withAttr (B.attrName x) where
+    x = if not $ bt ^. pTreeHasFocus
+        then "unfocused result"
+        else  "focused result"
 
   bufferWindow = case st ^. searchBuffers of
     Nothing -> str "There are no results to show. Add one with M-S-t."
@@ -148,13 +149,21 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     SearchBuffers -> handleKeyboard_atBufferWindow st ev
     _             -> handleUncaughtInput                  st ev
 
+
 appHandleEvent st _ = B.continue st
 
 
 appAttrMap :: B.AttrMap
-appAttrMap = B.attrMap B.defAttr
-    [ (B.editAttr                  , B.white `on` B.blue)
-    , (B.editFocusedAttr           , B.black `on` B.yellow)
-    , (B.attrName "reassurance"    , B.black `on` B.blue)
-    , (B.attrName "focused result" , B.black `on` B.cyan)
+appAttrMap = let
+  gray (k :: Int) = B.rgbColor k k k
+  black    = gray 0
+  gray1    = gray 1 -- PITFALL: Not the darkest possible non-black gray.
+    -- See VTY issue https://github.com/jtdaugherty/vty/issues/172
+  white    = gray 255
+  in B.attrMap B.defAttr
+    [ (B.editAttr                    , B.black `on` B.red) -- unused
+    , (B.editFocusedAttr             , white `on` B.rgbColor 0 0 1)
+    , (B.attrName "reassurance"      , white `on` B.rgbColor 0 1 0)
+    , (B.attrName "unfocused result" , white `on` black)
+    , (B.attrName "focused result"   , white `on` B.rgbColor 0 1 0)
     ]
