@@ -33,9 +33,9 @@ test_wrapExprAtDepth = TestCase $ do
         ( (), ExprRelF $ Rel ms $ fe0 )
 
   -- dw0 and dw are like fe, but with depth and wrappedness
-  let dw :: (Int,Wrap) -> [Fix (ExprFWith (Int,Wrap))]
-                       ->  Fix (ExprFWith (Int,Wrap))
-      dw0 ::               Fix (ExprFWith (Int,Wrap))
+  let dw :: (Int,Parens) -> [Fix (ExprFWith (Int,Parens))]
+                         ->  Fix (ExprFWith (Int,Parens))
+      dw0 ::                 Fix (ExprFWith (Int,Parens))
       dw0 = Fix $ EFW ((0,Naked), AddrF 0)
       dw b rs = Fix $ EFW
         ( b, ExprRelF $ Rel rs dw0 )
@@ -46,7 +46,7 @@ test_wrapExprAtDepth = TestCase $ do
   assertBool "" $
     wrapExprAtDepth 2 (fe [ fe [fe0]
                           , fe0 ] ) ==
-    dw (2,Wrapped) [dw (1,Naked) [dw0], dw0]
+    dw (2,InParens) [dw (1,Naked) [dw0], dw0]
 
 test_exprFWithDepth :: Test
 test_exprFWithDepth = TestCase $ do

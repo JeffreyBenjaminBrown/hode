@@ -5,9 +5,9 @@ module Hode.Rslt.Show (
   , eWrapShow -- ^ Int -> Rslt -> Expr -> Either String String
 
   , hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
-  , Wrap(..)
+  , Parens(..)
   , wrapExprAtDepth -- ^ Int -> Fix (ExprFWith ())
-                    --       -> Fix (ExprFWith (Int,Wrap))
+                    --       -> Fix (ExprFWith (Int,Parens))
   ) where
 
 import           Data.Functor.Foldable
@@ -89,42 +89,42 @@ eShow r = prefixLeft "-> eShow" . para f where
 
 -- | = New style: wrapping depth-3 Exprs in parens
 
-data Wrap = Wrapped | Naked deriving (Show, Eq, Ord)
+data Parens = InParens | Naked deriving (Show, Eq, Ord)
 
--- | Attaches a depth (Int) and a Wrap to each subExpr of an Expr.
--- Anything Wrapped will be shown in parens.
--- The depth of a Rel is the maximum nakedDepth of its members,
--- where nakedDepth is like normal depth, except Wrapped things
--- contribute 0 depth.
--- The depth of any non-Rel is 0.
--- A Rel of depth > maxDepth is Wrapped.
--- Templates are also Wrapped (which might not be necessary).
+-- | Attaches a depth (`Int`) and a `Parens` to each `subExpr` of an `Expr`.
+-- Anything `InParens` will be shown in parens.
+-- The depth of a `Rel` is the maximum `nakedDepth` of its members,
+-- where `nakedDepth` is like normal depth,
+-- except `InParens` things contribute 0 depth.
+-- The depth of any non-`Rel` is 0.
+-- A `Rel` of depth > `maxDepth` is `InParens`.
+-- `Tplt`s are also `InParens` (which might not be necessary).
 
 wrapExprAtDepth :: Int -> Fix (ExprFWith ())
-                       -> Fix (ExprFWith (Int,Wrap))
+                       -> Fix (ExprFWith (Int,Parens))
 wrapExprAtDepth maxDepth = g where
   g (Fix (EFW ((), x))) = Fix $ EFW $ f x where
 
-    f ::              ExprF (Fix (ExprFWith ()))
-      -> ((Int,Wrap), ExprF (Fix (ExprFWith (Int,Wrap))))
+    f ::                ExprF (Fix (ExprFWith ()))
+      -> ((Int,Parens), ExprF (Fix (ExprFWith (Int,Parens))))
     f (AddrF a)      =
       ( (0,Naked), AddrF a)
     f (PhraseF p)    =
       ( (0,Naked), PhraseF p)
 
     f (ExprTpltF js) =
-      ( (0,Wrapped)
+      ( (0,InParens)
       , ExprTpltF $
         map (wrapExprAtDepth maxDepth) js )
     f (ExprRelF (Rel ms t)) =
-      ( (d, if d >= maxDepth then Wrapped else Naked)
+      ( (d, if d >= maxDepth then InParens else Naked)
       , ExprRelF $ Rel ms' $
         wrapExprAtDepth maxDepth t) where
       ms' = map (wrapExprAtDepth maxDepth) ms
       d = (+1) $ maximum $ map h ms' where
         h = nakedDepth . \(Fix (EFW (b,_))) -> b where
-          nakedDepth :: (Int,Wrap) -> Int
-          nakedDepth (_,Wrapped) = 0
+          nakedDepth :: (Int,Parens) -> Int
+          nakedDepth (_,InParens) = 0
           nakedDepth (i,_) = i
 
 eWrapShow :: Int -> Rslt -> Expr -> Either String String
@@ -136,18 +136,18 @@ eWrapShow maxDepth r e0 =
   wrap :: String -> String
   wrap s = "(" ++ s ++ ")"
 
-  f :: Fix (ExprFWith (Int,Wrap)) -> Either String String
-  f (Fix (EFW ((i,Wrapped),e))) = wrap <$> g (i,e)
+  f :: Fix (ExprFWith (Int,Parens)) -> Either String String
+  f (Fix (EFW ((i,InParens),e))) = wrap <$> g (i,e)
   f (Fix (EFW ((i,Naked)  ,e))) =          g (i,e)
 
   -- `fo` = `f, outermost`. For the top-level Expr,
-  -- even if it has a Wrapped flag attached,
+  -- even if it has an `InParens` flag attached,
   -- it is printed without surrounding parentheses.
-  fo :: Fix (ExprFWith (Int,Wrap)) -> Either String String
+  fo :: Fix (ExprFWith (Int,Parens)) -> Either String String
   fo (Fix (EFW ((i,_),e))) = g (i,e)
 
-  -- PITFALL: `f` peels off the first `Wrap`, not all of them.
-  g :: (Int, ExprF (Fix (ExprFWith (Int,Wrap))))
+  -- PITFALL: `f` peels off the first `Parens`, not all of them.
+  g :: (Int, ExprF (Fix (ExprFWith (Int,Parens))))
     -> Either String String
   g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
   g (_, PhraseF p) = Right p
