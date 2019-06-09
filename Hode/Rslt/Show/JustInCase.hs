@@ -4,21 +4,13 @@ module Hode.Rslt.Show.JustInCase (
   exprFWithDepth -- ^ Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
   ) where
 
-import           Data.Functor.Foldable
-import qualified Data.List as L
-import           Data.Text (strip, pack, unpack)
+import Data.Functor.Foldable
 
-import Hode.Brick.ScreenWrap
-import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
-import Hode.Rslt.Show
-import Hode.Util.Misc
-import Hode.Util.UParse
 
 
 -- | This isn't used, but it might be helpful
--- for understanding `wrapExprAtDepth`.
+-- for understanding `parenExprAtDepth`.
 exprFWithDepth :: Fix (ExprFWith b) -> Fix (ExprFWith (Int,b))
 exprFWithDepth (Fix (EFW x)) =
   Fix . EFW $ f x where

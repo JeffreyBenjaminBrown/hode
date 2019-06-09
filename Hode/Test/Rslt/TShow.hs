@@ -17,12 +17,12 @@ test_module_rslt_show = TestList [
     TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
   , TestLabel "test_eShow" test_eShow
   , TestLabel "test_exprFWithDepth" test_exprFWithDepth
-  , TestLabel "test_wrapExprAtDepth" test_wrapExprAtDepth
+  , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   ]
 
 -- | `test_exprFWithDepth` might make this easier to understand
-test_wrapExprAtDepth :: Test
-test_wrapExprAtDepth = TestCase $ do
+test_parenExprAtDepth :: Test
+test_parenExprAtDepth = TestCase $ do
 
   -- fe is a Fix ExprFWith
   let fe :: [Fix (ExprFWith ())]
@@ -40,11 +40,11 @@ test_wrapExprAtDepth = TestCase $ do
       dw b rs = Fix $ EFW
         ( b, ExprRelF $ Rel rs dw0 )
 
-  assertBool "" $ wrapExprAtDepth 2 fe0 == dw0
+  assertBool "" $ parenExprAtDepth 2 fe0 == dw0
   assertBool "" $
-    wrapExprAtDepth 2 (fe [fe0]) == dw (1,Naked) [dw0]
+    parenExprAtDepth 2 (fe [fe0]) == dw (1,Naked) [dw0]
   assertBool "" $
-    wrapExprAtDepth 2 (fe [ fe [fe0]
+    parenExprAtDepth 2 (fe [ fe [fe0]
                           , fe0 ] ) ==
     dw (2,InParens) [dw (1,Naked) [dw0], dw0]
 

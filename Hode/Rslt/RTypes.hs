@@ -4,7 +4,6 @@
 
 module Hode.Rslt.RTypes where
 
-import Data.Functor.Classes
 import Data.Functor.Foldable.TH
 import Text.Show.Deriving
 import Data.Eq.Deriving

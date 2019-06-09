@@ -1,13 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show (
-    eShow     -- ^        Rslt -> Expr -> Either String String
-  , eWrapShow -- ^ Int -> Rslt -> Expr -> Either String String
+    eShow      -- ^        Rslt -> Expr -> Either String String
+  , eParenShow -- ^ Int -> Rslt -> Expr -> Either String String
 
   , hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
   , Parens(..)
-  , wrapExprAtDepth -- ^ Int -> Fix (ExprFWith ())
-                    --       -> Fix (ExprFWith (Int,Parens))
+  , parenExprAtDepth -- ^ Int -> Fix (ExprFWith ())
+                     --       -> Fix (ExprFWith (Int,Parens))
   ) where
 
 import           Data.Functor.Foldable
@@ -100,9 +100,9 @@ data Parens = InParens | Naked deriving (Show, Eq, Ord)
 -- A `Rel` of depth > `maxDepth` is `InParens`.
 -- `Tplt`s are also `InParens` (which might not be necessary).
 
-wrapExprAtDepth :: Int -> Fix (ExprFWith ())
-                       -> Fix (ExprFWith (Int,Parens))
-wrapExprAtDepth maxDepth = g where
+parenExprAtDepth :: Int -> Fix (ExprFWith ())
+                        -> Fix (ExprFWith (Int,Parens))
+parenExprAtDepth maxDepth = g where
   g (Fix (EFW ((), x))) = Fix $ EFW $ f x where
 
     f ::                ExprF (Fix (ExprFWith ()))
@@ -115,23 +115,23 @@ wrapExprAtDepth maxDepth = g where
     f (ExprTpltF js) =
       ( (0,InParens)
       , ExprTpltF $
-        map (wrapExprAtDepth maxDepth) js )
+        map (parenExprAtDepth maxDepth) js )
     f (ExprRelF (Rel ms t)) =
       ( (d, if d >= maxDepth then InParens else Naked)
       , ExprRelF $ Rel ms' $
-        wrapExprAtDepth maxDepth t) where
-      ms' = map (wrapExprAtDepth maxDepth) ms
+        parenExprAtDepth maxDepth t) where
+      ms' = map (parenExprAtDepth maxDepth) ms
       d = (+1) $ maximum $ map h ms' where
         h = nakedDepth . \(Fix (EFW (b,_))) -> b where
           nakedDepth :: (Int,Parens) -> Int
           nakedDepth (_,InParens) = 0
           nakedDepth (i,_) = i
 
-eWrapShow :: Int -> Rslt -> Expr -> Either String String
-eWrapShow maxDepth r e0 =
-  prefixLeft "eWrapShow: " $
+eParenShow :: Int -> Rslt -> Expr -> Either String String
+eParenShow maxDepth r e0 =
+  prefixLeft "eParenShow: " $
   unAddrRec r e0 >>=
-  fo . wrapExprAtDepth maxDepth . toExprWith () where
+  fo . parenExprAtDepth maxDepth . toExprWith () where
 
   wrap :: String -> String
   wrap s = "(" ++ s ++ ")"
