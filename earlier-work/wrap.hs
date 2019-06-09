@@ -11,25 +11,17 @@ import           Lens.Micro
 import Brick.Main
 import Brick.Types
 import Brick.Widgets.Core
-import Brick.Widgets.Center
-import Brick.Widgets.Edit
-import Brick.AttrMap
-import Brick.Focus
-import Brick.Util (on)
 import qualified Graphics.Vty as V
 import qualified Brick.BorderMap as B
 import Control.DeepSeq (force)
 
 
-myFill :: Char -> Widget n
-myFill ch =
-  Widget Greedy Greedy $ do
-    ctx <- getContext
-    let a = ctx^.attrL
-        i :: V.Image = V.charFill a ch
-          (ctx^.availWidthL) (ctx^.availHeightL)
-    return $ Result i [] [] [] B.empty
+main :: IO ()
+main = simpleMain $ vBox [h, h]
+  where h :: Widget ()
+        h = hBox [ toWidget content ]
 
+-- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
 toWidget ::  [(String,V.Attr)] -> Widget n
 toWidget ss = let
   x = do
@@ -39,9 +31,10 @@ toWidget ss = let
     return $ Result i [] [] [] B.empty
   in Widget Greedy Fixed x
 
--- `toWidget'` was totally unnecessary;
+-- | `toWidget'` appears to have been totally unnecessary.
 -- I wrote it because I thought `toWidget` wasn't working,
 -- when in fact the problem was `toLines`.
+-- It is based on `Brick.Widgets.Core.txtWrapWith`.
 toWidget' ::  [(String,V.Attr)] -> Widget n
 toWidget' ss =
   Widget Greedy Fixed $ do
@@ -71,7 +64,7 @@ linesToImage = let g (s,a) = V.string a s
   in V.vertCat . map (V.horizCat . map g)
 
 -- | PITFALL: Does not consider the case in which a single token
--- does not fit on the screen. It will get truncated.
+-- does not fit on one line. Its right side will be truncated.
 toLines :: Int -> [(String,attr)] -> [[(String,attr)]]
 toLines maxWidth = reverse . map reverse . f 0 [] where
   f _       acc               []                = acc
@@ -83,22 +76,11 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
 
--- rather than `Graphics.Vty.ImagecharFill`, use
--- `Graphics.Vty.Image.string` and the `horizCat` and `vertCat`
--- combinators from the same module.
-
-red, blue :: V.Attr
-red = V.defAttr `V.withForeColor` V.red
-blue = V.defAttr `V.withForeColor` V.blue
-
-main :: IO ()
-main = simpleMain $ -- (myFill 'z' :: Widget ())
-  vBox [h, h] where
-  h = hBox [ toWidget pairs ]
-      :: Widget ()
-
-pairs :: [(String, V.Attr)]
-pairs = [ ("%%       #######a ",red)
-        , ("%%       #########b ",blue)
-        , ("%%       ############cc ",blue)
-        , ("%%       ###############dd ", red) ]
+content :: [(String, V.Attr)]
+content = [ ("%%       #######a ",red)
+          , ("%%       #########b ",blue)
+          , ("%%       ############cc ",blue)
+          , ("%%       ###############dd ", red) ]
+  where red, blue :: V.Attr
+        red = V.defAttr `V.withForeColor` V.red
+        blue = V.defAttr `V.withForeColor` V.blue
