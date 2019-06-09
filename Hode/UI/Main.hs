@@ -15,7 +15,7 @@ import qualified Brick.Widgets.Edit   as B
 import qualified Brick.AttrMap        as B
 import qualified Brick.Focus          as B
 import           Brick.Util (on)
-import qualified Graphics.Vty         as B
+import qualified Graphics.Vty         as V
 
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
@@ -120,26 +120,26 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of
-  B.EvKey B.KEsc [B.MMeta] -> B.halt st
+  V.EvKey V.KEsc [V.MMeta] -> B.halt st
 
   -- command window
-  B.EvKey (B.KChar 'x') [B.MMeta] -> parseAndRunCommand st
+  V.EvKey (V.KChar 'x') [V.MMeta] -> parseAndRunCommand st
 
   -- switch main window content
-  B.EvKey (B.KChar 'H') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'H') [V.MMeta] -> B.continue
     $ st & showingInMainWindow .~ CommandHistory
          & showingErrorWindow .~ False
-  B.EvKey (B.KChar 'B') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'B') [V.MMeta] -> B.continue
     $ st & showingInMainWindow .~ SearchBuffers
          & showingErrorWindow .~ False
-  B.EvKey (B.KChar 'R') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'R') [V.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Results
          & showingErrorWindow .~ False
   -- Brick-focus-related stuff. So far unneeded.
     -- PITFALL: The focused `Window` is distinct from the focused
     -- widget within the `mainWindow`.
-    -- B.EvKey (B.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
-    -- B.EvKey B.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
+    -- V.EvKey (V.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
+    -- V.EvKey V.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   _ -> case st ^. showingInMainWindow of
     Results       -> handleKeyboard_atResultsWindow      st ev
@@ -152,15 +152,17 @@ appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
 appAttrMap = let
-  gray (k :: Int) = B.rgbColor k k k
-  black    = gray 0
-  gray1    = gray 1 -- PITFALL: Not the darkest possible non-black gray.
-    -- See VTY issue https://github.com/jtdaugherty/vty/issues/172
-  white    = gray 255
-  in B.attrMap B.defAttr
-    [ (B.editAttr                    , B.black `on` B.red) -- unused
-    , (B.editFocusedAttr             , white `on` B.rgbColor 0 0 1)
-    , (B.attrName "reassurance"      , white `on` B.rgbColor 0 1 0)
-    , (B.attrName "unfocused result" , white `on` black)
-    , (B.attrName "focused result"   , white `on` B.rgbColor 0 1 0)
+  gray (k :: Int) = V.rgbColor k k k
+  black     = gray 0
+  --gray1   = gray 1 -- PITFALL: Vty offers darker non-black grays.
+  --  -- See VTY issue https://github.com/jtdaugherty/vty/issues/172
+  white     = gray 255
+  darkBlue  = V.rgbColor 0 0 (1::Int)
+  darkGreen = V.rgbColor 0 1 (0::Int)
+  in B.attrMap V.defAttr
+    [ (B.editAttr                    , V.black `on` V.red) -- unused
+    , (B.editFocusedAttr             , white   `on` darkBlue)
+    , (B.attrName "reassurance"      , white   `on` darkGreen)
+    , (B.attrName "unfocused result" , white   `on` black)
+    , (B.attrName "focused result"   , white   `on` darkGreen)
     ]

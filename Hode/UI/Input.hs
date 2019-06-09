@@ -4,11 +4,11 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Hode.UI.Input (
-    handleUncaughtInput            -- ^ St -> B.Event ->
+    handleUncaughtInput            -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atResultsWindow -- ^ St -> B.Event ->
+  , handleKeyboard_atResultsWindow -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow  -- ^ St -> B.Event ->
+  , handleKeyboard_atBufferWindow  -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
   , parseAndRunCommand             -- ^ St ->
                                    -- B.EventM BrickName (B.Next St)
@@ -28,7 +28,7 @@ import qualified Brick.Main            as B
 import qualified Brick.Types           as B
 import qualified Brick.Widgets.Edit    as B
 import qualified Brick.Focus           as B
-import qualified Graphics.Vty          as B
+import qualified Graphics.Vty          as V
 
 import Hode.Hash.HLookup
 import Hode.Qseq.QTypes
@@ -48,71 +48,71 @@ import Hode.Util.Misc
 import Hode.Util.PTree
 
 
-handleUncaughtInput :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleUncaughtInput :: St -> V.Event -> B.EventM BrickName (B.Next St)
 handleUncaughtInput st ev =
   B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
     Just (BrickOptionalName Commands) -> B.handleEventLensed
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 
-handleKeyboard_atBufferWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atBufferWindow :: St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atBufferWindow st ev = case ev of
-  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'e') [V.MMeta] -> B.continue
     $ moveFocusedBuffer DirPrev
     $ st & hideReassurance
-  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'd') [V.MMeta] -> B.continue
     $ moveFocusedBuffer DirNext
     $ st & hideReassurance
-  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'f') [V.MMeta] -> B.continue
     $ moveFocusedBuffer DirDown
     $ st & hideReassurance
-  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 's') [V.MMeta] -> B.continue
     $ moveFocusedBuffer DirUp
     $ st & hideReassurance
 
-  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'c') [V.MMeta] -> B.continue
     $ consBuffer_asChild emptyBuffer
     $ st & hideReassurance
-  B.EvKey (B.KChar 't') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 't') [V.MMeta] -> B.continue
     $ consBuffer_topNext emptyBuffer
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev
 
-handleKeyboard_atResultsWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atResultsWindow :: St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev = case ev of
-  B.EvKey (B.KChar 'h') [B.MMeta] -> B.continue $ unEitherSt st
+  V.EvKey (V.KChar 'h') [V.MMeta] -> B.continue $ unEitherSt st
     $ insertHosts_atFocus   st
-  B.EvKey (B.KChar 'm') [B.MMeta] -> B.continue $ unEitherSt st
+  V.EvKey (V.KChar 'm') [V.MMeta] -> B.continue $ unEitherSt st
     $ insertMembers_atFocus st
-  B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'c') [V.MMeta] -> B.continue
     $ closeSubviews_atFocus st
-  B.EvKey (B.KChar 'F') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'F') [V.MMeta] -> B.continue
     $ foldSubviews_atFocus st
 
-  B.EvKey (B.KChar 'b') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'b') [V.MMeta] -> B.continue
     $ unEitherSt st
     $ st & cons_focusedViewExpr_asChildOfBuffer
 
-  B.EvKey (B.KChar 'r') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'r') [V.MMeta] -> B.continue
     $ replaceCommand st
 
-  B.EvKey (B.KChar 'w') [B.MMeta] -> do
+  V.EvKey (V.KChar 'w') [V.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
     B.continue $ st
       & showReassurance "Results window copied to clipboard."
 
-  B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'e') [V.MMeta] -> B.continue
     $ moveFocusedViewExprNode DirPrev
     $ st & hideReassurance
-  B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'd') [V.MMeta] -> B.continue
     $ moveFocusedViewExprNode DirNext
     $ st & hideReassurance
-  B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 'f') [V.MMeta] -> B.continue
     $ moveFocusedViewExprNode DirDown
     $ st & hideReassurance
-  B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
+  V.EvKey (V.KChar 's') [V.MMeta] -> B.continue
     $ moveFocusedViewExprNode DirUp
     $ st & hideReassurance
 
