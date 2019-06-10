@@ -3,7 +3,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Brick.ScreenWrap (
-    toWidget -- ^        [(String,V.Attr)] -> Widget n
+    AttrString
+  , toWidget -- ^        [(String,V.Attr)] -> Widget n
   , toLines  -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
   ) where
 
@@ -14,8 +15,11 @@ import qualified Graphics.Vty as V
 import qualified Brick.BorderMap as B
 
 
+-- | Like `String`, but different substrings can have different fonts.
+type AttrString = [(String, V.Attr)]
+
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
-toWidget ::  [(String,V.Attr)] -> Widget n
+toWidget ::  AttrString -> Widget n
 toWidget ss =
   Widget Greedy Fixed $ do
     ctx <- getContext
@@ -23,13 +27,13 @@ toWidget ss =
         i :: V.Image = linesToImage $ toLines w ss
     return $ Result i [] [] [] B.empty
 
-linesToImage :: [[(String,V.Attr)]] -> V.Image
+linesToImage :: [AttrString] -> V.Image
 linesToImage = let g (s,a) = V.string a s
   in V.vertCat . map (V.horizCat . map g)
 
 -- | PITFALL: Does not consider the case in which a single token
 -- does not fit on one line. Its right side will be truncated.
-toLines :: Int -> [(String,attr)] -> [[(String,attr)]]
+toLines :: Int -> AttrString -> [AttrString]
 toLines maxWidth = reverse . map reverse . f 0 [] where
   f _       acc               []                = acc
   f _       []                ((s,a):moreInput) =

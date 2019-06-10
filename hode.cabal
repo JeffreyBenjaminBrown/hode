@@ -54,6 +54,7 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
+                , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
                 , Hode.Test.Hash.TConvert
                 , Hode.Test.Hash.THLookup
