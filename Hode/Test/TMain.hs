@@ -5,6 +5,7 @@ module Hode.Test.TMain where
 import           Test.HUnit hiding (Test)
 
 import Hode.Test.Hash.TConvert
+import Hode.Test.Hash.THLookup
 import Hode.Test.Hash.TParse
 import Hode.Test.Qseq.TLeaf
 import Hode.Test.Qseq.TProgram
@@ -14,10 +15,10 @@ import Hode.Test.Qseq.TValid
 import Hode.Test.Rslt.RData
 import Hode.Test.Rslt.RProgram
 import Hode.Test.Rslt.TEdit
-import Hode.Test.Hash.THLookup
 import Hode.Test.Rslt.TIndex_and_Valid
 import Hode.Test.Rslt.TLookup
 import Hode.Test.Rslt.TShow
+import Hode.Test.TBrick
 import Hode.Test.TGraph
 import Hode.Test.TPTree
 import Hode.Test.TUI
@@ -42,4 +43,5 @@ tests = runTestTT $ TestList
   , test_module_hash_parse
   , test_module_pTree
   , test_module_ui
+  , test_module_hode_brick
   ]

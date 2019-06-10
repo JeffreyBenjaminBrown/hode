@@ -2,21 +2,25 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Brick.ScreenWrap (
+module Hode.Brick (
     AttrString
   , toWidget -- ^        [(String,V.Attr)] -> Widget n
   , toLines  -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
+  , attrStrip -- ^ AttrString -> AttrString
   ) where
 
+import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
 import           Lens.Micro
 
-import Brick.Types
 import qualified Graphics.Vty as V
 import qualified Brick.BorderMap as B
+
+import Brick.Types
 
 
 -- | Like `String`, but different substrings can have different fonts.
 type AttrString = [(String, V.Attr)]
+
 
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
 toWidget ::  AttrString -> Widget n
@@ -43,3 +47,12 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
     in if newLen > maxWidth
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
+
+attrStrip :: [(String,a)] -> [(String,a)]
+attrStrip [] = []
+attrStrip [(s,a)] = [(unpack . strip . pack $ s, a)]
+attrStrip ((s,a):more) =
+  (unpack . stripStart . pack $ s, a) : f more where
+  f (p1:p2:ps) = p1 : f (p2:ps)
+  f [(s',a')] = [(unpack . stripEnd . pack $ s', a')]
+  f [] = error "impossible -- f bottoms out at length one, not zero"

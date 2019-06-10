@@ -28,8 +28,8 @@ source-repository head
 library
   exposed-modules:
                   Hode.Hode
-                , Hode.Brick.Wrap
---                , Hode.Brick.Wrap.JustInCase
+                , Hode.Brick
+--                , Hode.Brick.ScreenWrap.JustInCase
                 , Hode.Data.Graph
 --                , Hode.Data.Relation
                 , Hode.Hash.Convert
@@ -70,6 +70,7 @@ library
                 , Hode.Test.Rslt.TIndex_and_Valid
                 , Hode.Test.Rslt.TLookup
                 , Hode.Test.Rslt.TShow
+                , Hode.Test.TBrick
                 , Hode.Test.TGraph
                 , Hode.Test.TMain
                 , Hode.Test.TPTree

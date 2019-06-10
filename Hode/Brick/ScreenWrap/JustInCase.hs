@@ -16,7 +16,7 @@ import Brick.Widgets.Core
 import qualified Graphics.Vty as V
 import Control.DeepSeq (force)
 
-import Hode.Brick.ScreenWrap
+import Hode.Brick
 
 
 demo :: IO ()
