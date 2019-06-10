@@ -14,7 +14,7 @@ import           Data.Functor.Foldable
 import qualified Data.List as L
 import           Data.Text (strip, pack, unpack)
 
-import Hode.Brick.ScreenWrap
+import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
@@ -133,12 +133,12 @@ eParenShow maxDepth r e0 =
   unAddrRec r e0 >>=
   fo . parenExprAtDepth maxDepth . toExprWith () where
 
-  wrap :: String -> String
-  wrap s = "(" ++ s ++ ")"
+  paren :: String -> String
+  paren s = "(" ++ s ++ ")"
 
   f :: Fix (ExprFWith (Int,Parens)) -> Either String String
-  f (Fix (EFW ((i,InParens),e))) = wrap <$> g (i,e)
-  f (Fix (EFW ((i,Naked)  ,e))) =          g (i,e)
+  f (Fix (EFW ((i,InParens),e))) = paren <$> g (i,e)
+  f (Fix (EFW ((i,Naked)  ,e))) =            g (i,e)
 
   -- `fo` = `f, outermost`. For the top-level Expr,
   -- even if it has an `InParens` flag attached,
