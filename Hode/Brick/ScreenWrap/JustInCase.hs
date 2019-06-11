@@ -23,7 +23,7 @@ demo :: IO ()
 demo = simpleMain $ vBox [h, h] where
 
   h :: Widget ()
-  h = hBox [ toWidget content ] where
+  h = hBox [ attrStringWrap content ] where
 
     content :: [(String, V.Attr)]
     content = [ ("%%       #######a ",red)
@@ -35,12 +35,12 @@ demo = simpleMain $ vBox [h, h] where
       blue = V.defAttr `V.withForeColor` V.blue
 
 
--- | `toWidget'` appears to have been totally unnecessary.
--- I wrote it because I thought `toWidget` wasn't working,
+-- | `attrStringWrap'` appears to have been totally unnecessary.
+-- I wrote it because I thought `attrStringWrap` wasn't working,
 -- when in fact the problem was `toLines`.
 -- It is based on `Brick.Widgets.Core.txtWrapWith`.
-toWidget' ::  [(String,V.Attr)] -> Widget n
-toWidget' ss =
+attrStringWrap' ::  [(String,V.Attr)] -> Widget n
+attrStringWrap' ss =
   Widget Greedy Fixed $ do
     c <- getContext
     let theLines = fmap (fmap $ _1 %~ fixEmpty) $

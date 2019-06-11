@@ -380,3 +380,6 @@ This means, for instance, that there might be one value of X dependent on a bind
 When the user asks for a binding of X that depends on the binding of Y, any binding of X that does not depend on Y will be skipped.
 ** temporary user burdens: query order, dependency validity
 Eventually the code should be able to determine which queries depend on which others, and whether a sequential solution exists.
+* misfiled: lens tricks
+** `partsOf` is cool
+https://www.reddit.com/r/haskellquestions/comments/bz5dmp/how_to_implement_b_a_a_a_b_b/

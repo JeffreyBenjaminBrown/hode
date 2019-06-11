@@ -4,8 +4,11 @@
 
 module Hode.Brick (
     AttrString
-  , toWidget -- ^        [(String,V.Attr)] -> Widget n
-  , toLines  -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
+  , sepColor, textColor -- ^ V.Attr
+
+  , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
+  , toLines        -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
+
   , attrStrip -- ^ [(String,a)] -> [(String,a)]
   , attrParen -- ^ [(String,a)] -> [(String,a)]
   , attrLeftRight -- ^ Maybe (s -> s) ->
@@ -18,6 +21,7 @@ import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
 import           Lens.Micro
 
 import qualified Graphics.Vty as V
+import           Brick.Util (on)
 import qualified Brick.BorderMap as B
 
 import Brick.Types
@@ -26,10 +30,20 @@ import Brick.Types
 -- | Like `String`, but different substrings can have different fonts.
 type AttrString = [(String, V.Attr)]
 
+instance Ord V.Attr where
+  a <= b = show a <= show b
+
+-- | '#' symbols and parens used to group `Expr`s are "separators".
+-- (Note that ordinary text can include those symbols, too;
+-- in that case they will not be colored differently.)
+sepColor, textColor :: V.Attr
+sepColor  = V.brightRed `on` V.black
+textColor = V.brightBlue `on` V.black
+
 
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
-toWidget ::  AttrString -> Widget n
-toWidget ss =
+attrStringWrap ::  AttrString -> Widget n
+attrStringWrap ss =
   Widget Greedy Fixed $ do
     ctx <- getContext
     let w = ctx^.availWidthL

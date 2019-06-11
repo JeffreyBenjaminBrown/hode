@@ -4,14 +4,10 @@
 module Hode.Rslt.Show' (
     eParenShow' -- ^ Int -> Rslt -> Expr -> Either String AttrString
   , hashUnlessEmptyStartOrEnd' -- ^ Int -> [AttrString] -> [AttrString]
-  , sepColor, textColor -- ^ V.Attr
   ) where
 
 import           Data.Functor.Foldable
 import qualified Data.List as L
-
-import           Brick.Util (on)
-import qualified Graphics.Vty as V
 
 import Hode.Brick
 import Hode.Rslt.RLookup
@@ -97,11 +93,3 @@ hashUnlessEmptyStartOrEnd' k0 joints = case joints' of
   hashUnlessEmptyEnd k [s]      =  [hashUnlessEmpty k s]
   hashUnlessEmptyEnd k (s : ss) =   hash               k s
                                   : hashUnlessEmptyEnd k ss
-
-
--- | '#' symbols and parens used to group `Expr`s are "separators".
--- (Note that ordinary text can include those symbols, too;
--- in that case they will not be colored differently.)
-sepColor, textColor :: V.Attr
-sepColor  = V.brightRed `on` V.black
-textColor = V.brightBlue `on` V.black
