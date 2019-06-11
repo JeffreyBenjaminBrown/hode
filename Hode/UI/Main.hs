@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 
 module Hode.UI.Main where
 
@@ -17,6 +18,7 @@ import qualified Brick.Focus          as B
 import           Brick.Util (on)
 import qualified Graphics.Vty         as V
 
+import Hode.Brick
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
 import Hode.UI.Input
@@ -103,13 +105,15 @@ appDraw st0 = [w] where
 
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
-    Just p -> let showNode = show_ViewExprNode . _viewExprNode
+    Just p -> let showNode = show_ViewExprNode' . _viewExprNode
                   getFolded = _folded . _otherProps
-                  showColumns :: BufferRow -> String
+                  showColumns :: BufferRow -> AttrString
                   showColumns bfr =
-                    concatMap show $ M.elems $ _columnProps bfr
+                    concatMap ((:[]) . (, textColor) . show) $
+                    M.elems $ _columnProps bfr
       in viewport (BrickMainName Results) B.Vertical $
-         porestToWidget showColumns showNode getFolded focusStyle p
+         porestToWidget' attrStringWrap showColumns
+         showNode getFolded focusStyle p
 
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]

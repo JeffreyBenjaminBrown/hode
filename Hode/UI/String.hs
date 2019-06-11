@@ -3,7 +3,8 @@
 module Hode.UI.String (
     resultsText  -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewExpr
-  , show_ViewExprNode -- ^ ViewExprNode -> String
+  , show_ViewExprNode  -- ^ ViewExprNode -> String
+  , show_ViewExprNode' -- ^ ViewExprNode -> AttrString
   ) where
 
 import           Data.Foldable (toList)
@@ -39,10 +40,14 @@ resultView r a = do
 -- | `show_ViewExprNode` is used to display a `ViewExprNode` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `ViewExprNode`,
 -- whereas `show_ViewExprNode` hides things that the UI already makes clear.
-show_ViewExprNode :: ViewExprNode -> String -- TODO : rename show_ViewExprNode
+show_ViewExprNode :: ViewExprNode -> String
 show_ViewExprNode (VQuery vq)  = vq
 show_ViewExprNode (VExpr qr) = show (qr ^. viewExpr_Addr)
   ++ ": " ++ show (qr ^. viewResult_String)
 show_ViewExprNode (VMemberGroup _) = "its members"
 show_ViewExprNode (VHostGroup (RelHostGroup x)) = show x
 show_ViewExprNode (VHostGroup (TpltHostGroup x)) = show x
+
+show_ViewExprNode' :: ViewExprNode -> AttrString
+show_ViewExprNode' (VExpr ve) = _viewResult_String ve
+show_ViewExprNode' x = [(show_ViewExprNode x, textColor)]
