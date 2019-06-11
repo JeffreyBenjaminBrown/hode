@@ -16,6 +16,7 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
+import Hode.Brick (AttrString)
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Qseq.QTypes
@@ -23,6 +24,7 @@ import Hode.Rslt.RTypes
 import Hode.Rslt.Show
 import Hode.Util.Misc
 import Hode.Util.PTree
+
 
 -- | = Tiny types: names for windows, commands, folders
 
@@ -70,7 +72,6 @@ bufferRow_from_viewExprNode n =
 -- The user can then choose to view members and hosts of any node,
 -- recursively, thus building a "view tree".
 --
--- A
 -- A `VMemberGroup`  or `VHostGroup` announces the relationship
 -- between its parent in the view tree and its children.
 --
@@ -91,7 +92,7 @@ type ViewQuery = String -- ^ What the user asked for
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr   :: Addr
-  , _viewResult_String :: String } deriving (Show, Eq, Ord)
+  , _viewResult_String :: AttrString } deriving (Show, Eq, Ord)
 
 -- | The members of some "center" `Expr`.
 data MembersGroup = MembersGroup { _membersGroupCenter :: Addr }
@@ -120,10 +121,10 @@ data JointHosts = JointHosts { _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
 instance Show ViewExprNode where
-  show (VQuery x)       = "VQuery "     ++ show x
-  show (VExpr x)        = "VExpr "    ++ show x
-  show (VMemberGroup x) = "VMemberGroup "   ++ show x
-  show (VHostGroup x)   = "VHostGroup " ++ show x
+   show (VQuery x)       = "VQuery "       ++ show x
+   show (VExpr x)        = "VExpr "        ++ show x
+   show (VMemberGroup x) = "VMemberGroup " ++ show x
+   show (VHostGroup x)   = "VHostGroup "   ++ show x
 
 instance Show MemberHosts where
   show relHosts = let

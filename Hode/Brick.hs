@@ -1,10 +1,12 @@
 -- | Wraps a list of `String`s with `Attr`s attached.
 
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Hode.Brick (
     AttrString
   , sepColor, textColor -- ^ V.Attr
+  , unAttrString -- ^ AttrString -> String
 
   , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
   , toLines        -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
@@ -18,7 +20,7 @@ module Hode.Brick (
   ) where
 
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
-import           Lens.Micro
+import           Lens.Micro hiding (both)
 
 import qualified Graphics.Vty as V
 import           Brick.Util (on)
@@ -40,6 +42,8 @@ sepColor, textColor :: V.Attr
 sepColor  = V.brightRed `on` V.black
 textColor = V.brightBlue `on` V.black
 
+unAttrString :: AttrString -> String
+unAttrString = concatMap fst
 
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
 attrStringWrap ::  AttrString -> Widget n
@@ -81,11 +85,11 @@ attrLeftRight ::
         (s -> s) ->
         (s -> s) ->
   [(s,a)] -> [(s,a)]
-attrLeftRight both left right [] = []
+attrLeftRight _ _ _ [] = []
 attrLeftRight both left right [(s,a)] =
   [ ( s & maybe (left . right) id both
     , a) ]
-attrLeftRight _ left right ((s,a):more) =
+attrLeftRight _    left right ((s,a):more) =
   (left $ s, a) : f more where
   f (p1:p2:ps) = p1 : f (p2:ps)
   f [(s',a')] = [(right s', a')]

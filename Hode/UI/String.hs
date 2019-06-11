@@ -9,9 +9,10 @@ module Hode.UI.String (
 import           Data.Foldable (toList)
 import           Lens.Micro
 
+import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Rslt.Show
+import Hode.Rslt.Show'
 import Hode.UI.ITypes
 import Hode.Util.Misc
 import Hode.Util.PTree
@@ -30,10 +31,10 @@ resultsText st = maybe [] (concatMap $ go 0) p where
 
 resultView :: Rslt -> Addr -> Either String ViewExpr
 resultView r a = do
-  (s :: String) <- prefixLeft "resultView"
-                   $ addrToExpr r a >>= eParenShow 3 r
+  (s :: AttrString) <- prefixLeft "resultView"
+                   $ addrToExpr r a >>= eParenShow' 3 r
   Right $ ViewExpr { _viewExpr_Addr = a
-                     , _viewResult_String = s }
+                   , _viewResult_String = s }
 
 -- | `show_ViewExprNode` is used to display a `ViewExprNode` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `ViewExprNode`,

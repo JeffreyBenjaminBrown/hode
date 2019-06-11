@@ -1,3 +1,4 @@
+* TODO NEXT : change porestToWidget to generalize its use of strWrap
 * roadmap|pressing (duplicative)
 ** color special symbols differently
 https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557

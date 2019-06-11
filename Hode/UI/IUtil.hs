@@ -15,6 +15,7 @@ import           Lens.Micro
 import qualified Brick.Focus           as B
 import qualified Brick.Widgets.Edit    as B
 
+import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
@@ -64,6 +65,6 @@ buffer_from_bufferRowTree vt = do
     VExpr x -> Right x
     _ -> Left $ "buffer_from_bufferRowTree called from a non-VExpr."
   Right $ Buffer {
-      _bufferQuery          = vr ^. viewResult_String
+      _bufferQuery     = unAttrString $ vr ^. viewResult_String
     , _bufferRowPorest = P.fromList [vt]
     }
