@@ -4,8 +4,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Brick.ScreenWrap.JustInCase (
-    demo      -- ^ IO ()
-  , toWidget' -- ^ [(String,V.Attr)] -> Widget n
+    demo            -- ^ IO ()
+  , attrStringWrap' -- ^ [(String,V.Attr)] -> Widget n
   ) where
 
 import           Lens.Micro
