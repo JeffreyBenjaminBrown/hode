@@ -25,7 +25,3 @@ test_attrStrip = TestCase $ do
                              , (" x ",()) ] == [ ("x ",())
                                                , (" x ",())
                                                , (" x",()) ]
-
-x = attrStrip [ (" x ",())
-              , (" x ",())
-              , (" x ",()) ]

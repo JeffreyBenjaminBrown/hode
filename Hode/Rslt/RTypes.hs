@@ -53,6 +53,8 @@ deriveEq1 ''ExprF
 -- x :: Fix (ExprFWith Int)
 -- x = Fix $ EFW (1 , ExprRelF $ Rel [...] $ Fix $ EFW (2, ...))
 newtype ExprFWith b a = EFW (b, ExprF a)
+unEFW :: ExprFWith b a -> (b, ExprF a)
+unEFW (EFW ba) = ba
 deriveShow1 ''ExprFWith
 deriveEq1 ''ExprFWith
 

@@ -3,9 +3,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Hode.Util.Misc (
+    unFix -- ^ Fix f -> f (Fix f)
 
   -- | = Lenses etc.
-    eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
+  , eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
                                           -- -> a -> Either String a
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
@@ -33,6 +34,7 @@ module Hode.Util.Misc (
   ) where
 
 import           Data.Either hiding (lefts)
+import           Data.Functor.Foldable
 import           Data.Maybe
 import           Data.Map    (Map)
 import qualified Data.Map    as M
@@ -41,6 +43,10 @@ import qualified Data.Set    as S
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
 import           Lens.Micro
+
+
+unFix :: Fix f -> f (Fix f)
+unFix (Fix f) = f
 
 
 -- | = Lenses etc.

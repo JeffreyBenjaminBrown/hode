@@ -159,9 +159,9 @@ eParenShow maxDepth r e0 =
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF js0))))) =
     prefixLeft "g of Rel: " $ do
-    ms1 <- ifLefts $ map f ms0
-    js1 <- hashUnlessEmptyStartOrEnd n
-           <$> ifLefts (map f js0)
+    ms1 :: [String] <- ifLefts $ map f ms0
+    js1 :: [String] <- hashUnlessEmptyStartOrEnd n
+                       <$> ifLefts (map f js0)
     Right $ unpack . strip . pack
       $ concatMap (\(m,j) -> m ++ " " ++ j ++ " ")
       $ zip ("" : ms1) js1
