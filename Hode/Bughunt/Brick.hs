@@ -1,16 +1,12 @@
 -- | Wraps a list of `String`s with `Attr`s attached.
 
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Hode.Bughunt.Brick (
     AttrString
   , color1, color2 -- ^ V.Attr
-  , unAttrString -- ^ AttrString -> String
-
-  -- | = `attrStringWrap` is the purpose of `AttrString`
-  , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
-  , toLines        -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
+  , unAttrString   -- ^ AttrString -> String
+  , attrStringWrap -- ^ AttrString -> Widget n
   ) where
 
 import           Lens.Micro hiding (both)
@@ -23,9 +19,6 @@ import           Brick.Types
 
 -- | Like `String`, but different substrings can have different fonts.
 type AttrString = [(String, V.Attr)]
-
-instance Ord V.Attr where
-  a <= b = show a <= show b
 
 -- | '#' symbols and parens used to group `Expr`s are "separators".
 -- (Note that ordinary text can include those symbols, too;
@@ -49,19 +42,21 @@ attrStringWrap ss =
         i :: V.Image = linesToImage $ toLines w ss
     return $ Result i [] [] [] B.empty
 
-linesToImage :: [AttrString] -> V.Image
-linesToImage = let g (s,a) = V.string a s
-  in V.vertCat . map (V.horizCat . map g)
+  where
 
--- | PITFALL: Does not consider the case in which a single token
--- does not fit on one line. Its right side will be truncated.
-toLines :: Int -> AttrString -> [AttrString]
-toLines maxWidth = reverse . map reverse . f 0 [] where
-  f _       acc               []                = acc
-  f _       []                ((s,a):moreInput) =
-    f (length s) [[(s,a)]] moreInput
-  f lineLen o@(line:moreOutput) ((s,a):moreInput) =
-    let newLen = lineLen + length s
-    in if newLen > maxWidth
-       then f (length s) ([(s,a)]     :o)          moreInput
-       else f newLen     (((s,a):line):moreOutput) moreInput
+  linesToImage :: [AttrString] -> V.Image
+  linesToImage = let g (s,a) = V.string a s
+    in V.vertCat . map (V.horizCat . map g)
+
+  -- | PITFALL: Does not consider the case in which a single token
+  -- does not fit on one line. Its right side will be truncated.
+  toLines :: Int -> AttrString -> [AttrString]
+  toLines maxWidth = reverse . map reverse . f 0 [] where
+    f _       acc               []                = acc
+    f _       []                ((s,a):moreInput) =
+      f (length s) [[(s,a)]] moreInput
+    f lineLen o@(line:moreOutput) ((s,a):moreInput) =
+      let newLen = lineLen + length s
+      in if newLen > maxWidth
+         then f (length s) ([(s,a)]     :o)          moreInput
+         else f newLen     (((s,a):line):moreOutput) moreInput

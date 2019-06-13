@@ -3,7 +3,6 @@
 module Hode.Bughunt.ShowPTree where
 
 import           Data.Foldable (toList)
-import           Lens.Micro
 
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
@@ -17,25 +16,21 @@ porestToWidget' :: forall a b n.
   -> (a -> b) -- ^ shows the nodes that will be arranged like a tree
   -> Porest a -- ^ The Porest to show
   -> B.Widget n
-porestToWidget' b2w showColumns showNodes p0 =
-  fShow p where
+porestToWidget' b2w showColumns showNodes = fShow where
 
-  p :: Porest (Int, a) = fmap writeLevels p0
-
-  fShow :: Porest (Int,a) -> B.Widget n
+  fShow :: Porest a -> B.Widget n
   fShow = vBox . map recursiveWidget . toList
 
-  oneTreeRowWidget :: PTree (Int,a) -> B.Widget n
-  oneTreeRowWidget t0 =
-    let a :: a        = _pTreeLabel t
-        t :: PTree a  = fmap snd t0
+  oneTreeRowWidget :: PTree a -> B.Widget n
+  oneTreeRowWidget t =
+    let a :: a = _pTreeLabel t
     in hBox
        [ b2w $ showColumns a
        , b2w $ showNodes $ _pTreeLabel t ]
 
-  recursiveWidget :: PTree (Int,a) -> B.Widget n
+  recursiveWidget :: PTree a -> B.Widget n
   recursiveWidget pt =
     oneTreeRowWidget pt <=> rest where
-    rest = case pt ^. pMTrees of
+    rest = case _pMTrees pt of
              Nothing -> emptyWidget
              Just pts -> fShow pts
