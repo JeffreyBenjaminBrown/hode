@@ -1,5 +1,6 @@
 * TODO ResultView bughunt
-** TODO wraps too soon
+** wraps too soon
+Try using `porestToWidget'` on a simple PTree.
 ** too much space
 ** highlight not everywhere
 * roadmap|pressing (duplicative)

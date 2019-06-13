@@ -29,7 +29,7 @@ library
   exposed-modules:
                   Hode.Hode
                 , Hode.Brick
---                , Hode.Brick.ScreenWrap.JustInCase
+                , Hode.Brick.ScreenWrap.JustInCase
                 , Hode.Data.Graph
 --                , Hode.Data.Relation
                 , Hode.Hash.Convert
@@ -84,6 +84,7 @@ library
                 , Hode.UI.Main
                 , Hode.UI.NoUI
                 , Hode.UI.ShowPTree
+                , Hode.UI.ShowPTree.HandTest
                 , Hode.UI.String
                 , Hode.UI.RsltViewTree
                 , Hode.UI.Window

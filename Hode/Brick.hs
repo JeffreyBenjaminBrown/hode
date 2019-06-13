@@ -8,9 +8,11 @@ module Hode.Brick (
   , sepColor, textColor -- ^ V.Attr
   , unAttrString -- ^ AttrString -> String
 
+  -- | = `attrStringWrap` is the purpose of `AttrString`
   , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
   , toLines        -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
 
+  -- | = mapping across an AttrString
   , attrStrip -- ^ [(String,a)] -> [(String,a)]
   , attrParen -- ^ [(String,a)] -> [(String,a)]
   , attrLeftRight -- ^ Maybe (s -> s) ->
@@ -39,11 +41,14 @@ instance Ord V.Attr where
 -- (Note that ordinary text can include those symbols, too;
 -- in that case they will not be colored differently.)
 sepColor, textColor :: V.Attr
-sepColor  = V.brightRed `on` V.black
-textColor = V.brightBlue `on` V.black
+sepColor  = V.brightRed `on` V.blue
+textColor = V.brightBlue `on` V.red
 
 unAttrString :: AttrString -> String
 unAttrString = concatMap fst
+
+
+-- | = `attrStringWrap` is the purpose of `AttrString`
 
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
 attrStringWrap ::  AttrString -> Widget n
@@ -70,6 +75,9 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
     in if newLen > maxWidth
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
+
+
+-- | = mapping across an AttrString
 
 attrStrip :: [(String,a)] -> [(String,a)]
 attrStrip = attrLeftRight both left right where
