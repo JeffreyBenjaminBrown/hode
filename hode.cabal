@@ -29,6 +29,7 @@ library
   exposed-modules:
       Hode.Lib
     , Hode.Test
+    , Hode.Test2
 
 --                  Hode.Hode
 --                , Hode.Brick

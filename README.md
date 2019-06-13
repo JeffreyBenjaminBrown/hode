@@ -1,88 +1,71 @@
-See below for how to install.
+I wrote some code that defines a `String`-like type that can have different attributes (Graphics.Vty.Attr values) along different portions:
 
+```
+type AttrString = [(String, V.Attr)]
+```
 
-# There are video introductions
+and then a function which wraps an `AttrString` around the space allocated to the resulting `Widget`:
 
-The video on navigation is probably more interesting. I suspect it will make sense even if you haven't watched the video on editing, but I'm not sure.
+```
+attrStringWrap ::  AttrString -> Widget n
+attrStringWrap ss =
+  Widget Greedy Fixed $ do
+    ctx <- getContext
+    let w = ctx^.availWidthL
+        i :: V.Image = linesToImage $ toLines w ss
+    return $ Result i [] [] [] B.empty
 
-[Video: How to navigate (search and crawl)](https://www.youtube.com/watch?v=o6yifYdKlU0).
+  where
 
-[Video: How to edit](https://www.youtube.com/watch?v=fuCREbf1m9k).
+  linesToImage :: [AttrString] -> V.Image
+  linesToImage = let g (s,a) = V.string a s
+    in V.vertCat . map (V.horizCat . map g)
 
+toLines :: Int -> AttrString -> [AttrString]
+toLines maxWidth = reverse . map reverse . f 0 [] where
+  f _       acc               []                  = acc
+  f _       []                ((s,a):moreInput)   =
+    f (length s) [[(s,a)]] moreInput
+  f lineLen o@(line:moreOutput) ((s,a):moreInput) =
+    let newLen = lineLen + length s
+    in if newLen > maxWidth
+       then f (length s) ([(s,a)]     :o)          moreInput
+       else f newLen     (((s,a):line):moreOutput) moreInput
+```
 
-# What this is
+Then I wrote a function
 
-Hode is an editor for higher-order data.
+```
+showTwoAspects :: forall a b n.
+     (b -> Widget n)
+  -> (a -> b) -- ^ shows one aspect of an `a`
+  -> (a -> b) -- ^ shows another
+  -> [a]      -- ^ what to show
+  -> Widget n
+showTwoAspects b2w showLeft showRight =
+  vBox . map showRow
+  where
+    showRow :: a -> Widget n
+    showRow a = hBox [ b2w $ showLeft a
+                     , b2w $ showRight a ]
+```
 
-There are four main branches to the project.
-Each branch is described in the [docs](docs) folder.
-They are -- and this is probably the order in which you should read about them:
+If I provide `attrStringWrap` as the first argument to `showTwoAspects`, I get strange behavior: The text wraps correctly within the allocated space, but that space only occupies about half of the width of the screen, whereas I expected it to run all the way to the right.
 
+If I change the definition of `showTwoAspects` so that it does not use an `hBox`, and does not draw the left portion, the behavior is as expected. `showOneAspect` does that:
 
-## The Rslt
+```
+showOneAspect :: forall a b n.
+     (b -> Widget n)
+  -> (a -> b) -- ^ ignored
+  -> (a -> b) -- ^ shows an aspect of a
+  -> [a]      -- ^ what to show
+  -> Widget n
+showOneAspect b2w _showLeft showRight =
+  vBox . map showRow
+  where
+    showRow :: a -> Widget n
+    showRow a = b2w $ showRight a
+```
 
-The `Rslt` is the most general data structure I am aware of.
-It is a generalization of the graph.
-(It is isomorphic to what some programmers call a "hypergraph"
--- but mathematicians claimed that term first,
-and in math it means something completely different.)
-
-A `Rslt`is a collection of `Expr`s (expressions),
-each of which is either a phrase or a relationship.
-The relationships can involve any number of members,
-and any relationship can itself belong to other relationships.
-
-(Actually there is one more kind of `Expr`.
-See the [docs](docs) folder for details.)
-
-
-## Hash
-
-`Hash` is a language, close to ordinary natural language,
-for talking about a `Rslt`.
-`Hash` offers a concise representation both of individual `Expr`s (expressions, i.e. members) of a `Rslt`
-and for queries meant to retrieve subsets of a `Rslt`.
-
-
-## The UI
-
-It lets you do stuff
--- insert data, search for data, view data, save data, load data.
-
-
-## Qseq
-
-(`Qseq` hasn't made it's way into the UI yet,
-but it's implemented.)
-
-This is a metalanguage for search.
-It lets you combine multiple searches in some underlying search language.
-
-
-# How to install
-
-First you'll need `Stack` (the Haskell toolkit) installed.
-If you want to be able to traffic to and from the clipboard using the keyboard
-(which can be handy if your data does not fit on screen at once)
-you'll also need to have `xsel` installed.
-
-You might need a few more things I can't remember
-(`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
-If so, Stack will let you know.
-
-Clone the repo,
-then run `stack run` from the command line.
-The first time you run it,
-it will take a long time to load.
-
-
-# Hode does not back up your data. I recommend Git for that.
-
-Hode uses a simple human-readable format for saving to and reading from disk.
-It has, however, no backup mechanism and no safety features
--- if you ask it to overwrite a big beautiful graph with a tiny ugly one,
-it will oblige.
-
-Hode saves every expression as a separate text file.
-Thus if you use Git (or some other version control system),
-the diffs will be readable.
+All the code described above is at `Hode.Lib`. Some functions that demonstrate how `showOneAspect` succeeds and `showTwoAspects` fails can be found at `Hode.Test`. An alternative (but as far as I can tell, equivalent) definition of `attrStringWrap`, and corresponding tests, can be found at `Hode.Test2`.
