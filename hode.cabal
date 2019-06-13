@@ -100,28 +100,28 @@ library
   other-modules:
   build-depends:
                 base
-              , binary
+--              , binary
               , brick
               , containers
-              , deriving-compat
+--              , deriving-compat
               , deepseq
-              , directory
-              , filepath
-              , HUnit
-              , lens
-              , megaparsec
+--              , directory
+--              , filepath
+--              , HUnit
+--              , lens
+--              , megaparsec
               , microlens
-              , microlens-th
-              , parser-combinators
-              , pointedlist
-              , process
-              , regex-compat
-              , recursion-schemes
-              , rosezipper
-              , text
-              , text-zipper
-              , vector
+--              , microlens-th
+--              , parser-combinators
+--              , pointedlist
+--              , process
+--              , regex-compat
+--              , recursion-schemes
+--              , rosezipper
+--              , text
+--              , text-zipper
+--              , vector
               , vty
-              , word-wrap
-              , zippers
+--              , word-wrap
+--              , zippers
   default-language: Haskell2010

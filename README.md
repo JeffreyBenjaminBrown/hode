@@ -21,19 +21,19 @@ attrStringWrap ss =
   linesToImage = let g (s,a) = V.string a s
     in V.vertCat . map (V.horizCat . map g)
 
-toLines :: Int -> AttrString -> [AttrString]
-toLines maxWidth = reverse . map reverse . f 0 [] where
-  f _       acc               []                  = acc
-  f _       []                ((s,a):moreInput)   =
-    f (length s) [[(s,a)]] moreInput
-  f lineLen o@(line:moreOutput) ((s,a):moreInput) =
-    let newLen = lineLen + length s
-    in if newLen > maxWidth
-       then f (length s) ([(s,a)]     :o)          moreInput
-       else f newLen     (((s,a):line):moreOutput) moreInput
+  toLines :: Int -> AttrString -> [AttrString]
+  toLines maxWidth = reverse . map reverse . f 0 [] where
+    f _       acc               []                  = acc
+    f _       []                ((s,a):moreInput)   =
+      f (length s) [[(s,a)]] moreInput
+    f lineLen o@(line:moreOutput) ((s,a):moreInput) =
+      let newLen = lineLen + length s
+      in if newLen > maxWidth
+         then f (length s) ([(s,a)]     :o)          moreInput
+         else f newLen     (((s,a):line):moreOutput) moreInput
 ```
 
-Then I wrote a function
+Then I wrote an abstract drawing function
 
 ```
 showTwoAspects :: forall a b n.
