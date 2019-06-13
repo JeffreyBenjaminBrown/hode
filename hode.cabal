@@ -27,9 +27,8 @@ source-repository head
 
 library
   exposed-modules:
-      Hode.Bughunt.Brick
-    , Hode.Bughunt.HandTest
-    , Hode.Bughunt.ShowPTree
+      Hode.Lib
+    , Hode.Test
 
 --                  Hode.Hode
 --                , Hode.Brick

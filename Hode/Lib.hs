@@ -2,29 +2,18 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Bughunt.Brick (
-    AttrString
-  , attr1, attr2 -- ^ V.Attr
-  , attrStringWrap -- ^ AttrString -> Widget n
-  ) where
+module Hode.Lib where
 
 import           Lens.Micro hiding (both)
 
-import qualified Graphics.Vty as V
-import           Brick.Util (on)
 import qualified Brick.BorderMap as B
 import           Brick.Types
+import           Brick.Widgets.Core
+import qualified Graphics.Vty as V
 
 
 -- | Like `String`, but different substrings can have different fonts.
 type AttrString = [(String, V.Attr)]
-
--- | '#' symbols and parens used to group `Expr`s are "separators".
--- (Note that ordinary text can include those symbols, too;
--- in that case they will not be colored differently.)
-attr1, attr2 :: V.Attr
-attr1  = V.brightRed `on` V.blue
-attr2 = V.brightBlue `on` V.red
 
 -- | `attrStringWrap` is based on `myFill`, from
 -- [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context)
@@ -54,3 +43,16 @@ attrStringWrap ss =
       in if newLen > maxWidth
          then f (length s) ([(s,a)]     :o)          moreInput
          else f newLen     (((s,a):line):moreOutput) moreInput
+
+showTwoAspects :: forall a b n.
+     (b -> Widget n)
+  -> (a -> b) -- ^ shows one aspect of an `a`
+  -> (a -> b) -- ^ shows another
+  -> [a]      -- ^ what to show
+  -> Widget n
+showTwoAspects b2w showColumns showNodes =
+  vBox . map showRow
+  where
+    showRow :: a -> Widget n
+    showRow a = hBox [ b2w $ showColumns a
+                     , b2w $ showNodes a ]

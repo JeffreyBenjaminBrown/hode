@@ -1,12 +1,13 @@
 {-# LANGUAGE TupleSections #-}
 
-module Hode.Bughunt.HandTest where
+module Hode.Test where
 
-import qualified Brick.Main           as B
-import qualified Brick.Types          as B
+import qualified Brick.Main   as B
+import qualified Brick.Types  as B
+import           Brick.Util (on)
+import qualified Graphics.Vty as V
 
-import Hode.Bughunt.Brick
-import Hode.Bughunt.ShowPTree
+import Hode.Lib
 
 
 type Row = (Int, [String])
@@ -22,10 +23,12 @@ test = B.simpleMain w where
       rows
 
   showRowCol :: Row -> AttrString
-  showRowCol = (:[]) . (, attr1) . show . fst
+  showRowCol = (:[]) . (, attr1) . show . fst where
+    attr1 = V.red `on` V.blue
 
   showRowNode :: Row -> AttrString
-  showRowNode = map (, attr2) . snd
+  showRowNode = map (, attr2) . snd where
+    attr2 = V.blue `on` V.red
 
   rows :: [Row]
   rows = [ (123,  replicate 12 " Hi! " )
