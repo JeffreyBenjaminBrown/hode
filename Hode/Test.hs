@@ -3,7 +3,7 @@
 module Hode.Test where
 
 import qualified Brick.Main   as B
-import qualified Brick.Types  as B
+import           Brick.Types
 import           Brick.Util (on)
 import qualified Graphics.Vty as V
 
@@ -12,25 +12,23 @@ import Hode.Lib
 
 type Row = (Int, [String])
 
-test :: IO ()
-test = B.simpleMain w where
+test_showTwoAspects :: IO ()
+test_showTwoAspects = B.simpleMain ( showTwoAspects
+  attrStringWrap showRowCol showRowNode rows :: Widget () )
 
-  w :: B.Widget ()
-  w = showTwoAspects
-      attrStringWrap
-      showRowCol
-      showRowNode
-      rows
+test_showOneAspect :: IO ()
+test_showOneAspect = B.simpleMain ( showOneAspect
+  attrStringWrap showRowCol showRowNode rows :: Widget () )
 
-  showRowCol :: Row -> AttrString
-  showRowCol = (:[]) . (, attr1) . show . fst where
-    attr1 = V.red `on` V.blue
+showRowCol :: Row -> AttrString
+showRowCol = (:[]) . (, attr1) . show . fst where
+  attr1 = V.red `on` V.blue
 
-  showRowNode :: Row -> AttrString
-  showRowNode = map (, attr2) . snd where
-    attr2 = V.blue `on` V.red
+showRowNode :: Row -> AttrString
+showRowNode = map (, attr2) . snd where
+  attr2 = V.blue `on` V.red
 
-  rows :: [Row]
-  rows = [ (123,  replicate 12 " Hi! " )
-         , (4677, replicate 4  " What's up?  ")
-         , (2,    replicate 4  " Later, homefries. ") ]
+rows :: [Row]
+rows = [ (100,  replicate 12 " Hi! " )
+       , (123456789012345, replicate 4  " What's up?  ")
+       , (2,    replicate 4  " Later, homefries. ") ]

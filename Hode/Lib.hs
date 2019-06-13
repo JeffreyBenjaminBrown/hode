@@ -44,6 +44,8 @@ attrStringWrap ss =
          then f (length s) ([(s,a)]     :o)          moreInput
          else f newLen     (((s,a):line):moreOutput) moreInput
 
+-- | The following two functions are identical, except for
+-- the definition of the internal sub-function called `showRow`.
 showTwoAspects :: forall a b n.
      (b -> Widget n)
   -> (a -> b) -- ^ shows one aspect of an `a`
@@ -56,3 +58,15 @@ showTwoAspects b2w showColumns showNodes =
     showRow :: a -> Widget n
     showRow a = hBox [ b2w $ showColumns a
                      , b2w $ showNodes a ]
+
+showOneAspect :: forall a b n.
+     (b -> Widget n)
+  -> (a -> b) -- ^ ignored
+  -> (a -> b) -- ^ shows an aspect of a
+  -> [a]      -- ^ what to show
+  -> Widget n
+showOneAspect b2w showColumns showNodes =
+  vBox . map showRow
+  where
+    showRow :: a -> Widget n
+    showRow a = b2w $ showNodes a
