@@ -22,8 +22,6 @@ test = B.simpleMain w where
       attrStringWrap
       showRowCol
       showRowNode
-      (const False) -- ^ isFolded
-      (const id) -- ^ show with focus
       ( maybe (error "impossible -- non-empty list") id $
         P.fromList [pt] )
 
