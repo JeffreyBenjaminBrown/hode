@@ -1,6 +1,5 @@
 * TODO ResultView bughunt
 ** TODO wraps too soon
-Ditch writeLevels.
 Ditch PTree, use Tree. (Or first try List?)
 ** too much space
 ** highlight not everywhere

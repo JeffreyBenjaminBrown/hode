@@ -34,3 +34,24 @@ porestToWidget' b2w showColumns showNodes = fShow where
     rest = case _pMTrees pt of
              Nothing -> emptyWidget
              Just pts -> fShow pts
+
+listToWidget' :: forall a b n.
+     (b -> B.Widget n)
+  -> (a -> b) -- ^ shows the columns corresponding to each node
+  -> (a -> b) -- ^ shows the nodes that will be arranged like a tree
+  -> [a] -- ^ The Porest to show
+  -> B.Widget n
+listToWidget' b2w showColumns showNodes = recursiveWidget where
+
+  oneTreeRowWidget :: a -> B.Widget n
+  oneTreeRowWidget a = hBox
+                       [ b2w $ showColumns a
+                       , b2w $ showNodes a ]
+
+  recursiveWidget :: [a] -> B.Widget n
+  recursiveWidget [] = emptyWidget
+  recursiveWidget (a:as) =
+    oneTreeRowWidget a <=> rest where
+    rest = case as of
+             [] -> emptyWidget
+             pts -> recursiveWidget as
