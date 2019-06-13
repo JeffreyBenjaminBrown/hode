@@ -29,6 +29,6 @@ showRowNode = map (, attr2) . snd where
   attr2 = V.blue `on` V.red
 
 rows :: [Row]
-rows = [ (100,  replicate 12 " Hi! " )
-       , (123456789012345, replicate 4  " What's up?  ")
-       , (2,    replicate 4  " Later, homefries. ") ]
+rows = [ (100,  replicate 32 " Hi! " )
+       , (123456789012345, replicate 18  " What's up?  ")
+       , (2,    replicate 12  " Later, homefries. ") ]
