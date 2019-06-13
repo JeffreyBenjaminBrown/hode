@@ -4,8 +4,7 @@
 
 module Hode.Bughunt.Brick (
     AttrString
-  , color1, color2 -- ^ V.Attr
-  , unAttrString   -- ^ AttrString -> String
+  , attr1, attr2 -- ^ V.Attr
   , attrStringWrap -- ^ AttrString -> Widget n
   ) where
 
@@ -23,17 +22,12 @@ type AttrString = [(String, V.Attr)]
 -- | '#' symbols and parens used to group `Expr`s are "separators".
 -- (Note that ordinary text can include those symbols, too;
 -- in that case they will not be colored differently.)
-color1, color2 :: V.Attr
-color1  = V.brightRed `on` V.blue
-color2 = V.brightBlue `on` V.red
+attr1, attr2 :: V.Attr
+attr1  = V.brightRed `on` V.blue
+attr2 = V.brightBlue `on` V.red
 
-unAttrString :: AttrString -> String
-unAttrString = concatMap fst
-
-
--- | = `attrStringWrap` is the purpose of `AttrString`
-
--- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
+-- | `attrStringWrap` is based on `myFill`, from
+-- [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context)
 attrStringWrap ::  AttrString -> Widget n
 attrStringWrap ss =
   Widget Greedy Fixed $ do
@@ -52,8 +46,8 @@ attrStringWrap ss =
   -- does not fit on one line. Its right side will be truncated.
   toLines :: Int -> AttrString -> [AttrString]
   toLines maxWidth = reverse . map reverse . f 0 [] where
-    f _       acc               []                = acc
-    f _       []                ((s,a):moreInput) =
+    f _       acc               []                  = acc
+    f _       []                ((s,a):moreInput)   =
       f (length s) [[(s,a)]] moreInput
     f lineLen o@(line:moreOutput) ((s,a):moreInput) =
       let newLen = lineLen + length s

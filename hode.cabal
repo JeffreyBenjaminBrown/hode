@@ -29,7 +29,6 @@ library
   exposed-modules:
       Hode.Bughunt.Brick
     , Hode.Bughunt.HandTest
-    , Hode.Bughunt.PTree
     , Hode.Bughunt.ShowPTree
 
 --                  Hode.Hode
