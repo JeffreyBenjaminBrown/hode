@@ -21,7 +21,7 @@ type AttrString = [(String, V.Attr)]
 -- [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context)
 attrStringWrap ::  AttrString -> Widget n
 attrStringWrap ss =
-  Widget Greedy Fixed $ do
+  Widget Fixed Greedy $ do
     ctx <- getContext
     let w = ctx^.availWidthL
         i :: V.Image = linesToImage $ toLines w ss

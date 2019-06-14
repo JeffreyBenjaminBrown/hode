@@ -28,7 +28,7 @@ test_showOneAspect' = B.simpleMain ( showOneAspect
 -- to `attrStringWrap` (without the apostrophe).
 attrStringWrap' ::  [(String,V.Attr)] -> Widget n
 attrStringWrap' ss =
-  Widget Greedy Fixed $ do
+  Widget Fixed Greedy $ do
     c <- getContext
     let theLines = fmap (fmap $ _1 %~ fixEmpty) $
                    toLines (c^.availWidthL) ss
