@@ -59,12 +59,12 @@ eParenShow' maxDepth r e0 =
         null' :: AttrString -> Bool
         null' = (==0). sum . map (length . fst)
         concat' :: [AttrString] -> AttrString
-        concat' = foldl f [] where
-          f :: AttrString -> AttrString -> AttrString
-          f (null' -> True) (null' -> True) = []
-          f (null' -> True) s = s
-          f s (null' -> True) = s
-          f s t = s ++ t
+        concat' = foldl k [] where
+          k :: AttrString -> AttrString -> AttrString
+          k (null' -> True) (null' -> True) = []
+          k (null' -> True) s = s
+          k s (null' -> True) = s
+          k s t = s ++ t
 
     Right $ attrStrip
       $ concatMap (\(m,j) -> concat' [ attrStrip m, space

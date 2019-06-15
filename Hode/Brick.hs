@@ -13,8 +13,8 @@ module Hode.Brick (
   , toLines        -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
 
   -- | = mapping across an AttrString
+  , attrParen -- ^ AttrString -> AttrString
   , attrStrip -- ^ [(String,a)] -> [(String,a)]
-  , attrParen -- ^ [(String,a)] -> [(String,a)]
   , attrLeftRight -- ^ Maybe (s -> s) ->
                   --         (s -> s) ->
                   --         (s -> s) ->
@@ -86,14 +86,14 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
 
 -- | = mapping across an AttrString
 
+attrParen :: AttrString -> AttrString
+attrParen x = [("(",sepColor)] ++ x ++ [(")",sepColor)]
+
 attrStrip :: [(String,a)] -> [(String,a)]
 attrStrip = attrLeftRight both left right where
   both  = Just $ unpack . strip      . pack
   left  =        unpack . stripStart . pack
   right =        unpack . stripEnd   . pack
-
-attrParen :: [(String,a)] -> [(String,a)]
-attrParen = attrLeftRight Nothing ("(" ++) (++ ")")
 
 attrLeftRight ::
   Maybe (s -> s) ->
