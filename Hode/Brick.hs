@@ -53,7 +53,10 @@ unAttrString = concatMap fst
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
 attrStringWrap ::  AttrString -> Widget n
 attrStringWrap ss =
-  Widget Greedy Fixed $ do
+  Widget Fixed Fixed $ do
+  -- TODO ? PITFALL: I don't know why a `Fixed, Fixed` size policy works.
+  -- I expected to need it to be greedy in the horizontal dimension,
+  -- but so far this gives better results.
     ctx <- getContext
     let w = ctx^.availWidthL
         i :: V.Image = linesToImage $ toLines w ss

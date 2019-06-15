@@ -41,7 +41,7 @@ setPList = sets go where
     where msg = "setList: Impossible: x is non-null, so P.fromList works"
 
 
--- | == `PTree`, a list made of `PointedList`s
+-- | == `PTree`, a tree made of `PointedList`s
 
 data PTree a = PTree {
   _pTreeLabel :: a

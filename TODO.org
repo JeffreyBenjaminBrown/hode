@@ -1,8 +1,10 @@
-* TODO ResultView bughunt
-** wraps too soon
-Try using `porestToWidget'` on a simple PTree.
-** too much space
-** highlight not everywhere
+* TODO immediate
+** restore show address in ui
+** TODO ResultView bughunt
+*** wraps too soon
+ Try using `porestToWidget'` on a simple PTree.
+*** too much space
+*** highlight not everywhere
 * roadmap|pressing (duplicative)
 ** color special symbols differently
 https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557
