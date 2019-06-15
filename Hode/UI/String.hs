@@ -42,12 +42,14 @@ resultView r a = do
 -- whereas `show_ViewExprNode` hides things that the UI already makes clear.
 show_ViewExprNode :: ViewExprNode -> String
 show_ViewExprNode (VQuery vq)  = vq
-show_ViewExprNode (VExpr qr) = show (qr ^. viewExpr_Addr)
-  ++ ": " ++ show (qr ^. viewResult_String)
+show_ViewExprNode (VExpr x) = show (x ^. viewExpr_Addr) ++ ": "
+                              ++ show (x ^. viewResult_String)
 show_ViewExprNode (VMemberGroup _) = "its members"
 show_ViewExprNode (VHostGroup (RelHostGroup x)) = show x
 show_ViewExprNode (VHostGroup (TpltHostGroup x)) = show x
 
 show_ViewExprNode' :: ViewExprNode -> AttrString
-show_ViewExprNode' (VExpr ve) = _viewResult_String ve
+show_ViewExprNode' (VExpr ve) =
+  [(show $ _viewExpr_Addr ve, addrColor)]
+  ++ _viewResult_String ve
 show_ViewExprNode' x = [(show_ViewExprNode x, textColor)]

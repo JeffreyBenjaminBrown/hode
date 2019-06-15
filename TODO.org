@@ -1,5 +1,5 @@
 * TODO immediate
-** restore show address in ui
+** _viewResult_String -> _viewExpr_String
 ** TODO ResultView bughunt
 *** wraps too soon
  Try using `porestToWidget'` on a simple PTree.

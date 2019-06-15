@@ -5,7 +5,7 @@
 
 module Hode.Brick (
     AttrString
-  , sepColor, textColor -- ^ V.Attr
+  , sepColor, textColor, addrColor -- ^ V.Attr
   , unAttrString -- ^ AttrString -> String
 
   -- | = `attrStringWrap` is the purpose of `AttrString`
@@ -40,9 +40,10 @@ instance Ord V.Attr where
 -- | '#' symbols and parens used to group `Expr`s are "separators".
 -- (Note that ordinary text can include those symbols, too;
 -- in that case they will not be colored differently.)
-sepColor, textColor :: V.Attr
+sepColor, textColor, addrColor :: V.Attr
 sepColor  = V.brightRed `on` V.blue
 textColor = V.brightBlue `on` V.red
+addrColor = V.brightWhite `on` V.black
 
 unAttrString :: AttrString -> String
 unAttrString = concatMap fst
