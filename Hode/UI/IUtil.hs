@@ -65,6 +65,6 @@ buffer_from_bufferRowTree vt = do
     VExpr x -> Right x
     _ -> Left $ "buffer_from_bufferRowTree called from a non-VExpr."
   Right $ Buffer {
-      _bufferQuery     = unAttrString $ vr ^. viewResult_String
+      _bufferQuery     = unAttrString $ vr ^. viewExpr_String
     , _bufferRowPorest = P.fromList [vt]
     }

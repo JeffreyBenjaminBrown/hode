@@ -35,7 +35,7 @@ resultView r a = do
   (s :: AttrString) <- prefixLeft "resultView"
                    $ addrToExpr r a >>= eParenShow' 3 r
   Right $ ViewExpr { _viewExpr_Addr = a
-                   , _viewResult_String = s }
+                   , _viewExpr_String = s }
 
 -- | `show_ViewExprNode` is used to display a `ViewExprNode` in the UI. It is distinct
 -- from `show` so that `show` can show everything about the `ViewExprNode`,
@@ -43,7 +43,7 @@ resultView r a = do
 show_ViewExprNode :: ViewExprNode -> String
 show_ViewExprNode (VQuery vq)  = vq
 show_ViewExprNode (VExpr x) = show (x ^. viewExpr_Addr) ++ ": "
-                              ++ show (x ^. viewResult_String)
+                              ++ show (x ^. viewExpr_String)
 show_ViewExprNode (VMemberGroup _) = "its members"
 show_ViewExprNode (VHostGroup (RelHostGroup x)) = show x
 show_ViewExprNode (VHostGroup (TpltHostGroup x)) = show x
@@ -51,5 +51,5 @@ show_ViewExprNode (VHostGroup (TpltHostGroup x)) = show x
 show_ViewExprNode' :: ViewExprNode -> AttrString
 show_ViewExprNode' (VExpr ve) =
   [(show $ _viewExpr_Addr ve, addrColor)]
-  ++ _viewResult_String ve
+  ++ _viewExpr_String ve
 show_ViewExprNode' x = [(show_ViewExprNode x, textColor)]

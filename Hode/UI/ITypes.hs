@@ -92,7 +92,7 @@ type ViewQuery = String -- ^ What the user asked for
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr   :: Addr
-  , _viewResult_String :: AttrString } deriving (Show, Eq, Ord)
+  , _viewExpr_String :: AttrString } deriving (Show, Eq, Ord)
 
 -- | The members of some "center" `Expr`.
 data MembersGroup = MembersGroup { _membersGroupCenter :: Addr }
