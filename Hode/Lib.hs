@@ -24,7 +24,7 @@ attrStringWrap ss =
   Widget Fixed Greedy $ do
     ctx <- getContext
     let w = ctx^.availWidthL
-        i :: V.Image = linesToImage $ toLines w ss
+        i :: V.Image = linesToImage $ splitLines w ss
     return $ Result i [] [] [] B.empty
 
   where
@@ -35,8 +35,8 @@ attrStringWrap ss =
 
 -- | PITFALL: Does not consider the case in which a single token
 -- does not fit on one line. Its right side will be truncated.
-toLines :: Int -> AttrString -> [AttrString]
-toLines maxWidth = reverse . map reverse . f 0 [] where
+splitLines :: Int -> AttrString -> [AttrString]
+splitLines maxWidth = reverse . map reverse . f 0 [] where
   f _       acc               []                  = acc
   f _       []                ((s,a):moreInput)   =
     f (length s) [[(s,a)]] moreInput

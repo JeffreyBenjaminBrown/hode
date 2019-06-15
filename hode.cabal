@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Hode.Lib
+    , Hode.Simpler
     , Hode.Test
     , Hode.Test2
 

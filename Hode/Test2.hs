@@ -31,7 +31,7 @@ attrStringWrap' ss =
   Widget Fixed Greedy $ do
     c <- getContext
     let theLines = fmap (fmap $ _1 %~ fixEmpty) $
-                   toLines (c^.availWidthL) ss
+                   splitLines (c^.availWidthL) ss
           where fixEmpty l | null l = " "
                            | otherwise = l
         unit (s,a) = V.string a s
