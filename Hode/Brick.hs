@@ -41,9 +41,12 @@ instance Ord V.Attr where
 -- (Note that ordinary text can include those symbols, too;
 -- in that case they will not be colored differently.)
 sepColor, textColor, addrColor :: V.Attr
-sepColor  = V.brightRed `on` V.blue
-textColor = V.brightBlue `on` V.red
-addrColor = V.brightWhite `on` V.black
+(sepColor, textColor, addrColor) =
+  let rc :: Int -> Int -> Int -> V.Color
+      rc = V.rgbColor
+  in ( rc 255 255 255 `on` rc 1 0 0
+     , rc 255 255 255 `on` rc 0 1 0
+     , rc 255 255 255 `on` rc 0 0 1 )
 
 unAttrString :: AttrString -> String
 unAttrString = concatMap fst

@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Hode.Rslt.Show' (
     eParenShow' -- ^ Int -> Rslt -> Expr -> Either String AttrString
@@ -53,11 +54,21 @@ eParenShow' maxDepth r e0 =
                            ifLefts (map f js0)
 
     let content :: [(AttrString,AttrString)] =
-          zip ( ( [("",textColor)] :: AttrString )
-               : ms1) js1
+          zip ( [("",textColor)] : ms1 ) js1
         space :: AttrString = [(" ", textColor)]
+        null' :: AttrString -> Bool
+        null' = (==0). sum . map (length . fst)
+        concat' :: [AttrString] -> AttrString
+        concat' = foldl f [] where
+          f :: AttrString -> AttrString -> AttrString
+          f (null' -> True) (null' -> True) = []
+          f (null' -> True) s = s
+          f s (null' -> True) = s
+          f s t = s ++ t
+
     Right $ attrStrip
-      $ concatMap (\(m,j) -> m ++ space ++ j ++ space)
+      $ concatMap (\(m,j) -> concat' [ attrStrip m, space
+                                     , attrStrip j, space ] )
       $ content
 
   g (_, ExprRelF (Rel _ _)) = Left $

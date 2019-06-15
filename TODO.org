@@ -1,4 +1,5 @@
 * TODO immediate
+** color hashes in grouping nodes
 ** _viewResult_String -> _viewExpr_String
 ** TODO ResultView bughunt
 *** wraps too soon
