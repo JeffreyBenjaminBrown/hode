@@ -1,11 +1,15 @@
 * TODO immediate
 ** color hashes in grouping nodes
-** _viewResult_String -> _viewExpr_String
-** TODO ResultView bughunt
-*** wraps too soon
- Try using `porestToWidget'` on a simple PTree.
-*** too much space
-*** highlight not everywhere
+** too much space
+** highlight not everywhere
+* clean the view
+** represent, render the columns
+*** Currently, each row is rendered separately, without considering others.
+*** The right way would be 
+compute the max (across all rows) width of each column first, 
+and pad each row's column-cells to match.
+*** This involves undoing work from a certain commit
+The one right after 7fc2c82cb597347c6a8626ec3b75da72f76a9ff5
 * roadmap|pressing (duplicative)
 ** color special symbols differently
 https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557
@@ -107,8 +111,6 @@ could be reduced to this
   <complex expr>
     it #is _
       it #is <condition 1>
-** TODO use parens in views
-Wrap every Expr with a depth of 3 in parens.
 ** a way to kill buffers
 ** TODO marking things in a tree
 *** buffer nicknames

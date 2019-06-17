@@ -133,14 +133,15 @@ instance Show MemberHosts where
     noRslt     = error "show MemberHosts: Rslt irrelevant"
     noMiscount = error "show MemberHosts: This math is good."
     in if _memberHostsRole relHosts == RoleTplt
-       then "Rels using it (as a Tplt)"
+       then " Rels using it (as a Tplt)"
        else let (ar :: Arity) = length tplt - 1
                 RoleMember (n :: Int) = _memberHostsRole relHosts
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate ar $ Phrase "_"
-            in either (const noLeft) id
-               $ eParenShow 3 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
+            in (" " ++) $
+               either (const noLeft) id $
+               eParenShow 3 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
 instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
