@@ -1,15 +1,3 @@
-* TODO immediate
-** color hashes in grouping nodes
-** too much space
-** highlight not everywhere
-* clean the view
-** represent, render the columns
-*** Currently, each row is rendered separately, without considering others.
-*** The right way would be 
-compute the max (across all rows) width of each column first, 
-and pad each row's column-cells to match.
-*** This involves undoing work from a certain commit
-The one right after 7fc2c82cb597347c6a8626ec3b75da72f76a9ff5
 * roadmap|pressing (duplicative)
 ** color special symbols differently
 https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557
@@ -94,6 +82,18 @@ The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
+* TODO views, clean them
+** highlight not everywhere
+** too much space
+This might require a strategy similar to the use of the `Parens`
+type in `Rslt.Show`.
+** represent, render the columns
+*** Currently, each row is rendered separately, without considering others.
+*** The right way would be
+compute the max (across all rows) width of each column first,
+and pad each row's column-cells to match.
+*** Requires undoing commit 2689a4d697ea87be4817a20917f21e447209210a
+** color hashes in grouping nodes
 * TODO views, rad
 ** TODO more of : count stuff in the left column(s)
 *** St._columnHExprs: let the user add HExprs
@@ -196,10 +196,81 @@ It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
 ** TODO transitivity
+*** goal
 If "brilliant #(is a kind of) bright",
 I should be able to search for everything that #is bright,
 and have brilliant things returned,
 without needing them to be labeled bright.
+*** method
+**** Build-in some Exprs
+Phrase "transitive"
+Tplt "_ is _"
+**** Search query format: unchanged
+They look just like they used to.
+But if "_ x _" is transitive, then searching for "/any #x y"
+will (potentially) return more stuff.
+**** TODO Safety: check for cycles when someone adds an expression
+**** Search algorithm for "x #r y"
+***** TODO better: hand this work off to some existing library
+****** basic idea
+Find all the xs and all the ys.
+Use the graph (whose nodes are addresses) induced by the #r relationship.
+****** There are haskell bindings for a few graph querly langs now
+gremlin
+graphql
+pangraph
+cayley
+****** graphite, Graphalyze look good
+*graphite* uses hash maps
+*Data.Core.Graph* "is fast, efficient", uses IntMap
+Data.Graph.Comfort uses Data.Map, but it's a one-page library
+digraph - hashmaps, three modules
+****** if x is /any but y is specific (or vice-versa)
+Compute `Data.Graph.reachable y` for every value of y.
+***** If x is /any but y is specific (or vice-versa)
+Find everything that would be in "x #r y" without transitivity.
+Call that s1.
+For each (m1 #r y) in s1, search for "/any #r m1",
+and call the result "m2 #r m1".
+Call the set { m2 #r y } "s2 of y".
+Repeat: for each m2 in (s2 of y), search for "/any #r m2",
+and call each result "m3 #r m2" ...
+Eventually, end up with a bunch of relationships of the form "x #r y".
+***** If neither is specific
+Fuck that. Just return what's been getting returned already,
+which is just the first-order (ignoring transitivity) relatinoships.
+To return all the transitive relationships
+would be both hard for the programmer and useless for the user.
+***** *DOPE* If both are specific
+Let X = {x} and Y = {y}
+Create an empty map M from X to Y.
+
+Let X1 be all the values reachable from X in one rightward hop.
+Create a map L1 (L stands for left) from X1 to X,
+indicating which members are connected.
+For every y in both X1 and Y, add (L1 y, y) to M.
+
+Let Y1 be all values reachable from Y in one leftward hop.
+Create a map R1 (R stands for right) from Y1 to Y.
+For every x in both Y1 and X, add (x, R1 x) to M.
+*NEW IDEA*: For every x in both Y1 and X1, and (L1 x, R1 x) to M.
+
+Let X2 be all values reachable from X1 in one rightward hop.
+*NEW IDEA* Using L1, create a map L2 from X2 to X.
+For each y in both X2 and Y, add (L2 y, y) to M.
+For each y in both X2 and Y1, add (L2 y, R1 y) to M.
+
+This has to go on until both forests are completely mapped.
+**** Bothersome detail
+***** fortunately there's a hack that solves it
+The user can just temporarily delete the transitivity property for that Tplt.
+***** the problem
+If "_ x _ " is transitive, and one searches for "/_ #x /_",
+the user probably just wants to see all the first-order x relationships,
+not the compound ones.
+
+This suggests either treating that (and similar?!) case specially,
+or letting the user ask not to use the transitivity.
 ** TODO reflexivity
 ** TODO HExpr: add a symbol for "involves"
 *** the current (slow, incomplete) hack
