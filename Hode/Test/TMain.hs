@@ -14,6 +14,7 @@ import Hode.Test.Qseq.TSubst
 import Hode.Test.Qseq.TValid
 import Hode.Test.Rslt.RData
 import Hode.Test.Rslt.RProgram
+import Hode.Test.Rslt.TConnectivity
 import Hode.Test.Rslt.TEdit
 import Hode.Test.Rslt.TIndex_and_Valid
 import Hode.Test.Rslt.TLookup
@@ -30,18 +31,19 @@ tests = runTestTT $ TestList
   , testModuleQueryClassify
   , testModuleSubst
   , test_module_Program
-  , test_module_query
-  , test_the_rslt_test_data
-  , test_module_rsltProgram
-  , test_module_rslt_edit
-  , test_module_rslt_hash
-  , test_module_rslt_index_and_valid
-  , test_module_rslt_exprToAddr
-  , test_module_rslt_show
-  , test_modules_leaf
   , test_module_hash_convert
   , test_module_hash_parse
-  , test_module_pTree
-  , test_module_ui
   , test_module_hode_brick
+  , test_module_pTree
+  , test_module_query
+  , test_module_rsltProgram
+  , test_module_rslt_connectivity
+  , test_module_rslt_edit
+  , test_module_rslt_exprToAddr
+  , test_module_rslt_hash
+  , test_module_rslt_index_and_valid
+  , test_module_rslt_show
+  , test_module_ui
+  , test_modules_leaf
+  , test_the_rslt_test_data
   ]

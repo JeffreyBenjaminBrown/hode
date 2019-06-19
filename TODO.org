@@ -1,8 +1,6 @@
 * roadmap|pressing (duplicative)
-** color special symbols differently
-https://github.com/jtdaugherty/brick/issues/232#issuecomment-497998557
-** reduce redunddancy in views
 ** transitivity, order
+** reduce redunddancy in views
 ** update
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
@@ -139,8 +137,6 @@ Then, for each spot, create a Rslt `r` consisting of
 Now search r for h,
 and add (in the map-insertion sense)
 anything found to the contents already at h.
-** TODO note order
-see "transitivity", elsewhere
 ** store views
 e.g. mark HostGroups as salient,
 and store that info,
@@ -210,23 +206,23 @@ They look just like they used to.
 But if "_ x _" is transitive, then searching for "/any #x y"
 will (potentially) return more stuff.
 **** TODO Safety: check for cycles when someone adds an expression
-**** Search algorithm for "x #r y"
-***** TODO better: hand this work off to some existing library
-****** basic idea
+**** TODO better: hand this work off to some existing library
+***** basic idea
 Find all the xs and all the ys.
 Use the graph (whose nodes are addresses) induced by the #r relationship.
-****** There are haskell bindings for a few graph querly langs now
+***** There are haskell bindings for a few graph querly langs now
 gremlin
 graphql
 pangraph
 cayley
-****** graphite, Graphalyze look good
+***** graphite, Graphalyze look good
 *graphite* uses hash maps
 *Data.Core.Graph* "is fast, efficient", uses IntMap
 Data.Graph.Comfort uses Data.Map, but it's a one-page library
 digraph - hashmaps, three modules
-****** if x is /any but y is specific (or vice-versa)
+***** if x is /any but y is specific (or vice-versa)
 Compute `Data.Graph.reachable y` for every value of y.
+**** nah - hand-write the search algorithm for "x #r y"
 ***** If x is /any but y is specific (or vice-versa)
 Find everything that would be in "x #r y" without transitivity.
 Call that s1.
@@ -261,7 +257,7 @@ For each y in both X2 and Y, add (L2 y, y) to M.
 For each y in both X2 and Y1, add (L2 y, R1 y) to M.
 
 This has to go on until both forests are completely mapped.
-**** Bothersome detail
+**** wart: What if you don't want to use the transitivity?
 ***** fortunately there's a hack that solves it
 The user can just temporarily delete the transitivity property for that Tplt.
 ***** the problem

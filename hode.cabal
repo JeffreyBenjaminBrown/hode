@@ -45,6 +45,7 @@ library
                 , Hode.Qseq.Query
                 , Hode.Qseq.RunLeaf
                 , Hode.Qseq.Subst
+                , Hode.Rslt.Connectivity
                 , Hode.Rslt.Edit
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
@@ -66,6 +67,7 @@ library
                 , Hode.Test.Qseq.TValid
                 , Hode.Test.Rslt.RData
                 , Hode.Test.Rslt.RProgram
+                , Hode.Test.Rslt.TConnectivity
                 , Hode.Test.Rslt.TEdit
                 , Hode.Test.Rslt.TIndex_and_Valid
                 , Hode.Test.Rslt.TLookup
@@ -77,22 +79,22 @@ library
                 , Hode.Test.TUI
                 , Hode.UI.BufferTree
                 , Hode.UI.Clipboard
-                , Hode.UI.Input
-                , Hode.UI.Input.IParse
                 , Hode.UI.ITypes
                 , Hode.UI.IUtil
+                , Hode.UI.Input
+                , Hode.UI.Input.IParse
                 , Hode.UI.Main
                 , Hode.UI.NoUI
+                , Hode.UI.RsltViewTree
                 , Hode.UI.ShowPTree
                 , Hode.UI.ShowPTree.HandTest
                 , Hode.UI.String
-                , Hode.UI.RsltViewTree
                 , Hode.UI.Window
                 , Hode.Util.Direction
                 , Hode.Util.Misc
+                , Hode.Util.PTree
                 , Hode.Util.UParse
                 , Hode.Util.VTree
-                , Hode.Util.PTree
   other-modules:
   build-depends:
                 base
