@@ -300,6 +300,10 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** there are some list-set mismatches
+rightReachable, for instance, uses lists, because it's fast.
+But it has to convert the output of hExprToAddrs to a list, using Set.toList.
+It would be nice if a version of hExprToAddrs existed that used lists, not sets.
 ** for jumping around the view
 Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr.
 (If it's in the buffer multiple times, cycle between them.)

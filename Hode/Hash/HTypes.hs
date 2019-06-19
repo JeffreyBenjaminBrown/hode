@@ -28,7 +28,7 @@ data HExpr =
   | HVar  Var         -- ^ To look up the `Var` from a `Subst Addr Rslt`.
   | HDiff HExpr HExpr -- ^ Set difference.
   | HAnd [HExpr]      -- ^ Intersection.
-  | HOr  [HExpr]      -- ^ Union. Pronounced "a chore".
+  | HOr  [HExpr]      -- ^ Union.
   deriving (Eq, Ord, Show)
 
 -- | An `HMap` m is used to request all expressions x such that for each

@@ -13,4 +13,4 @@ test_module_rslt_connectivity = TestList [
 test_reachable :: Test
 test_reachable = TestCase $ do
   let meh = error ""
-  assertBool "" $ reachable meh meh == Left "nope"
+  assertBool "" $ rightReachable meh meh meh == Left "nope"
