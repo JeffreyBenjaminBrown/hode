@@ -1,7 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Test.THToRslt -- (test_module_hode_hToRslt)
-where
+module Hode.Test.Hash.THToRslt (test_module_hode_hToRslt) where
 
 import           Test.HUnit
 import qualified Data.Map as M

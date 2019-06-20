@@ -21,7 +21,7 @@ import Hode.Test.Rslt.TLookup
 import Hode.Test.Rslt.TShow
 import Hode.Test.TBrick
 import Hode.Test.TGraph
-import Hode.Test.THToRslt
+import Hode.Test.Hash.THToRslt
 import Hode.Test.TPTree
 import Hode.Test.TUI
 

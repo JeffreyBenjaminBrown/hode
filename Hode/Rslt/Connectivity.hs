@@ -16,11 +16,11 @@ import Hode.Util.Misc
 -- by moving rightward. `s` starts as member 1 and we look for member2,
 -- then each of those becomes member 1 and we look for new member 2, etc.)
 rightReachable :: Rslt
+               -> Addr -- ^ a binary `Tplt`
                -> Addr -- ^ a starting `Expr`
-               -> Addr -- ^ a binary relatinoship
                -> Either String [Addr]
 
-rightReachable r s0 t = prefixLeft "rightReachable: " $ do
+rightReachable r t s0 = prefixLeft "rightReachable: " $ do
   v <- variety r t
   if v == (TpltCtr,2) then Right () else Left $
     "Expr at address " ++ show t ++ " not a binary template."
