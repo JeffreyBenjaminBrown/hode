@@ -16,6 +16,9 @@ import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
 
 
+emptyRslt :: Rslt
+emptyRslt = mkRslt mempty
+
 mkRslt :: Map Addr RefExpr -> Rslt
 mkRslt es = go es' where
   es' :: Map Addr RefExpr
