@@ -21,6 +21,7 @@ import Hode.Test.Rslt.TLookup
 import Hode.Test.Rslt.TShow
 import Hode.Test.TBrick
 import Hode.Test.TGraph
+import Hode.Test.THToRslt
 import Hode.Test.TPTree
 import Hode.Test.TUI
 
@@ -34,6 +35,7 @@ tests = runTestTT $ TestList
   , test_module_hash_convert
   , test_module_hash_parse
   , test_module_hode_brick
+  , test_module_hode_hToRslt
   , test_module_pTree
   , test_module_query
   , test_module_rsltProgram

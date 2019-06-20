@@ -36,6 +36,7 @@ library
                 , Hode.Hash.EitherExpr
                 , Hode.Hash.HLookup
                 , Hode.Hash.HParse
+                , Hode.Hash.HToRslt
                 , Hode.Hash.HTypes
                 , Hode.Hash.HUtil
                 , Hode.Hash.Hash
@@ -74,6 +75,7 @@ library
                 , Hode.Test.Rslt.TShow
                 , Hode.Test.TBrick
                 , Hode.Test.TGraph
+                , Hode.Test.THToRslt
                 , Hode.Test.TMain
                 , Hode.Test.TPTree
                 , Hode.Test.TUI
