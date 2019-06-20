@@ -34,7 +34,7 @@ _pRel = eMakeExprParser pTerm
 
 pTerm :: Parser PRel
 pTerm = close <$> parens _pRel
-              <|> PNonRel <$> pExpr
+              <|> PNonRel <$> pPExpr
               <|> pAbsentMember
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -72,9 +72,9 @@ pAbsentMember = const Absent <$> f
 
 -- | = parse a PExpr
 
-pExpr :: Parser PExpr
-pExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
-  ps = [ parens pExpr
+pPExpr :: Parser PExpr
+pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
+  ps = [ parens pPExpr
 
        -- the PExpr constructor
        , pAddrs
@@ -144,7 +144,7 @@ pMap = lexeme (string "/map" <|> string "/roles")
                 t <- _pTplt
                 return ( RoleTplt    , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
-                x <- pExpr
+                x <- pPExpr
                 return ( RoleMember i, x       )
 
 pEval :: Parser PExpr
@@ -165,7 +165,7 @@ pAny = lexeme ( foldr1 (<|>)
        >> return Any
 
 pIt :: Parser PExpr
-pIt = id  (lexeme (string "/it=") >> It . Just <$> pExpr)
+pIt = id  (lexeme (string "/it=") >> It . Just <$> pPExpr)
       <|> (lexeme (string "/it")  >> return (It Nothing))
 
 

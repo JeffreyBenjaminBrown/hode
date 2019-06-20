@@ -32,8 +32,8 @@ pCommand r s =
 
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
-  ( prefixLeft "pCommand_insert"
-    $ mapLeft show (parse _pHashExpr "doh 1!" s)
+  prefixLeft "pCommand_insert"
+  ( mapLeft show (parse _pHashExpr "doh 1!" s)
     >>= pExprToHExpr r
     >>= hExprToExpr r )
 

@@ -21,7 +21,7 @@ vs = VarString
 test_module_hash_parse :: Test
 test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
-  , TestLabel "test_parse_pExpr" test_parse_pExpr
+  , TestLabel "test_parse_pPExpr" test_parse_pPExpr
   , TestLabel "test_parse_hExpr" test_parse_hExpr
   ]
 
@@ -30,7 +30,7 @@ test_parse_hExpr = TestCase $ do
   let r = mkRslt mempty
   assertBool "1" $
     ( either (Left . show) Right
-      ( parse pExpr "doh!" "/hash /_ #e w" )
+      ( parse pPExpr "doh!" "/hash /_ #e w" )
       >>= pExprToHExpr r)
     == ( Right $ HMap $ M.fromList
          [ ( RoleTplt
@@ -38,8 +38,8 @@ test_parse_hExpr = TestCase $ do
          , ( RoleMember 2
            , HExpr $ Phrase "w" ) ] )
 
-test_parse_pExpr :: Test
-test_parse_pExpr = TestCase $ do
+test_parse_pPExpr :: Test
+test_parse_pPExpr = TestCase $ do
   assertBool "addr" $ parse pAddr "wut" "/addr 34 "
     == Right (Addr 34)
   assertBool "word" $ parse pPhrase "wut" "sammich bagel 1234"

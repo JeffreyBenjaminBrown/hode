@@ -14,3 +14,4 @@ test_reachable :: Test
 test_reachable = TestCase $ do
   let meh = error ""
   assertBool "" $ rightReachable meh meh meh == Left "nope"
+
