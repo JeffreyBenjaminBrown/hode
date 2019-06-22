@@ -19,18 +19,23 @@ test_module_rslt_connectivity = TestList [
 test_reachable :: Test
 test_reachable = TestCase $ do
   let Right (r :: Rslt) = stringHExprsToRslt
-                          [ "a #needs b"
-                          , "b #needs b1"
-                          , "b #needs b2"
-                          , "a #needs c"
-                          , "d #needs e" ]
+                          [ "a # b"
+                          , "b # b1"
+                          , "b # b2"
+                          , "x # b2"
+                          , "a # c"
+                          , "d # e" ]
       Right a  = exprToAddr r $ Phrase "a"
       Right b  = exprToAddr r $ Phrase "b"
       Right b1 = exprToAddr r $ Phrase "b1"
       Right b2 = exprToAddr r $ Phrase "b2"
+      Right x  = exprToAddr r $ Phrase "x"
       Right c  = exprToAddr r $ Phrase "c"
       Right t  = exprToAddr r $ ExprTplt $
-                 map Phrase [ "", "needs", "" ]
+                 map Phrase [ "", "", "" ]
   assertBool "" $
     (S.fromList <$> rightReachable r t a) ==
     Right (S.fromList [a,b,b1,b2,c])
+  assertBool "" $
+    (S.fromList <$> leftReachable r t b2) ==
+    Right (S.fromList [b2,x,b,a])
