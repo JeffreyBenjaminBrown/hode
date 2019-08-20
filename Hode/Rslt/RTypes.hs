@@ -18,7 +18,8 @@ type Arity = Int
 -- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"
 -- and "beef", and Tplt "_ like _".
-data Role = RoleTplt | RoleMember Int deriving (Eq, Ord, Read, Show)
+data Role = RoleTplt | RoleMember Int
+  deriving (Eq, Ord, Read, Show)
 type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.

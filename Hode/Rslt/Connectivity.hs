@@ -30,6 +30,7 @@ rightReachable, leftReachable ::
 rightReachable = reachable True
 leftReachable  = reachable False
 
+-- | Not for export.
 reachable :: Bool -- ^ whether to search rightward
           -> Rslt
           -> Addr -- ^ a binary `Tplt`
