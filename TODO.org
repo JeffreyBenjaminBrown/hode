@@ -193,6 +193,7 @@ Otherwise there is no record of the names used by the input and the output for v
 * TODO re. Rslt
 ** TODO transitive search
 *** TODO de novo, 2019 08 19
+**** use Hode.Data.Map.compose
 **** TODO easiest algorithm: user chooses which way to search
 Given sets X and Y, we want all (x,y) s.t. x < y.
 wolog, suppose the user chooses to search "increasing|rightward".

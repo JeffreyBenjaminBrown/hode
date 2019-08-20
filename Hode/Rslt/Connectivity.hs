@@ -18,6 +18,17 @@ import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
 
+-- | = Searching from a fixed set toward a fixed target.
+-- For instance, given sets S and T, find the set {(s,t) | s in S, t in T,
+-- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
+
+
+-- <<< TODO : RESUME HERE >>>
+
+
+-- | = Searching from a fixed set of `Expr`s toward no particular target.
+-- For instance, given set S, find the set T = {t s.t. t > s for some s in S}.
+
 -- | `rightReachable r s t` finds all the expressions reachable from `s`,
 -- by moving rightward. `s` starts as member 1 and we look for member2,
 -- then each of those becomes member 1 and we look for new member 2, etc.)
@@ -58,3 +69,4 @@ reachable rightward r t s0 = prefixLeft "reachable: " $ do
         s <- hExprToAddrs r mempty $ goRight a
         f (a:explored) $ S.toList s ++ morePending
   f [] [s0]
+
