@@ -56,19 +56,19 @@ reachable rightward r t s0 = prefixLeft "reachable: " $ do
       f explored [] = Right explored
       f explored (a:morePending) =
         prefixLeft ("f of " ++ show a) $ do
-        s <- hExprToAddrs r mempty $ immediateNeighbors rightward t a
+        s <- hExprToAddrs r mempty $ immediateNeighbors rightward t [a]
         f (a:explored) $ S.toList s ++ morePending
   f [] [s0]
 
 immediateNeighbors :: Bool -- ^ whether searching rightward or leftward
                    -> Addr -- ^ a binary `Tplt`
-                   -> Addr -- ^ a starting `Expr`
+                   -> [Addr] -- ^ some starting `Expr`s
                    -> HExpr
-immediateNeighbors rightward t a =
+immediateNeighbors rightward t as =
   let (start, toward) = case rightward of
         True -> (1,2)
         False -> (2,1)
   in HEval ( HMap $ M.fromList
-             [ (RoleMember start, HExpr $ Addr a)
+             [ (RoleMember start, HOr $ map (HExpr . Addr) as)
              , (RoleTplt, HExpr $ Addr t) ] )
      [[ RoleMember toward ]]
