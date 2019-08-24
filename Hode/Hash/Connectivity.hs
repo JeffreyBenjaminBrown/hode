@@ -37,7 +37,7 @@ import Hode.Util.Misc
 rightReachable, leftReachable ::
   Rslt
   -> Addr -- ^ a binary `Tplt`
-  -> Addr -- ^ a starting `Expr`
+  -> [Addr] -- ^ starting `Expr`s
   -> Either String [Addr]
 rightReachable = reachable True
 leftReachable  = reachable False
@@ -46,11 +46,11 @@ leftReachable  = reachable False
 reachable :: Bool -- ^ whether to search rightward
           -> Rslt
           -> Addr -- ^ a binary `Tplt`
-          -> Addr -- ^ a starting `Expr`
+          -> [Addr] -- ^ starting `Expr`s
           -> Either String [Addr]
-reachable rightward r t s0 = prefixLeft "reachable: " $ do
+reachable rightward r t as = prefixLeft "reachable: " $ do
   verifyBinaryTemplate r t
-  f [] [s0]
+  f [] as
   where
     f :: [Addr] -> [Addr] -> Either String [Addr]
     f explored [] = Right explored
@@ -58,6 +58,8 @@ reachable rightward r t s0 = prefixLeft "reachable: " $ do
       prefixLeft ("f of " ++ show a) $ do
         s <- immediateNeighbors r rightward t [a]
         f (a:explored) $ S.toList s ++ morePending
+        -- I believe this gives DFS,
+        -- and flipping the ++ would change it to BFS.
 
 
 -- | = Utilities
@@ -71,7 +73,7 @@ verifyBinaryTemplate r t = do
 immediateNeighbors :: Rslt
                    -> Bool -- ^ whether searching rightward
                    -> Addr -- ^ a binary `Tplt`
-                   -> [Addr] -- ^ some starting `Expr`s
+                   -> [Addr] -- ^ starting `Expr`s
                    -> Either String (Set Addr)
 immediateNeighbors r rightward t as =
   let (start, toward) = case rightward of
