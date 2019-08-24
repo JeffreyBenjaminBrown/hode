@@ -2,7 +2,7 @@
 TupleSections #-}
 
 module Hode.Hash.Connectivity (
-  transitiveRelsRightward, transitiveRelsLeftward
+  transitiveRelsRightward, transitiveRelsLeftward,
     -- ^ Rslt
     -- -> Rslt
     -- -> Addr -- ^ a binary `Tplt`
@@ -16,6 +16,7 @@ module Hode.Hash.Connectivity (
     -- -> Either String [Addr]
   ) where
 
+import qualified Data.List as L
 import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Set (Set)
@@ -33,7 +34,7 @@ import Hode.Util.Misc
 -- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
 
 transitiveRelsRightward, transitiveRelsLeftward ::
-  -> Rslt
+     Rslt
   -> Addr -- ^ a binary `Tplt`
   -> [Addr] -- ^ places to maybe finish
   -> [Addr] -- ^ places to start
@@ -59,7 +60,7 @@ transitiveRels1 :: Bool -- ^ whether to search rightward
   -> Either String [(Addr,Addr)]
 transitiveRels1 b r t fs s =
   prefixLeft "transitiveRels: " $ do
-  found <- reachable b r t [s]
+  found <- L.intersect fs <$> reachable b r t [s]
   Right $ map (if b then (s,) else (,s)) found
 
 -- | = Searching from a fixed set of `Expr`s toward no particular target.

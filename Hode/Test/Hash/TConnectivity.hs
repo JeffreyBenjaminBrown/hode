@@ -2,6 +2,7 @@
 
 module Hode.Test.Hash.TConnectivity where
 
+import qualified Data.Map as M
 import qualified Data.Set as S
 import           Test.HUnit
 
@@ -13,19 +14,42 @@ import Hode.Rslt.RTypes
 
 test_module_rslt_connectivity :: Test
 test_module_rslt_connectivity = TestList [
+    TestLabel "test_transitiveRels" test_transitiveRels,
     TestLabel "test_reachable" test_reachable
     ]
 
-test_reachable :: Test
-test_reachable = TestCase $ do
-  let Right (r :: Rslt) = stringHExprsToRslt
+test_transitiveRels :: Test
+test_transitiveRels = TestCase $ do
+  let Right a  = exprToAddr r $ Phrase "a"
+      Right b  = exprToAddr r $ Phrase "b"
+      Right b1 = exprToAddr r $ Phrase "b1"
+      Right b2 = exprToAddr r $ Phrase "b2"
+      Right x  = exprToAddr r $ Phrase "x"
+      Right c  = exprToAddr r $ Phrase "c"
+      Right d  = exprToAddr r $ Phrase "d"
+      Right t  = exprToAddr r $ ExprTplt $
+                 map Phrase [ "", "", "" ]
+
+      Right (r :: Rslt) = stringHExprsToRslt
                           [ "a # b"
                           , "b # b1"
                           , "b # b2"
                           , "x # b2"
+                          , "x # b3"
                           , "a # c"
                           , "d # e" ]
-      Right a  = exprToAddr r $ Phrase "a"
+
+  assertBool "b can lead to a few places, but only b1 is allowed." $
+    (S.fromList <$> transitiveRelsRightward r t [b1] [b])
+    == Right ( S.fromList                       [ (b,b1) ] )
+  assertBool "a gets to b, and thereby to b2. x gets to b2. They lead other places too, but only the destinations b and b2 are requested." $
+    (S.fromList <$> transitiveRelsRightward r t [b,b2] [a,x])
+    == Right ( S.fromList                       [ (a,b), (a,b2), (x,b2) ] )
+
+
+test_reachable :: Test
+test_reachable = TestCase $ do
+  let Right a  = exprToAddr r $ Phrase "a"
       Right b  = exprToAddr r $ Phrase "b"
       Right b1 = exprToAddr r $ Phrase "b1"
       Right b2 = exprToAddr r $ Phrase "b2"
@@ -33,6 +57,15 @@ test_reachable = TestCase $ do
       Right c  = exprToAddr r $ Phrase "c"
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]
+
+      Right (r :: Rslt) = stringHExprsToRslt
+                          [ "a # b"
+                          , "b # b1"
+                          , "b # b2"
+                          , "x # b2"
+                          , "a # c"
+                          , "d # e" ]
+
   assertBool "Leaves can reach only themselves." $
     (S.fromList <$> rightwardReachable r t [b1,b2,c])
     == Right (S.fromList                   [b1,b2,c])
