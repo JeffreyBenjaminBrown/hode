@@ -1,10 +1,19 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables,
+TupleSections #-}
 
 module Hode.Hash.Connectivity (
-  rightwardReachable, leftwardReachable -- ^ Rslt
-                  -- -> Addr -- ^ a binary `Tplt`
-                  -- -> Addr -- ^ a starting `Expr`
-                  -- -> Either String [Addr]
+  transitiveRelsRightward, transitiveRelsLeftward
+    -- ^ Rslt
+    -- -> Rslt
+    -- -> Addr -- ^ a binary `Tplt`
+    -- -> [Addr] -- ^ places to maybe finish
+    -- -> [Addr] -- ^ places to start
+    -- -> Either String [(Addr,Addr)]
+  rightwardReachable, leftwardReachable,
+    -- ^ Rslt
+    -- -> Addr -- ^ a binary `Tplt`
+    -- -> Addr -- ^ a starting `Expr`
+    -- -> Either String [Addr]
   ) where
 
 import           Data.Map (Map)
@@ -23,7 +32,35 @@ import Hode.Util.Misc
 -- For instance, given sets S and T, find the set {(s,t) | s in S, t in T,
 -- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
 
+transitiveRelsRightward, transitiveRelsLeftward ::
+  -> Rslt
+  -> Addr -- ^ a binary `Tplt`
+  -> [Addr] -- ^ places to maybe finish
+  -> [Addr] -- ^ places to start
+  -> Either String [(Addr,Addr)]
+transitiveRelsRightward = transitiveRels True
+transitiveRelsLeftward  = transitiveRels False
 
+transitiveRels :: Bool -- ^ whether to search rightward
+  -> Rslt
+  -> Addr -- ^ a binary `Tplt`
+  -> [Addr] -- ^ places to maybe finish
+  -> [Addr] -- ^ places to start
+  -> Either String [(Addr,Addr)]
+transitiveRels b r t es ss =
+  concat <$>
+  ifLefts (map (transitiveRels1 b r t es) ss)
+
+transitiveRels1 :: Bool -- ^ whether to search rightward
+  -> Rslt
+  -> Addr -- ^ a binary `Tplt`
+  -> [Addr] -- ^ places to maybe finish
+  -> Addr -- ^ the place to start
+  -> Either String [(Addr,Addr)]
+transitiveRels1 b r t fs s =
+  prefixLeft "transitiveRels: " $ do
+  found <- reachable b r t [s]
+  Right $ map (if b then (s,) else (,s)) found
 
 -- | = Searching from a fixed set of `Expr`s toward no particular target.
 -- For instance, given set S, find the set T = {t s.t. t > s for some s in S}.
