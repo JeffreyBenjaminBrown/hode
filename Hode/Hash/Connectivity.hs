@@ -43,19 +43,6 @@ leftReachable  = reachable False
 
 -- | = Not for export.
 
-immediateNeighbors :: Bool -- ^ whether searching rightward or leftward
-                   -> Addr -- ^ a binary `Tplt`
-                   -> Addr -- ^ a starting `Expr`
-                   -> HExpr
-immediateNeighbors rightward t a =
-  let (start, toward) = case rightward of
-        True -> (1,2)
-        False -> (2,1)
-  in HEval ( HMap $ M.fromList
-             [ (RoleMember start, HExpr $ Addr a)
-             , (RoleTplt, HExpr $ Addr t) ] )
-     [[ RoleMember toward ]]
-
 reachable :: Bool -- ^ whether to search rightward
           -> Rslt
           -> Addr -- ^ a binary `Tplt`
@@ -73,3 +60,15 @@ reachable rightward r t s0 = prefixLeft "reachable: " $ do
         f (a:explored) $ S.toList s ++ morePending
   f [] [s0]
 
+immediateNeighbors :: Bool -- ^ whether searching rightward or leftward
+                   -> Addr -- ^ a binary `Tplt`
+                   -> Addr -- ^ a starting `Expr`
+                   -> HExpr
+immediateNeighbors rightward t a =
+  let (start, toward) = case rightward of
+        True -> (1,2)
+        False -> (2,1)
+  in HEval ( HMap $ M.fromList
+             [ (RoleMember start, HExpr $ Addr a)
+             , (RoleTplt, HExpr $ Addr t) ] )
+     [[ RoleMember toward ]]
