@@ -1,14 +1,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Test.Rslt.TConnectivity where
+module Hode.Test.Hash.TConnectivity where
 
 import qualified Data.Set as S
 import           Test.HUnit
 
+import Hode.Hash.Connectivity
 import Hode.Hash.HToRslt
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Rslt.Connectivity
 
 
 test_module_rslt_connectivity :: Test

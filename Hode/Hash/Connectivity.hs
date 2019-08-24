@@ -1,11 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.Connectivity (
-  rightReachable, leftReachable
-    -- ^  Rslt
-    -- -> Addr -- ^ a binary `Tplt`
-    -- -> Addr -- ^ a starting `Expr`
-    -- -> Either String [Addr]
+module Hode.Hash.Connectivity (
+  rightReachable, leftReachable -- ^ Rslt
+                  -- -> Addr -- ^ a binary `Tplt`
+                  -- -> Addr -- ^ a starting `Expr`
+                  -- -> Either String [Addr]
   ) where
 
 import qualified Data.Map as M

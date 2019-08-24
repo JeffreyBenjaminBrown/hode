@@ -33,6 +33,7 @@ library
                 , Hode.Data.Graph
                 , Hode.Data.Map
                 , Hode.Data.Relation
+                , Hode.Hash.Connectivity
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
                 , Hode.Hash.HLookup
@@ -47,7 +48,6 @@ library
                 , Hode.Qseq.Query
                 , Hode.Qseq.RunLeaf
                 , Hode.Qseq.Subst
-                , Hode.Rslt.Connectivity
                 , Hode.Rslt.Edit
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
@@ -59,8 +59,10 @@ library
                 , Hode.Rslt.Show
                 , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
+                , Hode.Test.Hash.TConnectivity
                 , Hode.Test.Hash.TConvert
                 , Hode.Test.Hash.THLookup
+                , Hode.Test.Hash.THToRslt
                 , Hode.Test.Hash.TParse
                 , Hode.Test.Qseq.TLeaf
                 , Hode.Test.Qseq.TProgram
@@ -69,14 +71,12 @@ library
                 , Hode.Test.Qseq.TValid
                 , Hode.Test.Rslt.RData
                 , Hode.Test.Rslt.RProgram
-                , Hode.Test.Rslt.TConnectivity
                 , Hode.Test.Rslt.TEdit
                 , Hode.Test.Rslt.TIndex_and_Valid
                 , Hode.Test.Rslt.TLookup
                 , Hode.Test.Rslt.TShow
                 , Hode.Test.TBrick
                 , Hode.Test.TGraph
-                , Hode.Test.Hash.THToRslt
                 , Hode.Test.TMain
                 , Hode.Test.TPTree
                 , Hode.Test.TUI
