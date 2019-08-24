@@ -40,18 +40,14 @@ rightReachable, leftReachable ::
 rightReachable = reachable True
 leftReachable  = reachable False
 
-
--- | = Not for export.
-
+-- | Not for export.
 reachable :: Bool -- ^ whether to search rightward
           -> Rslt
           -> Addr -- ^ a binary `Tplt`
           -> Addr -- ^ a starting `Expr`
           -> Either String [Addr]
 reachable rightward r t s0 = prefixLeft "reachable: " $ do
-  v <- variety r t
-  if v == (TpltCtr,2) then Right () else Left $
-    "Expr at address " ++ show t ++ " not a binary template."
+  verifyBinaryTemplate r t
   let f :: [Addr] -> [Addr] -> Either String [Addr]
       f explored [] = Right explored
       f explored (a:morePending) =
@@ -59,6 +55,15 @@ reachable rightward r t s0 = prefixLeft "reachable: " $ do
         s <- hExprToAddrs r mempty $ immediateNeighbors rightward t [a]
         f (a:explored) $ S.toList s ++ morePending
   f [] [s0]
+
+
+-- | = Utilities
+
+verifyBinaryTemplate :: Rslt -> Addr -> Either String ()
+verifyBinaryTemplate r t = do
+  v <- variety r t
+  if v == (TpltCtr,2) then Right () else Left $
+    "Expr at address " ++ show t ++ " not a binary template."
 
 immediateNeighbors :: Bool -- ^ whether searching rightward or leftward
                    -> Addr -- ^ a binary `Tplt`
