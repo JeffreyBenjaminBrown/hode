@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Hash.Connectivity (
-  rightReachable, leftReachable -- ^ Rslt
+  rightwardReachable, leftwardReachable -- ^ Rslt
                   -- -> Addr -- ^ a binary `Tplt`
                   -- -> Addr -- ^ a starting `Expr`
                   -- -> Either String [Addr]
@@ -24,23 +24,21 @@ import Hode.Util.Misc
 -- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
 
 
--- <<< TODO : RESUME HERE >>>
-
 
 -- | = Searching from a fixed set of `Expr`s toward no particular target.
 -- For instance, given set S, find the set T = {t s.t. t > s for some s in S}.
 
--- | `rightReachable r s t` finds all the expressions reachable from `s`,
+-- | `rightwardReachable r s t` finds all the expressions reachable from `s`,
 -- by moving rightward. `s` starts as member 1 and we look for member2,
 -- then each of those becomes member 1 and we look for new member 2, etc.)
 
-rightReachable, leftReachable ::
+rightwardReachable, leftwardReachable ::
   Rslt
   -> Addr -- ^ a binary `Tplt`
   -> [Addr] -- ^ starting `Expr`s
   -> Either String [Addr]
-rightReachable = reachable True
-leftReachable  = reachable False
+rightwardReachable = reachable True
+leftwardReachable  = reachable False
 
 -- | Not for export.
 reachable :: Bool -- ^ whether to search rightward

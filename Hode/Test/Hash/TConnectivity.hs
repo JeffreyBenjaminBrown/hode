@@ -34,14 +34,14 @@ test_reachable = TestCase $ do
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]
   assertBool "Leaves can reach only themselves." $
-    (S.fromList <$> rightReachable r t [b1,b2,c])
-    == Right (S.fromList               [b1,b2,c])
+    (S.fromList <$> rightwardReachable r t [b1,b2,c])
+    == Right (S.fromList                   [b1,b2,c])
   assertBool "1" $
-    (S.fromList <$> rightReachable r t [b,x]) ==
-    Right (S.fromList [b,x,b1,b2])
+    (S.fromList <$> rightwardReachable r t [b,x]) ==
+    Right (S.fromList                      [b,x,b1,b2])
   assertBool "2" $
-    (S.fromList <$> rightReachable r t [a]) ==
-    Right (S.fromList [a,b,b1,b2,c])
+    (S.fromList <$> rightwardReachable r t [a]) ==
+    Right (S.fromList                      [a,b,b1,b2,c])
   assertBool "3" $
-    (S.fromList <$> leftReachable r t [b2]) ==
-    Right (S.fromList [b2,x,b,a])
+    (S.fromList <$> leftwardReachable r t  [b2]) ==
+    Right (S.fromList                      [b2,x,b,a])
