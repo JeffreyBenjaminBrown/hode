@@ -6,7 +6,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import           Test.HUnit
 
-import Hode.Hash.Connectivity
+import Hode.Hash.Transitive
 import Hode.Hash.HToRslt
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes

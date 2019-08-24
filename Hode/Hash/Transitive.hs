@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables,
 TupleSections #-}
 
-module Hode.Hash.Connectivity (
+module Hode.Hash.Transitive (
   transitiveRelsRightward, transitiveRelsLeftward,
     -- ^ Rslt
     -- -> Rslt

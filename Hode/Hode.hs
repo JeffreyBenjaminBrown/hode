@@ -25,7 +25,7 @@ import Hode.Data.Graph as X
 -- import Hode.Test.TMain as X
 -- import Hode.Test.TPTree as X
 -- import Hode.Test.TUI as X
-import Hode.Hash.Connectivity as X
+import Hode.Hash.Transitive as X
 import Hode.Hash.Convert as X
 import Hode.Hash.EitherExpr as X
 import Hode.Hash.HLookup as X
