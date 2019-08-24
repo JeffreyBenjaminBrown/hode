@@ -40,32 +40,36 @@ rightReachable, leftReachable ::
 rightReachable = reachable True
 leftReachable  = reachable False
 
--- | Not for export.
+
+-- | = Not for export.
+
+immediateNeighbors :: Bool -- ^ whether searching rightward or leftward
+                   -> Addr -- ^ a binary `Tplt`
+                   -> Addr -- ^ a starting `Expr`
+                   -> HExpr
+immediateNeighbors rightward t a =
+  let (start, toward) = case rightward of
+        True -> (1,2)
+        False -> (2,1)
+  in HEval ( HMap $ M.fromList
+             [ (RoleMember start, HExpr $ Addr a)
+             , (RoleTplt, HExpr $ Addr t) ] )
+     [[ RoleMember toward ]]
+
 reachable :: Bool -- ^ whether to search rightward
           -> Rslt
           -> Addr -- ^ a binary `Tplt`
           -> Addr -- ^ a starting `Expr`
           -> Either String [Addr]
-
 reachable rightward r t s0 = prefixLeft "reachable: " $ do
   v <- variety r t
   if v == (TpltCtr,2) then Right () else Left $
     "Expr at address " ++ show t ++ " not a binary template."
-  let goRight :: Addr -> HExpr
-      goRight a =
-        let (start, toward) = case rightward of
-              True -> (1,2)
-              False -> (2,1)
-        in HEval ( HMap $ M.fromList
-                   [ (RoleMember start, HExpr $ Addr a)
-                   , (RoleTplt, HExpr $ Addr t) ] )
-           [[ RoleMember toward ]]
-
-      f :: [Addr] -> [Addr] -> Either String [Addr]
+  let f :: [Addr] -> [Addr] -> Either String [Addr]
       f explored [] = Right explored
       f explored (a:morePending) =
         prefixLeft ("f of " ++ show a) $ do
-        s <- hExprToAddrs r mempty $ goRight a
+        s <- hExprToAddrs r mempty $ immediateNeighbors rightward t a
         f (a:explored) $ S.toList s ++ morePending
   f [] [s0]
 
