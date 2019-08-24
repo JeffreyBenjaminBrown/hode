@@ -7,7 +7,9 @@ module Hode.Hash.Connectivity (
                   -- -> Either String [Addr]
   ) where
 
+import           Data.Map (Map)
 import qualified Data.Map as M
+import           Data.Set (Set)
 import qualified Data.Set as S
 
 import Hode.Hash.HLookup
@@ -48,13 +50,14 @@ reachable :: Bool -- ^ whether to search rightward
           -> Either String [Addr]
 reachable rightward r t s0 = prefixLeft "reachable: " $ do
   verifyBinaryTemplate r t
-  let f :: [Addr] -> [Addr] -> Either String [Addr]
-      f explored [] = Right explored
-      f explored (a:morePending) =
-        prefixLeft ("f of " ++ show a) $ do
-        s <- hExprToAddrs r mempty $ immediateNeighbors rightward t [a]
-        f (a:explored) $ S.toList s ++ morePending
   f [] [s0]
+  where
+    f :: [Addr] -> [Addr] -> Either String [Addr]
+    f explored [] = Right explored
+    f explored (a:morePending) =
+      prefixLeft ("f of " ++ show a) $ do
+        s <- immediateNeighbors r rightward t [a]
+        f (a:explored) $ S.toList s ++ morePending
 
 
 -- | = Utilities
@@ -65,15 +68,18 @@ verifyBinaryTemplate r t = do
   if v == (TpltCtr,2) then Right () else Left $
     "Expr at address " ++ show t ++ " not a binary template."
 
-immediateNeighbors :: Bool -- ^ whether searching rightward or leftward
+immediateNeighbors :: Rslt
+                   -> Bool -- ^ whether searching rightward
                    -> Addr -- ^ a binary `Tplt`
                    -> [Addr] -- ^ some starting `Expr`s
-                   -> HExpr
-immediateNeighbors rightward t as =
+                   -> Either String (Set Addr)
+immediateNeighbors r rightward t as =
   let (start, toward) = case rightward of
         True -> (1,2)
         False -> (2,1)
-  in HEval ( HMap $ M.fromList
-             [ (RoleMember start, HOr $ map (HExpr . Addr) as)
-             , (RoleTplt, HExpr $ Addr t) ] )
+  in hExprToAddrs r mempty $
+     HEval ( HMap $ M.fromList
+             [ ( RoleMember start
+               , HOr $ map (HExpr . Addr) as )
+             , ( RoleTplt, HExpr $ Addr t ) ] )
      [[ RoleMember toward ]]
