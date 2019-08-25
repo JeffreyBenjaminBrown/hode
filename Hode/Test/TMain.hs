@@ -4,11 +4,11 @@ module Hode.Test.TMain where
 
 import           Test.HUnit hiding (Test)
 
-import Hode.Test.Hash.TConnectivity
 import Hode.Test.Hash.TConvert
 import Hode.Test.Hash.THLookup
 import Hode.Test.Hash.THToRslt
 import Hode.Test.Hash.TParse
+import Hode.Test.Hash.TTransitive
 import Hode.Test.Qseq.TLeaf
 import Hode.Test.Qseq.TProgram
 import Hode.Test.Qseq.TQuery
