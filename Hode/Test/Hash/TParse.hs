@@ -2,6 +2,7 @@
 
 module Hode.Test.Hash.TParse where
 
+import           Data.Either (isLeft)
 import qualified Data.Map as M
 import           Text.Megaparsec
 import           Test.HUnit
@@ -24,7 +25,46 @@ test_module_hash_parse = TestList [
   , TestLabel "test_parse_pPExpr" test_parse_pPExpr
   , TestLabel "test_parse_hExpr" test_parse_hExpr
   , TestLabel "test_parse_tplt" test_parse_tplt
+  , TestLabel "test_hashIdentifier" test_hashIdentifier
+  , TestLabel "test_hashPhrase" test_hashPhrase
+  , TestLabel "test_pAny" test_pAny
+  , TestLabel "test_pIt" test_pIt
   ]
+
+test_pIt :: Test
+test_pIt = TestCase $ do
+  assertBool "" $ parse pIt "" "/it" == Right (It Nothing)
+  assertBool "careful! hash expressions need to be prefixed with /h, unless they are 0-level phrases"
+    ( parse pIt ""                 "/it= 333 # 555" ==
+      Right (It $ Just $ PExpr $ Phrase "333") )
+  assertBool "a 0-level phrase"
+    ( parse pIt ""                 "/it= 333 555" ==
+      Right (It $ Just $ PExpr $ Phrase "333 555") )
+  assertBool "a hash expression" $
+    parse pIt "" "/it= /h 3 # 4" ==
+    Right ( It $ Just $ PRel ( Open 1 [ PNonRel $ PExpr $ Phrase "3"
+                                      , PNonRel $ PExpr $ Phrase "4" ]
+                               [""] ) )
+
+test_pAny :: Test
+test_pAny = TestCase $ do
+  assertBool "1" $ parse pAny "" "/_"    == Right Any
+  assertBool "2" $ parse pAny "" "/any " == Right Any
+
+test_hashPhrase :: Test
+test_hashPhrase = TestCase $ do
+  let s = "one two three"
+    in assertBool "" $ parse hashPhrase "" s == Right s
+  let s = ""
+    in assertBool "" $ isLeft $ parse hashPhrase "" s
+
+test_hashIdentifier :: Test
+test_hashIdentifier = TestCase $ do
+  let s = "start!@%^*+=-`~_[]{}:;<>?,.finish"
+      t = "start " ++ s ++ " finish"
+  assertBool "" $ parse hashIdentifier "" s == Right s
+  assertBool "" $ parse hashIdentifier "" t == Right "start"
+  assertBool "" $ isLeft $ parse hashIdentifier "" ""
 
 test_parse_tplt :: Test
 test_parse_tplt = TestCase $ do

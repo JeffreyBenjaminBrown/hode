@@ -165,7 +165,7 @@ pAny = lexeme ( foldr1 (<|>)
        >> return Any
 
 pIt :: Parser PExpr
-pIt = id  (lexeme (string "/it=") >> It . Just <$> pPExpr)
+pIt =     (lexeme (string "/it=") >> It . Just <$> pPExpr)
       <|> (lexeme (string "/it")  >> return (It Nothing))
 
 
