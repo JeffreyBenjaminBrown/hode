@@ -3,7 +3,31 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Hash.HParse where
+module Hode.Hash.HParse (
+    pRel -- ^ Parser PRel
+  , _pRel -- ^ Parser PRel
+  , pTerm -- ^ Parser PRel
+  , pHash -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
+  , pDiff -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
+  , pAnd -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
+  , pOr -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
+  , pAbsentMember -- ^ Parser PRel
+  , pPExpr -- ^ Parser PExpr
+  , pHashExpr -- ^ Parser PExpr
+  , _pHashExpr -- ^ Parser PExpr
+  , pAddr -- ^ Parser Expr
+  , pAddrs -- ^ Parser PExpr
+  , pPhrase -- ^ Parser PExpr
+  , pTplt -- ^ Parser Expr
+  , _pTplt -- ^ Parser Expr
+  , pMap -- ^ Parser PExpr
+  , pEval -- ^ Parser PExpr
+  , pVar -- ^ Parser PExpr
+  , pAny -- ^ Parser PExpr
+  , pIt -- ^ Parser PExpr
+  , hashPhrase -- ^ Parser String
+  , hashIdentifier -- ^ Parser String
+  ) where
 
 import           Control.Monad (void)
 import qualified Data.List as L

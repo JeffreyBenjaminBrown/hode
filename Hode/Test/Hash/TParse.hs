@@ -55,8 +55,10 @@ test_hashPhrase :: Test
 test_hashPhrase = TestCase $ do
   let s = "one two three"
     in assertBool "" $ parse hashPhrase "" s == Right s
-  let s = ""
-    in assertBool "" $ isLeft $ parse hashPhrase "" s
+  assertBool "the empty phrase" $
+    parse hashPhrase "" "\"\"" == Right ""
+  assertBool "not the empty phrase" $
+    isLeft $ parse hashPhrase "" ""
 
 test_hashIdentifier :: Test
 test_hashIdentifier = TestCase $ do
