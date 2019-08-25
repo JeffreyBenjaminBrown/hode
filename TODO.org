@@ -192,34 +192,11 @@ It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
 ** TODO transitive search
-*** TODO de novo, 2019 08 19
-**** use Hode.Data.Map.compose
-**** TODO easiest algorithm: user chooses which way to search
-Given sets X and Y, we want all (x,y) s.t. x < y.
-wolog, suppose the user chooses to search "increasing|rightward".
-Define (\) to be the set difference operator:
-X \ Y is the set X, minus its intersection with Y.
+*** TODO use type, SearchDir = SearchLeftward | SearchRightward
+*** TODO incorporate transitive search into HExprs, PExprs
+*** TODO orphans
+**** TODO Safety: check for cycles when someone adds an expression
 
-Let X1 be all n such that for some x in X \ Y,
-  (x < n) is (explicitly) in the graph,
-and let pred_1 :: X1 -> 2^X map every x1 in X1 to {x in X s.t. x < x1).
-  (Use Hode.Hash.HLookup.)
-Let X2 be all n such that for some x in X1 \ Y, (x < n) is in the graph,
-and pred_2 :: X2 -> 2^X map every x2 in X2 to {x in X s.t. x < x2).
-
-Similarly, build sets X3, X4 ... Xn,
-and functions pred_3, pred4 ... pred_n,
-such that X(n+1) would be the first empty one.
-
-Define XM = X union X1 union ... union Xn.
-Define earliestAncestors :: XM -> X.
-(If x is in X, then x is in `earliestAncestors x`,
-but it might not be the only member.)
-
-Find I = XM intersect Y.
-For each y in I,
-for each x in `earliestAncestors y`,
-include (x,y) in the answer.
 **** TODO extra credit: store, for each rel, the better traversal direction
 Maybe use QuickCheck to automate the discovery of that direction.
   Run in the background each time a new
@@ -227,89 +204,6 @@ Maybe use QuickCheck to automate the discovery of that direction.
 The user should still be able to specify direction if needed.
   It's conceivable that a relationship might usually be best traversed left,
   but not always.
-**** goal
-The search might be "reflexive" (<=) or not (<).
-Given two sets X and Y, we search left from X, right from Y,
-for a set P = {(x,y) : x (<=|<) y}.
-*** goal: transitive search
-If "brilliant #(is a kind of) bright",
-I should be able to search for everything that #is bright,
-and have brilliant things returned,
-without needing them to be labeled bright.
-*** method
-**** TODO ? Build-in some Exprs
-Phrase "transitive"
-Tplt "_ is _"
-**** Search query format: unchanged
-They look just like they used to.
-But if "_ x _" is transitive, then searching for "/any #x y"
-will (potentially) return more stuff.
-**** TODO Safety: check for cycles when someone adds an expression
-**** TODO better: hand this work off to some existing library
-***** basic idea
-Find all the xs and all the ys.
-Use the graph (whose nodes are addresses) induced by the #r relationship.
-***** TODO There are haskell bindings for a few graph querly langs now
-gremlin
-graphql
-pangraph
-cayley
-***** graphite, Graphalyze look good
-*graphite* uses hash maps
-*Data.Core.Graph* "is fast, efficient", uses IntMap
-Data.Graph.Comfort uses Data.Map, but it's a one-page library
-digraph - hashmaps, three modules
-***** if x is /any but y is specific (or vice-versa)
-Compute `Data.Graph.reachable y` for every value of y.
-**** nah - hand-write the search algorithm for "x #r y"
-***** If x is /any but y is specific (or vice-versa)
-Find everything that would be in "x #r y" without transitivity.
-Call that s1.
-For each (m1 #r y) in s1, search for "/any #r m1",
-and call the result "m2 #r m1".
-Call the set { m2 #r y } "s2 of y".
-Repeat: for each m2 in (s2 of y), search for "/any #r m2",
-and call each result "m3 #r m2" ...
-Eventually, end up with a bunch of relationships of the form "x #r y".
-***** If neither is specific
-Fuck that. Just return what's been getting returned already,
-which is just the first-order (ignoring transitivity) relatinoships.
-To return all the transitive relationships
-would be both hard for the programmer and useless for the user.
-***** *DOPE* If both are specific
-Let X = {x} and Y = {y}
-Create an empty map M from X to Y.
-
-Let X1 be all the values reachable from X in one rightward hop.
-Create a map L1 (L stands for left) from X1 to X,
-indicating which members are connected.
-For every y in both X1 and Y, add (L1 y, y) to M.
-
-Let Y1 be all values reachable from Y in one leftward hop.
-Create a map R1 (R stands for right) from Y1 to Y.
-For every x in both Y1 and X, add (x, R1 x) to M.
-*NEW at this step*: For every x in both Y1 and X1, add (L1 x, R1 x) to M.
-
-Let X2 be all values reachable from X1 in one rightward hop.
-*NEW IDEA* Using L1, create a map L2 from X2 to X.
-For each y in both X2 and Y, add (L2 y, y) to M.
-For each y in both X2 and Y1, add (L2 y, R1 y) to M.
-
-This has to go on until both forests are completely mapped.
-**** wart: What if you don't want to use the transitivity?
-***** fortunately there's a hack that solves it
-The user can just temporarily delete the transitivity property for that Tplt.
-***** the problem
-If "_ x _ " is transitive, and one searches for "/_ #x /_",
-the user probably just wants to see all the first-order x relationships,
-not the compound ones.
-
-This suggests either treating that (and similar?!) case specially,
-or letting the user ask not to use the transitivity.
-*** suspicions
-**** The functions in Hash.HLookup deserve complication for transitivity.
-Hash, after all, is the query language,
-and in that language transitive search is a distinct concept.
 *** thinking | difficulties
 **** two-template transitivity
 ***** "(x #is y) #and (y #(is subclass of) b) ##implies x #is z
@@ -318,9 +212,119 @@ and in that language transitive search is a distinct concept.
 linear (schedule) vs. branching (dependency)
 overlapping
 topological sort
-**** many, misc
-The functions in Rslt.RLookup are atomic; they should not get more complex.
-"Transitive" in Hode, so far, really means "transitive + reflexive".
+**** reflexivity is, so far, implicit
+"Transitive" in Hode really means "transitive + reflexive".
+*** done | stale
+**** DONE the algorithm
+***** use Hode.Data.Map.compose
+***** DONE easiest algorithm: user chooses which way to search
+ Given sets X and Y, we want all (x,y) s.t. x < y.
+ wolog, suppose the user chooses to search "increasing|rightward".
+ Define (\) to be the set difference operator:
+ X \ Y is the set X, minus its intersection with Y.
+
+ Let X1 be all n such that for some x in X \ Y,
+   (x < n) is (explicitly) in the graph,
+ and let pred_1 :: X1 -> 2^X map every x1 in X1 to {x in X s.t. x < x1).
+   (Use Hode.Hash.HLookup.)
+ Let X2 be all n such that for some x in X1 \ Y, (x < n) is in the graph,
+ and pred_2 :: X2 -> 2^X map every x2 in X2 to {x in X s.t. x < x2).
+
+ Similarly, build sets X3, X4 ... Xn,
+ and functions pred_3, pred4 ... pred_n,
+ such that X(n+1) would be the first empty one.
+
+ Define XM = X union X1 union ... union Xn.
+ Define earliestAncestors :: XM -> X.
+ (If x is in X, then x is in `earliestAncestors x`,
+ but it might not be the only member.)
+
+ Find I = XM intersect Y.
+ For each y in I,
+ for each x in `earliestAncestors y`,
+ include (x,y) in the answer.
+***** goal
+ The search might be "reflexive" (<=) or not (<).
+ Given two sets X and Y, we search left from X, right from Y,
+ for a set P = {(x,y) : x (<=|<) y}.
+**** goal: transitive search
+ If "brilliant #(is a kind of) bright",
+ I should be able to search for everything that #is bright,
+ and have brilliant things returned,
+ without needing them to be labeled bright.
+**** method
+***** TODO ? Build-in some Exprs
+ Phrase "transitive"
+ Tplt "_ is _"
+***** Search query format: unchanged
+ They look just like they used to.
+ But if "_ x _" is transitive, then searching for "/any #x y"
+ will (potentially) return more stuff.
+***** TODO better: hand this work off to some existing library
+****** basic idea
+ Find all the xs and all the ys.
+ Use the graph (whose nodes are addresses) induced by the #r relationship.
+****** TODO There are haskell bindings for a few graph querly langs now
+ gremlin
+ graphql
+ pangraph
+ cayley
+****** graphite, Graphalyze look good
+ *graphite* uses hash maps
+ *Data.Core.Graph* "is fast, efficient", uses IntMap
+ Data.Graph.Comfort uses Data.Map, but it's a one-page library
+ digraph - hashmaps, three modules
+****** if x is /any but y is specific (or vice-versa)
+ Compute `Data.Graph.reachable y` for every value of y.
+***** nah - hand-write the search algorithm for "x #r y"
+****** If x is /any but y is specific (or vice-versa)
+ Find everything that would be in "x #r y" without transitivity.
+ Call that s1.
+ For each (m1 #r y) in s1, search for "/any #r m1",
+ and call the result "m2 #r m1".
+ Call the set { m2 #r y } "s2 of y".
+ Repeat: for each m2 in (s2 of y), search for "/any #r m2",
+ and call each result "m3 #r m2" ...
+ Eventually, end up with a bunch of relationships of the form "x #r y".
+****** If neither is specific
+ Fuck that. Just return what's been getting returned already,
+ which is just the first-order (ignoring transitivity) relatinoships.
+ To return all the transitive relationships
+ would be both hard for the programmer and useless for the user.
+****** *DOPE* If both are specific
+ Let X = {x} and Y = {y}
+ Create an empty map M from X to Y.
+
+ Let X1 be all the values reachable from X in one rightward hop.
+ Create a map L1 (L stands for left) from X1 to X,
+ indicating which members are connected.
+ For every y in both X1 and Y, add (L1 y, y) to M.
+
+ Let Y1 be all values reachable from Y in one leftward hop.
+ Create a map R1 (R stands for right) from Y1 to Y.
+ For every x in both Y1 and X, add (x, R1 x) to M.
+ *NEW at this step*: For every x in both Y1 and X1, add (L1 x, R1 x) to M.
+
+ Let X2 be all values reachable from X1 in one rightward hop.
+ *NEW IDEA* Using L1, create a map L2 from X2 to X.
+ For each y in both X2 and Y, add (L2 y, y) to M.
+ For each y in both X2 and Y1, add (L2 y, R1 y) to M.
+
+ This has to go on until both forests are completely mapped.
+***** wart: What if you don't want to use the transitivity?
+****** fortunately there's a hack that solves it
+ The user can just temporarily delete the transitivity property for that Tplt.
+****** the problem
+ If "_ x _ " is transitive, and one searches for "/_ #x /_",
+ the user probably just wants to see all the first-order x relationships,
+ not the compound ones.
+
+ This suggests either treating that (and similar?!) case specially,
+ or letting the user ask not to use the transitivity.
+**** suspicions
+***** The functions in Hash.HLookup deserve complication for transitivity.
+ Hash, after all, is the query language,
+ and in that language transitive search is a distinct concept.
 ** TODO ordered display
 (See also "transitive search".)
 *** goal

@@ -2,18 +2,17 @@
 TupleSections #-}
 
 module Hode.Hash.Transitive (
-  transitiveRelsRightward, transitiveRelsLeftward,
-    -- ^ Rslt
-    -- -> Rslt
-    -- -> Addr -- ^ a binary `Tplt`
-    -- -> [Addr] -- ^ places to maybe finish
-    -- -> [Addr] -- ^ places to start
-    -- -> Either String [(Addr,Addr)]
-  rightwardReachable, leftwardReachable,
-    -- ^ Rslt
-    -- -> Addr -- ^ a binary `Tplt`
-    -- -> Addr -- ^ a starting `Expr`
-    -- -> Either String [Addr]
+  transitiveRels, -- ^ :: SearchDir
+                    -- -> Rslt
+                    -- -> Addr -- ^ a binary `Tplt`
+                    -- -> [Addr] -- ^ places to maybe finish
+                    -- -> [Addr] -- ^ places to start
+                    -- -> Either String [(Addr,Addr)]
+  reachable -- ^ :: SearchDir
+              -- -> Rslt
+              -- -> Addr -- ^ a binary `Tplt`
+              -- -> Addr -- ^ a starting `Expr`
+              -- -> Either String [Addr]
   ) where
 
 import qualified Data.List as L
@@ -33,58 +32,41 @@ import Hode.Util.Misc
 -- For instance, given sets S and T, find the set {(s,t) | s in S, t in T,
 -- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
 
-transitiveRelsRightward, transitiveRelsLeftward ::
-     Rslt
-  -> Addr -- ^ a binary `Tplt`
-  -> [Addr] -- ^ places to maybe finish
-  -> [Addr] -- ^ places to start
-  -> Either String [(Addr,Addr)]
-transitiveRelsRightward = transitiveRels True
-transitiveRelsLeftward  = transitiveRels False
-
-transitiveRels :: Bool -- ^ whether to search rightward
+transitiveRels :: SearchDir
   -> Rslt
   -> Addr -- ^ a binary `Tplt`
   -> [Addr] -- ^ places to maybe finish
   -> [Addr] -- ^ places to start
   -> Either String [(Addr,Addr)]
-transitiveRels b r t es ss =
+transitiveRels d r t es ss =
   concat <$>
-  ifLefts (map (transitiveRels1 b r t es) ss)
+  ifLefts (map (transitiveRels1 d r t es) ss)
 
-transitiveRels1 :: Bool -- ^ whether to search rightward
+transitiveRels1 :: SearchDir -- ^ whether to search rightward
   -> Rslt
   -> Addr -- ^ a binary `Tplt`
   -> [Addr] -- ^ places to maybe finish
   -> Addr -- ^ the place to start
   -> Either String [(Addr,Addr)]
-transitiveRels1 b r t fs s =
+transitiveRels1 d r t fs s =
   prefixLeft "transitiveRels: " $ do
-  found <- L.intersect fs <$> reachable b r t [s]
-  Right $ map (if b then (s,) else (,s)) found
+  found <- L.intersect fs <$> reachable d r t [s]
+  let pair = case d of SearchRightward -> (s,)
+                       SearchLeftward  -> (,s)
+  Right $ map pair found
 
 -- | = Searching from a fixed set of `Expr`s toward no particular target.
 -- For instance, given set S, find the set T = {t s.t. t > s for some s in S}.
 
--- | `rightwardReachable r s t` finds all the expressions reachable from `s`,
--- by moving rightward. `s` starts as member 1 and we look for member2,
--- then each of those becomes member 1 and we look for new member 2, etc.)
+-- | `reachable d r s t` finds all the expressions reachable from `s`,
+-- via `t`, by moving `d`.
 
-rightwardReachable, leftwardReachable ::
-  Rslt
-  -> Addr -- ^ a binary `Tplt`
-  -> [Addr] -- ^ starting `Expr`s
-  -> Either String [Addr]
-rightwardReachable = reachable True
-leftwardReachable  = reachable False
-
--- | Not for export.
-reachable :: Bool -- ^ whether to search rightward
+reachable :: SearchDir
           -> Rslt
           -> Addr -- ^ a binary `Tplt`
           -> [Addr] -- ^ starting `Expr`s
           -> Either String [Addr]
-reachable rightward r t as = prefixLeft "reachable: " $ do
+reachable d r t as = prefixLeft "reachable: " $ do
   verifyBinaryTemplate r t
   f [] as
   where
@@ -92,7 +74,7 @@ reachable rightward r t as = prefixLeft "reachable: " $ do
     f explored [] = Right explored
     f explored (a:morePending) =
       prefixLeft ("f of " ++ show a) $ do
-        s <- immediateNeighbors r rightward t [a]
+        s <- immediateNeighbors d r t [a]
         f (a:explored) $ S.toList s ++ morePending
         -- I believe this gives DFS,
         -- and flipping the ++ would change it to BFS.
@@ -106,15 +88,15 @@ verifyBinaryTemplate r t = do
   if v == (TpltCtr,2) then Right () else Left $
     "Expr at address " ++ show t ++ " not a binary template."
 
-immediateNeighbors :: Rslt
-                   -> Bool -- ^ whether searching rightward
+immediateNeighbors :: SearchDir
+                   -> Rslt
                    -> Addr -- ^ a binary `Tplt`
                    -> [Addr] -- ^ starting `Expr`s
                    -> Either String (Set Addr)
-immediateNeighbors r rightward t as =
-  let (start, toward) = case rightward of
-        True -> (1,2)
-        False -> (2,1)
+immediateNeighbors d r t as =
+  let (start, toward) = case d of
+        SearchRightward -> (1,2)
+        SearchLeftward -> (2,1)
   in hExprToAddrs r mempty $
      HEval ( HMap $ M.fromList
              [ ( RoleMember start

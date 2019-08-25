@@ -17,6 +17,10 @@ import Hode.Rslt.RTypes
 type Level = Int
 type Joint = String
 
+-- | Used to specify transitive searches, for binary `Tplt`s.
+data SearchDir = SearchLeftward | SearchRightward
+  deriving (Show, Eq, Ord)
+
 -- | An `HExpr` describes a set (maybe empty) of `Expr`s in a `Rslt`.
 data HExpr =
     HExpr Expr  -- ^ When you want exactly one `Expr`, and know which.
