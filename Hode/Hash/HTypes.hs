@@ -33,11 +33,11 @@ data HExpr =
   | HDiff HExpr HExpr -- ^ Set difference.
   | HAnd [HExpr]      -- ^ Intersection.
   | HOr  [HExpr]      -- ^ Union.
-  | HTrans SearchDir HExpr HExpr HExpr -- ^ Transitive search:
+  | HTrans SearchDir HExpr HExpr (Maybe HExpr) -- ^ Transitive search:
     -- direction,
     -- templates to search along (using more than one is weird but legal),
     -- potential starting points,
-    -- potential ending points.
+    -- potential ending points (if `Nothing`, the search can end anywhere).
   deriving (Eq, Ord, Show)
 
 -- | Example: if x is never the second member of anything, then the `HMap`
