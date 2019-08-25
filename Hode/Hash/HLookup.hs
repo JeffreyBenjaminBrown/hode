@@ -182,6 +182,11 @@ hExprToAddrs r s (HOr hs) =
   $ foldr1 S.union
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
+hExprToAddrs r sub (HReach d ht hs) = do
+  s <- S.toList <$> hExprToAddrs r sub hs
+  t <- S.toList <$> hExprToAddrs r sub ht
+  S.fromList <$> reachable d r t s
+
 
 -- | == Transitive search utilities
 
