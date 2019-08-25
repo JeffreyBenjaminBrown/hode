@@ -15,10 +15,35 @@ import Hode.Rslt.RTypes
 
 test_module_hash_hlookup_transitive :: Test
 test_module_hash_hlookup_transitive = TestList [
-    TestLabel "test_transitiveClsoure" test_transitiveClsoure,
-    TestLabel "test_transitiveRels" test_transitiveRels,
-    TestLabel "test_reachable" test_reachable
-    ]
+  TestLabel "test_hLookup_hReach" test_hLookup_hReach,
+  TestLabel "test_transitiveClsoure" test_transitiveClsoure,
+  TestLabel "test_transitiveRels" test_transitiveRels,
+  TestLabel "test_reachable" test_reachable
+  ]
+
+test_hLookup_hReach :: Test
+test_hLookup_hReach = TestCase $ do
+  let Right n0 = exprToAddr r $ Phrase "0"
+      Right n1 = exprToAddr r $ Phrase "1"
+      Right n2 = exprToAddr r $ Phrase "2"
+      Right n3 = exprToAddr r $ Phrase "3"
+      Right t  = exprToAddr r $ ExprTplt $
+                 map Phrase [ "", "lte", "" ]
+
+      Right (r :: Rslt) = stringHExprsToRslt
+                                [ "0 #lte 1"
+                                , "1 #lte 2"
+                                , "2 #lte 3" ]
+
+  assertBool "right from 1" $
+    hExprToAddrs r mempty
+      (HReach SearchRightward (HExpr $ Addr t) (HExpr $ Addr n1) )
+    == Right (S.fromList [n1,n2,n3])
+  assertBool "left from 1" $
+    hExprToAddrs r mempty
+      (HReach SearchLeftward (HExpr $ Addr t) (HExpr $ Addr n1) )
+    == Right (S.fromList [n1,n0])
+
 
 test_transitiveClsoure :: Test
 test_transitiveClsoure = TestCase $ do
