@@ -44,12 +44,12 @@ data HExpr where
          -> HExpr -- ^ every `Expr` that can be reached by traversing
          -- from the starting `Expr`s along the specified `Tplt`(s) in the specified direction
   HTrans :: SearchDir
+    -> [Role] -- ^ The algorithm will find every pair (s,f)
+    -- such that s is one of the starting `Expr`s, f is one of the ending `Expr`s, and `s` is transitively related to `f`. This list is then used to deterine what from those pairs to return -- either all the left members (`[RoleMember 1]`), all the right members (`[RoleMember 2]`), or both (`[RoleMember 1, RoleMember 2]`).
     -> HExpr -- ^ template(s) to search along
              -- (using more than one is weird but legal)
     -> HExpr -- ^ expression(s) to end at
     -> HExpr -- ^ expression(s) to start from
-    -> [Role] -- ^ The algorithm will find every pair (s,f)
-    -- such that s is one of the starting `Expr`s, f is one of the ending `Expr`s, and `s` is transitively related to `f`. This list is then used to deterine what from those pairs to return -- either all the left members (`[RoleMember 1]`), all the right members (`[RoleMember 2]`), or both (`[RoleMember 1, RoleMember 2]`).
     -> HExpr
   deriving (Eq, Ord, Show)
 
