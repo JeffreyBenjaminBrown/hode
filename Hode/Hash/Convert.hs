@@ -1,5 +1,5 @@
--- | After parsing, the next step is to
--- create `HExpr`s from `PExpr`s and `PRel`s.
+-- | This module handles the step that follows parsing:
+-- creating `HExpr`s from `PExpr`s and `PRel`s.
 
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE LambdaCase #-}
@@ -86,7 +86,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
 --    go p@(pExprIsSpecificF -> False) = Left $ "pExprToHExpr: " ++
 --      show (embed $ fmap fst p) ++ " is not specific enough."
 --    go p@(PExprF s) = Right $ HExpr s
---   go (PMapF s) = Right $ HMap $ ifLefts_map err $ fmap snd s
+--    go (PMapF s) = Right $ HMap $ ifLefts_map err $ fmap snd s
 --      -- WTF?
 --      where err = Left ""
 --    go _ = error "todo: even more"

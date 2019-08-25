@@ -23,7 +23,16 @@ test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
   , TestLabel "test_parse_pPExpr" test_parse_pPExpr
   , TestLabel "test_parse_hExpr" test_parse_hExpr
+  , TestLabel "test_parse_tplt" test_parse_tplt
   ]
+
+test_parse_tplt :: Test
+test_parse_tplt = TestCase $ do
+  assertBool "Must represent non-present joints with the /tplt notation"
+    $ parse _pTplt "" "sees (whenever there is) \"\""
+    == Right ( ExprTplt [ Phrase "sees"
+                        , Phrase "whenever there is"
+                        , Phrase "" ] )
 
 test_parse_hExpr :: Test
 test_parse_hExpr = TestCase $ do

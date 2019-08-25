@@ -214,16 +214,18 @@ and there are only two possibilities: RoleMember 1 and RoleMember 2.
 Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
-*** TODO efficiency: transitiveRels might, but HTrans does not have to search exahstively
+*** TODO NEXT - add PReach to PExpr
+*** TODO add PTrans to PExpr
+  | PTrans SearchDir [Role] PExpr PExpr PExpr
+*** TODO orphans
+**** TODO efficiency: transitiveRels might, but HTrans does not have to search exahstively
 See TODO comment under the HTrans clause of hExprToAddrs.
 transitiveRels does have to find every pair if, for example, it's computing a transitive closure (as will be needed to oganize contents on-screen).
-*** TODO incorporate transitive search into PExpr
-PExpr = ...
-  | POr whatever
-  | PTrans SearchDir PExpr [PExpr] [PExpr] |
-*** TODO orphans
 **** TODO Safety: check for cycles when someone adds an expression
 
+**** TODO the transitive rel functions should take (SearchDir, Tplt) pairs
+ rather than a single SearchDir and multiple Tplts.
+ But this can wait until I need that.
 **** TODO store, for each rel, the better traversal direction
 Maybe use QuickCheck to automate the discovery of that direction.
   Run in the background each time a new
@@ -231,9 +233,6 @@ Maybe use QuickCheck to automate the discovery of that direction.
 The user should still be able to specify direction if needed.
   It's conceivable that a relationship might usually be best traversed left,
   but not always.
-**** TODO the transitive rel functions should take (SearchDir, Tplt) pairs
- rather than a single SearchDir and multiple Tplts.
- But this can wait until I need that.
 *** thinking | difficulties
 **** two-template transitivity
 ***** "(x #is y) #and (y #(is subclass of) b) ##implies x #is z
