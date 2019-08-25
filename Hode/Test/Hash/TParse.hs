@@ -70,8 +70,8 @@ test_hashIdentifier = TestCase $ do
 
 test_parse_tplt :: Test
 test_parse_tplt = TestCase $ do
-  assertBool "Must represent non-present joints with the /tplt notation"
-    $ parse _pTplt "" "sees (whenever there is) \"\""
+  assertBool "non-present joints are represented as \\\"\\\""
+    $ parse _pTplt "" "sees (whenever there is) \"\" "
     == Right ( ExprTplt [ Phrase "sees"
                         , Phrase "whenever there is"
                         , Phrase "" ] )
