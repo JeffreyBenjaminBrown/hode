@@ -26,10 +26,10 @@ test_module_hash_hlookup_transitive = TestList [
 test_hLookup_hTrans :: Test
 test_hLookup_hTrans = TestCase $ do
   let Right a0 = exprToAddr r $ Phrase "a0"
-      Right a1 = exprToAddr r $ Phrase "a1"
+      -- Right a1 = exprToAddr r $ Phrase "a1"
       Right a2 = exprToAddr r $ Phrase "a2"
       Right b0 = exprToAddr r $ Phrase "b0"
-      Right b1 = exprToAddr r $ Phrase "b1"
+      -- Right b1 = exprToAddr r $ Phrase "b1"
       Right b2 = exprToAddr r $ Phrase "b2"
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]

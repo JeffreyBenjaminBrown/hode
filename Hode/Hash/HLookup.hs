@@ -91,6 +91,8 @@ hMatches r h0 a0 = prefixLeft "hMatches: " $ do
       bs :: [Bool] <- ifLefts $ map (\h -> hMatches r h a0) hs
       Right $ or bs
 
+    HReach _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HReach"
+    HTrans _ _ _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HTrans"
 
 -- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
 hExprToExpr :: Rslt -> HExpr -> Either String Expr
