@@ -189,6 +189,13 @@ hExprToAddrs r sub (HReach d ht hs) =
   S.fromList <$> reachable d r t s
 
 hExprToAddrs r sub (HTrans d roles ht he hs) =
+  -- TODO : This could be smarter. If all you want to know is
+  -- which starts can reach some end,
+  -- you don't need to find every such connection;
+  -- you can stop looking after the first.
+  -- And if you want to know which ends can be reached by some start,
+  -- then once a start has reached some ends,
+  -- you can remove those ends when testing the remaining starts.
   prefixLeft "-> hExprToAddrs called on HTrans" $ do
   if null ( (S.fromList roles) S.\\
             (S.fromList [RoleMember 1, RoleMember 2] ) )
