@@ -182,15 +182,22 @@ hExprToAddrs r s (HOr hs) =
   $ foldr1 S.union
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
-hExprToAddrs r sub (HReach d ht hs) = do
+hExprToAddrs r sub (HReach d ht hs) =
+  prefixLeft "-> hExprToAddrs called on HReach" $ do
   s <- S.toList <$> hExprToAddrs r sub hs
   t <- S.toList <$> hExprToAddrs r sub ht
   S.fromList <$> reachable d r t s
 
-hExprToAddrs r sub (HTrans d roles ht he hs) = do
-  t  <- S.toList <$> hExprToAddrs r sub ht
-  e <- S.toList <$> hExprToAddrs r sub he
-  s <- S.toList <$> hExprToAddrs r sub hs
+hExprToAddrs r sub (HTrans d roles ht he hs) =
+  prefixLeft "-> hExprToAddrs called on HTrans" $ do
+  if null ( (S.fromList roles) S.\\
+            (S.fromList [RoleMember 1, RoleMember 2] ) )
+    then Right ()
+    else Left $ "`roles` argument " ++ show roles ++
+         " contains something other than `RoleMember 1` or `RoleMember 2`"
+  t :: [Addr] <- S.toList <$> hExprToAddrs r sub ht
+  e :: [Addr] <- S.toList <$> hExprToAddrs r sub he
+  s :: [Addr] <- S.toList <$> hExprToAddrs r sub hs
   pairs :: [(Addr,Addr)] <- transitiveRels d r t e s
   let firsts = if not $ elem (RoleMember 1) roles then []
         else map fst pairs
