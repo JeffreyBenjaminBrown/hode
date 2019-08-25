@@ -187,6 +187,17 @@ hExprToAddrs r sub (HReach d ht hs) = do
   t <- S.toList <$> hExprToAddrs r sub ht
   S.fromList <$> reachable d r t s
 
+hExprToAddrs r sub (HTrans d roles ht he hs) = do
+  t  <- S.toList <$> hExprToAddrs r sub ht
+  e <- S.toList <$> hExprToAddrs r sub he
+  s <- S.toList <$> hExprToAddrs r sub hs
+  pairs :: [(Addr,Addr)] <- transitiveRels d r t e s
+  let firsts = if not $ elem (RoleMember 1) roles then []
+        else map fst pairs
+      seconds = if not $ elem (RoleMember 2) roles then []
+        else map snd pairs
+  Right $ S.fromList $ firsts ++ seconds
+
 
 -- | == Transitive search utilities
 
