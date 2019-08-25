@@ -59,7 +59,7 @@ library
                 , Hode.Rslt.Show
                 , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
-                , Hode.Test.Hash.TConnectivity
+                , Hode.Test.Hash.TTransitive
                 , Hode.Test.Hash.TConvert
                 , Hode.Test.Hash.THLookup
                 , Hode.Test.Hash.THToRslt
