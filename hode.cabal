@@ -33,7 +33,6 @@ library
                 , Hode.Data.Graph
                 , Hode.Data.Map
 --                , Hode.Data.Relation
-                , Hode.Hash.Transitive
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
                 , Hode.Hash.HLookup

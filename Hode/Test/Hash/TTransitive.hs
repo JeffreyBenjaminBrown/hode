@@ -15,9 +15,32 @@ import Hode.Rslt.RTypes
 
 test_module_hash_hlookup_transitive :: Test
 test_module_hash_hlookup_transitive = TestList [
+    TestLabel "test_transitiveClsoure" test_transitiveClsoure,
     TestLabel "test_transitiveRels" test_transitiveRels,
     TestLabel "test_reachable" test_reachable
     ]
+
+test_transitiveClsoure :: Test
+test_transitiveClsoure = TestCase $ do
+  let Right n0 = exprToAddr r $ Phrase "0"
+      Right n1 = exprToAddr r $ Phrase "1"
+      Right n2 = exprToAddr r $ Phrase "2"
+      Right n3 = exprToAddr r $ Phrase "3"
+      Right t  = exprToAddr r $ ExprTplt $
+                 map Phrase [ "", "lte", "" ]
+
+      Right (r :: Rslt) = stringHExprsToRslt
+                                [ "0 #lte 1"
+                                , "1 #lte 2"
+                                , "2 #lte 3" ]
+
+  assertBool "1" $
+    (S.fromList <$>
+     transitiveClosure SearchRightward r [t] [n0,n1,n2,n3])
+    == Right ( S.fromList [ (n0,n0), (n0,n1), (n0,n2), (n0,n3),
+                            (n1,n1), (n1,n2), (n1,n3),
+                            (n2,n2), (n2,n3),
+                            (n3,n3) ] )
 
 test_transitiveRels :: Test
 test_transitiveRels = TestCase $ do

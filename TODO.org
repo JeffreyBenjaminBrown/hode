@@ -192,20 +192,34 @@ It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
 ** TODO transitive search
+*** TODO HTrans needs something like HIt
+I might ask for (/tr <hexpr> #rel /it).
+In that case I want everything reachable from /it.
+
+I might ask for (/tr <hexpr> #rel <hexpr'>).
+I don't think that makes sense without an /it,
+because it would find relationships that are not
+(explicit) in the graph.
+*** TODO efficiency: transitiveRels and reachable don't need to search exhaustively
+Suppose you have some animals As and some qualities Qs,
+and want to filter the animals down to those 
+For each animal, 
 *** TODO incorporate transitive search into HExpr
 **** in HLookup, add this
 after this definition:
   hExprToAddrs r s (HOr hs) =
 
-hExprToAddrs r s (HTrans d ht hss mhfs) =
+hExprToAddrs r s (HTrans d hts hss mhfs) =
   prefixLeft "-> hExprToAddrs called on HTrans" $ do
-  t  <- hExprToAddrs r s ht
+  ts <- hExprToAddrs r s hts
   ss <- hExprToAddrs r s hss
   case mhfs of
-    Nothing -> reachable d r t ss
+    Nothing -> S.fromList <$>
+      reachable d r (S.toList ts) (S.toList ss)
     Just hfs -> do
       fs <- hExprToAddrs r s hfs
-      transitiveRels d r (S.toList t) (S.toList fs) (S.toList ss)
+      S.fromList <$>
+        transitiveRels d r (S.toList ts) (S.toList fs) (S.toList ss)
 
 *** TODO incorporate transitive search into PExpr
 PExpr = ...
@@ -214,13 +228,16 @@ PExpr = ...
 *** TODO orphans
 **** TODO Safety: check for cycles when someone adds an expression
 
-**** TODO extra credit: store, for each rel, the better traversal direction
+**** TODO store, for each rel, the better traversal direction
 Maybe use QuickCheck to automate the discovery of that direction.
   Run in the background each time a new
   instance of a transitive relationship is added.
 The user should still be able to specify direction if needed.
   It's conceivable that a relationship might usually be best traversed left,
   but not always.
+**** TODO the transitive rel functions should take (SearchDir, Tplt) pairs
+ rather than a single SearchDir and multiple Tplts.
+ But this can wait until I need that.
 *** thinking | difficulties
 **** two-template transitivity
 ***** "(x #is y) #and (y #(is subclass of) b) ##implies x #is z

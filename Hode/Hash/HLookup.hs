@@ -8,15 +8,23 @@ module Hode.Hash.HLookup (
   , hExprToAddrs -- ^ Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
 
   -- | == Transitive search utilities
+  , transitiveClosure -- ^ :: SearchDir
+                        -- -> Rslt
+                        -- -> [Addr] -- ^ binary `Tplt`s to search along.
+                        -- To use more than one is weird but legal.
+                        -- -> [Addr] -- ^ A subset of the graph.
+                        -- -> Either String [(Addr,Addr)]
   , transitiveRels -- ^ :: SearchDir
                      -- -> Rslt
-                     -- -> [Addr] -- ^ binary `Tplt`s
+                     -- -> [Addr] -- ^ binary `Tplt`s to search along.
+                     -- To use more than one is weird but legal.
                      -- -> [Addr] -- ^ places to finish
                      -- -> [Addr] -- ^ places to start
                      -- -> Either String [(Addr,Addr)]
   , reachable -- ^ :: SearchDir
                 -- -> Rslt
-                -- -> [Addr] -- ^ binary `Tplt`s
+                -- -> [Addr] -- ^ binary `Tplt`s to search along.
+                -- To use more than one is weird but legal.
                 -- -> [Addr] -- ^ places to start
                 -- -> Either String [Addr]
   ) where
@@ -177,6 +185,16 @@ hExprToAddrs r s (HOr hs) =
 
 -- | == Transitive search utilities
 
+-- | PITFALL: Assumes (at least one) relationship it is given is reflexive.
+transitiveClosure :: SearchDir
+  -> Rslt
+  -> [Addr] -- ^ binary `Tplt`s to search along.
+            -- To use more than one is weird but legal.
+  -> [Addr] -- ^ A subset of the graph.
+  -> Either String [(Addr,Addr)]
+transitiveClosure d r ts as =
+  transitiveRels d r ts as as
+
 -- | = Searching from a fixed set toward a fixed target.
 -- For instance, given sets S and T, find the set {(s,t) | s in S, t in T,
 -- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
@@ -219,7 +237,7 @@ reachable :: SearchDir
           -> [Addr] -- ^ starting `Expr`s
           -> Either String [Addr]
 reachable d r ts as = prefixLeft "reachable: " $ do
-  _ <- ifLefts $ map (verifyBinaryTemplate r) ts
+  _ <- ifLefts $ map (isBinaryTemplate r) ts
   f [] as
   where
     f :: [Addr] -> [Addr] -> Either String [Addr]
@@ -227,15 +245,15 @@ reachable d r ts as = prefixLeft "reachable: " $ do
     f explored (a:morePending) =
       prefixLeft ("f of " ++ show a) $ do
         s <- immediateNeighbors d r ts [a]
-        f (a:explored) $ S.toList s ++ morePending
-        -- I believe this gives DFS,
-        -- and flipping the ++ would change it to BFS.
+        f (a:explored) $ morePending ++ S.toList s
+        -- I believe this gives BFS,
+        -- and flipping the ++ would change it to DFS.
 
 
 -- | = Utilities used bye the above transitive search utilities
 
-verifyBinaryTemplate :: Rslt -> Addr -> Either String ()
-verifyBinaryTemplate r t = do
+isBinaryTemplate :: Rslt -> Addr -> Either String ()
+isBinaryTemplate r t = do
   v <- variety r t
   if v == (TpltCtr,2) then Right () else Left $
     "Expr at address " ++ show t ++ " not a binary template."
