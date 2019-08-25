@@ -9,17 +9,52 @@ import           Test.HUnit
 import Hode.Hash.HLookup
 import Hode.Hash.HToRslt
 import Hode.Hash.HTypes
+import Hode.Hash.HUtil (hor)
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 
 
 test_module_hash_hlookup_transitive :: Test
 test_module_hash_hlookup_transitive = TestList [
+  TestLabel "test_hLookup_hTrans" test_hLookup_hTrans,
   TestLabel "test_hLookup_hReach" test_hLookup_hReach,
   TestLabel "test_transitiveClsoure" test_transitiveClsoure,
   TestLabel "test_transitiveRels" test_transitiveRels,
   TestLabel "test_reachable" test_reachable
   ]
+
+test_hLookup_hTrans :: Test
+test_hLookup_hTrans = TestCase $ do
+  let Right a0 = exprToAddr r $ Phrase "a0"
+      Right a1 = exprToAddr r $ Phrase "a1"
+      Right a2 = exprToAddr r $ Phrase "a2"
+      Right b0 = exprToAddr r $ Phrase "b0"
+      Right b1 = exprToAddr r $ Phrase "b1"
+      Right b2 = exprToAddr r $ Phrase "b2"
+      Right t  = exprToAddr r $ ExprTplt $
+                 map Phrase [ "", "", "" ]
+      
+      Right (r :: Rslt) = stringHExprsToRslt
+                          [ "a0 # a1"
+                          , "a1 # a2"
+                          , "b0 # b1"
+                          , "b1 # b2" ]
+
+  assertBool "a0 can only get to a2" $ hExprToAddrs r mempty
+    ( HTrans SearchRightward [RoleMember 2] (HExpr $ Addr t)
+      (hor [a2,b2])
+      (hor [a0]) )
+    == Right (S.fromList [a2])
+  assertBool "only b0 can get to b2" $ hExprToAddrs r mempty
+    ( HTrans SearchRightward [RoleMember 1] (HExpr $ Addr t)
+      (hor [b2])
+      (hor [a0,b0]) )
+    == Right (S.fromList [b0])
+  assertBool "a0 cannot reach b2" $ hExprToAddrs r mempty
+    ( HTrans SearchRightward [RoleMember 1, RoleMember 2] (HExpr $ Addr t)
+      (hor [b2])
+      (hor [a0]) )
+    == Right S.empty
 
 test_hLookup_hReach :: Test
 test_hLookup_hReach = TestCase $ do
@@ -35,11 +70,11 @@ test_hLookup_hReach = TestCase $ do
                                 , "1 #lte 2"
                                 , "2 #lte 3" ]
 
-  assertBool "right from 1" $
+  assertBool "right from (greater than or equal to) 1" $
     hExprToAddrs r mempty
       (HReach SearchRightward (HExpr $ Addr t) (HExpr $ Addr n1) )
     == Right (S.fromList [n1,n2,n3])
-  assertBool "left from 1" $
+  assertBool "left from (less than or equal to) 1" $
     hExprToAddrs r mempty
       (HReach SearchLeftward (HExpr $ Addr t) (HExpr $ Addr n1) )
     == Right (S.fromList [n1,n0])
