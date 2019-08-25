@@ -34,23 +34,25 @@ import Hode.Util.Misc
 
 transitiveRels :: SearchDir
   -> Rslt
-  -> Addr -- ^ a binary `Tplt`
+  -> [Addr] -- ^ binary `Tplt`s to search along.
+            -- To use more than one is weird but legal.
   -> [Addr] -- ^ places to maybe finish
   -> [Addr] -- ^ places to start
   -> Either String [(Addr,Addr)]
-transitiveRels d r t es ss =
+transitiveRels d r ts es ss =
   concat <$>
-  ifLefts (map (transitiveRels1 d r t es) ss)
+  ifLefts (map (transitiveRels1 d r ts es) ss)
 
 transitiveRels1 :: SearchDir -- ^ whether to search rightward
   -> Rslt
-  -> Addr -- ^ a binary `Tplt`
+  -> [Addr] -- ^ binary `Tplt`s to search along.
+            -- To use more than one is weird but legal.
   -> [Addr] -- ^ places to maybe finish
   -> Addr -- ^ the place to start
   -> Either String [(Addr,Addr)]
-transitiveRels1 d r t fs s =
+transitiveRels1 d r ts fs s =
   prefixLeft "transitiveRels: " $ do
-  found <- L.intersect fs <$> reachable d r t [s]
+  found <- L.intersect fs <$> reachable d r ts [s]
   let pair = case d of SearchRightward -> (s,)
                        SearchLeftward  -> (,s)
   Right $ map pair found
@@ -63,18 +65,19 @@ transitiveRels1 d r t fs s =
 
 reachable :: SearchDir
           -> Rslt
-          -> Addr -- ^ a binary `Tplt`
+          -> [Addr] -- ^ binary `Tplt`s to search along.
+                    -- To use more than one is weird but legal.
           -> [Addr] -- ^ starting `Expr`s
           -> Either String [Addr]
-reachable d r t as = prefixLeft "reachable: " $ do
-  verifyBinaryTemplate r t
+reachable d r ts as = prefixLeft "reachable: " $ do
+  _ <- ifLefts $ map (verifyBinaryTemplate r) ts
   f [] as
   where
     f :: [Addr] -> [Addr] -> Either String [Addr]
     f explored [] = Right explored
     f explored (a:morePending) =
       prefixLeft ("f of " ++ show a) $ do
-        s <- immediateNeighbors d r t [a]
+        s <- immediateNeighbors d r ts [a]
         f (a:explored) $ S.toList s ++ morePending
         -- I believe this gives DFS,
         -- and flipping the ++ would change it to BFS.
@@ -90,10 +93,11 @@ verifyBinaryTemplate r t = do
 
 immediateNeighbors :: SearchDir
                    -> Rslt
-                   -> Addr -- ^ a binary `Tplt`
+                   -> [Addr] -- ^ binary `Tplt`s to search along.
+                             -- To use more than one is weird but legal.
                    -> [Addr] -- ^ starting `Expr`s
                    -> Either String (Set Addr)
-immediateNeighbors d r t as =
+immediateNeighbors d r ts as =
   let (start, toward) = case d of
         SearchRightward -> (1,2)
         SearchLeftward -> (2,1)
@@ -101,5 +105,6 @@ immediateNeighbors d r t as =
      HEval ( HMap $ M.fromList
              [ ( RoleMember start
                , HOr $ map (HExpr . Addr) as )
-             , ( RoleTplt, HExpr $ Addr t ) ] )
+             , ( RoleTplt
+               , HOr $ map (HExpr . Addr) ts ) ] )
      [[ RoleMember toward ]]

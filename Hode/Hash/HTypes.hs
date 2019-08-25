@@ -34,8 +34,10 @@ data HExpr =
   | HAnd [HExpr]      -- ^ Intersection.
   | HOr  [HExpr]      -- ^ Union.
   | HTrans SearchDir HExpr HExpr HExpr -- ^ Transitive search:
-    -- direction, template, potential starting points,
-    -- potential ending points
+    -- direction,
+    -- templates to search along (using more than one is weird but legal),
+    -- potential starting points,
+    -- potential ending points.
   deriving (Eq, Ord, Show)
 
 -- | Example: if x is never the second member of anything, then the `HMap`

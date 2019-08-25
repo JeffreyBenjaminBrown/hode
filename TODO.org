@@ -193,7 +193,13 @@ Otherwise there is no record of the names used by the input and the output for v
 * TODO re. Rslt
 ** TODO transitive search
 *** TODO incorporate transitive search into HExpr
-**** and then into PExpr
+**** in HLookup, add this at the end
+--hExprToAddrs r s (HTrans d ht hss hfs) =
+--  prefixLeft "-> hExprToAddrs called on HTrans" $ do
+--  ss <- hExprToAddrs r s hss
+--  fs <- hExprToAddrs r s hfs
+--  ht <- hExprToAddrs
+*** TODO incorporate transitive search into PExpr
 PExpr = ...
   | POr whatever
   | PTrans SearchDir PExpr [PExpr] [PExpr] |
