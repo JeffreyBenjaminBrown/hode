@@ -6,15 +6,15 @@ module Hode.Test.Hash.TTransitive where
 import qualified Data.Set as S
 import           Test.HUnit
 
+import Hode.Hash.HLookup
 import Hode.Hash.HToRslt
 import Hode.Hash.HTypes
-import Hode.Hash.Transitive
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 
 
-test_module_rslt_connectivity :: Test
-test_module_rslt_connectivity = TestList [
+test_module_hash_hlookup_transitive :: Test
+test_module_hash_hlookup_transitive = TestList [
     TestLabel "test_transitiveRels" test_transitiveRels,
     TestLabel "test_reachable" test_reachable
     ]

@@ -34,12 +34,12 @@ tests = runTestTT $ TestList
   , test_module_Program
   , test_module_hash_convert
   , test_module_hash_parse
+  , test_module_hash_hlookup_transitive
   , test_module_hode_brick
   , test_module_hode_hToRslt
   , test_module_pTree
   , test_module_query
   , test_module_rsltProgram
-  , test_module_rslt_connectivity
   , test_module_rslt_edit
   , test_module_rslt_exprToAddr
   , test_module_rslt_hash

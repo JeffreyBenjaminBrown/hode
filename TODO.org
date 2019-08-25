@@ -193,12 +193,20 @@ Otherwise there is no record of the names used by the input and the output for v
 * TODO re. Rslt
 ** TODO transitive search
 *** TODO incorporate transitive search into HExpr
-**** in HLookup, add this at the end
---hExprToAddrs r s (HTrans d ht hss hfs) =
---  prefixLeft "-> hExprToAddrs called on HTrans" $ do
---  ss <- hExprToAddrs r s hss
---  fs <- hExprToAddrs r s hfs
---  ht <- hExprToAddrs
+**** in HLookup, add this
+after this definition:
+  hExprToAddrs r s (HOr hs) =
+
+hExprToAddrs r s (HTrans d ht hss mhfs) =
+  prefixLeft "-> hExprToAddrs called on HTrans" $ do
+  t  <- hExprToAddrs r s ht
+  ss <- hExprToAddrs r s hss
+  case mhfs of
+    Nothing -> reachable d r t ss
+    Just hfs -> do
+      fs <- hExprToAddrs r s hfs
+      transitiveRels d r (S.toList t) (S.toList fs) (S.toList ss)
+
 *** TODO incorporate transitive search into PExpr
 PExpr = ...
   | POr whatever
