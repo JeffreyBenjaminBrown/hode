@@ -1,9 +1,9 @@
--- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
-
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies, DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE ScopedTypeVariables
+, GADTs -- just for the sake of adding comments to constructor arguments
+, TemplateHaskell
+, TypeFamilies
+, DeriveFunctor, DeriveFoldable, DeriveTraversable
+, ViewPatterns #-}
 
 module Hode.Hash.HTypes where
 
@@ -22,22 +22,35 @@ data SearchDir = SearchLeftward | SearchRightward
   deriving (Show, Eq, Ord)
 
 -- | An `HExpr` describes a set (maybe empty) of `Expr`s in a `Rslt`.
-data HExpr =
-    HExpr Expr  -- ^ When you want exactly one `Expr`, and know which.
+data HExpr where
+  HExpr :: Expr -> HExpr
+  -- ^ When you want exactly one `Expr`, and know which.
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
-  | HMap  HMap  -- ^ The search workhorse.
-  | HEval HExpr [RolePath] -- ^ Finds matches to the `HExpr`, then retrieves
-  -- from each match the subexpression that each `RolePath` leads to.
-  -- (Inclduing more than one path in the `[RolePath]` is weird but legal.)
-  | HVar  Var         -- ^ To look up the `Var` from a `Subst Addr Rslt`.
-  | HDiff HExpr HExpr -- ^ Set difference.
-  | HAnd [HExpr]      -- ^ Intersection.
-  | HOr  [HExpr]      -- ^ Union.
-  | HTrans SearchDir HExpr HExpr (Maybe HExpr) -- ^ Transitive search:
-    -- direction,
-    -- templates to search along (using more than one is weird but legal),
-    -- potential starting points,
-    -- potential ending points (if `Nothing`, the search can end anywhere).
+  HMap :: HMap -> HExpr -- ^ The search workhorse.
+  HEval :: HExpr -- ^ First, find matches to this.
+        -> [RolePath] -- ^ Then, traverse each match along these paths,
+        -- and return whatever each path leads to.
+        -- (Using more than one path is weird but legal.)
+        -- The `[Role]` argument to `HTrans` is used similarly.
+        -> HExpr
+  HVar ::  Var -> HExpr -- ^ To look up the `Var` from a `Subst Addr Rslt`.
+  HDiff :: HExpr -> HExpr -> HExpr -- ^ Set difference.
+  HAnd :: [HExpr] -> HExpr -- ^ Intersection.
+  HOr ::  [HExpr] -> HExpr -- ^ Union.
+  HReach :: SearchDir
+         -> HExpr -- ^ template(s) to search along
+                  -- (using more than one is weird but legal)
+         -> HExpr -- ^ expression(s) to start from
+         -> HExpr -- ^ every `Expr` that can be reached by traversing
+         -- from the starting `Expr`s along the specified `Tplt`(s) in the specified direction
+  HTrans :: SearchDir
+    -> HExpr -- ^ template(s) to search along
+             -- (using more than one is weird but legal)
+    -> HExpr -- ^ expression(s) to end at
+    -> HExpr -- ^ expression(s) to start from
+    -> [Role] -- ^ The algorithm will find every pair (s,f)
+    -- such that s is one of the starting `Expr`s, f is one of the ending `Expr`s, and `s` is transitively related to `f`. This list is then used to deterine what from those pairs to return -- either all the left members (`[RoleMember 1]`), all the right members (`[RoleMember 2]`), or both (`[RoleMember 1, RoleMember 2]`).
+    -> HExpr
   deriving (Eq, Ord, Show)
 
 -- | Example: if x is never the second member of anything, then the `HMap`

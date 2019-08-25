@@ -192,18 +192,32 @@ It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
 ** TODO transitive search
-*** TODO HTrans needs something like HIt
-I might ask for (/tr <hexpr> #rel /it).
-In that case I want everything reachable from /it.
+*** TODO rethinking purpose
+**** problem: HExpr finds Exprs; while transitive search finds pairs
+Those pairs might be explicitly in the graph, but might not.
+**** `reachable` will be easier to implement than `transitiveRels`
+When running `reachable`,
+which takes no fixed terminal arguments,
+you want the whole lot (including starting points).
+**** `transitiveRels` resembles `HEval`
+When running `transitiveRels`,
+which fixes start and end Exprs,
+you probably want one or the other --
+show me each of these starts that can reach one of these ends,
+or each end that can be reached from some start.
+But you might want both.
 
-I might ask for (/tr <hexpr> #rel <hexpr'>).
-I don't think that makes sense without an /it,
-because it would find relationships that are not
-(explicit) in the graph.
+It would therefore be natural to include a [Role] argument to HTrans.
+Unlike HEval, which takes a [RolePath],
+these "paths" are necessarily length 1,
+and there are only two possibilities: RoleMember 1 and RoleMember 2.
+Also, confusingly,
+*they don't index into the members of a relationship in the graph*;
+they index into a pair constructed by `transitiveRels`.
 *** TODO efficiency: transitiveRels and reachable don't need to search exhaustively
 Suppose you have some animals As and some qualities Qs,
-and want to filter the animals down to those 
-For each animal, 
+and want to filter the animals down to those
+For each animal,
 *** TODO incorporate transitive search into HExpr
 **** in HLookup, add this
 after this definition:
