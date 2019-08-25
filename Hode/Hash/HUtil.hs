@@ -5,7 +5,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Hode.Hash.HUtil (
-    hVars           -- ^ HExpr  -> Set Var
+    hor             -- ^ [Addr] -> HExpr
+  , hVars           -- ^ HExpr  -> Set Var
   , hSub            -- ^ M.Map Var HExpr -> HExpr -> HExpr
   , pnrPhrase       -- ^ String -> PRel
   , pExprIsSpecific -- ^ PExpr  -> Bool
@@ -26,6 +27,9 @@ import           Hode.Rslt.RTypes
 
 
 -- | = for Hash
+
+hor :: [Addr] -> HExpr
+hor = HOr . map (HExpr . Addr)
 
 hVars :: HExpr -> Set Var
 hVars = cata f where
