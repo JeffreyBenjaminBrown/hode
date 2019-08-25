@@ -30,14 +30,14 @@ import           Hode.Rslt.RTypes
 hVars :: HExpr -> Set Var
 hVars = cata f where
   f :: Base HExpr (Set Var) -> Set Var
-  f (HMapF m)           = S.unions $ M.elems m
-  f (HEvalF m _)        = m
-  f (HVarF v)           = S.singleton v
-  f (HExprF _)          = S.empty
-  f (HDiffF h i)        = S.union h i
-  f (HAndF hs)          = S.unions hs
-  f (HOrF hs)           = S.unions hs
-  f (HTransF _ t ls rs) = S.unions $ t : (ls ++ rs)
+  f (HMapF m)         = S.unions $ M.elems m
+  f (HEvalF m _)      = m
+  f (HVarF v)         = S.singleton v
+  f (HExprF _)        = S.empty
+  f (HDiffF h i)      = S.union h i
+  f (HAndF hs)        = S.unions hs
+  f (HOrF hs)         = S.unions hs
+  f (HTransF _ t s f) = S.unions $ [t,s,f]
 
 -- | Substitute something(s) for the variable(s) in an `HExpr`.
 hSub :: M.Map Var HExpr -> HExpr -> HExpr

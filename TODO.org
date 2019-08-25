@@ -369,6 +369,9 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** ? use lists rather than sets until needed
+e.g. in HExprToAddrs, or the RLookup functions.
+That is, unless set fusion works as well.
 ** there are some list-set mismatches
 rightReachable, for instance, uses lists, because it's fast.
 But it has to convert the output of hExprToAddrs to a list, using Set.toList.
