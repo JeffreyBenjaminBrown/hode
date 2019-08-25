@@ -192,8 +192,11 @@ It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
 ** TODO transitive search
-*** TODO use type, SearchDir = SearchLeftward | SearchRightward
-*** TODO incorporate transitive search into HExprs, PExprs
+*** TODO incorporate transitive search into HExpr
+**** and then into PExpr
+PExpr = ...
+  | POr whatever
+  | PTrans SearchDir PExpr [PExpr] [PExpr] |
 *** TODO orphans
 **** TODO Safety: check for cycles when someone adds an expression
 

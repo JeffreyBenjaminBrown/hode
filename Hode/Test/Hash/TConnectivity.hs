@@ -2,7 +2,7 @@
 
 module Hode.Test.Hash.TConnectivity where
 
-import qualified Data.Map as M
+--import qualified Data.Map as M
 import qualified Data.Set as S
 import           Test.HUnit
 
@@ -26,8 +26,8 @@ test_transitiveRels = TestCase $ do
       Right b1 = exprToAddr r $ Phrase "b1"
       Right b2 = exprToAddr r $ Phrase "b2"
       Right x  = exprToAddr r $ Phrase "x"
-      Right c  = exprToAddr r $ Phrase "c"
-      Right d  = exprToAddr r $ Phrase "d"
+      -- Right c  = exprToAddr r $ Phrase "c"
+      -- Right d  = exprToAddr r $ Phrase "d"
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]
 
