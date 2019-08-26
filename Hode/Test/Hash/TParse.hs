@@ -34,7 +34,7 @@ test_module_hash_parse = TestList [
 test_pIt :: Test
 test_pIt = TestCase $ do
   assertBool "" $ parse pIt "" "/it" == Right (It Nothing)
-  assertBool "careful! hash expressions need to be prefixed with /h, unless they are 0-level phrases"
+  assertBool "PITFALL: This demonstrates an error: Hash expressions need to be prefixed with /h, unless they are 0-level words or phrases."
     ( parse pIt ""                 "/it= 333 # 555" ==
       Right (It $ Just $ PExpr $ Phrase "333") )
   assertBool "a 0-level phrase"
@@ -112,11 +112,12 @@ test_parse_pPExpr = TestCase $ do
     == Right (PVar $ vs "x1")
   assertBool "it nothing" $ parse pIt "wut" "/it "
     == Right (It Nothing)
-  assertBool "it $ just a # b" $ parse pIt "wut" "/it= /hash a # b" == Right
-    ( It $ Just $ PRel
-      ( Open 1 [ PNonRel $ PExpr $ Phrase "a"
-               , PNonRel $ PExpr $ Phrase "b" ]
-        [""] ) )
+  assertBool "it $ just a # b" $
+    parse pIt "wut" "/it= /hash a # b" ==
+    Right ( It $ Just $ PRel
+            ( Open 1 [ PNonRel $ PExpr $ Phrase "a"
+                     , PNonRel $ PExpr $ Phrase "b" ]
+              [""] ) )
 
   assertBool "eval $ just a # b" $ parse pEval "wut" "/eval /hash a # b"
     == Right

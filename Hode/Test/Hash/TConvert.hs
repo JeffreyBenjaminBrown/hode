@@ -18,12 +18,27 @@ test_module_hash_convert = TestList [
     TestLabel "test_simplifyPExpr" test_simplifyPExpr
   , TestLabel "test_pRelToHExpr" test_pRelToHExpr
   , TestLabel "test_pExprToHExpr" test_pExprToHExpr
-  --, TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
+  , TestLabel "test_pathsToIts" test_pathsToIts
   ]
 
---test_pathsToIts_pExpr :: Test -- TODO
---test_pathsToIts_pExpr = TestCase $ do
---  assertBool "1" $ pathsToIts_pExpr
+test_pathsToIts :: Test
+test_pathsToIts = TestCase $ do
+  assertBool "" $ pathsToIts_sub_pRel
+    ( Closed
+      [ Closed
+        [ PNonRel $ PExpr $ Phrase "b"
+        , PNonRel $ It $ Just $ PExpr $ Phrase "a" ]
+        [ "has" ]
+      , PNonRel $ PExpr $ Phrase "c" ]
+      [ "is" ] )
+    == Right [[RoleMember 1, RoleMember 2]]
+  assertBool "" $ pathsToIts_sub_pRel
+    ( Closed
+      [ PNonRel $ It $ Just $ PExpr $ Phrase "a"
+      , PNonRel $ It $ Just $ PExpr $ Phrase "b" ]
+      [ "is" ] )
+    == Right [[RoleMember 1],[RoleMember 2]]
+  assertBool "next: pathsToIts_pExpr" False
 
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
