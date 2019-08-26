@@ -18,12 +18,48 @@ test_module_hash_convert = TestList [
     TestLabel "test_simplifyPExpr" test_simplifyPExpr
   , TestLabel "test_pRelToHExpr" test_pRelToHExpr
   , TestLabel "test_pExprToHExpr" test_pExprToHExpr
-  , TestLabel "test_pathsToIts" test_pathsToIts
+  , TestLabel "test_pathsToIts" test_pathsToIts_sub_pRel
+  , TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
   ]
 
-test_pathsToIts :: Test
-test_pathsToIts = TestCase $ do
-  assertBool "" $ pathsToIts_sub_pRel
+test_pathsToIts_pExpr :: Test
+test_pathsToIts_pExpr = TestCase $ do
+  assertBool "It's okay if there's no It to find." $
+    pathsToIts_pExpr ( PMap $ M.fromList
+                       [ ( RoleMember 1, PExpr $ Phrase "moo" )
+                       , ( RoleMember 2, PExpr $ Phrase "quack" )
+                       ] )
+    == Right []
+
+  assertBool "It is the first member" $
+    pathsToIts_pExpr
+    ( PMap $ M.fromList
+      [ ( RoleMember 1, It $ Just $ PExpr $ Phrase "moo" )
+      , ( RoleMember 2, PExpr $ Phrase "quack" )
+      ] )
+    == Right [[RoleMember 1]]
+
+  assertBool "It is both members, so there are two paths" $
+    pathsToIts_pExpr
+    ( PMap $ M.fromList
+      [ ( RoleMember 1, It $ Just $ PExpr $ Phrase "moo" )
+      , ( RoleMember 2, It $ Just $ PExpr $ Phrase "quack" )
+      ] )
+    == Right [[RoleMember 1],[RoleMember 2]]
+
+  assertBool "The first member is a PRel, and its second member is It." $
+    pathsToIts_pExpr
+    ( PMap $ M.fromList
+      [ ( RoleMember 1
+        , PRel $ Closed [ PNonRel $ PExpr $ Phrase "quack"
+                        , PNonRel $ It $ Just $ PExpr $ Phrase "moo" ]
+          ["","resembles",""] )
+      , ( RoleMember 2, PExpr $ Phrase "quack" ) ] )
+    == Right [[ RoleMember 1, RoleMember 2 ]]
+
+test_pathsToIts_sub_pRel :: Test
+test_pathsToIts_sub_pRel = TestCase $ do
+  assertBool "one length-2 path" $ pathsToIts_sub_pRel
     ( Closed
       [ Closed
         [ PNonRel $ PExpr $ Phrase "b"
@@ -32,13 +68,12 @@ test_pathsToIts = TestCase $ do
       , PNonRel $ PExpr $ Phrase "c" ]
       [ "is" ] )
     == Right [[RoleMember 1, RoleMember 2]]
-  assertBool "" $ pathsToIts_sub_pRel
+  assertBool "two length-one paths" $ pathsToIts_sub_pRel
     ( Closed
       [ PNonRel $ It $ Just $ PExpr $ Phrase "a"
       , PNonRel $ It $ Just $ PExpr $ Phrase "b" ]
       [ "is" ] )
     == Right [[RoleMember 1],[RoleMember 2]]
-  assertBool "next: pathsToIts_pExpr" False
 
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
