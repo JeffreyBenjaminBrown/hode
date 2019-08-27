@@ -111,6 +111,10 @@ pExprToHExpr r0 pe0 = prefixLeft "-> pExprToHExpr" $ f r0 pe0 where
   f r (POr xs)        = do
     (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
     return $ HOr l
+  f r (PReach d pt ps) = do
+    ht <- pExprToHExpr r pt
+    hs <- pExprToHExpr r ps
+    return $ HReach d ht hs
   f r (It (Just pnr)) = pExprToHExpr r pnr
   f r (PRel pr)       = pRelToHExpr r pr
 
@@ -152,9 +156,10 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
   f (PVarF _)        = Right []
-  f x@(PDiffF _ _)   = tooLate x
-  f x@(PAndF _)      = tooLate x
-  f x@(POrF _)       = tooLate x
+  f x@(PDiffF _ _)    = tooLate x
+  f x@(PAndF _)       = tooLate x
+  f x@(POrF _)        = tooLate x
+  f x@(PReachF _ _ _) = tooLate x
   f AnyF             = Right []
   f (ItF Nothing)    = Right [[]]
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr

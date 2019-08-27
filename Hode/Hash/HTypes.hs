@@ -75,6 +75,7 @@ data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
   | PDiff PExpr PExpr
   | PAnd [PExpr]
   | POr [PExpr]
+  | PReach SearchDir PExpr PExpr
   | Any
   | It (Maybe PExpr)
   | PRel PRel

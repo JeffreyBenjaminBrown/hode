@@ -214,7 +214,7 @@ and there are only two possibilities: RoleMember 1 and RoleMember 2.
 Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
-*** TODO NEXT - add PReach to PExpr
+*** TODO NEXT - add PReach to parser
 *** TODO add PTrans to PExpr
   | PTrans SearchDir [Role] PExpr PExpr PExpr
 *** TODO orphans
