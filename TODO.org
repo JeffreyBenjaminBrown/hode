@@ -214,9 +214,23 @@ and there are only two possibilities: RoleMember 1 and RoleMember 2.
 Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
-*** TODO NEXT - add PReach to parser
-*** TODO add PTrans to PExpr
-  | PTrans SearchDir [Role] PExpr PExpr PExpr
+*** TODO NEXT : which one?
+**** add PReach to parser
+There are 6 optionos: 
+tll,tlr: search leftward, and return the left or the right member
+trl,trr: sim.
+tl,tr: search leftward or rightward, and return everything, including starts
+
+All be handled with existing syntax, plus the /tr, /tl and /t keywords:
+tll = /tl (/it= pExpr) #rel pExpr
+tr  = /t pExpr #rel /_
+etc.
+
+The argument to /tl should have either
+  0  pIt= and 1 pAny (and 0 pIt)
+  >0 pIt= and 0 pAny (and 0 pIt)
+**** add PTrans to PExpr
+   | PTrans SearchDir [Role] PExpr PExpr PExpr
 *** TODO orphans
 **** TODO efficiency: transitiveRels might, but HTrans does not have to search exahstively
 See TODO comment under the HTrans clause of hExprToAddrs.
