@@ -2,6 +2,10 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO ? someone else wrote a tree editor
+https://cs-syd.eu/posts/2019-06-28-microsmos
+and then a forest editor:
+https://cs-syd.eu/posts/2019-08-28-millismos
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
@@ -215,6 +219,23 @@ Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
 *** TODO NEXT : which one?
+**** refactoring PReach
+I think I only want it to hold a PRel,
+and from that, extract the direction, template, and origin
+when converting to HExpr. But just in case,
+here's the code for when it's got many args:
+
+data PExpr = ... | PReach SearchDir PExpr PExpr
+
+pExprToHExpr = ...
+  f r (PReach d pt ps) = do
+    ht <- pExprToHExpr r pt
+    hs <- pExprToHExpr r ps
+    return $ HReach d ht hs
+
+pathsToIts_sub_pExpr = ...
+  f x@(PReachF _ _ _) = tooLate x
+
 **** add PReach to parser
 There are 6 optionos: 
 tll,tlr: search leftward, and return the left or the right member
@@ -222,8 +243,8 @@ trl,trr: sim.
 tl,tr: search leftward or rightward, and return everything, including starts
 
 All be handled with existing syntax, plus the /tr, /tl and /t keywords:
-tll = /tl (/it= pExpr) #rel pExpr
 tr  = /t pExpr #rel /_
+tll = /tl (/it= pExpr) #rel pExpr
 etc.
 
 The argument to /tl should have either
@@ -232,6 +253,9 @@ The argument to /tl should have either
 **** add PTrans to PExpr
    | PTrans SearchDir [Role] PExpr PExpr PExpr
 *** TODO orphans
+**** TODO ? could introduce type TransRole = TransLeft | TransRight
+to limit the possible values in the list argument of PTrans (because,
+e.g., RoleMember 3 or RoleTplt make no sense)
 **** TODO efficiency: transitiveRels might, but HTrans does not have to search exahstively
 See TODO comment under the HTrans clause of hExprToAddrs.
 transitiveRels does have to find every pair if, for example, it's computing a transitive closure (as will be needed to oganize contents on-screen).

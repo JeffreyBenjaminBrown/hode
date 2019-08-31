@@ -92,36 +92,49 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
 --    go _ = error "todo: even more"
 
 pExprToHExpr :: Rslt -> PExpr -> Either String HExpr
-pExprToHExpr r0 pe0 = prefixLeft "-> pExprToHExpr" $ f r0 pe0 where
-  f _ px@(pExprIsSpecific -> False) =
+pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
+  f px@(pExprIsSpecific -> False) =
     Left $ show px ++ " is not specific enough."
 
-  f _ (PExpr s)       = Right $ HExpr s
-  f r (PMap m)        = HMap <$> pMapToHMap r m
-  f r (PEval pnr)     = do (x :: HExpr) <- pExprToHExpr r pnr
-                           ps <- pathsToIts_pExpr pnr
-                           Right $ HEval x ps
-  f _ (PVar s)        = Right $ HVar s
-  f r (PDiff a b)     = do a' <- pExprToHExpr r a
-                           b' <- pExprToHExpr r b
-                           return $ HDiff a' b'
-  f r (PAnd xs)       = do
+  f (PExpr s)       = Right $ HExpr s
+  f (PMap m)        = HMap <$> pMapToHMap r m
+  f (PEval pnr)     = do (x :: HExpr) <- pExprToHExpr r pnr
+                         ps <- pathsToIts_pExpr pnr
+                         Right $ HEval x ps
+  f (PVar s)        = Right $ HVar s
+  f (PDiff a b)     = do a' <- pExprToHExpr r a
+                         b' <- pExprToHExpr r b
+                         return $ HDiff a' b'
+  f (PAnd xs)       = do
     (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
     return $ HAnd l
-  f r (POr xs)        = do
+  f (POr xs)        = do
     (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
     return $ HOr l
-  f r (PReach d pt ps) = do
-    ht <- pExprToHExpr r pt
-    hs <- pExprToHExpr r ps
-    return $ HReach d ht hs
-  f r (It (Just pnr)) = pExprToHExpr r pnr
-  f r (PRel pr)       = pRelToHExpr r pr
+  f (PReach pr)     = do
+    h <- pRelToHExpr r pr
+    case h of
+      HMap m ->
+        if M.size m /= 2
+        then Left $ "Hash expr parsed within PReach should have exactly 1 template and 1 member (the other being implicitly Any."
+        else do
+          let t :: HExpr =
+                maybe (error "impossible ? no Tplt in PReach") id $
+                M.lookup RoleTplt m
+              mhLeft  :: Maybe HExpr = M.lookup (RoleMember 1) m
+              hLeft   ::       HExpr = maybe (error "impossible") id mhLeft
+              mhRight :: Maybe HExpr = M.lookup (RoleMember 2) m
+              hRight  ::       HExpr = maybe (error "impossible") id mhRight
+          case mhLeft of Nothing -> Right $ HReach SearchLeftward t hRight
+                         _       -> Right $ HReach SearchRightward t hLeft
+
+  f (It (Just pnr)) = pExprToHExpr r pnr
+  f (PRel pr)       = pRelToHExpr r pr
 
   -- These redundant checks (to keep GHCI from warning me) should come last.
-  f _ Any =
+  f Any =
     Left $ "pExprToHExpr: Any is not specific enough."
-  f _ (It Nothing) = Left
+  f (It Nothing) = Left
     $ "pExprToHExpr: It (Nothing) is not specific enough."
 
 
@@ -159,7 +172,7 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   f x@(PDiffF _ _)    = tooLate x
   f x@(PAndF _)       = tooLate x
   f x@(POrF _)        = tooLate x
-  f x@(PReachF _ _ _) = tooLate x
+  f x@(PReachF _)     = tooLate x
   f AnyF             = Right []
   f (ItF Nothing)    = Right [[]]
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr

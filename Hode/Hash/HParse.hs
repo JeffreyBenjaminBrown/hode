@@ -117,13 +117,13 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
 
 pHashExpr :: Parser PExpr
 pHashExpr = lexeme ( foldr1 (<|>)
-                  $ map (try . string) ["/hash","/h"] )
-         >> _pHashExpr
+                     $ map (try . string) ["/hash","/h"] )
+            >> _pHashExpr
 
--- | PITFALL: This used to be part of pHashExpr; there was no word
--- for parsing a Hash expression without a leading /hash keyword.
--- Not requiring that keyword is nice for the user,
--- might (I don't know) cause headaches for the coder.
+pReach :: Parser PExpr
+pReach = lexeme ( try $ string "/t" )
+         >> PReach <$> pRel
+
 _pHashExpr :: Parser PExpr
 _pHashExpr = PRel <$> pRel
 

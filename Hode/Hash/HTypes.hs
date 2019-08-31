@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables
-, GADTs -- just for the sake of adding comments to constructor arguments
+, GADTs
 , TemplateHaskell
 , TypeFamilies
 , DeriveFunctor, DeriveFoldable, DeriveTraversable
@@ -23,6 +23,7 @@ data SearchDir = SearchLeftward | SearchRightward
 
 -- | An `HExpr` describes a set (maybe empty) of `Expr`s in a `Rslt`.
 data HExpr where
+  -- GADT only for the sake of adding comments to constructor arguments
   HExpr :: Expr -> HExpr
   -- ^ When you want exactly one `Expr`, and know which.
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
@@ -75,7 +76,7 @@ data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
   | PDiff PExpr PExpr
   | PAnd [PExpr]
   | POr [PExpr]
-  | PReach SearchDir PExpr PExpr
+  | PReach PRel
   | Any
   | It (Maybe PExpr)
   | PRel PRel
