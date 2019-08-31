@@ -127,6 +127,7 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
               hRight  ::       HExpr = maybe (error "impossible") id mhRight
           case mhLeft of Nothing -> Right $ HReach SearchLeftward t hRight
                          _       -> Right $ HReach SearchRightward t hLeft
+      _ -> Left $ "Hash expr parsed within PReach is not an HMap. (It should be a binary HMap with exactly 2 members: a Tplt and either RoleMember 1 or RoleMember 2."
 
   f (It (Just pnr)) = pExprToHExpr r pnr
   f (PRel pr)       = pRelToHExpr r pr

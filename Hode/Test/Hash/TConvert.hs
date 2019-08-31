@@ -5,8 +5,10 @@ module Hode.Test.Hash.TConvert where
 import           Data.Either
 import qualified Data.Map       as M
 import           Test.HUnit
+import           Text.Megaparsec (parse)
 
 import Hode.Hash.Convert
+import Hode.Hash.HParse
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil
 import Hode.Rslt.Index
@@ -139,6 +141,21 @@ test_pExprToHExpr = TestCase $ do
                      ( RoleMember 2, HExpr $ Phrase "sassafras" ) ] )
                  [ [ RoleMember 1, RoleMember 2 ] ] )
 
+  assertBool "HReach rightward" $
+    ( pExprToHExpr (mkRslt mempty) <$>
+      parse pReach "" "/t a # /_" ) ==
+    ( Right $ Right $
+      HReach SearchRightward
+      (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      (HExpr $ Phrase "a"))
+
+  assertBool "HReach leftward" $
+    ( pExprToHExpr (mkRslt mempty) <$>
+      parse pReach "" "/t /_ # a" ) ==
+    ( Right $ Right $
+      HReach SearchLeftward
+      (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      (HExpr $ Phrase "a"))
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

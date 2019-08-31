@@ -13,6 +13,7 @@ module Hode.Hash.HParse (
   , pOr -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
   , pAbsentMember -- ^ Parser PRel
   , pPExpr -- ^ Parser PExpr
+  , pReach -- ^ Parser PExpr
   , pHashExpr -- ^ Parser PExpr
   , _pHashExpr -- ^ Parser PExpr
   , pAddr -- ^ Parser Expr
@@ -115,14 +116,14 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , pHashExpr
        ]
 
+pReach :: Parser PExpr
+pReach = lexeme ( try $ string "/t" )
+         >> PReach <$> pRel
+
 pHashExpr :: Parser PExpr
 pHashExpr = lexeme ( foldr1 (<|>)
                      $ map (try . string) ["/hash","/h"] )
             >> _pHashExpr
-
-pReach :: Parser PExpr
-pReach = lexeme ( try $ string "/t" )
-         >> PReach <$> pRel
 
 _pHashExpr :: Parser PExpr
 _pHashExpr = PRel <$> pRel
