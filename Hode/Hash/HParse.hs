@@ -108,6 +108,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , PExpr <$> pTplt
 
          -- other constructors
+       , pReach
        , pMap
        , pEval
        , pVar
@@ -117,12 +118,13 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        ]
 
 pReach :: Parser PExpr
-pReach = lexeme ( try $ string "/t" )
+pReach = lexeme ( try $ precisely "/tr" )
          >> PReach <$> pRel
 
 pHashExpr :: Parser PExpr
-pHashExpr = lexeme ( foldr1 (<|>)
-                     $ map (try . string) ["/hash","/h"] )
+pHashExpr = lexeme
+            ( try ( precisely "/hash"  <|>
+                    precisely "/h"    ) )
             >> _pHashExpr
 
 _pHashExpr :: Parser PExpr
@@ -130,7 +132,7 @@ _pHashExpr = PRel <$> pRel
 
 pAddr :: Parser Expr
 pAddr = lexeme  ( foldr1 (<|>)
-                  $ map (try . string) ["/addr","/@"] )
+                  $ map (try . precisely) ["/addr","/@"] )
         >> Addr . fromIntegral <$> integer
 
 -- | `pAddrs` parses the string "/@s 1-10 100 30-40 101"
@@ -138,7 +140,7 @@ pAddr = lexeme  ( foldr1 (<|>)
 pAddrs :: Parser PExpr
 pAddrs = do
   _ <- lexeme $ foldr1 (<|>) $
-       map (try . string) ["/addrs","/@s"]
+       map (try . precisely) ["/addrs","/@s"]
   let range :: Parser [Integer]
       range = do min0 <- lexeme integer
                  _    <- lexeme $ char '-'
@@ -153,7 +155,7 @@ pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme  ( foldr1 (<|>)
-                  $ map (try . string) ["/tplt","/t"] )
+                  $ map (try . precisely) ["/tplt","/t"] )
         >> _pTplt
 
 _pTplt :: Parser Expr
@@ -161,11 +163,11 @@ _pTplt = lexeme $ ExprTplt . map Phrase
          <$> some (hashIdentifier <|> hashPhrase <|> parens hashPhrase)
 
 pMap :: Parser PExpr
-pMap = lexeme (string "/map" <|> string "/roles")
+pMap = lexeme (precisely "/map" <|> precisely "/roles")
        >> PMap . M.fromList <$> some (lexeme $ parens $ pMbr <|> pTplt')
   where
     pTplt', pMbr :: Parser (Role, PExpr)
-    pTplt' = do void $ lexeme $ string "tplt"
+    pTplt' = do void $ lexeme $ precisely "tplt"
                 t <- _pTplt
                 return ( RoleTplt    , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
@@ -174,24 +176,24 @@ pMap = lexeme (string "/map" <|> string "/roles")
 
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)
-                 $ map (try . string) ["/eval","/e"] )
+                 $ map (try . precisely) ["/eval","/e"] )
          >> ( PEval
               <$> _pHashExpr )
 
 pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
-              $ map (try . string) ["/var","/v"] )
+              $ map (try . precisely) ["/var","/v"] )
           lexeme hashIdentifier >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
-                $ map (try . string) ["/_","/any"] )
+                $ map (try . precisely) ["/_","/any"] )
        >> return Any
 
 pIt :: Parser PExpr
-pIt =     (lexeme (string "/it=") >> It . Just <$> pPExpr)
-      <|> (lexeme (string "/it")  >> return (It Nothing))
+pIt =     (lexeme (precisely "/it=") >> It . Just <$> pPExpr)
+      <|> (lexeme (precisely "/it")  >> return (It Nothing))
 
 
 -- | like `phrase`, but includes every character that's not special
@@ -230,3 +232,6 @@ hashIdentifier = lexeme $ some $ foldr1 (<|>)
   ( alphaNumChar : map char
     [ '!','@','%','^','*','+','=','-','`','~','_','[',']'
     ,'{','}',':',';','<','>','?',',','.' ] )
+
+precisely :: String -> Parser String
+precisely s = string s <* notFollowedBy alphaNumChar

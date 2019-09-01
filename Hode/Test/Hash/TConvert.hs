@@ -143,7 +143,7 @@ test_pExprToHExpr = TestCase $ do
 
   assertBool "HReach rightward" $
     ( pExprToHExpr (mkRslt mempty) <$>
-      parse pReach "" "/t a # /_" ) ==
+      parse pReach "" "/tr a # /_" ) ==
     ( Right $ Right $
       HReach SearchRightward
       (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
@@ -151,7 +151,7 @@ test_pExprToHExpr = TestCase $ do
 
   assertBool "HReach leftward" $
     ( pExprToHExpr (mkRslt mempty) <$>
-      parse pReach "" "/t /_ # a" ) ==
+      parse pReach "" "/tr /_ # a" ) ==
     ( Right $ Right $
       HReach SearchLeftward
       (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])

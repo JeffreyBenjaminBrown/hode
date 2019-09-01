@@ -154,6 +154,32 @@ For instance, `/eval /it #married /it` would return every married person,
 regardless of whether they are listed first or second in the marriage relationship.
 
 
+### (Reflexive) transitive search
+
+Suppose your graph has the two relationships "0 #< 1" and "1 #< 2",
+and you'd like to find everything that is greater than or equal to 0.
+You can find out by running the query `/f /tr 0 #< /_`.
+Similarly, you can find everything less than or equal to 2 by running
+`/f /tr /_ #< 2`.
+
+Hash treats any relationship used in a transitive search as reflexive.
+Thus even though we called the relationship "#<", it is effectively "<=".
+
+
+#### PITFALL: Hode believes you
+
+Hode does not know which of your relationships "should" be transitive;
+it only treats a relationship as such when specifically asked to do so.
+
+#### PITFALL: Cycles
+If you're not sure whether a relationship forms cycles --
+for instance, not just "0 #< 1" and "1 #< 2", but also "2 #< 0" --
+then save your work before searching it transitively.
+
+That's because Hode will crash if it encounters a cycle.
+It won't respond to keypresses, and you'll need to kill it from outside.
+
+
 ### Count `&`, `|` and `\` symbols like `#` symbols
 
 The set operators `&`, `|` and `\` can be repeated,
@@ -182,7 +208,7 @@ and the second is the relationship "a # b".
 but in that case it's not clear why you wouldn't use a hash expression instead of /map.)
 
 
-### You might (?) need to preced a Hash expression with the /hash keyword
+### You might (?) need to precede a Hash expression with the /hash keyword
 
 For instance,
 `/find /hash bob #flattered alice` will search for and return
