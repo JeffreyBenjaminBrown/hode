@@ -219,23 +219,6 @@ Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
 *** TODO NEXT : which one?
-**** refactoring PReach
-I think I only want it to hold a PRel,
-and from that, extract the direction, template, and origin
-when converting to HExpr. But just in case,
-here's the code for when it's got many args:
-
-data PExpr = ... | PReach SearchDir PExpr PExpr
-
-pExprToHExpr = ...
-  f r (PReach d pt ps) = do
-    ht <- pExprToHExpr r pt
-    hs <- pExprToHExpr r ps
-    return $ HReach d ht hs
-
-pathsToIts_sub_pExpr = ...
-  f x@(PReachF _ _ _) = tooLate x
-
 **** add PReach to parser
 There are 6 optionos: 
 tll,tlr: search leftward, and return the left or the right member

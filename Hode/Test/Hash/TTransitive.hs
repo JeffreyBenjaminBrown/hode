@@ -41,17 +41,18 @@ test_hLookup_hTrans = TestCase $ do
                           , "b1 # b2" ]
 
   assertBool "a0 can only get to a2" $ hExprToAddrs r mempty
-    ( HTrans SearchRightward [RoleMember 2] (HExpr $ Addr t)
+    ( HTrans SearchRightward [SearchRightward] (HExpr $ Addr t)
       (hor [a2,b2])
       (hor [a0]) )
     == Right (S.fromList [a2])
   assertBool "only b0 can get to b2" $ hExprToAddrs r mempty
-    ( HTrans SearchRightward [RoleMember 1] (HExpr $ Addr t)
+    ( HTrans SearchRightward [SearchLeftward] (HExpr $ Addr t)
       (hor [b2])
       (hor [a0,b0]) )
     == Right (S.fromList [b0])
   assertBool "a0 cannot reach b2" $ hExprToAddrs r mempty
-    ( HTrans SearchRightward [RoleMember 1, RoleMember 2] (HExpr $ Addr t)
+    ( HTrans SearchRightward [SearchLeftward, SearchRightward]
+      (HExpr $ Addr t)
       (hor [b2])
       (hor [a0]) )
     == Right S.empty

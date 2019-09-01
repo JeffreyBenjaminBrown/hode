@@ -190,7 +190,7 @@ hExprToAddrs r sub (HReach d ht hs) =
   t <- S.toList <$> hExprToAddrs r sub ht
   S.fromList <$> reachable d r t s
 
-hExprToAddrs r sub (HTrans d roles ht he hs) =
+hExprToAddrs r sub (HTrans d targets ht he hs) =
   -- TODO : This could be smarter. If all you want to know is
   -- which starts can reach some end,
   -- you don't need to find every such connection;
@@ -199,18 +199,13 @@ hExprToAddrs r sub (HTrans d roles ht he hs) =
   -- then once a start has reached some ends,
   -- you can remove those ends when testing the remaining starts.
   prefixLeft "-> hExprToAddrs called on HTrans" $ do
-  if null ( (S.fromList roles) S.\\
-            (S.fromList [RoleMember 1, RoleMember 2] ) )
-    then Right ()
-    else Left $ "`roles` argument " ++ show roles ++
-         " contains something other than `RoleMember 1` or `RoleMember 2`"
   t :: [Addr] <- S.toList <$> hExprToAddrs r sub ht
   e :: [Addr] <- S.toList <$> hExprToAddrs r sub he
   s :: [Addr] <- S.toList <$> hExprToAddrs r sub hs
   pairs :: [(Addr,Addr)] <- transitiveRels d r t e s
-  let firsts = if not $ elem (RoleMember 1) roles then []
+  let firsts = if not $ elem SearchLeftward targets then []
         else map fst pairs
-      seconds = if not $ elem (RoleMember 2) roles then []
+      seconds = if not $ elem SearchRightward targets then []
         else map snd pairs
   Right $ S.fromList $ firsts ++ seconds
 

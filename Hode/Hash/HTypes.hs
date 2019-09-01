@@ -28,7 +28,7 @@ data HExpr where
   -- ^ When you want exactly one `Expr`, and know which.
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
   HMap :: HMap -> HExpr -- ^ The search workhorse.
-  HEval :: HExpr -- ^ First, find matches to this.
+  HEval :: HExpr      -- ^ First, find matches to this.
         -> [RolePath] -- ^ Then, traverse each match along these paths,
         -- and return whatever each path leads to.
         -- (Using more than one path is weird but legal.)
@@ -44,8 +44,9 @@ data HExpr where
          -> HExpr -- ^ expression(s) to start from
          -> HExpr -- ^ every `Expr` that can be reached by traversing
          -- from the starting `Expr`s along the specified `Tplt`(s) in the specified direction
-  HTrans :: SearchDir
-    -> [Role] -- ^ The algorithm will find every pair (s,f)
+  HTrans :: SearchDir -- ^ the direction in which to search
+    -> [SearchDir] -- ^ whether to return left, right or both members found.
+                   -- ^ (The empty list is also valid, but pointless.)
     -- such that s is one of the starting `Expr`s, f is one of the ending `Expr`s, and `s` is transitively related to `f`. This list is then used to deterine what from those pairs to return -- either all the left members (`[RoleMember 1]`), all the right members (`[RoleMember 2]`), or both (`[RoleMember 1, RoleMember 2]`).
     -> HExpr -- ^ template(s) to search along
              -- (using more than one is weird but legal)
@@ -76,7 +77,8 @@ data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
   | PDiff PExpr PExpr
   | PAnd [PExpr]
   | POr [PExpr]
-  | PReach PRel
+  | PReach           PRel -- ^ SearchDir implied by which member is Any
+  | PTrans SearchDir PRel
   | Any
   | It (Maybe PExpr)
   | PRel PRel
