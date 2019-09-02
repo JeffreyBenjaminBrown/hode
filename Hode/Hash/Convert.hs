@@ -111,13 +111,15 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
   f (POr xs)        = do
     (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
     return $ HOr l
+
   f (PReach pr)     = do
     h <- pRelToHExpr r pr
     case h of
       HMap m ->
         if M.size m /= 2
-        then Left $ "Hash expr parsed within PReach should have exactly 1 template and 1 member (the other being implicitly Any."
+        then Left $ "Hash expr parsed within PReach should have exactly 1 binary template and 1 member (the other being implicitly Any."
         else do
+
           let t :: HExpr =
                 maybe (error "impossible ? no Tplt in PReach") id $
                 M.lookup RoleTplt m
@@ -128,6 +130,30 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
           case mhLeft of Nothing -> Right $ HReach SearchLeftward t hRight
                          _       -> Right $ HReach SearchRightward t hLeft
       _ -> Left $ "Hash expr parsed within PReach is not an HMap. (It should be a binary HMap with exactly 2 members: a Tplt and either RoleMember 1 or RoleMember 2."
+
+  f (PTrans d pr)     = do
+    h <- pRelToHExpr r pr
+    case h of
+      HEval (HMap m) ps -> do
+        if M.size m /= 2
+          then Left $ "Hash expr parsed within PTrans should have exactly 1 binary template and 2 members."
+          else do
+          let t :: HExpr =
+                maybe (error "impossible ? no Tplt in PReach") id $
+                M.lookup RoleTplt m
+              mhLeft  :: Maybe HExpr = M.lookup (RoleMember 1) m
+              mhRight :: Maybe HExpr = M.lookup (RoleMember 2) m
+              targets =
+                (if elem [RoleMember 1] ps then [SearchLeftward] else []) ++
+                (if elem [RoleMember 2] ps then [SearchRightward] else [])
+          hLeft  <- maybe (Left "Member 1 (left member) absent.") Right
+                    mhLeft
+          hRight <- maybe (Left "Member 1 (right member) absent.") Right
+                    mhRight
+          let (start,end) = if d == SearchRightward
+                            then (hLeft, hRight) else (hRight, hLeft)
+          Right $ HTrans d targets t start end
+      _ -> Left "Hash expr parsed within PTrans is not an HEval. (It should be a binary HEval with at least one of the two members labeled It.)"
 
   f (It (Just pnr)) = pExprToHExpr r pnr
   f (PRel pr)       = pRelToHExpr r pr
@@ -170,10 +196,11 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
   f (PVarF _)        = Right []
-  f x@(PDiffF _ _)    = tooLate x
-  f x@(PAndF _)       = tooLate x
-  f x@(POrF _)        = tooLate x
-  f x@(PReachF _)     = tooLate x
+  f x@(PDiffF _ _)   = tooLate x
+  f x@(PAndF _)      = tooLate x
+  f x@(POrF _)       = tooLate x
+  f x@(PReachF _)    = tooLate x
+  f x@(PTransF _ _)  = tooLate x
   f AnyF             = Right []
   f (ItF Nothing)    = Right [[]]
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
