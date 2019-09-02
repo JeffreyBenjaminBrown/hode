@@ -4,29 +4,29 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Hash.HParse (
-    pRel -- ^ Parser PRel
+    pRel  -- ^ Parser PRel
   , _pRel -- ^ Parser PRel
   , pTerm -- ^ Parser PRel
   , pHash -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
   , pDiff -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
-  , pAnd -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
-  , pOr -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
-  , pAbsentMember -- ^ Parser PRel
-  , pPExpr -- ^ Parser PExpr
-  , pReach -- ^ Parser PExpr
-  , pHashExpr -- ^ Parser PExpr
-  , _pHashExpr -- ^ Parser PExpr
-  , pAddr -- ^ Parser Expr
-  , pAddrs -- ^ Parser PExpr
-  , pPhrase -- ^ Parser PExpr
-  , pTplt -- ^ Parser Expr
-  , _pTplt -- ^ Parser Expr
-  , pMap -- ^ Parser PExpr
-  , pEval -- ^ Parser PExpr
-  , pVar -- ^ Parser PExpr
-  , pAny -- ^ Parser PExpr
-  , pIt -- ^ Parser PExpr
-  , hashPhrase -- ^ Parser String
+  , pAnd  -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
+  , pOr   -- ^ Level -> Parser (PRel -> PRel -> Either String PRel)
+  , pAbsentMember  -- ^ Parser PRel
+  , pPExpr         -- ^ Parser PExpr
+  , pReach         -- ^ Parser PExpr
+  , pHashExpr      -- ^ Parser PExpr
+  , _pHashExpr     -- ^ Parser PExpr
+  , pAddr          -- ^ Parser Expr
+  , pAddrs         -- ^ Parser PExpr
+  , pPhrase        -- ^ Parser PExpr
+  , pTplt          -- ^ Parser Expr
+  , _pTplt         -- ^ Parser Expr
+  , pMap           -- ^ Parser PExpr
+  , pEval          -- ^ Parser PExpr
+  , pVar           -- ^ Parser PExpr
+  , pAny           -- ^ Parser PExpr
+  , pIt            -- ^ Parser PExpr
+  , hashPhrase     -- ^ Parser String
   , hashIdentifier -- ^ Parser String
   ) where
 
@@ -177,8 +177,7 @@ pMap = lexeme (precisely "/map" <|> precisely "/roles")
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)
                  $ map (try . precisely) ["/eval","/e"] )
-         >> ( PEval
-              <$> _pHashExpr )
+         >> ( PEval <$> _pHashExpr )
 
 pVar :: Parser PExpr
 pVar = do void $ lexeme

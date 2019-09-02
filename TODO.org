@@ -2,6 +2,11 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO top
+** TODO In PExpr, change PEval PExpr to PEval PRel
+** TODO The parser for /it= should assume the next expr is a pRel
+rather than needing an explicit /h keyword
+
 * TODO ? someone else wrote a tree editor
 https://cs-syd.eu/posts/2019-06-28-microsmos
 and then a forest editor:
@@ -218,23 +223,24 @@ and there are only two possibilities: RoleMember 1 and RoleMember 2.
 Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
-*** TODO NEXT : which one?
-**** add PReach to parser
-There are 6 optionos: 
-tll,tlr: search leftward, and return the left or the right member
-trl,trr: sim.
-tl,tr: search leftward or rightward, and return everything, including starts
+*** TODO pTrans parser
+in exports:
+  , pTransRight    -- ^ Parser PExpr
+  , pTransLeft     -- ^ Parser PExpr
 
-All be handled with existing syntax, plus the /tr, /tl and /t keywords:
-tr  = /t pExpr #rel /_
-tll = /tl (/it= pExpr) #rel pExpr
-etc.
+in PExpr:
+       , pTransLeft
+       , pTransRight
 
-The argument to /tl should have either
-  0  pIt= and 1 pAny (and 0 pIt)
-  >0 pIt= and 0 pAny (and 0 pIt)
-**** add PTrans to PExpr
-   | PTrans SearchDir [Role] PExpr PExpr PExpr
+pTransLeft :: Parser PExpr
+pTransLeft = lexeme ( foldr1 (<|>)
+                      $ map (try . precisely) ["/trl","/transLeft"] )
+             >> ( PTrans SearchLeftward <$> pRel )
+
+pTransRight :: Parser PExpr
+pTransRight = lexeme ( foldr1 (<|>)
+                      $ map (try . precisely) ["/trl","/transRight"] )
+             >> ( PTrans SearchRightward <$> pRel )
 *** TODO orphans
 **** TODO ? could introduce type TransRole = TransLeft | TransRight
 to limit the possible values in the list argument of PTrans (because,

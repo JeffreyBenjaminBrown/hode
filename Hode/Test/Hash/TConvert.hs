@@ -184,7 +184,7 @@ test_pExprToHExpr = TestCase $ do
     ( Right $ Right $
       HReach SearchLeftward
       (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
-      (HExpr $ Phrase "a"))
+      (HExpr $ Phrase "a"))  
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

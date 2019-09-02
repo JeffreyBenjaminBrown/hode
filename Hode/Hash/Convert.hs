@@ -134,7 +134,7 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
   f (PTrans d pr)     = do
     h <- pRelToHExpr r pr
     case h of
-      HEval (HMap m) ps -> do
+       HEval (HMap m) ps -> do
         if M.size m /= 2
           then Left $ "Hash expr parsed within PTrans should have exactly 1 binary template and 2 members."
           else do
