@@ -117,7 +117,7 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
     case h of
       HMap m ->
         if M.size m /= 2
-        then Left $ "Hash expr parsed within PReach should have exactly 1 binary template and 1 member (the other being implicitly Any."
+        then Left $ "Hash expr parsed within PReach should have exactly 1 binary template and 1 member (the other being implicitly Any. Instead it was this: " ++ show h
         else do
 
           let t :: HExpr =
@@ -135,8 +135,8 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
     h <- pExprToHExpr r pr
     case h of
       HEval (HMap m) ps -> do
-        if M.size m /= 2
-          then Left $ "Hash expr parsed within PTrans should have exactly 1 binary template and 2 members."
+        if M.size m /= 3
+          then Left $ "Hash expr parsed within PTrans should have exactly 1 binary template and 2 members. Instead it was this: " ++ show h
           else do
           let t :: HExpr =
                 maybe (error "impossible ? no Tplt in PReach") id $

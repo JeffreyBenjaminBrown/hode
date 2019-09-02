@@ -186,6 +186,33 @@ test_pExprToHExpr = TestCase $ do
       (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
       (HExpr $ Phrase "a"))  
 
+  assertBool "HTrans leftward, return leftward items" $
+    ( pExprToHExpr (mkRslt mempty) <$>
+      parse pPExpr "" "/trl (/it= a) # b" ) ==
+    ( Right $ Right $ HTrans SearchLeftward [SearchLeftward]
+      ( HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      ( HExpr $ Phrase "b")
+      ( HExpr $ Phrase "a") )
+
+  assertBool "HTrans rightward, return leftward items" $
+    ( pExprToHExpr (mkRslt mempty) <$>
+      parse pPExpr "" "/trr (/it= a) # b" ) ==
+    ( Right $ Right $ HTrans SearchRightward [SearchLeftward]
+      ( HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      ( HExpr $ Phrase "a")
+      ( HExpr $ Phrase "b") )
+
+  assertBool "HTrans rightward between disjunctions" $
+    isRight ( fromRight (error "?") $
+              pExprToHExpr (mkRslt mempty) <$>
+              parse pPExpr "" "/trr (0 | 2) #< (1|4)" )
+
+  assertBool "HTrans rightward between disjunctions with target" $
+    isRight ( fromRight (error "?") $
+              pExprToHExpr (mkRslt mempty) <$>
+              parse pPExpr "" "/trr (/it=(0 | 2)) #< (1|4)" )
+
+
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do
   assertBool "1" $

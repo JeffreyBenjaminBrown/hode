@@ -14,6 +14,8 @@ module Hode.Hash.HParse (
   , pAbsentMember  -- ^ Parser PRel
   , pPExpr         -- ^ Parser PExpr
   , pReach         -- ^ Parser PExpr
+  , pTransRight    -- ^ Parser PExpr
+  , pTransLeft     -- ^ Parser PExpr
   , pHashExpr      -- ^ Parser PExpr
   , _pHashExpr     -- ^ Parser PExpr
   , pAddr          -- ^ Parser Expr
@@ -109,6 +111,8 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
 
          -- other constructors
        , pReach
+       , pTransLeft
+       , pTransRight
        , pMap
        , pEval
        , pVar
@@ -120,6 +124,16 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
 pReach :: Parser PExpr
 pReach = lexeme ( try $ precisely "/tr" )
          >> PReach <$> _pHashExpr
+
+pTransLeft :: Parser PExpr
+pTransLeft = lexeme ( foldr1 (<|>)
+                      $ map (try . precisely) ["/trl","/transLeft"] )
+             >> ( PTrans SearchLeftward . PEval <$> _pHashExpr )
+
+pTransRight :: Parser PExpr
+pTransRight = lexeme ( foldr1 (<|>)
+                      $ map (try . precisely) ["/trr","/transRight"] )
+             >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
 
 pHashExpr :: Parser PExpr
 pHashExpr = lexeme

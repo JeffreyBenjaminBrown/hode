@@ -219,23 +219,6 @@ Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
 *** TODO pTrans parser
-in exports:
-  , pTransRight    -- ^ Parser PExpr
-  , pTransLeft     -- ^ Parser PExpr
-
-in PExpr:
-       , pTransLeft
-       , pTransRight
-
-pTransLeft :: Parser PExpr
-pTransLeft = lexeme ( foldr1 (<|>)
-                      $ map (try . precisely) ["/trl","/transLeft"] )
-             >> ( PTrans SearchLeftward <$> pRel )
-
-pTransRight :: Parser PExpr
-pTransRight = lexeme ( foldr1 (<|>)
-                      $ map (try . precisely) ["/trl","/transRight"] )
-             >> ( PTrans SearchRightward <$> pRel )
 *** TODO orphans
 **** TODO ? could introduce type TransRole = TransLeft | TransRight
 to limit the possible values in the list argument of PTrans (because,
