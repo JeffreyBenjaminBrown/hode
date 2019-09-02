@@ -119,7 +119,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
 
 pReach :: Parser PExpr
 pReach = lexeme ( try $ precisely "/tr" )
-         >> PReach <$> pRel
+         >> PReach <$> _pHashExpr
 
 pHashExpr :: Parser PExpr
 pHashExpr = lexeme
@@ -191,7 +191,7 @@ pAny = lexeme ( foldr1 (<|>)
        >> return Any
 
 pIt :: Parser PExpr
-pIt =     (lexeme (precisely "/it=") >> It . Just <$> pPExpr)
+pIt =     (lexeme (precisely "/it=") >> It . Just <$> _pHashExpr)
       <|> (lexeme (precisely "/it")  >> return (It Nothing))
 
 

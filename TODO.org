@@ -2,11 +2,6 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO top
-** TODO In PExpr, change PEval PExpr to PEval PRel
-** TODO The parser for /it= should assume the next expr is a pRel
-rather than needing an explicit /h keyword
-
 * TODO ? someone else wrote a tree editor
 https://cs-syd.eu/posts/2019-06-28-microsmos
 and then a forest editor:

@@ -113,7 +113,7 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
     return $ HOr l
 
   f (PReach pr)     = do
-    h <- pRelToHExpr r pr
+    h <- pExprToHExpr r pr
     case h of
       HMap m ->
         if M.size m /= 2
@@ -132,9 +132,9 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
       _ -> Left $ "Hash expr parsed within PReach is not an HMap. (It should be a binary HMap with exactly 2 members: a Tplt and either RoleMember 1 or RoleMember 2."
 
   f (PTrans d pr)     = do
-    h <- pRelToHExpr r pr
+    h <- pExprToHExpr r pr
     case h of
-       HEval (HMap m) ps -> do
+      HEval (HMap m) ps -> do
         if M.size m /= 2
           then Left $ "Hash expr parsed within PTrans should have exactly 1 binary template and 2 members."
           else do

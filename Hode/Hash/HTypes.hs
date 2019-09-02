@@ -77,8 +77,8 @@ data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
   | PDiff PExpr PExpr
   | PAnd [PExpr]
   | POr [PExpr]
-  | PReach           PRel -- ^ SearchDir implied by which member is Any
-  | PTrans SearchDir PRel
+  | PReach           PExpr -- ^ SearchDir implied by which member is Any
+  | PTrans SearchDir PExpr
   | Any
   | It (Maybe PExpr)
   | PRel PRel
