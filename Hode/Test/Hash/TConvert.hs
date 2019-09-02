@@ -24,6 +24,35 @@ test_module_hash_convert = TestList [
   , TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
   ]
 
+test_HEval :: Test
+test_HEval = TestCase $ do
+  let a_hash_b = HMap
+        ( M.fromList
+          [ ( RoleTplt,
+              HExpr ( ExprTplt [Phrase "",Phrase "",Phrase ""])),
+            ( RoleMember 1, HExpr $ Phrase "a"),
+            ( RoleMember 2, HExpr $ Phrase "b")])
+  assertBool "/eval (/it=/h a # b) # c" $
+    ( pExprToHExpr (mkRslt mempty) <$>
+      parse pPExpr "" "/eval (/it=/h a # b) # c" ) ==
+    ( Right $ Right $ HEval
+      ( HMap ( M.fromList
+               [ ( RoleTplt,
+                   HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""]) )
+               , ( RoleMember 1, a_hash_b),
+                 ( RoleMember 2, HExpr $ Phrase "c") ]))
+      [[RoleMember 1]] )
+  assertBool "/eval c # (/it=/h a # b)" $
+    ( pExprToHExpr (mkRslt mempty) <$>
+      parse pPExpr "" "/eval c # (/it=/h a # b)" ) ==
+    ( Right $ Right $ HEval
+      ( HMap ( M.fromList
+               [ ( RoleTplt,
+                   HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""]) )
+               , ( RoleMember 2, a_hash_b),
+                 ( RoleMember 1, HExpr $ Phrase "c") ]))
+      [[RoleMember 1]] )
+
 test_pathsToIts_pExpr :: Test
 test_pathsToIts_pExpr = TestCase $ do
   assertBool "It's okay if there's no It to find." $
