@@ -22,6 +22,7 @@ test_module_hash_convert = TestList [
   , TestLabel "test_pExprToHExpr" test_pExprToHExpr
   , TestLabel "test_pathsToIts" test_pathsToIts_sub_pRel
   , TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
+  , TestLabel "test_HEval" test_HEval
   ]
 
 test_HEval :: Test
@@ -32,6 +33,7 @@ test_HEval = TestCase $ do
               HExpr ( ExprTplt [Phrase "",Phrase "",Phrase ""])),
             ( RoleMember 1, HExpr $ Phrase "a"),
             ( RoleMember 2, HExpr $ Phrase "b")])
+
   assertBool "/eval (/it=/h a # b) # c" $
     ( pExprToHExpr (mkRslt mempty) <$>
       parse pPExpr "" "/eval (/it=/h a # b) # c" ) ==
@@ -42,6 +44,7 @@ test_HEval = TestCase $ do
                , ( RoleMember 1, a_hash_b),
                  ( RoleMember 2, HExpr $ Phrase "c") ]))
       [[RoleMember 1]] )
+
   assertBool "/eval c # (/it=/h a # b)" $
     ( pExprToHExpr (mkRslt mempty) <$>
       parse pPExpr "" "/eval c # (/it=/h a # b)" ) ==
@@ -52,6 +55,11 @@ test_HEval = TestCase $ do
                , ( RoleMember 2, a_hash_b),
                  ( RoleMember 1, HExpr $ Phrase "c") ]))
       [[RoleMember 1]] )
+
+  assertBool "/it should be able to reach into a disjunction -- e.g. to ask which of Jack and Jill need water" $
+    isRight ( fromRight (error "") $
+              pExprToHExpr (mkRslt mempty) <$>
+              parse pPExpr "" "/eval /it=(Jack | Jill) #needs water" )
 
 test_pathsToIts_pExpr :: Test
 test_pathsToIts_pExpr = TestCase $ do
@@ -211,7 +219,6 @@ test_pExprToHExpr = TestCase $ do
     isRight ( fromRight (error "?") $
               pExprToHExpr (mkRslt mempty) <$>
               parse pPExpr "" "/trr (/it=(0 | 2)) #< (1|4)" )
-
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

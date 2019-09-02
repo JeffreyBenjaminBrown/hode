@@ -2,10 +2,8 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO ? someone else wrote a tree editor
-https://cs-syd.eu/posts/2019-06-28-microsmos
-and then a forest editor:
-https://cs-syd.eu/posts/2019-08-28-millismos
+* TODO /it should be able to reach into *junctions
+There's a failing test demonstrating why.
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
@@ -400,6 +398,10 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** ? someone else wrote a tree editor
+https://cs-syd.eu/posts/2019-06-28-microsmos
+and then a forest editor:
+https://cs-syd.eu/posts/2019-08-28-millismos
 ** ? use lists rather than sets until needed
 e.g. in HExprToAddrs, or the RLookup functions.
 That is, unless set fusion works as well.
