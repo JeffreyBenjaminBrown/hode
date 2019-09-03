@@ -36,7 +36,7 @@ test_HEval = TestCase $ do
 
   assertBool "/eval (/it=/h a # b) # c" $
     ( pExprToHExpr (mkRslt mempty) <$>
-      parse pPExpr "" "/eval (/it=/h a # b) # c" ) ==
+      parse pPExpr "" "/eval (/it= a # b) # c" ) ==
     ( Right $ Right $ HEval
       ( HMap ( M.fromList
                [ ( RoleTplt,
@@ -45,16 +45,16 @@ test_HEval = TestCase $ do
                  ( RoleMember 2, HExpr $ Phrase "c") ]))
       [[RoleMember 1]] )
 
-  assertBool "/eval c # (/it=/h a # b)" $
+  assertBool "/eval c # (/it= a # b)" $
     ( pExprToHExpr (mkRslt mempty) <$>
-      parse pPExpr "" "/eval c # (/it=/h a # b)" ) ==
+      parse pPExpr "" "/eval c # (/it= a # b)" ) ==
     ( Right $ Right $ HEval
       ( HMap ( M.fromList
                [ ( RoleTplt,
                    HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""]) )
                , ( RoleMember 2, a_hash_b),
                  ( RoleMember 1, HExpr $ Phrase "c") ]))
-      [[RoleMember 1]] )
+      [[RoleMember 2]] )
 
   assertBool "/it should be able to reach into a disjunction -- e.g. to ask which of Jack and Jill need water" $
     isRight ( fromRight (error "") $

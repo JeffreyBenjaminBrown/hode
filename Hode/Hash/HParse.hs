@@ -204,9 +204,11 @@ pAny = lexeme ( foldr1 (<|>)
                 $ map (try . precisely) ["/_","/any"] )
        >> return Any
 
+-- | PITFALL: the /it= keyword, like other keywords,
+-- cannot be followed by an adjacent alphanumeric character.
 pIt :: Parser PExpr
 pIt =     (lexeme (precisely "/it=") >> It . Just <$> _pHashExpr)
-      <|> (lexeme (precisely "/it")  >> return (It Nothing))
+      <|> (lexeme (precisely "/it")  >> return (It Nothing) )
 
 
 -- | like `phrase`, but includes every character that's not special

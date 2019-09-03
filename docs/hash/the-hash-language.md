@@ -117,7 +117,7 @@ will list the things you like, minus the ones I cannot afford.
 
 ## Advanced queries
 
-### Replace a superexpression with a subexpression using `/eval` and `/it`
+### Replace a superexpression with a subexpression using `/eval` and `/it` (or `/it=`)
 
 (Note: This is about replacement within search results. To replace one `Expr` with another in an `Rslt`, see the section on the `/replace` keyword in [the ui documentation](docs/ui.md).)
 
@@ -152,6 +152,24 @@ For instance, it might return `the venus flytrap #eats bugs`.
 You can actually include more than one `/it` in an `/eval` statement.
 For instance, `/eval /it #married /it` would return every married person,
 regardless of whether they are listed first or second in the marriage relationship.
+
+
+#### Using `/it=` to restrict the possible targets in an `/eval` query
+
+You might want to restrict the set of possibilities considered for the "/it" variable(s) in an "/eval" expression. For instance, if you want to know who among Jane and Jim is coming to your wedding, you could ask:
+
+`/f /eval (/it= Jane | Jim) #is invited to my wedding`
+
+And if you didn't want to have to list all the possibilities explicitly,
+you could use a nested "/eval' statement to, say,
+ask which of your classmates is invited:
+
+`/f /eval (/it= (/eval /it #is a classmate of mine)) #is coming to my wedding`
+
+
+#### PITFALL: `/it=` cannot be followed by an alphanumeric character
+
+`/it=` is a keyword, just like `/it` or `/eval`, which means it must be followed by a non-alphanumeric character (typically a space or a left parenthesis).b Just like writing `/italy` or `/evaleye` would confuse the parser, so too will writing `/it=x` confuse the parser.
 
 
 ### (Reflexive) transitive search

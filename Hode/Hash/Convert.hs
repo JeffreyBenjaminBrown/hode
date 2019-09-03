@@ -173,6 +173,16 @@ pMapToHMap r = prefixLeft "-> pMapToHMap"
 
 
 -- | = Finding the `It`s for a `PEval` to evaluate.
+-- Note that some expressions, importantly And and Or,
+-- cannot be reached into with an Eval. Consider a good and a bad example:
+--
+-- The following query makes sense::
+-- "/eval (/it= a|b) # c"
+-- It asks for every x in {a,b} such that "x # c".
+--
+-- But if a query had "/it=" inside the conjunction, as in
+-- "/eval (a \ /it=b) # c",
+-- it's not clear what it should mean.
 
 pathsToIts_pExpr :: PExpr -> Either String [RolePath]
 pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
@@ -180,9 +190,6 @@ pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
 pathsToIts_sub_pExpr :: PExpr -> Either String [RolePath]
 pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
-  tooLate :: Base PExpr (PExpr, Either String [RolePath])
-           -> Either String [RolePath]
-  tooLate x = Left $ "pathsToIts_sub_pExpr called too late (too far leafward in the PExpr), on " ++ show (embed $ fmap fst x)
 
   f :: Base PExpr (PExpr, Either String [RolePath])
     -> Either String [RolePath]
@@ -195,14 +202,14 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   f (PEvalF _) = Right []
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
-  f (PVarF _)        = Right []
-  f x@(PDiffF _ _)   = tooLate x
-  f x@(PAndF _)      = tooLate x
-  f x@(POrF _)       = tooLate x
-  f x@(PReachF _)    = tooLate x
-  f x@(PTransF _ _)  = tooLate x
-  f AnyF             = Right []
-  f (ItF Nothing)    = Right [[]]
+  f (PVarF _)      = Right []
+  f (PDiffF _ _)   = Right []
+  f (PAndF _)      = Right []
+  f (POrF _)       = Right []
+  f (PReachF _)    = Right [] -- TODO ? allow inspection (recurse inside)
+  f (PTransF _ _)  = Right [] -- TODO ? allow inspection (recurse inside)
+  f AnyF           = Right []
+  f (ItF Nothing)  = Right [[]]
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 

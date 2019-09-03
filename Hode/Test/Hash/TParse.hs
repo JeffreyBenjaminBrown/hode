@@ -123,6 +123,16 @@ test_parse_pPExpr = TestCase $ do
                , PNonRel $ PExpr $ Phrase "b" ]
         [""] ) )
 
+  assertBool "/it= needs a space after" $
+    parse pEval "" "/eval (/it= 0|1) # 2" == Right
+    ( PEval $ PRel $ Open 1
+      [ PNonRel $ It $ Just $ POr [ PExpr (Phrase "0"),
+                                    PExpr (Phrase "1") ],
+        PNonRel (PExpr $ Phrase "2")] [""])
+  assertBool "/it= needs a space after" $
+    isLeft $ parse pEval "" "/eval (/it=0|1) # 2"
+
+
 test_parse_rels :: Test
 test_parse_rels = TestCase $ do
   assertBool "1 level" $ parse pRel "wut" "a b #(w x) c d"
