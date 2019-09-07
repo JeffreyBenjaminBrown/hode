@@ -29,7 +29,6 @@ import Hode.Hash.Convert as X
 import Hode.Hash.EitherExpr as X
 import Hode.Hash.HLookup as X
 import Hode.Hash.HParse as X
-import Hode.Hash.HToRslt as X
 import Hode.Hash.HTypes as X
 import Hode.Hash.HUtil as X
 import Hode.Hash.Hash as X

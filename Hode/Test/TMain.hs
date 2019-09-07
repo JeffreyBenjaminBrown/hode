@@ -6,7 +6,6 @@ import           Test.HUnit hiding (Test)
 
 import Hode.Test.Hash.TConvert
 import Hode.Test.Hash.THLookup
-import Hode.Test.Hash.THToRslt
 import Hode.Test.Hash.TParse
 import Hode.Test.Hash.TTransitive
 import Hode.Test.Qseq.TLeaf
@@ -36,7 +35,6 @@ tests = runTestTT $ TestList
   , test_module_hash_parse
   , test_module_hash_hlookup_transitive
   , test_module_hode_brick
-  , test_module_hode_hToRslt
   , test_module_pTree
   , test_module_query
   , test_module_rsltProgram

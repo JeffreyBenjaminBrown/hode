@@ -7,11 +7,12 @@ import qualified Data.Set as S
 import           Test.HUnit
 
 import Hode.Hash.HLookup
-import Hode.Hash.HToRslt
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil (hor)
+import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
+import Hode.UI.NoUI
 
 
 test_module_hash_hlookup_transitive :: Test
@@ -34,7 +35,7 @@ test_hLookup_hTrans = TestCase $ do
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]
       
-      Right (r :: Rslt) = stringHExprsToRslt
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "a0 # a1"
                           , "a1 # a2"
                           , "b0 # b1"
@@ -66,10 +67,10 @@ test_hLookup_hReach = TestCase $ do
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "lte", "" ]
 
-      Right (r :: Rslt) = stringHExprsToRslt
-                                [ "0 #lte 1"
-                                , "1 #lte 2"
-                                , "2 #lte 3" ]
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
+                          [ "0 #lte 1"
+                          , "1 #lte 2"
+                          , "2 #lte 3" ]
 
   assertBool "right from (greater than or equal to) 1" $
     hExprToAddrs r mempty
@@ -90,10 +91,10 @@ test_transitiveClsoure = TestCase $ do
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "lte", "" ]
 
-      Right (r :: Rslt) = stringHExprsToRslt
-                                [ "0 #lte 1"
-                                , "1 #lte 2"
-                                , "2 #lte 3" ]
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
+                          [ "0 #lte 1"
+                          , "1 #lte 2"
+                          , "2 #lte 3" ]
 
   assertBool "1" $
     (S.fromList <$>
@@ -115,7 +116,7 @@ test_transitiveRels = TestCase $ do
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]
 
-      Right (r :: Rslt) = stringHExprsToRslt
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "a # b"
                           , "b # b1"
                           , "b # b2"
@@ -143,7 +144,7 @@ test_reachable = TestCase $ do
       Right t  = exprToAddr r $ ExprTplt $
                  map Phrase [ "", "", "" ]
 
-      Right (r :: Rslt) = stringHExprsToRslt
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "a # b"
                           , "b # b1"
                           , "b # b2"

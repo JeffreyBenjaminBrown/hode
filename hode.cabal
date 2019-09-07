@@ -62,7 +62,6 @@ library
                 , Hode.Test.Hash.TTransitive
                 , Hode.Test.Hash.TConvert
                 , Hode.Test.Hash.THLookup
-                , Hode.Test.Hash.THToRslt
                 , Hode.Test.Hash.TParse
                 , Hode.Test.Qseq.TLeaf
                 , Hode.Test.Qseq.TProgram

@@ -2,6 +2,7 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO delete Hash/HToRslt.hs, repace with NoUI functions
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries

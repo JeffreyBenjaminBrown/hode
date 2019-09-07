@@ -12,12 +12,15 @@ module Hode.UI.NoUI (
   , nExpr'         -- ^         String -> Either String Expr
   , nInsert        -- ^ Rslt -> String -> Either String (Rslt, Addr)
   , nInsert'       -- ^ Rslt -> String -> Either String Rslt
+  , nInserts       -- ^ Foldable f =>
+                   --   Rslt -> f String -> Either String Rslt
   , nFindAddrs     -- ^ Rslt -> String -> Either String (Set Addr)
   , nFind          -- ^ Rslt -> String -> Either String (Set Expr)
   , nFindStrings   -- ^ Rslt -> String -> Either String (Set String)
   , nFindStringsIO -- ^ Rslt -> String -> IO ()
   ) where
 
+import           Control.Monad (foldM)
 import           Data.Either.Combinators (mapLeft)
 import           Data.Set (Set)
 import qualified Data.Set as S
@@ -58,6 +61,10 @@ nInsert r s = prefixLeft "nInsert: " $
 nInsert' :: Rslt -> String -> Either String Rslt
 nInsert' r s = prefixLeft "nInsert': " $
                fst <$> nInsert r s
+
+nInserts :: Foldable f
+         => Rslt -> f String -> Either String Rslt
+nInserts r ss = foldM nInsert' r ss
 
 nFindAddrs :: Rslt -> String -> Either String (Set Addr)
 nFindAddrs r s = prefixLeft "nFindAddrs: " $
