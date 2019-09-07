@@ -38,46 +38,41 @@ import Hode.Util.Misc
 
 nHExpr ::  Rslt -> String -> Either String HExpr
 nHExpr r s =
-  mapLeft show (parse _pHashExpr "parse error" s) >>=
+  mapLeft show (parse _pHashExpr "parse error: " s) >>=
   pExprToHExpr r
 
 nHExpr' ::  String -> Either String HExpr
 nHExpr' = nHExpr $ mkRslt mempty
 
 nExpr ::  Rslt -> String -> Either String Expr
-nExpr r s =
-  mapLeft show (parse _pHashExpr "parse error" s) >>=
-  pExprToHExpr r >>=
-  hExprToExpr r
+nExpr r s = prefixLeft "nExpr: " $
+            nHExpr r s >>= hExprToExpr r
 
 nExpr' ::  String -> Either String Expr
 nExpr' = nExpr $ mkRslt mempty
 
 nInsert :: Rslt -> String -> Either String (Rslt, Addr)
-nInsert r s = prefixLeft "-> nInsert"
-  $ mapLeft show (parse _pHashExpr "doh!" s)
-  >>= pExprToHExpr r
-  >>= hExprToExpr r
-  >>= exprToAddrInsert r
+nInsert r s = prefixLeft "nInsert: " $
+              nExpr r s >>= exprToAddrInsert r
 
 nInsert' :: Rslt -> String -> Either String Rslt
-nInsert' r s = fst <$> nInsert r s
+nInsert' r s = prefixLeft "nInsert': " $
+               fst <$> nInsert r s
 
 nFindAddrs :: Rslt -> String -> Either String (Set Addr)
-nFindAddrs r s = prefixLeft "-> nFindAddrs"
-  $ mapLeft show (parse pPExpr "doh!" s)
-  >>= pExprToHExpr r
-  >>= hExprToAddrs r (mempty :: Subst Addr)
+nFindAddrs r s = prefixLeft "nFindAddrs: " $
+                 nHExpr r s >>=
+                 hExprToAddrs r (mempty :: Subst Addr)
 
 nFind :: Rslt -> String -> Either String (Set Expr)
 nFind r s = prefixLeft "-> nFindExprs" $
-  nFindAddrs r s >>=
-  ifLefts_set . S.map ( addrToExpr r )
+            nFindAddrs r s >>=
+            ifLefts_set . S.map ( addrToExpr r )
 
 nFindStrings :: Rslt -> String -> Either String (Set String)
 nFindStrings r s = prefixLeft "-> nFindExprs" $
-  nFind r s >>=
-  ifLefts_set . S.map (eShow r)
+                   nFind r s >>=
+                   ifLefts_set . S.map (eShow r)
 
 nFindStringsIO :: Rslt -> String -> IO ()
 nFindStringsIO r s =

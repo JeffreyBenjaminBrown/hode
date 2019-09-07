@@ -34,8 +34,7 @@ test_trans :: Test
 test_trans = TestCase $ do
   let Right (r1 :: Rslt) = foldM nInsert' (mkRslt mempty)
                            [ "0 #< 1"
-                           , "1 #< 2"
-                           , "2 #< 3" ]
+                           , "1 #< 2" ]
 
   assertBool "Among 0 and 2, only 2 is greater than 1." $
     nFind r1 "/trr 1 #< (/it= 0 | 2)" ==
