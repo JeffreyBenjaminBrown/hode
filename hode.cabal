@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
                   Hode.Hode
+                , Hode.Temp
                 , Hode.Brick
                 , Hode.Brick.ScreenWrap.JustInCase
                 , Hode.Data.Graph
