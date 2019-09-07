@@ -31,21 +31,21 @@ test_module_hash_convert = TestList [
 
 test_nested_eval :: Test
 test_nested_eval = TestCase $ do
-  Right (r1 :: Rslt) = foldM pInsert' (mkRslt mempty)
-                       [ "0    #is a number"
-                       , "1024 #is a number"
-                       , "0    #is mystical" ]
+  let Right (r1 :: Rslt) = foldM nInsert' (mkRslt mempty)
+                           [ "0    #is a number"
+                           , "1024 #is a number"
+                           , "0    #is mystical" ]
 
   assertBool "a non-nested eval : which among 0 and 1024 is mystical" $
-    pFind r1 "/eval (/it= 0 | 1024) #is mystical" ==
+    nFind r1 "/eval (/it= 0 | 1024) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "an equivalent nested eval : which number is mystical" $
-    pFind r1 "/eval (/it= /eval /it #is a number) #is mystical" ==
+    nFind r1 "/eval (/it= /eval /it #is a number) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "maybe it's easier to read with more parens" $
-    pFind r1 "/eval (/it= (/eval /it #is a number)) #is mystical" ==
+    nFind r1 "/eval (/it= (/eval /it #is a number)) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
 

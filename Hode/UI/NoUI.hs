@@ -5,7 +5,18 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.NoUI where
+module Hode.UI.NoUI (
+    nHExpr         -- ^ Rslt -> String -> Either String HExpr
+  , nHExpr'        -- ^         String -> Either String HExpr
+  , nExpr          -- ^ Rslt -> String -> Either String Expr
+  , nExpr'         -- ^         String -> Either String Expr
+  , nInsert        -- ^ Rslt -> String -> Either String (Rslt, Addr)
+  , nInsert'       -- ^ Rslt -> String -> Either String Rslt
+  , nFindAddrs     -- ^ Rslt -> String -> Either String (Set Addr)
+  , nFind          -- ^ Rslt -> String -> Either String (Set Expr)
+  , nFindStrings   -- ^ Rslt -> String -> Either String (Set String)
+  , nFindStringsIO -- ^ Rslt -> String -> IO ()
+  ) where
 
 import           Data.Either.Combinators (mapLeft)
 import           Data.Set (Set)
@@ -25,51 +36,51 @@ import Hode.Rslt.Index
 import Hode.Util.Misc
 
 
-pHExpr ::  Rslt -> String -> Either String HExpr
-pHExpr r s =
+nHExpr ::  Rslt -> String -> Either String HExpr
+nHExpr r s =
   mapLeft show (parse _pHashExpr "parse error" s) >>=
   pExprToHExpr r
 
-nExpr ::  Rslt -> String -> Either String HExpr
+nHExpr' ::  String -> Either String HExpr
+nHExpr' = nHExpr $ mkRslt mempty
+
+nExpr ::  Rslt -> String -> Either String Expr
 nExpr r s =
   mapLeft show (parse _pHashExpr "parse error" s) >>=
-  pExprToHExpr r
+  pExprToHExpr r >>=
+  hExprToExpr r
 
-pExpr' ::  String -> Either String HExpr
-pExpr' s =
-  mapLeft show (parse _pHashExpr "parse error" s) >>=
-  pExprToHExpr (mkRslt mempty)
+nExpr' ::  String -> Either String Expr
+nExpr' = nExpr $ mkRslt mempty
 
-pInsert :: Rslt -> String -> Either String (Rslt, Addr)
-pInsert r s = prefixLeft "-> pInsert"
+nInsert :: Rslt -> String -> Either String (Rslt, Addr)
+nInsert r s = prefixLeft "-> nInsert"
   $ mapLeft show (parse _pHashExpr "doh!" s)
   >>= pExprToHExpr r
   >>= hExprToExpr r
   >>= exprToAddrInsert r
 
-pInsert' :: Rslt -> String -> Either String Rslt
-pInsert' r s = fst <$> pInsert r s
+nInsert' :: Rslt -> String -> Either String Rslt
+nInsert' r s = fst <$> nInsert r s
 
-pFind :: Rslt -> String -> Either String (S.Set Expr)
-pFind r s = pHExpr r s >>=
-           hExprToAddrs r mempty >>=
-           ifLefts_set . S.map (addrToExpr r)
-
-pFindAddrs :: Rslt -> String -> Either String (Set Addr)
-pFindAddrs r s = prefixLeft "-> pFindAddrs"
+nFindAddrs :: Rslt -> String -> Either String (Set Addr)
+nFindAddrs r s = prefixLeft "-> nFindAddrs"
   $ mapLeft show (parse pPExpr "doh!" s)
   >>= pExprToHExpr r
   >>= hExprToAddrs r (mempty :: Subst Addr)
 
-pFindStrings :: Rslt -> String -> Either String (Set String)
-pFindStrings r s = prefixLeft "-> pFindExprs" $ do
-  (as :: Set Addr)   <- pFindAddrs r s
-  (es :: Set Expr)   <- ifLefts_set $ S.map ( addrToExpr r ) as
-  (ss :: Set String) <- ifLefts_set $ S.map (eShow r) es
-  return ss
+nFind :: Rslt -> String -> Either String (Set Expr)
+nFind r s = prefixLeft "-> nFindExprs" $
+  nFindAddrs r s >>=
+  ifLefts_set . S.map ( addrToExpr r )
 
-pFindStringsIO :: Rslt -> String -> IO ()
-pFindStringsIO r s =
-  case (pFindStrings r s :: Either String (Set String))
+nFindStrings :: Rslt -> String -> Either String (Set String)
+nFindStrings r s = prefixLeft "-> nFindExprs" $
+  nFind r s >>=
+  ifLefts_set . S.map (eShow r)
+
+nFindStringsIO :: Rslt -> String -> IO ()
+nFindStringsIO r s =
+  case (nFindStrings r s :: Either String (Set String))
   of Left err -> putStrLn err
      Right ss -> mapM_ putStrLn ss

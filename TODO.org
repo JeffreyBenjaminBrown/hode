@@ -2,9 +2,6 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO move the functions in test_nested_hEval
-And add the rest of the closure of the set they generate.
-Maybe to Hode.UI.NoUI
 * TODO reify these tests
 ** trr (fails)
 /a 0 #< 1
