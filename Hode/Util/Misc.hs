@@ -116,10 +116,6 @@ keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key m =  callingFunction ++ ": key "
   ++ show key ++ " not found in map " ++ show m ++ ".\n"
 
-mapLeft :: (a -> a') -> Either a b -> Either a' b
-mapLeft _ (Right x) = Right x
-mapLeft f (Left x) = Left $ f x
-
 prefixLeft :: String -> Either String a -> Either String a
 prefixLeft prefix =
   either (\s -> Left $ prefix ++ " " ++ s) Right
