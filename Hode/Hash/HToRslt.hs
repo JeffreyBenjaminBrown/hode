@@ -5,6 +5,7 @@
 
 module Hode.Hash.HToRslt where
 
+import           Data.Either.Combinators (mapLeft)
 import           Text.Megaparsec hiding (label)
 
 import Hode.Rslt.RTypes

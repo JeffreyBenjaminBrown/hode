@@ -7,6 +7,7 @@
 
 module Hode.UI.NoUI where
 
+import           Data.Either.Combinators (mapLeft)
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec

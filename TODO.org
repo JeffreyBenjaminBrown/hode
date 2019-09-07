@@ -2,10 +2,17 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO reify this test (it works!)
+* TODO reify these tests
+** trr (fails)
+/a 0 #< 1
+/a 1 #< 2
+/a 2 #< 3
+/f /trr (/it= 0 | 2) #< 1
+** nested eval (it works!)
 /a 0    #is a number
 /a 1024 #is a number
 /a 0    #is mystical
+/f /eval (/it= 0 | 1024) #is mystical
 /f /eval (/it= /eval /it #is a number) #is mystical
 /f /eval (/it= (/eval /it #is a number)) #is mystical
 * PIFALLs

@@ -24,7 +24,6 @@ module Hode.Util.Misc (
 
   -- | = errors
   , keyErr          -- ^ String -> k -> Map k a -> String
-  , mapLeft         -- ^ (a -> a') -> Either a b -> Either a' b
   , prefixLeft      -- ^ String -> Either String a -> Either String a
   , ifNothings      -- ^ [Maybe a] -> Maybe [a]
   , ifLefts         -- ^ [Either String a]       -> Either String [a]

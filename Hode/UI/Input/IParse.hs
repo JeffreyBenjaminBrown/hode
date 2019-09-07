@@ -2,6 +2,7 @@
 
 module Hode.UI.Input.IParse (pCommand) where
 
+import           Data.Either.Combinators (mapLeft)
 import           Text.Megaparsec
 
 import Hode.Hash.Convert
