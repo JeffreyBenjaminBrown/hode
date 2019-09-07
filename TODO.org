@@ -2,12 +2,6 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO reify these tests
-** trr (fails)
-/a 0 #< 1
-/a 1 #< 2
-/a 2 #< 3
-/f /trr (/it= 0 | 2) #< 1
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries

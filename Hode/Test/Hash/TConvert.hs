@@ -27,7 +27,31 @@ test_module_hash_convert = TestList [
   , TestLabel "test_pathsToIts_pExpr" test_pathsToIts_pExpr
   , TestLabel "test_HEval" test_HEval
   , TestLabel "test_nested_eval" test_nested_eval
+  , TestLabel "test_trans" test_trans
   ]
+
+test_trans :: Test
+test_trans = TestCase $ do
+  let Right (r1 :: Rslt) = foldM nInsert' (mkRslt mempty)
+                           [ "0 #< 1"
+                           , "1 #< 2"
+                           , "2 #< 3" ]
+
+  assertBool "Among 0 and 2, only 2 is greater than 1." $
+    nFind r1 "/trr 1 #< (/it= 0 | 2)" ==
+    Right (S.fromList [Phrase "0"])
+
+  assertBool "including if we search leftward" $
+    nFind r1 "/trl 1 #< (/it= 0 | 2)" ==
+    Right (S.fromList [Phrase "0"])
+
+  assertBool "Among 0 and 2, only 0 is less than 1." $
+    nFind r1 "/trr (/it= 0 | 2) #< 1" ==
+    Right (S.fromList [Phrase "0"])
+
+  assertBool "including if we search leftward" $
+    nFind r1 "/trl (/it= 0 | 2) #< 1" ==
+    Right (S.fromList [Phrase "0"])
 
 test_nested_eval :: Test
 test_nested_eval = TestCase $ do
