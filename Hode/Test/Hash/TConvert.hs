@@ -4,22 +4,18 @@ module Hode.Test.Hash.TConvert where
 
 import           Control.Monad (foldM)
 import           Data.Either
-import           Data.Either.Combinators (mapLeft)
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 import           Text.Megaparsec (parse)
 
 import Hode.Hash.Convert
-import Hode.Hash.HLookup
 import Hode.Hash.HParse
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil
-import Hode.Rslt.Edit (exprToAddrInsert)
 import Hode.Rslt.Index
-import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Util.Misc
+import Hode.UI.NoUI
 
 
 test_module_hash_convert :: Test
@@ -35,38 +31,21 @@ test_module_hash_convert = TestList [
 
 test_nested_eval :: Test
 test_nested_eval = TestCase $ do
-  let toHExpr ::  Rslt -> String -> Either String HExpr
-      toHExpr r s =
-        mapLeft show (parse _pHashExpr "parse error" s) >>=
-        pExprToHExpr r
-
-      insertRS :: Rslt -> String -> Either String Rslt
-      insertRS r s = fst <$> (
-        mapLeft show (parse _pHashExpr "parse error" s) >>=
-        pExprToHExpr r >>=
-        hExprToExpr r >>=
-        exprToAddrInsert r )
-
-      find :: Rslt -> String -> Either String (S.Set Expr)
-      find r s = toHExpr r s >>=
-                 hExprToAddrs r mempty >>=
-                 ifLefts_set . S.map (addrToExpr r)
-
-      Right (r0 :: Rslt) = foldM insertRS (mkRslt mempty)
-                          [ "0    #is a number"
-                          , "1024 #is a number"
-                          , "0    #is mystical" ]
+  Right (r1 :: Rslt) = foldM pInsert' (mkRslt mempty)
+                       [ "0    #is a number"
+                       , "1024 #is a number"
+                       , "0    #is mystical" ]
 
   assertBool "a non-nested eval : which among 0 and 1024 is mystical" $
-    find r0 "/eval (/it= 0 | 1024) #is mystical" ==
+    pFind r1 "/eval (/it= 0 | 1024) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "an equivalent nested eval : which number is mystical" $
-    find r0 "/eval (/it= /eval /it #is a number) #is mystical" ==
+    pFind r1 "/eval (/it= /eval /it #is a number) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "maybe it's easier to read with more parens" $
-    find r0 "/eval (/it= (/eval /it #is a number)) #is mystical" ==
+    pFind r1 "/eval (/it= (/eval /it #is a number)) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
 

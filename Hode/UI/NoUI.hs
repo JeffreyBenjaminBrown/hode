@@ -15,20 +15,45 @@ import           Text.Megaparsec
 import Hode.Hash.Convert
 import Hode.Hash.HLookup
 import Hode.Hash.HParse
+import Hode.Hash.HTypes
 import Hode.Qseq.QTypes
 import Hode.Rslt.Edit
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
+import Hode.Rslt.Index
 import Hode.Util.Misc
 
 
+pHExpr ::  Rslt -> String -> Either String HExpr
+pHExpr r s =
+  mapLeft show (parse _pHashExpr "parse error" s) >>=
+  pExprToHExpr r
+
+nExpr ::  Rslt -> String -> Either String HExpr
+nExpr r s =
+  mapLeft show (parse _pHashExpr "parse error" s) >>=
+  pExprToHExpr r
+
+pExpr' ::  String -> Either String HExpr
+pExpr' s =
+  mapLeft show (parse _pHashExpr "parse error" s) >>=
+  pExprToHExpr (mkRslt mempty)
+
 pInsert :: Rslt -> String -> Either String (Rslt, Addr)
 pInsert r s = prefixLeft "-> pInsert"
-  $ mapLeft show (parse pPExpr "doh!" s)
+  $ mapLeft show (parse _pHashExpr "doh!" s)
   >>= pExprToHExpr r
   >>= hExprToExpr r
   >>= exprToAddrInsert r
+
+pInsert' :: Rslt -> String -> Either String Rslt
+pInsert' r s = fst <$> pInsert r s
+
+pFind :: Rslt -> String -> Either String (S.Set Expr)
+pFind r s = pHExpr r s >>=
+           hExprToAddrs r mempty >>=
+           ifLefts_set . S.map (addrToExpr r)
 
 pFindAddrs :: Rslt -> String -> Either String (Set Addr)
 pFindAddrs r s = prefixLeft "-> pFindAddrs"
