@@ -3,6 +3,7 @@ _hiding
 debug
 git-comment.txt
 .stack-work/
+stack.yaml.lock
 *~
 jbb
 temp*
