@@ -233,9 +233,9 @@ transitiveRels :: SearchDir
   -> [Addr] -- ^ places to maybe finish
   -> [Addr] -- ^ places to start
   -> Either String [(Addr,Addr)]
-transitiveRels d r ts es ss =
+transitiveRels d r ts fs ss =
   concat <$>
-  ifLefts (map (transitiveRels1 d r ts es) ss)
+  ifLefts (map (transitiveRels1 d r ts fs) ss)
 
 transitiveRels1 :: SearchDir -- ^ whether to search rightward
   -> Rslt

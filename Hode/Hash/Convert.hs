@@ -124,35 +124,35 @@ pExprToHExpr r pe0 = prefixLeft "-> pExprToHExpr" $ f pe0 where
                 maybe (error "impossible ? no Tplt in PReach") id $
                 M.lookup RoleTplt m
               mhLeft  :: Maybe HExpr = M.lookup (RoleMember 1) m
-              hLeft   ::       HExpr = maybe (error "impossible") id mhLeft
+              hLeft   ::       HExpr = maybe (error "unreachable") id mhLeft
               mhRight :: Maybe HExpr = M.lookup (RoleMember 2) m
-              hRight  ::       HExpr = maybe (error "impossible") id mhRight
+              hRight  ::       HExpr = maybe (error "unreachable") id mhRight
           case mhLeft of Nothing -> Right $ HReach SearchLeftward t hRight
                          _       -> Right $ HReach SearchRightward t hLeft
       _ -> Left $ "Hash expr parsed within PReach is not an HMap. (It should be a binary HMap with exactly 2 members: a Tplt and either RoleMember 1 or RoleMember 2."
 
   f (PTrans d pr)     = do
-    h <- pExprToHExpr r pr
+    h :: HExpr <- pExprToHExpr r pr
     case h of
       HEval (HMap m) ps -> do
         if M.size m /= 3
           then Left $ "Hash expr parsed within PTrans should have exactly 1 binary template and 2 members. Instead it was this: " ++ show h
           else do
-          let t :: HExpr =
-                maybe (error "impossible ? no Tplt in PReach") id $
-                M.lookup RoleTplt m
-              mhLeft  :: Maybe HExpr = M.lookup (RoleMember 1) m
-              mhRight :: Maybe HExpr = M.lookup (RoleMember 2) m
-              targets =
+          let targets =
                 (if elem [RoleMember 1] ps then [SearchLeftward] else []) ++
                 (if elem [RoleMember 2] ps then [SearchRightward] else [])
-          hLeft  <- maybe (Left "Member 1 (left member) absent.") Right
-                    mhLeft
-          hRight <- maybe (Left "Member 1 (right member) absent.") Right
-                    mhRight
+              t :: HExpr =
+                maybe (error "impossible ? no Tplt in PTrans") id $
+                M.lookup RoleTplt m
+          hLeft  :: HExpr <-
+            maybe (Left "Member 1 (left member) absent.") Right
+            $ M.lookup (RoleMember 1) m
+          hRight :: HExpr <-
+            maybe (Left "Member 2 (right member) absent.") Right
+            $ M.lookup (RoleMember 2) m
           let (start,end) = if d == SearchRightward
                             then (hLeft, hRight) else (hRight, hLeft)
-          Right $ HTrans d targets t start end
+          Right $ HTrans d targets t end start
       _ -> Left "Hash expr parsed within PTrans is not an HEval. (It should be a binary HEval with at least one of the two members labeled It.)"
 
   f (It (Just pnr)) = pExprToHExpr r pnr

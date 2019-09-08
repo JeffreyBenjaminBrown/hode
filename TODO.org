@@ -2,7 +2,11 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO delete Hash/HToRslt.hs, repace with NoUI functions
+* TODO simplify result of nPExpr
+e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
+nPExpr q = Right ( PRel $ PNonRel $ ...
+* TODO rename SearchDir
+Use two types: SearchDir and BinMember
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries

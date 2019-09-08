@@ -6,7 +6,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.NoUI (
-    nHExpr         -- ^ Rslt -> String -> Either String HExpr
+    nPExpr         -- ^         String -> Either String PExpr
+  , nHExpr         -- ^ Rslt -> String -> Either String HExpr
   , nHExpr'        -- ^         String -> Either String HExpr
   , nExpr          -- ^ Rslt -> String -> Either String Expr
   , nExpr'         -- ^         String -> Either String Expr
@@ -39,10 +40,13 @@ import Hode.Rslt.Index
 import Hode.Util.Misc
 
 
+nPExpr ::  String -> Either String PExpr
+nPExpr s = prefixLeft "nPExpr: " $
+           mapLeft show $
+           parse _pHashExpr "parse error: " s
+
 nHExpr ::  Rslt -> String -> Either String HExpr
-nHExpr r s =
-  mapLeft show (parse _pHashExpr "parse error: " s) >>=
-  pExprToHExpr r
+nHExpr r s = nPExpr s >>= pExprToHExpr r
 
 nHExpr' ::  String -> Either String HExpr
 nHExpr' = nHExpr $ mkRslt mempty
@@ -59,8 +63,7 @@ nInsert r s = prefixLeft "nInsert: " $
               nExpr r s >>= exprToAddrInsert r
 
 nInsert' :: Rslt -> String -> Either String Rslt
-nInsert' r s = prefixLeft "nInsert': " $
-               fst <$> nInsert r s
+nInsert' r s = fst <$> nInsert r s
 
 nInserts :: Foldable f
          => Rslt -> f String -> Either String Rslt
@@ -72,12 +75,12 @@ nFindAddrs r s = prefixLeft "nFindAddrs: " $
                  hExprToAddrs r (mempty :: Subst Addr)
 
 nFind :: Rslt -> String -> Either String (Set Expr)
-nFind r s = prefixLeft "-> nFindExprs" $
+nFind r s = prefixLeft "nFind: " $
             nFindAddrs r s >>=
             ifLefts_set . S.map ( addrToExpr r )
 
 nFindStrings :: Rslt -> String -> Either String (Set String)
-nFindStrings r s = prefixLeft "-> nFindExprs" $
+nFindStrings r s = prefixLeft "-> nFindStrings" $
                    nFind r s >>=
                    ifLefts_set . S.map (eShow r)
 

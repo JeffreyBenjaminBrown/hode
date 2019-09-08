@@ -36,21 +36,21 @@ test_trans = TestCase $ do
                            [ "0 #< 1"
                            , "1 #< 2" ]
 
-  assertBool "Among 0 and 2, only 2 is greater than 1." $
-    nFind r1 "/trr 1 #< (/it= 0 | 2)" ==
-    Right (S.fromList [Phrase "0"])
+  let rel = "1 #< (/it= 0 | 2)" in do
+    assertBool "Among 0 and 2, only 2 is greater than 1." $
+      nFind r1 ("/trr " ++ rel) ==
+      Right (S.fromList [Phrase "2"])
+    assertBool "including if we search leftward" $
+      nFind r1 ("/trl " ++ rel) ==
+      Right (S.fromList [Phrase "2"])
 
-  assertBool "including if we search leftward" $
-    nFind r1 "/trl 1 #< (/it= 0 | 2)" ==
-    Right (S.fromList [Phrase "0"])
-
-  assertBool "Among 0 and 2, only 0 is less than 1." $
-    nFind r1 "/trr (/it= 0 | 2) #< 1" ==
-    Right (S.fromList [Phrase "0"])
-
-  assertBool "including if we search leftward" $
-    nFind r1 "/trl (/it= 0 | 2) #< 1" ==
-    Right (S.fromList [Phrase "0"])
+  let rel = "(/it= 0 | 2) #< 1" in do
+    assertBool "Among 0 and 2, only 0 is less than 1." $
+      nFind r1 ("/trr " ++ rel) ==
+      Right (S.fromList [Phrase "0"])
+    assertBool "including if we search leftward" $
+      nFind r1 ("/trl " ++ rel) ==
+      Right (S.fromList [Phrase "0"])
 
 test_nested_eval :: Test
 test_nested_eval = TestCase $ do
@@ -246,16 +246,16 @@ test_pExprToHExpr = TestCase $ do
       parse pPExpr "" "/trl (/it= a) # b" ) ==
     ( Right $ Right $ HTrans SearchLeftward [SearchLeftward]
       ( HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
-      ( HExpr $ Phrase "b")
-      ( HExpr $ Phrase "a") )
+      ( HExpr $ Phrase "a")
+      ( HExpr $ Phrase "b") )
 
   assertBool "HTrans rightward, return leftward items" $
     ( pExprToHExpr (mkRslt mempty) <$>
       parse pPExpr "" "/trr (/it= a) # b" ) ==
     ( Right $ Right $ HTrans SearchRightward [SearchLeftward]
       ( HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
-      ( HExpr $ Phrase "a")
-      ( HExpr $ Phrase "b") )
+      ( HExpr $ Phrase "b")
+      ( HExpr $ Phrase "a") )
 
   assertBool "HTrans rightward between disjunctions" $
     isRight ( fromRight (error "?") $
