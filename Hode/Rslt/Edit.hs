@@ -147,8 +147,9 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr" $
               then s else s ++ s
 
 
--- | deletes the `Expr` at `oldAddr`, creates or finds the `RefExpr` at `newAddr`,
--- substitutes the new one for the old one everywhere the old one appeared.
+-- | `replaceRefExpr re oldAddr r0` deletes the `Expr` at `oldAddr`,
+-- creates or finds the `RefExpr` to replace it,
+-- and substitutes the new one for the old one everywhere it appeared.
 replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
 replaceRefExpr re oldAddr r0 = prefixLeft "replace" $
   case refExprToAddr r0 re of
@@ -170,34 +171,6 @@ _substitute new old r0 = do
       f e@(Left _) _ = e
       f (Right r) (role,host) = replaceInRole role new host r
   S.foldl f (Right r0) roles
-
-_replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
-_replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr" $ do
-  void $ addrToRefExpr r new
-
-  case spot of
-    RoleTplt -> case host of
-      Rel' (Rel as _) -> do
-        if variety r new == Right (TpltCtr, length as)
-          then Right $ Rel' $ Rel as new
-          else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
-                ++ " is not a valid Tplt in " ++ show host ++ ".\n"
-      _ -> Left $ "_replaceInRefExpr: nothing plays the role of ExprTplt in "
-                ++ show host ++ ".\n"
-
-    RoleMember k -> do
-      case host of
-
-        Rel' (Rel as a) -> do
-          as' <- replaceNth new k as
-          Right $ Rel' $ Rel as' a
-
-        Tplt' as -> do
-          as' <- replaceNth new k as
-          Right $ Tplt' as'
-
-        _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
-             ++ " has no members.\n"
 
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
 replaceInRole spot new host r = prefixLeft "replaceInRole" $ do
@@ -230,6 +203,34 @@ replaceInRole spot new host r = prefixLeft "replaceInRole" $ do
                 $ _isIn r
     }
 
+_replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
+_replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr" $ do
+  void $ addrToRefExpr r new
+
+  case spot of
+    RoleTplt -> case host of
+      Rel' (Rel as _) -> do
+        if variety r new == Right (TpltCtr, length as)
+          then Right $ Rel' $ Rel as new
+          else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
+                ++ " is not a valid Tplt in " ++ show host ++ ".\n"
+      _ -> Left $ "_replaceInRefExpr: nothing plays the role of ExprTplt in "
+                ++ show host ++ ".\n"
+
+    RoleMember k -> do
+      case host of
+
+        Rel' (Rel as a) -> do
+          as' <- replaceNth new k as
+          Right $ Rel' $ Rel as' a
+
+        Tplt' as -> do
+          as' <- replaceNth new k as
+          Right $ Tplt' as'
+
+        _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
+             ++ " has no members.\n"
+
 insert :: RefExpr -> Rslt -> Either String Rslt
 insert e r = do
   a <- prefixLeft "insert" $ nextAddr r
@@ -258,10 +259,18 @@ _insert a e r = Rslt {
   , _isIn = invertAndAddPositions (_isIn r) (a, refExprPositions e)
   }
 
+deleteIfUnused :: Addr -> Rslt -> Either String Rslt
+deleteIfUnused a r = do
+  users <- prefixLeft "deleteIfUnused: " $ isIn r a
+  if null users
+    then _deleteInternalMentionsOf a r
+    else Left $ "deleteIfUnused: Addr " ++ show a
+         ++ " is used in other RefExprs.\n"
+
 -- | PITFALL: `_deleteInternalMentionsOf` could put the Rslt into an
 -- invalid state, if it was run on an RefExpr that appears in other
 -- RefExprs. This only deletes mentions in which it is the container
--- or "the thing", but not the contained.
+-- or "the thing" (hence "internal" mentions), but not the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r = do
   (aHas       ::           Map Role Addr) <-
@@ -287,11 +296,3 @@ _deleteInternalMentionsOf a r = do
     , _addrToRefExpr = M.delete a $ _addrToRefExpr r
     , _refExprToAddr = _refExprToAddr2
     }
-
-deleteIfUnused :: Addr -> Rslt -> Either String Rslt
-deleteIfUnused a r = do
-  users <- prefixLeft "deleteIfUnused: " $ isIn r a
-  if null users
-    then _deleteInternalMentionsOf a r
-    else Left $ "deleteIfUnused: Addr " ++ show a
-         ++ " is used in other RefExprs.\n"

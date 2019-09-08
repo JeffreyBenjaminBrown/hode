@@ -2,9 +2,13 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO nFind, nFindIO, nFindStrings : rework
 * TODO inserting into an Rslt should return all new addresses
-Not just the top one.
+Resume in Rslt.Edit at
+  _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
+working upward.
+* TODO add stuff from Rslt.Edit to NoUI
+replaceInRole
+deleteIfUnused
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
@@ -53,7 +57,9 @@ Use screenkey to show key presses:
 and SimpleScreenRecorder.
 Audio interface: remember to select both input and output devices.
 * user-friendliness
-** insertion list
+** TODO use Lisp to control GHCI
+** TODO give names to searches
+** TODO insertion list
 *** plan
 **** data St = ...
 +  , _insertionBuffer :: Buffer
@@ -181,13 +187,7 @@ But with more language features it might not be.
  Currently there exists `pExprIsSpecific`, but no `pRelIsSpecific`.
    (`pExprToHExpr` calls `pExprIsSpecific` to find whether conversion is possible.)
    (`pRelToHExpr` calls `pExprIsSpecific` to find which branches to convert.)
-** TODO ? rather than convert PRel to HExpr
--- just convert it to PMap
-pRelToPExpr :: PRel -> Either String PExpr
-pRelToPExpr Absent = Left "pRelToPExpr: cannot convert Absent."
-pRelToPExpr (PNonRel pnr) = pExprToHExpr pnr
-pRelToPExpr (Closed ms js) =
- * TODO Qseq, the search metalanguage
+* TODO Qseq, the search metalanguage
 ** TODO ? It might be bad that varTestlike ForSomes do not store what they find in the Subst
 ** TODO ? define not just Sets, but Set-valued functions of Substs
 Example (for a singleton Subst): define "ancestors-via-is" as a function of a Var v: It finds everything v' such that (v is v') or (v' is v), then every v'' such that (v'' is v') or (v' is v'') for one of the v's, etc.
@@ -199,7 +199,7 @@ This allows the set-valued function of v to be referred to by subsequent Queries
 It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
-** TODO transitive search
+** transitive search
 *** DONE rethinking purpose
 **** problem: HExpr finds Exprs; while transitive search finds pairs
 Those pairs might be explicitly in the graph, but might not.
@@ -222,7 +222,6 @@ and there are only two possibilities: RoleMember 1 and RoleMember 2.
 Also, confusingly,
 *they don't index into the members of a relationship in the graph*;
 they index into a pair constructed by `transitiveRels`.
-*** TODO pTrans parser
 *** TODO orphans
 **** TODO ? could introduce type TransRole = TransLeft | TransRight
 to limit the possible values in the list argument of PTrans (because,
@@ -233,8 +232,8 @@ transitiveRels does have to find every pair if, for example, it's computing a tr
 **** TODO Safety: check for cycles when someone adds an expression
 
 **** TODO the transitive rel functions should take (SearchDir, Tplt) pairs
- rather than a single SearchDir and multiple Tplts.
- But this can wait until I need that.
+rather than a single SearchDir and multiple Tplts.
+But this can wait until I need that.
 **** TODO store, for each rel, the better traversal direction
 Maybe use QuickCheck to automate the discovery of that direction.
   Run in the background each time a new
@@ -371,7 +370,6 @@ Preference should be lexicographic across the Tplts.
 *** how
 "topological sort"
 `topsort` from FGL should work.
-** TODO reflexivity
 ** TODO HExpr: add a symbol for "involves"
 *** the current (slow, incomplete) hack
 **** what it is
