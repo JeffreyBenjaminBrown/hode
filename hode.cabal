@@ -87,6 +87,7 @@ library
                 , Hode.UI.Input.IParse
                 , Hode.UI.Main
                 , Hode.UI.NoUI
+                , Hode.UI.NoUI.Internal
                 , Hode.UI.RsltViewTree
                 , Hode.UI.ShowPTree
                 , Hode.UI.ShowPTree.HandTest
