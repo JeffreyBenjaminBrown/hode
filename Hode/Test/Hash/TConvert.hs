@@ -38,18 +38,18 @@ test_trans = TestCase $ do
 
   let rel = "1 #< (/it= 0 | 2)" in do
     assertBool "Among 0 and 2, only 2 is greater than 1." $
-      nFind r1 ("/trr " ++ rel) ==
+      nFindExprs r1 ("/trr " ++ rel) ==
       Right (S.fromList [Phrase "2"])
     assertBool "including if we search leftward" $
-      nFind r1 ("/trl " ++ rel) ==
+      nFindExprs r1 ("/trl " ++ rel) ==
       Right (S.fromList [Phrase "2"])
 
   let rel = "(/it= 0 | 2) #< 1" in do
     assertBool "Among 0 and 2, only 0 is less than 1." $
-      nFind r1 ("/trr " ++ rel) ==
+      nFindExprs r1 ("/trr " ++ rel) ==
       Right (S.fromList [Phrase "0"])
     assertBool "including if we search leftward" $
-      nFind r1 ("/trl " ++ rel) ==
+      nFindExprs r1 ("/trl " ++ rel) ==
       Right (S.fromList [Phrase "0"])
 
 test_nested_eval :: Test
@@ -60,15 +60,15 @@ test_nested_eval = TestCase $ do
                            , "0    #is mystical" ]
 
   assertBool "a non-nested eval : which among 0 and 1024 is mystical" $
-    nFind r1 "/eval (/it= 0 | 1024) #is mystical" ==
+    nFindExprs r1 "/eval (/it= 0 | 1024) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "an equivalent nested eval : which number is mystical" $
-    nFind r1 "/eval (/it= /eval /it #is a number) #is mystical" ==
+    nFindExprs r1 "/eval (/it= /eval /it #is a number) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "maybe it's easier to read with more parens" $
-    nFind r1 "/eval (/it= (/eval /it #is a number)) #is mystical" ==
+    nFindExprs r1 "/eval (/it= (/eval /it #is a number)) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
 

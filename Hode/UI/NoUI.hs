@@ -6,7 +6,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.NoUI (
-    nPExpr         -- ^         String -> Either String PExpr
+    nShowRslt      -- ^ Rslt -> [String]
+  , nShowRsltIO    -- ^ Rslt -> IO ()
+  , nPExpr         -- ^         String -> Either String PExpr
   , nHExpr         -- ^ Rslt -> String -> Either String HExpr
   , nHExpr'        -- ^         String -> Either String HExpr
   , nExpr          -- ^ Rslt -> String -> Either String Expr
@@ -16,13 +18,14 @@ module Hode.UI.NoUI (
   , nInserts       -- ^ Foldable f =>
                    --   Rslt -> f String -> Either String Rslt
   , nFindAddrs     -- ^ Rslt -> String -> Either String (Set Addr)
-  , nFind          -- ^ Rslt -> String -> Either String (Set Expr)
+  , nFindExprs     -- ^ Rslt -> String -> Either String (Set Expr)
   , nFindStrings   -- ^ Rslt -> String -> Either String (Set String)
   , nFindStringsIO -- ^ Rslt -> String -> IO ()
   ) where
 
 import           Control.Monad (foldM)
 import           Data.Either.Combinators (mapLeft)
+import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
@@ -39,6 +42,16 @@ import Hode.Rslt.Show
 import Hode.Rslt.Index
 import Hode.Util.Misc
 
+
+nShowRslt :: Rslt -> [String]
+nShowRslt r = let
+  m = _addrToRefExpr r
+  showPair k = let val = flip M.lookup m k
+               in show k ++ ": " ++ show val
+  in fmap showPair $ M.keys m
+
+nShowRsltIO :: Rslt -> IO ()
+nShowRsltIO = mapM_ putStrLn . nShowRslt
 
 nPExpr ::  String -> Either String PExpr
 nPExpr s = prefixLeft "nPExpr: " $
@@ -74,14 +87,27 @@ nFindAddrs r s = prefixLeft "nFindAddrs: " $
                  nHExpr r s >>=
                  hExprToAddrs r (mempty :: Subst Addr)
 
-nFind :: Rslt -> String -> Either String (Set Expr)
-nFind r s = prefixLeft "nFind: " $
-            nFindAddrs r s >>=
-            ifLefts_set . S.map ( addrToExpr r )
+nFindExprs :: Rslt -> String -> Either String (Set Expr)
+nFindExprs r s = prefixLeft "nFind: " $
+                 nFindAddrs r s >>=
+                 ifLefts_set . S.map ( addrToExpr r )
+
+nFind :: Rslt -> String -> Either String [(Addr, Expr)]
+nFind r s = do as <- S.toList <$> nFindAddrs r s
+               es <- ifLefts $ map (addrToExpr r) as
+               Right $ zip as es
+
+nFindIO :: Rslt -> String -> IO ()
+nFindIO r s = case nFind r s of
+  Left s -> putStrLn s
+  Right (aes :: [(Addr,Expr)])->
+    let ss :: [String] = map f aes where
+          f (a,e) = show a ++ ": " ++ show e
+    in mapM_ putStrLn ss
 
 nFindStrings :: Rslt -> String -> Either String (Set String)
 nFindStrings r s = prefixLeft "-> nFindStrings" $
-                   nFind r s >>=
+                   nFindExprs r s >>=
                    ifLefts_set . S.map (eShow r)
 
 nFindStringsIO :: Rslt -> String -> IO ()

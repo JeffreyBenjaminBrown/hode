@@ -2,11 +2,9 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO simplify result of nPExpr
-e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
-nPExpr q = Right ( PRel $ PNonRel $ ...
-* TODO rename SearchDir
-Use two types: SearchDir and BinMember
+* TODO nFind, nFindIO, nFindStrings : rework
+* TODO inserting into an Rslt should return all new addresses
+Not just the top one.
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
@@ -76,6 +74,11 @@ If anything is modified, ask "are you sure? Your repo has uncommitted changes; s
 
 If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
+** TODO simplify result of nPExpr
+e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
+nPExpr q = Right ( PRel $ PNonRel $ ...
+** TODO rename SearchDir
+Use two types: SearchDir and BinMember
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root
