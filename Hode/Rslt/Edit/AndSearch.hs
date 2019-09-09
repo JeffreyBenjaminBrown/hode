@@ -66,14 +66,15 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
 
 exprToAddrInsert_list ::
   Rslt -> [Expr] -> Either String (Rslt, [Aged Addr])
-exprToAddrInsert_list r0 is = do
+exprToAddrInsert_list r0 is =
+  prefixLeft "exprToAddrInsert_list" $ do
   let ((er, ass) :: (Either String Rslt, [[Aged Addr]])) =
         L.mapAccumL f (Right r0) is where
           f :: Either String Rslt -> Expr
             -> (Either String Rslt, [Aged Addr])
           f (Left s) _ = (Left s, error "irrelevant")
           f (Right r) ei = case exprToAddrInsert r ei of
-                             Left s -> (Left s, error "irrelevant")
-                             Right (r',as) -> (Right r', as)
-  r1 <- prefixLeft "exprToAddrInsert_list" er
+            Left s -> (Left s, error "irrelevant")
+            Right (r',as) -> (Right r', as)
+  r1 <- er
   Right $ (r1, concat ass)
