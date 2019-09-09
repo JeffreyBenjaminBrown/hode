@@ -64,17 +64,28 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
   r3 <- insertAt a (Rel' $ Rel (map unAged mas) ta) r2
   Right (r3, New a : tas ++ mas)
 
+-- | `exprToAddrInsert_list r0 is` will insert all of the `is` into `r0`.
+-- If it works, it will return the new `Rslt`,
+-- and (second) a list of `(Addr,[Addr])` pairs, which corresponds to `is`:
+-- Each pair's first element is the `Addr` of some `i` in the `is`,
+-- and each pair's second element is the `Addr`s of all (recursively)
+-- sub-`Expr`s of `i`.
+
 exprToAddrInsert_list ::
-  Rslt -> [Expr] -> Either String (Rslt, [Aged Addr])
+  Rslt -> [Expr] -> Either String (Rslt, [ ( Aged Addr,
+                                            [Aged Addr])])
 exprToAddrInsert_list r0 is =
   prefixLeft "exprToAddrInsert_list" $ do
-  let ((er, ass) :: (Either String Rslt, [[Aged Addr]])) =
+  let ((er, asas) :: (Either String Rslt, [(Aged Addr,
+                                           [Aged Addr])])) =
         L.mapAccumL f (Right r0) is where
           f :: Either String Rslt -> Expr
-            -> (Either String Rslt, [Aged Addr])
+            -> (Either String Rslt, ( Aged Addr,
+                                     [Aged Addr] ) )
           f (Left s) _ = (Left s, error "irrelevant")
           f (Right r) ei = case exprToAddrInsert r ei of
             Left s -> (Left s, error "irrelevant")
-            Right (r',as) -> (Right r', as)
+            Right (r',as) -> (Right r', ( head as,
+                                          tail as) )
   r1 <- er
-  Right $ (r1, concat ass)
+  Right $ (r1, asas)
