@@ -19,8 +19,8 @@ import Hode.Rslt.Edit.Initial
 
 -- | = Edit + search
 
--- | `exprToAddrInsert r ei` returns the `Addr` containing ei, if present.
--- If not, it inserts ei, and then returns the `Addr` containing it.
+-- | `exprToAddrInsert r ei` returns the `Addr` containing `ei`, if present.
+-- If not, it inserts `ei`, and then returns the `Addr` containing it.
 -- Since it might modify the `Rslt`, it also returns that.
 exprToAddrInsert :: Rslt -> Expr -> Either String (Rslt, Addr)
 exprToAddrInsert r ei = do
@@ -60,12 +60,12 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
 
 exprToAddrInsert_list :: Rslt -> [Expr] -> Either String (Rslt, [Addr])
 exprToAddrInsert_list r0 is = do
-  let ((er, as) :: (Either String Rslt, [Addr])) =
+  let ((er, as) :: (Either String Rslt, [[Addr]])) =
         L.mapAccumL f (Right r0) is where
-        f :: Either String Rslt -> Expr -> (Either String Rslt, Addr)
-        f (Left s) _ = (Left s, error "irrelevant")
-        f (Right r) ei = case exprToAddrInsert r ei of
-                           Left s -> (Left s, error "irrelevant")
-                           Right (r',a) -> (Right r', a)
+          f :: Either String Rslt -> Expr -> (Either String Rslt, [Addr])
+          f (Left s) _ = (Left s, error "irrelevant")
+          f (Right r) ei = case exprToAddrInsert r ei of
+                             Left s -> (Left s, error "irrelevant")
+                             Right (r',a) -> (Right r', [a])
   r1 <- prefixLeft "exprToAddrInsert_list" er
-  Right $ (r1, as)
+  Right $ (r1, concat as)
