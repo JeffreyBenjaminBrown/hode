@@ -10,7 +10,7 @@ import           Test.HUnit
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Qseq.QTypes (Var(..))
-import Hode.Rslt.Edit
+import Hode.Rslt.Edit.Initial (insertAt)
 import Hode.Rslt.RTypes
 import Hode.Rslt.RLookup
 import qualified Hode.Test.Rslt.RData as D

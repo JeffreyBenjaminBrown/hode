@@ -49,9 +49,10 @@ library
                 , Hode.Qseq.RunLeaf
                 , Hode.Qseq.Subst
                 , Hode.Rslt.Edit
-                , Hode.Rslt.Edit.Initial
-                , Hode.Rslt.Edit.Replace
-                , Hode.Rslt.Edit.AndSearch
+                  -- That re-exports the friendly bits of these:
+                  -- , Hode.Rslt.Edit.Initial
+                  -- , Hode.Rslt.Edit.Replace
+                  -- , Hode.Rslt.Edit.AndSearch
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
                 , Hode.Rslt.RLookup

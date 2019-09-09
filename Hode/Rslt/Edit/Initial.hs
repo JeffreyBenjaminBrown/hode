@@ -14,9 +14,7 @@ module Hode.Rslt.Edit.Initial (
   ) where
 
 import           Control.Lens hiding (has, re)
-import           Data.Either
 import           Data.Functor (void)
-import qualified Data.List      as L
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)

@@ -8,10 +8,10 @@ import qualified Data.Set       as S
 import           Test.HUnit
 
 import           Hode.Rslt.RLookup hiding (exprToAddr)
-import qualified Hode.Rslt.Edit as R
-import qualified Hode.Rslt.RLookup as R
+import qualified Hode.Rslt.Edit.Initial as R
+import qualified Hode.Rslt.RLookup      as R
 import           Hode.Rslt.RTypes
-import qualified Hode.Test.Rslt.RData as D
+import qualified Hode.Test.Rslt.RData   as D
 
 
 test_module_rslt_exprToAddr :: Test
