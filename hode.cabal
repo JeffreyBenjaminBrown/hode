@@ -49,6 +49,7 @@ library
                 , Hode.Qseq.RunLeaf
                 , Hode.Qseq.Subst
                 , Hode.Rslt.Edit
+                , Hode.Rslt.Edit.Initial
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
                 , Hode.Rslt.RLookup

@@ -10,6 +10,7 @@ import           Test.HUnit
 
 import           Hode.Rslt.RLookup hiding (exprToAddr)
 import qualified Hode.Rslt.Edit as R
+import qualified Hode.Rslt.Edit.Initial as R
 import           Hode.Rslt.Index
 import           Hode.Rslt.RTypes
 import           Hode.Rslt.RValid

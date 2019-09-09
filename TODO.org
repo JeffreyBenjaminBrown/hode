@@ -4,11 +4,13 @@
 ** update
 * TODO inserting into an Rslt should return all new addresses
 Resume in Rslt.Edit at
-  _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
+replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
 working upward.
 * TODO add stuff from Rslt.Edit to NoUI
 replaceInRole
 deleteIfUnused
+replaceRefExpr -- this uses deleteIfUnused. Should it?
+replaceExpr
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
