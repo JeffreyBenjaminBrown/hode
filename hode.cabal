@@ -50,6 +50,8 @@ library
                 , Hode.Qseq.Subst
                 , Hode.Rslt.Edit
                 , Hode.Rslt.Edit.Initial
+                , Hode.Rslt.Edit.Replace
+                , Hode.Rslt.Edit.AndSearch
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
                 , Hode.Rslt.RLookup

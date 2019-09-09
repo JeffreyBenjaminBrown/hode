@@ -1,5 +1,4 @@
 -- Everything else in Hode.Rslt.Edit depends on this.
--- It includes no mutual recursion.
 
 {-# LANGUAGE
 ScopedTypeVariables,
