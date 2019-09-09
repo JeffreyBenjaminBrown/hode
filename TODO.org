@@ -2,10 +2,10 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO inserting into an Rslt should return all new addresses
-Resume in Rslt.Edit at
-replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
-working upward.
+* TODO bug upstream of exprToAddrInsert_list
+It needs to return the top addresses in a separate list from the addresses beneath them that may have been added,
+so that exprToAddrInsert (called on a Rel) can use specifically those when calling insertAt.
+* TODO test the returned addresses after multiple insertions
 * TODO add stuff from Rslt.Edit to NoUI
 replaceInRole
 deleteIfUnused

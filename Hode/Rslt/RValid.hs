@@ -70,15 +70,16 @@ validExpr r = prefixLeft "-> validExpr" . para f where
 -- | == Check a `RefExpr`
 
 validRefExpr :: Rslt -> RefExpr -> Either String ()
-validRefExpr r e = do validTplt r e
-                      refExprRefsExist r e
+validRefExpr r e = prefixLeft "validRefExpr: " $
+  validTplt r e >>
+  refExprRefsExist r e
 
 -- | `validIfRel e`, if e is a Rel, is true if the address in the Tplt
 -- position of e really corresponds to a Tplt in r, and that Tplt
 -- has the right Arity.
 validTplt :: Rslt -> RefExpr -> Either String ()
 validTplt r (Rel' (Rel aMembers aTplt)) =
-  prefixLeft "-> validTplt" $ do
+  prefixLeft "validTplt: " $ do
     (ctr,ar) <- variety r aTplt
     if ctr == TpltCtr        then Right ()
       else Left $ "expr at " ++ show aTplt ++ " not a Tplt.\n"

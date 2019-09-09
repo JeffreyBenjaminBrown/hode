@@ -29,8 +29,8 @@ import Hode.Rslt.Edit
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
-import Hode.Util.Misc
 import Hode.UI.NoUI.Internal as Internal
+import Hode.Util.Misc
 
 
 nShowRslt :: Rslt -> [String]
@@ -43,7 +43,7 @@ nShowRslt r = let
 nShowRsltIO :: Rslt -> IO ()
 nShowRsltIO = mapM_ putStrLn . nShowRslt
 
-nInsert :: Rslt -> String -> Either String (Rslt, Addr)
+nInsert :: Rslt -> String -> Either String (Rslt, [Aged Addr])
 nInsert r s = prefixLeft "nInsert: " $
               nExpr r s >>= exprToAddrInsert r
 

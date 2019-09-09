@@ -197,11 +197,12 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
     either Left (Right . f)
     $ exprToAddrInsert (st ^. appRslt) e
     where
-      f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
-      f (r,a) = B.continue $ st & appRslt .~ r
-                & showingErrorWindow .~ False
-                & showReassurance ("Expr added at Addr " ++ show a)
-                & showingInMainWindow .~ Results
+      f :: (Rslt, [Aged Addr]) -> B.EventM BrickName (B.Next St)
+      f (r,as) = B.continue $ st & appRslt .~ r
+                 & showingErrorWindow .~ False
+                 & showReassurance ("Exprs added at " ++
+                                    show (catNews as))
+                 & showingInMainWindow .~ Results
 
   g (CommandLoad f) st = Right $ do
     (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f

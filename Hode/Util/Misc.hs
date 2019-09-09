@@ -1,9 +1,14 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE RankNTypes
+, ScopedTypeVariables
+, ViewPatterns #-}
 
 module Hode.Util.Misc (
-    unFix -- ^ Fix f -> f (Fix f)
+  -- | = the `Aged` type
+    Aged(..), unAged
+  , catNews -- ^ [Aged a] -> [a]
+
+  -- | = Fix
+  , unFix -- ^ Fix f -> f (Fix f)
 
   -- | = Lenses etc.
   , eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
@@ -43,6 +48,22 @@ import           Data.Vector (Vector)
 import qualified Data.Vector as V
 import           Lens.Micro
 
+
+-- | The `Aged` type
+
+data Aged a = New a | Old a deriving (Eq, Ord, Show)
+
+unAged :: Aged a -> a
+unAged (New a) = a
+unAged (Old a) = a
+
+catNews :: [Aged a] -> [a]
+catNews = catMaybes . map f where
+  f (New a) = Just a
+  f (Old _) = Nothing
+
+
+-- | = Fix
 
 unFix :: Fix f -> f (Fix f)
 unFix (Fix f) = f

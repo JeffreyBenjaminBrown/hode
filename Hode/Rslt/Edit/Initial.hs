@@ -90,8 +90,8 @@ insert e r = do
 -- | like `insert`, but specifying which `Addr` to give the new expression
 insertAt :: Addr -> RefExpr -> Rslt -> Either String Rslt
 insertAt a e r = do
-  void $ prefixLeft "insertAt" $ validRefExpr r e
-  let errMsg = "insertAt: Addr " ++ show a ++ " already occupied.\n"
+  void $ prefixLeft "insertAt: " $ validRefExpr r e
+  let errMsg = "Addr " ++ show a ++ " already occupied.\n"
       in void $ either Right (const $ Left errMsg)
          $ addrToRefExpr r a
   Right $ _insert a e r

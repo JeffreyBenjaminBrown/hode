@@ -7,12 +7,12 @@ module Hode.Rslt.Edit.Terminal (
 
 import           Data.Either
 
+import Hode.Rslt.Edit.AndSearch
+import Hode.Rslt.Edit.Initial
+import Hode.Rslt.Edit.Replace
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
-import Hode.Rslt.Edit.Initial
-import Hode.Rslt.Edit.Replace
-import Hode.Rslt.Edit.AndSearch
 
 
 -- | = Pure editing
@@ -36,9 +36,11 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr" $
     -- That's why `anAbsentPhrase` is used.
     go :: Addr -> Expr -> Rslt -> Either String Rslt
     go a e r = prefixLeft "replaceExpr" $ do
-      (r1 :: Rslt, a1 :: Addr) <- exprToAddrInsert r e
-      rx1 :: RefExpr           <- addrToRefExpr r1 a1
-      r2 :: Rslt               <- replaceRefExpr rx1 a r1
+      (r1 :: Rslt, aes :: [Aged Addr]) <- exprToAddrInsert r e
+      a1 :: Addr <- if length aes > 0 then Right $ unAged $ head aes else
+        Left "There should be an address for the Tplt. (Not a user error.)"
+      rx1 :: RefExpr             <- addrToRefExpr r1 a1
+      r2 :: Rslt                 <- replaceRefExpr rx1 a r1
       Right $ renameAddr_unsafe a1 a r2
 
     anAbsentPhrase :: Expr

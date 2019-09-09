@@ -17,6 +17,7 @@ import           Hode.Rslt.RTypes
 import           Hode.Rslt.RValid
 import           Hode.Rslt.Show
 import qualified Hode.Test.Rslt.RData as D
+import           Hode.Util.Misc
 
 
 test_module_rslt_edit :: Test
@@ -56,38 +57,45 @@ test_replaceExpr = TestCase $ do
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do
-  assertBool "1" $ R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
-                                                     , Addr 3
-                                                     , Addr 0 ] )
-    == Right (D.rslt, 4)
-  assertBool "2" $ R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
-                                                     , Addr 1
-                                                     , Addr 0 ] )
-    == Right ( fromRight (error "wut") $ R.insertAt 7 (Tplt' [0,1,0]) D.rslt
-             , 7 )
+  assertBool "1" $
+    R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
+                                         , Addr 3
+                                         , Addr 0 ] )
+    == Right (D.rslt, [Old 4])
 
-  assertBool "3" $ R.exprToAddrInsert D.rslt ( ExprTplt [ Phrase "bar"
-                                                     , Phrase ""
-                                                     , Phrase "foo" ] )
+  assertBool "2" $
+    R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
+                                         , Addr 1
+                                         , Addr 0 ] )
+    == Right ( fromRight (error "wut") $
+               R.insertAt 7 (Tplt' [0,1,0]) D.rslt
+             , [New 7] )
+
+  assertBool "3" $
+    R.exprToAddrInsert D.rslt ( ExprTplt [ Phrase "bar"
+                                         , Phrase ""
+                                         , Phrase "foo" ] )
     == Right ( fromRight (error "wut")
                $ R.insertAt 9 (Tplt' [7,0,8])
                $ fromRight (error "wut")
                $ R.insertAt 8 (Phrase' "foo")
                $ fromRight (error "wut")
                $ R.insertAt 7 (Phrase' "bar") D.rslt
-             , 9 )
+             , [New 9] )
 
   assertBool "5" $ let
-    Right (r,a) = R.exprToAddrInsert D.rslt
-                  ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
-                                                  , Phrase "empty" ]
-                               ( ExprTplt [ Phrase ""
-                                           , Phrase "is"
-                                           , Addr 0 ] )
-                             , Phrase "suck" ]
-                    ( ExprTplt [ Phrase "That"
-                                , Phrase "does"
-                                , Addr 0 ] ) )
+    Right (r,as) =
+      R.exprToAddrInsert D.rslt
+      ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
+                                      , Phrase "empty" ]
+                        ( ExprTplt [ Phrase ""
+                                   , Phrase "is"
+                                   , Addr 0 ] )
+                      , Phrase "suck" ]
+        ( ExprTplt [ Phrase "That"
+                   , Phrase "does"
+                   , Addr 0 ] ) )
+    a = unAged $ head as
     (n16 :: Expr) =
       either (error "wut") id $ addrToRefExpr r a >>= refExprToExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
