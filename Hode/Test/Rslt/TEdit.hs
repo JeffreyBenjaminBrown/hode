@@ -69,7 +69,7 @@ test_exprToAddrInsert = TestCase $ do
                                          , Addr 0 ] )
     == Right ( fromRight (error "wut") $
                R.insertAt 7 (Tplt' [0,1,0]) D.rslt
-             , [New 7] )
+             , [New 7, Old 0, Old 1, Old 0] )
 
   assertBool "3" $
     R.exprToAddrInsert D.rslt ( ExprTplt [ Phrase "bar"
@@ -81,7 +81,7 @@ test_exprToAddrInsert = TestCase $ do
                $ R.insertAt 8 (Phrase' "foo")
                $ fromRight (error "wut")
                $ R.insertAt 7 (Phrase' "bar") D.rslt
-             , [New 9] )
+             , [New 9, New 7, Old 0, New 8] )
 
   assertBool "5" $ let
     Right (r,as) =

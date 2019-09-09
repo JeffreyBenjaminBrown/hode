@@ -49,43 +49,41 @@ exprToAddrInsert_rootNotFound r0 (Phrase w) = do
 
 exprToAddrInsert_rootNotFound r0 (ExprTplt js) =
   prefixLeft "exprToAddrInsert_rootNotFound" $ do
-  (r1,as) <- exprToAddrInsert_list r0 js
+  (r1 :: Rslt, as :: [[Aged Addr]]) <-
+    exprToAddrInsert_list r0 js
   a <- nextAddr r1
-  r2 <- insertAt a (Tplt' $ map unAged as) r1
-  Right (r2, New a : as)
+  r2 <- let tplt = Tplt' $ map (unAged . head) as
+        in insertAt a tplt r1
+  Right (r2, New a : concat as)
 
 exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
   prefixLeft "exprToAddrInsert_rootNotFound: " $ do
   (r1,tas)  <- exprToAddrInsert r0 t
   ta <- if length tas > 0 then Right $ unAged $ head tas else Left
     "There should be an address for the Tplt. (Not a user error.)"
-  (r2,mas) <-  exprToAddrInsert_list r1 ms
+  (r2 :: Rslt, mas :: [[Aged Addr]]) <-  exprToAddrInsert_list r1 ms
   a <- nextAddr r2
-  r3 <- insertAt a (Rel' $ Rel (map unAged mas) ta) r2
-  Right (r3, New a : tas ++ mas)
+  r3 <- let rel = Rel' $ Rel (map (unAged . head) mas) ta
+        in insertAt a rel r2
+  Right (r3, New a : tas ++ concat mas)
 
 -- | `exprToAddrInsert_list r0 is` will insert all of the `is` into `r0`.
 -- If it works, it will return the new `Rslt`,
--- and (second) a list of `(Addr,[Addr])` pairs, which corresponds to `is`:
--- Each pair's first element is the `Addr` of some `i` in the `is`,
--- and each pair's second element is the `Addr`s of all (recursively)
--- sub-`Expr`s of `i`.
+-- and an `[[Aged Addr]]` where list corresponds to an `Expr` in `is`.
+-- The first `Addr` in each list is the `Addr` of the `Expr` in `is`,
+-- and the rest are those of its sub-`Expr`s.
 
 exprToAddrInsert_list ::
-  Rslt -> [Expr] -> Either String (Rslt, [ ( Aged Addr,
-                                            [Aged Addr])])
+  Rslt -> [Expr] -> Either String (Rslt, [[Aged Addr]])
 exprToAddrInsert_list r0 is =
   prefixLeft "exprToAddrInsert_list" $ do
-  let ((er, asas) :: (Either String Rslt, [(Aged Addr,
-                                           [Aged Addr])])) =
-        L.mapAccumL f (Right r0) is where
-          f :: Either String Rslt -> Expr
-            -> (Either String Rslt, ( Aged Addr,
-                                     [Aged Addr] ) )
-          f (Left s) _ = (Left s, error "irrelevant")
-          f (Right r) ei = case exprToAddrInsert r ei of
-            Left s -> (Left s, error "irrelevant")
-            Right (r',as) -> (Right r', ( head as,
-                                          tail as) )
+  let f :: Either String Rslt -> Expr
+        -> (Either String Rslt, [Aged Addr])
+      f (Left s) _ = (Left s, error "irrelevant")
+      f (Right r) ei = case exprToAddrInsert r ei of
+        Left s -> (Left s, error "irrelevant")
+        Right (r',as) -> (Right r', as)
+      (er, asas) :: (Either String Rslt, [[Aged Addr]]) =
+        L.mapAccumL f (Right r0) is
   r1 <- er
   Right $ (r1, asas)
