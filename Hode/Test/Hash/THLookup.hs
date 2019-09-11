@@ -11,11 +11,13 @@ import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Qseq.QTypes (Var(..))
 import Hode.Rslt.Edit.Initial (insertAt)
+import Hode.Rslt.Index
 import Hode.Rslt.RTypes
 import Hode.Rslt.RLookup
 import qualified Hode.Test.Rslt.RData as D
+import Hode.UI.NoUI
 
-
+ 
 vs :: String -> Var
 vs = VarString
 
@@ -25,7 +27,21 @@ test_module_rslt_hash = TestList [
   , TestLabel "test_hExprToAddrs" test_hExprToAddrs
   , TestLabel "test_hExprToExpr" test_hExprToExpr
   , TestLabel "testHMatches" testHMatches
+  , TestLabel "testWeird" testWeird
   ]
+
+testWeird :: Test
+testWeird = TestCase $ do
+  assertBool "member 3?" $ nHExpr' "# /_ # b" /=
+    Right ( HMap $ M.fromList
+            [ (RoleTplt, HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""])),
+              (RoleMember 3, HExpr $ Phrase "b")])
+
+  let Right r  = fst <$> nInsert (mkRslt mempty) "# a # b"
+      Right t  = nFind r "# /_ # /_"
+      Right t2 = nFind r "# /_ # b"
+  assertBool "1" $ length t  == 1
+  assertBool "2" $ length t2 == 1
 
 testHMatches :: Test
 testHMatches = TestCase $ do
