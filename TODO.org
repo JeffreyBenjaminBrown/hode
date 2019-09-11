@@ -2,6 +2,14 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO why didn't this work?
+/a # a # b
+/f # /_ # /_ -- works
+/f # /_ # b  -- doesn't work
+* TODO nShowRsltIO :: Rslt -> IO ()
+should return phrases, not maybe phrases
+should perform substitutions recursively
+  show Exprs rather than RefExprs
 * TODO bug upstream of exprToAddrInsert_list
 It needs to return the top addresses in a separate list from the addresses beneath them that may have been added,
 so that exprToAddrInsert (called on a Rel) can use specifically those when calling insertAt.

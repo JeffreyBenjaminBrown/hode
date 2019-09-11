@@ -6,8 +6,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.NoUI (
-    nShowRslt      -- ^ Rslt -> [String]
-  , nShowRsltIO    -- ^ Rslt -> IO ()
+    nShowRsltRefExprs    -- ^ Rslt -> [String]
+  , nShowRsltRefExprsIO  -- ^ Rslt -> IO ()
+  , nShowRslt   -- ^ Rslt -> Either String [String]
+  , nShowRsltIO -- ^ Rslt -> IO ()
 
   , nInsert        -- ^ Rslt -> String -> Either String (Rslt, Addr)
   , nInsert'       -- ^ Rslt -> String -> Either String Rslt
@@ -33,15 +35,30 @@ import Hode.UI.NoUI.Internal as Internal
 import Hode.Util.Misc
 
 
-nShowRslt :: Rslt -> [String]
-nShowRslt r = let
+nShowRsltRefExprs :: Rslt -> [String]
+nShowRsltRefExprs r = let
   m = _addrToRefExpr r
-  showPair k = let val = flip M.lookup m k
-               in show k ++ ": " ++ show val
+  showPair k = let
+    val = maybe (error e) id $ flip M.lookup m k
+      where e = "impossible: this key came from this map."
+    in show k ++ ": " ++ show val
   in fmap showPair $ M.keys m
 
+nShowRsltRefExprsIO :: Rslt -> IO ()
+nShowRsltRefExprsIO = mapM_ putStrLn . nShowRsltRefExprs
+
+nShowRslt :: Rslt -> Either String [String]
+nShowRslt r = do
+  let as :: [Addr] = M.keys $ _addrToRefExpr r
+  es <- ifLefts $ map (addrToExpr r) as
+  ss <- ifLefts $ map (eShow r) es
+  let f :: (Addr,String) -> String
+      f (a,s) = show a ++ ": " ++ s
+  Right $ map f $ zip as ss
+
 nShowRsltIO :: Rslt -> IO ()
-nShowRsltIO = mapM_ putStrLn . nShowRslt
+nShowRsltIO r = either putStrLn (mapM_ putStrLn) $
+                nShowRslt r
 
 nInsert :: Rslt -> String -> Either String (Rslt, [Aged Addr])
 nInsert r s = prefixLeft "nInsert: " $
