@@ -7,17 +7,18 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
+import Hode.Hash.Convert
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Qseq.QTypes (Var(..))
 import Hode.Rslt.Edit.Initial (insertAt)
 import Hode.Rslt.Index
-import Hode.Rslt.RTypes
 import Hode.Rslt.RLookup
-import qualified Hode.Test.Rslt.RData as D
+import Hode.Rslt.RTypes
 import Hode.UI.NoUI
+import qualified Hode.Test.Rslt.RData as D
 
- 
+
 vs :: String -> Var
 vs = VarString
 
@@ -27,15 +28,26 @@ test_module_rslt_hash = TestList [
   , TestLabel "test_hExprToAddrs" test_hExprToAddrs
   , TestLabel "test_hExprToExpr" test_hExprToExpr
   , TestLabel "testHMatches" testHMatches
-  , TestLabel "testWeird" testWeird
+  , TestLabel "testFirstAbsent" testFirstAbsent
   ]
 
-testWeird :: Test
-testWeird = TestCase $ do
-  assertBool "member 3?" $ nHExpr' "# /_ # b" /=
-    Right ( HMap $ M.fromList
-            [ (RoleTplt, HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""])),
-              (RoleMember 3, HExpr $ Phrase "b")])
+testFirstAbsent :: Test
+testFirstAbsent = TestCase $ do
+  let s :: String = "# /_ # a"
+      p :: PExpr = PRel $ Open 1
+        [Absent,PNonRel Any,PNonRel $ PExpr $ Phrase "a"]
+        ["",""]
+      hGood :: HExpr = HMap $ M.fromList
+        [ (RoleTplt, HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""])),
+          (RoleMember 2, HExpr $ Phrase "a")]
+      hBad :: HExpr = HMap $ M.fromList -- the 3 is wrong
+        [ (RoleTplt, HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""])),
+          (RoleMember 3, HExpr $ Phrase "a")]
+  assertBool "the parser works, so the problem must be in pExprToHExpr" $
+    nPExpr s == Right p
+
+  assertBool "member 3?" $
+    pExprToHExpr (mkRslt mempty) p /= Right hBad
 
   let Right r  = fst <$> nInsert (mkRslt mempty) "# a # b"
       Right t  = nFind r "# /_ # /_"

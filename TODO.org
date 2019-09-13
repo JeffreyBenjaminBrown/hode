@@ -2,7 +2,7 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO parser: a new test fails
+* TODO pExprToHExpr: a new test fails
 * TODO test the returned addresses after multiple insertions
 * TODO add stuff from Rslt.Edit to NoUI
 replaceInRole
