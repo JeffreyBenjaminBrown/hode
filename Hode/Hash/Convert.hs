@@ -47,7 +47,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
   f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
-  f AbsentF = Left ", Absent represents no HExpr."
+  f AbsentF = Left "Absent represents no HExpr."
   f (OpenF _ ms js) = f $ ClosedF ms js
 
   f (ClosedF ms js0) = do
@@ -96,23 +96,23 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
   px@(pExprIsSpecific -> False) ->
     Left $ show px ++ " is not specific enough."
 
-  (PExpr s)   -> Right $ HExpr s
-  (PMap m)    -> HMap <$> pMapToHMap r m
-  (PEval pnr) -> do (x :: HExpr) <- pExprToHExpr r pnr
-                    ps <- pathsToIts_pExpr pnr
-                    Right $ HEval x ps
-  (PVar s)    -> Right $ HVar s
-  (PDiff a b) -> do a' <- pExprToHExpr r a
-                    b' <- pExprToHExpr r b
-                    return $ HDiff a' b'
-  (PAnd xs) -> do
+  PExpr s   -> Right $ HExpr s
+  PMap m    -> HMap <$> pMapToHMap r m
+  PEval pnr -> do (x :: HExpr) <- pExprToHExpr r pnr
+                  ps <- pathsToIts_pExpr pnr
+                  Right $ HEval x ps
+  PVar s    -> Right $ HVar s
+  PDiff a b -> do a' <- pExprToHExpr r a
+                  b' <- pExprToHExpr r b
+                  return $ HDiff a' b'
+  PAnd xs -> do
     (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
     return $ HAnd l
-  (POr xs) -> do
+  POr xs -> do
     (l :: [HExpr]) <- ifLefts $ map (pExprToHExpr r) xs
     return $ HOr l
 
-  (PReach pr) -> do
+  PReach pr -> do
     h <- pExprToHExpr r pr
     case h of
       HMap m ->
@@ -131,7 +131,7 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
                          _       -> Right $ HReach SearchRightward t hLeft
       _ -> Left $ "Hash expr parsed within PReach is not an HMap. (It should be a binary HMap with exactly 2 members: a Tplt and either RoleMember 1 or RoleMember 2."
 
-  (PTrans d pr) -> do
+  PTrans d pr -> do
     h :: HExpr <- pExprToHExpr r pr
     case h of
       HEval (HMap m) ps -> do
@@ -155,13 +155,13 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
           Right $ HTrans d targets t end start
       _ -> Left "Hash expr parsed within PTrans is not an HEval. (It should be a binary HEval with at least one of the two members labeled It.)"
 
-  (It (Just pnr)) -> pExprToHExpr r pnr
-  (PRel pr)       -> pRelToHExpr r pr
+  It (Just pnr) -> pExprToHExpr r pnr
+  PRel pr       -> pRelToHExpr r pr
 
   -- These redundant checks (to keep GHCI from warning me) should come last.
   Any -> Left $
     "pExprToHExpr: Any is not specific enough."
-  (It Nothing) -> Left $
+  It Nothing -> Left $
     "pExprToHExpr: It (Nothing) is not specific enough."
 
 
