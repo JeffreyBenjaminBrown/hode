@@ -7,6 +7,7 @@ module Hode.Rslt.RLookup.RConvert where
 import qualified Data.Map       as M
 
 import Hode.Rslt.RTypes
+import Hode.Rslt.RUtil
 import Hode.Util.Misc
 
 
@@ -14,39 +15,37 @@ import Hode.Util.Misc
 
 refExprToExpr :: Rslt -> RefExpr -> Either String Expr
 refExprToExpr _ (Phrase' w) = Right $ Phrase w
-refExprToExpr r (Tplt' jointAs) =
+refExprToExpr r (Tplt' (tas :: Tplt Addr)) =
   prefixLeft "-> refExprToExpr: " $ do
-    (jointEs  :: [RefExpr])   <-
-      ifLefts $ map (addrToRefExpr r) jointAs
-    (jointEis :: [Expr]) <-
-      ifLefts $ map (refExprToExpr r) jointEs
-    Right $ ExprTplt jointEis
+    tfs :: Tplt RefExpr <- ifLefts_tplt $ fmap (addrToRefExpr r) tas
+    tes :: Tplt Expr    <- ifLefts_tplt $ fmap (refExprToExpr r) tfs
+    Right $ ExprTplt tes
 
-refExprToExpr r (Rel' (Rel memAs tA)) =
+refExprToExpr r (Rel' (ras :: Rel Addr)) =
   prefixLeft "-> refExprToExpr: " $ do
-    (memREs  :: [RefExpr]) <- ifLefts $ map (addrToRefExpr r) memAs
-    (memEs :: [Expr])      <- ifLefts $ map (refExprToExpr r) memREs
-    (tE     :: RefExpr)    <- addrToRefExpr r tA
-    (tEi    :: Expr)       <- refExprToExpr r tE
-    Right $ ExprRel $ Rel memEs tEi
+    rfs :: Rel RefExpr <- ifLefts_rel $ fmap (addrToRefExpr r) ras
+    res :: Rel Expr    <- ifLefts_rel $ fmap (refExprToExpr r) rfs
+    Right $ ExprRel res
 
 
 -- | == Lookup from an `Expr`
 
+-- | `exprToAddr r e` converts every sub-`Expr` of `e` into a `RefExpr`,
+-- and then uses `refExprToAddr`.
 exprToAddr :: Rslt -> Expr -> Either String Addr
-exprToAddr x img = prefixLeft "-> exprToAddr: " $ case img of
-  Phrase w -> refExprToAddr x $ Phrase' w
+exprToAddr r e = prefixLeft "exprToAddr: " $
+  case e of
+    Phrase w -> refExprToAddr r $ Phrase' w
+  
+    Addr a -> addrToRefExpr r a >>= const (Right a)
+  
+    ExprTplt te -> do
+      tr <- ifLefts_tplt $ fmap (exprToAddr r) te
+      refExprToAddr r $ Tplt' tr
 
-  Addr a -> addrToRefExpr x a >>= const (Right a)
-
-  ExprTplt is -> do
-    mas <- ifLefts $ map (exprToAddr x) is
-    refExprToAddr x $ Tplt' mas
-
-  ExprRel (Rel is i) -> do
-    mas <- ifLefts $ map (exprToAddr x) is
-    ma <- exprToAddr x i
-    refExprToAddr x (Rel' $ Rel mas ma)
+    ExprRel re -> do
+      rr <- ifLefts_rel $ fmap (exprToAddr r) re
+      refExprToAddr r $ Rel' rr
 
 
 -- | == Lookup from `Addr`s or `RefExpr`s. (These are convenience
@@ -61,5 +60,7 @@ addrToExpr :: Rslt -> Addr -> Either String Expr
 addrToExpr r a = addrToRefExpr r a >>= refExprToExpr r
 
 refExprToAddr :: Rslt -> RefExpr -> Either String Addr
-refExprToAddr r e = maybe err Right $ M.lookup e $ _refExprToAddr r
-  where err = Left $ "-> refExprToAddr: RefExpr " ++ show e ++ " not found.\n"
+refExprToAddr r e = maybe err Right $
+                    M.lookup e $ _refExprToAddr r
+  where err = Left $ "refExprToAddr: RefExpr " ++
+              show e ++ " not found.\n"

@@ -1,8 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.RUtil (
-    ifLefts_rel    -- ^ String -> Rel (Either String a)
-                   --          -> Either String (Rel a)
+    ifLefts_rel    -- ^ Rel  (Either String a)  -> Either String (Rel a)
+  , ifLefts_tplt   -- ^ Tplt (Either String a) ->  Either String (Tplt a)
 
   , toExprWith     -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout    -- ^             Fix (ExprFWith b) -> Expr
@@ -17,6 +17,7 @@ module Hode.Rslt.RUtil (
 
 import           Data.Functor.Foldable
 import           Data.Either hiding (lefts)
+import           Data.Maybe
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 
@@ -26,18 +27,24 @@ import Hode.Util.Misc
 
 -- | = Rel
 
-ifLefts_rel :: String -> Rel (Either String a) -> Either String (Rel a)
-ifLefts_rel errMsg (Rel es e) = let
-  es' = e : es
-  lefts = filter isLeft es'
-  impossible = error "ifLefts: impossible."
+ifLefts_rel :: Rel (Either String a) -> Either String (Rel a)
+ifLefts_rel (Rel es e) = prefixLeft "ifLefts_rel: " $
+  let lefts = filter isLeft $ e : es
+      fr = fromRight $ error "impossible"
+      fl = fromLeft $ error "impossible"
   in case null lefts of
-       True -> let
-         es'' = map (fromRight impossible) es'
-         in Right $ Rel (tail es'') (head es'')
-       False -> Left $ errMsg ++ ": "
-                ++ concat (map (fromLeft impossible) lefts)
+       True -> Right $ Rel (map fr es) (fr e)
+       False -> Left $ concat $ map fl lefts
 
+ifLefts_tplt ::  Tplt (Either String a) ->  Either String (Tplt a)
+ifLefts_tplt (Tplt fore mids aft) = prefixLeft "ifLefts_tplt: " $
+  let as = maybeToList fore ++ mids ++ maybeToList aft
+      lefts = filter isLeft as
+      fr = fromRight $ error "impossible"
+      fl = fromLeft $ error "impossible"
+  in case null lefts of
+       True -> Right $ Tplt  (fmap fr fore)  (map fr mids)  (fmap fr aft)
+       False -> Left $ concat $ map fl lefts
 
 -- | = ExprFWith
 

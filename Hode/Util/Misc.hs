@@ -180,3 +180,4 @@ ifLefts_map m = let
   in case null lefts of
        True -> Right $ M.map (fromRight impossible) m
        False -> Left $ concat $ map (fromLeft impossible) lefts
+

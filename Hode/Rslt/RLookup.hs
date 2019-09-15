@@ -36,6 +36,7 @@ import Hode.Qseq.QTypes
 import Hode.Rslt.RLookup.RConvert
 import qualified Hode.Rslt.RLookup.RConvert as C
 import Hode.Rslt.RTypes
+import Hode.Rslt.RUtil
 import Hode.Util.Misc
 
 
