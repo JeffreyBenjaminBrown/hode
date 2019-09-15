@@ -124,15 +124,13 @@ unAddr :: Rslt -> Expr -> Either String Expr
 unAddr r (Addr a) = addrToExpr r a
 unAddr _ e        = Right e
 
+-- | a recursive version of `unAddr`
 unAddrRec :: Rslt -> Expr -> Either String Expr
 unAddrRec r = cata f where
   f :: Base Expr (Either String Expr) -> Either String Expr
   f (AddrF a) = addrToExpr r a
-  -- TODO ? AddrF is the only interesting case. Is there a
-  -- good way to simplify the following boilerplate?
+  -- TODO ? `AddrF` is the only interesting case.
+  -- Is there a good way to simplify the following boilerplate?
   f (PhraseF p) = Right $ Phrase p
-  f (ExprRelF (Rel ms t)) = do ms' <- ifLefts ms
-                               t' <- t
-                               Right $ ExprRel $ Rel ms' t'
-  f (ExprTpltF js) = do js' <- ifLefts js
-                        Right $ ExprTplt js'
+  f (ExprRelF r) = ifLefts r >>= Right . ExprRel
+  f (ExprTpltF t) = ifLefts t >>= Right . ExprTplt

@@ -17,14 +17,14 @@ refExprToExpr :: Rslt -> RefExpr -> Either String Expr
 refExprToExpr _ (Phrase' w) = Right $ Phrase w
 refExprToExpr r (Tplt' (tas :: Tplt Addr)) =
   prefixLeft "-> refExprToExpr: " $ do
-    tfs :: Tplt RefExpr <- ifLefts_tplt $ fmap (addrToRefExpr r) tas
-    tes :: Tplt Expr    <- ifLefts_tplt $ fmap (refExprToExpr r) tfs
+    tfs :: Tplt RefExpr <- ifLefts $ fmap (addrToRefExpr r) tas
+    tes :: Tplt Expr    <- ifLefts $ fmap (refExprToExpr r) tfs
     Right $ ExprTplt tes
 
 refExprToExpr r (Rel' (ras :: Rel Addr)) =
   prefixLeft "-> refExprToExpr: " $ do
-    rfs :: Rel RefExpr <- ifLefts_rel $ fmap (addrToRefExpr r) ras
-    res :: Rel Expr    <- ifLefts_rel $ fmap (refExprToExpr r) rfs
+    rfs :: Rel RefExpr <- ifLefts $ fmap (addrToRefExpr r) ras
+    res :: Rel Expr    <- ifLefts $ fmap (refExprToExpr r) rfs
     Right $ ExprRel res
 
 
@@ -40,11 +40,11 @@ exprToAddr r e = prefixLeft "exprToAddr: " $
     Addr a -> addrToRefExpr r a >>= const (Right a)
   
     ExprTplt te -> do
-      tr <- ifLefts_tplt $ fmap (exprToAddr r) te
+      tr <- ifLefts $ fmap (exprToAddr r) te
       refExprToAddr r $ Tplt' tr
 
     ExprRel re -> do
-      rr <- ifLefts_rel $ fmap (exprToAddr r) re
+      rr <- ifLefts $ fmap (exprToAddr r) re
       refExprToAddr r $ Rel' rr
 
 

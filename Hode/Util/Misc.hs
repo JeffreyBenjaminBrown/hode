@@ -1,5 +1,6 @@
 {-# LANGUAGE RankNTypes
 , ScopedTypeVariables
+, InstanceSigs
 , ViewPatterns #-}
 
 module Hode.Util.Misc (
@@ -31,10 +32,11 @@ module Hode.Util.Misc (
   , keyErr          -- ^ String -> k -> Map k a -> String
   , prefixLeft      -- ^ String -> Either String a -> Either String a
   , ifNothings      -- ^ [Maybe a] -> Maybe [a]
-  , ifLefts         -- ^ [Either String a]       -> Either String [a]
-  , ifLefts_set     -- ^ Set (Either String a)   -> Either String (Set a)
+  , LeftStrings
+  , ifLefts     -- ^ t (Either String a) -> Either String (t a)
+  , ifLefts_set -- ^ Ord a => Set (Either String a) -> Either String (Set a)
+  , ifLefts_map -- ^ Ord a =>Map k (Either String a) ->Either String (Map k a)
   , ifLefts_mapKeys -- ^ Map (Either String k) a -> Either String (Map k a)
-  , ifLefts_map     -- ^ Map k (Either String a) -> Either String (Map k a)
   ) where
 
 import           Data.Either hiding (lefts)
@@ -142,27 +144,34 @@ prefixLeft prefix =
   either (\s -> Left $ prefix ++ " " ++ s) Right
 
 ifNothings :: [Maybe a] -> Maybe [a]
-ifNothings ms = let
-  nothings = filter isNothing ms
-  in case null nothings of
-       True -> Just $ map fromJust ms
-       False -> Nothing
+ifNothings ms =
+  case null $ filter isNothing ms of
+    True -> Just $ map fromJust ms
+    False -> Nothing
 
-ifLefts :: [Either String a] -> Either String [a]
-ifLefts es = let
-  lefts = filter isLeft es
-  impossible = error "ifLefts: impossible."
-  in case null lefts of
-       True -> Right $ map (fromRight impossible) es
-       False -> Left $ concat (map (fromLeft impossible) lefts)
+class LeftStrings t where
+  ifLefts :: t (Either String a) -> Either String (t a)
+
+instance LeftStrings [] where
+  ifLefts es = prefixLeft "ifLefts: " $
+    let lefts = filter isLeft es in
+    case null lefts of
+      True -> Right $          map (fromRight $ error "impossible.") es
+      False -> Left $ concat $ map (fromLeft  $ error "impossible.")  lefts
 
 ifLefts_set :: Ord a => Set (Either String a) -> Either String (Set a)
-ifLefts_set es = let
-  lefts = S.filter isLeft es
-  impossible = error "ifLefts_set: impossible."
-  in case null lefts of
-       True -> Right $ S.map (fromRight impossible) es
-       False -> Left $ concat (S.map (fromLeft impossible) lefts)
+ifLefts_set es = prefixLeft "ifLefts: " $
+  let lefts = S.filter isLeft es in
+  case null lefts of
+    True -> Right $ S.map         (fromRight $ error "impossible") es
+    False -> Left $ concat (S.map (fromLeft  $ error "impossible") lefts)
+
+ifLefts_map :: Ord a => Map k (Either String a) -> Either String (Map k a)
+ifLefts_map m = prefixLeft "ifLefts: " $
+  let lefts = filter isLeft $ M.elems m in
+  case null lefts of
+    True -> Right $ M.map        (fromRight $ error "impossible") m
+    False -> Left $ concat $ map (fromLeft  $ error "impossible") lefts
 
 ifLefts_mapKeys :: Ord k
   => Map (Either String k) a -> Either String (Map k a)
@@ -172,12 +181,4 @@ ifLefts_mapKeys m = let
   in case null lefts of
        True -> Right $ M.mapKeys (fromRight impossible) m
        False -> Left $ concat $ S.map (fromLeft impossible) lefts
-
-ifLefts_map :: Ord k => Map k (Either String a) -> Either String (Map k a)
-ifLefts_map m = let
-  lefts = filter isLeft $ M.elems m
-  impossible = error "ifLefts_map: impossible."
-  in case null lefts of
-       True -> Right $ M.map (fromRight impossible) m
-       False -> Left $ concat $ map (fromLeft impossible) lefts
 

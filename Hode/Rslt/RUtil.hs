@@ -1,9 +1,8 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.RUtil (
-    ifLefts_rel    -- ^ Rel  (Either String a)  -> Either String (Rel a)
-  , ifLefts_tplt   -- ^ Tplt (Either String a) ->  Either String (Tplt a)
-
+    LeftStrings(..)
   , toExprWith     -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout    -- ^             Fix (ExprFWith b) -> Expr
   , mapExprFWith   -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
@@ -27,24 +26,25 @@ import Hode.Util.Misc
 
 -- | = Rel
 
-ifLefts_rel :: Rel (Either String a) -> Either String (Rel a)
-ifLefts_rel (Rel es e) = prefixLeft "ifLefts_rel: " $
-  let lefts = filter isLeft $ e : es
-      fr = fromRight $ error "impossible"
-      fl = fromLeft $ error "impossible"
-  in case null lefts of
-       True -> Right $ Rel (map fr es) (fr e)
-       False -> Left $ concat $ map fl lefts
+instance LeftStrings Rel where
+  ifLefts (Rel es e) = prefixLeft "ifLefts_rel: " $
+    let lefts = filter isLeft $ e : es
+        fr = fromRight $ error "impossible"
+        fl = fromLeft $ error "impossible"
+    in case null lefts of
+         True -> Right $ Rel (map fr es) (fr e)
+         False -> Left $ concat $ map fl lefts
 
-ifLefts_tplt ::  Tplt (Either String a) ->  Either String (Tplt a)
-ifLefts_tplt (Tplt fore mids aft) = prefixLeft "ifLefts_tplt: " $
-  let as = maybeToList fore ++ mids ++ maybeToList aft
-      lefts = filter isLeft as
-      fr = fromRight $ error "impossible"
-      fl = fromLeft $ error "impossible"
-  in case null lefts of
-       True -> Right $ Tplt  (fmap fr fore)  (map fr mids)  (fmap fr aft)
-       False -> Left $ concat $ map fl lefts
+instance LeftStrings Tplt where
+  ifLefts (Tplt fore mids aft) = prefixLeft "ifLefts_tplt: " $
+    let as = maybeToList fore ++ mids ++ maybeToList aft
+        lefts = filter isLeft as
+        fr = fromRight $ error "impossible"
+        fl = fromLeft $ error "impossible"
+    in case null lefts of
+         True -> Right $ Tplt  (fmap fr fore)  (map fr mids)  (fmap fr aft)
+         False -> Left $ concat $ map fl lefts
+
 
 -- | = ExprFWith
 
