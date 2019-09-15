@@ -131,6 +131,6 @@ unAddrRec r = cata f where
   f (AddrF a) = addrToExpr r a
   -- TODO ? `AddrF` is the only interesting case.
   -- Is there a good way to simplify the following boilerplate?
-  f (PhraseF p) = Right $ Phrase p
-  f (ExprRelF r) = ifLefts r >>= Right . ExprRel
-  f (ExprTpltF t) = ifLefts t >>= Right . ExprTplt
+  f (PhraseF p)    = Right $ Phrase p
+  f (ExprRelF rel) = ifLefts rel >>= Right . ExprRel
+  f (ExprTpltF t)  = ifLefts t   >>= Right . ExprTplt

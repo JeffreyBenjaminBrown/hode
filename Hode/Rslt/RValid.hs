@@ -19,6 +19,7 @@ module Hode.Rslt.RValid (
   ) where
 
 import           Data.Functor.Foldable
+import           Data.Foldable (toList)
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -44,7 +45,7 @@ verifyVariety r a (mc,ma) = do
       Left $ "Expr at " ++ show a ++ " does not have arity " ++ show ma
 
 validExpr :: Rslt -> Expr -> Either String ()
-validExpr r = prefixLeft "-> validExpr" . para f where
+validExpr r = prefixLeft "validExpr: " . para f where
   f :: Base Expr (Expr, Either String ()) -> Either String ()
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
@@ -53,7 +54,7 @@ validExpr r = prefixLeft "-> validExpr" . para f where
     let (ms :: [Expr], es :: [Either String ()]) = unzip memEis
         err = "called on " ++ show (embed $ fmap fst rel)
     void $ prefixLeft err $ ifLefts $ te : es
-    ((tc,ta) :: (ExprCtr,Arity)) <-
+    (tc,ta) :: (ExprCtr,Arity) <-
       prefixLeft err $ exprToAddr r t >>= variety r
     (tx :: Expr) <-    exprToAddr r t >>= addrToExpr r
       -- looks silly, but this ensures tx is not an `Addr`
@@ -62,9 +63,9 @@ validExpr r = prefixLeft "-> validExpr" . para f where
     if ta == length ms then Right ()
       else Left $ err ++ " with Tplt " ++ show tx ++ ": arity mismatch."
 
-  f (ExprTpltF js)           = prefixLeft err $ ifLefts (map snd js)
-                               >> return ()
-    where err = ", called on " ++ show (ExprTplt $ map fst js)
+  f (ExprTpltF t) = prefixLeft err $ ifLefts (fmap snd t)
+                    >> return ()
+    where err = ", called on " ++ show (ExprTplt $ fmap fst t)
 
 
 -- | == Check a `RefExpr`
@@ -89,22 +90,21 @@ validTplt r (Rel' (Rel aMembers aTplt)) =
 validTplt _ _ = Right ()
 
 refExprRefsExist :: Rslt -> RefExpr -> Either String ()
-refExprRefsExist r e = prefixLeft "-> refExprRefsExist" $ let
+refExprRefsExist r e = prefixLeft "refExprRefsExist: " $ let
   f :: [Addr] -> Either String ()
   f as = case allAddrsPresent r as of
     Right () -> Right ()
     Left absent -> Left
       $ "These Addrs are absent: " ++ show absent
-  in case e of
-       Rel' (Rel aMembers aTplt) -> f $ aTplt : aMembers
-       Tplt' as                  -> f as
-       Phrase' _                 -> Right ()
+  in case e of Rel' r    -> f $ toList r
+               Tplt' t   -> f $ toList t
+               Phrase' _ -> Right ()
 
 
 -- | == Check the database
 
 validRslt :: Rslt -> Either String ()
-validRslt r = prefixLeft "-> validRslt" $ do
+validRslt r = prefixLeft "validRslt: " $ do
   let unmatched = relsWithoutMatchingTplts r
       in if null unmatched then Right ()
          else Left $ "rels without matching Tplts:\n"
@@ -123,9 +123,9 @@ collectionsWithAbsentAddrs r = res where
   absent = isNothing . flip M.lookup (_variety r)
 
   involved :: RefExpr -> [Addr]
-  involved (Phrase' _)        = error "impossible"
-  involved (Tplt' as)         = as
-  involved (Rel' (Rel as a))  = a : as
+  involved (Phrase' _) = error "impossible"
+  involved (Tplt' t)   = toList t
+  involved (Rel' r)    = toList r
 
   collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where
@@ -155,6 +155,6 @@ relsWithoutMatchingTplts r = res where
 
 allAddrsPresent :: Rslt -> [Addr] -> Either String ()
 allAddrsPresent r as =
-  prefixLeft "-> allAddrsPresent"
+  prefixLeft "allAddrsPresent: "
   $ void (ifLefts $ map (addrToRefExpr r) as)
   >> Right ()

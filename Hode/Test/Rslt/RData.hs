@@ -1,4 +1,12 @@
-module Hode.Test.Rslt.RData where
+module Hode.Test.Rslt.RData (
+    test_the_rslt_test_data -- ^ Test
+  , r0          -- ^ Rslt
+  , refExprs    -- ^ Map Addr RefExpr
+  , badRefExprs -- ^ Map Addr RefExpr
+  , rslt        -- ^ Rslt
+  , big         -- ^ Rslt
+  , b2          -- ^ Rslt
+  ) where
 
 import           Data.Map (Map)
 import qualified Data.Map as M
@@ -7,6 +15,15 @@ import           Test.HUnit
 import Hode.Rslt.Index
 import Hode.Rslt.RTypes
 import Hode.Rslt.RValid
+
+
+-- | local shorthand
+
+n :: Maybe a
+n = Nothing
+
+j :: a -> Maybe a
+j = Just
 
 
 -- | = Make sure each Rslt is okay.
@@ -34,7 +51,7 @@ refExprs = M.fromList
   , (1, Phrase' "dog")
   , (2, Phrase' "oxygen")
   , (3, Phrase' "needs")
-  , (4, Tplt' [0,3,0])
+  , (4, Tplt'$ Tplt n [3] n)
   , (5, Rel' $ Rel [1,2] 4)
   , (6, Rel' $ Rel [5,2] 4) -- This is a nonsense phrase.
     -- I would have to add Exprs to make it not so, which would break things.
@@ -58,8 +75,8 @@ big = mkRslt $ M.fromList
   , (  1, Phrase' "1")
   , (  2, Phrase' "2")
   , (  3, Phrase' "3")
-  , (  4, Tplt' [0,0])   -- the unary rel
-  , (  5, Tplt' [0,0,0]) -- the binary rel
+  , (  4, Tplt' $ Tplt n [] n)   -- the unary rel
+  , (  5, Tplt' $ Tplt n [0] n) -- the binary rel
   , (  6, Rel' $ Rel [1]   4)
   , (  7, Rel' $ Rel [1,2] 5)
   , (  8, Rel' $ Rel [6,7] 5)
@@ -79,15 +96,15 @@ b2 = mkRslt $ M.fromList
   , ( 4, Phrase' "need")
   , ( 5, Phrase' "like")
   , ( 6, Phrase' "jumping")
-  , ( 7, Tplt' [0,4,0] ) -- _ need _
-  , ( 8, Tplt' [0,5,0] ) -- _ like _
+  , ( 7, Tplt' $ Tplt n [4] n ) -- _ need _
+  , ( 8, Tplt' $ Tplt n [5] n ) -- _ like _
   , ( 9, Rel' $ Rel [2,3] 7) -- fish #need water
   , (10, Rel' $ Rel [2,6] 8) -- fish #like jumping
   , (11, Phrase' "horses")
   , (12, Rel' $ Rel [11,6] 8) -- horses #like jumping
   , (13, Phrase' "exercise")
   , (14, Phrase' "is")
-  , (15, Tplt' [0,14,0]) -- _ is _
+  , (15, Tplt' $ Tplt n [14] n ) -- _ is _
   , (16, Rel' $ Rel [6,13] 15 ) -- jumping #is exercise
   , (17, Phrase' "dolphins")
   , (18, Rel' $ Rel [17,2] 7) -- dolphins #need fish
