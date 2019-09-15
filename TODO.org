@@ -29,8 +29,8 @@ An n-ary template has n-1 other fields, in a list.
 This means, I suspect, ruling out some kinds of relationships.
 ** the lowest function in which the problem appears
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
-* TODO ifLefts should be polymorphic
-make a class named something like "leftStringMappable"
+* TODO LeftStrings can be more polymorphic
+https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions
 * TODO add stuff from Rslt.Edit to NoUI
 replaceInRole
