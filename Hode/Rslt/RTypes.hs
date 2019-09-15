@@ -27,11 +27,29 @@ type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
 
 -- | = `Expr` is the fundamental type.
 
+-- ^ A `Rel` (relationship) consists of a list of members
+-- and a `Tplt` (template) which describes how they relate.
 data Rel a = Rel [a] a
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
 deriveShow1 ''Rel
 deriveEq1 ''Rel
 
+-- ^ A `Tplt` describes a kind of first-order relationship.
+-- For instance, any "_ #needs _" relationship uses
+-- `Tplt Nothing ["needs"] Nothing`, because it has one interior joint
+-- and no exterior joints. By contrast, any "#the _ #of _" relationship
+-- would use `Tplt (Just "the") ["of"] Nothing`, because it
+-- has an interior joint ("of") and a left-hand joint ("the").
+-- Note that at least one of those things has to be present,
+-- but it could be the empty string.
+-- Elaborating a bit more of that pattern:
+-- #j _         = Just j  []  Nothing
+--    _ #j      = Nothing []  Just j
+-- #j _ #j      = Just j  []  Just j
+--    _ #j _    = Nothing [j] Nothing
+-- #j _ #j _    = Just j  [j] Nothing
+-- #j _ #j _ #j = Just j  [j] Just j
+-- etc.
 data Tplt a = Tplt (Maybe a) [a] (Maybe a)
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
 deriveShow1 ''Tplt

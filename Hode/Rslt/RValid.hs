@@ -66,8 +66,8 @@ validExpr r = prefixLeft "validExpr: " . para f where
   f (ExprTpltF t@(Tplt a bs c)) =
     prefixLeft (", called on " ++ show (ExprTplt $ fmap fst t) ++ ": ")
     ( ifLefts (fmap snd t) >>
-      if null bs
-      then Left "empty list of non-endpoing joints in Tplt."
+      if null a && null bs && null c
+      then Left "null Tplt."
       else return () )
 
 
@@ -90,8 +90,8 @@ validTplt r (Rel' (Rel aMembers aTplt)) =
     if ar == length aMembers then Right ()
       else Left $ "expr at " ++ show aTplt
            ++ " does not match arity of " ++ show aMembers ++ ".\n"
-validTplt r (Tplt' (Tplt _ [] _)) =
-  Left "validTplt: Empty set of non-endpoint joints in Tplt."
+validTplt r (Tplt' (Tplt Nothing [] Nothing)) =
+  Left "validTplt: Null Tplt."
 validTplt _ _ = Right ()
 
 refExprRefsExist :: Rslt -> RefExpr -> Either String ()

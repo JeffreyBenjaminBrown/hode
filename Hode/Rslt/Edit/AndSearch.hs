@@ -10,6 +10,9 @@ module Hode.Rslt.Edit.AndSearch (
 
 import qualified Data.List      as L
 
+import Data.Foldable (toList)
+import Data.Maybe
+
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
@@ -47,14 +50,26 @@ exprToAddrInsert_rootNotFound r0 (Phrase w) = do
   r1 <- insertAt a (Phrase' w) r0
   Right (r1, [New a])
 
-exprToAddrInsert_rootNotFound r0 (ExprTplt js) =
+exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
   prefixLeft "exprToAddrInsert_rootNotFound" $ do
-  (r1 :: Rslt, as :: [[Aged Addr]]) <-
-    exprToAddrInsert_list r0 js
-  a <- nextAddr r1
-  r2 <- let tplt = Tplt' $ map (unAged . head) as
-        in insertAt a tplt r1
-  Right (r2, New a : concat as)
+  (r1 :: Rslt, as1 :: [Aged Addr]) <- case a of
+    Nothing -> Right (r0,[])
+    Just a' -> exprToAddrInsert r0 a'
+  (r2 :: Rslt, as2 :: [[Aged Addr]]) <- do -- note the list of lists
+    if null bs then Left "empty list of joints in Tplt"
+      else exprToAddrInsert_list r0 bs
+  (r3 :: Rslt, as3 :: [Aged Addr]) <- case c of
+    Nothing -> Right (r2,[])
+    Just c' -> exprToAddrInsert r0 c'
+  TODO -- resume here.  Below is how the function used to be:
+--  (r1 :: Rslt, as :: [[Aged Addr]]) <-
+--    exprToAddrInsert_list r0 $ toList t
+--  (r1 :: Rslt, as :: [[Aged Addr]]) <-
+--    exprToAddrInsert_list r0 $ toList t
+--  a <- nextAddr r1
+--  r2 <- let tplt = Tplt' $ map (unAged . head) as
+--        in insertAt a tplt r1
+--  Right (r2, New a : concat as)
 
 exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
   prefixLeft "exprToAddrInsert_rootNotFound: " $ do
