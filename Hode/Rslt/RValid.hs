@@ -63,9 +63,12 @@ validExpr r = prefixLeft "validExpr: " . para f where
     if ta == length ms then Right ()
       else Left $ err ++ " with Tplt " ++ show tx ++ ": arity mismatch."
 
-  f (ExprTpltF t) = prefixLeft err $ ifLefts (fmap snd t)
-                    >> return ()
-    where err = ", called on " ++ show (ExprTplt $ fmap fst t)
+  f (ExprTpltF t@(Tplt a bs c)) =
+    prefixLeft (", called on " ++ show (ExprTplt $ fmap fst t) ++ ": ")
+    ( ifLefts (fmap snd t) >>
+      if null bs
+      then Left "empty list of non-endpoing joints in Tplt."
+      else return () )
 
 
 -- | == Check a `RefExpr`
@@ -87,6 +90,8 @@ validTplt r (Rel' (Rel aMembers aTplt)) =
     if ar == length aMembers then Right ()
       else Left $ "expr at " ++ show aTplt
            ++ " does not match arity of " ++ show aMembers ++ ".\n"
+validTplt r (Tplt' (Tplt _ [] _)) =
+  Left "validTplt: Empty set of non-endpoint joints in Tplt."
 validTplt _ _ = Right ()
 
 refExprRefsExist :: Rslt -> RefExpr -> Either String ()
@@ -96,7 +101,7 @@ refExprRefsExist r e = prefixLeft "refExprRefsExist: " $ let
     Right () -> Right ()
     Left absent -> Left
       $ "These Addrs are absent: " ++ show absent
-  in case e of Rel' r    -> f $ toList r
+  in case e of Rel' rel  -> f $ toList rel
                Tplt' t   -> f $ toList t
                Phrase' _ -> Right ()
 
@@ -125,7 +130,7 @@ collectionsWithAbsentAddrs r = res where
   involved :: RefExpr -> [Addr]
   involved (Phrase' _) = error "impossible"
   involved (Tplt' t)   = toList t
-  involved (Rel' r)    = toList r
+  involved (Rel' rel)  = toList rel
 
   collections :: Map Addr RefExpr
   collections = M.filter isCollection $ _addrToRefExpr r where

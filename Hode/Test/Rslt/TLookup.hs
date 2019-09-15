@@ -35,15 +35,13 @@ test_unAddr = TestCase $ do
 
 test_refExprToExpr :: Test
 test_refExprToExpr = TestCase $ do
-  assertBool "tplt" $ Right ( ExprTplt [ Phrase ""
-                                       , Phrase "needs"
-                                       , Phrase "" ] )
-    == refExprToExpr D.rslt ( Tplt' [ 0, 3, 0 ] )
+  assertBool "tplt" $ Right ( ExprTplt $ Tplt Nothing
+                                              [Phrase "needs"]
+                                              Nothing )
+    == refExprToExpr D.rslt ( Tplt' $ Tplt Nothing [3] Nothing )
 
   assertBool "rel, recursive" $
-    let ti = ExprTplt [ Phrase ""
-                      , Phrase "needs"
-                      , Phrase "" ]
+    let ti = ExprTplt $ Tplt Nothing [Phrase "needs"] Nothing
     in Right ( ExprRel $ Rel [ Phrase "dog"
                              , ExprRel $ Rel [ Phrase "dog"
                                              , Phrase "oxygen" ]
@@ -53,16 +51,20 @@ test_refExprToExpr = TestCase $ do
 
 test_exprToAddr :: Test
 test_exprToAddr = TestCase $ do
-  assertBool "1" $ (R.exprToAddr D.rslt $ Addr 0)       == Right 0
+  assertBool "1" $ (R.exprToAddr D.rslt $ Addr 0)
+    == Right 0
   assertBool "2" $ isLeft
                  $ (R.exprToAddr D.rslt $ Addr $ -10000)
-  assertBool "3" $ (R.exprToAddr D.rslt $ Phrase "needs") == Right 3
+  assertBool "3" $ (R.exprToAddr D.rslt $ Phrase "needs")
+    == Right 3
   assertBool "4" $ (R.exprToAddr D.rslt $ either (error "wut") id
-                    $ refExprToExpr D.rslt $ Tplt' [0,3,0])  == Right 4
+                     $ refExprToExpr D.rslt
+                     $ Tplt' (Tplt Nothing [3] Nothing))
+    == Right 4
   assertBool "5" $ Right 4 ==
-    R.exprToAddr D.rslt ( ExprTplt [ Addr 0
-                                , Phrase "needs"
-                                , Phrase ""] )
+    R.exprToAddr D.rslt ( ExprTplt $ Tplt (Just $ Addr 0)
+                                          [Phrase "needs"]
+                                          (Just $ Phrase "") )
 
   assertBool "6" $ Right 5 ==
     R.exprToAddr D.rslt ( ExprRel $ Rel [ Addr 1

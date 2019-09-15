@@ -3,6 +3,7 @@
 
 module Hode.Rslt.RUtil (
     LeftStrings(..)
+  , replaceNth_tplt -- ^ a -> Int -> Tplt -> Either String Tplt
   , toExprWith     -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout    -- ^             Fix (ExprFWith b) -> Expr
   , mapExprFWith   -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
@@ -44,6 +45,20 @@ instance LeftStrings Tplt where
     in case null lefts of
          True -> Right $ Tplt  (fmap fr fore)  (map fr mids)  (fmap fr aft)
          False -> Left $ concat $ map fl lefts
+
+replaceNth_tplt :: a -> Int -> Tplt a -> Either String (Tplt a)
+replaceNth_tplt a' 0 (Tplt (Just _) bs c) =
+  Right $ Tplt (Just a') bs c
+replaceNth_tplt a' n (Tplt a bs c) =
+  prefixLeft "replaceNth_tplt: " $
+  if n <= length bs
+  then do bs' <- replaceNth a' n bs
+          Right $ Tplt a bs' c
+  else if n == length bs + 1
+       then ( if null c
+              then Left $ "Optional last joint not present."
+              else Right $ Tplt a bs $ Just a' )
+       else Left $ "Index greater than size of tplt."
 
 
 -- | = ExprFWith

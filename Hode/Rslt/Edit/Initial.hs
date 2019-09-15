@@ -75,9 +75,9 @@ _replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr" $ do
           as' <- replaceNth new k as
           Right $ Rel' $ Rel as' a
 
-        Tplt' as -> do
-          as' <- replaceNth new k as
-          Right $ Tplt' as'
+        Tplt' t -> do
+          t' <- replaceNth_tplt new k t
+          Right $ Tplt' t'
 
         _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
              ++ " has no members.\n"
