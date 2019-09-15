@@ -3,7 +3,7 @@
 ** reduce redunddancy in views
 ** update
 * TODO a new test fails
-the test is here:
+** the test is here:
 Hode.Test.Hash.THLookup.testFirstAbsent
 ** TODO It seems like a type problem.
 That is, a data (type) problem, not just a logic (function) problem.
@@ -16,8 +16,8 @@ Consider this test (which passes):
                [ ( RoleTplt, HExpr $ ExprTplt $ map Phrase [ "", "is", "" ] )
                , ( RoleMember 1, HExpr $ Phrase "a" )
                , ( RoleMember 2, HExpr $ Phrase "b" ) ] )
-The pRel is unambiguous, but the HMap is not.
-The HMap could represent any of these binary relationships:
+The pRel is unambiguous, but
+the HMap could represent any of these binary relationships:
   "# a #is b #"
   "a #is b #"
   "#a #is b"

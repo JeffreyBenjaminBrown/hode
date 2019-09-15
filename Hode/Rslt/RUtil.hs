@@ -47,7 +47,7 @@ toExprWith b x = Fix $ EFW (b, f x) where
   f (Addr a)             = AddrF a
   f (Phrase p)           = PhraseF p
   f (ExprTplt js)        = ExprTpltF $
-         map (toExprWith b) js
+        fmap (toExprWith b) js
   f (ExprRel (Rel ms t)) = ExprRelF $
     Rel (map (toExprWith b) ms) (toExprWith b t)
 
@@ -59,7 +59,7 @@ exprWithout (Fix (EFW (_, x))) = f x where
   f (ExprRelF (Rel ms t)) = ExprRel $
     Rel (map exprWithout ms) $ exprWithout t
   f (ExprTpltF js) = ExprTplt $
-         map exprWithout js
+        fmap exprWithout js
 
 mapExprFWith :: forall b c.
   (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
@@ -70,7 +70,7 @@ mapExprFWith f (Fix (EFW (b,x))) = Fix $ EFW (f b, g x) where
   g (ExprRelF (Rel ms t)) = ExprRelF $ Rel
     (map (mapExprFWith f) ms) $ mapExprFWith f t
   g (ExprTpltF js) = ExprTpltF $
-     map (mapExprFWith f) js
+    fmap (mapExprFWith f) js
 
 
 -- | = For `Expr`s

@@ -1,7 +1,10 @@
 -- | Minus mkRslt, these gory details are not
 -- part of the Rslt interface.
 
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE
+ScopedTypeVariables,
+TupleSections
+#-}
 
 module Hode.Rslt.Index where
 
@@ -49,8 +52,8 @@ imgDb = M.fromList . catMaybes . map (Just . swap) . M.toList where
 -- | == Given an address, look up what it's connected to.
 -- The following two functions are in a sense inverses.
 
--- | `refExprPositions e` gives every pair `(r,a)` such that a plays the role
--- r in e.
+-- | `refExprPositions e` gives every pair `(r,a)`
+-- such that `a` plays the role `r` in `e`.
 
 refExprPositions :: RefExpr -> [(Role,Addr)]
 refExprPositions expr =
@@ -58,8 +61,14 @@ refExprPositions expr =
       r (n,a) = (RoleMember n, a)
   in case expr of
     Phrase' _          -> []
-    Tplt' mas          ->                 map r (zip [1..]           mas)
-    Rel'  (Rel mas ta) -> (RoleTplt,ta) : map r (zip [1..]           mas)
+    Tplt' (Tplt fore joints aft) ->
+      -- TODO ? I'm not sure this makes sense.
+      -- They used to start at 1.
+      fmap r ( maybeToList ((0                ,) <$> fore) ++
+               zip [1..] joints                            ++
+               maybeToList ((length joints + 1,) <$> aft ) )
+    Rel'  (Rel mas ta) -> (RoleTplt,ta) :
+                          map r (zip [1..] mas)
 
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map

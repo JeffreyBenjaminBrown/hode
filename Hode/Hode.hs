@@ -49,7 +49,7 @@ import Hode.Rslt.RUtil as X
 import Hode.Rslt.RValid as X
 import Hode.Rslt.Show as X
 import Hode.Rslt.Show' as X
-import Hode.Rslt.Show.JustInCase as X
+-- import Hode.Rslt.Show.JustInCase as X
 import Hode.UI.BufferRowTree as X
 import Hode.UI.BufferTree as X
 import Hode.UI.Clipboard as X

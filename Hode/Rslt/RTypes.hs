@@ -32,7 +32,10 @@ data Rel a = Rel [a] a
 deriveShow1 ''Rel
 deriveEq1 ''Rel
 
-type Tplt a = [a]
+data Tplt a = Tplt (Maybe a) [a] (Maybe a)
+  deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
+deriveShow1 ''Tplt
+deriveEq1 ''Tplt
 
 data Expr =
     Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.

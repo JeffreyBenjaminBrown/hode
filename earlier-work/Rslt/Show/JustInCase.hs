@@ -1,3 +1,8 @@
+-- PITFALL: I stopped maintaining this library after commit
+-- eab7a7562873a09374393294fa0575182a48071e
+-- (when I started making `Tplt a` more complicated --
+-- it used to be a synonym for `[a]`).
+
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show.JustInCase (
