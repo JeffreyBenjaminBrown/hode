@@ -1,3 +1,6 @@
+-- TODO ? Maybe this module could be made simpler,
+-- now that Tplt is more complex than a synonym for List.
+
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show (
@@ -12,6 +15,7 @@ module Hode.Rslt.Show (
 
 import           Data.Functor.Foldable
 import qualified Data.List as L
+import           Data.Maybe
 import           Data.Text (strip, pack, unpack)
 
 import Hode.Rslt.RLookup
@@ -21,8 +25,11 @@ import Hode.Util.Misc
 import Hode.Util.UParse
 
 
+trimString :: String -> String
+trimString = unpack . strip . pack
+
 -- | `hashUnlessEmptyStartOrEnd k js` adds `k` #-marks to every joint
--- in `js`, unless it's first or last and the empty string.
+-- in `js`, unless it's empty and (first or last).
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
 hashUnlessEmptyStartOrEnd k0 joints = case joints' of
   [] -> []
@@ -49,7 +56,7 @@ hashUnlessEmptyStartOrEnd k0 joints = case joints' of
                                   : hashUnlessEmptyEnd k ss
 
 eShow :: Rslt -> Expr -> Either String String
-eShow r = prefixLeft "-> eShow" . para f where
+eShow r = prefixLeft "eShow: " . para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
 
   f e@(AddrF _) =
@@ -60,21 +67,24 @@ eShow r = prefixLeft "-> eShow" . para f where
   f (PhraseF w) = Right w
 
   f (ExprTpltF pairs) =
-    prefixLeft ", called on ExprTplt: "
-    $ ifLefts (map snd pairs)
-    >>= Right . concat . L.intersperse " _ "
+    prefixLeft ", called on ExprTplt: " $ do
+      Tplt a bs c <- ifLefts $ fmap snd pairs
+      let a' = maybe "" id a
+          c' = maybe "" id c
+      Right ( trimString $ concat $ L.intersperse " _ "
+              $ [a'] ++ bs ++ [c'] )
 
-  f relf@(ExprRelF (Rel ms (ExprTplt js, _))) =
+  f relf@(ExprRelF (Rel ms (ExprTplt t, _))) =
   -- The recursive argument (second member of the pair) is unused, hence
-  -- not computed. Instead, each joint in `js` is `eShow`n separately.
+  -- not computed. Instead, each joint` is `eShow`n separately.
     prefixLeft ", called on ExprRel: " $ do
     mss <- ifLefts $ map snd ms
-    jss <- let rel :: Expr = embed $ fmap fst relf
-           in hashUnlessEmptyStartOrEnd (depth rel)
-              <$> ifLefts ( map (eShow r) js )
-    Right $ unpack . strip . pack
+    js <- let rel :: Expr = embed $ fmap fst relf
+          in hashUnlessEmptyStartOrEnd (depth rel)
+             <$> ifLefts ( tpltToList $ fmap (eShow r) t )
+    Right $ trimString
       $ concatMap (\(m,j) -> m ++ " " ++ j ++ " ")
-      $ zip ("" : mss) jss
+      $ zip ("" : mss) js
 
   f (ExprRelF (Rel ms (a@(Addr _), _))) =
     prefixLeft ", called on Rel: " $ do
@@ -114,7 +124,7 @@ parenExprAtDepth maxDepth = g where
     f (ExprTpltF js) =
       ( (0,InParens)
       , ExprTpltF $
-        map (parenExprAtDepth maxDepth) js )
+        fmap (parenExprAtDepth maxDepth) js )
     f (ExprRelF (Rel ms t)) =
       ( (d, if d >= maxDepth then InParens else Naked)
       , ExprRelF $ Rel ms' $
@@ -153,17 +163,17 @@ eParenShow maxDepth r e0 =
 
   g (_, ExprTpltF js0) =
     prefixLeft "g of Tplt: " $ do
-    js1 <- ifLefts $ map f js0
+    js1 <- ifLefts $ tpltToList $ fmap f js0
     Right . concat . L.intersperse " _ " $ js1
 
-  g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF js0))))) =
+  g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
     prefixLeft "g of Rel: " $ do
     ms1 :: [String] <- ifLefts $ map f ms0
-    js1 :: [String] <- hashUnlessEmptyStartOrEnd n
-                       <$> ifLefts (map f js0)
+    js  :: [String] <- hashUnlessEmptyStartOrEnd n
+                       <$> ifLefts (tpltToList $ fmap f t)
     Right $ unpack . strip . pack
       $ concatMap (\(m,j) -> m ++ " " ++ j ++ " ")
-      $ zip ("" : ms1) js1
+      $ zip ("" : ms1) js
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
