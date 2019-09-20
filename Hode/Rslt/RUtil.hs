@@ -4,9 +4,10 @@
 module Hode.Rslt.RUtil (
     LeftStrings(..)
   , replaceNth_tplt -- ^ a -> Int -> Tplt -> Either String Tplt
-  , toExprWith     -- ^ b -> Expr -> Fix (ExprFWith b)
-  , exprWithout    -- ^             Fix (ExprFWith b) -> Expr
-  , mapExprFWith   -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
+  , tpltToList      -- ^ Tplt a -> [a]
+  , toExprWith      -- ^ b -> Expr -> Fix (ExprFWith b)
+  , exprWithout     -- ^             Fix (ExprFWith b) -> Expr
+  , mapExprFWith    -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
 
   , depth          -- ^ Expr -> Int
   , refExprVariety -- ^ RefExpr -> (ExprCtr, Arity)
@@ -59,6 +60,11 @@ replaceNth_tplt a' n (Tplt a bs c) =
               then Left $ "Optional last joint not present."
               else Right $ Tplt a bs $ Just a' )
        else Left $ "Index greater than size of tplt."
+
+-- | PITFALL: Lossy.
+tpltToList :: Tplt a -> [a]
+tpltToList (Tplt a bs c) =
+  maybeToList a ++ bs ++ maybeToList c
 
 
 -- | = ExprFWith
