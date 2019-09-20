@@ -121,9 +121,9 @@ refExprVariety e@(Tplt'  _)   = (TpltCtr, refExprArity e)
 refExprVariety e@(Rel' _)     = (RelCtr , refExprArity e)
 
 refExprArity :: RefExpr -> Arity
-refExprArity (Phrase' _)      = 0
-refExprArity (Rel' (Rel x _)) = length x
-refExprArity (Tplt' x)        = length x - 1
+refExprArity (Phrase' _)           = 0
+refExprArity (Rel' (Rel x _))      = length x
+refExprArity (Tplt' (Tplt _ js _)) = length js + 1
 
 
 -- | = for `Rslt`s
