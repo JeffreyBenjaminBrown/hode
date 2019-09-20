@@ -3,7 +3,10 @@
 ** reduce redunddancy in views
 ** update
 * TODO `Role` needs extension, and the Rslt constructors need revision
-Two more Roles: LeftEdge and RightEdge.
+** To find where to start when revising Hode.Rslt
+grep -c "import.*Hode.Rslt" -r | sort -n -k2 -t:
+** change RUtil.replaceNth_tplt
+Should take a Role, not an Int.
 * TODO a new test fails
 ** the test is here:
 Hode.Test.Hash.THLookup.testFirstAbsent

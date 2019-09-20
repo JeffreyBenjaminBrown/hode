@@ -16,7 +16,7 @@ type Addr = Int -- ^ Address
 type Arity = Int
 
 -- | Joints in a `Tplt` (see below) can be interior or caps.
-data Cap = LeftCap | RightCap deriving (Eq, Ord, Read, Show)
+data Cap = CapLeft | CapRight deriving (Eq, Ord, Read, Show)
 
 -- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"

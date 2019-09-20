@@ -3,7 +3,7 @@
 
 module Hode.Rslt.RUtil (
     LeftStrings(..)
-  , replaceNth_tplt -- ^ a -> Int -> Tplt -> Either String Tplt
+  , replaceInTplt   -- ^ a -> Role -> Tplt a -> Either String (Tplt a)
   , tpltToList      -- ^ Tplt a -> [a]
   , toExprWith      -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout     -- ^             Fix (ExprFWith b) -> Expr
@@ -47,19 +47,18 @@ instance LeftStrings Tplt where
          True -> Right $ Tplt  (fmap fr fore)  (map fr mids)  (fmap fr aft)
          False -> Left $ concat $ map fl lefts
 
-replaceNth_tplt :: a -> Int -> Tplt a -> Either String (Tplt a)
-replaceNth_tplt a' 0 (Tplt (Just _) bs c) =
+replaceInTplt :: a -> Role -> Tplt a -> Either String (Tplt a)
+replaceInTplt a' (RoleCap CapLeft) (Tplt (Just a) bs c) =
   Right $ Tplt (Just a') bs c
-replaceNth_tplt a' n (Tplt a bs c) =
-  prefixLeft "replaceNth_tplt: " $
-  if n <= length bs
-  then do bs' <- replaceNth a' n bs
-          Right $ Tplt a bs' c
-  else if n == length bs + 1
-       then ( if null c
-              then Left $ "Optional last joint not present."
-              else Right $ Tplt a bs $ Just a' )
-       else Left $ "Index greater than size of tplt."
+replaceTplt c' (RoleCap CapRight) (Tplt a bs (Just c)) =
+  Right $ Tplt a bs (Just c)
+replaceTplt c' (RoleCap side) t =
+  Left ( "replaceInTplt: There is no cap on the " ++
+         show side ++ " side to replace in " ++ show t ++ "." )
+replaceTplt b (RoleMember k) (Tplt a bs c) = do
+  bs' <- replaceNth b k bs
+  Right $ Tplt a bs' c
+replaceTplt _ RoleTplt _ = Left $ "replaceInTplt: received RoleTplt as Role argument, but no Tplt contains a Tplt to replace; Tplts only contain RoleMembers and optionally RoleCaps."
 
 -- | PITFALL: Lossy.
 tpltToList :: Tplt a -> [a]

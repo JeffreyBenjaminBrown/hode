@@ -55,7 +55,7 @@ renameAddr_unsafe old new r = let
           }
 
 _replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr -> Either String RefExpr
-_replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr" $ do
+_replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr: " $ do
   void $ addrToRefExpr r new
 
   case spot of
@@ -63,24 +63,23 @@ _replaceInRefExpr r spot new host = prefixLeft "_replaceInRefExpr" $ do
       Rel' (Rel as _) -> do
         if variety r new == Right (TpltCtr, length as)
           then Right $ Rel' $ Rel as new
-          else Left $ "_replaceInRefExpr: RefExpr at " ++ show new
+          else Left $ "RefExpr at " ++ show new
                 ++ " is not a valid Tplt in " ++ show host ++ ".\n"
-      _ -> Left $ "_replaceInRefExpr: nothing plays the role of ExprTplt in "
+      _ -> Left $ "Nothing plays the role of ExprTplt in "
                 ++ show host ++ ".\n"
 
-    RoleMember k -> do
-      case host of
+    role@(RoleMember k) -> case host of
+        Rel' (Rel as a) -> do as' <- replaceNth new k as
+                              Right $ Rel' $ Rel as' a
+        Tplt' t -> do t' <- replaceInTplt new role t
+                      Right $ Tplt' t'
+        _ -> Left $ "RefExpr " ++ show host ++ " has no members.\n"
 
-        Rel' (Rel as a) -> do
-          as' <- replaceNth new k as
-          Right $ Rel' $ Rel as' a
-
-        Tplt' t -> do
-          t' <- replaceNth_tplt new k t
-          Right $ Tplt' t'
-
-        _ -> Left $ "_replaceInRefExpr: RefExpr " ++ show host
-             ++ " has no members.\n"
+    rc@(RoleCap _) -> case host of
+      Tplt' t -> do t' <- replaceInTplt new rc t
+                    Right $ Tplt' t'
+      _ -> Left $ "RefExpr " ++ show host ++ " is not a Tplt, "
+                      ++ "hence has no caps to replace.\n"
 
 insert :: RefExpr -> Rslt -> Either String Rslt
 insert e r = do
