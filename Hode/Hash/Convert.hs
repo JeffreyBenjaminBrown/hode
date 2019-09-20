@@ -37,42 +37,44 @@ import Hode.Util.Misc
 --                         , Absent ]
 --                  ["j"] ) )
 --
--- In an HExpr, nothing is absent, but joints can be empty.
--- For every outer member of a PRel that is not Absent,
--- there should be an empty string added to that side of the
--- ExprTplt in the corresponding HExpr.
+-- In an HExpr, no member can be absent, but joints can be empty.
+-- When an outer member of a PRel is present,
+-- the outer joint on that side of the corresponding HExpr should be null.
 
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
 pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
   f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
-  f AbsentF = Left "Absent represents no HExpr."
+  f AbsentF = Left "The Absent PRel represents no HExpr."
   f (OpenF _ ms js) = f $ ClosedF ms js
 
-  f (ClosedF ms js0) = do
-    let t = ExprTplt $ map Phrase js2 where
-          absentLeft, absentRight :: Bool
-          absentLeft  = case head ms of (Absent,_) -> True; _ -> False
-          absentRight = case last ms of (Absent,_) -> True; _ -> False
-          js1 = if not absentLeft  then "" : js0    else js0
-          js2 = if not absentRight then js1 ++ [""] else js1
+  f (ClosedF ms js0) =
+    let t = ExprTplt $ fmap Phrase $ Tplt jLeft js2 jRight
+          where
+            (jLeft, js1) = case fst $ head ms of
+              Absent -> (Just $ head js0, tail js0)
+              _      -> (Nothing, js0)
+            (jRight, js2) = case fst $ last ms of
+              Absent -> ( Just $ last js1,
+                          reverse $ tail $ reverse js1 )
+              _      -> (Nothing, js1)
 
         ms' :: [(Role, (PRel, Either String HExpr))]
-        ms' = let g :: PRel -> Bool
-                  g Absent       = False
-                  g (PNonRel px) = pExprIsSpecific px
-                  g _            = True
-          in filter (g . fst . snd)
+        ms' = let keep :: PRel -> Bool
+                  keep Absent       = False
+                  keep (PNonRel px) = pExprIsSpecific px
+                  keep _            = True
+          in filter (keep . fst . snd)
              $ zip (map RoleMember [1..]) ms
         hms :: [(Role, Either String HExpr)]
         hms = map (second snd) ms'
 
-    void $ ifLefts $ map snd hms
-    let (hms' :: [(Role, HExpr)]) =
-          map (second $ either (error "impossible") id) hms
-    Right $ HMap $ M.insert RoleTplt (HExpr t)
-      $ M.fromList hms'
+    in do void $ ifLefts $ map snd hms
+          let (hms' :: [(Role, HExpr)]) = map get hms where
+                get = second $ either (error "impossible") id
+          Right $ HMap $ M.insert RoleTplt (HExpr t)
+            $ M.fromList hms'
 
 -- | Using a recursion scheme for `pExprToHExpr` is hard.
 -- c.f. the "WTF" comment below.

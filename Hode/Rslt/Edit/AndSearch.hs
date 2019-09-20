@@ -24,7 +24,8 @@ import Hode.Rslt.Edit.Initial
 
 -- | `exprToAddrInsert r ei` returns the `Addr` containing `ei`, if present.
 -- If not, it inserts `ei`, and then returns the `Addr` containing it.
--- Since it might modify the `Rslt`, it also returns that.
+-- It also returns (the tail of the list) all other `Addr`s it added.
+-- Since it might add to the `Rslt`, it also returns that.
 --
 -- NOTE: In any `[Aged Addr]`, the top expression's address
 -- precedes those of its children.
@@ -61,15 +62,15 @@ exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
   (r3 :: Rslt, as3 :: [Aged Addr]) <- case c of
     Nothing -> Right (r2,[])
     Just c' -> exprToAddrInsert r0 c'
-  TODO -- resume here.  Below is how the function used to be:
---  (r1 :: Rslt, as :: [[Aged Addr]]) <-
---    exprToAddrInsert_list r0 $ toList t
---  (r1 :: Rslt, as :: [[Aged Addr]]) <-
---    exprToAddrInsert_list r0 $ toList t
---  a <- nextAddr r1
---  r2 <- let tplt = Tplt' $ map (unAged . head) as
---        in insertAt a tplt r1
---  Right (r2, New a : concat as)
+  a' <- nextAddr r1
+  r4 :: Rslt <-
+    let tplt :: RefExpr = Tplt' $ Tplt
+          (maybe Nothing (const $ Just $ head $ map unAged as1) a)
+          (map (unAged . head) as2)
+          (maybe Nothing (const $ Just $ head $ map unAged as3) c)
+    in insertAt a' tplt r1
+  Right ( r4,
+          New a' : concat ( [as1] ++ as2 ++ [as3] ) )
 
 exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
   prefixLeft "exprToAddrInsert_rootNotFound: " $ do

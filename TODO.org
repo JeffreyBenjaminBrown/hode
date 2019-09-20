@@ -32,6 +32,9 @@ pRelToHExpr :: Rslt -> PRel -> Either String HExpr
 * TODO LeftStrings can be more polymorphic
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions
+* TODO ifLefts could be replaced with Data.Validation
+which comes with toEither and fromEither
+https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO add stuff from Rslt.Edit to NoUI
 replaceInRole
 deleteIfUnused
