@@ -33,3 +33,17 @@ exprFWithDepth (Fix (EFW x)) =
              else maximum $ map g msWithDepth
     in ( ( 1+maxMemberDepth, b)
        , ExprRelF $ Rel msWithDepth $ exprFWithDepth t)
+
+test_exprFWithDepth :: Test
+test_exprFWithDepth = TestCase $ do
+  let e :: Int -> Expr
+      e 0 = Addr 0
+      e n = ExprRel $ Rel [e $ n-1] $ e 0
+      fe :: Int -> Fix (ExprFWith (Int,()))
+      fe 0 = Fix $ EFW ( (0,()), AddrF 0 )
+      fe n = ( Fix $
+              EFW ( (n,()), ExprRelF $ Rel [fe $ n-1] $ fe 0 ) )
+  assertBool "1" $
+    ( exprFWithDepth $ toExprWith () $ e 1 ) == fe 1
+  assertBool "1" $
+    ( exprFWithDepth $ toExprWith () $ e 2 ) == fe 2

@@ -15,11 +15,16 @@ test_module_rslt_show :: Test
 test_module_rslt_show = TestList [
     TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
   , TestLabel "test_eShow" test_eShow
-  , TestLabel "test_exprFWithDepth" test_exprFWithDepth
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   ]
 
--- | `test_exprFWithDepth` might make this easier to understand
+-- | `test_exprFWithDepth` might make this easier to understand.
+-- Currently it is stored at earlier-work/Rslt/Show/JustInCase.hs.
+-- That demo code, however, surely broke when Tplt changed
+-- from a synonym for [] to something more complex, during
+-- commit 8d163edd7381afa8955eacfd6683ff090db4688a
+-- Date:   Sat Sep 14 20:00:12 2019 -0500
+
 test_parenExprAtDepth :: Test
 test_parenExprAtDepth = TestCase $ do
 
@@ -46,20 +51,6 @@ test_parenExprAtDepth = TestCase $ do
     parenExprAtDepth 2 (fe [ fe [fe0]
                           , fe0 ] ) ==
     dw (2,InParens) [dw (1,Naked) [dw0], dw0]
-
-test_exprFWithDepth :: Test
-test_exprFWithDepth = TestCase $ do
-  let e :: Int -> Expr
-      e 0 = Addr 0
-      e n = ExprRel $ Rel [e $ n-1] $ e 0
-      fe :: Int -> Fix (ExprFWith (Int,()))
-      fe 0 = Fix $ EFW ( (0,()), AddrF 0 )
-      fe n = ( Fix $
-              EFW ( (n,()), ExprRelF $ Rel [fe $ n-1] $ fe 0 ) )
-  assertBool "1" $
-    ( exprFWithDepth $ toExprWith () $ e 1 ) == fe 1
-  assertBool "1" $
-    ( exprFWithDepth $ toExprWith () $ e 2 ) == fe 2
 
 test_eShow :: Test
 test_eShow = TestCase $ do
