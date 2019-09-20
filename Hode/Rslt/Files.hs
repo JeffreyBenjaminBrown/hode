@@ -17,15 +17,12 @@ import Hode.Rslt.Index
 -- > x <- readRslt "test-io"
 -- > x == D.rslt
 
--- | PITFALL: `Rel`s are stored in a format that looks like it has an
--- unmatched trailing parenthesis, due to the use of _brief and _unbrief.
-
-readRslt :: FilePath -> IO (Rslt)
+readRslt :: FilePath -> IO Rslt
 readRslt p0 = do
   files <- filter (\f -> takeExtension f == ".rslt")
            <$> listDirectory p0
-  (es :: [(Addr, RefExpr)]) <- let
-      f p = do (e :: RefExpr) <-
+  es :: [(Addr, RefExpr)] <- let
+      f p = do e :: RefExpr <-
                  read . _unBrief <$> readFile (p0 ++ "/" ++ p)
                let (a :: Addr) =
                      read $ dropExtension p
@@ -42,13 +39,13 @@ writeRslt p r = let
   in mapM_ writeRefExpr $ M.toList $ _addrToRefExpr r
 
 _brief :: String -> String
-_brief = subRegex_safe "^Phrase' "     "p " .
-         subRegex_safe "^Tplt' "       "t " .
-         subRegex_safe "^Rel' \\(Rel " "r "
+_brief = subRegex_safe "^Phrase' "       "p " .
+         subRegex_safe "^Tplt' \\(Tplt " "t " .
+         subRegex_safe "^Rel' \\(Rel "   "r "
 
 _unBrief :: String -> String
-_unBrief = subRegex_safe "^p " "Phrase' "   .
-           subRegex_safe "^t " "Tplt' "     .
+_unBrief = subRegex_safe "^p " "Phrase' "     .
+           subRegex_safe "^t " "Tplt' (Tplt " .
            subRegex_safe "^r " "Rel' (Rel "
 
 subRegex_safe :: String -> String -> String -> String
