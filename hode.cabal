@@ -1,9 +1,16 @@
+-- PITFALL: Lately stack ghci won't load anything at all
+   -- if any module won't compile.
+   -- Anything disabled with two dashes at the far-left is
+   -- "temporarily disabled", meaning I intend to un-disable it
+   -- once upstream stuff works.
+   -- Anything disabled with dashes farther to the right
+   -- is something I'll probably want to leave disabled,
+   -- but have retained in case I need to study how it works.
+
 cabal-version: 1.12
 
 -- This file has been generated from package.yaml by hpack version 0.31.1.
---
 -- see: https://github.com/sol/hpack
---
 -- hash: 50c217e5504795a9a5e4f7076fe411927aff1660b9a3254c11556b640002d529
 
 name:           hode
@@ -15,11 +22,7 @@ author:         Author name here
 maintainer:     example@example.com
 copyright:      2019 Author name here
 license:        BSD3
--- license-file:   LICENSE
 build-type:     Simple
-extra-source-files:
---    README.md
---    ChangeLog.md
 
 source-repository head
   type: git
@@ -27,21 +30,20 @@ source-repository head
 
 library
   exposed-modules:
-                  Hode.Hode
-                , Hode.Temp
+--                  Hode.Hode
+                  Hode.Temp
                 , Hode.Brick
---                , Hode.Brick.ScreenWrap.JustInCase
                 , Hode.Data.Graph
                 , Hode.Data.Map
---                , Hode.Data.Relation
-                , Hode.Hash.Convert
-                , Hode.Hash.EitherExpr
-                , Hode.Hash.HLookup
-                , Hode.Hash.HParse
-                , Hode.Hash.HToRslt
-                , Hode.Hash.HTypes
-                , Hode.Hash.HUtil
-                , Hode.Hash.Hash
+                -- , Hode.Data.Relation
+--                , Hode.Hash.Convert
+--                , Hode.Hash.EitherExpr
+--                , Hode.Hash.HLookup
+--                , Hode.Hash.HParse
+--                , Hode.Hash.HToRslt
+--                , Hode.Hash.HTypes
+--                , Hode.Hash.HUtil
+--                , Hode.Hash.Hash
                 , Hode.Qseq.MkLeaf
                 , Hode.Qseq.QTypes
                 , Hode.Qseq.QValid
@@ -61,42 +63,42 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
-                , Hode.Rslt.Show'
+--                , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
-                , Hode.Test.Hash.TTransitive
-                , Hode.Test.Hash.TConvert
-                , Hode.Test.Hash.THLookup
-                , Hode.Test.Hash.TParse
-                , Hode.Test.Qseq.TLeaf
-                , Hode.Test.Qseq.TProgram
-                , Hode.Test.Qseq.TQuery
-                , Hode.Test.Qseq.TSubst
-                , Hode.Test.Qseq.TValid
-                , Hode.Test.Rslt.RData
-                , Hode.Test.Rslt.RProgram
-                , Hode.Test.Rslt.TEdit
-                , Hode.Test.Rslt.TIndex_and_Valid
-                , Hode.Test.Rslt.TLookup
-                , Hode.Test.Rslt.TShow
-                , Hode.Test.TBrick
-                , Hode.Test.TGraph
+--                , Hode.Test.Hash.TTransitive
+--                , Hode.Test.Hash.TConvert
+--                , Hode.Test.Hash.THLookup
+--                , Hode.Test.Hash.TParse
+--                , Hode.Test.Qseq.TLeaf
+--                , Hode.Test.Qseq.TProgram
+--                , Hode.Test.Qseq.TQuery
+--                , Hode.Test.Qseq.TSubst
+--                , Hode.Test.Qseq.TValid
+--                , Hode.Test.Rslt.RData
+--                , Hode.Test.Rslt.RProgram
+--                , Hode.Test.Rslt.TEdit
+--                , Hode.Test.Rslt.TIndex_and_Valid
+--                , Hode.Test.Rslt.TLookup
+--                , Hode.Test.Rslt.TShow
+--                , Hode.Test.TBrick
+--                , Hode.Test.TGraph
                 , Hode.Test.TMain
-                , Hode.Test.TPTree
-                , Hode.Test.TUI
-                , Hode.UI.BufferTree
-                , Hode.UI.Clipboard
-                , Hode.UI.ITypes
-                , Hode.UI.IUtil
-                , Hode.UI.Input
-                , Hode.UI.Input.IParse
-                , Hode.UI.Main
-                , Hode.UI.NoUI
-                , Hode.UI.NoUI.Internal
-                , Hode.UI.RsltViewTree
-                , Hode.UI.ShowPTree
-                , Hode.UI.ShowPTree.HandTest
-                , Hode.UI.String
-                , Hode.UI.Window
+--                , Hode.Test.TPTree
+--                , Hode.Test.TUI
+--                , Hode.UI.BufferTree
+--                , Hode.UI.Clipboard
+--                , Hode.UI.ITypes
+--                , Hode.UI.IUtil
+--                , Hode.UI.Input
+--                , Hode.UI.Input.IParse
+--                , Hode.UI.Main
+--                , Hode.UI.NoUI
+--                , Hode.UI.NoUI.Internal
+--                , Hode.UI.RsltViewTree
+--                , Hode.UI.ShowPTree
+--                , Hode.UI.ShowPTree.HandTest
+--                , Hode.UI.String
+--                , Hode.UI.Window
                 , Hode.Util.Direction
                 , Hode.Util.Misc
                 , Hode.Util.PTree
@@ -132,25 +134,14 @@ library
               , zippers
   default-language: Haskell2010
 
-executable hode-exe
-  main-is: Main.hs
-  other-modules:
-  hs-source-dirs:
-      app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base
-    , hode
-  default-language: Haskell2010
+-- executable hode-exe
+--   main-is: Main.hs
+--   other-modules:
+--   hs-source-dirs:
+--       app
+--   ghc-options: -threaded -rtsopts -with-rtsopts=-N
+--   build-depends:
+--       base
+--     , hode
+--   default-language: Haskell2010
 
---test-suite hode-test
---  type: exitcode-stdio-1.0
---  main-is: Spec.hs
---  other-modules:
---  hs-source-dirs:
---      test
---  ghc-options: -threaded -rtsopts -with-rtsopts=-N
---  build-depends:
---      base >=4.7 && <5
---    , hode
---  default-language: Haskell2010

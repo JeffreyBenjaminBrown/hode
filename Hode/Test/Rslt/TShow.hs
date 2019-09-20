@@ -55,11 +55,13 @@ test_parenExprAtDepth = TestCase $ do
 test_eShow :: Test
 test_eShow = TestCase $ do
   assertBool "1" $ eShow D.rslt (Phrase "hello") == Right "hello"
-  assertBool "2" $ eShow D.rslt (ExprTplt $ map Phrase ["a","b","c"] )
+  assertBool "2" $ eShow D.rslt
+    (ExprTplt $ fmap Phrase $ Tplt (Just "a") ["b"] (Just "c"))
     == Right "a _ b _ c"
   assertBool "3" $ eShow D.rslt
     ( ExprRel ( Rel ( map Phrase ["a","b"] )
-                $ ExprTplt $ map Phrase ["","=",""] ) )
+                $ ExprTplt $ fmap Phrase $
+                Tplt Nothing ["="] Nothing ) )
     == Right "a #= b"
 
 test_hashUnlessEmptyStartOrEnd :: Test

@@ -34,7 +34,7 @@ test_module_rslt_edit = TestList [
 test_renameAddr_unsafe :: Test
 test_renameAddr_unsafe = TestCase $ do
   let x = M.fromList [(0,Phrase' "")
-                     ,(1,Tplt' [0,0,0])
+                     ,(1,Tplt' $ Tplt Nothing [0] Nothing)
                      ,(2,Phrase' "x")
                      ,(3,Phrase' "y")
                      ,(4,Rel' (Rel [2,3] 1))
@@ -57,26 +57,21 @@ test_replaceExpr = TestCase $ do
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do
-  assertBool "1" $
-    R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
-                                         , Addr 3
-                                         , Addr 0 ] )
+  assertBool "1" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
+                     Nothing [Addr 3] Nothing )
     == Right (D.rslt, [Old 4])
 
-  assertBool "2" $
-    R.exprToAddrInsert D.rslt ( ExprTplt [ Addr 0
-                                         , Addr 1
-                                         , Addr 0 ] )
+  assertBool "2" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
+                     Nothing [Addr 1] Nothing )
     == Right ( fromRight (error "wut") $
-               R.insertAt 7 (Tplt' [0,1,0]) D.rslt
+               R.insertAt 7 (Tplt' $ Tplt Nothing [1] Nothing) D.rslt
              , [New 7, Old 0, Old 1, Old 0] )
 
-  assertBool "3" $
-    R.exprToAddrInsert D.rslt ( ExprTplt [ Phrase "bar"
-                                         , Phrase ""
-                                         , Phrase "foo" ] )
+  assertBool "3" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
+                     (Just $ Phrase "bar") [Phrase ""]
+                     (Just $ Phrase "foo") )
     == Right ( fromRight (error "wut")
-               $ R.insertAt 9 (Tplt' [7,0,8])
+               $ R.insertAt 9 (Tplt' $ Tplt (Just 7) [0] (Just 8))
                $ fromRight (error "wut")
                $ R.insertAt 8 (Phrase' "foo")
                $ fromRight (error "wut")
@@ -88,13 +83,11 @@ test_exprToAddrInsert = TestCase $ do
       R.exprToAddrInsert D.rslt
       ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
                                       , Phrase "empty" ]
-                        ( ExprTplt [ Phrase ""
-                                   , Phrase "is"
-                                   , Addr 0 ] )
+                        ( ExprTplt $ Tplt
+                          Nothing [Phrase "is"] Nothing )
                       , Phrase "suck" ]
-        ( ExprTplt [ Phrase "That"
-                   , Phrase "does"
-                   , Addr 0 ] ) )
+        ( ExprTplt $ Tplt
+          (Just $ Phrase "That") [Phrase "does"] Nothing ) )
     a = unAged $ head as
     (n16 :: Expr) =
       either (error "wut") id $ addrToRefExpr r a >>= refExprToExpr r
@@ -108,7 +101,7 @@ test_replace = TestCase $ do
           [ (0, Phrase' "")
           , (2, Phrase' "oxygen")
           , (3, Phrase' "needs")
-          , (4, Tplt' [0,3,0])
+          , (4, Tplt' $ Tplt Nothing [3] Nothing)
           , (5, Rel' $ Rel [7,2] 4) -- all changes involve address 7
           , (6, Rel' $ Rel [5,2] 4)
           , (7, Phrase' "foo")
@@ -121,7 +114,8 @@ test_replace = TestCase $ do
          , (1, Phrase' "dog")
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
-         , (4, Tplt' [7,3,7]) -- all changes involve address 7
+         , (4, Tplt' $ Tplt (Just 7) [3] (Just 7))
+           -- all changes involve address 7
          , (5, Rel' $ Rel [1,2] 4)
          , (6, Rel' $ Rel [5,2] 4)
          ] )
@@ -133,20 +127,21 @@ test_replace = TestCase $ do
          , (1, Phrase' "dog")
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
-         , (4, Tplt' [0,3,0])
+         , (4, Tplt' $ Tplt Nothing [3] Nothing)
          , (6, Rel' $ Rel [7,2] 4)
          , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
          ] )
 
   assertBool "todo : replace tplt" $
-    either (error "wut") id (R.replaceRefExpr (Tplt' [2,2,2]) 4 D.rslt)
+    either (error "wut") id
+    (R.replaceRefExpr (Tplt' $ Tplt (Just 2) [2] (Just 2)) 4 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
          , (1, Phrase' "dog")
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
          -- all changes involve address 7
-         , (7, Tplt' [2,2,2])
+         , (7, Tplt' $ Tplt (Just 2) [2] (Just 2))
          , (5, Rel' $ Rel [1,2] 7)
          , (6, Rel' $ Rel [5,2] 7)
          ] )
