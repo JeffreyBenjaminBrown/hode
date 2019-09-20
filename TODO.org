@@ -2,6 +2,8 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO `Role` needs extension, and the Rslt constructors need revision
+Two more Roles: LeftEdge and RightEdge.
 * TODO a new test fails
 ** the test is here:
 Hode.Test.Hash.THLookup.testFirstAbsent

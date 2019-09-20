@@ -15,10 +15,13 @@ import           Data.Set (Set)
 type Addr = Int -- ^ Address
 type Arity = Int
 
+-- | Joints in a `Tplt` (see below) can be interior or caps.
+data Cap = LeftCap | RightCap deriving (Eq, Ord, Read, Show)
+
 -- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"
 -- and "beef", and Tplt "_ like _".
-data Role = RoleTplt | RoleMember Int
+data Role = RoleTplt | RoleMember Int | RoleCap Cap
   deriving (Eq, Ord, Read, Show)
 type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the

@@ -45,6 +45,9 @@ r0 = mkRslt mempty
 
 -- | = a small `Rslt`
 
+rslt :: Rslt
+rslt = mkRslt refExprs
+
 refExprs :: Map Addr RefExpr
 refExprs = M.fromList
   [ (0, Phrase' "")
@@ -62,9 +65,6 @@ badRefExprs = M.union refExprs newData where
   newData = M.fromList [ (1001, Rel' $ Rel [1,2] 5)
                        , (1002, Rel' $ Rel [1,2] (-1000))
                        ]
-
-rslt :: Rslt
-rslt = mkRslt refExprs
 
 
 -- | a big, abstract `Rslt`

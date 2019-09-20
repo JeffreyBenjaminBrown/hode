@@ -79,12 +79,12 @@ test_has :: Test
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
     == Right ( M.fromList [ ( RoleMember 1, 0 )
-                         , ( RoleMember 2, 3 )
-                         , ( RoleMember 3, 0 ) ] )
+                          , ( RoleMember 2, 3 )
+                          , ( RoleMember 3, 0 ) ] )
   assertBool "rel" $ has D.rslt 5
     == Right ( M.fromList [ ( RoleMember 1, 1 )
-                         , ( RoleMember 2, 2 )
-                         , ( RoleTplt    , 4 ) ] )
+                          , ( RoleMember 2, 2 )
+                          , ( RoleTplt    , 4 ) ] )
   assertBool "no content" $ has D.rslt 0 == Right M.empty
   assertBool "absent" $ isLeft $ has D.rslt 7
 

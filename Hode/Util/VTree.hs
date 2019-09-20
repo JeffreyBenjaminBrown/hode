@@ -150,3 +150,4 @@ moveFocusInVorest d ((i,p),vor) = prefixLeft "moveFocusInVorest" $ do
   vor' <- let msg = "Impossible: i was already checked by inBounds'."
     in maybe (Left msg) Right $ modifyAt i (const t') vor
   Right ((i,p'), vor')
+
