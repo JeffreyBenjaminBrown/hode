@@ -73,8 +73,8 @@ hasInRole r rl a = prefixLeft "hasInRole: " $ do
   maybe (Left $ show a ++ "not found") Right x
 
 
--- | `isIn r a` finds the `RefExpr` `e` at `a` in `r`, and returns
--- every position that `re` occupies.
+-- | `isIn r a` finds the `RefExpr` at `a` in `r`, and returns
+-- every position that it occupies.
 isIn :: Rslt -> Addr -> Either String (Set (Role,Addr))
 isIn r a =
   prefixLeft "-> isIn" $ do

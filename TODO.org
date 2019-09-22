@@ -2,8 +2,13 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO bug in nHExpr
+nHExpr (mkRslt mempty) "# /_ # b"
+says b is member 3, but it should be 2
 * TODO bug in hExprToAddrs
-See Temp.hs.
+Maybe not -- first try the bug in nHExpr.
+If still present after solving that one, see Temp.hs.
+* TODO uncomment, fix everything in Hode.Hash involving pTplt
 * TODO LeftStrings can be more polymorphic
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions

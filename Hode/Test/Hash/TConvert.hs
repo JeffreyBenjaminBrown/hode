@@ -164,6 +164,17 @@ test_pathsToIts_sub_pRel = TestCase $ do
 test_pRelToHExpr :: Test
 test_pRelToHExpr = TestCase $ do
   let r = mkRslt mempty
+  assertBool "with an Absent" $ pRelToHExpr r
+    ( Open 1 [ Absent,
+               PNonRel Any,
+               PNonRel $ PExpr $ Phrase "b" ]
+      ["",""] ) ==
+    Right ( HMap $ M.fromList
+            [ ( RoleTplt,
+                HExpr $ ExprTplt $ Tplt
+                (Just $ Phrase "") [Phrase ""] Nothing ),
+              ( RoleMember 2,
+                HExpr $ Phrase "b") ] )
   assertBool "1" $ isLeft $ pRelToHExpr r Absent
   assertBool "2" $ pRelToHExpr r ( Closed
                                    [ pnrPhrase "a", pnrPhrase "b" ]

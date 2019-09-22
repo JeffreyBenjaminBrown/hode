@@ -131,27 +131,30 @@ hExprToAddrs :: Rslt -> Subst Addr -> HExpr ->
                 Either String (Set Addr)
 
 hExprToAddrs r s (HMap m) =
+  -- Strategy: Find every sub-Expr in m, and then find every Expr
+  -- that has one of those (level-1) sub-Exprs in each specified Role.
   prefixLeft "-> hExprToAddrs, called on HMap: " $ do
-    found :: Map Role (Set Addr) <-
-      prefixLeft ", calculating found"
+    permissible_members :: Map Role (Set Addr) <-
+      prefixLeft " calculating permissible_members: "
       $ ifLefts_map $ M.map (hExprToAddrs r s) m
 
-    let roleHostCandidates :: Role -> Set Addr -> Either String (Set Addr)
-        roleHostCandidates role as = do
-          -- The `as` are presumed to fill the role `role` in some host.
-          -- This returns all those hosts.
-          (roleHostPairs :: Set (Role, Addr)) <-
-            prefixLeft ",on HMap / f" $ S.unions
-             <$> ifLefts_set (S.map (isIn r) as )
+    let hostCandidates ::
+          Role -> Set Addr -> Either String (Set Addr)
+        hostCandidates role as = do
+          -- `m` says the `as` are acceptable to fill `role` in
+          -- some host. This returns all those hosts.
+          roleHostPairs :: Set (Role, Addr) <-
+            prefixLeft "at HMap / f: " $ S.unions <$>
+            ifLefts_set (S.map (isIn r) as)
           Right $ S.map snd
             $ S.filter ((==) role . fst) roleHostPairs
 
-    hosts :: Map Role (Set Addr) <-
-      prefixLeft ", calculating hosts"
-      $ ifLefts_map $ M.mapWithKey roleHostCandidates found
-    case null hosts of
-      True -> Right S.empty
-      False -> Right $ foldl1 S.intersection $ M.elems hosts
+    hcs :: Map Role (Set Addr) <-
+      prefixLeft "calculating hcs: " $ ifLefts_map $
+      M.mapWithKey hostCandidates permissible_members
+    case null hcs of
+      True  -> Right S.empty
+      False -> Right $ foldl1 S.intersection $ M.elems hcs
 
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval: " $ do

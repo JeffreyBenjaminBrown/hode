@@ -76,7 +76,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
           Right $ HMap $ M.insert RoleTplt (HExpr t)
             $ M.fromList hms'
 
--- | Using a recursion scheme for `pExprToHExpr` is hard.
+-- | PITFALL: Using a recursion scheme for `pExprToHExpr` is hard.
 -- c.f. the "WTF" comment below.
 --
 --  pExprToHExpr' :: PExpr -> Either String HExpr
@@ -168,7 +168,7 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
 
 
 pMapToHMap :: Rslt -> PMap -> Either String HMap
-pMapToHMap r = prefixLeft "-> pMapToHMap"
+pMapToHMap r = prefixLeft "pMapToHMap: "
   . ifLefts_map
   . M.map (pExprToHExpr r)
   . M.filter pExprIsSpecific
