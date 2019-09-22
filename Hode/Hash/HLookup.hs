@@ -100,16 +100,18 @@ hExprToExpr _ (HExpr e) = Right e
 
 hExprToExpr r h@(HMap mh) =
   prefixLeft "hExprToExpr, called on HMap: " $ do
-    (me :: Map Role Expr) <- ifLefts_map
-                             $ M.map (hExprToExpr r) mh
-    (t :: Expr) <-
-      maybe (Left $ "No Tplt in " ++ show h)
-      Right $ M.lookup RoleTplt me
-    case t of ExprTplt _ -> Right ()
-              x -> Left $ "hExprToExpr: in " ++ show h
-                   ++ ", the expression " ++ show x ++ " is not a Tplt."
+    me :: Map Role Expr <-
+      ifLefts_map $ M.map (hExprToExpr r) mh
+    t :: Expr <-
+      maybe (Left $ "No Tplt in " ++ show h) Right $
+      M.lookup RoleTplt me
+    case t of
+      ExprTplt _ -> Right ()
+      x -> Left $ "hExprToExpr: in " ++ show h
+        ++ ", the expression " ++ show x ++ " is not a Tplt."
     ta <- arity r t
-    if M.size (M.delete RoleTplt me) == ta then Right ()
+    if M.size (M.delete RoleTplt me) == ta
+      then Right ()
       else Left $ "hExprToExpr: arity mismatch between "
            ++ show h ++ " and its Tplt " ++ show t
     Right $ ExprRel $ Rel (M.elems $ M.delete RoleTplt me) t
