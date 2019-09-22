@@ -14,3 +14,4 @@ test_modules_hode_hash = TestList [
   test_module_hash_lookup,
   test_module_hash_parse
   ]
+

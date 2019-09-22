@@ -27,7 +27,8 @@ import Hode.Rslt.Edit.Initial
 -- NOTE: In any `[Aged Addr]`, the top expression's address
 -- precedes those of its children.
 exprToAddrInsert :: Rslt -> Expr -> Either String (Rslt, [Aged Addr])
-exprToAddrInsert r ei = do
+exprToAddrInsert r ei =
+  prefixLeft "exprToAddrInsert: " $ do
   let (mra :: Maybe Addr) = either (const Nothing) Just
                             $ exprToAddr r ei
   case mra of
@@ -44,12 +45,13 @@ exprToAddrInsert_rootNotFound _ (Addr a) =
   Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
 
 exprToAddrInsert_rootNotFound r0 (Phrase w) = do
+  prefixLeft "exprToAddrInsert_rootNotFound: " $ do
   a <- nextAddr r0
   r1 <- insertAt a (Phrase' w) r0
   Right (r1, [New a])
 
 exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
-  prefixLeft "exprToAddrInsert_rootNotFound" $ do
+  prefixLeft "exprToAddrInsert_rootNotFound: " $ do
   (r1 :: Rslt, as1 :: [Aged Addr]) <- case a of
     Nothing -> Right (r0,[])
     Just a' -> exprToAddrInsert r0 a'
@@ -89,7 +91,7 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
 exprToAddrInsert_list ::
   Rslt -> [Expr] -> Either String (Rslt, [[Aged Addr]])
 exprToAddrInsert_list r0 is =
-  prefixLeft "exprToAddrInsert_list" $ do
+  prefixLeft "exprToAddrInsert_list: " $ do
   let f :: Either String Rslt -> Expr
         -> (Either String Rslt, [Aged Addr])
       f (Left s) _ = (Left s, error "irrelevant")

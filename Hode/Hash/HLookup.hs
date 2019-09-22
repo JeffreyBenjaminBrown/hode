@@ -99,11 +99,11 @@ hExprToExpr :: Rslt -> HExpr -> Either String Expr
 hExprToExpr _ (HExpr e) = Right e
 
 hExprToExpr r h@(HMap mh) =
-  prefixLeft "-> hExprToExpr, called on HMap" $ do
+  prefixLeft "hExprToExpr, called on HMap: " $ do
     (me :: Map Role Expr) <- ifLefts_map
                              $ M.map (hExprToExpr r) mh
     (t :: Expr) <-
-      maybe (Left $ "hExprToExpr: no Tplt in " ++ show h)
+      maybe (Left $ "No Tplt in " ++ show h)
       Right $ M.lookup RoleTplt me
     case t of ExprTplt _ -> Right ()
               x -> Left $ "hExprToExpr: in " ++ show h
