@@ -7,6 +7,8 @@ import           Test.HUnit
 
 import           Hode.Rslt.RTypes
 import           Hode.Rslt.Show
+import           Hode.Rslt.Show.Util
+import           Hode.Rslt.Show.Wut
 import qualified Hode.Test.Rslt.RData as D
 
 
@@ -58,9 +60,10 @@ test_eShow = TestCase $ do
     (ExprTplt $ fmap Phrase $ Tplt (Just "a") ["b"] (Just "c"))
     == Right "a _ b _ c"
   assertBool "3" $ eShow D.rslt
-    ( ExprRel ( Rel ( map Phrase ["a","b"] )
-                $ ExprTplt $ fmap Phrase $
-                Tplt Nothing ["="] Nothing ) )
+    ( ExprRel $ Rel
+      [Phrase "a", Phrase "b"]
+      $ ExprTplt $ fmap Phrase $
+      Tplt Nothing ["="] Nothing )
     == Right "a #= b"
 
 test_hashUnlessEmptyStartOrEnd :: Test

@@ -47,3 +47,4 @@ test_exprFWithDepth = TestCase $ do
     ( exprFWithDepth $ toExprWith () $ e 1 ) == fe 1
   assertBool "1" $
     ( exprFWithDepth $ toExprWith () $ e 2 ) == fe 2
+

@@ -9,6 +9,7 @@ import           Test.HUnit
 
 import           Hode.Rslt.RLookup hiding (exprToAddr)
 import qualified Hode.Rslt.Edit.Initial as R
+import           Hode.Rslt.Index (mkRslt)
 import qualified Hode.Rslt.RLookup      as R
 import           Hode.Rslt.RTypes
 import qualified Hode.Test.Rslt.RData   as D
@@ -27,10 +28,10 @@ test_module_rslt_exprToAddr = TestList [
 
 test_unAddr :: Test
 test_unAddr = TestCase $ do
-  assertBool "" $ unAddr D.r0 (Addr 0) == Right (Phrase "")
-  assertBool "" $
-    unAddrRec D.r0 ( ExprRel $ Rel
-                     [ Addr 0, Phrase "dog" ] $ Phrase "" ) ==
+  assertBool "" $ unAddr (mkRslt mempty) (Addr 0) == Right (Phrase "")
+  assertBool "" $ ( unAddrRec (mkRslt mempty)
+                    $ ExprRel $ Rel
+                    [ Addr 0, Phrase "dog" ] $ Phrase "" ) ==
     Right (ExprRel $ Rel [ Phrase "", Phrase "dog" ] $ Phrase "")
 
 test_refExprToExpr :: Test
@@ -62,9 +63,8 @@ test_exprToAddr = TestCase $ do
                      $ Tplt' (Tplt Nothing [3] Nothing))
     == Right 4
   assertBool "5" $ Right 4 ==
-    R.exprToAddr D.rslt ( ExprTplt $ Tplt (Just $ Addr 0)
-                                          [Phrase "needs"]
-                                          (Just $ Phrase "") )
+    R.exprToAddr D.rslt ( ExprTplt $ Tplt
+                          Nothing [Phrase "needs"] Nothing )
 
   assertBool "6" $ Right 5 ==
     R.exprToAddr D.rslt ( ExprRel $ Rel [ Addr 1
@@ -78,9 +78,10 @@ test_exprToAddr = TestCase $ do
 test_has :: Test
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
-    == Right ( M.fromList [ ( RoleMember 1, 0 )
-                          , ( RoleMember 2, 3 )
-                          , ( RoleMember 3, 0 ) ] )
+    == Right ( M.fromList [ ( RoleMember 1, 3 ) ] )
+  assertBool "tplt" $ has D.rslt_rightCapped 4
+    == Right ( M.fromList [ ( RoleCap CapRight, 1),
+                            ( RoleMember 1, 3 ) ] )
   assertBool "rel" $ has D.rslt 5
     == Right ( M.fromList [ ( RoleMember 1, 1 )
                           , ( RoleMember 2, 2 )
@@ -91,8 +92,10 @@ test_has = TestCase $ do
 test_isIn :: Test
 test_isIn = TestCase $ do
   assertBool "1" $ isIn D.rslt 0
-    == Right ( S.fromList [ (RoleMember 1, 4)
-                          , (RoleMember 3, 4) ] )
+    == Right mempty
+  assertBool "1" $ isIn D.rslt_rightCapped 1
+    == Right ( S.fromList [ (RoleMember 1, 5),
+                            (RoleCap CapRight, 4) ] )
   assertBool "2" $ isIn D.rslt 4
     == Right ( S.fromList [ (RoleTplt, 5)
                           , (RoleTplt, 6) ] )
@@ -102,10 +105,12 @@ test_isIn = TestCase $ do
 
 test_fills :: Test
 test_fills = TestCase $ do
-  assertBool "1st in tplt"
-    $ fills D.rslt (RoleMember 1, 4) == Right 0
-  assertBool "2nd in tplt"
-    $ fills D.rslt (RoleMember 2, 4) == Right 3
+  assertBool "tplt has no left cap" $ isLeft $
+    fills D.rslt (RoleCap CapLeft, 4)
+  assertBool "1st in tplt" $
+    fills D.rslt (RoleMember 1, 4) == Right 3
+  assertBool "2nd in tplt" $ isLeft $
+    fills D.rslt (RoleMember 2, 4)
   assertBool "1st in rel"
     $ fills D.rslt (RoleMember 2, 5) == Right 2
   assertBool "2nd in rel"

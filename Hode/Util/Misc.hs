@@ -18,6 +18,7 @@ module Hode.Util.Misc (
                                 -- -> St -> Either String St
 
    -- | = collections
+  , zip'               -- ^ [a] -> [a] -> [a]
   , intersections      -- ^ Set (Set a) -> Set a
   , replaceNth         -- ^ a -> Int -> [a] -> Either String [a]
   , replaceLast        -- ^ a -> [a] -> Either String [a]
@@ -87,6 +88,13 @@ eitherIntoLens l f st = do b' <- f $ st ^. l
 
 
 -- | = Collections
+
+-- | Like zip. If the first list has one more element than the second,
+-- all elements will still be used.
+zip' :: [a] -> [a] -> [a]
+zip' (a:as) (b:bs) = a : b : zip' as bs
+zip' [a] [] = [a]
+zip' [] _ = []
 
 -- | PITFALL: In math, the intersection of the empty set is the entire
 -- universe, just like `and [] == True`. But that's impractical.
@@ -181,4 +189,3 @@ ifLefts_mapKeys m = let
   in case null lefts of
        True -> Right $ M.mapKeys (fromRight impossible) m
        False -> Left $ concat $ S.map (fromLeft impossible) lefts
-

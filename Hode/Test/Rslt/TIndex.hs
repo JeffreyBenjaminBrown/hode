@@ -19,14 +19,7 @@ test_module_rslt_index = TestList [
 
 test_mkRslt :: Test
 test_mkRslt = TestCase $ do
-  assertBool "D.rslt" $
-    mkRslt (M.fromList [ (0, Phrase' "")
-                       , (1, Phrase' "dog")
-                       , (2, Phrase' "oxygen")
-                       , (3, Phrase' "needs")
-                       , (4, Tplt'$ Tplt Nothing [3] $ Just 1)
-                       , (5, Rel' $ Rel [1,2] 4)
-                       , (6, Rel' $ Rel [5,2] 4) ] )
+  assertBool "D.rslt" $ D.rslt_rightCapped
     == Rslt {
     _addrToRefExpr = M.fromList
       [(0,Phrase' "")

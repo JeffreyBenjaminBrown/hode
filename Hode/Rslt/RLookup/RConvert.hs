@@ -2,7 +2,13 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.RLookup.RConvert where
+module Hode.Rslt.RLookup.RConvert (
+    refExprToExpr -- ^ Rslt -> RefExpr -> Either String Expr
+  , addrToExpr    -- ^ Rslt -> Addr    -> Either String Expr
+  , exprToAddr    -- ^ Rslt -> Expr    -> Either String Addr
+  , addrToRefExpr -- ^ Rslt -> Addr    -> Either String RefExpr
+  , refExprToAddr -- ^ Rslt -> RefExpr -> Either String Addr
+  ) where
 
 import qualified Data.Map       as M
 
@@ -28,7 +34,9 @@ refExprToExpr r (Rel' (ras :: Rel Addr)) =
     Right $ ExprRel res
 
 
--- | == Lookup from an `Expr`
+addrToExpr :: Rslt -> Addr -> Either String Expr
+addrToExpr r a = addrToRefExpr r a >>= refExprToExpr r
+
 
 -- | `exprToAddr r e` converts every sub-`Expr` of `e` into a `RefExpr`,
 -- and then uses `refExprToAddr`.
@@ -48,16 +56,11 @@ exprToAddr r e = prefixLeft "exprToAddr: " $
       refExprToAddr r $ Rel' rr
 
 
--- | == Lookup from `Addr`s or `RefExpr`s. (These are convenience
--- functions for Map.exprToAddr applied to an Rslt field.)
-
 addrToRefExpr :: Rslt -> Addr -> Either String RefExpr
 addrToRefExpr r a =
   maybe (Left $ "addrToRefExpr: Addr " ++ show a ++ " absent.\n") Right
   $ M.lookup a $ _addrToRefExpr r
 
-addrToExpr :: Rslt -> Addr -> Either String Expr
-addrToExpr r a = addrToRefExpr r a >>= refExprToExpr r
 
 refExprToAddr :: Rslt -> RefExpr -> Either String Addr
 refExprToAddr r e = maybe err Right $

@@ -63,6 +63,8 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
+                , Hode.Rslt.Show.Util
+                , Hode.Rslt.Show.Wut
 --                , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
 --                , Hode.Test.Hash.TTransitive
@@ -80,7 +82,7 @@ library
 --                , Hode.Test.Rslt.TEdit
 --                , Hode.Test.Rslt.TIndex_and_Valid
 --                , Hode.Test.Rslt.TLookup
---                , Hode.Test.Rslt.TShow
+                , Hode.Test.Rslt.TShow
 --                , Hode.Test.TBrick
 --                , Hode.Test.TGraph
                 , Hode.Test.Main

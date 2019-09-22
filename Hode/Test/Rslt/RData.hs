@@ -1,11 +1,11 @@
 module Hode.Test.Rslt.RData (
     test_the_rslt_test_data -- ^ Test
-  , r0          -- ^ Rslt
-  , refExprs    -- ^ Map Addr RefExpr
-  , badRefExprs -- ^ Map Addr RefExpr
-  , rslt        -- ^ Rslt
-  , big         -- ^ Rslt
-  , b2          -- ^ Rslt
+  , refExprs                -- ^ Map Addr RefExpr
+  , badRefExprs             -- ^ Map Addr RefExpr
+  , rslt                    -- ^ Rslt
+  , rslt_rightCapped        -- ^ Rslt
+  , big                     -- ^ Rslt
+  , b2                      -- ^ Rslt
   ) where
 
 import           Data.Map (Map)
@@ -34,12 +34,6 @@ test_the_rslt_test_data = TestList [
   ]
 
 
--- | = the smallest `Rslt`
-
-r0 :: Rslt
-r0 = mkRslt mempty
-
-
 -- | = a small `Rslt`
 
 rslt :: Rslt
@@ -62,6 +56,18 @@ badRefExprs = M.union refExprs newData where
   newData = M.fromList [ (1001, Rel' $ Rel [1,2] 5)
                        , (1002, Rel' $ Rel [1,2] (-1000))
                        ]
+
+
+-- | Just like `rslt`, but the template has a right cap
+rslt_rightCapped :: Rslt
+rslt_rightCapped = mkRslt $ M.fromList
+  [ (0, Phrase' "")
+  , (1, Phrase' "dog")
+  , (2, Phrase' "oxygen")
+  , (3, Phrase' "needs")
+  , (4, Tplt'$ Tplt Nothing [3] $ Just 1)
+  , (5, Rel' $ Rel [1,2] 4)
+  , (6, Rel' $ Rel [5,2] 4) ]
 
 
 -- | a big, abstract `Rslt`
