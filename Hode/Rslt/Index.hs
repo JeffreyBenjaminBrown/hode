@@ -60,13 +60,10 @@ refExprPositions :: RefExpr -> [(Role,Addr)]
 refExprPositions expr =
   case expr of
     Phrase' _          -> []
-    Tplt' (Tplt fore joints aft) ->
-      -- TODO ? I'm not sure this makes sense.
-      -- They used to start at 1.
-      fmap (first RoleMember)
-      ( maybeToList ((0                ,) <$> fore) ++
-        zip [1..] joints                            ++
-        maybeToList ((length joints + 1,) <$> aft ) )
+    Tplt' (Tplt a bs c) -> a' ++ bs' ++ c' where
+      a' = maybeToList $ fmap (RoleCap CapLeft,) a
+      bs' = map (first RoleMember) $ zip [1..] bs
+      c' = maybeToList $ fmap (RoleCap CapRight,) c
     Rel'  (Rel mas ta) ->
       (RoleTplt,ta) :
       map (first RoleMember) (zip [1..] mas)
