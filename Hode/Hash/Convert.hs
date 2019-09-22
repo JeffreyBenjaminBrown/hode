@@ -62,11 +62,11 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
 
         ms' :: [(Role, (PRel, Either String HExpr))]
         ms' = let keep :: PRel -> Bool
-                  keep Absent       = False
                   keep (PNonRel px) = pExprIsSpecific px
                   keep _            = True
           in filter (keep . fst . snd)
-             $ zip (map RoleMember [1..]) ms
+             $ zip (map RoleMember [1..])
+             $ filter (not . (==) Absent . fst) ms
         hms :: [(Role, Either String HExpr)]
         hms = map (second snd) ms'
 
