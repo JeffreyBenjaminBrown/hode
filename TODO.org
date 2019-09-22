@@ -4,36 +4,7 @@
 ** update
 * TODO `Role` needs extension, and the Rslt constructors need revision
 ** To find where to start when revising Hode.Rslt
-grep -c "import.*Hode.Rslt" -r | sort -n -k2 -t:
-** change RUtil.replaceNth_tplt
-Should take a Role, not an Int.
-* TODO a new test fails
-** the test is here:
-Hode.Test.Hash.THLookup.testFirstAbsent
-** TODO It seems like a type problem.
-That is, a data (type) problem, not just a logic (function) problem.
-*** the ambiguity
-Consider this test (which passes):
-  assertBool "2" $ pRelToHExpr r ( Closed
-                                   [ pnrPhrase "a", pnrPhrase "b" ]
-                                   [ "is" ] )
-    == Right ( HMap $ M.fromList
-               [ ( RoleTplt, HExpr $ ExprTplt $ map Phrase [ "", "is", "" ] )
-               , ( RoleMember 1, HExpr $ Phrase "a" )
-               , ( RoleMember 2, HExpr $ Phrase "b" ) ] )
-The pRel is unambiguous, but
-the HMap could represent any of these binary relationships:
-  "# a #is b #"
-  "a #is b #"
-  "#a #is b"
-  "a #is b"
-*** possible solutions
-**** TODO each template has a mandatory first and last Maybe
-An n-ary template has n-1 other fields, in a list.
-**** uglier: keep using "" rather than Nothing
-This means, I suspect, ruling out some kinds of relationships.
-** the lowest function in which the problem appears
-pRelToHExpr :: Rslt -> PRel -> Either String HExpr
+grep -c "import.*Hode.Rslt" -r Rslt/ | sort -n -k2 -t:
 * TODO LeftStrings can be more polymorphic
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions

@@ -8,6 +8,7 @@ TupleSections
 
 module Hode.Rslt.Index where
 
+import           Control.Arrow (first)
 import           Data.Maybe
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -57,23 +58,25 @@ imgDb = M.fromList . catMaybes . map (Just . swap) . M.toList where
 
 refExprPositions :: RefExpr -> [(Role,Addr)]
 refExprPositions expr =
-  let r :: (Int, Addr) -> (Role, Addr)
-      r (n,a) = (RoleMember n, a)
-  in case expr of
+  case expr of
     Phrase' _          -> []
     Tplt' (Tplt fore joints aft) ->
       -- TODO ? I'm not sure this makes sense.
       -- They used to start at 1.
-      fmap r ( maybeToList ((0                ,) <$> fore) ++
-               zip [1..] joints                            ++
-               maybeToList ((length joints + 1,) <$> aft ) )
-    Rel'  (Rel mas ta) -> (RoleTplt,ta) :
-                          map r (zip [1..] mas)
+      fmap (first RoleMember)
+      ( maybeToList ((0                ,) <$> fore) ++
+        zip [1..] joints                            ++
+        maybeToList ((length joints + 1,) <$> aft ) )
+    Rel'  (Rel mas ta) ->
+      (RoleTplt,ta) :
+      map (first RoleMember) (zip [1..] mas)
 
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map
 -- from addresses to the set of roles they play in other expressions, ras is
 -- the set of roles in a, and a is not a key of m.
+-- The map returned is like the input map, but extended by the information
+-- in the pair.
 
 invertAndAddPositions :: Map Addr (Set (Role, Addr))
                       -> (Addr,       [(Role, Addr)])

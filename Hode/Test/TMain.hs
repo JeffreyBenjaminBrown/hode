@@ -31,19 +31,21 @@ tests = runTestTT $ TestList
   , testModuleQueryClassify
   , testModuleSubst
   , test_module_Program
+  , test_modules_leaf
+  , test_module_query
+--  , test_module_rsltProgram
+
+  , test_module_pTree
+
 --  , test_module_hash_convert
 --  , test_module_hash_parse
 --  , test_module_hash_hlookup_transitive
 --  , test_module_hode_brick
-  , test_module_pTree
-  , test_module_query
---  , test_module_rsltProgram
+  , test_the_rslt_test_data
+  , test_module_rslt_index_and_valid
+  , test_module_rslt_show
   , test_module_rslt_edit
   , test_module_rslt_exprToAddr
 --  , test_module_rslt_hash
-  , test_module_rslt_index_and_valid
-  , test_module_rslt_show
 --  , test_module_ui
-  , test_modules_leaf
-  , test_the_rslt_test_data
   ]
