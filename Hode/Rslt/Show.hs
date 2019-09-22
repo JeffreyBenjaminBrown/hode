@@ -31,11 +31,10 @@ eShow r = prefixLeft "eShow: " . para f where
 
   f (ExprTpltF pairs) =
     prefixLeft ", called on ExprTplt: " $ do
-      Tplt a bs c <- ifLefts $ fmap snd pairs
-      let a' = maybe "" id a
-          c' = maybe "" id c
-      Right ( trimString $ concat $ L.intersperse " _ "
-              $ [a'] ++ bs ++ [c'] )
+      Tplt ma bs mc <- ifLefts $ fmap snd pairs
+      Right $ L.intercalate " " ( maybeToList ma ++
+                                  zip' (repeat "_") bs ++
+                                  maybeToList mc )
 
   f relf@(ExprRelF (Rel ms (ExprTplt t0,_))) =
     -- The recursive argument (second member of the pair) for the Tplt

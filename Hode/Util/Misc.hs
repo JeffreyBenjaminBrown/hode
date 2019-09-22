@@ -93,7 +93,7 @@ eitherIntoLens l f st = do b' <- f $ st ^. l
 -- all elements will still be used.
 zip' :: [a] -> [a] -> [a]
 zip' (a:as) (b:bs) = a : b : zip' as bs
-zip' [a] [] = [a]
+zip' (a:_) [] = [a]
 zip' [] _ = []
 
 -- | PITFALL: In math, the intersection of the empty set is the entire
