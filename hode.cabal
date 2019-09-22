@@ -36,14 +36,14 @@ library
                 , Hode.Data.Graph
                 , Hode.Data.Map
                 -- , Hode.Data.Relation
---                , Hode.Hash.Convert
---                , Hode.Hash.EitherExpr
---                , Hode.Hash.HLookup
---                , Hode.Hash.HParse
---                , Hode.Hash.HToRslt
---                , Hode.Hash.HTypes
---                , Hode.Hash.HUtil
---                , Hode.Hash.Hash
+                , Hode.Hash.Convert
+                , Hode.Hash.EitherExpr
+                , Hode.Hash.HLookup
+                , Hode.Hash.HParse
+                , Hode.Hash.HToRslt
+                , Hode.Hash.HTypes
+                , Hode.Hash.HUtil
+                , Hode.Hash.Hash
                 , Hode.Qseq.MkLeaf
                 , Hode.Qseq.QTypes
                 , Hode.Qseq.QValid
@@ -67,10 +67,10 @@ library
                 , Hode.Rslt.Show.Wut
                 , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
---                , Hode.Test.Hash.TTransitive
---                , Hode.Test.Hash.TConvert
---                , Hode.Test.Hash.THLookup
---                , Hode.Test.Hash.TParse
+                , Hode.Test.Hash.TTransitive
+                , Hode.Test.Hash.TConvert
+                , Hode.Test.Hash.THLookup
+                , Hode.Test.Hash.TParse
 --                , Hode.Test.Qseq.TLeaf
 --                , Hode.Test.Qseq.TProgram
 --                , Hode.Test.Qseq.TQuery

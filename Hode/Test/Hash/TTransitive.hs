@@ -32,8 +32,8 @@ test_hLookup_hTrans = TestCase $ do
       Right b0 = exprToAddr r $ Phrase "b0"
       -- Right b1 = exprToAddr r $ Phrase "b1"
       Right b2 = exprToAddr r $ Phrase "b2"
-      Right t  = exprToAddr r $ ExprTplt $
-                 map Phrase [ "", "", "" ]
+      Right t  = exprToAddr r $ ExprTplt $ Tplt
+                 Nothing [Phrase ""] Nothing
       
       Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "a0 # a1"
@@ -64,8 +64,8 @@ test_hLookup_hReach = TestCase $ do
       Right n1 = exprToAddr r $ Phrase "1"
       Right n2 = exprToAddr r $ Phrase "2"
       Right n3 = exprToAddr r $ Phrase "3"
-      Right t  = exprToAddr r $ ExprTplt $
-                 map Phrase [ "", "lte", "" ]
+      Right t  = exprToAddr r $ ExprTplt $ Tplt
+                 Nothing [Phrase "lte"] Nothing
 
       Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "0 #lte 1"
@@ -88,8 +88,8 @@ test_transitiveClsoure = TestCase $ do
       Right n1 = exprToAddr r $ Phrase "1"
       Right n2 = exprToAddr r $ Phrase "2"
       Right n3 = exprToAddr r $ Phrase "3"
-      Right t  = exprToAddr r $ ExprTplt $
-                 map Phrase [ "", "lte", "" ]
+      Right t  = exprToAddr r $ ExprTplt $ Tplt
+                 Nothing [Phrase "lte"] Nothing
 
       Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "0 #lte 1"
@@ -113,8 +113,8 @@ test_transitiveRels = TestCase $ do
       Right x  = exprToAddr r $ Phrase "x"
       -- Right c  = exprToAddr r $ Phrase "c"
       -- Right d  = exprToAddr r $ Phrase "d"
-      Right t  = exprToAddr r $ ExprTplt $
-                 map Phrase [ "", "", "" ]
+      Right t  = exprToAddr r $ ExprTplt $ Tplt
+                 Nothing [Phrase ""] Nothing
 
       Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "a # b"
@@ -141,8 +141,8 @@ test_reachable = TestCase $ do
       Right b2 = exprToAddr r $ Phrase "b2"
       Right x  = exprToAddr r $ Phrase "x"
       Right c  = exprToAddr r $ Phrase "c"
-      Right t  = exprToAddr r $ ExprTplt $
-                 map Phrase [ "", "", "" ]
+      Right t  = exprToAddr r $ ExprTplt $ Tplt
+                 Nothing [Phrase ""] Nothing
 
       Right (r :: Rslt) = nInserts (mkRslt mempty)
                           [ "a # b"

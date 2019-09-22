@@ -76,8 +76,8 @@ test_HEval :: Test
 test_HEval = TestCase $ do
   let a_hash_b = HMap
         ( M.fromList
-          [ ( RoleTplt,
-              HExpr ( ExprTplt [Phrase "",Phrase "",Phrase ""])),
+          [ ( RoleTplt,     HExpr $ ExprTplt $ Tplt
+                            Nothing [Phrase ""] Nothing ),
             ( RoleMember 1, HExpr $ Phrase "a"),
             ( RoleMember 2, HExpr $ Phrase "b")])
 
@@ -86,8 +86,8 @@ test_HEval = TestCase $ do
       parse pPExpr "" "/eval (/it= a # b) # c" ) ==
     ( Right $ Right $ HEval
       ( HMap ( M.fromList
-               [ ( RoleTplt,
-                   HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""]) )
+               [ ( RoleTplt,     HExpr $ ExprTplt $ Tplt
+                                 Nothing [Phrase ""] Nothing )
                , ( RoleMember 1, a_hash_b),
                  ( RoleMember 2, HExpr $ Phrase "c") ]))
       [[RoleMember 1]] )
@@ -97,8 +97,8 @@ test_HEval = TestCase $ do
       parse pPExpr "" "/eval c # (/it= a # b)" ) ==
     ( Right $ Right $ HEval
       ( HMap ( M.fromList
-               [ ( RoleTplt,
-                   HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""]) )
+               [ ( RoleTplt,     HExpr $ ExprTplt $ Tplt
+                                 Nothing [Phrase ""] Nothing )
                , ( RoleMember 2, a_hash_b),
                  ( RoleMember 1, HExpr $ Phrase "c") ]))
       [[RoleMember 2]] )
@@ -169,7 +169,8 @@ test_pRelToHExpr = TestCase $ do
                                    [ pnrPhrase "a", pnrPhrase "b" ]
                                    [ "is" ] )
     == Right ( HMap $ M.fromList
-               [ ( RoleTplt, HExpr $ ExprTplt $ map Phrase [ "", "is", "" ] )
+               [ ( RoleTplt, HExpr $ ExprTplt $ Tplt
+                             Nothing [Phrase "is"] Nothing )
                , ( RoleMember 1, HExpr $ Phrase "a" )
                , ( RoleMember 2, HExpr $ Phrase "b" ) ] )
   assertBool "3" $ let meh = error "irrelevant"
@@ -184,14 +185,14 @@ test_pRelToHExpr = TestCase $ do
       [ "is", "because" ] )
     == Right
     ( HMap $ M.fromList
-      [ ( RoleTplt
-        , HExpr $ ExprTplt $ map Phrase ["", "is", "because", "" ] )
+      [ ( RoleTplt,     HExpr $ ExprTplt $ Tplt
+                        Nothing (map Phrase ["is", "because"]) Nothing )
       , ( RoleMember 1, HExpr $ Phrase "a" )
       , ( RoleMember 2, HMap $ M.fromList
-                        [ ( RoleTplt    , ( HExpr $ ExprTplt $ map Phrase
-                                            [ "","to", "" ] ) )
-                        , ( RoleMember 1, HExpr $ Phrase "c" )
-                        , ( RoleMember 2, HExpr $ Phrase "d" ) ] )
+          [ ( RoleTplt,   ( HExpr $ ExprTplt $ Tplt
+                            Nothing [Phrase "to"] Nothing ) )
+          , ( RoleMember 1, HExpr $ Phrase "c" )
+          , ( RoleMember 2, HExpr $ Phrase "d" ) ] )
       , ( RoleMember 3, HExpr $ Phrase "b" ) ] )
 
 test_pExprToHExpr :: Test
@@ -199,12 +200,14 @@ test_pExprToHExpr = TestCase $ do
   let r = mkRslt mempty
   assertBool "1" $ ( pExprToHExpr r
                      ( PEval $ PMap $ M.fromList
-                       [ ( RoleTplt, PExpr $ ExprTplt [ Phrase "is" ] )
+                       [ ( RoleTplt, PExpr $ ExprTplt $ Tplt
+                           Nothing [Phrase "is"] Nothing )
                        , ( RoleMember 1, It Nothing ) ] ) )
     == Right ( HEval
                ( HMap $ M.fromList
                  [ ( RoleTplt
-                   , HExpr ( ExprTplt [ Phrase "is" ] ) ) ] )
+                   , HExpr ( ExprTplt $ Tplt
+                             Nothing [Phrase "is"] Nothing) ) ] )
                [ [ RoleMember 1 ] ] )
 
   assertBool "2" $
@@ -217,8 +220,9 @@ test_pExprToHExpr = TestCase $ do
       [ "enjoy", "because" ]
     ) == Right ( HEval
                  ( HMap $ M.fromList
-                   [ ( RoleTplt, ( HExpr $ ExprTplt $ map Phrase
-                                   ["", "enjoy", "because", "" ] ) )
+                   [ ( RoleTplt, ( HExpr $ ExprTplt $ Tplt Nothing
+                                   (map Phrase ["enjoy", "because"])
+                                   Nothing ) )
                    , ( RoleMember 1, HMap $ M.singleton
                                      ( RoleMember 1 )
                                      $ HExpr $ Phrase "bugs" ),
@@ -230,7 +234,7 @@ test_pExprToHExpr = TestCase $ do
       parse pReach "" "/tr a # /_" ) ==
     ( Right $ Right $
       HReach SearchRightward
-      (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      ( HExpr $ ExprTplt $ Tplt Nothing [Phrase ""] Nothing)
       (HExpr $ Phrase "a"))
 
   assertBool "HReach leftward" $
@@ -238,14 +242,14 @@ test_pExprToHExpr = TestCase $ do
       parse pReach "" "/tr /_ # a" ) ==
     ( Right $ Right $
       HReach SearchLeftward
-      (HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      ( HExpr $ ExprTplt $ Tplt Nothing [Phrase ""] Nothing)
       (HExpr $ Phrase "a"))
 
   assertBool "HTrans leftward, return leftward items" $
     ( pExprToHExpr (mkRslt mempty) <$>
       parse pPExpr "" "/trl (/it= a) # b" ) ==
     ( Right $ Right $ HTrans SearchLeftward [SearchLeftward]
-      ( HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      ( HExpr $ ExprTplt $ Tplt Nothing [Phrase ""] Nothing)
       ( HExpr $ Phrase "a")
       ( HExpr $ Phrase "b") )
 
@@ -253,7 +257,7 @@ test_pExprToHExpr = TestCase $ do
     ( pExprToHExpr (mkRslt mempty) <$>
       parse pPExpr "" "/trr (/it= a) # b" ) ==
     ( Right $ Right $ HTrans SearchRightward [SearchLeftward]
-      ( HExpr $ ExprTplt [Phrase "",Phrase "",Phrase ""])
+      ( HExpr $ ExprTplt $ Tplt Nothing [Phrase ""] Nothing)
       ( HExpr $ Phrase "b")
       ( HExpr $ Phrase "a") )
 

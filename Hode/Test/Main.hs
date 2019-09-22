@@ -4,10 +4,10 @@ module Hode.Test.Main where
 
 import           Test.HUnit hiding (Test)
 
---import Hode.Test.Hash.TConvert
---import Hode.Test.Hash.THLookup
---import Hode.Test.Hash.TParse
---import Hode.Test.Hash.TTransitive
+import Hode.Test.Hash.TConvert
+import Hode.Test.Hash.THLookup
+import Hode.Test.Hash.TParse
+import Hode.Test.Hash.TTransitive
 import Hode.Test.Qseq.TLeaf
 import Hode.Test.Qseq.TProgram
 import Hode.Test.Qseq.TQuery
@@ -35,11 +35,11 @@ tests = runTestTT $ TestList
   , test_modules_hode_rslt
   , test_module_pTree
 
---  , test_module_hash_convert
---  , test_module_hash_parse
---  , test_module_hash_hlookup_transitive
---  , test_module_hode_brick
+  , test_module_hash_convert
+  , test_module_hash_parse
+  , test_module_hash_hlookup_transitive
+  , test_module_hash_lookup
 
---  , test_module_rslt_hash
+--  , test_module_hode_brick
 --  , test_module_ui
   ]

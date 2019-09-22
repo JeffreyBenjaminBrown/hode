@@ -67,11 +67,13 @@ test_hashIdentifier = TestCase $ do
 
 test_parse_tplt :: Test
 test_parse_tplt = TestCase $ do
-  assertBool "non-present joints are represented as \\\"\\\""
-    $ parse _pTplt "" "sees (whenever there is) \"\" "
-    == Right ( ExprTplt [ Phrase "sees"
-                        , Phrase "whenever there is"
-                        , Phrase "" ] )
+  assertBool "re-enable me" False
+--  assertBool "non-present joints are represented as \\\"\\\""
+--    $ parse _pTplt "" "sees (whenever there is) \"\" "
+--    == Right ( ExprTplt $ Tplt
+--               (Just $ Phrase "sees")
+--               [Phrase "whenever there is"]
+--               (Just $ Phrase "" ) )
 
 test_parse_hExpr :: Test
 test_parse_hExpr = TestCase $ do
@@ -82,7 +84,7 @@ test_parse_hExpr = TestCase $ do
       >>= pExprToHExpr r)
     == ( Right $ HMap $ M.fromList
          [ ( RoleTplt
-           , HExpr $ ExprTplt [ Phrase "",Phrase "e",Phrase "" ] )
+           , HExpr $ ExprTplt $ Tplt Nothing [Phrase "e"] Nothing )
          , ( RoleMember 2
            , HExpr $ Phrase "w" ) ] )
 
@@ -99,9 +101,10 @@ test_parse_pPExpr = TestCase $ do
     ( PMap $ M.fromList
       [ ( RoleMember 1, PExpr $ Phrase "a" )
       , ( RoleMember 2, PExpr $ Phrase "b" )
-      , ( RoleTplt, PExpr $ ExprTplt $ map Phrase
-          ["sees","whenever there is","because"] )
-      ] )
+      , ( RoleTplt, PExpr $ ExprTplt $ Tplt
+          (Just $ Phrase "sees")
+          [Phrase "whenever there is"]
+          (Just $ Phrase "because") ) ] )
 
   assertBool "any" $ parse pAny "any" "/_ "
     == Right Any

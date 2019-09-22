@@ -21,8 +21,8 @@ module Hode.Hash.HParse (
   , pAddr          -- ^ Parser Expr
   , pAddrs         -- ^ Parser PExpr
   , pPhrase        -- ^ Parser PExpr
-  , pTplt          -- ^ Parser Expr
-  , _pTplt         -- ^ Parser Expr
+--  , pTplt          -- ^ Parser Expr
+--  , _pTplt         -- ^ Parser Expr
   , pMap           -- ^ Parser PExpr
   , pEval          -- ^ Parser PExpr
   , pVar           -- ^ Parser PExpr
@@ -107,7 +107,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , pAddrs
        , PExpr <$> pAddr
        , pPhrase
-       , PExpr <$> pTplt
+--       , PExpr <$> pTplt
 
          -- other constructors
        , pReach
@@ -167,23 +167,25 @@ pAddrs = do
 pPhrase :: Parser PExpr
 pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
-pTplt :: Parser Expr
-pTplt = lexeme  ( foldr1 (<|>)
-                  $ map (try . precisely) ["/tplt","/t"] )
-        >> _pTplt
-
-_pTplt :: Parser Expr
-_pTplt = lexeme $ ExprTplt . map Phrase
-         <$> some (hashIdentifier <|> hashPhrase <|> parens hashPhrase)
+--pTplt :: Parser Expr
+--pTplt = lexeme  ( foldr1 (<|>)
+--                  $ map (try . precisely) ["/tplt","/t"] )
+--        >> _pTplt
+--
+--_pTplt :: Parser Expr
+--_pTplt = lexeme $ ExprTplt . map Phrase
+--         <$> some (hashIdentifier <|> hashPhrase <|> parens hashPhrase)
 
 pMap :: Parser PExpr
 pMap = lexeme (precisely "/map" <|> precisely "/roles")
-       >> PMap . M.fromList <$> some (lexeme $ parens $ pMbr <|> pTplt')
+       >> PMap . M.fromList <$> some (lexeme $ parens $ pMbr
+--                                      <|> pTplt'
+                                     )
   where
-    pTplt', pMbr :: Parser (Role, PExpr)
-    pTplt' = do void $ lexeme $ precisely "tplt"
-                t <- _pTplt
-                return ( RoleTplt    , PExpr t )
+--    pTplt', pMbr :: Parser (Role, PExpr)
+--    pTplt' = do void $ lexeme $ precisely "tplt"
+--                t <- _pTplt
+--                return ( RoleTplt    , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
                 x <- pPExpr
                 return ( RoleMember i, x       )

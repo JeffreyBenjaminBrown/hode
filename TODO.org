@@ -3,6 +3,11 @@
 ** reduce redunddancy in views
 ** update
 * TODO `Role` needs extension, and the Rslt constructors need revision
+** TODO Next
+Rewrite Hode.Hash.HParse.*pTplt
+  Search the text for every instance of pTplt; 
+  they are currently all disabled.
+Re-enable Test.Hash.TParse.test_parse_tplt
 ** To find where to start when revising Hode.Rslt
 grep -c "import.*Hode.Rslt" -r Rslt/ | sort -n -k2 -t:
 * TODO LeftStrings can be more polymorphic

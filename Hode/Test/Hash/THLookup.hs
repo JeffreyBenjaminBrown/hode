@@ -22,8 +22,8 @@ import qualified Hode.Test.Rslt.RData as D
 vs :: String -> Var
 vs = VarString
 
-test_module_rslt_hash :: Test
-test_module_rslt_hash = TestList [
+test_module_hash_lookup :: Test
+test_module_hash_lookup = TestList [
     TestLabel "test_subExprs" test_subExprs
   , TestLabel "test_hExprToAddrs" test_hExprToAddrs
   , TestLabel "test_hExprToExpr" test_hExprToExpr
@@ -38,10 +38,10 @@ testFirstAbsent = TestCase $ do
         [Absent,PNonRel Any,PNonRel $ PExpr $ Phrase "a"]
         ["",""]
       hGood :: HExpr = HMap $ M.fromList
-        [ (RoleTplt, HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""])),
+        [ (RoleTplt, HExpr (ExprTplt $ Tplt Nothing [Phrase ""] Nothing)),
           (RoleMember 2, HExpr $ Phrase "a")]
       hBad :: HExpr = HMap $ M.fromList -- the 3 is wrong
-        [ (RoleTplt, HExpr (ExprTplt [Phrase "",Phrase "",Phrase ""])),
+        [ (RoleTplt, HExpr (ExprTplt $ Tplt Nothing [Phrase ""] Nothing)),
           (RoleMember 3, HExpr $ Phrase "a")]
   assertBool "the parser works, so the problem must be in pExprToHExpr" $
     nPExpr s == Right p
