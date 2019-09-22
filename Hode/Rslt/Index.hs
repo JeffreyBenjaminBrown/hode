@@ -30,10 +30,9 @@ mkRslt es = go es' where
         then es else M.singleton 0 $ Phrase' ""
   go :: Map Addr RefExpr -> Rslt
   go m = let
-    (hasMap :: Map Addr (Map Role Addr)) =
-      M.filter (not . M.null)
-      $ M.map (M.fromList . refExprPositions)
-      $ m
+    hasMap :: Map Addr (Map Role Addr) =
+      M.filter (not . M.null) $
+      M.map (M.fromList . refExprPositions) m
     in Rslt {
       _addrToRefExpr = m
     , _refExprToAddr = imgDb m
@@ -47,7 +46,7 @@ mkRslt es = go es' where
 -- | == Given an expression, look up an address.
 
 imgDb :: Map Addr RefExpr -> Map RefExpr Addr
-imgDb = M.fromList . catMaybes . map (Just . swap) . M.toList where
+imgDb = M.fromList . catMaybes . map (Just . swap) . M.toList
 
 
 -- | == Given an address, look up what it's connected to.

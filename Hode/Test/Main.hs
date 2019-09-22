@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Test.TMain where
+module Hode.Test.Main where
 
 import           Test.HUnit hiding (Test)
 
@@ -13,12 +13,9 @@ import Hode.Test.Qseq.TProgram
 import Hode.Test.Qseq.TQuery
 import Hode.Test.Qseq.TSubst
 import Hode.Test.Qseq.TValid
-import Hode.Test.Rslt.RData
-import Hode.Test.Rslt.RProgram
-import Hode.Test.Rslt.TEdit
-import Hode.Test.Rslt.TIndex_and_Valid
-import Hode.Test.Rslt.TLookup
-import Hode.Test.Rslt.TShow
+
+import Hode.Test.Rslt.Main
+
 --import Hode.Test.TBrick
 import Hode.Test.TGraph
 import Hode.Test.TPTree
@@ -35,17 +32,14 @@ tests = runTestTT $ TestList
   , test_module_query
 --  , test_module_rsltProgram
 
+  , test_modules_hode_rslt
   , test_module_pTree
 
 --  , test_module_hash_convert
 --  , test_module_hash_parse
 --  , test_module_hash_hlookup_transitive
 --  , test_module_hode_brick
-  , test_the_rslt_test_data
-  , test_module_rslt_index_and_valid
-  , test_module_rslt_show
-  , test_module_rslt_edit
-  , test_module_rslt_exprToAddr
+
 --  , test_module_rslt_hash
 --  , test_module_ui
   ]
