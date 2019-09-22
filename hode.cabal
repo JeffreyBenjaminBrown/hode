@@ -65,7 +65,7 @@ library
                 , Hode.Rslt.Show
                 , Hode.Rslt.Show.Util
                 , Hode.Rslt.Show.Wut
---                , Hode.Rslt.Show'
+                , Hode.Rslt.Show'
                 , Hode.Rslt.Show.JustInCase
 --                , Hode.Test.Hash.TTransitive
 --                , Hode.Test.Hash.TConvert
