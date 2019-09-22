@@ -3,23 +3,7 @@
 ** reduce redunddancy in views
 ** update
 * TODO bug in hExprToAddrs
-import qualified Data.Map       as M
-import qualified Data.Set as S
-
-
--- the problem
-Right r  = fst <$> nInsert (mkRslt mempty) "# a # b"
-  -- r == mkRslt $ M.fromList [ -- good
-  --   (0,Phrase' ""),
-  --   (1,Tplt' (Tplt (Just 0) [0] Nothing)),
-  --   (2,Phrase' "a"),
-  --   (3,Phrase' "b"),
-  --   (4,Rel' (Rel [2,3] 1))]
-nFind r "# /_ # b" -- but this finds nothing, should find 2 things
-
-nFindAddrs r s == mempty -- nFind uses nFindAddrs
-nHExpr r "# /_ # b" == Right h  -- nFindAddrs uses nHExpr, and it's fine
-hExprToAddrs r mempty h -- so the problem is here
+See Temp.hs.
 * TODO LeftStrings can be more polymorphic
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions

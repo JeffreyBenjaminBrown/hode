@@ -127,11 +127,12 @@ hExprToExpr _ h = Left $ "hExprToExpr: given " ++ show h
 
 -- | `hExprToAddrs` is the Hash search workhorse.
 
-hExprToAddrs :: Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
+hExprToAddrs :: Rslt -> Subst Addr -> HExpr ->
+                Either String (Set Addr)
 
 hExprToAddrs r s (HMap m) =
-  prefixLeft "-> hExprToAddrs called on HMap" $ do
-    (found :: Map Role (Set Addr)) <-
+  prefixLeft "-> hExprToAddrs, called on HMap: " $ do
+    found :: Map Role (Set Addr) <-
       prefixLeft ", calculating found"
       $ ifLefts_map $ M.map (hExprToAddrs r s) m
 
@@ -145,7 +146,7 @@ hExprToAddrs r s (HMap m) =
           Right $ S.map snd
             $ S.filter ((==) role . fst) roleHostPairs
 
-    (hosts :: Map Role (Set Addr)) <-
+    hosts :: Map Role (Set Addr) <-
       prefixLeft ", calculating hosts"
       $ ifLefts_map $ M.mapWithKey roleHostCandidates found
     case null hosts of
@@ -153,7 +154,7 @@ hExprToAddrs r s (HMap m) =
       False -> Right $ foldl1 S.intersection $ M.elems hosts
 
 hExprToAddrs r s (HEval hm paths) =
-  prefixLeft "-> hExprToAddrs called on HEval" $ do
+  prefixLeft "hExprToAddrs, called on HEval: " $ do
     (hosts :: Set Addr)     <-
       prefixLeft ", mapping over hosts"
       $ hExprToAddrs r s hm
@@ -168,7 +169,7 @@ hExprToAddrs _ s (HVar v) =
 hExprToAddrs r _ (HExpr e) = S.singleton <$> exprToAddr r e
 
 hExprToAddrs r s (HDiff base exclude) =
-  prefixLeft "-> hExprToAddrs called on HDiff" $ do
+  prefixLeft "hExprToAddrs, called on HDiff: " $ do
     b <- prefixLeft ", calculating base"
          $ hExprToAddrs r s base
     e <- prefixLeft ", calculating exclude"
@@ -177,17 +178,17 @@ hExprToAddrs r s (HDiff base exclude) =
 
 -- | TRICK: For speed, put the most selective searches first in the list.
 hExprToAddrs r s (HAnd hs) =
-  prefixLeft "-> hExprToAddrs called on HAnd"
+  prefixLeft "hExprToAddrs, called on HAnd: "
   $ foldr1 S.intersection
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
 hExprToAddrs r s (HOr hs) =
-  prefixLeft "-> hExprToAddrs called on HOr"
+  prefixLeft "hExprToAddrs, called on HOr: "
   $ foldr1 S.union
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
 hExprToAddrs r sub (HReach d ht hs) =
-  prefixLeft "-> hExprToAddrs called on HReach" $ do
+  prefixLeft "hExprToAddrs, called on HReach: " $ do
   s <- S.toList <$> hExprToAddrs r sub hs
   t <- S.toList <$> hExprToAddrs r sub ht
   S.fromList <$> reachable d r t s
@@ -200,7 +201,7 @@ hExprToAddrs r sub (HTrans d targets ht he hs) =
   -- And if you want to know which ends can be reached by some start,
   -- then once a start has reached some ends,
   -- you can remove those ends when testing the remaining starts.
-  prefixLeft "-> hExprToAddrs called on HTrans" $ do
+  prefixLeft "hExprToAddrs, called on HTrans: " $ do
   t :: [Addr] <- S.toList <$> hExprToAddrs r sub ht
   e :: [Addr] <- S.toList <$> hExprToAddrs r sub he
   s :: [Addr] <- S.toList <$> hExprToAddrs r sub hs
