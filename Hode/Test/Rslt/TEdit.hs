@@ -65,7 +65,7 @@ test_exprToAddrInsert = TestCase $ do
                      Nothing [Addr 1] Nothing )
     == Right ( fromRight (error "wut") $
                R.insertAt 7 (Tplt' $ Tplt Nothing [1] Nothing) D.rslt
-             , [New 7, Old 0, Old 1, Old 0] )
+             , [New 7, Old 1] )
 
   assertBool "3" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
                      (Just $ Phrase "bar") [Phrase ""]
@@ -107,16 +107,16 @@ test_replace = TestCase $ do
           , (7, Phrase' "foo")
           ] )
 
-  assertBool "replace word in Tplt" $
-    either (error "wut") id (R.replaceRefExpr (Phrase' "foo") 0 D.rslt)
+  assertBool "replace word in Tplt" $ either (error "wut") id
+    (R.replaceRefExpr (Phrase' "foo") 1 D.rslt_rightCapped)
     == mkRslt ( M.fromList
-         [ (7, Phrase' "foo")
-         , (1, Phrase' "dog")
+         [ (0, Phrase' "")
+         , (7, Phrase' "foo")
          , (2, Phrase' "oxygen")
          , (3, Phrase' "needs")
-         , (4, Tplt' $ Tplt (Just 7) [3] (Just 7))
-           -- all changes involve address 7
-         , (5, Rel' $ Rel [1,2] 4)
+         , (4, Tplt' $ Tplt Nothing [3] $ Just 7)
+           -- all changes involve changing addr 1 (dog) to 7 (foo)
+         , (5, Rel' $ Rel [7,2] 4)
          , (6, Rel' $ Rel [5,2] 4)
          ] )
 
