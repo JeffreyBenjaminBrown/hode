@@ -16,8 +16,8 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Data.Tuple
 
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
+import           Hode.Rslt.RTypes
+import           Hode.Rslt.RUtil
 
 
 emptyRslt :: Rslt

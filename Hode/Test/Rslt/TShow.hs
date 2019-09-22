@@ -6,7 +6,6 @@ import           Data.Functor.Foldable
 import           Test.HUnit
 
 import           Hode.Rslt.RTypes
-import           Hode.Rslt.RUtil
 import           Hode.Rslt.Show
 import qualified Hode.Test.Rslt.RData as D
 

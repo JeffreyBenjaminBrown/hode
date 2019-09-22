@@ -22,9 +22,6 @@ import Hode.Rslt.RValid
 n :: Maybe a
 n = Nothing
 
-j :: a -> Maybe a
-j = Just
-
 
 -- | = Make sure each Rslt is okay.
 

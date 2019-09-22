@@ -47,18 +47,19 @@ instance LeftStrings Tplt where
          True -> Right $ Tplt  (fmap fr fore)  (map fr mids)  (fmap fr aft)
          False -> Left $ concat $ map fl lefts
 
-replaceInTplt :: a -> Role -> Tplt a -> Either String (Tplt a)
-replaceInTplt a' (RoleCap CapLeft) (Tplt (Just a) bs c) =
+replaceInTplt :: Show a =>
+  a -> Role -> Tplt a -> Either String (Tplt a)
+replaceInTplt a' (RoleCap CapLeft) (Tplt (Just _) bs c) =
   Right $ Tplt (Just a') bs c
-replaceTplt c' (RoleCap CapRight) (Tplt a bs (Just c)) =
-  Right $ Tplt a bs (Just c)
-replaceTplt c' (RoleCap side) t =
+replaceInTplt c' (RoleCap CapRight) (Tplt a bs (Just _)) =
+  Right $ Tplt a bs (Just c')
+replaceInTplt _ (RoleCap side) t =
   Left ( "replaceInTplt: There is no cap on the " ++
          show side ++ " side to replace in " ++ show t ++ "." )
-replaceTplt b (RoleMember k) (Tplt a bs c) = do
+replaceInTplt b (RoleMember k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c
-replaceTplt _ RoleTplt _ = Left $ "replaceInTplt: received RoleTplt as Role argument, but no Tplt contains a Tplt to replace; Tplts only contain RoleMembers and optionally RoleCaps."
+replaceInTplt _ RoleTplt _ = Left $ "replaceInTplt: received RoleTplt as Role argument, but no Tplt contains a Tplt to replace; Tplts only contain RoleMembers and optionally RoleCaps."
 
 -- | PITFALL: Lossy.
 tpltToList :: Tplt a -> [a]

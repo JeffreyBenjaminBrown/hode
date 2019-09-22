@@ -74,6 +74,7 @@ library
 --                , Hode.Test.Qseq.TQuery
 --                , Hode.Test.Qseq.TSubst
 --                , Hode.Test.Qseq.TValid
+--                , Hode.Test.Rslt.Main
 --                , Hode.Test.Rslt.RData
 --                , Hode.Test.Rslt.RProgram
 --                , Hode.Test.Rslt.TEdit
@@ -82,7 +83,7 @@ library
 --                , Hode.Test.Rslt.TShow
 --                , Hode.Test.TBrick
 --                , Hode.Test.TGraph
-                , Hode.Test.TMain
+                , Hode.Test.Main
 --                , Hode.Test.TPTree
 --                , Hode.Test.TUI
 --                , Hode.UI.BufferTree

@@ -90,7 +90,7 @@ validTplt r (Rel' (Rel aMembers aTplt)) =
     if ar == length aMembers then Right ()
       else Left $ "expr at " ++ show aTplt
            ++ " does not match arity of " ++ show aMembers ++ ".\n"
-validTplt r (Tplt' (Tplt Nothing [] Nothing)) =
+validTplt _ (Tplt' (Tplt Nothing [] Nothing)) =
   Left "validTplt: Null Tplt."
 validTplt _ _ = Right ()
 

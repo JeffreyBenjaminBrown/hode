@@ -10,9 +10,6 @@ module Hode.Rslt.Edit.AndSearch (
 
 import qualified Data.List      as L
 
-import Data.Foldable (toList)
-import Data.Maybe
-
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
@@ -58,17 +55,17 @@ exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
     Just a' -> exprToAddrInsert r0 a'
   (r2 :: Rslt, as2 :: [[Aged Addr]]) <- do -- note the list of lists
     if null bs then Left "empty list of joints in Tplt"
-      else exprToAddrInsert_list r0 bs
+      else exprToAddrInsert_list r1 bs
   (r3 :: Rslt, as3 :: [Aged Addr]) <- case c of
     Nothing -> Right (r2,[])
-    Just c' -> exprToAddrInsert r0 c'
-  a' <- nextAddr r1
+    Just c' -> exprToAddrInsert r2 c'
+  a' <- nextAddr r3
   r4 :: Rslt <-
     let tplt :: RefExpr = Tplt' $ Tplt
           (maybe Nothing (const $ Just $ head $ map unAged as1) a)
           (map (unAged . head) as2)
           (maybe Nothing (const $ Just $ head $ map unAged as3) c)
-    in insertAt a' tplt r1
+    in insertAt a' tplt r3
   Right ( r4,
           New a' : concat ( [as1] ++ as2 ++ [as3] ) )
 

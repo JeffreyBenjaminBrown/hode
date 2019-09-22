@@ -15,7 +15,6 @@ module Hode.Rslt.Show (
 
 import           Data.Functor.Foldable
 import qualified Data.List as L
-import           Data.Maybe
 import           Data.Text (strip, pack, unpack)
 
 import Hode.Rslt.RLookup
