@@ -17,8 +17,8 @@ type QIGI = Query Int (Graph Int)
 vs :: String -> Var
 vs = VarString
 
-testModuleQueryClassify :: T.Test
-testModuleQueryClassify = TestList [
+test_module_query_classify :: T.Test
+test_module_query_classify = TestList [
     TestLabel "test_findlike" test_findlike
   , TestLabel "test_introducesVars" test_introducesVars
   , TestLabel "test_usesVars" test_usesVars

@@ -10,8 +10,8 @@ import qualified Test.HUnit     as T
 import Hode.Data.Graph
 
 
-testModuleGraph :: T.Test
-testModuleGraph = TestList [
+test_module_graph :: T.Test
+test_module_graph = TestList [
     TestLabel "test_InvertMapToSet" test_InvertMapToSet
   ]
 

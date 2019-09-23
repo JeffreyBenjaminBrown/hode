@@ -6,7 +6,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.NoUI (
-  -- | = display entire graph
+  -- | = Display the entire graph.
+  -- (These are useful when you're learning the app.
+  -- Once your graph is big, they won't be practical.)
     nShowRsltRefExprs    -- ^ Rslt -> [String]
   , nShowRsltRefExprsIO  -- ^ Rslt -> IO ()
   , nShowRslt   -- ^ Rslt -> Either String [String]
@@ -44,7 +46,9 @@ import Hode.UI.NoUI.Internal as Internal
 import Hode.Util.Misc
 
 
--- | = display entire graph
+-- | = Display the entire graph.
+-- (These are useful when you're learning the app.
+-- Once your graph is big, they won't be practical.)
 
 nShowRsltRefExprs :: Rslt -> [String]
 nShowRsltRefExprs r = let

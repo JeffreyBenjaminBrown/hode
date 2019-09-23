@@ -23,7 +23,7 @@ vs = VarString
 
 test_module_rsltProgram :: T.Test
 test_module_rsltProgram = TestList [
-  TestLabel "test_rslt_query" test_rslt_query
+    TestLabel "test_rslt_query" test_rslt_query
   , TestLabel "test_rslt_hash_query" test_rslt_hash_query
   ]
 

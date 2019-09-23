@@ -16,8 +16,8 @@ import Hode.Qseq.QTypes
 vs :: String -> Var
 vs = VarString
 
-testModuleSubst :: T.Test
-testModuleSubst = TestList
+test_module_subst :: T.Test
+test_module_subst = TestList
   [ TestLabel "testReconcile2" testReconcile2
   , TestLabel "testReconcile1ToMany" testReconcile1ToMany
   , TestLabel "testReconcile2sets" testReconcile2sets
