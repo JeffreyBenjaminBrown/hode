@@ -16,6 +16,11 @@ module Hode.UI.NoUI (
   , nInserts       -- ^ Foldable f =>
                    --   Rslt -> f String -> Either String Rslt
 
+  , nDelete        -- ^ Rslt -> String         -> Either String Rslt
+  , nReplace       -- ^ Rslt -> Addr -> String -> Either String Rslt
+  , nReplaceInRole -- ^ Rslt -> Role -> Addr -> String ->
+                   --   Either String Rslt
+
   , nFind          -- ^ Rslt -> String -> Either String [(Addr, Expr)]
   , nFindStrings   -- ^ Rslt -> String -> Either String [(Addr, String)]
   , nFindStringsIO -- ^ Rslt -> String -> IO ()
@@ -70,6 +75,22 @@ nInsert' r s = fst <$> nInsert r s
 nInserts :: Foldable f
          => Rslt -> f String -> Either String Rslt
 nInserts r ss = foldM nInsert' r ss
+
+nDelete :: Rslt -> String -> Either String Rslt
+nDelete r s = prefixLeft "nDelete: " $
+              nExpr r s >>= exprToAddr r >>= flip delete r
+
+nReplace :: Rslt -> Addr -> String -> Either String Rslt
+nReplace r a s =
+  prefixLeft "nReplace: " $ do e <- nExpr r s
+                               replaceExpr a e r
+
+nReplaceInRole :: Rslt -> Role -> Addr -> String
+               -> Either String Rslt
+nReplaceInRole r role host new =
+  prefixLeft "nReplaceInRole: " $ do
+  new' <- nExpr r new >>= exprToAddr r
+  replaceInRole role new' host r
 
 nFind :: Rslt -> String -> Either String [(Addr, Expr)]
 nFind r s = do as <- S.toList <$> nFindAddrs r s

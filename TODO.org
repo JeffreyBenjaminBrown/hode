@@ -4,10 +4,6 @@
 ** update
 * TODO test the returned addresses after multiple insertions
 * TODO add stuff from Rslt.Edit to NoUI
-replaceInRole
-deleteIfUnused
-replaceRefExpr -- this uses deleteIfUnused. Should it?
-replaceExpr
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries

@@ -22,7 +22,8 @@ import Hode.Rslt.Edit.Initial
 
 
 replaceInRole :: Role -> Addr -> Addr -> Rslt -> Either String Rslt
-replaceInRole spot new host r = prefixLeft "replaceInRole" $ do
+replaceInRole spot new host r =
+  prefixLeft "replaceInRole" $ do
   _                          <- addrToRefExpr r new
   oldHostRefExpr             <- addrToRefExpr r host
   (hostHas :: Map Role Addr) <- has r host
