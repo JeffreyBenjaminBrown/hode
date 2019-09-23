@@ -1,4 +1,4 @@
--- | I don't know what this was for, but I remember it was hard.
+-- | I don't know what this was for, but it was hard.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 

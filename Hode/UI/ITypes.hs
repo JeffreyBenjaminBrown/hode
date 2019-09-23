@@ -22,6 +22,7 @@ import Hode.Hash.HTypes
 import Hode.Qseq.QTypes
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
+import Hode.Rslt.Show.Wut
 import Hode.Util.Misc
 import Hode.Util.PTree
 

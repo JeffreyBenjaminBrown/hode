@@ -2,7 +2,7 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO uncomment, fix everything in Hode.Hash involving pTplt
+* TODO uncomment the rest of hode.cabal
 * TODO LeftStrings can be more polymorphic
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions

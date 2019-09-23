@@ -1,16 +1,16 @@
 -- | This code could be a lot shorter if I understood and/or used:
--- (1) prisms? traversals?) something to let me lens into a Vector
--- to modify it, where the return type is `Either String (Vector a)`
--- rather than `Vector a`.
--- (2) Zippers instead of Vectors. (This would obviate the first task.)
--- (2a) Mutable Vectors instead of immutable ones.
+--   (1) prisms? traversals?) something to let me lens into a Vector
+--   to modify it, where the return type is `Either String (Vector a)`
+--   rather than `Vector a`.
+--   (2) Zippers instead of Vectors. (This would obviate the first task.)
+--   (2a) Mutable Vectors instead of immutable ones.
 
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.BufferRowTree (
-    moveFocusedViewExprNode   -- ^ Direction -> St -> St
+module Hode.UI.BufferRowTree
+  ( moveFocusedViewExprNode   -- ^ Direction -> St -> St
   , members_atFocus       -- ^ St -> Either String (MembersGroup, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
@@ -122,7 +122,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
           relHosts = MemberHosts { _memberHostsCenter = a0
                                  , _memberHostsRole = role
                                  , _memberHostsTplt = tplt t }
-            where tplt :: Addr -> [Expr]
+            where tplt :: Addr -> Tplt Expr
                   tplt a = es
                     where Right (ExprTplt es) = addrToExpr r a
 

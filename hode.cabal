@@ -35,7 +35,7 @@ library
                 , Hode.Brick
                 , Hode.Data.Graph
                 , Hode.Data.Map
-                -- , Hode.Data.Relation
+                , Hode.Data.Relation
 
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
@@ -80,11 +80,11 @@ library
                 , Hode.Test.Hash.TParse
                 , Hode.Test.Hash.TTransitive
 
---                , Hode.Test.Qseq.TLeaf
---                , Hode.Test.Qseq.TProgram
---                , Hode.Test.Qseq.TQuery
---                , Hode.Test.Qseq.TSubst
---                , Hode.Test.Qseq.TValid
+                , Hode.Test.Qseq.TLeaf
+                , Hode.Test.Qseq.TProgram
+                , Hode.Test.Qseq.TQuery
+                , Hode.Test.Qseq.TSubst
+                , Hode.Test.Qseq.TValid
 
                 , Hode.Test.Rslt.Main
                 , Hode.Test.Rslt.RData
@@ -94,25 +94,27 @@ library
                 , Hode.Test.Rslt.TLookup
                 , Hode.Test.Rslt.TShow
 
---                , Hode.Test.TBrick
---                , Hode.Test.TGraph
+                , Hode.Test.TBrick
+                , Hode.Test.TGraph
                 , Hode.Test.Main
---                , Hode.Test.TPTree
+                , Hode.Test.TPTree
 --                , Hode.Test.TUI
---                , Hode.UI.BufferTree
---                , Hode.UI.Clipboard
---                , Hode.UI.ITypes
---                , Hode.UI.IUtil
---                , Hode.UI.Input
---                , Hode.UI.Input.IParse
---                , Hode.UI.Main
+
+                , Hode.UI.BufferTree
+                , Hode.UI.BufferRowTree
+                , Hode.UI.Clipboard
+                , Hode.UI.ITypes
+                , Hode.UI.IUtil
+                , Hode.UI.Input
+                , Hode.UI.Input.IParse
+                , Hode.UI.Main
                 , Hode.UI.NoUI
---                , Hode.UI.NoUI.Internal
---                , Hode.UI.RsltViewTree
---                , Hode.UI.ShowPTree
---                , Hode.UI.ShowPTree.HandTest
---                , Hode.UI.String
---                , Hode.UI.Window
+                , Hode.UI.NoUI.Internal
+                , Hode.UI.RsltViewTree
+                , Hode.UI.ShowPTree
+                , Hode.UI.ShowPTree.HandTest
+                , Hode.UI.String
+                , Hode.UI.Window
                 , Hode.Util.Direction
                 , Hode.Util.Misc
                 , Hode.Util.PTree

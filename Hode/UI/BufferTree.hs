@@ -1,8 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Hode.UI.BufferTree (
-    consBuffer_topNext -- ^ Buffer -> St -> St
+module Hode.UI.BufferTree
+  ( consBuffer_topNext -- ^ Buffer -> St -> St
   , consBuffer_asChild  -- ^ Buffer -> St -> St
   , cons_focusedViewExpr_asChildOfBuffer -- ^ St -> Either String St
   , moveFocusedBuffer -- ^ Direction -> St -> St
