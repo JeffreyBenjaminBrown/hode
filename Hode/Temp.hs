@@ -16,3 +16,7 @@ module Hode.Temp where
 --import Hode.Rslt.RTypes
 --import Hode.Util.Misc
 
+import Hode.Hash.HParse
+
+import Text.Megaparsec
+

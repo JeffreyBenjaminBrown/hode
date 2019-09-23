@@ -67,13 +67,27 @@ test_hashIdentifier = TestCase $ do
 
 test_parse_tplt :: Test
 test_parse_tplt = TestCase $ do
-  assertBool "re-enable me" False
---  assertBool "non-present joints are represented as \\\"\\\""
---    $ parse _pTplt "" "sees (whenever there is) \"\" "
---    == Right ( ExprTplt $ Tplt
---               (Just $ Phrase "sees")
---               [Phrase "whenever there is"]
---               (Just $ Phrase "" ) )
+  assertBool "1" $ parse _pTplt "parse error"
+    "/_ sees /_ whenever there is /_"
+    == Right ( ExprTplt $ Tplt
+               Nothing
+               [ Phrase "sees",
+                 Phrase "whenever there is"]
+               Nothing )
+
+  assertBool "2" $ parse _pTplt "parse error"
+    "remember /_ whenever there is /_"
+    == Right ( ExprTplt $ Tplt
+               ( Just $ Phrase "remember" )
+               [ Phrase "whenever there is"]
+               Nothing )
+
+  assertBool "3" $ parse _pTplt "parse error"
+    "/_ whenever there is /_ please"
+    == Right ( ExprTplt $ Tplt
+               Nothing
+               [ Phrase "whenever there is"]
+               ( Just $ Phrase "please" ) )
 
 test_parse_hExpr :: Test
 test_parse_hExpr = TestCase $ do
@@ -96,15 +110,17 @@ test_parse_pPExpr = TestCase $ do
     == Right (PExpr $ Phrase "sammich bagel 1234")
 
   assertBool "map" $ parse pMap "wut"
-    "/map (1 /hash a) (2 /hash b) (tplt sees (whenever there is) because)"
+    ( "/map (1 /hash a) (2 /hash b) " ++
+      "(tplt remember to /_ whenever there is /_ because /_)" )
     == Right
     ( PMap $ M.fromList
       [ ( RoleMember 1, PExpr $ Phrase "a" )
       , ( RoleMember 2, PExpr $ Phrase "b" )
       , ( RoleTplt, PExpr $ ExprTplt $ Tplt
-          (Just $ Phrase "sees")
-          [Phrase "whenever there is"]
-          (Just $ Phrase "because") ) ] )
+          ( Just $ Phrase "remember to" )
+          [ Phrase "whenever there is",
+            Phrase "because" ]
+          Nothing ) ] )
 
   assertBool "any" $ parse pAny "any" "/_ "
     == Right Any
