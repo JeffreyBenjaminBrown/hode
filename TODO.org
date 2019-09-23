@@ -3,35 +3,37 @@
 ** reduce redunddancy in views
 ** update
 * PIFALLs
-** PITFALL: varTestlike ForSomes do not store what they find in the Subst
-unlike testlike and findlike queries
-** PITFALL: Each mapping in a CondElts can be represented many ways, depending on whether they key is included.
-The current idiom is to leave the key out. But -- you could describe a CondElts this way:
- x=1 if (a=1    ) or (b=1    )
-or equivalently, this way:
- x=1 if (a=1,x=1) or (b=1,x=1)
-or this way:
- x=1 if (a=1    ) or (b=1,x=1)
-etc.
-** PITFALL: The empty set is nonsense in a CondElts
-type CondElts = Map Elt (Set Subst)
-  -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
-  -- PITFALL: If Elt is possible without any other bindings, then
-  -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
-  -- it is as if that `Elt` is not in the `Map`.
-** PITFALL: Don't let keys collide in a CondElts
-If a=1 or a=2 can both lead to b=1, it's tempting to write this:
-  (p :: Possible) =
-    M.fromList [ (a, ...)
-               , (b, M.fromList [ (1, S.singleton $ M.singleton a 1)
-                                , (1, S.singleton $ M.singleton a 2) ] ) ]
-when it ought to be this:
-  (p :: Possible) =
-    M.fromList [ (a, ...)
-               , (b, M.fromList [ (1, S.fromList [ M.singleton a 1
-                                                 , M.singleton a 2 ] ) ] ) ]
-** PITFALL : mkVTestIO' : naming error => silent failure
-see the comment leading its definition
+** Hode.Rslt.Edit.delete can cause the address of (Phrase "") to change
+** in Qseq
+*** PITFALL: varTestlike ForSomes do not store what they find in the Subst
+ unlike testlike and findlike queries
+*** PITFALL: Each mapping in a CondElts can be represented many ways, depending on whether they key is included.
+ The current idiom is to leave the key out. But -- you could describe a CondElts this way:
+  x=1 if (a=1    ) or (b=1    )
+ or equivalently, this way:
+  x=1 if (a=1,x=1) or (b=1,x=1)
+ or this way:
+  x=1 if (a=1    ) or (b=1,x=1)
+ etc.
+*** PITFALL: The empty set is nonsense in a CondElts
+ type CondElts = Map Elt (Set Subst)
+   -- ^ Uses `Set` because multiple `Subst`s might obtain the same `Elt`.
+   -- PITFALL: If Elt is possible without any other bindings, then
+   -- the `Set` should include `M.empty`. If the `Set` is `S.empty`,
+   -- it is as if that `Elt` is not in the `Map`.
+*** PITFALL: Don't let keys collide in a CondElts
+ If a=1 or a=2 can both lead to b=1, it's tempting to write this:
+   (p :: Possible) =
+     M.fromList [ (a, ...)
+                , (b, M.fromList [ (1, S.singleton $ M.singleton a 1)
+                                 , (1, S.singleton $ M.singleton a 2) ] ) ]
+ when it ought to be this:
+   (p :: Possible) =
+     M.fromList [ (a, ...)
+                , (b, M.fromList [ (1, S.fromList [ M.singleton a 1
+                                                  , M.singleton a 2 ] ) ] ) ]
+*** PITFALL : mkVTestIO' : naming error => silent failure
+ see the comment leading its definition
 * might come back to haunt me
 ** pExprIsSpecific should address PDiff, PAnd, POr
 *** where it is used
