@@ -1,11 +1,8 @@
-* to include arity in the a node's type
-see digraphs-with-text/gadt.hs
 * roadmap|pressing (duplicative)
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
 * TODO test the returned addresses after multiple insertions
-* TODO add stuff from Rslt.Edit to NoUI
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
@@ -77,6 +74,8 @@ If anything is modified, ask "are you sure? Your repo has uncommitted changes; s
 
 If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
+** to include arity in the a node's type
+see digraphs-with-text/gadt.hs
 ** TODO simplify result of nPExpr
 e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
 nPExpr q = Right ( PRel $ PNonRel $ ...

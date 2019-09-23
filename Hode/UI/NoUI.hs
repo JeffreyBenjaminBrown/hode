@@ -6,21 +6,25 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.NoUI (
+  -- | = display entire graph
     nShowRsltRefExprs    -- ^ Rslt -> [String]
   , nShowRsltRefExprsIO  -- ^ Rslt -> IO ()
   , nShowRslt   -- ^ Rslt -> Either String [String]
   , nShowRsltIO -- ^ Rslt -> IO ()
 
+  -- | = edit: insert
   , nInsert        -- ^ Rslt -> String -> Either String (Rslt, Addr)
   , nInsert'       -- ^ Rslt -> String -> Either String Rslt
   , nInserts       -- ^ Foldable f =>
                    --   Rslt -> f String -> Either String Rslt
 
+  -- | = edit: other
   , nDelete        -- ^ Rslt -> String         -> Either String Rslt
   , nReplace       -- ^ Rslt -> Addr -> String -> Either String Rslt
   , nReplaceInRole -- ^ Rslt -> Role -> Addr -> String ->
                    --   Either String Rslt
 
+  -- | = search (and display)
   , nFind          -- ^ Rslt -> String -> Either String [(Addr, Expr)]
   , nFindStrings   -- ^ Rslt -> String -> Either String [(Addr, String)]
   , nFindStringsIO -- ^ Rslt -> String -> IO ()
@@ -39,6 +43,8 @@ import Hode.Rslt.Show
 import Hode.UI.NoUI.Internal as Internal
 import Hode.Util.Misc
 
+
+-- | = display entire graph
 
 nShowRsltRefExprs :: Rslt -> [String]
 nShowRsltRefExprs r = let
@@ -65,6 +71,9 @@ nShowRsltIO :: Rslt -> IO ()
 nShowRsltIO r = either putStrLn (mapM_ putStrLn) $
                 nShowRslt r
 
+
+-- | = edit: insert
+
 nInsert :: Rslt -> String -> Either String (Rslt, [Aged Addr])
 nInsert r s = prefixLeft "nInsert: " $
               nExpr r s >>= exprToAddrInsert r
@@ -75,6 +84,9 @@ nInsert' r s = fst <$> nInsert r s
 nInserts :: Foldable f
          => Rslt -> f String -> Either String Rslt
 nInserts r ss = foldM nInsert' r ss
+
+
+-- | = edit: other
 
 nDelete :: Rslt -> String -> Either String Rslt
 nDelete r s = prefixLeft "nDelete: " $
@@ -91,6 +103,9 @@ nReplaceInRole r role host new =
   prefixLeft "nReplaceInRole: " $ do
   new' <- nExpr r new >>= exprToAddr r
   replaceInRole role new' host r
+
+
+-- | = search (and display)
 
 nFind :: Rslt -> String -> Either String [(Addr, Expr)]
 nFind r s = do as <- S.toList <$> nFindAddrs r s
