@@ -2,7 +2,6 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO test the returned addresses after multiple insertions
 * PIFALLs
 ** PITFALL: varTestlike ForSomes do not store what they find in the Subst
 unlike testlike and findlike queries
