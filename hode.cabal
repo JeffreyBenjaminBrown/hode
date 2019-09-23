@@ -30,8 +30,8 @@ source-repository head
 
 library
   exposed-modules:
---                  Hode.Hode
-                  Hode.Temp
+                  Hode.Hode
+                , Hode.Temp
                 , Hode.Brick
                 , Hode.Data.Graph
                 , Hode.Data.Map
@@ -98,7 +98,7 @@ library
                 , Hode.Test.TGraph
                 , Hode.Test.Main
                 , Hode.Test.TPTree
---                , Hode.Test.TUI
+                , Hode.Test.TUI
 
                 , Hode.UI.BufferTree
                 , Hode.UI.BufferRowTree

@@ -16,7 +16,6 @@ import           Hode.Util.VTree
 import qualified Hode.Test.Rslt.RData as D
 
 
-
 aViewExprNodeTree :: VTree ViewExprNode
 aViewExprNodeTree = VTree {
     _vTreeFocalChild = 0
@@ -39,12 +38,12 @@ test_groupHostRels = TestCase $ do
       [ ( RelHostGroup MemberHosts
           { _memberHostsCenter = 2
           , _memberHostsRole = RoleMember 1
-          , _memberHostsTplt = [Phrase "0",Phrase "0",Phrase "0"] }
+          , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
         ,[9] )
       , ( RelHostGroup MemberHosts
           { _memberHostsCenter = 2
           , _memberHostsRole = RoleMember 2
-          , _memberHostsTplt = [Phrase "0",Phrase "0",Phrase "0"] }
+          , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
         ,[7] ) ] )
 
 test_pCommand :: T.Test

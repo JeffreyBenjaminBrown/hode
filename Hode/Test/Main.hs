@@ -15,7 +15,7 @@ import Hode.Test.Rslt.Main
 --import Hode.Test.TBrick
 import Hode.Test.TGraph
 import Hode.Test.TPTree
---import Hode.Test.TUI
+import Hode.Test.TUI
 
 
 tests :: IO Counts
@@ -35,5 +35,5 @@ tests = runTestTT $ TestList
   , test_module_util
 
 --  , test_module_hode_brick
---  , test_module_ui
+  , test_module_ui
   ]
