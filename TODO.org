@@ -1,3 +1,5 @@
+* to include arity in the a node's type
+see digraphs-with-text/gadt.hs
 * roadmap|pressing (duplicative)
 ** transitivity, order
 ** reduce redunddancy in views
