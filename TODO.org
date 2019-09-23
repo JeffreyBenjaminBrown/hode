@@ -2,13 +2,7 @@
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO uncomment the rest of hode.cabal
-* TODO LeftStrings can be more polymorphic
-https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO test the returned addresses after multiple insertions
-* TODO ifLefts could be replaced with Data.Validation
-which comes with toEither and fromEither
-https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 * TODO add stuff from Rslt.Edit to NoUI
 replaceInRole
 deleteIfUnused
@@ -90,6 +84,12 @@ e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
 nPExpr q = Right ( PRel $ PNonRel $ ...
 ** TODO rename SearchDir
 Use two types: SearchDir and BinMember
+** wart: ifLefts and LeftStrings
+*** could be replaced with Data.Validation
+which comes with toEither and fromEither
+https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
+*** LeftStrings could be more polymorphic
+https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 ** wart: HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root

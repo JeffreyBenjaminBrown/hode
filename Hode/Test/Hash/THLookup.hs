@@ -31,23 +31,22 @@ test_module_hash_lookup = TestList [
   , TestLabel "testFirstAbsent" testFirstAbsent
   ]
 
+
 testFirstAbsent :: Test
 testFirstAbsent = TestCase $ do
   let s :: String = "# /_ # a"
       p :: PExpr = PRel $ Open 1
         [Absent,PNonRel Any,PNonRel $ PExpr $ Phrase "a"]
         ["",""]
-      hGood :: HExpr = HMap $ M.fromList
-        [ (RoleTplt, HExpr (ExprTplt $ Tplt Nothing [Phrase ""] Nothing)),
-          (RoleMember 2, HExpr $ Phrase "a")]
-      hBad :: HExpr = HMap $ M.fromList -- the 3 is wrong
-        [ (RoleTplt, HExpr (ExprTplt $ Tplt Nothing [Phrase ""] Nothing)),
-          (RoleMember 3, HExpr $ Phrase "a")]
-  assertBool "the parser works, so the problem must be in pExprToHExpr" $
-    nPExpr s == Right p
+      hGood = HMap $ M.fromList
+        [ ( RoleTplt, HExpr $ ExprTplt $ Tplt
+                      (Just $ Phrase "") [Phrase ""] Nothing),
+          ( RoleMember 2, HExpr $ Phrase "a") ]
 
-  assertBool "member 3?" $
-    pExprToHExpr (mkRslt mempty) p /= Right hBad
+  assertBool "parse" $
+    nPExpr s == Right p
+  assertBool "convert" $
+    pExprToHExpr (mkRslt mempty) p == Right hGood
 
   let Right r  = fst <$> nInsert (mkRslt mempty) "# a # b"
       Right t  = nFind r "# /_ # /_"
