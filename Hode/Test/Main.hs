@@ -8,6 +8,7 @@ import Hode.Test.Qseq.TQuery
 import Hode.Test.Qseq.TSubst
 import Hode.Test.Qseq.TValid
 
+import Hode.Test.TUtil
 import Hode.Test.Hash.Main
 import Hode.Test.Rslt.Main
 
@@ -30,6 +31,8 @@ tests = runTestTT $ TestList
   , test_modules_hode_hash
   , test_modules_hode_rslt
   , test_module_pTree
+
+  , test_module_util
 
 --  , test_module_hode_brick
 --  , test_module_ui

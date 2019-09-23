@@ -15,6 +15,7 @@ import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
 import Hode.Rslt.Show.Util
+import Hode.Util.Alternation
 import Hode.Util.Misc
 
 

@@ -1,6 +1,7 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE
+ScopedTypeVariables,
+TupleSections,
+ViewPatterns #-}
 
 module Hode.Rslt.Show'
   ( eParenShow' -- ^ Int -> Rslt -> Expr -> Either String AttrString
@@ -17,6 +18,7 @@ import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
 import Hode.Rslt.Show.Wut
 import Hode.Util.Misc
+import Hode.Util.Alternation
 import Hode.Util.UParse
 
 

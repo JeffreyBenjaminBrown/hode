@@ -58,6 +58,9 @@ library
                   -- , Hode.Rslt.Edit.Initial
                   -- , Hode.Rslt.Edit.Replace
                   -- , Hode.Rslt.Edit.AndSearch
+
+                , Hode.Test.TUtil
+
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
                 , Hode.Rslt.RLookup
