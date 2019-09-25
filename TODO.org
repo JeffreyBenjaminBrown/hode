@@ -413,14 +413,18 @@ A set of templates to sort by.
 Indices start at 1.
 Later templates are only used to break ties w/r/t earlier templates.
 ***** NestedMaxes
-type NestedMaxes = Map Int [Addr]
+type NestedMaxes = (Int,[Addr])
 A NestedMaxes is only meaningful in the context of a BinRelOrdering.
-Their indices almost correspond, but a NestedMaxes also has index 0,
-which contains the entire subgraph of interest
-(everything in a Rel involving a Tplt of interest).
-The [Addr] at k is a subset of the [Addr] at k-1,
-and consists of elements of the latter which are maximal
-w/r/t Tplt k from the BinRelOrdering.
+The first member of each pair is a number of Tplts in the BinRelOrdering.
+(0,[Addr]) represents the entire graph.
+(1,[Addr]) holds a subset of the [Addrs] in (0,[Addr]) which are tied
+w/r/t the first Tplt in the BinRelOrdering.
+The maximum value of the fst of each pair is the size of the BinRelOrdering.
+Greater values of the fst of each pair are found earlier in the list.
+Those fst values do not have to increase consecutively.
+For instance, if the last element of the list is (0,as0),
+and nothing in as0 is involved in a relationship using the first Tplt,
+then the fst of the elmenet in front of it will be greater than 1.
 **** functions to define
 ***** all relationships involving the templates
 :: BinRelOrdering -> Relationships
@@ -446,11 +450,11 @@ That's fine -- in that case layer kn is next to consume.
      NestedMaxes) -- loses those biggest
 ***** sort
 :: BinRelOrdering -> Rslt -> NestedMaxes -> Exprs -> Exprs
-sort b e r n =
+sort b r n e = -- e is the list we've already accumulated
   if empty n then e
   else e ++ let n1 = build tops
-                (e2,r2,n2) = consume toppest tops
-            in sort b e2 r2 n2
+                (r2,n2,e2) = consume toppest tops
+            in sort b r2 n2 e2
 ***** algorithm
 r0 = the graph we start with
 es = what we want to sort
