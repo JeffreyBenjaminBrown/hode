@@ -376,7 +376,6 @@ topological sort
 *** lexicographic topological sort algorithm
 This is (the?) lexicographic variation of Kahn's algorithm.
 **** Overview
-
 ***** Scenario
 N is a set of expressions to sort.
 {T1,T2..Tt} are binary templates to sort by,
@@ -402,9 +401,9 @@ And from that we might end up constructing another Bk.
 But eventually we'll consume every node that is members in some r in R.
 ***** Stick the rest of N' onto the head of the list.
 Now the list is sorted, from least to greatest.
-**** functions to use
+**** TODO functions to use
 Data.Map.findMax : gives the biggest key.
-**** types to define
+**** TODO types to define
 (TODO ? Arrays would be faster than maps.)
 ***** newtypes Exprs = Relationships = Members = Tplts = [Addr]
 ***** BinRelOrdering
@@ -425,7 +424,7 @@ Those fst values do not have to increase consecutively.
 For instance, if the last element of the list is (0,as0),
 and nothing in as0 is involved in a relationship using the first Tplt,
 then the fst of the elmenet in front of it will be greater than 1.
-**** functions to define
+**** TODO functions to define
 ***** all relationships involving the templates
 :: BinRelOrdering -> Relationships
 ***** restrict graph
@@ -436,11 +435,19 @@ then the fst of the elmenet in front of it will be greater than 1.
 (both members + the relationship) invovling any Tplt in the BinRelOrdering
 ***** build tops
 :: BinRelOrdering -> Rslt -> NestedMaxes -> NestedMaxes
-Let ko = the max key in the BinRelOrdering,
-    kn = the max key in the NestedMaxes for which its value is nonempty
-kn < ko, or else there's nothing to build.
-It could be that when we try to build layers above kn, they are all empty.
-That's fine -- in that case layer kn is next to consume.
+Let o = the max key in the BinRelOrdering,
+    m = the max key in the NestedMaxes for which its value is nonempty
+m < o, or else there's nothing to build.
+Suppose the head of the NestedMaxes is [(m,ts)].
+Let rs = all t in ts which are tied w/r/t the (m+1)st Tplt.
+If that's empty, try the (m+2)nd.
+As soon as a later-ranking Tplt is found for which the set rs is nonempty,
+remove everything in rs from ts, and add something new to the head of the list:
+[(m+something,rs)].
+Keep doing that, adding layers until all later Tplts are used up.
+
+Note that maybe, when we build them, all layers above m are empty.
+That's fine -- in that case layer m is the next layer to consume.
 ***** consume the most-nested set of maxes
 :: ( Exprs, -- the sorted list we are accumulating
      Rslt,
@@ -455,14 +462,22 @@ sort b r n e = -- e is the list we've already accumulated
   else e ++ let n1 = build tops
                 (r2,n2,e2) = consume toppest tops
             in sort b r2 n2 e2
-***** algorithm
+***** putting it all together
+****** TODO Modify algorithm to check for cycles
+If the Rslt we're left with after successively taking lots of stuff out of it
+still has any relationships involving any of the templates in the BinRelOrdering,
+there are cycles.
+This means the return type of `sort` must include an Rslt,
+not just the sorted list.
+****** definition
 r0 = the graph we start with
 es = what we want to sort
-bro = the BinRelOrdering
-rs = all relationships in r0 involving bro
-r1 = the graph resticted to es, bro and rs
-return $ intersect es $ sort bro [] r1 mempty
-                      ++ any remaining es
+ts = the BinRelOrdering
+rs = all relationships in r0 involving any t in ts
+r1 = the graph resticted to es, ts and rs
+return $ intersect es
+       $ sort ts r1 [(0, es + members of rs)] []
+         ++ any remaining es
 *** stale
 **** goal
 The user should be able to ask to rank by any number of transitive Tplts.
