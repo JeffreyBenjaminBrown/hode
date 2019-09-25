@@ -13,7 +13,7 @@ import Hode.Rslt.RTypes
 
 test_module_NoUI :: Test
 test_module_NoUI = TestList [
-  TestLabel "test_insert" test_insert,
+  TestLabel "test_insert" test_insert
   ]
 
 test_insert :: Test

@@ -1,7 +1,13 @@
+* to load all non-broken modules when some are broken
+https://github.com/commercialhaskell/stack/issues/5037
+stack exec -- ghci -Wall
+:l Hode.Hode
 * roadmap|pressing (duplicative)
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO : show hosts is broken in UI
+    *** Exception: show MemberHosts: This math is good.
 * PIFALLs
 ** Hode.Rslt.Edit.delete can cause the address of (Phrase "") to change
 ** in Qseq
@@ -52,7 +58,7 @@ Use screenkey to show key presses:
 and SimpleScreenRecorder.
 Audio interface: remember to select both input and output devices.
 * user-friendliness
-** TODO use Lisp to control GHCI
+** TODO use (Lisp?) to control GHCI
 ** TODO give names to searches
 ** TODO insertion list
 *** plan
@@ -367,12 +373,102 @@ topological sort
  and in that language transitive search is a distinct concept.
 ** TODO ordered display
 (See also "transitive search".)
-*** goal
+*** lexicographic topological sort algorithm
+This is (the?) lexicographic variation of Kahn's algorithm.
+**** Overview
+
+***** Scenario
+N is a set of expressions to sort.
+{T1,T2..Tt} are binary templates to sort by,
+where for all i, Ti > T(i+1) in importance.
+Define R = all relationships involving any Ti.
+Define N' = N + members of all r in R.
+  Those two sets, presumably, overlap -- otherwise the sort is silly.
+***** 1 - build sets of "big" elements
+Define B1 = all elements of N' with no incoming T1 edges.
+  If |B1 > 1, define B2 = all elements of B1 with no incoming T2.
+    If multiple, define B3 ...
+***** 2 - "Consume" the biggest of those big sets
+Suppose there are k of those Bi sets.
+Add everything in Bk to the head of the list that will be our order,
+and remove everything from R that involves any of them.
+***** 3 - Consider the biggest remaining set, B(k-1)
+Construct another Bk = everything in B(k-1) with no incoming Tk edges.
+If it is nonempty, consume it (step 2).
+If it is empty, consume set B(k-1).
+***** ? Keep doing that
+Once we've consumed set B(k-1), we'll try to construct another B(k-1).
+And from that we might end up constructing another Bk.
+But eventually we'll consume every node that is members in some r in R.
+***** Stick the rest of N' onto the head of the list.
+Now the list is sorted, from least to greatest.
+**** functions to use
+Data.Map.findMax : gives the biggest key.
+**** types to define
+(TODO ? Arrays would be faster than maps.)
+***** newtypes Exprs = Relationships = Members = Tplts = [Addr]
+***** BinRelOrdering
+type BinRelOrdering = Map Int [Addr]
+A set of templates to sort by.
+Indices start at 1.
+Later templates are only used to break ties w/r/t earlier templates.
+***** NestedMaxes
+type NestedMaxes = Map Int [Addr]
+A NestedMaxes is only meaningful in the context of a BinRelOrdering.
+Their indices almost correspond, but a NestedMaxes also has index 0,
+which contains the entire subgraph of interest
+(everything in a Rel involving a Tplt of interest).
+The [Addr] at k is a subset of the [Addr] at k-1,
+and consists of elements of the latter which are maximal
+w/r/t Tplt k from the BinRelOrdering.
+**** functions to define
+***** all relationships involving the templates
+:: BinRelOrdering -> Relationships
+***** restrict graph
+:: Exprs -- the expressions we want to sort
+-> BinRelOrdering
+-> Rslt -- the graph we started with
+-> Rslt -- a graph including the Exprs, the BinRelOrdering, and every rel
+(both members + the relationship) invovling any Tplt in the BinRelOrdering
+***** build tops
+:: BinRelOrdering -> Rslt -> NestedMaxes -> NestedMaxes
+Let ko = the max key in the BinRelOrdering,
+    kn = the max key in the NestedMaxes for which its value is nonempty
+kn < ko, or else there's nothing to build.
+It could be that when we try to build layers above kn, they are all empty.
+That's fine -- in that case layer kn is next to consume.
+***** consume the most-nested set of maxes
+:: ( Exprs, -- the sorted list we are accumulating
+     Rslt,
+     NestedMaxes)
+-> ( Exprs, -- gains the biggest of the NestedMaxes
+     Rslt, -- loses those biggest, and any relationships involving them
+     NestedMaxes) -- loses those biggest
+***** sort
+:: BinRelOrdering -> Rslt -> NestedMaxes -> Exprs -> Exprs
+sort b e r n =
+  if empty n then e
+  else e ++ let n1 = build tops
+                (e2,r2,n2) = consume toppest tops
+            in sort b e2 r2 n2
+***** algorithm
+r0 = the graph we start with
+es = what we want to sort
+bro = the BinRelOrdering
+rs = all relationships in r0 involving bro
+r1 = the graph resticted to es, bro and rs
+return $ intersect es $ sort bro [] r1 mempty
+                      ++ any remaining es
+*** stale
+**** goal
 The user should be able to ask to rank by any number of transitive Tplts.
 Preference should be lexicographic across the Tplts.
-*** how
+**** how
 "topological sort"
 `topsort` from FGL should work.
+   https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
+   Kahn's algorithm runs in time linear in V + E.
+**** TODO what if you want to sort by more than one relation?
 ** TODO HExpr: add a symbol for "involves"
 *** the current (slow, incomplete) hack
 **** what it is
