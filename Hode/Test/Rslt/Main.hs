@@ -10,6 +10,7 @@ import Hode.Test.Rslt.TEdit
 import Hode.Test.Rslt.TIndex
 import Hode.Test.Rslt.TLookup
 import Hode.Test.Rslt.TShow
+import Hode.Test.Rslt.TSort
 import Hode.Test.Rslt.TValid
 
 
@@ -21,5 +22,6 @@ test_modules_hode_rslt = TestList [
   , test_module_rslt_exprToAddr
   , test_module_rslt_index
   , test_module_rslt_show
+  , test_module_rslt_sort
   , test_module_rslt_valid
   ]

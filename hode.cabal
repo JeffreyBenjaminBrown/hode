@@ -92,6 +92,7 @@ library
                 , Hode.Test.Rslt.TIndex_and_Valid
                 , Hode.Test.Rslt.TLookup
                 , Hode.Test.Rslt.TShow
+                , Hode.Test.Rslt.TSort
 
                 , Hode.Test.Main
 

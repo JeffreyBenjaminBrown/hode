@@ -17,7 +17,7 @@ import qualified Hode.Test.Rslt.RData   as D
 
 test_module_rslt_exprToAddr :: Test
 test_module_rslt_exprToAddr = TestList [
-  TestLabel "test_variety" test_variety
+    TestLabel "test_variety" test_variety
   , TestLabel "test_fills" test_fills
   , TestLabel "test_isIn" test_isIn
   , TestLabel "test_has" test_has

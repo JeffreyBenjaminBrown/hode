@@ -65,14 +65,14 @@ allNormalMembers r rels =
       flip M.withoutKeys (S.singleton RoleTplt) )
     members
 
-restrictRsltToSort ::
+restrictRsltForSort ::
      [Addr] -- ^ the `Expr`s to sort
   -> BinTpltOrder
   -> Rslt -- ^ the original `Rslt`
   -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
   -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
-restrictRsltToSort es bto r =
-  prefixLeft "restrictRsltToSort: " $ do
+restrictRsltForSort es bto r =
+  prefixLeft "restrictRsltForSort: " $ do
   let ts :: [TpltAddr] =  map snd $ M.elems bto
   rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
   mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
@@ -81,12 +81,16 @@ restrictRsltToSort es bto r =
                             rels ]
   Right $ mkRslt refExprs
 
-nothingIsGreater :: Rslt -> BinTpltOrder -> Int -> Addr
+-- | `maximal r (orient,t) k a` tests whether,
+-- with respect to `t` under the orientation `orient`,
+-- no `Expr` in `r` is greater than the one at `a`.
+-- For instance, if `orient` is `LeftIsBigger`,
+-- and `a` is on the right side of some relationship using
+-- `t` as its `Tplt`, then the result is `False`.
+maximal :: Rslt -> (BinOrientation, TpltAddr) -> Addr
                  -> Either String Bool
-nothingIsGreater r ord k a =
-  prefixLeft "nothingIsGreater: " $ do
-  (orient,t) <- maybe (Left "Key not in BinTpltOrder.") Right $
-                M.lookup k ord
+maximal r (orient,t) a =
+  prefixLeft "maximal: " $ do
   let roleIfLesser = case orient of
         LeftIsBigger -> RoleMember 2
         RightIsBigger -> RoleMember 1
@@ -94,3 +98,4 @@ nothingIsGreater r ord k a =
     HMap $ M.fromList [ (RoleTplt,     HExpr $ Addr t),
                         (roleIfLesser, HExpr $ Addr a) ]
   Right $ null relsInWhichItIsLesser
+

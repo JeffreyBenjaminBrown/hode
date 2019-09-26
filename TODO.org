@@ -6,6 +6,10 @@ stack exec -- ghci -Wall
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO wart: searching for a Tplt with empty-string joints is ugly
+One needs to represent the empty joint as \"\", as in this:
+    Right r = nInserts (mkRslt mempty) [ "0 # 1", "1 # 2" ]
+    t = nFind r "/t /_ \"\" /_"
 * TODO : show hosts is broken in UI
     *** Exception: show MemberHosts: This math is good.
 * PIFALLs
