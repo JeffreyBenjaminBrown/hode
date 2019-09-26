@@ -50,6 +50,7 @@ import Hode.Rslt.RUtil as X
 import Hode.Rslt.RValid as X
 import Hode.Rslt.Show as X
 import Hode.Rslt.Show' as X
+import Hode.Rslt.Sort as X
 -- import Hode.Rslt.Show.JustInCase as X
 import Hode.UI.BufferRowTree as X
 import Hode.UI.BufferTree as X

@@ -403,22 +403,22 @@ But eventually we'll consume every node that is members in some r in R.
 Now the list is sorted, from least to greatest.
 **** TODO functions to use
 Data.Map.findMax : gives the biggest key.
-**** TODO types to define
+**** DONE types to define
 (TODO ? Arrays would be faster than maps.)
 ***** newtypes Exprs = Relationships = Members = Tplts = [Addr]
-***** BinRelOrdering
-type BinRelOrdering = Map Int [Addr]
+***** BinTpltOrder
+type BinTpltOrder = Map Int [Addr]
 A set of templates to sort by.
 Indices start at 1.
 Later templates are only used to break ties w/r/t earlier templates.
 ***** NestedMaxes
 type NestedMaxes = (Int,[Addr])
-A NestedMaxes is only meaningful in the context of a BinRelOrdering.
-The first member of each pair is a number of Tplts in the BinRelOrdering.
+A NestedMaxes is only meaningful in the context of a BinTpltOrder.
+The first member of each pair is a number of Tplts in the BinTpltOrder.
 (0,[Addr]) represents the entire graph.
 (1,[Addr]) holds a subset of the [Addrs] in (0,[Addr]) which are tied
-w/r/t the first Tplt in the BinRelOrdering.
-The maximum value of the fst of each pair is the size of the BinRelOrdering.
+w/r/t the first Tplt in the BinTpltOrder.
+The maximum value of the fst of each pair is the size of the BinTpltOrder.
 Greater values of the fst of each pair are found earlier in the list.
 Those fst values do not have to increase consecutively.
 For instance, if the last element of the list is (0,as0),
@@ -426,16 +426,16 @@ and nothing in as0 is involved in a relationship using the first Tplt,
 then the fst of the elmenet in front of it will be greater than 1.
 **** TODO functions to define
 ***** all relationships involving the templates
-:: BinRelOrdering -> Relationships
+:: Rslt -> BinTpltOrder -> Relationships
 ***** restrict graph
 :: Exprs -- the expressions we want to sort
--> BinRelOrdering
+-> BinTpltOrder
 -> Rslt -- the graph we started with
--> Rslt -- a graph including the Exprs, the BinRelOrdering, and every rel
-(both members + the relationship) invovling any Tplt in the BinRelOrdering
+-> Rslt -- a graph including the Exprs, the BinTpltOrder, and every rel
+(both members + the relationship) invovling any Tplt in the BinTpltOrder
 ***** build tops
-:: BinRelOrdering -> Rslt -> NestedMaxes -> NestedMaxes
-Let o = the max key in the BinRelOrdering,
+:: BinTpltOrder -> Rslt -> NestedMaxes -> NestedMaxes
+Let o = the max key in the BinTpltOrder,
     m = the max key in the NestedMaxes for which its value is nonempty
 m < o, or else there's nothing to build.
 Suppose the head of the NestedMaxes is [(m,ts)].
@@ -456,7 +456,7 @@ That's fine -- in that case layer m is the next layer to consume.
      Rslt, -- loses those biggest, and any relationships involving them
      NestedMaxes) -- loses those biggest
 ***** sort
-:: BinRelOrdering -> Rslt -> NestedMaxes -> Exprs -> Exprs
+:: BinTpltOrder -> Rslt -> NestedMaxes -> Exprs -> Exprs
 sort b r n e = -- e is the list we've already accumulated
   if empty n then e
   else e ++ let n1 = build tops
@@ -465,14 +465,14 @@ sort b r n e = -- e is the list we've already accumulated
 ***** putting it all together
 ****** TODO Modify algorithm to check for cycles
 If the Rslt we're left with after successively taking lots of stuff out of it
-still has any relationships involving any of the templates in the BinRelOrdering,
+still has any relationships involving any of the templates in the BinTpltOrder,
 there are cycles.
 This means the return type of `sort` must include an Rslt,
 not just the sorted list.
 ****** definition
 r0 = the graph we start with
 es = what we want to sort
-ts = the BinRelOrdering
+ts = the BinTpltOrder
 rs = all relationships in r0 involving any t in ts
 r1 = the graph resticted to es, ts and rs
 return $ intersect es
