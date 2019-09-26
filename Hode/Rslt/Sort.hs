@@ -7,6 +7,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Hode.Rslt.Index
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
@@ -15,11 +16,11 @@ import Hode.Util.Misc
 -- | Synonyms.
 data BinTpltSense = LeftIsBigger | RightIsBigger
 
-type RelSyn    = Addr
-type MemberSyn = Addr
-type TpltSyn   = Addr
+type RelAddr    = Addr
+type MemberAddr = Addr
+type TpltAddr   = Addr
 
-type BinTpltOrder = Map Int (BinTpltSense, TpltSyn)
+type BinTpltOrder = Map Int (BinTpltSense, TpltAddr)
 
 -- | A `NestedMaxes` is only meaningful in the context of a `BinTpltOrder`.
 -- The first member of each pair is a number of Tplts in the BinTpltOrder.
@@ -41,13 +42,36 @@ type NestedMaxes = [(Int,[Addr])]
 
 
 allRelsInvolvingTplts ::
-  Rslt -> BinTpltOrder -> Either String (Set RelSyn)
-allRelsInvolvingTplts r bto = do
-  let ts :: [TpltSyn] = map snd $ M.elems bto
-  hostRels :: [Set (Role,RelSyn)] <-
+  Rslt -> [TpltAddr] -> Either String (Set RelAddr)
+allRelsInvolvingTplts r ts = do
+  hostRels :: [Set (Role, RelAddr)] <-
     ifLefts $ map (isIn r) ts
   Right $ S.unions $
         map ( S.map snd .
               S.filter ((==) RoleTplt . fst) )
         hostRels
 
+allNormalMembers ::
+  Rslt -> [RelAddr] -> Either String [RelAddr]
+allNormalMembers r rels = do
+  members :: [Map Role Addr] <-
+    ifLefts $ map (has r) rels
+  Right $ concatMap
+    ( M.elems .
+      flip M.withoutKeys (S.singleton RoleTplt) )
+    members
+
+restrictRsltToSort ::
+     [Addr] -- ^ the `Expr`s to sort
+  -> BinTpltOrder
+  -> Rslt -- ^ the original `Rslt`
+  -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
+  -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
+restrictRsltToSort es bto r = do
+  let ts :: [TpltAddr] =  map snd $ M.elems bto
+  rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
+  mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
+  let refExprs = M.restrictKeys (_addrToRefExpr r) $
+                 S.unions [ S.fromList $ es ++ ts ++ mems,
+                            rels ]
+  Right $ mkRslt refExprs
