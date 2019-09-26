@@ -7,6 +7,8 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Hode.Hash.HLookup
+import Hode.Hash.HTypes
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
@@ -14,18 +16,18 @@ import Hode.Util.Misc
 
 
 -- | Synonyms.
-data BinTpltSense = LeftIsBigger | RightIsBigger
+data BinOrientation = LeftIsBigger | RightIsBigger
 
 type RelAddr    = Addr
 type MemberAddr = Addr
 type TpltAddr   = Addr
 
-type BinTpltOrder = Map Int (BinTpltSense, TpltAddr)
+type BinTpltOrder = Map Int (BinOrientation, TpltAddr)
 
--- | A `NestedMaxes` is only meaningful in the context of a `BinTpltOrder`.
+-- | A `TopSets` is only meaningful in the context of a `BinTpltOrder`.
 -- The first member of each pair is a number of Tplts in the BinTpltOrder.
 -- Initially the only member, (0,_), represents the entire graph.
--- Whenever a new pair is pushed onto a `NestedMaxes`,
+-- Whenever a new pair is pushed onto a `TopSets`,
 -- its addresses will be taken (not copied) from the previous head
 -- it will start with a number higher than the previous head,
 -- which indicates the number of `Tplt`s in the `BinTpltOrder`
@@ -38,12 +40,13 @@ type BinTpltOrder = Map Int (BinTpltSense, TpltAddr)
 -- that uses the first or second `Tplt` in the `BinTpltOrder`,
 -- then the next pair to be pushed onto the front of the list
 -- will have a `fst` greater than `2`.
-type NestedMaxes = [(Int,[Addr])]
+type TopSets = [(Int,[Addr])]
 
 
 allRelsInvolvingTplts ::
   Rslt -> [TpltAddr] -> Either String (Set RelAddr)
-allRelsInvolvingTplts r ts = do
+allRelsInvolvingTplts r ts =
+  prefixLeft "allRelsInvolvingTplts: " $ do
   hostRels :: [Set (Role, RelAddr)] <-
     ifLefts $ map (isIn r) ts
   Right $ S.unions $
@@ -53,7 +56,8 @@ allRelsInvolvingTplts r ts = do
 
 allNormalMembers ::
   Rslt -> [RelAddr] -> Either String [RelAddr]
-allNormalMembers r rels = do
+allNormalMembers r rels =
+  prefixLeft "allNormalMembers: " $ do
   members :: [Map Role Addr] <-
     ifLefts $ map (has r) rels
   Right $ concatMap
@@ -67,7 +71,8 @@ restrictRsltToSort ::
   -> Rslt -- ^ the original `Rslt`
   -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
   -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
-restrictRsltToSort es bto r = do
+restrictRsltToSort es bto r =
+  prefixLeft "restrictRsltToSort: " $ do
   let ts :: [TpltAddr] =  map snd $ M.elems bto
   rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
   mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
@@ -75,3 +80,17 @@ restrictRsltToSort es bto r = do
                  S.unions [ S.fromList $ es ++ ts ++ mems,
                             rels ]
   Right $ mkRslt refExprs
+
+nothingIsGreater :: Rslt -> BinTpltOrder -> Int -> Addr
+                 -> Either String Bool
+nothingIsGreater r ord k a =
+  prefixLeft "nothingIsGreater: " $ do
+  (orient,t) <- maybe (Left "Key not in BinTpltOrder.") Right $
+                M.lookup k ord
+  let roleIfLesser = case orient of
+        LeftIsBigger -> RoleMember 2
+        RightIsBigger -> RoleMember 1
+  relsInWhichItIsLesser <- hExprToAddrs r mempty $
+    HMap $ M.fromList [ (RoleTplt,     HExpr $ Addr t),
+                        (roleIfLesser, HExpr $ Addr a) ]
+  Right $ null relsInWhichItIsLesser

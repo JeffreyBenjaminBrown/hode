@@ -411,9 +411,9 @@ type BinTpltOrder = Map Int [Addr]
 A set of templates to sort by.
 Indices start at 1.
 Later templates are only used to break ties w/r/t earlier templates.
-***** NestedMaxes
-type NestedMaxes = (Int,[Addr])
-A NestedMaxes is only meaningful in the context of a BinTpltOrder.
+***** TopSets
+type TopSets = (Int,[Addr])
+A TopSets is only meaningful in the context of a BinTpltOrder.
 The first member of each pair is a number of Tplts in the BinTpltOrder.
 (0,[Addr]) represents the entire graph.
 (1,[Addr]) holds a subset of the [Addrs] in (0,[Addr]) which are tied
@@ -427,18 +427,18 @@ then the fst of the elmenet in front of it will be greater than 1.
 **** TODO functions to define
 ***** DONE all relationships involving the templates
 :: Rslt -> BinTpltOrder -> Relationships
-***** restrict graph
+***** DONE restrict graph
 :: Exprs -- the expressions we want to sort
 -> BinTpltOrder
 -> Rslt -- the graph we started with
 -> Rslt -- a graph including the Exprs, the BinTpltOrder, and every rel
 (both members + the relationship) invovling any Tplt in the BinTpltOrder
 ***** build tops
-:: BinTpltOrder -> Rslt -> NestedMaxes -> NestedMaxes
+:: BinTpltOrder -> Rslt -> TopSets -> TopSets
 Let o = the max key in the BinTpltOrder,
-    m = the max key in the NestedMaxes for which its value is nonempty
+    m = the max key in the TopSets for which its value is nonempty
 m < o, or else there's nothing to build.
-Suppose the head of the NestedMaxes is [(m,ts)].
+Suppose the head of the TopSets is [(m,ts)].
 Let rs = all t in ts which are tied w/r/t the (m+1)st Tplt.
 If that's empty, try the (m+2)nd.
 As soon as a later-ranking Tplt is found for which the set rs is nonempty,
@@ -451,12 +451,12 @@ That's fine -- in that case layer m is the next layer to consume.
 ***** consume the most-nested set of maxes
 :: ( Exprs, -- the sorted list we are accumulating
      Rslt,
-     NestedMaxes)
--> ( Exprs, -- gains the biggest of the NestedMaxes
+     TopSets)
+-> ( Exprs, -- gains the biggest of the TopSets
      Rslt, -- loses those biggest, and any relationships involving them
-     NestedMaxes) -- loses those biggest
+     TopSets) -- loses those biggest
 ***** sort
-:: BinTpltOrder -> Rslt -> NestedMaxes -> Exprs -> Exprs
+:: BinTpltOrder -> Rslt -> TopSets -> Exprs -> Exprs
 sort b r n e = -- e is the list we've already accumulated
   if empty n then e
   else e ++ let n1 = build tops
