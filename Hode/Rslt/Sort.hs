@@ -7,17 +7,19 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Hode.Rslt.RTypes
 import Hode.Rslt.RLookup
+import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
 
 -- | Synonyms.
+data BinTpltSense = LeftIsBigger | RightIsBigger
+
 type RelSyn    = Addr
 type MemberSyn = Addr
 type TpltSyn   = Addr
 
-type BinTpltOrder = Map Int TpltSyn
+type BinTpltOrder = Map Int (BinTpltSense, TpltSyn)
 
 -- | A `NestedMaxes` is only meaningful in the context of a `BinTpltOrder`.
 -- The first member of each pair is a number of Tplts in the BinTpltOrder.
@@ -41,7 +43,7 @@ type NestedMaxes = [(Int,[Addr])]
 allRelsInvolvingTplts ::
   Rslt -> BinTpltOrder -> Either String (Set RelSyn)
 allRelsInvolvingTplts r bto = do
-  let ts :: [TpltSyn] = M.elems bto
+  let ts :: [TpltSyn] = map snd $ M.elems bto
   hostRels :: [Set (Role,RelSyn)] <-
     ifLefts $ map (isIn r) ts
   Right $ S.unions $

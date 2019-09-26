@@ -425,7 +425,7 @@ For instance, if the last element of the list is (0,as0),
 and nothing in as0 is involved in a relationship using the first Tplt,
 then the fst of the elmenet in front of it will be greater than 1.
 **** TODO functions to define
-***** all relationships involving the templates
+***** DONE all relationships involving the templates
 :: Rslt -> BinTpltOrder -> Relationships
 ***** restrict graph
 :: Exprs -- the expressions we want to sort
