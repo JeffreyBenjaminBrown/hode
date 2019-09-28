@@ -2,13 +2,10 @@
 
 module Hode.Test.Rslt.TSort where
 
-import           Data.Either
-import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
 import Hode.Rslt.Index
-import Hode.Rslt.RTypes
 import Hode.Rslt.Sort
 import Hode.UI.NoUI
 
