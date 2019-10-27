@@ -1,12 +1,3 @@
--- PITFALL: Lately stack ghci won't load anything at all
-   -- if any module won't compile.
-   -- Anything disabled with two dashes at the far-left is
-   -- "temporarily disabled", meaning I intend to un-disable it
-   -- once upstream stuff works.
-   -- Anything disabled with dashes farther to the right
-   -- is something I'll probably want to leave disabled,
-   -- but have retained in case I need to study how it works.
-
 cabal-version: 1.12
 
 -- This file has been generated from package.yaml by hpack version 0.31.1.

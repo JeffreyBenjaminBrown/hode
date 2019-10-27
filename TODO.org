@@ -1,3 +1,6 @@
+* PTIFALL: stack: if no libraries are available
+try `stack exec -- ghci`
+https://github.com/commercialhaskell/stack/issues/5037#issuecomment-537847155
 * to load all non-broken modules when some are broken
 https://github.com/commercialhaskell/stack/issues/5037
 stack exec -- ghci -Wall
