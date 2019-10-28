@@ -381,7 +381,19 @@ Function is called `topsort`
    https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
 Kahn's algorithm runs in time linear in V + E.
 *** todo ? multi-Tplt topological sort
-see earlier-work/lexico-topo-sort
+**** if I could identify a set of tied w/r/t tplt-1 tops
+then I could sort them by tplt 2, etc.
+I suspect I could do this by:
+  (1) scan the graph for everything that's top. They are tied.
+  (2) When picking off those tied things, if anything becomes top,
+      don't stick it at the end of the same list.
+      Rather put it in a new list. That list will then consist of ties, too.
+  (3) Repeat until done.
+This is especially nice because it means I can just code the single-tplt sort for now,
+and later, if need be, implement multi-tplt sort in terms of it.
+**** maybe see earlier-work/lexico-topo-sort
+Most of that work, though, describes a wholly different algorithm.
+I would prefer this one, if it really does make sense.
 ** TODO HExpr: add a symbol for "involves"
 *** the current (slow, incomplete) hack
 **** what it is
