@@ -91,8 +91,6 @@ see digraphs-with-text/gadt.hs
 ** TODO simplify result of nPExpr
 e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
 nPExpr q = Right ( PRel $ PNonRel $ ...
-** TODO rename SearchDir
-Use two types: SearchDir and BinMember
 ** wart: ifLefts and LeftStrings
 *** could be replaced with Data.Validation
 which comes with toEither and fromEither
@@ -378,121 +376,12 @@ topological sort
  and in that language transitive search is a distinct concept.
 ** TODO ordered display
 (See also "transitive search".)
-*** lexicographic topological sort algorithm
-This is (the?) lexicographic variation of Kahn's algorithm.
-**** Overview
-***** Scenario
-N is a set of expressions to sort.
-{T1,T2..Tt} are binary templates to sort by,
-where for all i, Ti > T(i+1) in importance.
-Define R = all relationships involving any Ti.
-Define N' = N + members of all r in R.
-  Those two sets, presumably, overlap -- otherwise the sort is silly.
-***** 1 - build sets of "big" elements
-Define B1 = all elements of N' with no incoming T1 edges.
-  If |B1 > 1, define B2 = all elements of B1 with no incoming T2.
-    If multiple, define B3 ...
-***** 2 - "Consume" the biggest of those big sets
-Suppose there are k of those Bi sets.
-Add everything in Bk to the head of the list that will be our order,
-and remove everything from R that involves any of them.
-***** 3 - Consider the biggest remaining set, B(k-1)
-Construct another Bk = everything in B(k-1) with no incoming Tk edges.
-If it is nonempty, consume it (step 2).
-If it is empty, consume set B(k-1).
-***** ? Keep doing that
-Once we've consumed set B(k-1), we'll try to construct another B(k-1).
-And from that we might end up constructing another Bk.
-But eventually we'll consume every node that is members in some r in R.
-***** Stick the rest of N' onto the head of the list.
-Now the list is sorted, from least to greatest.
-**** TODO functions to use
-Data.Map.findMax : gives the biggest key.
-**** DONE types to define
-(TODO ? Arrays would be faster than maps.)
-***** newtypes Exprs = Relationships = Members = Tplts = [Addr]
-***** BinTpltOrder
-type BinTpltOrder = Map Int [Addr]
-A set of templates to sort by.
-Indices start at 1.
-Later templates are only used to break ties w/r/t earlier templates.
-***** TopSets
-type TopSets = (Int,[Addr])
-A TopSets is only meaningful in the context of a BinTpltOrder.
-The first member of each pair is a number of Tplts in the BinTpltOrder.
-(0,[Addr]) represents the entire graph.
-(1,[Addr]) holds a subset of the [Addrs] in (0,[Addr]) which are tied
-w/r/t the first Tplt in the BinTpltOrder.
-The maximum value of the fst of each pair is the size of the BinTpltOrder.
-Greater values of the fst of each pair are found earlier in the list.
-Those fst values do not have to increase consecutively.
-For instance, if the last element of the list is (0,as0),
-and nothing in as0 is involved in a relationship using the first Tplt,
-then the fst of the elmenet in front of it will be greater than 1.
-**** TODO functions to define
-***** DONE collect relationships involving the templates
-:: Rslt -> BinTpltOrder -> Relationships
-***** DONE restrict graph
-:: Exprs -- the expressions we want to sort
--> BinTpltOrder
--> Rslt -- the graph we started with
--> Rslt -- a graph including the Exprs, the BinTpltOrder, and every rel
-(both members + the relationship) invovling any Tplt in the BinTpltOrder
-***** build tops
-:: BinTpltOrder -> Rslt -> TopSets -> TopSets
-Let o = the max key in the BinTpltOrder,
-    m = the max key in the TopSets for which its value is nonempty
-m < o, or else there's nothing to build.
-Suppose the head of the TopSets is [(m,ts)].
-Let rs = all t in ts which are tied w/r/t the (m+1)st Tplt.
-If that's empty, try the (m+2)nd.
-As soon as a later-ranking Tplt is found for which the set rs is nonempty,
-remove everything in rs from ts, and add something new to the head of the list:
-[(m+something,rs)].
-Keep doing that, adding layers until all later Tplts are used up.
-
-Note that maybe, when we build them, all layers above m are empty.
-That's fine -- in that case layer m is the next layer to consume.
-***** consume the most-nested set of maxes
-:: ( Exprs, -- the sorted list we are accumulating
-     Rslt,
-     TopSets)
--> ( Exprs, -- gains the biggest of the TopSets
-     Rslt, -- loses those biggest, and any relationships involving them
-     TopSets) -- loses those biggest
-***** sort
-:: BinTpltOrder -> Rslt -> TopSets -> Exprs -> Exprs
-sort b r n e = -- e is the list we've already accumulated
-  if empty n then e
-  else e ++ let n1 = build tops
-                (r2,n2,e2) = consume toppest tops
-            in sort b r2 n2 e2
-***** putting it all together
-****** TODO Modify algorithm to check for cycles
-If the Rslt we're left with after successively taking lots of stuff out of it
-still has any relationships involving any of the templates in the BinTpltOrder,
-there are cycles.
-This means the return type of `sort` must include an Rslt,
-not just the sorted list.
-****** definition
-r0 = the graph we start with
-es = what we want to sort
-ts = the BinTpltOrder
-rs = all relationships in r0 involving any t in ts
-r1 = the graph resticted to es, ts and rs
-return $ intersect es
-       $ sort ts r1 [(0, es + members of rs)] []
-         ++ any remaining es
-*** stale
-**** goal
-The user should be able to ask to rank by any number of transitive Tplts.
-Preference should be lexicographic across the Tplts.
-**** how
-"topological sort"
-`topsort` from FGL should work.
+*** TODO single-Tplt topological sort: use FGL
+Function is called `topsort`
    https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
-   Kahn's algorithm runs in time linear in V + E.
-**** TODO what if you want to sort by more than one relation?
+Kahn's algorithm runs in time linear in V + E.
+*** todo ? multi-Tplt topological sort
+see earlier-work/lexico-topo-sort
 ** TODO HExpr: add a symbol for "involves"
 *** the current (slow, incomplete) hack
 **** what it is

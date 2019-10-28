@@ -16,27 +16,6 @@ import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
 
-type BinTpltOrder = Map Int (BinOrientation, TpltAddr)
-
-type TopSets = [(Int,[Addr])]
--- ^ A `TopSets` is only meaningful in the context of a `BinTpltOrder`.
--- The first member of each pair is a number of Tplts in the BinTpltOrder.
--- Initially (when starting a search)
--- the only member, (0,_), represents the entire graph.
--- Whenever a new pair is pushed onto a `TopSets`,
--- its addresses will be taken (not copied) from the previous head.
--- It will start with a number higher than the previous head,
--- which indicates the number of `Tplt`s in the `BinTpltOrder`
--- that they are all "equally maximal" w/r/t.
--- (The order is partial, so they're not exactly equal,
--- but none is bigger than the others.)
--- The `fst`s do not have to increase consecutively.
--- For instance, if the only element of the list is `(0,as0)`,
--- and nothing in `as0` is involved in a relationship
--- that uses the first or second `Tplt` in the `BinTpltOrder`,
--- then the next pair to be pushed onto the front of the list
--- will have a `fst` greater than `2`.
-
 -- | `allRelsInvolvingTplts r ts` finds every `Rel`
 -- that uses a member of `ts` as a `Tplt`.
 allRelsInvolvingTplts ::
@@ -64,15 +43,13 @@ allNormalMembers r rels =
     members
 
 restrictRsltForSort ::
-     [Addr] -- ^ the `Expr`s to sort
-  -> BinTpltOrder -- ^ How to sort. This function only uses the `Tplt`s,
-                  -- not the ordering on them.
-  -> Rslt -- ^ the original `Rslt`
+     [Addr]     -- ^ the `Expr`s to sort
+  -> [TpltAddr] -- ^ how to sort
+  -> Rslt       -- ^ the original `Rslt`
   -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
   -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
-restrictRsltForSort es bto r =
+restrictRsltForSort es ts r =
   prefixLeft "restrictRsltForSort: " $ do
-  let ts :: [TpltAddr] =  map snd $ M.elems bto
   rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
   mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
   let refExprs = M.restrictKeys (_addrToRefExpr r) $
@@ -80,18 +57,18 @@ restrictRsltForSort es bto r =
                             rels ]
   Right $ mkRslt refExprs
 
--- | `maximal r (orient,t) k a` tests whether,
+-- | `maximal r (orient,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
 -- no `Expr` in `r` is greater than the one at `a`.
 -- For instance, if `ort` is `LeftIsBigger`,
 -- and `a` is on the right side of some relationship using
 -- `t` as its `Tplt`, then the result is `False`.
 maximal :: Rslt -> (BinOrientation, TpltAddr) -> Addr
-                 -> Either String Bool
+        -> Either String Bool
 maximal r (ort,t) a =
   prefixLeft "maximal: " $ do
   let roleIfLesser = case ort of
-        LeftIsBigger -> RoleMember 2
+        LeftIsBigger  -> RoleMember 2
         RightIsBigger -> RoleMember 1
   relsInWhichItIsLesser <- hExprToAddrs r mempty $
     HMap $ M.fromList [ (RoleTplt,     HExpr $ Addr t),
