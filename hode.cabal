@@ -24,9 +24,9 @@ library
                   Hode.Hode
                 , Hode.Temp
                 , Hode.Brick
-                , Hode.Data.Graph
+                -- , Hode.Data.Graph    -- to avoid collisions
                 , Hode.Data.Map
-                , Hode.Data.Relation
+                -- , Hode.Data.Relation -- to avoid collisions
 
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr

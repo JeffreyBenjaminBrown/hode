@@ -1,4 +1,6 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE
+ScopedTypeVariables,
+TupleSections #-}
 
 module Hode.Rslt.Sort where
 
@@ -6,6 +8,7 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
+import           Data.Traversable (mapM)
 
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
@@ -57,16 +60,16 @@ restrictRsltForSort es ts r =
                             rels ]
   Right $ mkRslt refExprs
 
--- | `maximal r (orient,t) a` tests whether,
+-- | `isTop r (orient,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
 -- no `Expr` in `r` is greater than the one at `a`.
 -- For instance, if `ort` is `LeftIsBigger`,
 -- and `a` is on the right side of some relationship using
 -- `t` as its `Tplt`, then the result is `False`.
-maximal :: Rslt -> (BinOrientation, TpltAddr) -> Addr
+isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
         -> Either String Bool
-maximal r (ort,t) a =
-  prefixLeft "maximal: " $ do
+isTop r (ort,t) a =
+  prefixLeft "isTop: " $ do
   let roleIfLesser = case ort of
         LeftIsBigger  -> RoleMember 2
         RightIsBigger -> RoleMember 1
@@ -74,3 +77,14 @@ maximal r (ort,t) a =
     HMap $ M.fromList [ (RoleTplt,     HExpr $ Addr t),
                         (roleIfLesser, HExpr $ Addr a) ]
   Right $ null relsInWhichItIsLesser
+
+allTops :: Rslt
+        -> (BinOrientation, TpltAddr)
+        -> [Addr] -- ^ candidates
+        -> Either String [Addr]
+allTops r (bort,t) as =
+  prefixLeft "allTops" $ do
+  let withIsTop :: Addr -> Either String (Bool, Addr)
+      withIsTop a = (,a) <$> isTop r (bort,t) a
+  map snd . filter fst <$> mapM withIsTop as
+

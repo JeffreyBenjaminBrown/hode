@@ -376,11 +376,12 @@ topological sort
  and in that language transitive search is a distinct concept.
 ** TODO ordered display
 (See also "transitive search".)
-*** single-Tplt topological sort: use FGL
+*** TODO Kahn's algorithm
+runs in time linear in V + E.
+*** single-Tplt topological sort
 **** PITFALL: hit-graph: I couldn't get it to work.
 Function is called `topsort`
    https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
-Kahn's algorithm runs in time linear in V + E.
 *** todo ? multi-Tplt topological sort
 **** if I could identify a set of tied w/r/t tplt-1 tops
 then I could sort them by tplt 2, etc.

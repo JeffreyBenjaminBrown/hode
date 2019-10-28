@@ -2,8 +2,8 @@ module Hode.Hode (module X) where
 
 import Hode.Brick as X
 -- import Hode.Brick.ScreenWrap.JustInCase as X
-import Hode.Data.Graph as X
--- import Hode.Data.Relation as X
+-- import Hode.Data.Graph as X    -- to avoid collisions
+-- import Hode.Data.Relation as X -- to avoid collisions
 import Hode.Test.Main as X
 -- import Hode.Test.Hash.TConvert as X
 -- import Hode.Test.Hash.THLookup as X
