@@ -65,7 +65,8 @@ allNormalMembers r rels =
 
 restrictRsltForSort ::
      [Addr] -- ^ the `Expr`s to sort
-  -> BinTpltOrder
+  -> BinTpltOrder -- ^ How to sort. This function only uses the `Tplt`s,
+                  -- not the ordering on them.
   -> Rslt -- ^ the original `Rslt`
   -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
   -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
@@ -80,16 +81,16 @@ restrictRsltForSort es bto r =
   Right $ mkRslt refExprs
 
 -- | `maximal r (orient,t) k a` tests whether,
--- with respect to `t` under the orientation `orient`,
+-- with respect to `t` under the orientation `ort`,
 -- no `Expr` in `r` is greater than the one at `a`.
--- For instance, if `orient` is `LeftIsBigger`,
+-- For instance, if `ort` is `LeftIsBigger`,
 -- and `a` is on the right side of some relationship using
 -- `t` as its `Tplt`, then the result is `False`.
 maximal :: Rslt -> (BinOrientation, TpltAddr) -> Addr
                  -> Either String Bool
-maximal r (orient,t) a =
+maximal r (ort,t) a =
   prefixLeft "maximal: " $ do
-  let roleIfLesser = case orient of
+  let roleIfLesser = case ort of
         LeftIsBigger -> RoleMember 2
         RightIsBigger -> RoleMember 1
   relsInWhichItIsLesser <- hExprToAddrs r mempty $
