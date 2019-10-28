@@ -39,7 +39,7 @@ import Hode.Hash.HTypes
 import Hode.Hash.HUtil
 import Hode.Qseq.QTypes
 import Hode.Rslt.RTypes
-import Hode.Rslt.BinTypes
+import Hode.Rslt.Binary
 import Hode.Rslt.RLookup
 import Hode.Util.Misc
 

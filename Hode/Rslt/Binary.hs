@@ -1,4 +1,4 @@
-module Hode.Rslt.BinTypes where
+module Hode.Rslt.Binary where
 
 
 -- | Used in sorting and transitive searches, for binary `Tplt`s.

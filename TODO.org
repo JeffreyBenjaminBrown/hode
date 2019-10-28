@@ -376,7 +376,8 @@ topological sort
  and in that language transitive search is a distinct concept.
 ** TODO ordered display
 (See also "transitive search".)
-*** TODO single-Tplt topological sort: use FGL
+*** single-Tplt topological sort: use FGL
+**** PITFALL: hit-graph: I couldn't get it to work.
 Function is called `topsort`
    https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
 Kahn's algorithm runs in time linear in V + E.
@@ -494,6 +495,8 @@ From the Buffer Tree view, allow the user to mark buffers with unique integer in
 To move "right" in the buffer ring is to move to the buffer with the least index greater than the current one, and left to the one with the greatest index less than, except wrapping at the edges.
 * TODO collect use cases
 ** view notes from a text ordered by source text or topic
+** collective note taking
+https://blogs.agu.org/geoedtrek/2016/12/28/collaborative-note-taking/
 * bugs
 ** meh: the empty unary relationship
 "# x" is treated the same as "x #"

@@ -12,7 +12,7 @@ import Data.Map (Map)
 
 import Hode.Qseq.QTypes
 import Hode.Rslt.RTypes
-import Hode.Rslt.BinTypes
+import Hode.Rslt.Binary
 
 
 type Level = Int

@@ -11,7 +11,7 @@ import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
-import Hode.Rslt.BinTypes
+import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
@@ -74,4 +74,3 @@ maximal r (ort,t) a =
     HMap $ M.fromList [ (RoleTplt,     HExpr $ Addr t),
                         (roleIfLesser, HExpr $ Addr a) ]
   Right $ null relsInWhichItIsLesser
-

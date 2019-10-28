@@ -46,7 +46,7 @@ import Hode.Rslt.Index as X
 import Hode.Rslt.RLookup as X
 -- import Hode.Rslt.RLookup.RConvert as X
   -- redundant since it's all re-exported from Rslt.RLookup
-import Hode.Rslt.BinTypes as X
+import Hode.Rslt.Binary as X
 import Hode.Rslt.RTypes as X
 import Hode.Rslt.RUtil as X
 import Hode.Rslt.RValid as X

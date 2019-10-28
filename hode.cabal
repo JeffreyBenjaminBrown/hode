@@ -50,7 +50,7 @@ library
                   -- , Hode.Rslt.Edit.Replace
                   -- , Hode.Rslt.Edit.AndSearch
 
-                , Hode.Rslt.BinTypes
+                , Hode.Rslt.Binary
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
                 , Hode.Rslt.RLookup
@@ -119,31 +119,27 @@ library
   other-modules:
   build-depends:
                 base
-              , binary
               , brick
+                , vty
               , containers
               , deriving-compat
-              , deepseq
               , directory
               , either
               , filepath
               , HUnit
               , lens
-              , megaparsec
-              , microlens
-              , microlens-th
+                , microlens
+                , microlens-th
               , parser-combinators
+                , megaparsec
               , pointedlist
               , process
-              , regex-compat
               , recursion-schemes
-              , rosezipper
               , text
-              , text-zipper
+                , regex-compat
               , vector
-              , vty
-              , word-wrap
               , zippers
+                , text-zipper
   default-language: Haskell2010
 
 -- executable hode-exe

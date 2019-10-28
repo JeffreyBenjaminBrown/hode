@@ -100,6 +100,8 @@ data Rslt = Rslt {
   } deriving (Eq, Ord, Read, Show)
 
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.
+-- Whereas an `Expr` is a recursive type, a `RefExpr` is flat
+-- (but each `Addr` it contains refers to another `RefExpr`).
 -- Unlike an `Expr`, a `RefExpr` is not meaningful on its own;
 -- it requires the context of an `Rslt`.
 data RefExpr =

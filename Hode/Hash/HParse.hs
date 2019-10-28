@@ -44,7 +44,7 @@ import Hode.Hash.HTypes
 import Hode.Hash.HUtil
 import Hode.Hash.Hash
 import Hode.Qseq.QTypes (Var(..))
-import Hode.Rslt.BinTypes
+import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.Util.Alternation
 import Hode.Util.UParse
