@@ -18,12 +18,14 @@ import Hode.Util.Misc
 
 type BinTpltOrder = Map Int (BinOrientation, TpltAddr)
 
--- | A `TopSets` is only meaningful in the context of a `BinTpltOrder`.
+type TopSets = [(Int,[Addr])]
+-- ^ A `TopSets` is only meaningful in the context of a `BinTpltOrder`.
 -- The first member of each pair is a number of Tplts in the BinTpltOrder.
--- Initially the only member, (0,_), represents the entire graph.
+-- Initially (when starting a search)
+-- the only member, (0,_), represents the entire graph.
 -- Whenever a new pair is pushed onto a `TopSets`,
--- its addresses will be taken (not copied) from the previous head
--- it will start with a number higher than the previous head,
+-- its addresses will be taken (not copied) from the previous head.
+-- It will start with a number higher than the previous head,
 -- which indicates the number of `Tplt`s in the `BinTpltOrder`
 -- that they are all "equally maximal" w/r/t.
 -- (The order is partial, so they're not exactly equal,
@@ -34,8 +36,6 @@ type BinTpltOrder = Map Int (BinOrientation, TpltAddr)
 -- that uses the first or second `Tplt` in the `BinTpltOrder`,
 -- then the next pair to be pushed onto the front of the list
 -- will have a `fst` greater than `2`.
-type TopSets = [(Int,[Addr])]
-
 
 allRelsInvolvingTplts ::
   Rslt -> [TpltAddr] -> Either String (Set RelAddr)

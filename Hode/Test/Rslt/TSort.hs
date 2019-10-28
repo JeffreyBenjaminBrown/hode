@@ -7,15 +7,33 @@ import           Test.HUnit
 
 import Hode.Rslt.Index
 import Hode.Rslt.BinTypes
-import Hode.Rslt.RTypes
 import Hode.Rslt.Sort
 import Hode.UI.NoUI
 
 
 test_module_rslt_sort :: Test
 test_module_rslt_sort = TestList [
-  TestLabel "test_nothingIsGreater" test_nothingIsGreater
+  TestLabel "test_nothingIsGreater" test_nothingIsGreater,
+  TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts
   ]
+
+test_allRelsInvolvingTplts :: Test
+test_allRelsInvolvingTplts = TestCase $ do
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "2 #b 3",
+                                           "4 #b 5" ]
+      Right tplt_a = head . S.toList <$> nFindAddrs r "/t /_ a /_"
+      Right tplt_b = head . S.toList <$> nFindAddrs r "/t /_ b /_"
+      Right rel_a  = head . S.toList <$> nFindAddrs r "0 #a 1"
+      Right rel_b1 = head . S.toList <$> nFindAddrs r "2 #b 3"
+      Right rel_b2 = head . S.toList <$> nFindAddrs r "4 #b 5"
+
+  assertBool "all rels involving _ #b _" $
+    allRelsInvolvingTplts r [tplt_b] ==
+    Right (S.fromList [rel_b1, rel_b2])
+  assertBool "all rels involving _ (#a|#b) _" $
+    allRelsInvolvingTplts r [tplt_a,tplt_b] ==
+    Right (S.fromList [rel_a, rel_b1, rel_b2])
 
 test_nothingIsGreater :: Test
 test_nothingIsGreater = TestCase $ do
