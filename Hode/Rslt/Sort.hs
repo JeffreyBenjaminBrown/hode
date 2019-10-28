@@ -37,6 +37,8 @@ type TopSets = [(Int,[Addr])]
 -- then the next pair to be pushed onto the front of the list
 -- will have a `fst` greater than `2`.
 
+-- | `allRelsInvolvingTplts r ts` finds every `Rel`
+-- that uses a member of `ts` as a `Tplt`.
 allRelsInvolvingTplts ::
   Rslt -> [TpltAddr] -> Either String (Set RelAddr)
 allRelsInvolvingTplts r ts =
@@ -48,6 +50,8 @@ allRelsInvolvingTplts r ts =
               S.filter ((==) RoleTplt . fst) )
         hostRels
 
+-- | `allNormalMembers r rs` finds every non-`Tplt`
+-- member of anything in `rs`.
 allNormalMembers ::
   Rslt -> [RelAddr] -> Either String [RelAddr]
 allNormalMembers r rels =

@@ -14,8 +14,26 @@ import Hode.UI.NoUI
 test_module_rslt_sort :: Test
 test_module_rslt_sort = TestList [
   TestLabel "test_nothingIsGreater" test_nothingIsGreater,
-  TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts
+  TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts,
+  TestLabel "test_allNormalMembers" test_allNormalMembers
   ]
+
+test_allNormalMembers :: Test
+test_allNormalMembers = TestCase $ do
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "1 #b 2",
+                                           "2 #b 3" ]
+      Right rel_01 = head . S.toList <$> nFindAddrs r "0 #a 1"
+      Right rel_12 = head . S.toList <$> nFindAddrs r "1 #b 2"
+      Right num_0  = head . S.toList <$> nFindAddrs r "0"
+      Right num_1  = head . S.toList <$> nFindAddrs r "1"
+      Right num_2  = head . S.toList <$> nFindAddrs r "2"
+  assertBool "all normal members of 0 #a 1"
+    $ (S.fromList <$> allNormalMembers r [rel_01])
+    == Right (S.fromList [num_0, num_1])
+  assertBool "all normal members of (0 #a 1) and (1 #b 2)"
+    $ (S.fromList <$> allNormalMembers r [rel_01, rel_12])
+    == Right (S.fromList [num_0, num_1, num_2])
 
 test_allRelsInvolvingTplts :: Test
 test_allRelsInvolvingTplts = TestCase $ do
