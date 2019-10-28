@@ -24,6 +24,7 @@ import Data.Functor (void)
 
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil
+import Hode.Rslt.BinTypes
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
 

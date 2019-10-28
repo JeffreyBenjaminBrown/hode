@@ -50,6 +50,7 @@ library
                   -- , Hode.Rslt.Edit.Replace
                   -- , Hode.Rslt.Edit.AndSearch
 
+                , Hode.Rslt.BinTypes
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
                 , Hode.Rslt.RLookup
@@ -58,11 +59,11 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
+                , Hode.Rslt.Show'
+                , Hode.Rslt.Show.JustInCase
                 , Hode.Rslt.Show.Util
                 , Hode.Rslt.Show.Wut
-                , Hode.Rslt.Show'
                 , Hode.Rslt.Sort
-                , Hode.Rslt.Show.JustInCase
 
                 , Hode.Test.Hash.Main
                 , Hode.Test.Hash.TConvert
@@ -109,6 +110,7 @@ library
                 , Hode.UI.ShowPTree.HandTest
                 , Hode.UI.String
                 , Hode.UI.Window
+
                 , Hode.Util.Direction
                 , Hode.Util.Misc
                 , Hode.Util.PTree

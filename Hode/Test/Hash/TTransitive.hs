@@ -11,6 +11,7 @@ import Hode.Hash.HTypes
 import Hode.Hash.HUtil (hor)
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RLookup
+import Hode.Rslt.BinTypes
 import Hode.Rslt.RTypes
 import Hode.UI.NoUI
 

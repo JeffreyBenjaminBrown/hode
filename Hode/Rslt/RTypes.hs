@@ -15,6 +15,12 @@ import           Data.Set (Set)
 type Addr = Int -- ^ Address
 type Arity = Int
 
+-- ^ Someday maybe these can be reified in the type system.
+-- TODO : Replace instances of the term `Addr` with these where possible.
+type RelAddr    = Addr
+type MemberAddr = Addr
+type TpltAddr   = Addr
+
 -- | Joints in a `Tplt` (see below) can be interior or caps.
 data Cap = CapLeft | CapRight deriving (Eq, Ord, Read, Show)
 

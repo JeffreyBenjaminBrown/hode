@@ -11,16 +11,10 @@ import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
+import Hode.Rslt.BinTypes
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
-
--- | Synonyms.
-data BinOrientation = LeftIsBigger | RightIsBigger
-
-type RelAddr    = Addr
-type MemberAddr = Addr
-type TpltAddr   = Addr
 
 type BinTpltOrder = Map Int (BinOrientation, TpltAddr)
 

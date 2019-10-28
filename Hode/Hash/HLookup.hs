@@ -39,6 +39,7 @@ import Hode.Hash.HTypes
 import Hode.Hash.HUtil
 import Hode.Qseq.QTypes
 import Hode.Rslt.RTypes
+import Hode.Rslt.BinTypes
 import Hode.Rslt.RLookup
 import Hode.Util.Misc
 
@@ -240,10 +241,10 @@ transitiveRels :: SearchDir
   -> [Addr] -- ^ places to start
   -> Either String [(Addr,Addr)]
 transitiveRels d r ts fs ss =
-  concat <$>
-  ifLefts (map (transitiveRels1 d r ts fs) ss)
+  concat <$> ifLefts (map f ss)
+  where f = transitiveRels1 d r ts fs
 
-transitiveRels1 :: SearchDir -- ^ whether to search rightward
+transitiveRels1 :: SearchDir
   -> Rslt
   -> [Addr] -- ^ binary `Tplt`s to search along.
             -- To use more than one is weird but legal.

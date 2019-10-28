@@ -1,18 +1,16 @@
-* PTIFALL: stack: if no libraries are available
-try `stack exec -- ghci`
-https://github.com/commercialhaskell/stack/issues/5037#issuecomment-537847155
-* to load all non-broken modules when some are broken
+* PTIFALL: stack gchi: if no libraries are available
 https://github.com/commercialhaskell/stack/issues/5037
-stack exec -- ghci -Wall
-:l Hode.Hode
+This will load all non-broken modules when some are broken.
+  stack exec -- ghci -Wall
+  :l Hode.Hode
 * roadmap|pressing (duplicative)
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO wart: searching for a Tplt with empty-string joints is ugly
+* TODO wart: searching for a Tplt with empty-string joints
 One needs to represent the empty joint as \"\", as in this:
-    Right r = nInserts (mkRslt mempty) [ "0 # 1", "1 # 2" ]
-    t = nFind r "/t /_ \"\" /_"
+   Right r = nInserts (mkRslt mempty) [ "0 # 1", "1 # 2" ]
+   t = nFind r "/t /_ \"\" /_"
 * TODO : show hosts is broken in UI
     *** Exception: show MemberHosts: This math is good.
 * PIFALLs

@@ -14,6 +14,7 @@ import Hode.Hash.HParse
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil
 import Hode.Rslt.Index
+import Hode.Rslt.BinTypes
 import Hode.Rslt.RTypes
 import Hode.UI.NoUI
 

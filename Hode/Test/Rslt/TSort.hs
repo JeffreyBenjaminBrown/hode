@@ -6,6 +6,8 @@ import qualified Data.Set       as S
 import           Test.HUnit
 
 import Hode.Rslt.Index
+import Hode.Rslt.BinTypes
+import Hode.Rslt.RTypes
 import Hode.Rslt.Sort
 import Hode.UI.NoUI
 
