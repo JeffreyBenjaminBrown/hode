@@ -25,7 +25,20 @@ test_module_rslt_sort = TestList [
 
 test_kahnIterate :: Test
 test_kahnIterate = TestCase $ do
-  assertBool "TODO" False
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "0 #a 2",
+                                           "1 #a 2" ]
+      expr :: Int -> Addr
+      expr k = either
+        (const $ error $ show k ++ " not in the Rslt") id
+        $ head . S.toList <$> nFindAddrs r (show k)
+      Right tplt_a = head . S.toList <$> nFindAddrs r "/t /_ a /_"
+  assertBool "" $ let
+    ek = kahnIterate (LeftIsBigger,tplt_a) $
+         Kahn r [expr 0] []
+    in case ek of
+         Left s                -> error s
+         Right (Kahn _ tops _) -> tops == [expr 1]
 
 -- | Without graph isomorphisms, must test by hand.
 -- The input integer is the Expr that gets deleted.
