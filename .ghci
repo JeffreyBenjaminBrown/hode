@@ -1,3 +1,8 @@
 :set prompt "> "
 :set -XScopedTypeVariables
 :set -XTupleSections
+
+import           Data.Set (Set)
+import qualified Data.Set as S
+import           Data.Map (Map)
+import qualified Data.Map as M

@@ -8,10 +8,12 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Data.Traversable (mapM)
+import           Control.Monad (mapM,foldM)
+
 
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
+import Hode.Rslt.Edit.Terminal (delete)
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
 import Hode.Rslt.Binary
@@ -82,17 +84,17 @@ allTops :: Rslt
         -> (BinOrientation, TpltAddr)
         -> [Addr] -- ^ candidates
         -> Either String [Addr]
-allTops r (bort,t) as =
+allTops r (bo,t) as =
   prefixLeft "allTops" $ do
   let withIsTop :: Addr -> Either String (Bool, Addr)
-      withIsTop a = (,a) <$> isTop r (bort,t) a
+      withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
 
 justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
            -> Either String (Set Addr)
-justUnders (bort,t) r a = let
-  h = let
-    (bigger, smaller) = case bort of
+justUnders (bo,t) r a = let
+  h :: HExpr = let
+    (bigger, smaller) = case bo of
       LeftIsBigger ->  (1,2)
       RightIsBigger -> (2,1)
     rel = HMap $ M.fromList
@@ -102,12 +104,25 @@ justUnders (bort,t) r a = let
   in prefixLeft "justUnders" $
      hExprToAddrs r mempty h
 
+-- | `deleteHostsThenDelete t a r` removes from `r` every
+-- rel in which `a` is a member and `t` is the template,
+-- and then removes `a`.
+deleteHostsThenDelete ::
+  TpltAddr -> Addr -> Rslt -> Either String Rslt
+deleteHostsThenDelete t a r =
+  prefixLeft "deleteHostsThenDelete" $ do
+  hosts :: Set Addr <-
+    S.map snd <$> isIn r a
+  r1 <- foldM (flip delete) r hosts
+  delete a r1
+
 data Kahn = Kahn { kahnRslt   :: Rslt
                  , kahnTops   :: [Addr]
                  , kahnSorted :: [Addr] }
 
 kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
             -> Either String Kahn
-kahnIterate (bort,t) (Kahn r (top:tops) acc) =
+kahnIterate (bo,t) (Kahn r (top:tops) acc) =
   prefixLeft "kahnIterate" $ do
-  error "TODO"
+  jus :: Set Addr <- justUnders (bo,t) r top
+  error ""

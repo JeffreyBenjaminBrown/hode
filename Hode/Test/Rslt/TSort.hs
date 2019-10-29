@@ -17,8 +17,13 @@ test_module_rslt_sort = TestList [
   TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts,
   TestLabel "test_allNormalMembers" test_allNormalMembers,
   TestLabel "test_withIsTop" test_withIsTop,
-  TestLabel "test_justUnders" test_justUnders
+  TestLabel "test_justUnders" test_justUnders,
+  TestLabel "test_deleteHostsThenDelete" test_deleteHostsThenDelete
   ]
+
+test_deleteHostsThenDelete :: Test
+test_deleteHostsThenDelete = TestCase $ do
+  assertBool "" False
 
 test_justUnders :: Test
 test_justUnders = TestCase $ do
