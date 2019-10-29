@@ -105,11 +105,10 @@ justUnders (bo,t) r a = let
      hExprToAddrs r mempty h
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
--- rel in which `a` is a member and `t` is the template,
--- and then removes `a`.
+-- rel in which `a` is a member, and then removes `a`.
 deleteHostsThenDelete ::
-  TpltAddr -> Addr -> Rslt -> Either String Rslt
-deleteHostsThenDelete t a r =
+  Addr -> Rslt -> Either String Rslt
+deleteHostsThenDelete a r =
   prefixLeft "deleteHostsThenDelete" $ do
   hosts :: Set Addr <-
     S.map snd <$> isIn r a

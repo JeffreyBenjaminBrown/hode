@@ -2,9 +2,11 @@
 
 module Hode.Test.Rslt.TSort where
 
-import qualified Data.Set       as S
+import qualified Data.Set as S
+import qualified Data.Map as M
 import           Test.HUnit
 
+import Hode.Rslt.RTypes
 import Hode.Rslt.Index
 import Hode.Rslt.Binary
 import Hode.Rslt.Sort
@@ -17,13 +19,25 @@ test_module_rslt_sort = TestList [
   TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts,
   TestLabel "test_allNormalMembers" test_allNormalMembers,
   TestLabel "test_withIsTop" test_withIsTop,
-  TestLabel "test_justUnders" test_justUnders,
-  TestLabel "test_deleteHostsThenDelete" test_deleteHostsThenDelete
+  TestLabel "test_justUnders" test_justUnders
   ]
 
-test_deleteHostsThenDelete :: Test
-test_deleteHostsThenDelete = TestCase $ do
-  assertBool "" False
+-- | Without graph isomorphisms, must test by hand.
+-- The input integer is the Expr that gets deleted.
+test_deleteHostsThenDelete :: Int -> IO ()
+test_deleteHostsThenDelete i = do
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "0 #a 2",
+                                           "1 #b 2",
+                                           "3 #b 3",
+                                           "3" ]
+      n :: Int -> Addr
+      n k = either (const $ error "not in the Rslt") id $
+            head . S.toList <$> nFindAddrs r (show k)
+  case deleteHostsThenDelete (n i) r of
+    Left s -> putStrLn s
+    Right res -> mapM_ (putStrLn . show) $
+                 M.toList $ _addrToRefExpr res
 
 test_justUnders :: Test
 test_justUnders = TestCase $ do
