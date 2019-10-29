@@ -1,0 +1,3 @@
+:set prompt "> "
+:set -XScopedTypeVariables
+:set -XTupleSections

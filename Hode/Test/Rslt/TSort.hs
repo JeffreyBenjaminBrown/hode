@@ -22,8 +22,32 @@ test_module_rslt_sort = TestList [
 
 test_justUnders :: Test
 test_justUnders = TestCase $ do
-  let e = error ""
-  assertBool "TODO" $ justUnders e e e == Left "TODO"
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "0 #a 2",
+                                           "1 #b 2",
+                                           "3" ]
+
+      Right tplt_a = head . S.toList <$> nFindAddrs r "/t /_ a /_"
+      Right tplt_b = head . S.toList <$> nFindAddrs r "/t /_ b /_"
+      Right n0  = head . S.toList <$> nFindAddrs r "0"
+      Right n1  = head . S.toList <$> nFindAddrs r "1"
+      Right n2  = head . S.toList <$> nFindAddrs r "2"
+      Right n3  = head . S.toList <$> nFindAddrs r "3"
+
+  assertBool "just under 0 are 1 and 2, for (bigger #a smaller)"
+    $ justUnders (LeftIsBigger, tplt_a) r n0
+    == Right (S.fromList $ [n1,n2])
+
+  assertBool "nothing is under 0, for (smaller #a bigger)"
+    $ justUnders (RightIsBigger, tplt_a) r n0
+    == Right mempty
+
+  assertBool "nothing is under 3, in any sense"
+    $ [ justUnders (LeftIsBigger, tplt_a) r n3,
+        justUnders (RightIsBigger,tplt_a) r n3,
+        justUnders (LeftIsBigger, tplt_b) r n3,
+        justUnders (RightIsBigger,tplt_b) r n3 ]
+    == replicate 4 (Right mempty)
 
 test_withIsTop :: Test
 test_withIsTop = TestCase $ do
