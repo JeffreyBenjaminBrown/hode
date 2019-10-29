@@ -88,3 +88,26 @@ allTops r (bort,t) as =
       withIsTop a = (,a) <$> isTop r (bort,t) a
   map snd . filter fst <$> mapM withIsTop as
 
+justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
+           -> Either String (Set Addr)
+justUnders (bort,t) r a = let
+  h = let
+    (bigger, smaller) = case bort of
+      LeftIsBigger ->  (1,2)
+      RightIsBigger -> (2,1)
+    rel = HMap $ M.fromList
+      [ ( RoleTplt,          HExpr $ Addr t),
+        ( RoleMember bigger, HExpr $ Addr a ) ]
+    in HEval rel [[RoleMember smaller]]
+  in prefixLeft "justUnders" $
+     hExprToAddrs r mempty h
+
+data Kahn = Kahn { kahnRslt   :: Rslt
+                 , kahnTops   :: [Addr]
+                 , kahnSorted :: [Addr] }
+
+kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
+            -> Either String Kahn
+kahnIterate (bort,t) (Kahn r (top:tops) acc) =
+  prefixLeft "kahnIterate" $ do
+  error "TODO"
