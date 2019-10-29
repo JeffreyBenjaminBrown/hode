@@ -19,8 +19,13 @@ test_module_rslt_sort = TestList [
   TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts,
   TestLabel "test_allNormalMembers" test_allNormalMembers,
   TestLabel "test_withIsTop" test_withIsTop,
-  TestLabel "test_justUnders" test_justUnders
+  TestLabel "test_justUnders" test_justUnders,
+  TestLabel "test_kahnIterate" test_kahnIterate
   ]
+
+test_kahnIterate :: Test
+test_kahnIterate = TestCase $ do
+  assertBool "TODO" False
 
 -- | Without graph isomorphisms, must test by hand.
 -- The input integer is the Expr that gets deleted.

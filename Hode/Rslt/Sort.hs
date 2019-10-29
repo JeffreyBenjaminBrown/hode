@@ -10,7 +10,6 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Control.Monad (mapM,foldM)
 
-
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Rslt.Edit.Terminal (delete)
@@ -90,6 +89,9 @@ allTops r (bo,t) as =
       withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
 
+-- | `justUnders (bo,t) r a` returns the `Addr`s that
+-- lie just beneath `a`, where the menaing of "beneath"
+-- depends on `bo` and `t`.
 justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
            -> Either String (Set Addr)
 justUnders (bo,t) r a = let
@@ -121,7 +123,14 @@ data Kahn = Kahn { kahnRslt   :: Rslt
 
 kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
             -> Either String Kahn
+kahnIterate _ k@(Kahn _ [] _) =
+  Right k
 kahnIterate (bo,t) (Kahn r (top:tops) acc) =
   prefixLeft "kahnIterate" $ do
   jus :: Set Addr <- justUnders (bo,t) r top
-  error ""
+  r1 :: Rslt <- deleteHostsThenDelete top r
+  newTops :: [Addr] <- allTops r1 (bo,t) $
+                       S.toList jus
+  kahnIterate (bo,t) $
+    Kahn r1 (newTops ++ tops) (top : acc)
+
