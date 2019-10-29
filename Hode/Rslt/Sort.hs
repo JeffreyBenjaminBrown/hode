@@ -131,6 +131,14 @@ kahnIterate (bo,t) (Kahn r (top:tops) acc) =
   r1 :: Rslt <- deleteHostsThenDelete top r
   newTops :: [Addr] <- allTops r1 (bo,t) $
                        S.toList jus
-  kahnIterate (bo,t) $
-    Kahn r1 (newTops ++ tops) (top : acc)
+  Right $ Kahn r1 (newTops ++ tops) (top : acc)
 
+-- | Splitting kahnRecurse from kahnIterate might be slower,
+-- but it lets me test a single iteration.
+kahnRecurse :: (BinOrientation, TpltAddr) -> Kahn
+            -> Either String Kahn
+kahnRecurse bt k =
+  prefixLeft "kahnRecurse" $
+  case kahnTops k of
+    [] -> Right k
+    _ -> kahnIterate bt k >>= kahnRecurse bt
