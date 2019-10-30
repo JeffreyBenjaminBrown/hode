@@ -20,8 +20,14 @@ test_module_rslt_sort = TestList [
   TestLabel "test_allNormalMembers" test_allNormalMembers,
   TestLabel "test_withIsTop" test_withIsTop,
   TestLabel "test_justUnders" test_justUnders,
-  TestLabel "test_kahnIterate" test_kahnIterate
+  TestLabel "test_kahnIterate" test_kahnIterate,
+  TestLabel "test_allExprsButTpltsOrRelsUsingThem"
+    test_allExprsButTpltsOrRelsUsingThem
   ]
+
+test_allExprsButTpltsOrRelsUsingThem :: Test
+test_allExprsButTpltsOrRelsUsingThem = TestCase $ do
+  assertBool "" False
 
 test_kahnIterate :: Test
 test_kahnIterate = TestCase $ do

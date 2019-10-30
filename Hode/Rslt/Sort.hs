@@ -1,3 +1,15 @@
+-- | PITFALL: This algorithm makes sense only on a
+-- graph-like subset of an Rslt -- one in which:
+--   (1) all "edges" are binary `Rel`s
+--   (2) edges never involve another edge
+--   (3) the "edge label" (`Tplt`) `e` to sort by
+--       plays no `Role` but `Tplt`
+--   (4) none of the `Expr`s the user wants to sort
+--       is a `Rel` with `e` as its `Tplt`
+--
+-- PITFALL: Some of these functions are written
+-- to handle multiple `Tplt`s, but then I lost interest.
+
 {-# LANGUAGE
 ScopedTypeVariables,
 TupleSections #-}
@@ -32,6 +44,23 @@ allRelsInvolvingTplts r ts =
         map ( S.map snd .
               S.filter ((==) RoleTplt . fst) )
         hostRels
+
+-- | `allExprsButTpltsOrRelsUsingThem r ts` removes
+-- from the `[Addr]` in `r` every `Tplt` in `ts`,
+-- and every `Rel` in which some `t` in `ts` is the `Tplt`.
+allExprsButTpltsOrRelsUsingThem ::
+  Rslt -> [TpltAddr] -> Either String (Set Addr)
+allExprsButTpltsOrRelsUsingThem r ts =
+  prefixLeft "allExprsButTpltsOrRelsUsingThem" $ do
+  let as :: Set Addr =
+        S.fromList $ M.keys $ _addrToRefExpr r
+  tsUsers :: Set Addr <-
+    hExprToAddrs r mempty $
+    HMap $ M.singleton RoleTplt $
+    HAnd $ map (HExpr . Addr) ts
+  Right ( S.difference
+          ( S.difference as $ S.fromList ts )
+          tsUsers )
 
 -- | `allNormalMembers r rs` finds every non-`Tplt`
 -- member of anything in `rs`.
@@ -133,7 +162,8 @@ kahnIterate (bo,t) (Kahn r (top:tops) acc) =
                        S.toList jus
   Right $ Kahn r1 (newTops ++ tops) (top : acc)
 
--- | Splitting kahnRecurse from kahnIterate might be slower,
+-- | Splitting kahnRecurse from kahnIterate
+-- might (I don't know) be slower,
 -- but it lets me test a single iteration.
 kahnRecurse :: (BinOrientation, TpltAddr) -> Kahn
             -> Either String Kahn
@@ -142,3 +172,12 @@ kahnRecurse bt k =
   case kahnTops k of
     [] -> Right k
     _ -> kahnIterate bt k >>= kahnRecurse bt
+
+kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
+         -> Either String [Addr]
+kahnSort r (bo,t) as =
+  prefixLeft "kahnSort" $ do
+  r1 <- restrictRsltForSort as [t] r
+  as <- error "TODO : Get all \"nodes\" of the subRslt."
+  tops <- allTops r (bo,t) as
+  return $ error "TODO"
