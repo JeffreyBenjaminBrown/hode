@@ -25,9 +25,41 @@ test_module_rslt_sort = TestList [
     test_allExprsButTpltsOrRelsUsingThem
   ]
 
+-- | Without graph isomorphism, this test is too brittle to automate.
+test_restrictRsltForSort :: IO ()
+test_restrictRsltForSort = do
+  let Right r = nInserts (mkRslt mempty) [ "0 #a  1",
+                                           "2 #aa 3" ]
+      expr :: Int -> Addr
+      expr k = either
+        (const $ error $ show k ++ " not in the Rslt") id
+        $ head . S.toList <$> nFindAddrs r (show k)
+      Right tplt_a  = head . S.toList <$> nFindAddrs r "/t /_ a /_"
+      Right tplt_aa = head . S.toList <$> nFindAddrs r "/t /_ aa /_"
+  putStrLn "the full Rslt: "
+  mapM_ (putStrLn . show) $ M.toList $ _addrToRefExpr r
+  putStrLn "the restricted Rslt: "
+  case restrictRsltForSort [] [tplt_a,tplt_aa] r of
+    Left s   -> putStrLn s
+    Right r1 -> mapM_ (putStrLn . show) $
+                M.toList $ _addrToRefExpr r1
+
 test_allExprsButTpltsOrRelsUsingThem :: Test
 test_allExprsButTpltsOrRelsUsingThem = TestCase $ do
-  assertBool "" False
+  let Right r = nInserts (mkRslt mempty) [ "0 #a  1",
+                                           "1 #a  2",
+                                           "2 #aa 3" ]
+      expr :: Int -> Addr
+      expr k = either
+        (const $ error $ show k ++ " not in the Rslt") id
+        $ head . S.toList <$> nFindAddrs r (show k)
+      Right tplt_a  = head . S.toList <$> nFindAddrs r "/t /_ a /_"
+      Right tplt_aa = head . S.toList <$> nFindAddrs r "/t /_ aa /_"
+      ts = [tplt_a,tplt_aa]
+      Right r1 = restrictRsltForSort [] ts r
+  assertBool "" $
+    allExprsButTpltsOrRelsUsingThem r1 ts ==
+    Right (S.fromList $ map expr [0..3])
 
 test_kahnIterate :: Test
 test_kahnIterate = TestCase $ do
