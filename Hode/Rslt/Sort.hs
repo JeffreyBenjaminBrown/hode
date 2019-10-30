@@ -73,8 +73,10 @@ restrictRsltForSort es ts r =
                             rels ]
   Right $ mkRslt refExprs
 
--- | `allExprsButTpltsOrRelsUsingThem r ts` removes
--- from the `[Addr]` in `r` every `Tplt` in `ts`,
+-- | `allExprsButTpltsOrRelsUsingThem r ts` returns the "nodes"
+-- of the sub-`Rslt` (which must be of a specific form --
+-- see header comment.) Specifically, it removes
+-- from the `Set Addr` in `r` every `Tplt` in `ts`,
 -- and every `Rel` in which some `t` in `ts` is the `Tplt`.
 --
 -- PITFALL: Call `restrictRsltForSort` on the `Rslt`
@@ -180,8 +182,16 @@ kahnRecurse bt k =
 kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
          -> Either String [Addr]
 kahnSort r (bo,t) as =
-  prefixLeft "kahnSort" $ do
-  r1 <- restrictRsltForSort as [t] r
-  as <- error "TODO : Get all \"nodes\" of the subRslt."
-  tops <- allTops r (bo,t) as
-  return $ error "TODO"
+-- TODO speed: this calls `restrictRsltForSort` and `allRelsInvolvingTplts`, but `restrictRsltForSort` also calls `allRelsInvolvingTplts`, with the same arguments. I don't know whether GHC will optimize that away.
+  prefixLeft "kahnSort: " $ do
+  rels :: Set Addr <- allRelsInvolvingTplts r [t]
+  r1 :: Rslt <- restrictRsltForSort as [t] r
+    -- restrict to "nodes", "edges", and the "edge label" at `t`
+  as :: [Addr] <- -- "nodes"
+    S.toList <$> allExprsButTpltsOrRelsUsingThem r [t]
+  tops :: [Addr] <- allTops r (bo,t) as
+  Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
+  case null $ S.intersection rels $
+       S.fromList $ M.keys $ _addrToRefExpr r2 of
+    True -> Right res
+    False -> Left "data has at least one cycle."

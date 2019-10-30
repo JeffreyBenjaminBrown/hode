@@ -30,10 +30,6 @@ test_restrictRsltForSort :: IO ()
 test_restrictRsltForSort = do
   let Right r = nInserts (mkRslt mempty) [ "0 #a  1",
                                            "2 #aa 3" ]
-      expr :: Int -> Addr
-      expr k = either
-        (const $ error $ show k ++ " not in the Rslt") id
-        $ head . S.toList <$> nFindAddrs r (show k)
       Right tplt_a  = head . S.toList <$> nFindAddrs r "/t /_ a /_"
       Right tplt_aa = head . S.toList <$> nFindAddrs r "/t /_ aa /_"
   putStrLn "the full Rslt: "
