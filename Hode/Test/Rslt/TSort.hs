@@ -8,6 +8,7 @@ import           Test.HUnit
 
 import Hode.Rslt.RTypes
 import Hode.Rslt.Index
+import Hode.Rslt.RLookup.RConvert
 import Hode.Rslt.Binary
 import Hode.Rslt.Sort
 import Hode.UI.NoUI
@@ -23,7 +24,21 @@ test_module_rslt_sort = TestList [
   TestLabel "test_kahnIterate" test_kahnIterate,
   TestLabel "test_allExprsButTpltsOrRelsUsingThem"
     test_allExprsButTpltsOrRelsUsingThem
+--  TestLabel "test_kahnSort" test_kahnSort
   ]
+
+test_kahnSort :: IO ()
+test_kahnSort = do
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "1 #a 2",
+                                           "2 #a 3" ]
+      Right tplt_a  = head . S.toList <$>
+                      nFindAddrs r "/t /_ a /_"
+      elt :: Int -> Addr
+      elt = either (error "not in graph") id .
+            exprToAddr r . Phrase . show
+  putStrLn . show $
+    kahnSort r (LeftIsBigger,tplt_a) (map elt [0..3])
 
 -- | Without graph isomorphism, this test is too brittle to automate.
 test_restrictRsltForSort :: IO ()

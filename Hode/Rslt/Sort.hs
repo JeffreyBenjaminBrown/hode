@@ -85,7 +85,7 @@ restrictRsltForSort es ts r =
 allExprsButTpltsOrRelsUsingThem ::
   Rslt -> [TpltAddr] -> Either String (Set Addr)
 allExprsButTpltsOrRelsUsingThem r ts =
-  prefixLeft "allExprsButTpltsOrRelsUsingThem" $ do
+  prefixLeft "allExprsButTpltsOrRelsUsingThem: " $ do
   let as :: Set Addr =
         S.fromList $ M.keys $ _addrToRefExpr r
   tsUsers :: Set Addr <-
@@ -119,7 +119,7 @@ allTops :: Rslt
         -> [Addr] -- ^ candidates
         -> Either String [Addr]
 allTops r (bo,t) as =
-  prefixLeft "allTops" $ do
+  prefixLeft "allTops: " $ do
   let withIsTop :: Addr -> Either String (Bool, Addr)
       withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
@@ -138,7 +138,7 @@ justUnders (bo,t) r a = let
       [ ( RoleTplt,          HExpr $ Addr t),
         ( RoleMember bigger, HExpr $ Addr a ) ]
     in HEval rel [[RoleMember smaller]]
-  in prefixLeft "justUnders" $
+  in prefixLeft "justUnders: " $
      hExprToAddrs r mempty h
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
@@ -146,7 +146,7 @@ justUnders (bo,t) r a = let
 deleteHostsThenDelete ::
   Addr -> Rslt -> Either String Rslt
 deleteHostsThenDelete a r =
-  prefixLeft "deleteHostsThenDelete" $ do
+  prefixLeft "deleteHostsThenDelete: " $ do
   hosts :: Set Addr <-
     S.map snd <$> isIn r a
   r1 <- foldM (flip delete) r hosts
@@ -161,7 +161,7 @@ kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
 kahnIterate _ k@(Kahn _ [] _) =
   Right k
 kahnIterate (bo,t) (Kahn r (top:tops) acc) =
-  prefixLeft "kahnIterate" $ do
+  prefixLeft "kahnIterate: " $ do
   jus :: Set Addr <- justUnders (bo,t) r top
   r1 :: Rslt <- deleteHostsThenDelete top r
   newTops :: [Addr] <- allTops r1 (bo,t) $
@@ -174,7 +174,7 @@ kahnIterate (bo,t) (Kahn r (top:tops) acc) =
 kahnRecurse :: (BinOrientation, TpltAddr) -> Kahn
             -> Either String Kahn
 kahnRecurse bt k =
-  prefixLeft "kahnRecurse" $
+  prefixLeft "kahnRecurse: " $
   case kahnTops k of
     [] -> Right k
     _ -> kahnIterate bt k >>= kahnRecurse bt
@@ -187,9 +187,9 @@ kahnSort r (bo,t) as =
   rels :: Set Addr <- allRelsInvolvingTplts r [t]
   r1 :: Rslt <- restrictRsltForSort as [t] r
     -- restrict to "nodes", "edges", and the "edge label" at `t`
-  as :: [Addr] <- -- "nodes"
+  nodes :: [Addr] <-
     S.toList <$> allExprsButTpltsOrRelsUsingThem r [t]
-  tops :: [Addr] <- allTops r (bo,t) as
+  tops :: [Addr] <- allTops r (bo,t) nodes
   Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
   case null $ S.intersection rels $
        S.fromList $ M.keys $ _addrToRefExpr r2 of
