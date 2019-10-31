@@ -8,21 +8,8 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO studying Hode.UI
-** TODO make HasArity a class
-for Expr, Tplt, maybe RefExpr
-arityIn :: Rslt -> Expr -> Either String Arity
-        -- Defined at Hode/Rslt/RLookup.hs
-
-refExprArity :: RefExpr -> Arity
-        -- Defined at Hode/Rslt/RUtil.hs
-tpltArity : not defined
-** TODO fix this line
-(ar :: Arity) = length tplt - 1
-AND THEN resume reading types from there
 * TODO next
 ** TODO ? more NoUI
-** TODO show hosts is broken in UI
-     *** Exception: show MemberHosts: This math is good.
 ** TODO ordered display
 (See also "transitive search".)
 *** DONE Kahn's algorithm
@@ -113,6 +100,7 @@ Use screenkey to show key presses:
 and SimpleScreenRecorder.
 Audio interface: remember to select both input and output devices.
 * user-friendliness
+** TODO replace the term "joint" with "separator"
 ** TODO use (Lisp?) to control GHCI
 ** TODO give names to searches
 ** TODO insertion list

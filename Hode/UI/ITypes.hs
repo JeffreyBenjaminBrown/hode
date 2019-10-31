@@ -124,11 +124,10 @@ instance Show MemberHosts where
     noMiscount = error "show MemberHosts: This math is good."
     in if _memberHostsRole relHosts == RoleTplt
        then " Rels using it as a Tplt"
-       else let (ar :: Arity) = length tplt - 1
-                RoleMember (n :: Int) = _memberHostsRole relHosts
+       else let RoleMember (n :: Int) = _memberHostsRole relHosts
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
-                       $ replicate ar $ Phrase "_"
+                       $ replicate (arity tplt) $ Phrase "_"
             in (" " ++) $
                either (const noLeft) id $
                eParenShow 3 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
