@@ -7,14 +7,51 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO wart: searching for a Tplt with empty-string joints
+* TODO next
+** TODO : show hosts is broken in UI
+     *** Exception: show MemberHosts: This math is good.
+** TODO ordered display
+(See also "transitive search".)
+*** DONE Kahn's algorithm
+runs in time linear in V + E.
+*** DONE single-Tplt topological sort
+**** PITFALL: hit-graph: I couldn't get it to work.
+Function is called `topsort`
+   https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
+*** todo ? multi-Tplt topological sort
+**** if I could identify a set of tied w/r/t tplt-1 tops
+then I could sort them by tplt 2, etc.
+I suspect I could do this by:
+  (1) scan the graph for everything that's top. They are tied.
+  (2) When picking off those tied things, if anything becomes top,
+      don't stick it at the end of the same list.
+      Rather put it in a new list. That list will then consist of ties, too.
+  (3) Repeat until done.
+This is especially nice because it means I can just code the single-tplt sort for now,
+and later, if need be, implement multi-tplt sort in terms of it.
+**** maybe see earlier-work/lexico-topo-sort
+Most of that work, though, describes a wholly different algorithm.
+I would prefer this one, if it really does make sense.
+** TODO views: clean them
+*** highlight not everywhere
+*** too much space
+ This might require a strategy similar to the use of the `Parens`
+ type in `Rslt.Show`.
+*** represent, render the columns
+**** Currently, each row is rendered separately, without considering others.
+**** The right way would be
+ compute the max (across all rows) width of each column first,
+ and pad each row's column-cells to match.
+**** Requires undoing commit 2689a4d697ea87be4817a20917f21e447209210a
+*** color hashes in grouping nodes
+* PIFALLs | warts
+** TODO Hode.Rslt.Edit.delete is ugly
+It can cause the address of (Phrase "") to change.
+It assumes you want "" in your graph.
+** TODO searching for a Tplt with empty-string joints
 One needs to represent the empty joint as \"\", as in this:
    Right r = nInserts (mkRslt mempty) [ "0 # 1", "1 # 2" ]
    t = nFind r "/t /_ \"\" /_"
-* TODO : show hosts is broken in UI
-    *** Exception: show MemberHosts: This math is good.
-* PIFALLs
-** Hode.Rslt.Edit.delete can cause the address of (Phrase "") to change
 ** in Qseq
 *** PITFALL: varTestlike ForSomes do not store what they find in the Subst
  unlike testlike and findlike queries
@@ -106,20 +143,8 @@ The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
-* TODO views, clean them
-** highlight not everywhere
-** too much space
-This might require a strategy similar to the use of the `Parens`
-type in `Rslt.Show`.
-** represent, render the columns
-*** Currently, each row is rendered separately, without considering others.
-*** The right way would be
-compute the max (across all rows) width of each column first,
-and pad each row's column-cells to match.
-*** Requires undoing commit 2689a4d697ea87be4817a20917f21e447209210a
-** color hashes in grouping nodes
 * TODO views, rad
-** TODO more of : count stuff in the left column(s)
+** TODO count more stuff in the left column(s)
 *** St._columnHExprs: let the user add HExprs
 Currently it's fixed at a single HExpr,
 which indicates how many Rels or Tplts it's a top-level member of.
@@ -242,7 +267,6 @@ e.g., RoleMember 3 or RoleTplt make no sense)
 See TODO comment under the HTrans clause of hExprToAddrs.
 transitiveRels does have to find every pair if, for example, it's computing a transitive closure (as will be needed to oganize contents on-screen).
 **** TODO Safety: check for cycles when someone adds an expression
-
 **** TODO the transitive rel functions should take (SearchDir, Tplt) pairs
 rather than a single SearchDir and multiple Tplts.
 But this can wait until I need that.
@@ -374,28 +398,6 @@ topological sort
 ***** The functions in Hash.HLookup deserve complication for transitivity.
  Hash, after all, is the query language,
  and in that language transitive search is a distinct concept.
-** TODO ordered display
-(See also "transitive search".)
-*** TODO Kahn's algorithm
-runs in time linear in V + E.
-*** single-Tplt topological sort
-**** PITFALL: hit-graph: I couldn't get it to work.
-Function is called `topsort`
-   https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
-*** todo ? multi-Tplt topological sort
-**** if I could identify a set of tied w/r/t tplt-1 tops
-then I could sort them by tplt 2, etc.
-I suspect I could do this by:
-  (1) scan the graph for everything that's top. They are tied.
-  (2) When picking off those tied things, if anything becomes top,
-      don't stick it at the end of the same list.
-      Rather put it in a new list. That list will then consist of ties, too.
-  (3) Repeat until done.
-This is especially nice because it means I can just code the single-tplt sort for now,
-and later, if need be, implement multi-tplt sort in terms of it.
-**** maybe see earlier-work/lexico-topo-sort
-Most of that work, though, describes a wholly different algorithm.
-I would prefer this one, if it really does make sense.
 ** TODO HExpr: add a symbol for "involves"
 *** the current (slow, incomplete) hack
 **** what it is

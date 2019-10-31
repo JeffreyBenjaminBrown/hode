@@ -65,7 +65,7 @@ test_kahnSort = TestCase $ do
                             "001","000","00","0"]
 
 -- | Without graph isomorphism, this test is too brittle to automate.
-test_restrictRsltForSort :: IO ()
+test_restrictRsltForSort :: IO () -- manual test
 test_restrictRsltForSort = do
   let Right r = nInserts (mkRslt mempty) [ "0 #a  1",
                                            "2 #aa 3" ]
@@ -120,7 +120,7 @@ test_kahnIterate = TestCase $ do
 --
 -- > Right (Kahn r b c) = test_kahnIterate'
 -- > nShowRsltIO r
-test_kahnIterate' :: Either String Kahn
+test_kahnIterate' :: Either String Kahn -- manual test
 test_kahnIterate' =
 
   let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
@@ -137,7 +137,7 @@ test_kahnIterate' =
 
 -- | Without graph isomorphisms, must test by hand.
 -- The input integer is the Expr that gets deleted.
-test_deleteHostsThenDelete :: Int -> IO ()
+test_deleteHostsThenDelete :: Int -> IO () -- manual test
 test_deleteHostsThenDelete i = do
   let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
                                            "0 #a 2",
