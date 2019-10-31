@@ -16,7 +16,7 @@ import Hode.Hash.HUtil
 import Hode.Rslt.Index
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
-import Hode.UI.NoUI
+import Hode.NoUI
 
 
 test_module_hash_convert :: Test

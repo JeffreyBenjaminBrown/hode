@@ -62,7 +62,7 @@ import Hode.UI.IUtil as X
 import Hode.UI.Input as X
 import Hode.UI.Input.IParse as X
 import Hode.UI.Main as X
-import Hode.UI.NoUI as X
+import Hode.NoUI as X
 import Hode.UI.ShowPTree as X
 import Hode.UI.String as X
 import Hode.UI.Window as X

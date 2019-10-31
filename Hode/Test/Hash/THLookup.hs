@@ -15,7 +15,7 @@ import Hode.Rslt.Edit.Initial (insertAt)
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.UI.NoUI
+import Hode.NoUI
 import qualified Hode.Test.Rslt.RData as D
 
 

@@ -8,7 +8,8 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO : show hosts is broken in UI
+** TODO ? more NoUI
+** TODO show hosts is broken in UI
      *** Exception: show MemberHosts: This math is good.
 ** TODO ordered display
 (See also "transitive search".)
@@ -430,6 +431,9 @@ That's an existential find followed by a universal test over the same variable. 
 The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
+** To use GHC 8.10's newer garbage collector
+https://well-typed.com/blog/2019/10/nonmoving-gc-merge/
+Our new collector has been merged to GHC’s master branch and will be present in GHC 8.10.1. For a program to use the concurrent non-moving collector it must be compiled with GHC’s -threaded flag and invoked with the +RTS -xn runtime system flag.
 ** ? someone else wrote a tree editor
 https://cs-syd.eu/posts/2019-06-28-microsmos
 and then a forest editor:

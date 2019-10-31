@@ -6,7 +6,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import Test.HUnit
 
-import Hode.UI.NoUI
+import Hode.NoUI
 import Hode.Rslt.Index
 import Hode.Rslt.RTypes
 

@@ -11,7 +11,7 @@ import Hode.Rslt.Index
 import Hode.Rslt.RLookup.RConvert
 import Hode.Rslt.Binary
 import Hode.Rslt.Sort
-import Hode.UI.NoUI
+import Hode.NoUI
 
 
 test_module_rslt_sort :: Test
@@ -32,7 +32,7 @@ test_module_rslt_sort = TestList [
 test_kahnSort :: Test
 test_kahnSort = TestCase $ do
   let Right rLine = nInserts (mkRslt mempty)
-      [ "0 #a 1", "1 #a 2", "2 #a 3" ]
+        [ "0 #a 1", "1 #a 2", "2 #a 3" ]
       Right tplt_a  = head . S.toList <$>
                       nFindAddrs rLine "/t /_ a /_"
       intElt :: Int -> Addr

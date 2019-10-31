@@ -1,4 +1,4 @@
-module Hode.UI.NoUI.Internal (
+module Hode.NoUI.Internal (
     nPExpr         -- ^         String -> Either String PExpr
   , nHExpr         -- ^ Rslt -> String -> Either String HExpr
   , nHExpr'        -- ^         String -> Either String HExpr

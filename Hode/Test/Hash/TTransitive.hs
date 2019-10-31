@@ -13,7 +13,7 @@ import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RLookup
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
-import Hode.UI.NoUI
+import Hode.NoUI
 
 
 test_module_hash_hlookup_transitive :: Test

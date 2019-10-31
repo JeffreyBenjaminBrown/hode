@@ -5,7 +5,7 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.NoUI (
+module Hode.NoUI (
   -- | = Display the entire graph.
   -- (These are useful when you're learning the app.
   -- Once your graph is big, they won't be practical.)
@@ -42,7 +42,7 @@ import Hode.Rslt.Edit
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
-import Hode.UI.NoUI.Internal as Internal
+import Hode.NoUI.Internal as Internal
 import Hode.Util.Misc
 
 
