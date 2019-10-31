@@ -134,9 +134,9 @@ hExprToAddrs :: Rslt -> Subst Addr -> HExpr ->
 hExprToAddrs r s (HMap m) =
   -- Strategy: Find every sub-Expr in m, and then find every Expr
   -- that has one of those (level-1) sub-Exprs in each specified Role.
-  prefixLeft "-> hExprToAddrs, called on HMap: " $ do
+  prefixLeft "hExprToAddrs, called on HMap: " $ do
     permissible_members :: Map Role (Set Addr) <-
-      prefixLeft " calculating permissible_members: "
+      prefixLeft "computing permissible_members: "
       $ ifLefts_map $ M.map (hExprToAddrs r s) m
 
     let hostCandidates ::
@@ -159,8 +159,8 @@ hExprToAddrs r s (HMap m) =
 
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval: " $ do
-    (hosts :: Set Addr)     <-
-      prefixLeft ", mapping over hosts"
+    (hosts :: Set Addr) <-
+      prefixLeft "computing hosts: "
       $ hExprToAddrs r s hm
     (its :: Set (Set Addr)) <-
       ifLefts_set $ S.map (subExprs r paths) hosts

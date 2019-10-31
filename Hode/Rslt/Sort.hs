@@ -155,6 +155,7 @@ deleteHostsThenDelete a r =
 data Kahn = Kahn { kahnRslt   :: Rslt
                  , kahnTops   :: [Addr]
                  , kahnSorted :: [Addr] }
+  deriving (Eq,Ord,Show)
 
 kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
             -> Either String Kahn
@@ -179,6 +180,9 @@ kahnRecurse bt k =
     [] -> Right k
     _ -> kahnIterate bt k >>= kahnRecurse bt
 
+-- | Depth-first search.
+-- (For BFS, reverse the order of the expression
+-- `newTops ++ tops` in `kahnIterate`.
 kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
          -> Either String [Addr]
 kahnSort r (bo,t) as =
@@ -188,8 +192,8 @@ kahnSort r (bo,t) as =
   r1 :: Rslt <- restrictRsltForSort as [t] r
     -- restrict to "nodes", "edges", and the "edge label" at `t`
   nodes :: [Addr] <-
-    S.toList <$> allExprsButTpltsOrRelsUsingThem r [t]
-  tops :: [Addr] <- allTops r (bo,t) nodes
+    S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
+  tops :: [Addr] <- allTops r1 (bo,t) nodes
   Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
   case null $ S.intersection rels $
        S.fromList $ M.keys $ _addrToRefExpr r2 of

@@ -23,22 +23,46 @@ test_module_rslt_sort = TestList [
   TestLabel "test_justUnders" test_justUnders,
   TestLabel "test_kahnIterate" test_kahnIterate,
   TestLabel "test_allExprsButTpltsOrRelsUsingThem"
-    test_allExprsButTpltsOrRelsUsingThem
---  TestLabel "test_kahnSort" test_kahnSort
+    test_allExprsButTpltsOrRelsUsingThem,
+  TestLabel "test_kahnSort" test_kahnSort
   ]
 
-test_kahnSort :: IO ()
-test_kahnSort = do
-  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
-                                           "1 #a 2",
-                                           "2 #a 3" ]
+-- | See also `test_kahnSort'`, a manual test,
+-- which shows what happens with branches.
+test_kahnSort :: Test
+test_kahnSort = TestCase $ do
+  let Right rLine = nInserts (mkRslt mempty)
+      [ "0 #a 1", "1 #a 2", "2 #a 3" ]
       Right tplt_a  = head . S.toList <$>
-                      nFindAddrs r "/t /_ a /_"
-      elt :: Int -> Addr
+                      nFindAddrs rLine "/t /_ a /_"
+      intElt :: Int -> Addr
+      intElt = either (error "not in graph") id .
+            exprToAddr rLine . Phrase . show
+  assertBool "sort a line" $
+    kahnSort rLine (LeftIsBigger,tplt_a) (map intElt [0..3])
+    == Right (map intElt [3,2,1,0])
+
+  let Right rTree = nInserts (mkRslt mempty)
+                    [ "0 #a 00", -- the prefix relationship
+                      "0 #a 01",
+                      "01 #a 010",
+                      "01 #a 011",
+                      "00 #a 000",
+                      "00 #a 001" ]
+      elt :: String -> Addr
       elt = either (error "not in graph") id .
-            exprToAddr r . Phrase . show
-  putStrLn . show $
-    kahnSort r (LeftIsBigger,tplt_a) (map elt [0..3])
+            exprToAddr rTree . Phrase
+      Right tplt_a = head . S.toList <$>
+                     nFindAddrs rTree "/t /_ a /_"
+
+  assertBool "sort a tree" $ let
+    Right (sorted :: [Addr]) =
+      kahnSort rTree (LeftIsBigger,tplt_a) $
+      map elt ["0","00","01","000","001","010","011"]
+    Right (shown :: [Expr]) =
+      mapM (addrToExpr rTree) sorted
+    in shown == map Phrase ["011","010","01",
+                            "001","000","00","0"]
 
 -- | Without graph isomorphism, this test is too brittle to automate.
 test_restrictRsltForSort :: IO ()
@@ -72,6 +96,8 @@ test_allExprsButTpltsOrRelsUsingThem = TestCase $ do
     allExprsButTpltsOrRelsUsingThem r1 ts ==
     Right (S.fromList $ map expr [0..3])
 
+-- | For testing what it does to the `Rslt`
+-- (as opposed to the tops) see `test_kahnIterate'`, immediately below.
 test_kahnIterate :: Test
 test_kahnIterate = TestCase $ do
   let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
@@ -88,6 +114,26 @@ test_kahnIterate = TestCase $ do
     in case ek of
          Left s                -> error s
          Right (Kahn _ tops _) -> tops == [expr 1]
+
+-- | This lets you see the `Rslt`. (With `Rslt` isomorphisms,
+-- I could automate this nicely.)
+--
+-- > Right (Kahn r b c) = test_kahnIterate'
+-- > nShowRsltIO r
+test_kahnIterate' :: Either String Kahn
+test_kahnIterate' =
+
+  let Right r = nInserts (mkRslt mempty) [ "0 #a 1",
+                                           "0 #a 2",
+                                           "1 #a 2" ]
+      Right tplt_a = head . S.toList <$>
+                     nFindAddrs r "/t /_ a /_"
+      expr :: Int -> Addr
+      expr k = either
+        (const $ error $ show k ++ " not in the Rslt") id
+        $ head . S.toList <$> nFindAddrs r (show k)
+  in kahnIterate (LeftIsBigger,tplt_a) $
+     Kahn r [expr 0] []
 
 -- | Without graph isomorphisms, must test by hand.
 -- The input integer is the Expr that gets deleted.
