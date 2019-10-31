@@ -10,8 +10,9 @@ This will load all non-broken modules when some are broken.
 * TODO studying Hode.UI
 ** TODO make HasArity a class
 for Expr, Tplt, maybe RefExpr
-arity :: Rslt -> Expr -> Either String Arity
+arityIn :: Rslt -> Expr -> Either String Arity
         -- Defined at Hode/Rslt/RLookup.hs
+
 refExprArity :: RefExpr -> Arity
         -- Defined at Hode/Rslt/RUtil.hs
 tpltArity : not defined

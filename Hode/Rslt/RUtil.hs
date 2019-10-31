@@ -11,7 +11,7 @@ module Hode.Rslt.RUtil (
 
   , depth          -- ^ Expr -> Int
   , refExprVariety -- ^ RefExpr -> (ExprCtr, Arity)
-  , refExprArity   -- ^ RefExpr -> Arity
+  , arity          -- ^ RefExpr -> Arity
   , maxAddr        -- ^ Rslt -> Either String Addr
   , nextAddr       -- ^ Rslt -> Either String Addr
   ) where
@@ -117,13 +117,8 @@ depth = cata f where
 
 refExprVariety :: RefExpr -> (ExprCtr, Arity)
 refExprVariety   (Phrase'  _) = (PhraseCtr, 0)
-refExprVariety e@(Tplt'  _)   = (TpltCtr, refExprArity e)
-refExprVariety e@(Rel' _)     = (RelCtr , refExprArity e)
-
-refExprArity :: RefExpr -> Arity
-refExprArity (Phrase' _)           = 0
-refExprArity (Rel' (Rel x _))      = length x
-refExprArity (Tplt' (Tplt _ js _)) = length js + 1
+refExprVariety e@(Tplt'  _)   = (TpltCtr, arity e)
+refExprVariety e@(Rel' _)     = (RelCtr , arity e)
 
 
 -- | = for `Rslt`s

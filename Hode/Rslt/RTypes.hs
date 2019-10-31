@@ -15,6 +15,9 @@ import           Data.Set (Set)
 type Addr = Int -- ^ Address
 type Arity = Int
 
+class HasArity e where
+  arity :: e -> Arity
+
 -- ^ Someday maybe these can be reified in the type system.
 -- TODO : Replace instances of the term `Addr` with these where possible.
 type RelAddr    = Addr
@@ -63,6 +66,8 @@ data Tplt a = Tplt (Maybe a) [a] (Maybe a)
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
 deriveShow1 ''Tplt
 deriveEq1 ''Tplt
+instance HasArity (Tplt a) where
+  arity (Tplt _ seps _) = length seps + 1
 
 data Expr =
     Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
@@ -109,6 +114,10 @@ data RefExpr =
   | Rel' (Rel Addr)
   | Tplt' (Tplt Addr)
   deriving (Eq, Ord, Read, Show)
+instance HasArity RefExpr where
+  arity (Phrase' _)           = 0
+  arity (Rel' (Rel x _))      = length x
+  arity (Tplt' (Tplt _ js _)) = length js + 1
 
 -- | The constructor that a `RefExpr` uses.
 data ExprCtr = PhraseCtr | RelCtr | TpltCtr

@@ -146,7 +146,7 @@ relsWithoutMatchingTplts r = res where
     case M.lookup t $ _variety r of
       Nothing         -> False
       Just (ctr, art) -> case ctr of
-        TpltCtr -> refExprArity e == art
+        TpltCtr -> arity e == art
         _       -> False
   relMatchesTpltArity _ =
     error "relMatchesTpltArity: impossible."
