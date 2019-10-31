@@ -7,6 +7,16 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO studying Hode.UI
+** TODO rename Group -> ForkLabel
+MembersGroup -> MembersFork
+RelHostGroup -> RelHostFork
+TpltHostGroup -> TpltHostFork
+** TODO make HasArity a class
+for Expr, Tplt, maybe RefExpr
+** TODO fix this line
+(ar :: Arity) = length tplt - 1
+AND THEN resume reading types from there
 * TODO next
 ** TODO ? more NoUI
 ** TODO show hosts is broken in UI

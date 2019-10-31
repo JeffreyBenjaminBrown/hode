@@ -51,23 +51,23 @@ type Folder = String
 
 -- | = Views
 
-data BufferRow = BufferRow {
-    _viewExprNode :: ViewExprNode
-  , _columnProps  :: ColumnProps
-  , _otherProps   :: OtherProps
-  } deriving (Show, Eq, Ord)
-
 type ColumnProps = Map HExpr Int
 
 data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
   } deriving (Show, Eq, Ord)
 
+data BufferRow = BufferRow {
+    _viewExprNode :: ViewExprNode
+  , _columnProps  :: ColumnProps
+  , _otherProps   :: OtherProps
+  } deriving (Show, Eq, Ord)
+
 bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
 bufferRow_from_viewExprNode n =
   BufferRow n mempty $ OtherProps False
 
--- | A `ViewExprNode` is a node in a tree of descendents of search results.
+-- | = A `ViewExprNode` is a node in a tree of descendents of search results.
 -- Each search returns a flat list of `ViewExprNode`s.
 -- The user can then choose to view members and hosts of any node,
 -- recursively, thus building a "view tree".
@@ -75,20 +75,12 @@ bufferRow_from_viewExprNode n =
 -- A `VMemberGroup`  or `VHostGroup` announces the relationship
 -- between its parent in the view tree and its children.
 --
--- | PITFALL: `VTree ViewExprNode` permits invalid state.
+-- PITFALL: `VTree ViewExprNode` permits invalid state.
 -- A `VQuery` should be nowhere but the top of the tree.
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
 -- The subviews of a `VExpr` should be `VMemberGroup`s or `VHostGroup`s.
-data ViewExprNode =
-    VQuery       ViewQuery    -- ^ The top of every view tree is this.
-  | VExpr        ViewExpr     -- ^ Corresponds to some `Expr`.
-  | VMemberGroup MembersGroup -- ^ Announces the relationship between its
-                              -- parent in the view tree and its children.
-  | VHostGroup   HostGroup    -- ^ Announces the relationship between its
-                              -- parent in the view tree and its children.
-  deriving (Eq, Ord)
 
-type ViewQuery = String -- ^ What the user asked for
+type ViewQuery = String -- ^ What the user asked for.
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr   :: Addr
@@ -107,8 +99,9 @@ data HostGroup =
   | TpltHostGroup JointHosts  -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
--- | `MemberHosts` is used to group relationships in which the `Expr`at
--- `memberHostsCenter` appears. For instance, if the `Expr` at `Addr 3` helps some things,
+-- | `MemberHosts` is used to group relationships to which the `Expr` at
+-- `memberHostsCenter` belongs.
+-- For instance, if the `Expr` at `Addr 3` helps some things,
 -- then `MemberHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
 data MemberHosts = MemberHosts {
@@ -117,15 +110,12 @@ data MemberHosts = MemberHosts {
   , _memberHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
   } deriving (Eq, Ord)
 
+-- | `JointHosts` is used to group `Tplt`s to which the `Expr` at
+-- `jointHostsCenter` belongs.
 data JointHosts = JointHosts { _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
-instance Show ViewExprNode where
-   show (VQuery x)       = "VQuery "       ++ show x
-   show (VExpr x)        = "VExpr "        ++ show x
-   show (VMemberGroup x) = "VMemberGroup " ++ show x
-   show (VHostGroup x)   = "VHostGroup "   ++ show x
-
+-- | Shows the label of the group, not its members.
 instance Show MemberHosts where
   show relHosts = let
     tplt = _memberHostsTplt relHosts
@@ -133,7 +123,7 @@ instance Show MemberHosts where
     noRslt     = error "show MemberHosts: Rslt irrelevant"
     noMiscount = error "show MemberHosts: This math is good."
     in if _memberHostsRole relHosts == RoleTplt
-       then " Rels using it (as a Tplt)"
+       then " Rels using it as a Tplt"
        else let (ar :: Arity) = length tplt - 1
                 RoleMember (n :: Int) = _memberHostsRole relHosts
                 mbrs = either (const noMiscount) id
@@ -143,8 +133,24 @@ instance Show MemberHosts where
                either (const noLeft) id $
                eParenShow 3 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
 
+-- | Shows the label of the group, not its members.
 instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
+
+data ViewExprNode =
+    VQuery       ViewQuery    -- ^ The top of every view tree is this.
+  | VExpr        ViewExpr     -- ^ Corresponds to some `Expr`.
+  | VMemberGroup MembersGroup -- ^ Announces the relationship between its
+                              -- parent in the view tree and its children.
+  | VHostGroup   HostGroup    -- ^ Announces the relationship between its
+                              -- parent in the view tree and its children.
+  deriving (Eq, Ord)
+
+instance Show ViewExprNode where
+   show (VQuery x)       = "VQuery "       ++ show x
+   show (VExpr x)        = "VExpr "        ++ show x
+   show (VMemberGroup x) = "VMemberGroup " ++ show x
+   show (VHostGroup x)   = "VHostGroup "   ++ show x
 
 makeLenses ''BufferRow
 makeLenses ''OtherProps
