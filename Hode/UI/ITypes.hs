@@ -87,14 +87,14 @@ data ViewExpr = ViewExpr {
   , _viewExpr_String :: AttrString } deriving (Show, Eq, Ord)
 
 -- | The members of some "center" `Expr`.
-data MemberFork = MemberFork { _membersGroupCenter :: Addr }
+data MemberFork = MemberFork { _membersForkCenter :: Addr }
   deriving (Show, Eq, Ord)
 
 -- | The hosts of some "center" `Expr`.
 -- If `Expr` `h` hosts the center `Expr` `c`, it could be because
 -- (1) `h` is a `Rel`, of which `c` is a member, or
 -- (2) `h` is a `Tplt`, in which `c` is a joint
-data HostGroup =
+data HostFork =
     RelHostFork MemberHosts  -- ^ `Rel`s  that the center is a member of
   | TpltHostFork JointHosts  -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
@@ -137,11 +137,11 @@ instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
 
 data ViewExprNode =
-    VQuery       ViewQuery -- ^ The top of every view tree is this.
-  | VExpr        ViewExpr  -- ^ Corresponds to some `Expr`.
+    VQuery      ViewQuery  -- ^ The top of every view tree is this.
+  | VExpr       ViewExpr   -- ^ Corresponds to some `Expr`.
   | VMemberFork MemberFork -- ^ Announces the relationship between its
                            -- parent in the view tree and its children.
-  | VHostFork   HostGroup  -- ^ Announces the relationship between its
+  | VHostFork   HostFork   -- ^ Announces the relationship between its
                            -- parent in the view tree and its children.
   deriving (Eq, Ord)
 

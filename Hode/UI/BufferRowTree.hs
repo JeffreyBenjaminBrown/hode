@@ -13,7 +13,7 @@ module Hode.UI.BufferRowTree
   ( moveFocusedViewExprNode   -- ^ Direction -> St -> St
   , members_atFocus       -- ^ St -> Either String (MemberFork, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
-  , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
+  , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
   , groupHostRels_atFocus -- ^ St ->    Either String [(MemberHosts, [Addr])]
   , hostGroup_to_view     -- ^ Rslt -> (MemberHosts, [Addr]) ->
                           -- Either String (PTree ViewExprNode)
@@ -81,7 +81,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
 
   Right $ st & stSetFocused_ViewExprNode_Tree %~ consUnder_andFocus new
 
-groupHostRels :: Rslt -> Addr -> Either String [(HostGroup, [Addr])]
+groupHostRels :: Rslt -> Addr -> Either String [(HostFork, [Addr])]
 groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
   ras :: [(Role, Addr)] <-
     prefixLeft ("computing ras from " ++ show a0)
@@ -98,9 +98,9 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
               isTplt :: ((Role,Addr),ExprCtr) -> Bool
               isTplt = (\case TpltCtr -> True; _ -> False) . snd
 
-  let maybeConsTpltPackage :: [(HostGroup, [Addr])] -> [(HostGroup, [Addr])]
+  let maybeConsTpltPackage :: [(HostFork, [Addr])] -> [(HostFork, [Addr])]
       maybeConsTpltPackage = if null tplt_ras then id else (:) tplt_package
-        where tplt_package :: (HostGroup, [Addr]) =
+        where tplt_package :: (HostFork, [Addr]) =
                 (tplt_fork, map snd tplt_ras)
                 where tplt_fork = TpltHostFork $ JointHosts a0
 
@@ -116,7 +116,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
               f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
           -- `f` is efficient: `a` is prepended, not appended.
 
-      package_rel_groups :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
+      package_rel_groups :: ((Role, Addr),[Addr]) -> (HostFork, [Addr])
       package_rel_groups ((role,t),as) = (RelHostFork relHosts, as)
         where
           relHosts = MemberHosts { _memberHostsCenter = a0
@@ -129,7 +129,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
   Right $ maybeConsTpltPackage
     $ map package_rel_groups (M.toList rel_groups)
 
-groupHostRels_atFocus :: St -> Either String [(HostGroup, [Addr])]
+groupHostRels_atFocus :: St -> Either String [(HostFork, [Addr])]
 groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
   a :: Addr <-
     let errMsg = "Buffer not found or focused ViewExprNode not found."
@@ -140,7 +140,7 @@ groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
-  (groups :: [(HostGroup, [Addr])]) <-
+  (groups :: [(HostFork, [Addr])]) <-
     groupHostRels_atFocus st
   (newTrees :: [PTree BufferRow]) <-
     ifLefts $ map (hostGroup_to_view st) groups
@@ -155,7 +155,7 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
                    P.fromList (foldr (:) preexist' newTrees)
   Right $ st & stSetFocused_ViewExprNode_Tree %~ insert
 
-hostGroup_to_view :: St -> (HostGroup, [Addr])
+hostGroup_to_view :: St -> (HostFork, [Addr])
                   -> Either String (PTree BufferRow)
 hostGroup_to_view st (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   case as of [] -> Left "There are no host Exprs to show."
