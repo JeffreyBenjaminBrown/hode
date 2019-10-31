@@ -35,12 +35,12 @@ test_groupHostRels :: T.Test
 test_groupHostRels = TestCase $ do
   assertBool "1" $ (S.fromList <$> groupHostRels D.big 2) == Right
     ( S.fromList
-      [ ( RelHostGroup MemberHosts
+      [ ( RelHostFork MemberHosts
           { _memberHostsCenter = 2
           , _memberHostsRole = RoleMember 1
           , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
         ,[9] )
-      , ( RelHostGroup MemberHosts
+      , ( RelHostFork MemberHosts
           { _memberHostsCenter = 2
           , _memberHostsRole = RoleMember 2
           , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }

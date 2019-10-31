@@ -72,13 +72,13 @@ bufferRow_from_viewExprNode n =
 -- The user can then choose to view members and hosts of any node,
 -- recursively, thus building a "view tree".
 --
--- A `VMemberGroup`  or `VHostGroup` announces the relationship
+-- A `VMemberFork`  or `VHostFork` announces the relationship
 -- between its parent in the view tree and its children.
 --
 -- PITFALL: `VTree ViewExprNode` permits invalid state.
 -- A `VQuery` should be nowhere but the top of the tree.
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
--- The subviews of a `VExpr` should be `VMemberGroup`s or `VHostGroup`s.
+-- The subviews of a `VExpr` should be `VMemberFork`s or `VHostFork`s.
 
 type ViewQuery = String -- ^ What the user asked for.
 
@@ -87,7 +87,7 @@ data ViewExpr = ViewExpr {
   , _viewExpr_String :: AttrString } deriving (Show, Eq, Ord)
 
 -- | The members of some "center" `Expr`.
-data MembersGroup = MembersGroup { _membersGroupCenter :: Addr }
+data MemberFork = MemberFork { _membersGroupCenter :: Addr }
   deriving (Show, Eq, Ord)
 
 -- | The hosts of some "center" `Expr`.
@@ -95,8 +95,8 @@ data MembersGroup = MembersGroup { _membersGroupCenter :: Addr }
 -- (1) `h` is a `Rel`, of which `c` is a member, or
 -- (2) `h` is a `Tplt`, in which `c` is a joint
 data HostGroup =
-    RelHostGroup MemberHosts  -- ^ `Rel`s  that the center is a member of
-  | TpltHostGroup JointHosts  -- ^ `Tplt`s that the center is a joint in
+    RelHostFork MemberHosts  -- ^ `Rel`s  that the center is a member of
+  | TpltHostFork JointHosts  -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
 -- | `MemberHosts` is used to group relationships to which the `Expr` at
@@ -138,25 +138,25 @@ instance Show JointHosts where
   show _ = "JointHosts in which it is a joint:"
 
 data ViewExprNode =
-    VQuery       ViewQuery    -- ^ The top of every view tree is this.
-  | VExpr        ViewExpr     -- ^ Corresponds to some `Expr`.
-  | VMemberGroup MembersGroup -- ^ Announces the relationship between its
-                              -- parent in the view tree and its children.
-  | VHostGroup   HostGroup    -- ^ Announces the relationship between its
-                              -- parent in the view tree and its children.
+    VQuery       ViewQuery -- ^ The top of every view tree is this.
+  | VExpr        ViewExpr  -- ^ Corresponds to some `Expr`.
+  | VMemberFork MemberFork -- ^ Announces the relationship between its
+                           -- parent in the view tree and its children.
+  | VHostFork   HostGroup  -- ^ Announces the relationship between its
+                           -- parent in the view tree and its children.
   deriving (Eq, Ord)
 
 instance Show ViewExprNode where
-   show (VQuery x)       = "VQuery "       ++ show x
-   show (VExpr x)        = "VExpr "        ++ show x
-   show (VMemberGroup x) = "VMemberGroup " ++ show x
-   show (VHostGroup x)   = "VHostGroup "   ++ show x
+   show (VQuery x)      = "VQuery "       ++ show x
+   show (VExpr x)       = "VExpr "        ++ show x
+   show (VMemberFork x) = "VMemberFork " ++ show x
+   show (VHostFork x)   = "VHostFork "   ++ show x
 
 makeLenses ''BufferRow
 makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
-makeLenses ''MembersGroup
+makeLenses ''MemberFork
 makeLenses ''MemberHosts
 
 

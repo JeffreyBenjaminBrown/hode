@@ -12,6 +12,9 @@ This will load all non-broken modules when some are broken.
 MembersGroup -> MembersFork
 RelHostGroup -> RelHostFork
 TpltHostGroup -> TpltHostFork
+VMemberGroup -> VMemberFork
+VHostGroup -> VHostFork
+tplt_group
 ** TODO make HasArity a class
 for Expr, Tplt, maybe RefExpr
 ** TODO fix this line

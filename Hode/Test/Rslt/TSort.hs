@@ -43,21 +43,21 @@ test_kahnSort = TestCase $ do
     == Right (map intElt [3,2,1,0])
 
   let Right rTree = nInserts (mkRslt mempty)
-                    [ "0 #a 00", -- the prefix relationship
-                      "0 #a 01",
-                      "01 #a 010",
-                      "01 #a 011",
-                      "00 #a 000",
-                      "00 #a 001" ]
+                    [ "0 #b 00", -- the prefix relationship
+                      "0 #b 01",
+                      "01 #b 010",
+                      "01 #b 011",
+                      "00 #b 000",
+                      "00 #b 001" ]
       elt :: String -> Addr
       elt = either (error "not in graph") id .
             exprToAddr rTree . Phrase
-      Right tplt_a = head . S.toList <$>
-                     nFindAddrs rTree "/t /_ a /_"
+      Right tplt_b = head . S.toList <$>
+                     nFindAddrs rTree "/t /_ b /_"
 
   assertBool "sort a tree" $ let
     Right (sorted :: [Addr]) =
-      kahnSort rTree (LeftIsBigger,tplt_a) $
+      kahnSort rTree (LeftIsBigger,tplt_b) $
       map elt ["0","00","01","000","001","010","011"]
     Right (shown :: [Expr]) =
       mapM (addrToExpr rTree) sorted

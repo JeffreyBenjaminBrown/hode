@@ -11,7 +11,7 @@
 
 module Hode.UI.BufferRowTree
   ( moveFocusedViewExprNode   -- ^ Direction -> St -> St
-  , members_atFocus       -- ^ St -> Either String (MembersGroup, [Addr])
+  , members_atFocus       -- ^ St -> Either String (MemberFork, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostGroup, [Addr])]
   , groupHostRels_atFocus -- ^ St ->    Either String [(MemberHosts, [Addr])]
@@ -45,7 +45,7 @@ moveFocusedViewExprNode d =
   stSetFocusedBuffer . bufferRowPorest . _Just
   %~ moveFocusInPorest d
 
-members_atFocus :: St -> Either String (MembersGroup, [Addr])
+members_atFocus :: St -> Either String (MemberFork, [Addr])
 members_atFocus st = prefixLeft "-> members_atFocus" $ do
   foc :: PTree BufferRow <-
     let msg = "focused ViewExprNode not found."
@@ -57,16 +57,16 @@ members_atFocus st = prefixLeft "-> members_atFocus" $ do
       _        -> Left $ "can only be called from a ViewExprNode with an Addr."
   as :: [Addr] <-
     M.elems <$> has (st ^. appRslt) a
-  Right (MembersGroup a, as)
+  Right (MemberFork a, as)
 
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
-  (ms,as) :: (MembersGroup, [Addr]) <-
+  (ms,as) :: (MemberFork, [Addr]) <-
     members_atFocus st
 
   -- The new subtree has two levels: a top, and leaves.
   let topOfNew :: PTree BufferRow =
-        pTreeLeaf $ BufferRow (VMemberGroup ms) mempty $
+        pTreeLeaf $ BufferRow (VMemberFork ms) mempty $
         OtherProps False
   leaves0 :: [ViewExprNode] <-
     map VExpr <$> ifLefts (map (resultView $ st ^. appRslt) as)
@@ -101,8 +101,8 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
   let maybeConsTpltPackage :: [(HostGroup, [Addr])] -> [(HostGroup, [Addr])]
       maybeConsTpltPackage = if null tplt_ras then id else (:) tplt_package
         where tplt_package :: (HostGroup, [Addr]) =
-                (tplt_group, map snd tplt_ras)
-                where tplt_group = TpltHostGroup $ JointHosts a0
+                (tplt_fork, map snd tplt_ras)
+                where tplt_fork = TpltHostFork $ JointHosts a0
 
   rel_tplts <- let tpltOf :: Addr -> Either String Addr
                    tpltOf a = fills r (RoleTplt, a)
@@ -117,7 +117,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
           -- `f` is efficient: `a` is prepended, not appended.
 
       package_rel_groups :: ((Role, Addr),[Addr]) -> (HostGroup, [Addr])
-      package_rel_groups ((role,t),as) = (RelHostGroup relHosts, as)
+      package_rel_groups ((role,t),as) = (RelHostFork relHosts, as)
         where
           relHosts = MemberHosts { _memberHostsCenter = a0
                                  , _memberHostsRole = role
@@ -166,7 +166,7 @@ hostGroup_to_view st (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
     ifLefts $ map (resultView r) as
 
   -- The new subtree has two layers: the top and the leaves
-  topOfNew <- bufferRow_from_viewExprNode' st $ VHostGroup hg
+  topOfNew <- bufferRow_from_viewExprNode' st $ VHostFork hg
   let leaves0 :: [ViewExprNode] = map VExpr rs
   leaves1 :: [BufferRow] <- ifLefts $
     map (bufferRow_from_viewExprNode' st) leaves0
