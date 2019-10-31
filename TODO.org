@@ -7,9 +7,19 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO buggy: eParenShow
+in Rslt.Show.Wut
+t = eParenShow 3 (error "meh")
+    $ ExprRel $ Rel [Phrase "0", Phrase "1"]
+    $ ExprTplt ( Tplt
+                 (Just $ Phrase "is")
+                 [Phrase "is"]
+                 (Just $ Phrase "is") )
 * TODO studying Hode.UI
 resume at
   instance Show MemberHosts where
+add tests for UI.Types
+  it's that complex
 * TODO next
 ** TODO ? more NoUI
 ** TODO ordered display

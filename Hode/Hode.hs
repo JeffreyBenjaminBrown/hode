@@ -51,6 +51,7 @@ import Hode.Rslt.RTypes as X
 import Hode.Rslt.RUtil as X
 import Hode.Rslt.RValid as X
 import Hode.Rslt.Show as X
+import Hode.Rslt.Show.Wut as X
 import Hode.Rslt.Show' as X
 import Hode.Rslt.Sort as X
 -- import Hode.Rslt.Show.JustInCase as X

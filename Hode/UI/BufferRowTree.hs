@@ -14,8 +14,8 @@ module Hode.UI.BufferRowTree
   , members_atFocus       -- ^ St -> Either String (MemberFork, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
-  , groupHostRels_atFocus -- ^ St ->    Either String [(MemberHosts, [Addr])]
-  , hostGroup_to_view     -- ^ Rslt -> (MemberHosts, [Addr]) ->
+  , groupHostRels_atFocus -- ^ St ->    Either String [(RoleHosts, [Addr])]
+  , hostGroup_to_view     -- ^ Rslt -> (RoleHosts, [Addr]) ->
                           -- Either String (PTree ViewExprNode)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
@@ -119,9 +119,9 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
       package_rel_groups :: ((Role, Addr),[Addr]) -> (HostFork, [Addr])
       package_rel_groups ((role,t),as) = (RelHostFork relHosts, as)
         where
-          relHosts = MemberHosts { _memberHostsCenter = a0
-                                 , _memberHostsRole = role
-                                 , _memberHostsTplt = tplt t }
+          relHosts = RoleHosts { _memberHostsCenter = a0
+                               , _memberHostsRole = role
+                               , _memberHostsTplt = tplt t }
             where tplt :: Addr -> Tplt Expr
                   tplt a = es
                     where Right (ExprTplt es) = addrToExpr r a

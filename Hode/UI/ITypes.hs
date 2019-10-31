@@ -95,19 +95,19 @@ data MemberFork = MemberFork { _membersForkCenter :: Addr }
 -- (1) `h` is a `Rel`, of which `c` is a member, or
 -- (2) `h` is a `Tplt`, in which `c` is a joint
 data HostFork =
-    RelHostFork MemberHosts  -- ^ `Rel`s  that the center is a member of
+    RelHostFork RoleHosts    -- ^ `Rel`s  that the center is a member of
   | TpltHostFork JointHosts  -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
--- | `MemberHosts` is used to group relationships to which the `Expr` at
+-- | `RoleHosts` is used to group relationships to which the `Expr` at
 -- `memberHostsCenter` belongs.
 -- For instance, if the `Expr` at `Addr 3` helps some things,
--- then `MemberHosts 3 (RoleMember 1) ["", "helps", ""]` will
+-- then `RoleHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
-data MemberHosts = MemberHosts {
-    _memberHostsCenter :: Addr      -- ^ the thing being hosted
-  , _memberHostsRole   :: Role      -- ^ the role it plays
-  , _memberHostsTplt   :: Tplt Expr -- ^ the kind of Rel hosting it
+data RoleHosts = RoleHosts {
+    _memberHostsCenter :: Addr      -- ^ what plays the `Role`
+  , _memberHostsRole   :: Role      -- ^ the `Role` it plays
+  , _memberHostsTplt   :: Tplt Expr -- ^ the kind of `Rel` hosting it
   } deriving (Eq, Ord)
 
 -- | `JointHosts` is used to group `Tplt`s to which the `Expr` at
@@ -116,12 +116,12 @@ data JointHosts = JointHosts { _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
 -- | Shows the label of the group, not its members.
-instance Show MemberHosts where
+instance Show RoleHosts where
   show relHosts = let
-    tplt = _memberHostsTplt relHosts
-    noLeft     = error "show MemberHosts: impossible"
-    noRslt     = error "show MemberHosts: Rslt irrelevant"
-    noMiscount = error "show MemberHosts: This math is good."
+    tplt :: Tplt Expr = _memberHostsTplt relHosts
+    noLeft     = error "show RoleHosts: impossible"
+    noRslt     = error "show RoleHosts: Rslt irrelevant"
+    noMiscount = error "show RoleHosts: This math is good."
     in if _memberHostsRole relHosts == RoleTplt
        then " Rels using it as a Tplt"
        else let RoleMember (n :: Int) = _memberHostsRole relHosts
@@ -156,7 +156,7 @@ makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MemberFork
-makeLenses ''MemberHosts
+makeLenses ''RoleHosts
 
 
 -- | = Huge types.
