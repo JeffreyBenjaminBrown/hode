@@ -3,7 +3,7 @@
 module Hode.Rslt.RLookup (
   -- | = primary lookup functions
     variety -- ^ Rslt -> Addr -> Either String (ExprCtr, Arity)
-  , arity   -- ^ Rslt -> Expr -> Either String Arity
+  , arityIn   -- ^ Rslt -> Expr -> Either String Arity
   , has     -- ^ Rslt -> Addr -> Either String (Map Role Addr)
   , hasInRole -- ^ Rslt -> Role -> Addr -> Either String Addr
   , isIn    -- ^ Rslt -> Addr -> Either String (Set (Role,Addr))
@@ -46,17 +46,18 @@ variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
 variety r a = maybe err Right $ M.lookup a $ _variety r
   where err = Left $ "variety: Addr " ++ show a ++ " not found.\n"
 
-arity :: Rslt -> Expr -> Either String Arity
-arity r (Addr a)  = snd <$> variety r a
-arity _ (Phrase _) = Right 0
-arity r (ExprRel (Rel ms t)) = prefixLeft "arity" $ do
-  ta <- arity r t
+-- | Whereas a `Tplt` has a well-defined arity on its own,
+-- the arity of an `Expr` might be unknowable without a `Rslt`.
+arityIn :: Rslt -> Expr -> Either String Arity
+arityIn r (Addr a)  = snd <$> variety r a
+arityIn _ (Phrase _) = Right 0
+arityIn r (ExprRel (Rel ms t)) = prefixLeft "arityIn: " $ do
+  ta <- arityIn r t
   if ta == length ms then Right ta
     else Left $ "Rel Tplt " ++ show t
          ++ " does not match number of Rel members " ++ show ms ++ ".\n"
-arity _ (ExprTplt (Tplt _ bs _))  =
+arityIn _ (ExprTplt (Tplt _ bs _))  =
   Right $ length bs + 1
-
 
 -- | `has r a` finds the `RefExpr` `re` at `a` in `r`, and returns
 -- every position contained in `re`.

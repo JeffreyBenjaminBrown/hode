@@ -8,15 +8,13 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO studying Hode.UI
-** TODO rename Group -> ForkLabel
-MembersGroup -> MembersFork
-RelHostGroup -> RelHostFork
-TpltHostGroup -> TpltHostFork
-VMemberGroup -> VMemberFork
-VHostGroup -> VHostFork
-tplt_group
 ** TODO make HasArity a class
 for Expr, Tplt, maybe RefExpr
+arity :: Rslt -> Expr -> Either String Arity
+        -- Defined at Hode/Rslt/RLookup.hs
+refExprArity :: RefExpr -> Arity
+        -- Defined at Hode/Rslt/RUtil.hs
+tpltArity : not defined
 ** TODO fix this line
 (ar :: Arity) = length tplt - 1
 AND THEN resume reading types from there

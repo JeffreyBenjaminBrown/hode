@@ -110,7 +110,7 @@ hExprToExpr r h@(HMap mh) =
       ExprTplt _ -> Right ()
       x -> Left $ "hExprToExpr: in " ++ show h
         ++ ", the expression " ++ show x ++ " is not a Tplt."
-    ta <- arity r t
+    ta <- arityIn r t
     if M.size (M.delete RoleTplt me) == ta
       then Right ()
       else Left $ "hExprToExpr: arity mismatch between "
