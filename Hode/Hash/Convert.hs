@@ -197,11 +197,12 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   f :: Base PExpr (PExpr, Either String [RelPath])
     -> Either String [RelPath]
   f (PExprF _) = Right []
-  f (PMapF m)  = do (m' :: Map Role [RelPath]) <-
-                      ifLefts_map $ M.map snd m
-                    let g :: (Role, [RelPath]) -> [RelPath]
-                        g (role, paths) = map ((:) role) paths
-                    Right $ concatMap g $ M.toList m'
+  f (PMapF m)  = do
+    (m' :: Map Role [RelPath]) <-
+      ifLefts_map $ M.map snd m
+    let g :: (Role, [RelPath]) -> [RelPath]
+        g (role, paths) = map ((:) role) paths
+    Right $ concatMap g $ M.toList m'
   f (PEvalF _) = Right []
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
