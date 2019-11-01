@@ -37,12 +37,12 @@ test_groupHostRels = TestCase $ do
     ( S.fromList
       [ ( RelHostFork RoleHosts
           { _memberHostsCenter = 2
-          , _memberHostsRole = RoleMember 1
+          , _memberHostsRole = RoleInRel' $ RoleMember 1
           , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
         ,[9] )
       , ( RelHostFork RoleHosts
           { _memberHostsCenter = 2
-          , _memberHostsRole = RoleMember 2
+          , _memberHostsRole = RoleInRel' $ RoleMember 2
           , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
         ,[7] ) ] )
 

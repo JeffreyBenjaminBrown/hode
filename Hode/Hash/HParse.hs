@@ -189,10 +189,10 @@ pMap = lexeme (precisely "/map" <|> precisely "/roles")
     pTplt', pMbr :: Parser (Role, PExpr)
     pTplt' = do void $ lexeme $ precisely "tplt"
                 t <- _pTplt
-                return ( RoleTplt    , PExpr t )
+                return ( RoleInRel' RoleTplt      , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
                 x <- pPExpr
-                return ( RoleMember i, x       )
+                return ( RoleInRel' $ RoleMember i, x       )
 
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)

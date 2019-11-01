@@ -35,10 +35,11 @@ emptySt r = St {
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = -- TODO : This is a hack. In TODO.org,
       -- see the section called  (HExpr: add a symbol for "involves")
-      [ HOr [ HMap $ M.singleton RoleTplt $ HVar VarRowNode
-            , HMap $ M.singleton (RoleMember 1) $ HVar VarRowNode
-            , HMap $ M.singleton (RoleMember 2) $ HVar VarRowNode
-            , HMap $ M.singleton (RoleMember 3) $ HVar VarRowNode ] ]
+      [ HOr [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) $ HVar VarRowNode
+            , HMap $ M.singleton (RoleInRel' $ RoleMember 1) $ HVar VarRowNode
+            , HMap $ M.singleton (RoleInRel' $ RoleMember 2) $ HVar VarRowNode
+            , HMap $ M.singleton (RoleInRel' $ RoleMember 3) $ HVar VarRowNode
+            ] ]
   , _uiError   = ""
   , _reassurance = "It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""

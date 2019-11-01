@@ -105,7 +105,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
                 where tplt_fork = TpltHostFork $ JointHosts a0
 
   rel_tplts <- let tpltOf :: Addr -> Either String Addr
-                   tpltOf a = fills r (RoleTplt, a)
+                   tpltOf a = fills r (RoleInRel' RoleTplt, a)
                in prefixLeft "while computing rel_tplts"
                   $ ifLefts $ map (tpltOf . snd) rel_ras
 

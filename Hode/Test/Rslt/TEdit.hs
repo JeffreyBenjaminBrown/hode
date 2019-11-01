@@ -149,24 +149,27 @@ test_replace = TestCase $ do
 test_replaceInRole :: Test
 test_replaceInRole = TestCase $ do
   let r         = either (error "wut") id $
-                  R.replaceInRole (RoleMember 2) 1 5 D.rslt
+                  R.replaceInRole (RoleInRel' $ RoleMember 2) 1 5 D.rslt
       unchanged = either (error "wut") id $
-                  R.replaceInRole (RoleMember 2) 2 5 D.rslt
+                  R.replaceInRole (RoleInRel' $ RoleMember 2) 2 5 D.rslt
   assertBool "valid 1" $ isRight $ validRslt r
   assertBool "valid 2" $ isRight $ validRslt unchanged
   assertBool "identity" $ D.rslt == unchanged
-  assertBool "1" $ isIn r 1 == Right ( S.fromList [ (RoleMember 1, 5)
-                                                  , (RoleMember 2, 5) ] )
+  assertBool "1" $ isIn r 1 == Right
+    ( S.fromList [ (RoleInRel' $ RoleMember 1, 5)
+                 , (RoleInRel' $ RoleMember 2, 5) ] )
   assertBool "2" $ isIn r 6 == Right S.empty
-  assertBool "3" $ has r 5 == Right ( M.fromList [ (RoleMember 1, 1)
-                                                 , (RoleMember 2, 1)
-                                                 , (RoleTplt    , 4) ] )
+  assertBool "3" $ has r 5 == Right
+    ( M.fromList [ (RoleInRel' $ RoleMember 1, 1)
+                 , (RoleInRel' $ RoleMember 2, 1)
+                 , (RoleInRel' $ RoleTplt    , 4) ] )
 
   let r2 = either (error "wut") id
-           $ R.replaceInRole (RoleMember 2) 8 5
+           $ R.replaceInRole (RoleInRel' $ RoleMember 2) 8 5
            $ either (error "wut") id
            $ R.insertAt 8 (Phrase' "foo") D.rslt
-  assertBool "4" $ isIn r2 8 == Right (S.singleton (RoleMember 2, 5))
+  assertBool "4" $ isIn r2 8 == Right
+    (S.singleton (RoleInRel' $ RoleMember 2, 5))
 
 test_deleteIfUnused :: Test
 test_deleteIfUnused = TestCase $ do
@@ -191,8 +194,8 @@ test_deleteIfUnused = TestCase $ do
   assertBool "has missing"       $ isLeft $ has r 5
   assertBool "isIn missing"      $ isLeft $ isIn r 5
   assertBool "isIn $ former member of missing" $
-    isIn r 1 == Right ( S.fromList [ (RoleMember 1, 6)
-                                   , (RoleMember 2, 6) ] )
+    isIn r 1 == Right ( S.fromList [ (RoleInRel' $ RoleMember 1, 6)
+                                   , (RoleInRel' $ RoleMember 2, 6) ] )
   assertBool "isIn $ another former member of missing" $
     isIn r 2 == Right S.empty
 
@@ -202,15 +205,18 @@ test_insert = TestCase $ do
            $ R.insertAt 7 (Rel' $ Rel [1,1] 4) D.rslt
   assertBool "valid 1" $ isRight $ validRslt r2
 
-  assertBool "1" $ isIn r2 4 == Right (S.fromList [ (RoleTplt    , 7     )
-                                                  , (RoleTplt    , 6     )
-                                                  , (RoleTplt    , 5     ) ] )
-  assertBool "2" $ isIn r2 1 == Right (S.fromList [ (RoleMember 1, 7     )
-                                                  , (RoleMember 2, 7     )
-                                                  , (RoleMember 1, 5     ) ] )
-  assertBool "3" $ has r2 7 == Right ( M.fromList [ (RoleMember 1, 1     )
-                                                  , (RoleMember 2, 1     )
-                                                  , (RoleTplt    , 4     ) ] )
+  assertBool "1" $ isIn r2 4 == Right
+    (S.fromList [ (RoleInRel' $ RoleTplt    , 7     )
+                , (RoleInRel' $ RoleTplt    , 6     )
+                , (RoleInRel' $ RoleTplt    , 5     ) ] )
+  assertBool "2" $ isIn r2 1 == Right
+    (S.fromList [ (RoleInRel' $ RoleMember 1, 7     )
+                , (RoleInRel' $ RoleMember 2, 7     )
+                , (RoleInRel' $ RoleMember 1, 5     ) ] )
+  assertBool "3" $ has r2 7 == Right
+    ( M.fromList [ (RoleInRel' $ RoleMember 1, 1     )
+                 , (RoleInRel' $ RoleMember 2, 1     )
+                 , (RoleInRel' $ RoleTplt    , 4     ) ] )
   assertBool "4" $ map (has D.rslt) [1..6] == map (has r2) [1..6]
   assertBool "5" $ isLeft $ has D.rslt  7
 

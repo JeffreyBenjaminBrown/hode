@@ -122,9 +122,10 @@ instance Show RoleHosts where
     noLeft     = error "show RoleHosts: impossible"
     noRslt     = error "show RoleHosts: Rslt irrelevant"
     noMiscount = error "show RoleHosts: This math is good."
-    in if _memberHostsRole relHosts == RoleTplt
+    in if _memberHostsRole relHosts == RoleInRel' RoleTplt
        then " Rels using it as a Tplt"
-       else let RoleMember (n :: Int) = _memberHostsRole relHosts
+       else let RoleInRel' (RoleMember (n :: Int)) =
+                  _memberHostsRole relHosts
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate (arity tplt) $ Phrase "_"

@@ -97,9 +97,9 @@ test_parse_hExpr = TestCase $ do
       ( parse pPExpr "doh!" "/hash /_ #e w" )
       >>= pExprToHExpr r)
     == ( Right $ HMap $ M.fromList
-         [ ( RoleTplt
+         [ ( RoleInRel' $ RoleTplt
            , HExpr $ ExprTplt $ Tplt Nothing [Phrase "e"] Nothing )
-         , ( RoleMember 2
+         , ( RoleInRel' $ RoleMember 2
            , HExpr $ Phrase "w" ) ] )
 
 test_parse_pPExpr :: Test
@@ -114,9 +114,9 @@ test_parse_pPExpr = TestCase $ do
       "(tplt remember to /_ whenever there is /_ because /_)" )
     == Right
     ( PMap $ M.fromList
-      [ ( RoleMember 1, PExpr $ Phrase "a" )
-      , ( RoleMember 2, PExpr $ Phrase "b" )
-      , ( RoleTplt, PExpr $ ExprTplt $ Tplt
+      [ ( RoleInRel' $ RoleMember 1, PExpr $ Phrase "a" )
+      , ( RoleInRel' $ RoleMember 2, PExpr $ Phrase "b" )
+      , ( RoleInRel' $ RoleTplt, PExpr $ ExprTplt $ Tplt
           ( Just $ Phrase "remember to" )
           [ Phrase "whenever there is",
             Phrase "because" ]
