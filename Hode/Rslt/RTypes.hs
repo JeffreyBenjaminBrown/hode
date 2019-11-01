@@ -30,12 +30,18 @@ data Cap = CapLeft | CapRight deriving (Eq, Ord, Read, Show)
 -- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"
 -- and "beef", and Tplt "_ like _".
-data Role = RoleTplt | RoleMember Int | RoleCap Cap
+data RoleInRel = RoleTplt | RoleMember Int
   deriving (Eq, Ord, Read, Show)
+
+data RoleInTplt = RoleCap Cap | RoleJoint Int
+  deriving (Eq, Ord, Read, Show)
+
+data Role = RoleInTplt' RoleInTplt | RoleInRel' RoleInRel
+  deriving (Eq, Ord, Read, Show)
+
 type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.
-
 
 -- | = `Expr` is the fundamental type.
 

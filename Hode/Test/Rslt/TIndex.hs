@@ -46,23 +46,23 @@ test_mkRslt = TestCase $ do
       ,(5,(RelCtr,2))
       ,(6,(RelCtr,2))],
     _has = M.fromList
-      [(4,M.fromList [(RoleMember 1,3)
-                     ,(RoleCap CapRight,1)])
-      ,(5,M.fromList [(RoleTplt,4)
-                     ,(RoleMember 1,1)
-                     ,(RoleMember 2,2)])
-      ,(6,M.fromList [(RoleTplt,4)
-                     ,(RoleMember 1,5)
-                     ,(RoleMember 2,2)])],
+      [(4,M.fromList [(RoleInTplt' $ RoleJoint 1,3)
+                     ,(RoleInTplt' $ RoleCap CapRight,1)])
+      ,(5,M.fromList [(RoleInRel' $ RoleTplt,4)
+                     ,(RoleInRel' $ RoleMember 1,1)
+                     ,(RoleInRel' $ RoleMember 2,2)])
+      ,(6,M.fromList [(RoleInRel' $ RoleTplt,4)
+                     ,(RoleInRel' $ RoleMember 1,5)
+                     ,(RoleInRel' $ RoleMember 2,2)])],
     _isIn = M.fromList
-      [(1,S.fromList [(RoleMember 1,5)
-                     ,(RoleCap CapRight,4)])
-      ,(2,S.fromList [(RoleMember 2,5)
-                     ,(RoleMember 2,6)])
-      ,(3,S.fromList [(RoleMember 1,4)])
-      ,(4,S.fromList [(RoleTplt,5)
-                     ,(RoleTplt,6)])
-      ,(5,S.fromList [(RoleMember 1,6)])]}
+      [(1,S.fromList [(RoleInRel' $ RoleMember 1,5)
+                     ,(RoleInTplt' $ RoleCap CapRight,4)])
+      ,(2,S.fromList [(RoleInRel' $ RoleMember 2,5)
+                     ,(RoleInRel' $ RoleMember 2,6)])
+      ,(3,S.fromList [(RoleInTplt' $ RoleJoint 1,4)])
+      ,(4,S.fromList [(RoleInRel' $ RoleTplt,5)
+                     ,(RoleInRel' $ RoleTplt,6)])
+      ,(5,S.fromList [(RoleInRel' $ RoleMember 1,6)])]}
 
 test_checkDb :: Test
 test_checkDb = TestCase $ do
@@ -75,14 +75,15 @@ test_checkDb = TestCase $ do
 test_invertPositions :: Test
 test_invertPositions = TestCase $ do
   let ips = foldl invertAndAddPositions M.empty
-        [ (1,  [ (RoleMember 1, 11 )
-               , (RoleMember 2, 22 ) ] )
-        , (11, [ (RoleMember 1, 1  )
-               , (RoleMember 2, 22 ) ] )
-        , (3,  [ (RoleMember 1, 1  ) ] )
+        [ (1,  [ (RoleInRel' $ RoleMember 1, 11 )
+               , (RoleInRel' $ RoleMember 2, 22 ) ] )
+        , (11, [ (RoleInRel' $ RoleMember 1, 1  )
+               , (RoleInRel' $ RoleMember 2, 22 ) ] )
+        , (3,  [ (RoleInRel' $ RoleMember 1, 1  ) ] )
         ]
-  assertBool "1" $ ips == M.fromList [(1,  S.fromList [(RoleMember 1,3  )
-                                                      ,(RoleMember 1,11 )])
-                                     ,(11, S.fromList [(RoleMember 1,1  )])
-                                     ,(22, S.fromList [(RoleMember 2,1  )
-                                                      ,(RoleMember 2,11 )])]
+  assertBool "1" $ ips == M.fromList
+    [(1,  S.fromList [(RoleInRel' $ RoleMember 1,3  )
+                     ,(RoleInRel' $ RoleMember 1,11 )])
+    ,(11, S.fromList [(RoleInRel' $ RoleMember 1,1  )])
+    ,(22, S.fromList [(RoleInRel' $ RoleMember 2,1  )
+                     ,(RoleInRel' $ RoleMember 2,11 )])]

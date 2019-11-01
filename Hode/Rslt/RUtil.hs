@@ -47,7 +47,7 @@ instance LeftStrings Tplt where
          False -> Left $ concat $ map fl lefts
 
 replaceInTplt :: Show a =>
-  a -> Role -> Tplt a -> Either String (Tplt a)
+  a -> RoleInTplt -> Tplt a -> Either String (Tplt a)
 replaceInTplt a' (RoleCap CapLeft) (Tplt (Just _) bs c) =
   Right $ Tplt (Just a') bs c
 replaceInTplt c' (RoleCap CapRight) (Tplt a bs (Just _)) =
@@ -55,10 +55,9 @@ replaceInTplt c' (RoleCap CapRight) (Tplt a bs (Just _)) =
 replaceInTplt _ (RoleCap side) t =
   Left ( "replaceInTplt: There is no cap on the " ++
          show side ++ " side to replace in " ++ show t ++ "." )
-replaceInTplt b (RoleMember k) (Tplt a bs c) = do
+replaceInTplt b (RoleJoint k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c
-replaceInTplt _ RoleTplt _ = Left $ "replaceInTplt: received RoleTplt as Role argument, but no Tplt contains a Tplt to replace; Tplts only contain RoleMembers and optionally RoleCaps."
 
 
 -- | = ExprFWith

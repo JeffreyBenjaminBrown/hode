@@ -3,7 +3,8 @@
 
 {-# LANGUAGE
 ScopedTypeVariables,
-TupleSections
+TupleSections,
+LambdaCase
 #-}
 
 module Hode.Rslt.Index where
@@ -56,16 +57,18 @@ imgDb = M.fromList . catMaybes . map (Just . swap) . M.toList
 -- such that `a` plays the role `r` in `e`.
 
 refExprPositions :: RefExpr -> [(Role,Addr)]
-refExprPositions expr =
-  case expr of
-    Phrase' _          -> []
-    Tplt' (Tplt a bs c) -> a' ++ bs' ++ c' where
-      a' = maybeToList $ fmap (RoleCap CapLeft,) a
-      bs' = map (first RoleMember) $ zip [1..] bs
-      c' = maybeToList $ fmap (RoleCap CapRight,) c
-    Rel'  (Rel mas ta) ->
-      (RoleTplt,ta) :
-      map (first RoleMember) (zip [1..] mas)
+refExprPositions = \case
+  Phrase' _          -> []
+  Tplt' (Tplt a bs c) -> a' ++ bs' ++ c' where
+    a' = maybeToList $ fmap (r,) a where
+      r = RoleInTplt' $ RoleCap CapLeft
+    bs' = map (first $ RoleInTplt' . RoleJoint) $
+          zip [1..] bs
+    c' = maybeToList $ fmap (r,) c where
+      r = RoleInTplt' $ RoleCap CapRight
+  Rel'  (Rel mas ta) ->
+    (RoleInRel' RoleTplt,ta) :
+    map (first $ RoleInRel' . RoleMember) (zip [1..] mas)
 
 
 -- | `invertAndAddPositions m (a, ras)` is meant for the case where m is a map

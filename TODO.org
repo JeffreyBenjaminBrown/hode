@@ -7,25 +7,17 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO delete tpltToList
-* TODO add tests for Rslt.RUtil
 * TODO Role should be divided into RoleInTplt and RoleInRel
 One would have RoleMember and RoleTplt,
 the other RoleCap and RoleJoint.
+** TODO after that, merge the Cap type into RoleInTplt
+* TODO add tests for Rslt.RUtil
 * TODO studying Rslt.Show
 ** start at Rslt.Show.Wut
 *** parenExprAtDepth is clear*
 See test cases to remember.
 What it does is clear, anyway. How, not so much.
 *** eParenShow: write test cases
-* TODO buggy: eParenShow
-in Rslt.Show.Wut
-t = eParenShow 3 (error "meh")
-    $ ExprRel $ Rel [Phrase "0", Phrase "1"]
-    $ ExprTplt ( Tplt
-                 (Just $ Phrase "is")
-                 [Phrase "is"]
-                 (Just $ Phrase "is") )
 * TODO studying Hode.UI
 resume at
   instance Show MemberHosts where
