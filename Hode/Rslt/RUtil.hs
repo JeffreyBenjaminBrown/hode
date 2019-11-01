@@ -4,7 +4,6 @@
 module Hode.Rslt.RUtil (
     LeftStrings(..)
   , replaceInTplt   -- ^ a -> Role -> Tplt a -> Either String (Tplt a)
-  , tpltToList      -- ^ Tplt a -> [a]
   , toExprWith      -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout     -- ^             Fix (ExprFWith b) -> Expr
   , mapExprFWith    -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
@@ -60,11 +59,6 @@ replaceInTplt b (RoleMember k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c
 replaceInTplt _ RoleTplt _ = Left $ "replaceInTplt: received RoleTplt as Role argument, but no Tplt contains a Tplt to replace; Tplts only contain RoleMembers and optionally RoleCaps."
-
--- | PITFALL: Lossy.
-tpltToList :: Tplt a -> [a]
-tpltToList (Tplt a bs c) =
-  maybeToList a ++ bs ++ maybeToList c
 
 
 -- | = ExprFWith

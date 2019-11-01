@@ -13,13 +13,14 @@ module Hode.Rslt.Show.Wut (
 
 import           Data.Functor.Foldable
 import qualified Data.List as L
-import           Data.Text (strip, pack, unpack)
+import           Data.Maybe
 
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
 import Hode.Rslt.Show.Util
 import Hode.Util.Misc
+import Hode.Util.Alternation
 
 
 data Parens = InParens | Naked
@@ -36,7 +37,7 @@ eParenShow maxDepth r e0 =
 
   f :: Fix (ExprFWith (Int,Parens)) -> Either String String
   f (Fix (EFW ((i,InParens),e))) = paren <$> g (i,e)
-  f (Fix (EFW ((i,Naked)  ,e))) =            g (i,e)
+  f (Fix (EFW ((i,Naked)   ,e))) =           g (i,e)
 
   -- `fo` = `f, outermost`. For the top-level Expr,
   -- even if it has an `InParens` flag attached,
@@ -52,17 +53,21 @@ eParenShow maxDepth r e0 =
 
   g (_, ExprTpltF js0) =
     prefixLeft "g of Tplt: " $ do
-    js1 <- ifLefts $ tpltToList $ fmap f js0
-    Right . concat . L.intersperse " _ " $ js1
+    Tplt ml js mr :: Tplt String <-
+      ifLefts $ fmap f js0
+    Right $ concat ( maybeToList ml ++
+                     L.intersperse " _ " js ++
+                     maybeToList mr )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
     prefixLeft "g of Rel: " $ do
     ms1 :: [String] <- ifLefts $ map f ms0
-    js  :: [String] <- hashUnlessEmptyStartOrEnd n
-                       <$> ifLefts (tpltToList $ fmap f t)
-    Right $ unpack . strip . pack
-      $ concatMap (\(m,j) -> m ++ " " ++ j ++ " ")
-      $ zip ("" : ms1) js
+    Tplt ml js mr :: Tplt String <-
+      (hash n <$>) <$> -- Tplt in Either => two fmaps
+      ifLefts (fmap f t)
+    Right $ concat $ L.intersperse " " $
+      maybeToList ml ++ zip' ms1 js ++
+      maybeToList mr
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."

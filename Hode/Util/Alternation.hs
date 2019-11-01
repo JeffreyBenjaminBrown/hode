@@ -2,12 +2,11 @@
 ScopedTypeVariables #-}
 
 module Hode.Util.Alternation (
-    zip'         -- ^ [a] -> [a] -> [a]
+    zip'            -- ^ [a] -> [a] -> [a]
   , tpltFromEithers -- ^ [Either a b] -> Tplt b
   ) where
 
 import Data.Either
-
 import Hode.Rslt.RTypes
 
 
