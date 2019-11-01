@@ -101,26 +101,27 @@ hExprToExpr _ (HExpr e) = Right e
 
 hExprToExpr r h@(HMap mh) =
   prefixLeft "hExprToExpr, called on HMap: " $ do
-    me :: Map Role Expr <-
-      ifLefts_map $ M.map (hExprToExpr r) mh
-    t :: Expr <-
-      maybe (Left $ "No Tplt in " ++ show h) Right $
-      M.lookup RoleTplt me
-    case t of
-      ExprTplt _ -> Right ()
-      x -> Left $ "hExprToExpr: in " ++ show h
-        ++ ", the expression " ++ show x ++ " is not a Tplt."
-    ta <- arityIn r t
-    if M.size (M.delete RoleTplt me) == ta
-      then Right ()
-      else Left $ "hExprToExpr: arity mismatch between "
-           ++ show h ++ " and its Tplt " ++ show t
-    Right $ ExprRel $ Rel (M.elems $ M.delete RoleTplt me) t
-      -- PITFALL: This M.elems clause relies on the fact that those
-      -- elems will be ordered from RoleMember 1 to RoleMember n.
-      -- That's true for the same reason this is true:
-      --     > M.elems $ M.fromList [(1,"z"),(2,"a")]
-      --     ["z","a"]
+  me :: Map Role Expr <-
+    ifLefts_map $ M.map (hExprToExpr r) mh
+  t :: Expr <-
+    maybe (Left $ "No Tplt in " ++ show h) Right $
+    M.lookup (RoleInRel' RoleTplt) me
+  case t of
+    ExprTplt _ -> Right ()
+    x -> Left $ "hExprToExpr: in " ++ show h
+      ++ ", the expression " ++ show x ++ " is not a Tplt."
+  ta <- arityIn r t
+
+  if M.size (M.delete (RoleInRel' RoleTplt) me) == ta
+    then Right ()
+    else Left $ "hExprToExpr: arity mismatch between "
+         ++ show h ++ " and its Tplt " ++ show t
+  Right $ ExprRel $ Rel (M.elems $ M.delete (RoleInRel' RoleTplt) me) t
+    -- PITFALL: This M.elems clause relies on the fact that those
+    -- elems will be ordered from RoleMember 1 to RoleMember n.
+    -- That's true for the same reason this is true:
+    --     > M.elems $ M.fromList [(1,"z"),(2,"a")]
+    --     ["z","a"]
 
 hExprToExpr _ h = Left $ "hExprToExpr: given " ++ show h
   ++ ", but only the HExpr and HMap constructors can be so converted."
@@ -284,7 +285,7 @@ reachable d r ts as = prefixLeft "reachable: " $ do
         -- and flipping the ++ would change it to DFS.
 
 
--- | = Utilities used bye the above transitive search utilities
+-- | = Utilities used by the above transitive search utilities
 
 isBinaryTemplate :: Rslt -> Addr -> Either String ()
 isBinaryTemplate r t = do
@@ -294,8 +295,8 @@ isBinaryTemplate r t = do
 
 immediateNeighbors :: SearchDir
                    -> Rslt
-                   -> [Addr] -- ^ binary `Tplt`s to search along.
-                             -- To use more than one is weird but legal.
+                   -> [TpltAddr] -- ^ binary `Tplt`s to search along.
+                                 -- To use more than one is weird but legal.
                    -> [Addr] -- ^ starting `Expr`s
                    -> Either String (Set Addr)
 immediateNeighbors d r ts as =
@@ -304,8 +305,8 @@ immediateNeighbors d r ts as =
         SearchLeftward -> (2,1)
   in hExprToAddrs r mempty $
      HEval ( HMap $ M.fromList
-             [ ( RoleMember start
+             [ ( RoleInRel' $ RoleMember start
                , HOr $ map (HExpr . Addr) as )
-             , ( RoleTplt
+             , ( RoleInRel' RoleTplt
                , HOr $ map (HExpr . Addr) ts ) ] )
-     [[ RoleMember toward ]]
+     [[ RoleInRel' $ RoleMember toward ]]

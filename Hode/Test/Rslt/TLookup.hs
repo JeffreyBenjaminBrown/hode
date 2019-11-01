@@ -78,14 +78,14 @@ test_exprToAddr = TestCase $ do
 test_has :: Test
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
-    == Right ( M.fromList [ ( RoleMember 1, 3 ) ] )
+    == Right ( M.fromList [ ( RoleInTplt' $ RoleJoint 1, 3 ) ] )
   assertBool "tplt" $ has D.rslt_rightCapped 4
-    == Right ( M.fromList [ ( RoleCap CapRight, 1),
-                            ( RoleMember 1, 3 ) ] )
+    == Right ( M.fromList [ ( RoleInTplt' $ RoleCap CapRight, 1),
+                            ( RoleInTplt' $ RoleJoint 1, 3 ) ] )
   assertBool "rel" $ has D.rslt 5
-    == Right ( M.fromList [ ( RoleMember 1, 1 )
-                          , ( RoleMember 2, 2 )
-                          , ( RoleTplt    , 4 ) ] )
+    == Right ( M.fromList [ ( RoleInRel' $ RoleMember 1, 1 )
+                          , ( RoleInRel' $ RoleMember 2, 2 )
+                          , ( RoleInRel' $ RoleTplt    , 4 ) ] )
   assertBool "no content" $ has D.rslt 0 == Right M.empty
   assertBool "absent" $ isLeft $ has D.rslt 7
 
@@ -94,11 +94,11 @@ test_isIn = TestCase $ do
   assertBool "1" $ isIn D.rslt 0
     == Right mempty
   assertBool "1" $ isIn D.rslt_rightCapped 1
-    == Right ( S.fromList [ (RoleMember 1, 5),
-                            (RoleCap CapRight, 4) ] )
+    == Right ( S.fromList [ (RoleInRel' $ RoleMember 1, 5),
+                            (RoleInTplt' $ RoleCap CapRight, 4) ] )
   assertBool "2" $ isIn D.rslt 4
-    == Right ( S.fromList [ (RoleTplt, 5)
-                          , (RoleTplt, 6) ] )
+    == Right ( S.fromList [ (RoleInRel' $ RoleTplt, 5)
+                          , (RoleInRel' $ RoleTplt, 6) ] )
   assertBool "3" $ let r' = either (error "wut") id
                             $ R.insertAt 7 (Phrase' "pizza") D.rslt
                    in isIn r' 7 == Right S.empty
@@ -106,19 +106,19 @@ test_isIn = TestCase $ do
 test_fills :: Test
 test_fills = TestCase $ do
   assertBool "tplt has no left cap" $ isLeft $
-    fills D.rslt (RoleCap CapLeft, 4)
+    fills D.rslt (RoleInTplt' $ RoleCap CapLeft, 4)
   assertBool "1st in tplt" $
-    fills D.rslt (RoleMember 1, 4) == Right 3
+    fills D.rslt (RoleInTplt' $ RoleJoint 1, 4) == Right 3
   assertBool "2nd in tplt" $ isLeft $
-    fills D.rslt (RoleMember 2, 4)
+    fills D.rslt (RoleInTplt' $ RoleJoint 2, 4)
   assertBool "1st in rel"
-    $ fills D.rslt (RoleMember 2, 5) == Right 2
+    $ fills D.rslt (RoleInRel' $ RoleMember 2, 5) == Right 2
   assertBool "2nd in rel"
-    $ fills D.rslt (RoleMember 1, 5) == Right 1
+    $ fills D.rslt (RoleInRel' $ RoleMember 1, 5) == Right 1
   assertBool "nonexistent (3rd in binary)" $ isLeft
-    $ fills D.rslt (RoleMember 3, 5)
+    $ fills D.rslt (RoleInRel' $ RoleMember 3, 5)
   assertBool "tplt in rel"
-    $ fills D.rslt (RoleTplt    , 5) == Right 4
+    $ fills D.rslt (RoleInRel' RoleTplt, 5) == Right 4
 
 test_variety :: Test
 test_variety = TestCase $ do

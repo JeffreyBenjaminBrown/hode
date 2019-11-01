@@ -41,9 +41,9 @@ allRelsInvolvingTplts r ts =
   hostRels :: [Set (Role, RelAddr)] <-
     ifLefts $ map (isIn r) ts
   Right $ S.unions $
-        map ( S.map snd .
-              S.filter ((==) RoleTplt . fst) )
-        hostRels
+    map ( S.map snd .
+          S.filter ((==) (RoleInRel' RoleTplt) . fst) )
+    hostRels
 
 -- | `allNormalMembers r rs` finds every non-`Tplt`
 -- member of anything in `rs`.
@@ -54,8 +54,8 @@ allNormalMembers r rels =
   members :: [Map Role Addr] <-
     ifLefts $ map (has r) rels
   Right $ concatMap
-    ( M.elems .
-      flip M.withoutKeys (S.singleton RoleTplt) )
+    ( M.elems . ( flip M.withoutKeys
+                  (S.singleton $ RoleInRel' RoleTplt) ) )
     members
 
 restrictRsltForSort ::
@@ -90,7 +90,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
         S.fromList $ M.keys $ _addrToRefExpr r
   tsUsers :: Set Addr <-
     hExprToAddrs r mempty $
-    HMap $ M.singleton RoleTplt $
+    HMap $ M.singleton (RoleInRel' RoleTplt) $
     HOr $ map (HExpr . Addr) ts
   Right ( S.difference
           ( S.difference as $ S.fromList ts )
@@ -107,11 +107,11 @@ isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
 isTop r (ort,t) a =
   prefixLeft "isTop: " $ do
   let roleIfLesser = case ort of
-        LeftIsBigger  -> RoleMember 2
-        RightIsBigger -> RoleMember 1
+        LeftIsBigger  -> RoleInRel' $ RoleMember 2
+        RightIsBigger -> RoleInRel' $ RoleMember 1
   relsInWhichItIsLesser <- hExprToAddrs r mempty $
-    HMap $ M.fromList [ (RoleTplt,     HExpr $ Addr t),
-                        (roleIfLesser, HExpr $ Addr a) ]
+    HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ Addr t),
+                        (roleIfLesser,          HExpr $ Addr a) ]
   Right $ null relsInWhichItIsLesser
 
 allTops :: Rslt
@@ -135,9 +135,9 @@ justUnders (bo,t) r a = let
       LeftIsBigger ->  (1,2)
       RightIsBigger -> (2,1)
     rel = HMap $ M.fromList
-      [ ( RoleTplt,          HExpr $ Addr t),
-        ( RoleMember bigger, HExpr $ Addr a ) ]
-    in HEval rel [[RoleMember smaller]]
+      [ ( RoleInRel' RoleTplt,          HExpr $ Addr t),
+        ( RoleInRel' $ RoleMember bigger, HExpr $ Addr a ) ]
+    in HEval rel [[RoleInRel' $ RoleMember smaller]]
   in prefixLeft "justUnders: " $
      hExprToAddrs r mempty h
 
