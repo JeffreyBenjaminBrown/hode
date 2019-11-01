@@ -23,6 +23,7 @@ class HasArity e where
 type RelAddr    = Addr
 type MemberAddr = Addr
 type TpltAddr   = Addr
+type HostAddr   = Addr -- ^ could be a `Rel` or a `Tplt`
 
 -- | Joints in a `Tplt` (see below) can be interior or caps.
 data Cap = CapLeft | CapRight deriving (Eq, Ord, Read, Show)

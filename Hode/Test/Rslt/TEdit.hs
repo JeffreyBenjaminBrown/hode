@@ -52,7 +52,7 @@ test_replaceExpr = TestCase $ do
       new_expr    :: Expr     = ExprRel $ fmap Addr newRel
       refExprs    :: M.Map Addr RefExpr =
         D.refExprs & M.insert 5 new_refExpr
-  assertBool "1" $ R.replaceExpr 5 new_expr D.rslt ==
+  assertBool "something" $ R.replaceExpr 5 new_expr D.rslt ==
     Right (mkRslt refExprs)
 
 test_exprToAddrInsert :: Test
