@@ -69,6 +69,8 @@ tpltToList (Tplt a bs c) =
 
 -- | = ExprFWith
 
+-- | `toExprWith b x` returns something like `x`,
+-- but with `b` attached recursively everywhere.
 toExprWith :: forall b. b -> Expr -> Fix (ExprFWith b)
 toExprWith b x = Fix $ EFW (b, f x) where
   f :: Expr -> ExprF (Fix (ExprFWith b))

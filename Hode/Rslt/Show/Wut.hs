@@ -1,4 +1,6 @@
--- | I don't know what this was for, but it was hard.
+-- | PITFALL: Retain for illustrative purposes.
+-- This code is mostly supplanted by the even more complex
+-- `eParenShow'`.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 

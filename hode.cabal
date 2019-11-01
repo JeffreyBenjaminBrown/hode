@@ -86,6 +86,7 @@ library
                 , Hode.Test.Rslt.TEdit
                 , Hode.Test.Rslt.TIndex_and_Valid
                 , Hode.Test.Rslt.TLookup
+                , Hode.Test.Rslt.TRUtil
                 , Hode.Test.Rslt.TShow
                 , Hode.Test.Rslt.TSort
 
