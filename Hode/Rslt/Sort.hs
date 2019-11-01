@@ -137,7 +137,7 @@ justUnders (bo,t) r a = let
     rel = HMap $ M.fromList
       [ ( RoleInRel' RoleTplt,          HExpr $ Addr t),
         ( RoleInRel' $ RoleMember bigger, HExpr $ Addr a ) ]
-    in HEval rel [[RoleInRel' $ RoleMember smaller]]
+    in HEval rel [[RoleMember smaller]]
   in prefixLeft "justUnders: " $
      hExprToAddrs r mempty h
 

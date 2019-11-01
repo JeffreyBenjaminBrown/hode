@@ -309,4 +309,4 @@ immediateNeighbors d r ts as =
                , HOr $ map (HExpr . Addr) as )
              , ( RoleInRel' RoleTplt
                , HOr $ map (HExpr . Addr) ts ) ] )
-     [[ RoleInRel' $ RoleMember toward ]]
+     [[ RoleMember toward ]]

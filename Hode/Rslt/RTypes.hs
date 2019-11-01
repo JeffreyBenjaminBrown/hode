@@ -43,6 +43,7 @@ type RelPath = [RoleInRel] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.
 
+
 -- | = `Expr` is the fundamental type.
 
 -- ^ A `Rel` (relationship) consists of a list of members

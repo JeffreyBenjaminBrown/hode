@@ -116,7 +116,7 @@ subExpr r a (rl : rls) = prefixLeft "-> subExpr" $ do
     $ has r a
   (member_of_a :: Addr) <-
     maybe (Left $ "looking up Role " ++ show rl ++ ".") Right
-    $ M.lookup rl aHas
+    $ M.lookup (RoleInRel' rl) aHas
   subExpr r member_of_a rls
 
 
