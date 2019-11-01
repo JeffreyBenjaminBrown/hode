@@ -29,28 +29,31 @@ test_module_rslt_show = TestList [
 test_parenExprAtDepth :: Test
 test_parenExprAtDepth = TestCase $ do
 
-  -- fe is a Fix ExprFWith
-  let fe :: [Fix (ExprFWith ())]
+  let fe0 :: Fix (ExprFWith ())
+      fe :: [Fix (ExprFWith ())]
          ->  Fix (ExprFWith ())
-      fe0 :: Fix (ExprFWith ())
       fe0 = Fix $ EFW ( (), AddrF 0 )
       fe ms = Fix $ EFW
         ( (), ExprRelF $ Rel ms $ fe0 )
 
-  -- dw0 and dw are like fe, but with depth and wrappedness
-  let dw :: (Int,Parens) -> [Fix (ExprFWith (Int,Parens))]
+  -- like fe, but with depth and wrappedness
+  let dw0 ::                 Fix (ExprFWith (Int,Parens))
+      dw :: (Int,Parens) -> [Fix (ExprFWith (Int,Parens))]
                          ->  Fix (ExprFWith (Int,Parens))
-      dw0 ::                 Fix (ExprFWith (Int,Parens))
       dw0 = Fix $ EFW ((0,Naked), AddrF 0)
-      dw b rs = Fix $ EFW
-        ( b, ExprRelF $ Rel rs dw0 )
+      dw ip ms = Fix $ EFW
+        ( ip, ExprRelF $ Rel ms dw0 )
 
   assertBool "" $ parenExprAtDepth 2 fe0 == dw0
-  assertBool "" $
-    parenExprAtDepth 2 (fe [fe0]) == dw (1,Naked) [dw0]
-  assertBool "" $
-    parenExprAtDepth 2 (fe [ fe [fe0]
-                          , fe0 ] ) ==
+  assertBool "" $ parenExprAtDepth 3 fe0 == dw0
+  assertBool "" $ parenExprAtDepth 2
+    (fe [fe0]) ==
+    dw (1,Naked) [dw0]
+  assertBool "" $ parenExprAtDepth 3
+    ( fe [ fe [fe0], fe0 ] ) ==
+    dw (2,Naked)    [dw (1,Naked) [dw0], dw0]
+  assertBool "" $ parenExprAtDepth 2 -- maxDepth 2 => InParens
+    ( fe [ fe [fe0], fe0 ] ) ==
     dw (2,InParens) [dw (1,Naked) [dw0], dw0]
 
 test_eShow :: Test
@@ -72,7 +75,7 @@ test_hashUnlessEmptyStartOrEnd = TestCase $ do
   assertBool "2" $ hashUnlessEmptyStartOrEnd 2 [""] == [""]
   assertBool "3" $ hashUnlessEmptyStartOrEnd 2 ["",""] == ["",""]
   assertBool "4" $ hashUnlessEmptyStartOrEnd 2 ["","",""] == ["","##",""]
-  assertBool "5" $ hashUnlessEmptyStartOrEnd 2 ["a","b",""]
-    == ["##a","##b",""]
+  assertBool "5" $ hashUnlessEmptyStartOrEnd 1 ["a","b",""]
+    == ["#a","#b",""]
   assertBool "6" $ hashUnlessEmptyStartOrEnd 2 ["","b","c"]
     == ["","##b","##c"]

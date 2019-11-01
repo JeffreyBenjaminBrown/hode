@@ -3,6 +3,7 @@
 module Hode.Temp where
 
 import Hode.Hode
+import Data.Functor.Foldable
 
 -- buggy
 t = eParenShow 3 (error "meh")

@@ -20,7 +20,8 @@ import Hode.Rslt.Show.Util
 import Hode.Util.Misc
 
 
-data Parens = InParens | Naked deriving (Show, Eq, Ord)
+data Parens = InParens | Naked
+  deriving (Show, Eq, Ord)
 
 eParenShow :: Int -> Rslt -> Expr -> Either String String
 eParenShow maxDepth r e0 =
@@ -69,6 +70,7 @@ eParenShow maxDepth r e0 =
 -- The depth of a `Rel` is the maximum `nakedDepth` of its members,
 -- where `nakedDepth` is like normal depth,
 -- except `InParens` things contribute 0 depth.
+    -- TODO ? should that be 1 instead of 0?
 -- The depth of any non-`Rel` is 0.
 -- A `Rel` of depth > `maxDepth` is `InParens`.
 -- `Tplt`s are also `InParens` (which might not be necessary).

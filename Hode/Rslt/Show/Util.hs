@@ -9,12 +9,13 @@ module Hode.Rslt.Show.Util (
   , trimString                -- ^         String -> String
   ) where
 
-import           Data.Text (strip, pack, unpack)
+import Data.Text (strip, pack, unpack)
 
 import Hode.Util.UParse
 
--- | `hashUnlessEmptyStartOrEnd k js` adds `k` #-marks to every joint
--- in `js`, unless it's empty and first or empty and last.
+-- | `hashUnlessEmptyStartOrEnd k js` prefixes
+-- `k` '#' characters to every joint in `js`,
+-- unless it's empty and first or empty and last.
 hashUnlessEmptyStartOrEnd :: Int -> [String] -> [String]
 hashUnlessEmptyStartOrEnd k0 joints = case joints' of
   [] -> []
@@ -42,4 +43,3 @@ hash k s = replicate k '#' ++ s
 
 trimString :: String -> String
 trimString = unpack . strip . pack
-
