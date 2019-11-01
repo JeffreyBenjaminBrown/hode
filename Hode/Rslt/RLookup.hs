@@ -17,9 +17,9 @@ module Hode.Rslt.RLookup (
   , C.refExprToAddr -- ^ Rslt -> RefExpr -> Either String Addr
 
   -- | = misc
-  , findSubExprs -- ^ [RolePath] -> Either Addr Var -> Find Addr Rslt
-  , subExprs     -- ^ Rslt -> [RolePath] -> Addr -> Either String (Set Addr)
-  , subExpr      -- ^ Rslt -> Addr -> RolePath   -> Either String Addr
+  , findSubExprs -- ^ [RelPath] -> Either Addr Var -> Find Addr Rslt
+  , subExprs     -- ^ Rslt -> [RelPath] -> Addr -> Either String (Set Addr)
+  , subExpr      -- ^ Rslt -> Addr -> RelPath   -> Either String Addr
   , unAddr       -- ^ Rslt -> Expr               -> Either String Expr
   , unAddrRec    -- ^ Rslt -> Expr               -> Either String Expr
   ) where
@@ -94,7 +94,7 @@ fills x (r,a) = prefixLeft "-> fills" $ do
 
 -- | == build `Query`s for `Rslt`s
 
-findSubExprs :: [RolePath] -> Either Addr Var -> Find Addr Rslt
+findSubExprs :: [RelPath] -> Either Addr Var -> Find Addr Rslt
 findSubExprs paths = mkFindFrom f where
   f :: Rslt -> Addr -> Either String (Set Addr)
   f r a = subExprs r paths a
@@ -102,13 +102,13 @@ findSubExprs paths = mkFindFrom f where
 
 -- | = Find sub-`Expr`s of an `Expr`
 
-subExprs :: Rslt -> [RolePath] -> Addr -> Either String (Set Addr)
+subExprs :: Rslt -> [RelPath] -> Addr -> Either String (Set Addr)
 subExprs r rls a =
   prefixLeft "-> subExprs" $ S.fromList <$> ifLefts its
   where its :: [Either String Addr]
         its = map (subExpr r a) rls
 
-subExpr :: Rslt -> Addr -> RolePath -> Either String Addr
+subExpr :: Rslt -> Addr -> RelPath -> Either String Addr
 subExpr _ a [] = Right a
 subExpr r a (rl : rls) = prefixLeft "-> subExpr" $ do
   (aHas :: Map Role Addr) <-

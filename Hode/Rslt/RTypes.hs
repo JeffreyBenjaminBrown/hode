@@ -39,7 +39,7 @@ data RoleInTplt = RoleCap Cap | RoleJoint Int
 data Role = RoleInTplt' RoleInTplt | RoleInRel' RoleInRel
   deriving (Eq, Ord, Read, Show)
 
-type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
+type RelPath = [RoleInRel] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.
 

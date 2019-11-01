@@ -26,7 +26,7 @@ data HExpr where
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
   HMap :: HMap -> HExpr -- ^ The search workhorse.
   HEval :: HExpr      -- ^ First, find matches to this.
-        -> [RolePath] -- ^ Then, traverse each match along these paths,
+        -> [RelPath] -- ^ Then, traverse each match along these paths,
         -- and return whatever each path leads to.
         -- (Using more than one path is weird but legal.)
         -- The `[Role]` argument to `HTrans` is used similarly.

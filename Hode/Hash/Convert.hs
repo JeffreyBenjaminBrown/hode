@@ -10,9 +10,9 @@ module Hode.Hash.Convert (
     pRelToHExpr          -- ^ PRel  -> Either String HExpr
   , pExprToHExpr         -- ^ PExpr -> Either String HExpr
   , pMapToHMap           -- ^ PMap  -> Either String HMap
-  , pathsToIts_pExpr     -- ^ PExpr -> Either String [RolePath]
-  , pathsToIts_sub_pExpr -- ^ PExpr -> Either String [RolePath]
-  , pathsToIts_sub_pRel  -- ^ PRel  -> Either String [RolePath]
+  , pathsToIts_pExpr     -- ^ PExpr -> Either String [RelPath]
+  , pathsToIts_sub_pExpr -- ^ PExpr -> Either String [RelPath]
+  , pathsToIts_sub_pRel  -- ^ PRel  -> Either String [RelPath]
 ) where
 
 import           Data.Functor.Foldable
@@ -187,19 +187,19 @@ pMapToHMap r = prefixLeft "pMapToHMap: "
 -- "/eval (a \ /it=b) # c",
 -- it's not clear what it should mean.
 
-pathsToIts_pExpr :: PExpr -> Either String [RolePath]
+pathsToIts_pExpr :: PExpr -> Either String [RelPath]
 pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
 pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
-pathsToIts_sub_pExpr :: PExpr -> Either String [RolePath]
+pathsToIts_sub_pExpr :: PExpr -> Either String [RelPath]
 pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
 
-  f :: Base PExpr (PExpr, Either String [RolePath])
-    -> Either String [RolePath]
+  f :: Base PExpr (PExpr, Either String [RelPath])
+    -> Either String [RelPath]
   f (PExprF _) = Right []
-  f (PMapF m)  = do (m' :: Map Role [RolePath]) <-
+  f (PMapF m)  = do (m' :: Map Role [RelPath]) <-
                       ifLefts_map $ M.map snd m
-                    let g :: (Role, [RolePath]) -> [RolePath]
+                    let g :: (Role, [RelPath]) -> [RelPath]
                         g (role, paths) = map ((:) role) paths
                     Right $ concatMap g $ M.toList m'
   f (PEvalF _) = Right []
@@ -216,15 +216,15 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
-pathsToIts_sub_pRel :: PRel -> Either String [RolePath]
+pathsToIts_sub_pRel :: PRel -> Either String [RelPath]
 pathsToIts_sub_pRel = prefixLeft "-> pathsToIts_sub_pRel" . cata f where
-  f :: Base PRel (Either String [RolePath])
-    -> Either String [RolePath]
+  f :: Base PRel (Either String [RelPath])
+    -> Either String [RelPath]
   f AbsentF         = Right []
   f (PNonRelF pnr)  = pathsToIts_sub_pExpr pnr
   f (OpenF _ ms js) = f $ ClosedF ms js
   f (ClosedF ms _)  = do
-    let g :: (Int,[RolePath]) -> [RolePath]
+    let g :: (Int,[RelPath]) -> [RelPath]
         g (i,ps) = map ((:) $ RoleMember i) ps
     ms' <- ifLefts ms
     Right $ concatMap g $ zip [1..] ms'
