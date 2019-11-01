@@ -147,9 +147,9 @@ test_replaceRefExpr = TestCase $ do
 
 test_replaceInRole :: Test
 test_replaceInRole = TestCase $ do
-  let r         = either (error "wut") id $
+  let r         = either error id $
                   R.replaceInRole (RoleInRel' $ RoleMember 2) 1 5 D.rslt
-      unchanged = either (error "wut") id $
+      unchanged = either error id $
                   R.replaceInRole (RoleInRel' $ RoleMember 2) 2 5 D.rslt
   assertBool "valid 1" $ isRight $ validRslt r
   assertBool "valid 2" $ isRight $ validRslt unchanged

@@ -22,13 +22,13 @@ import Hode.Util.Misc
 refExprToExpr :: Rslt -> RefExpr -> Either String Expr
 refExprToExpr _ (Phrase' w) = Right $ Phrase w
 refExprToExpr r (Tplt' (tas :: Tplt Addr)) =
-  prefixLeft "-> refExprToExpr: " $ do
+  prefixLeft "refExprToExpr: " $ do
     tfs :: Tplt RefExpr <- ifLefts $ fmap (addrToRefExpr r) tas
     tes :: Tplt Expr    <- ifLefts $ fmap (refExprToExpr r) tfs
     Right $ ExprTplt tes
 
 refExprToExpr r (Rel' (ras :: Rel Addr)) =
-  prefixLeft "-> refExprToExpr: " $ do
+  prefixLeft "refExprToExpr: " $ do
     rfs :: Rel RefExpr <- ifLefts $ fmap (addrToRefExpr r) ras
     res :: Rel Expr    <- ifLefts $ fmap (refExprToExpr r) rfs
     Right $ ExprRel res

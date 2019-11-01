@@ -45,7 +45,8 @@ verifyVariety r a (mc,ma) = do
       Left $ "Expr at " ++ show a ++ " does not have arity " ++ show ma
 
 validExpr :: Rslt -> Expr -> Either String ()
-validExpr r = prefixLeft "validExpr: " . para f where
+validExpr r =
+  prefixLeft "validExpr: " . para f where
   f :: Base Expr (Expr, Either String ()) -> Either String ()
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
@@ -74,7 +75,8 @@ validExpr r = prefixLeft "validExpr: " . para f where
 -- | == Check a `RefExpr`
 
 validRefExpr :: Rslt -> RefExpr -> Either String ()
-validRefExpr r e = prefixLeft "validRefExpr: " $
+validRefExpr r e =
+  prefixLeft "validRefExpr: " $
   validTplt r e >>
   refExprRefsExist r e
 
@@ -95,7 +97,8 @@ validTplt _ (Tplt' (Tplt Nothing [] Nothing)) =
 validTplt _ _ = Right ()
 
 refExprRefsExist :: Rslt -> RefExpr -> Either String ()
-refExprRefsExist r e = prefixLeft "refExprRefsExist: " $ let
+refExprRefsExist r e =
+  prefixLeft "refExprRefsExist: " $ let
   f :: [Addr] -> Either String ()
   f as = case allAddrsPresent r as of
     Right () -> Right ()
@@ -109,7 +112,8 @@ refExprRefsExist r e = prefixLeft "refExprRefsExist: " $ let
 -- | == Check the database
 
 validRslt :: Rslt -> Either String ()
-validRslt r = prefixLeft "validRslt: " $ do
+validRslt r =
+  prefixLeft "validRslt: " $ do
   let unmatched = relsWithoutMatchingTplts r
       in if null unmatched then Right ()
          else Left $ "rels without matching Tplts:\n"

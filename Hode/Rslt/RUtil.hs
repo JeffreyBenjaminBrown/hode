@@ -29,7 +29,8 @@ import Hode.Util.Misc
 -- | = Rel
 
 instance LeftStrings Rel where
-  ifLefts (Rel es e) = prefixLeft "ifLefts_rel: " $
+  ifLefts (Rel es e) =
+    prefixLeft "ifLefts_rel: " $
     let lefts = filter isLeft $ e : es
         fr = fromRight $ error "impossible"
         fl = fromLeft $ error "impossible"
@@ -38,7 +39,8 @@ instance LeftStrings Rel where
          False -> Left $ concat $ map fl lefts
 
 instance LeftStrings Tplt where
-  ifLefts (Tplt fore mids aft) = prefixLeft "ifLefts_tplt: " $
+  ifLefts (Tplt fore mids aft) =
+    prefixLeft "ifLefts_tplt: " $
     let as = maybeToList fore ++ mids ++ maybeToList aft
         lefts = filter isLeft as
         fr = fromRight $ error "impossible"

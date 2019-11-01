@@ -76,14 +76,16 @@ _replaceInRefExpr r spot new host = let
   f spot host
 
 insert :: RefExpr -> Rslt -> Either String Rslt
-insert e r = do
-  a <- prefixLeft "insert" $ nextAddr r
+insert e r =
+  prefixLeft "insert: " $ do
+  a <- nextAddr r
   insertAt a e r
 
 -- | like `insert`, but specifying which `Addr` to give the new expression
 insertAt :: Addr -> RefExpr -> Rslt -> Either String Rslt
-insertAt a e r = do
-  void $ prefixLeft "insertAt: " $ validRefExpr r e
+insertAt a e r =
+  prefixLeft "insertAt: " $ do
+  void $ validRefExpr r e
   let errMsg = "Addr " ++ show a ++ " already occupied.\n"
       in void $ either Right (const $ Left errMsg)
          $ addrToRefExpr r a
@@ -104,8 +106,9 @@ _insert a e r = Rslt {
   }
 
 deleteIfUnused :: Addr -> Rslt -> Either String Rslt
-deleteIfUnused a r = do
-  users <- prefixLeft "deleteIfUnused: " $ isIn r a
+deleteIfUnused a r =
+  prefixLeft "deleteIfUnused: " $ do
+  users <- isIn r a
   if null users
     then _deleteInternalMentionsOf a r
     else Left $ "deleteIfUnused: Addr " ++ show a
@@ -116,9 +119,9 @@ deleteIfUnused a r = do
 -- RefExprs. This only deletes mentions in which it is the container
 -- or "the thing" (hence "internal" mentions), but not the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
-_deleteInternalMentionsOf a r = do
-  (aHas       ::           Map Role Addr) <-
-    prefixLeft "_deleteInternalMentionsOf" $ has r a
+_deleteInternalMentionsOf a r =
+  prefixLeft "_deleteInternalMentionsOf" $ do
+  (aHas       ::           Map Role Addr) <- has r a
   let (_has2  :: Map Addr (Map Role Addr)) = M.delete a $ _has r
       (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r
       (_isIn2 :: Map Addr (Set (Role, Addr))) =
@@ -130,7 +133,7 @@ _deleteInternalMentionsOf a r = do
           f ii rl ad = M.adjust (S.delete (rl,a)) ad ii
 
   _refExprToAddr2 <- do
-    e <- prefixLeft "_deleteInternalMentionsOf" $ addrToRefExpr r a
+    e <- addrToRefExpr r a
     Right $ M.delete e $ _refExprToAddr r
 
   Right $ Rslt {

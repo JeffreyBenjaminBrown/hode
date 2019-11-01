@@ -1,4 +1,7 @@
--- PITFALL: These functions are all mutually recursive.
+-- | PITFALL:
+-- `replaceInRole` depends on nothing else in this file,
+-- but the other two functions are mutually recursive
+-- (and depend on `replaceInRole` too).
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -23,12 +26,13 @@ import Hode.Rslt.Edit.Initial
 
 replaceInRole :: Role -> Addr -> HostAddr -> Rslt -> Either String Rslt
 replaceInRole spot new host r =
-  prefixLeft "replaceInRole" $ do
+  prefixLeft "replaceInRole: " $ do
   _                          <- addrToRefExpr r new
   oldHostRefExpr             <- addrToRefExpr r host
   (hostHas :: Map Role Addr) <- has r host
-  (old :: Addr) <- let err = Left $ "replaceInRole: RefExpr at " ++ show host
-                             ++ " includes no position " ++ show spot ++ "\n."
+  (old :: Addr) <- let
+    err = Left $ "RefExpr at " ++ show host
+          ++ " includes no position " ++ show spot ++ "\n."
     in maybe err Right $ M.lookup spot hostHas
 
   (newHostRefExpr :: RefExpr) <-
@@ -56,9 +60,9 @@ replaceInRole spot new host r =
 -- | `replaceRefExpr re oldAddr r0` deletes the `Expr` at `oldAddr`,
 -- creates or finds the `RefExpr` to replace it,
 -- and substitutes the new one for the old one everywhere it appeared.
-
 replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
-replaceRefExpr re oldAddr r0 = prefixLeft "replace" $
+replaceRefExpr re oldAddr r0 =
+  prefixLeft "replace: " $
   case refExprToAddr r0 re of
     Right newAddr -> do
       r2 <- _substitute newAddr oldAddr r0
@@ -70,10 +74,12 @@ replaceRefExpr re oldAddr r0 = prefixLeft "replace" $
       r2      <- _substitute newAddr oldAddr r1
       deleteIfUnused oldAddr r2
 
+-- | `_substitute new old r0` substitutes `new` for `old`
+-- in every host that used to hold `old`.
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
-_substitute new old r0 = do
-  (roles :: Set (Role, Addr)) <- prefixLeft "_substitute"
-                                 $ isIn r0 old
+_substitute new old r0 =
+  prefixLeft "_substitute: " $ do
+  (roles :: Set (Role, Addr)) <- isIn r0 old
   let f :: Either String Rslt -> (Role, Addr) -> Either String Rslt
       f e@(Left _) _ = e
       f (Right r) (role,host) = replaceInRole role new host r

@@ -7,6 +7,9 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO replace either (error "string") with either error where possible
+That is, report the string that was in the Left.
+(Or more generally, some function of it.)
 * TODO Role should be divided into RoleInTplt and RoleInRel
 One would have RoleMember and RoleTplt,
 the other RoleCap and RoleJoint.
