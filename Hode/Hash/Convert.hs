@@ -15,12 +15,12 @@ module Hode.Hash.Convert (
   , pathsToIts_sub_pRel  -- ^ PRel  -> Either String [RelPath]
 ) where
 
+import Control.Arrow (second)
+import Control.Monad
+import           Data.Functor (void)
 import           Data.Functor.Foldable
 import           Data.Map (Map)
 import qualified Data.Map as M
-
-import Control.Arrow (second)
-import Data.Functor (void)
 
 import Hode.Hash.HTypes
 import Hode.Hash.HUtil
@@ -66,7 +66,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
                   keep (PNonRel px) = pExprIsSpecific px
                   keep _            = True
           in filter (keep . fst . snd)
-             $ zip (map RoleMember [1..])
+             $ zip (map (RoleInRel' . RoleMember) [1..])
              $ filter (not . (==) Absent . fst) ms
         hms :: [(Role, Either String HExpr)]
         hms = map (second snd) ms'
@@ -74,7 +74,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
     in do void $ ifLefts $ map snd hms
           let (hms' :: [(Role, HExpr)]) = map get hms where
                 get = second $ either (error "impossible") id
-          Right $ HMap $ M.insert RoleTplt (HExpr t)
+          Right $ HMap $ M.insert (RoleInRel' RoleTplt) (HExpr t)
             $ M.fromList hms'
 
 -- | PITFALL: Using a recursion scheme for `pExprToHExpr` is hard.
@@ -125,10 +125,10 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
 
           let t :: HExpr =
                 maybe (error "impossible ? no Tplt in PReach") id $
-                M.lookup RoleTplt m
-              mhLeft  :: Maybe HExpr = M.lookup (RoleMember 1) m
+                M.lookup (RoleInRel' RoleTplt) m
+              mhLeft  :: Maybe HExpr = M.lookup (RoleInRel' $ RoleMember 1) m
               hLeft   ::       HExpr = maybe (error "unreachable") id mhLeft
-              mhRight :: Maybe HExpr = M.lookup (RoleMember 2) m
+              mhRight :: Maybe HExpr = M.lookup (RoleInRel' $ RoleMember 2) m
               hRight  ::       HExpr = maybe (error "unreachable") id mhRight
           case mhLeft of Nothing -> Right $ HReach SearchLeftward t hRight
                          _       -> Right $ HReach SearchRightward t hLeft
@@ -146,13 +146,13 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
                 (if elem [RoleMember 2] ps then [SearchRightward] else [])
               t :: HExpr =
                 maybe (error "impossible ? no Tplt in PTrans") id $
-                M.lookup RoleTplt m
+                M.lookup (RoleInRel' RoleTplt) m
           hLeft  :: HExpr <-
             maybe (Left "Member 1 (left member) absent.") Right
-            $ M.lookup (RoleMember 1) m
+            $ M.lookup (RoleInRel' $ RoleMember 1) m
           hRight :: HExpr <-
             maybe (Left "Member 2 (right member) absent.") Right
-            $ M.lookup (RoleMember 2) m
+            $ M.lookup (RoleInRel' $ RoleMember 2) m
           let (start,end) = if d == SearchRightward
                             then (hLeft, hRight) else (hRight, hLeft)
           Right $ HTrans d targets t end start
@@ -191,6 +191,11 @@ pathsToIts_pExpr :: PExpr -> Either String [RelPath]
 pathsToIts_pExpr (PEval pnr) = pathsToIts_sub_pExpr pnr
 pathsToIts_pExpr x           = pathsToIts_sub_pExpr x
 
+roleToRoleInRel :: Role -> Either String RoleInRel
+roleToRoleInRel (RoleInRel' r) = Right r
+roleToRoleInRel p = Left $ "roleToRoleInRel: Role " ++ show p ++
+                    " is not a RoleInRel."
+
 pathsToIts_sub_pExpr :: PExpr -> Either String [RelPath]
 pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
 
@@ -200,9 +205,10 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   f (PMapF m)  = do
     (m' :: Map Role [RelPath]) <-
       ifLefts_map $ M.map snd m
-    let g :: (Role, [RelPath]) -> [RelPath]
-        g (role, paths) = map ((:) role) paths
-    Right $ concatMap g $ M.toList m'
+    let g :: (Role, [RelPath]) -> Either String [RelPath]
+        g (role, paths) = do rel <- roleToRoleInRel role
+                             Right $ map ((:) rel) paths
+    concat <$> mapM g (M.toList m')
   f (PEvalF _) = Right []
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
