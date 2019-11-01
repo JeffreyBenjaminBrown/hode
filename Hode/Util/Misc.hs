@@ -153,25 +153,25 @@ class LeftStrings t where
   ifLefts :: t (Either String a) -> Either String (t a)
 
 instance LeftStrings [] where
-  ifLefts es = prefixLeft "ifLefts: " $
-    let lefts = filter isLeft es in
-    case null lefts of
-      True -> Right $          map (fromRight $ error "impossible.") es
-      False -> Left $ concat $ map (fromLeft  $ error "impossible.")  lefts
+  ifLefts es =
+    let lefts = filter isLeft es
+    in case null lefts of
+      True -> Right $          map (fromRight $ error "ifLefts: impossible.") es
+      False -> Left $ concat $ map (fromLeft  $ error "ifLefts: impossible.")  lefts
 
 ifLefts_set :: Ord a => Set (Either String a) -> Either String (Set a)
-ifLefts_set es = prefixLeft "ifLefts: " $
+ifLefts_set es =
   let lefts = S.filter isLeft es in
   case null lefts of
-    True -> Right $ S.map         (fromRight $ error "impossible") es
-    False -> Left $ concat (S.map (fromLeft  $ error "impossible") lefts)
+    True -> Right $ S.map         (fromRight $ error "ifLefts: impossible") es
+    False -> Left $ concat (S.map (fromLeft  $ error "ifLefts: impossible") lefts)
 
 ifLefts_map :: Ord a => Map k (Either String a) -> Either String (Map k a)
-ifLefts_map m = prefixLeft "ifLefts: " $
+ifLefts_map m =
   let lefts = filter isLeft $ M.elems m in
   case null lefts of
-    True -> Right $ M.map        (fromRight $ error "impossible") m
-    False -> Left $ concat $ map (fromLeft  $ error "impossible") lefts
+    True -> Right $ M.map        (fromRight $ error "ifLefts: impossible") m
+    False -> Left $ concat $ map (fromLeft  $ error "ifLefts: impossible") lefts
 
 ifLefts_mapKeys :: Ord k
   => Map (Either String k) a -> Either String (Map k a)
@@ -179,5 +179,5 @@ ifLefts_mapKeys m = let
   lefts = S.filter isLeft $ M.keysSet m
   impossible = error "ifLefts_mapKeys: impossible."
   in case null lefts of
-       True -> Right $ M.mapKeys (fromRight impossible) m
-       False -> Left $ concat $ S.map (fromLeft impossible) lefts
+       True -> Right $ M.mapKeys      (fromRight impossible) m
+       False -> Left $ concat $ S.map (fromLeft  impossible) lefts

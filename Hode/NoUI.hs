@@ -54,8 +54,7 @@ nShowRsltRefExprs :: Rslt -> [String]
 nShowRsltRefExprs r = let
   m = _addrToRefExpr r
   showPair k = let
-    val = maybe (error e) id $ flip M.lookup m k
-      where e = "impossible: this key came from this map."
+    val = m M.! k
     in show k ++ ": " ++ show val
   in fmap showPair $ M.keys m
 
