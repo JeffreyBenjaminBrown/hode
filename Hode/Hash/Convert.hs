@@ -16,7 +16,6 @@ module Hode.Hash.Convert (
 ) where
 
 import Control.Arrow (second)
-import Control.Monad
 import           Data.Functor (void)
 import           Data.Functor.Foldable
 import           Data.Map (Map)

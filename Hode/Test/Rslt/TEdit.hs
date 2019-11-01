@@ -25,7 +25,7 @@ test_module_rslt_edit = TestList [
     TestLabel "test_insert" test_insert
   , TestLabel "test_deleteIfUnused" test_deleteIfUnused
   , TestLabel "test_replaceInRole" test_replaceInRole
-  , TestLabel "test_replace" test_replace
+  , TestLabel "test_replaceRefExpr" test_replaceRefExpr
   , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
   , TestLabel "test_replaceExpr" test_replaceExpr
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
@@ -93,10 +93,10 @@ test_exprToAddrInsert = TestCase $ do
       either (error "wut") id $ addrToRefExpr r a >>= refExprToExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 
-test_replace :: Test
-test_replace = TestCase $ do
-  assertBool "replace word in rel" $
-    either (error "wut") id (R.replaceRefExpr (Phrase' "foo") 1 D.rslt)
+test_replaceRefExpr :: Test
+test_replaceRefExpr = TestCase $ do
+  assertBool "replace word in rel" $ either (error "wut") id
+    (R.replaceRefExpr (Phrase' "foo") 1 D.rslt)
     == mkRslt ( M.fromList
           [ (0, Phrase' "")
           , (2, Phrase' "oxygen")
@@ -120,8 +120,8 @@ test_replace = TestCase $ do
          , (6, Rel' $ Rel [5,2] 4)
          ] )
 
-  assertBool "replace rel" $
-    either (error "wut") id (R.replaceRefExpr (Rel' $ Rel [2,1] 4) 5 D.rslt)
+  assertBool "replace rel" $ either (error "wut") id
+    (R.replaceRefExpr (Rel' $ Rel [2,1] 4) 5 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
          , (1, Phrase' "dog")
@@ -132,8 +132,7 @@ test_replace = TestCase $ do
          , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
          ] )
 
-  assertBool "todo : replace tplt" $
-    either (error "wut") id
+  assertBool "todo : replace tplt" $ either (error "wut") id
     (R.replaceRefExpr (Tplt' $ Tplt (Just 2) [2] (Just 2)) 4 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")

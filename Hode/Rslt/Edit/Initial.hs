@@ -67,6 +67,8 @@ _replaceInRefExpr r spot new host = let
       then Rel' <$> replaceInRel new rol rel
       else Left $ "Arity mismatch: RefExpr at " ++ show new
            ++ " is not a valid Tplt in " ++ show host ++ ".\n"
+  f role re = Left $ "Incompatible: there is no " ++ show role
+              ++ " in " ++ show re ++ "."
 
   in
   prefixLeft "_replaceInRefExpr: " $ do

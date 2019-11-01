@@ -48,10 +48,10 @@ library
                 , Hode.Qseq.Subst
 
                 , Hode.Rslt.Edit
-                  -- That re-exports only the friendly bits of these:
-                  -- , Hode.Rslt.Edit.Initial
-                  -- , Hode.Rslt.Edit.Replace
-                  -- , Hode.Rslt.Edit.AndSearch
+                  -- That re-exports the friendly bits of these:
+                  , Hode.Rslt.Edit.Initial
+                  , Hode.Rslt.Edit.Replace
+                  , Hode.Rslt.Edit.AndSearch
 
                 , Hode.Rslt.Binary
                 , Hode.Rslt.Files
