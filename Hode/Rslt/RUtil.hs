@@ -3,7 +3,8 @@
 
 module Hode.Rslt.RUtil (
     LeftStrings(..)
-  , replaceInTplt   -- ^ a -> Role -> Tplt a -> Either String (Tplt a)
+  , replaceInTplt   -- ^ a -> RoleInTplt -> Tplt a -> Either String (Tplt a)
+  , replaceInRel    -- ^ a -> RoleInRel -> Rel a -> Either String (Rel a)
   , toExprWith      -- ^ b -> Expr -> Fix (ExprFWith b)
   , exprWithout     -- ^             Fix (ExprFWith b) -> Expr
   , mapExprFWith    -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
@@ -59,6 +60,13 @@ replaceInTplt b (RoleJoint k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c
 
+replaceInRel :: a -> RoleInRel -> Rel a
+             -> Either String (Rel a)
+replaceInRel new RoleTplt (Rel as _) =
+  Right $ Rel as new
+replaceInRel new (RoleMember k) (Rel as a) = do
+  as1 <- replaceNth new k as
+  Right $ Rel as1 a
 
 -- | = ExprFWith
 

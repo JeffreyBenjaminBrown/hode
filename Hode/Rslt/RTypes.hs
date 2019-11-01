@@ -49,6 +49,8 @@ type RolePath = [Role] -- ^ A path to a sub-expression. For instance,
 -- and a `Tplt` (template) which describes how they relate.
 data Rel a = Rel [a] a
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
+instance HasArity (Rel a) where
+  arity (Rel as _) = length as
 deriveShow1 ''Rel
 deriveEq1 ''Rel
 
