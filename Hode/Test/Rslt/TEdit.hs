@@ -63,18 +63,18 @@ test_exprToAddrInsert = TestCase $ do
 
   assertBool "2" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
                      Nothing [Addr 1] Nothing )
-    == Right ( fromRight (error "wut") $
+    == Right ( either error id $
                R.insertAt 7 (Tplt' $ Tplt Nothing [1] Nothing) D.rslt
              , [New 7, Old 1] )
 
   assertBool "3" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
                      (Just $ Phrase "bar") [Phrase ""]
                      (Just $ Phrase "foo") )
-    == Right ( fromRight (error "wut")
+    == Right ( either error id
                $ R.insertAt 9 (Tplt' $ Tplt (Just 7) [0] (Just 8))
-               $ fromRight (error "wut")
+               $ either error id
                $ R.insertAt 8 (Phrase' "foo")
-               $ fromRight (error "wut")
+               $ either error id
                $ R.insertAt 7 (Phrase' "bar") D.rslt
              , [New 9, New 7, Old 0, New 8] )
 
