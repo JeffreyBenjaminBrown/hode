@@ -1,5 +1,13 @@
-resolver: nightly-2019-03-09   # works!
+resolver: nightly-2019-03-09 # works!
+  # GHC 8.6.4
 
+# resolver: lts-14.12
+  # works on Ubuntu system, but not on Nix
+  # GHC 8.6.5
+
+# resolver: nightly-2019-10-30
+  # doesn't even work (with these dependencies) on the Ubuntu system.
+  # (A project with no dependencies works fine.)
 
 ###
 ### Other configurations, past and maybe future
