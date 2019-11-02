@@ -90,12 +90,12 @@ test_exprToAddrInsert = TestCase $ do
           (Just $ Phrase "That") [Phrase "does"] Nothing ) )
     a = unAged $ head as
     (n16 :: Expr) =
-      either (error "wut") id $ addrToRefExpr r a >>= refExprToExpr r
+      either error id $ addrToRefExpr r a >>= refExprToExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 
 test_replaceRefExpr :: Test
 test_replaceRefExpr = TestCase $ do
-  assertBool "replace word in rel" $ either (error "wut") id
+  assertBool "replace word in rel" $ either error id
     (R.replaceRefExpr (Phrase' "foo") 1 D.rslt)
     == mkRslt ( M.fromList
           [ (0, Phrase' "")
@@ -107,7 +107,7 @@ test_replaceRefExpr = TestCase $ do
           , (7, Phrase' "foo")
           ] )
 
-  assertBool "replace word in Tplt" $ either (error "wut") id
+  assertBool "replace word in Tplt" $ either error id
     (R.replaceRefExpr (Phrase' "foo") 1 D.rslt_rightCapped)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
@@ -120,7 +120,7 @@ test_replaceRefExpr = TestCase $ do
          , (6, Rel' $ Rel [5,2] 4)
          ] )
 
-  assertBool "replace rel" $ either (error "wut") id
+  assertBool "replace rel" $ either error id
     (R.replaceRefExpr (Rel' $ Rel [2,1] 4) 5 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
@@ -132,7 +132,7 @@ test_replaceRefExpr = TestCase $ do
          , (7, Rel' $ Rel [2,1] 4) -- all changes involve address 7
          ] )
 
-  assertBool "todo : replace tplt" $ either (error "wut") id
+  assertBool "todo : replace tplt" $ either error id
     (R.replaceRefExpr (Tplt' $ Tplt (Just 2) [2] (Just 2)) 4 D.rslt)
     == mkRslt ( M.fromList
          [ (0, Phrase' "")
@@ -163,9 +163,9 @@ test_replaceInRole = TestCase $ do
                  , (RoleInRel' $ RoleMember 2, 1)
                  , (RoleInRel' $ RoleTplt    , 4) ] )
 
-  let r2 = either (error "wut") id
+  let r2 = either error id
            $ R.replaceInRole (RoleInRel' $ RoleMember 2) 8 5
-           $ either (error "wut") id
+           $ either error id
            $ R.insertAt 8 (Phrase' "foo") D.rslt
   assertBool "4" $ isIn r2 8 == Right
     (S.singleton (RoleInRel' $ RoleMember 2, 5))
@@ -177,9 +177,9 @@ test_deleteIfUnused = TestCase $ do
   -- and insert at 6 (Rel' $ Rel [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
   let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.refExprs
-      (with_new_rel :: Rslt) = either (error "wut") id
+      (with_new_rel :: Rslt) = either error id
                                $ R.insertAt 6 (Rel' $ Rel [1,1] 4) without_6
-      (r            :: Rslt) = either (error "wut") id
+      (r            :: Rslt) = either error id
                                $ R.deleteIfUnused 5 with_new_rel
   assertBool "valid 1" $ isRight $ validRslt without_6
   assertBool "valid 2" $ isRight $ validRslt with_new_rel
@@ -188,7 +188,7 @@ test_deleteIfUnused = TestCase $ do
   assertBool "1" $ isLeft $ R.deleteIfUnused 5 D.rslt
   assertBool "addrToRefExpr of deleted" $ isLeft $ addrToRefExpr r 5
   assertBool "refExprToAddr missing"    $ isLeft $
-    either (error "wut") (refExprToAddr r) (addrToRefExpr D.rslt 5)
+    either error (refExprToAddr r) (addrToRefExpr D.rslt 5)
   assertBool "variety missing"   $ isLeft $ variety r 5
   assertBool "has missing"       $ isLeft $ has r 5
   assertBool "isIn missing"      $ isLeft $ isIn r 5
@@ -200,7 +200,7 @@ test_deleteIfUnused = TestCase $ do
 
 test_insert :: Test
 test_insert = TestCase $ do
-  let r2 = either (error "wut") id
+  let r2 = either error id
            $ R.insertAt 7 (Rel' $ Rel [1,1] 4) D.rslt
   assertBool "valid 1" $ isRight $ validRslt r2
 

@@ -132,7 +132,8 @@ collectionsWithAbsentAddrs r = res where
   absent = isNothing . flip M.lookup (_variety r)
 
   involved :: RefExpr -> [Addr]
-  involved (Phrase' _) = error "impossible"
+  involved (Phrase' _) = error
+    "impossible: collections contains no Phrase's (only Tplt's and Rel's)."
   involved (Tplt' t)   = toList t
   involved (Rel' rel)  = toList rel
 
@@ -142,8 +143,9 @@ collectionsWithAbsentAddrs r = res where
                                      _         -> True
 
 relsWithoutMatchingTplts :: Rslt -> Map Addr RefExpr
-relsWithoutMatchingTplts r = res where
-  res = M.filter (not . relMatchesTpltArity) rels
+relsWithoutMatchingTplts r =
+  M.filter (not . relMatchesTpltArity) rels
+  where
 
   relMatchesTpltArity :: RefExpr -> Bool
   relMatchesTpltArity e@(Rel' (Rel _ t)) =
@@ -153,8 +155,9 @@ relsWithoutMatchingTplts r = res where
         TpltCtr -> arity e == art
         _       -> False
   relMatchesTpltArity _ =
-    error "relMatchesTpltArity: impossible."
+    error "impossible: rels contains only Rels."
 
+  rels :: Map Addr RefExpr
   rels = M.filter isRel $ _addrToRefExpr r where
     isRel (Rel' _) = True
     isRel _        = False

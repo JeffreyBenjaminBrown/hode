@@ -63,8 +63,7 @@ hMatches r h0 a0 = prefixLeft "hMatches: " $ do
       let mPairs :: Map Role (HExpr,Addr) =
             M.mapWithKey f mh where
             f rol h = (h,a) where
-              a = maybe (error "impossible") id $
-                  M.lookup rol ma
+              a :: Addr = ma M.! rol
       mCompares :: Map Role Bool <- ifLefts_map $
         M.map (uncurry $ hMatches r) mPairs
       Right $ and mCompares

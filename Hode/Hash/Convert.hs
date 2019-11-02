@@ -72,7 +72,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
 
     in do void $ ifLefts $ map snd hms
           let (hms' :: [(Role, HExpr)]) = map get hms where
-                get = second $ either (error "impossible") id
+                get = second $ either error id
           Right $ HMap $ M.insert (RoleInRel' RoleTplt) (HExpr t)
             $ M.fromList hms'
 

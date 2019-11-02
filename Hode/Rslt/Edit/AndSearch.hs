@@ -94,9 +94,9 @@ exprToAddrInsert_list r0 is =
   prefixLeft "exprToAddrInsert_list: " $ do
   let f :: Either String Rslt -> Expr
         -> (Either String Rslt, [Aged Addr])
-      f (Left s) _ = (Left s, error "irrelevant")
+      f (Left s) _ = (Left s, error "exprToAddrInsert_list: irrelevant")
       f (Right r) ei = case exprToAddrInsert r ei of
-        Left s -> (Left s, error "irrelevant")
+        Left s -> (Left s, error "exprToAddrInsert_list: irrelevant")
         Right (r',as) -> (Right r', as)
       (er, asas) :: (Either String Rslt, [[Aged Addr]]) =
         L.mapAccumL f (Right r0) is

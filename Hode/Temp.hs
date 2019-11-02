@@ -20,10 +20,6 @@ import qualified Hode.Test.Rslt.RData as D
 import           Hode.Util.Misc
 
 
--- R.replaceInRole (RoleInRel' $ RoleMember 2) 1 5 D.rslt
-
-
-
 newRel      :: Rel Addr = Rel [1,3] 4
 new_refExpr :: RefExpr  = Rel' newRel
 new_expr    :: Expr     = ExprRel $ fmap Addr newRel
