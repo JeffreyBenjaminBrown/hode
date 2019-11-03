@@ -59,9 +59,8 @@ _replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr
 _replaceInRefExpr r spot new host = let
 
   f :: Role -> RefExpr -> Either String RefExpr
-  f (RoleInTplt' rol) (Tplt' t) = do
-    t' <- replaceInTplt new rol t
-    Right $ Tplt' t'
+  f (RoleInTplt' rol) (Tplt' t) =
+    Tplt' <$> replaceInTplt new rol t
 
   f (RoleInRel' rol) (Rel' rel) = do
     (ec,a) :: (ExprCtr, Arity) <- variety r new
