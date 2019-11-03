@@ -7,6 +7,8 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
+* TODO write a test for
+_replaceInRefExpr
 * TODO after that, merge the Cap type into RoleInTplt
 * TODO add tests for Rslt.RUtil
 * TODO studying Rslt.Show

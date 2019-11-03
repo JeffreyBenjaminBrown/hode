@@ -62,11 +62,16 @@ _replaceInRefExpr r spot new host = let
   f (RoleInTplt' rol) (Tplt' t) = do
     t' <- replaceInTplt new rol t
     Right $ Tplt' t'
+
   f (RoleInRel' rol) (Rel' rel) = do
-    if variety r new == Right (TpltCtr, arity rel)
-      then Rel' <$> replaceInRel new rol rel
-      else Left $ "Arity mismatch: RefExpr at " ++ show new
-           ++ " is not a valid Tplt in " ++ show host ++ ".\n"
+    (ec,a) :: (ExprCtr, Arity) <- variety r new
+    if ec == TpltCtr
+      then if a == arity rel
+        then Right ()
+        else Left $ "new Tplt arity does not match host arity."
+      else Right ()
+    Rel' <$> replaceInRel new rol rel
+
   f role re = Left $ "Incompatible: there is no " ++ show role
               ++ " in " ++ show re ++ "."
 
