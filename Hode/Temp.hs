@@ -19,13 +19,10 @@ import           Hode.Rslt.Show
 import qualified Hode.Test.Rslt.RData as D
 import           Hode.Util.Misc
 
+x = R._replaceInRefExpr D.rslt
+    (RoleInTplt' $ RoleCap CapRight) 1
+    (Tplt'$ Tplt Nothing [3] Nothing)
 
-newRel      :: Rel Addr = Rel [1,3] 4
-new_refExpr :: RefExpr  = Rel' newRel
-new_expr    :: Expr     = ExprRel $ fmap Addr newRel
-refExprs    :: M.Map Addr RefExpr =
-  D.refExprs & M.insert 5 new_refExpr
-
-t1 = R.replaceExpr 5 new_expr D.rslt
-t2 = Right (mkRslt refExprs)
-
+y = R._replaceInRefExpr D.rslt_rightCapped
+    (RoleInTplt' $ RoleCap CapRight) 2
+    (Tplt'$ Tplt Nothing [3] Nothing)

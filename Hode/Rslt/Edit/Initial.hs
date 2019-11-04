@@ -54,6 +54,8 @@ renameAddr_unsafe old new r = let
                     M.mapKeys aa . M.map (S.map $ _2 %~ aa)
           }
 
+-- | `_replaceInRefExpr r spot new host` returns something like `host`,
+-- but with `new` occupying `role`.
 _replaceInRefExpr :: Rslt -> Role -> Addr -> RefExpr
                   -> Either String RefExpr
 _replaceInRefExpr r spot new host = let

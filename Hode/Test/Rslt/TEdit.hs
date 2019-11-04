@@ -29,7 +29,21 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
   , TestLabel "test_replaceExpr" test_replaceExpr
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
+  , TestLabel "test_replaceInRefExpr" test_replaceInRefExpr
   ]
+
+test_replaceInRefExpr :: Test
+test_replaceInRefExpr = TestCase $ do
+  assertBool "There's no RightCap to replace" $
+    isLeft $ R._replaceInRefExpr D.rslt
+    (RoleInTplt' $ RoleCap CapRight) 1
+    (Tplt'$ Tplt Nothing [3] Nothing)
+  assertBool "replace RightCap 1 with 2" $
+    R._replaceInRefExpr D.rslt_rightCapped
+    (RoleInTplt' $ RoleCap CapRight) 2
+             (Tplt' $ Tplt Nothing [3] $ Just 1)
+    == Right (Tplt' $ Tplt Nothing [3] $ Just 2)
+  assertBool "Continue" False
 
 test_renameAddr_unsafe :: Test
 test_renameAddr_unsafe = TestCase $ do
