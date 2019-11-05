@@ -34,16 +34,34 @@ test_module_rslt_edit = TestList [
 
 test_replaceInRefExpr :: Test
 test_replaceInRefExpr = TestCase $ do
-  assertBool "There's no RightCap to replace" $
-    isLeft $ R._replaceInRefExpr D.rslt
-    (RoleInTplt' $ RoleCap CapRight) 1
+  let r = mkRslt $ M.fromList
+          [ (0, Phrase' "")
+          , (1, Phrase' "dog")
+          , (2, Phrase' "oxygen")
+          , (3, Phrase' "needs")
+          , (4, Tplt'$ Tplt Nothing  [3] $ Just 1)
+          , (5, Tplt'$ Tplt (Just 1) [3] Nothing)
+          , (6, Rel' $ Rel [1,2] 4)
+          , (7, Rel' $ Rel [5,2] 4) ]
+  assertBool "There's no LeftCap to replace" $
+    isLeft $ R._replaceInRefExpr r
+    (RoleInTplt' $ RoleCap CapLeft) 1
     (Tplt'$ Tplt Nothing [3] Nothing)
-  assertBool "replace RightCap 1 with 2" $
-    R._replaceInRefExpr D.rslt_rightCapped
+  assertBool "Replace RightCap 1 with 2" $
+    R._replaceInRefExpr r
     (RoleInTplt' $ RoleCap CapRight) 2
              (Tplt' $ Tplt Nothing [3] $ Just 1)
     == Right (Tplt' $ Tplt Nothing [3] $ Just 2)
-  assertBool "Continue" False
+  assertBool "Replace first member with 2" $
+    R._replaceInRefExpr r
+    (RoleInRel' $ RoleMember 1) 2
+             (Rel' $ Rel [1,2] 4)
+    == Right (Rel' $ Rel [2,2] 4)
+  assertBool "Replace Tplt with 6" $
+    R._replaceInRefExpr r
+    (RoleInRel' RoleTplt) 6
+             (Rel' $ Rel [1,2] 5)
+    == Right (Rel' $ Rel [1,2] 6)
 
 test_renameAddr_unsafe :: Test
 test_renameAddr_unsafe = TestCase $ do
