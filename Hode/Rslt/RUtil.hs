@@ -55,12 +55,12 @@ replaceInTplt a' RoleCapLeft (Tplt (Just _) bs c) =
   Right $ Tplt (Just a') bs c
 replaceInTplt c' RoleCapRight (Tplt a bs (Just _)) =
   Right $ Tplt a bs (Just c')
-replaceInTplt _ rol t =
-  Left ( "replaceInTplt: There is no " ++ show rol
-         ++ " in " ++ show t ++ "." )
 replaceInTplt b (RoleJoint k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c
+replaceInTplt _ rol t =
+  Left ( "replaceInTplt: There is no " ++ show rol
+         ++ " in " ++ show t ++ "." )
 
 replaceInRel :: a -> RoleInRel -> Rel a
              -> Either String (Rel a)
@@ -69,6 +69,7 @@ replaceInRel new RoleTplt (Rel as _) =
 replaceInRel new (RoleMember k) (Rel as a) = do
   as1 <- replaceNth new k as
   Right $ Rel as1 a
+
 
 -- | = ExprFWith
 
@@ -94,6 +95,7 @@ exprWithout (Fix (EFW (_, x))) = f x where
   f (ExprTpltF js) = ExprTplt $
         fmap exprWithout js
 
+-- | PITFALL: Untested, unused.
 mapExprFWith :: forall b c.
   (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
 mapExprFWith f (Fix (EFW (b,x))) = Fix $ EFW (f b, g x) where

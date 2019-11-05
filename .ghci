@@ -3,6 +3,8 @@
 :set -XTupleSections
 
 import Control.Monad
+import Data.Functor.Foldable
+
 import           Data.Either
 import qualified Data.List as L
 import           Data.Map (Map)

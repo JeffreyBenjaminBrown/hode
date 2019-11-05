@@ -7,19 +7,19 @@ This will load all non-broken modules when some are broken.
 ** transitivity, order
 ** reduce redunddancy in views
 ** update
-* TODO add tests for Rslt.RUtil
-* TODO studying Rslt.Show
-** start at Rslt.Show.Wut
-*** parenExprAtDepth is clear*
-See test cases to remember.
-What it does is clear, anyway. How, not so much.
-*** eParenShow: write test cases
-* TODO studying Hode.UI
-resume at
-  instance Show MemberHosts where
-add tests for UI.Types
-  it's that complex
 * TODO next
+** TODO add tests for Rslt.RUtil
+** TODO studying Rslt.Show
+*** start at Rslt.Show.Wut
+**** parenExprAtDepth is clear*
+ See test cases to remember.
+ What it does is clear, anyway. How, not so much.
+**** eParenShow: write test cases
+** TODO studying Hode.UI
+ resume at
+   instance Show MemberHosts where
+ add tests for UI.Types
+   it's that complex
 ** TODO ? more NoUI
 ** TODO ordered display
 (See also "transitive search".)
