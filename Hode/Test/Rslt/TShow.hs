@@ -2,6 +2,7 @@
 
 module Hode.Test.Rslt.TShow where
 
+import           Data.Either
 import           Data.Functor.Foldable
 import           Test.HUnit
 
@@ -17,7 +18,39 @@ test_module_rslt_show = TestList [
     TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
   , TestLabel "test_eShow" test_eShow
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
+  , TestLabel "test_eParenShow" test_eParenShow
   ]
+
+test_eParenShow :: Test
+test_eParenShow = TestCase $ do
+  let f k = eParenShow k D.rslt_rightCapped
+  assertBool "hi" $ f   2  (Phrase "hi") == Right "hi"
+  assertBool "hi" $ f (-1) (Phrase "hi") == Right "hi"
+  assertBool "no tplt" $ isLeft $ f 2 $
+    ExprRel $ Rel [Phrase "trees", Phrase "CO2"] $ Phrase ""
+  let eat = ExprTplt $ Tplt Nothing [Phrase "eat"] Nothing
+      tIn = ExprTplt $ Tplt Nothing [Phrase "in"] Nothing
+      dog = ExprTplt $ Tplt Nothing []
+            $ Just $ Phrase ", dog"
+      r1  = ExprRel $ Rel [Phrase "trees", Phrase "CO2"] eat
+      r2  = ExprRel $ Rel
+        [ ExprRel $ Rel [Phrase "trees", Phrase "Earth"] tIn
+        , Phrase "CO2" ] eat
+  assertBool "depth-1 rel, max depth 2" $ f 2 r1 ==
+    Right "trees #eat CO2"
+  assertBool ( "depth-1 rel, max depth 0" ++
+               " (the outermost layer is never wrapped)" )
+    $ f 2 r1 == Right "trees #eat CO2"
+  assertBool "depth-1 rel, max depth 2" $ f 2 r2 ==
+    Right "trees #in Earth ##eat CO2"
+  assertBool "depth-1 rel, max depth 1" $ f 1 r2 ==
+    Right "(trees #in Earth) #eat CO2"
+
+  assertBool "Rel arity 2, Tplt arity 1" $ isLeft $ f 2 $
+    ExprRel $ Rel [Phrase "trees", Phrase "CO2"] dog
+  assertBool "Rel arity 1, Tplt arity 2" $ isLeft $ f 2 $
+    ExprRel $ Rel [Phrase "trees"] eat
+  assertBool "tplt" $ f 2 eat == Right "_ eat _"
 
 -- | `test_exprFWithDepth` might make this easier to understand.
 -- Currently it is stored at earlier-work/Rslt/Show/JustInCase.hs.

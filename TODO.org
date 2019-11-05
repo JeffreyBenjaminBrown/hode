@@ -8,7 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO add tests for Rslt.RUtil
 ** TODO studying Rslt.Show
 *** start at Rslt.Show.Wut
 **** parenExprAtDepth is clear*

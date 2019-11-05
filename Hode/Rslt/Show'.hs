@@ -24,7 +24,7 @@ import Hode.Util.UParse
 
 eParenShow' :: Int -> Rslt -> Expr -> Either String AttrString
 eParenShow' maxDepth r e0 =
-  prefixLeft "eParenShow: " $
+  prefixLeft "eParenShow': " $
   unAddrRec r e0 >>=
   fo . parenExprAtDepth maxDepth . toExprWith () where
 
