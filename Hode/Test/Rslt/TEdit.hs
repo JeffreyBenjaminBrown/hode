@@ -45,11 +45,11 @@ test_replaceInRefExpr = TestCase $ do
           , (7, Rel' $ Rel [5,2] 4) ]
   assertBool "There's no LeftCap to replace" $
     isLeft $ R._replaceInRefExpr r
-    (RoleInTplt' $ RoleCap CapLeft) 1
+    (RoleInTplt' $ RoleCapLeft) 1
     (Tplt'$ Tplt Nothing [3] Nothing)
   assertBool "Replace RightCap 1 with 2" $
     R._replaceInRefExpr r
-    (RoleInTplt' $ RoleCap CapRight) 2
+    (RoleInTplt' $ RoleCapRight) 2
              (Tplt' $ Tplt Nothing [3] $ Just 1)
     == Right (Tplt' $ Tplt Nothing [3] $ Just 2)
   assertBool "Replace first member with 2" $

@@ -25,16 +25,13 @@ type MemberAddr = Addr
 type TpltAddr   = Addr
 type HostAddr   = Addr -- ^ could be a `Rel` or a `Tplt`
 
--- | Joints in a `Tplt` (see below) can be interior or caps.
-data Cap = CapLeft | CapRight deriving (Eq, Ord, Read, Show)
-
 -- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"
 -- and "beef", and Tplt "_ like _".
 data RoleInRel = RoleTplt | RoleMember Int
   deriving (Eq, Ord, Read, Show)
 
-data RoleInTplt = RoleCap Cap | RoleJoint Int
+data RoleInTplt = RoleCapLeft | RoleCapRight | RoleJoint Int
   deriving (Eq, Ord, Read, Show)
 
 data Role = RoleInTplt' RoleInTplt | RoleInRel' RoleInRel

@@ -51,13 +51,13 @@ instance LeftStrings Tplt where
 
 replaceInTplt :: Show a =>
   a -> RoleInTplt -> Tplt a -> Either String (Tplt a)
-replaceInTplt a' (RoleCap CapLeft) (Tplt (Just _) bs c) =
+replaceInTplt a' RoleCapLeft (Tplt (Just _) bs c) =
   Right $ Tplt (Just a') bs c
-replaceInTplt c' (RoleCap CapRight) (Tplt a bs (Just _)) =
+replaceInTplt c' RoleCapRight (Tplt a bs (Just _)) =
   Right $ Tplt a bs (Just c')
-replaceInTplt _ (RoleCap side) t =
-  Left ( "replaceInTplt: There is no cap on the " ++
-         show side ++ " side to replace in " ++ show t ++ "." )
+replaceInTplt _ rol t =
+  Left ( "replaceInTplt: There is no " ++ show rol
+         ++ " in " ++ show t ++ "." )
 replaceInTplt b (RoleJoint k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c

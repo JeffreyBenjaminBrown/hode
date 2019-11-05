@@ -61,11 +61,11 @@ refExprPositions = \case
   Phrase' _          -> []
   Tplt' (Tplt a bs c) -> a' ++ bs' ++ c' where
     a' = maybeToList $ fmap (r,) a where
-      r = RoleInTplt' $ RoleCap CapLeft
+      r = RoleInTplt' RoleCapLeft
     bs' = map (first $ RoleInTplt' . RoleJoint) $
           zip [1..] bs
     c' = maybeToList $ fmap (r,) c where
-      r = RoleInTplt' $ RoleCap CapRight
+      r = RoleInTplt' RoleCapRight
   Rel'  (Rel mas ta) ->
     (RoleInRel' RoleTplt,ta) :
     map (first $ RoleInRel' . RoleMember) (zip [1..] mas)

@@ -80,7 +80,7 @@ test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
     == Right ( M.fromList [ ( RoleInTplt' $ RoleJoint 1, 3 ) ] )
   assertBool "tplt" $ has D.rslt_rightCapped 4
-    == Right ( M.fromList [ ( RoleInTplt' $ RoleCap CapRight, 1),
+    == Right ( M.fromList [ ( RoleInTplt' $ RoleCapRight, 1),
                             ( RoleInTplt' $ RoleJoint 1, 3 ) ] )
   assertBool "rel" $ has D.rslt 5
     == Right ( M.fromList [ ( RoleInRel' $ RoleMember 1, 1 )
@@ -95,7 +95,7 @@ test_isIn = TestCase $ do
     == Right mempty
   assertBool "1" $ isIn D.rslt_rightCapped 1
     == Right ( S.fromList [ (RoleInRel' $ RoleMember 1, 5),
-                            (RoleInTplt' $ RoleCap CapRight, 4) ] )
+                            (RoleInTplt' $ RoleCapRight, 4) ] )
   assertBool "2" $ isIn D.rslt 4
     == Right ( S.fromList [ (RoleInRel' $ RoleTplt, 5)
                           , (RoleInRel' $ RoleTplt, 6) ] )
@@ -106,7 +106,7 @@ test_isIn = TestCase $ do
 test_fills :: Test
 test_fills = TestCase $ do
   assertBool "tplt has no left cap" $ isLeft $
-    fills D.rslt (RoleInTplt' $ RoleCap CapLeft, 4)
+    fills D.rslt (RoleInTplt' $ RoleCapLeft, 4)
   assertBool "1st in tplt" $
     fills D.rslt (RoleInTplt' $ RoleJoint 1, 4) == Right 3
   assertBool "2nd in tplt" $ isLeft $
