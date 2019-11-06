@@ -25,7 +25,7 @@ import Hode.UI.Input
 import Hode.UI.ITypes
 import Hode.UI.IUtil
 import Hode.UI.ShowPTree
-import Hode.UI.String
+import Hode.UI.IUtil.String
 import Hode.Util.PTree
 
 

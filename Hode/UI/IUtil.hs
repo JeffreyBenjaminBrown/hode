@@ -19,6 +19,7 @@ import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
+import Hode.UI.IUtil.String
 import Hode.UI.ITypes
 import Hode.UI.Window
 import Hode.Util.PTree

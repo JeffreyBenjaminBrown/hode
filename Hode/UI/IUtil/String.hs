@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.String (
+module Hode.UI.IUtil.String (
     resultsText  -- ^ St -> [String]
   , resultView   -- ^ Rslt -> Addr -> Either String ViewExpr
   , show_ViewExprNode  -- ^ ViewExprNode -> String

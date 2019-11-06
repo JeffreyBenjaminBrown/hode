@@ -97,18 +97,18 @@ library
                 , Hode.Test.TUI
                 , Hode.Test.TUtil
 
-                , Hode.UI.BufferTree
                 , Hode.UI.BufferRowTree
+                , Hode.UI.BufferTree
                 , Hode.UI.Clipboard
                 , Hode.UI.ITypes
                 , Hode.UI.IUtil
+                , Hode.UI.IUtil.String
                 , Hode.UI.Input
                 , Hode.UI.Input.IParse
                 , Hode.UI.Main
                 , Hode.UI.RsltViewTree
                 , Hode.UI.ShowPTree
                 , Hode.UI.ShowPTree.HandTest
-                , Hode.UI.String
                 , Hode.UI.Window
 
                 , Hode.Util.Alternation

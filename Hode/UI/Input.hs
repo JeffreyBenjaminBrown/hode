@@ -36,7 +36,7 @@ import Hode.UI.Clipboard
 import Hode.UI.ITypes
 import Hode.UI.IUtil
 import Hode.UI.Input.IParse
-import Hode.UI.String
+import Hode.UI.IUtil.String
 import Hode.UI.BufferRowTree
 import Hode.UI.Window
 import Hode.Util.Direction

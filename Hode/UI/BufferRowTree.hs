@@ -34,7 +34,7 @@ import           Lens.Micro hiding (has, folded)
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.UI.ITypes
-import Hode.UI.String
+import Hode.UI.IUtil.String
 import Hode.Util.Direction
 import Hode.Util.Misc
 import Hode.Util.PTree

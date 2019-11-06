@@ -8,8 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO move this
-Hode/UI/String.hs -> Hode/UI/Util/String
 ** TODO add this to Hode.Util
   , bufferRowPorest -- ^ Rslt -> [Addr] -> Porest BufferRow
 
