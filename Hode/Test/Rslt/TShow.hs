@@ -16,8 +16,7 @@ import qualified Hode.Test.Rslt.RData as D
 
 test_module_rslt_show :: Test
 test_module_rslt_show = TestList [
-    TestLabel "test_hashUnlessEmptyStartOrEnd" test_hashUnlessEmptyStartOrEnd
-  , TestLabel "test_eShow" test_eShow
+    TestLabel "test_eShow" test_eShow
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   , TestLabel "test_eParenShow" test_eParenShow
   , TestLabel "test_eParenShowAttr" test_eParenShowAttr
@@ -120,14 +119,3 @@ test_eShow = TestCase $ do
       $ ExprTplt $ fmap Phrase $
       Tplt Nothing ["="] Nothing )
     == Right "a #= b"
-
-test_hashUnlessEmptyStartOrEnd :: Test
-test_hashUnlessEmptyStartOrEnd = TestCase $ do
-  assertBool "1" $ hashUnlessEmptyStartOrEnd 2 [] == []
-  assertBool "2" $ hashUnlessEmptyStartOrEnd 2 [""] == [""]
-  assertBool "3" $ hashUnlessEmptyStartOrEnd 2 ["",""] == ["",""]
-  assertBool "4" $ hashUnlessEmptyStartOrEnd 2 ["","",""] == ["","##",""]
-  assertBool "5" $ hashUnlessEmptyStartOrEnd 1 ["a","b",""]
-    == ["#a","#b",""]
-  assertBool "6" $ hashUnlessEmptyStartOrEnd 2 ["","b","c"]
-    == ["","##b","##c"]
