@@ -9,6 +9,8 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO studying Rslt.Show
+*** function to consolidate AttrStrings
+for testing
 *** make Rslt.ShowAttr like Rslt.Show
   no hashUnlessEmptyStartOrEnd
 *** delete hashUnlessEmptyStartOrEnd

@@ -49,22 +49,26 @@ eParenShowAttr maxDepth r e0 =
   g (_, PhraseF p) = Right [(p,textColor)]
 
   g (_, ExprTpltF t) =
-    do
-    Tplt ml js mr :: Tplt AttrString <- ifLefts $ fmap f t
-    Right $ concat $ L.intersperse space
-      ( maybeToList ml ++
-        zip' (repeat blank) js ++
-        maybeToList mr )
+    prefixLeft "g of Tplt: " $ do
+    Tplt ml js mr :: Tplt AttrString <-
+      ifLefts $ fmap f t
+    let mss :: Maybe AttrString -> AttrString
+        mss Nothing  = emptyAttrString
+        mss (Just a) = a
+    Right $ attrStrip $ concat $
+      L.intersperse blank $
+      L.intersperse space $
+      ( [mss ml] ++ js ++ [mss mr] )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
     prefixLeft "g of Rel: " $ do
     ms1 :: [AttrString] <- ifLefts $ map f ms0
-    Tplt ma bs mc :: Tplt AttrString <-
+    Tplt ml js mr :: Tplt AttrString <-
       ifLefts $ fmap (hash n) <$> fmap f t
     Right $ concat $ L.intersperse space $
-      maybeToList ma ++
-      zip' ms1 bs ++
-      maybeToList mc
+      maybeToList ml ++
+      zip' ms1 js ++
+      maybeToList mr
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
@@ -99,6 +103,9 @@ blank = [("_", textColor)]
 
 space :: AttrString
 space = [(" ", textColor)]
+
+emptyAttrString :: AttrString
+emptyAttrString = [("", textColor)]
 
 hash :: Int -> AttrString -> AttrString
 hash k s = (replicate k '#', sepColor) : s
