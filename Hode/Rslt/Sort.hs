@@ -15,6 +15,16 @@ ScopedTypeVariables,
 TupleSections #-}
 
 module Hode.Rslt.Sort (
+  , Kahn(..)
+  , kahnSort -- ^  Rslt -> (BinOrientation, TpltAddr) -> [Addr]
+             -- -> Either String [Addr]
+
+   -- | = Internals
+  , kahnRecurse -- ^  (BinOrientation, TpltAddr) -> Kahn
+                -- -> Either String Kahn
+  , kahnIterate -- ^  (BinOrientation, TpltAddr) -> Kahn
+                -- -> Either String Kahn
+
     allRelsInvolvingTplts -- ^  Rslt -> [TpltAddr]
                           -- -> Either String (Set RelAddr)
   , allNormalMembers      -- ^  Rslt -> [RelAddr]
@@ -38,13 +48,6 @@ module Hode.Rslt.Sort (
   , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
                -- -> Either String (Set Addr)
   , deleteHostsThenDelete -- ^ Addr -> Rslt -> Either String Rslt
-  , Kahn(..)
-  , kahnIterate -- ^  (BinOrientation, TpltAddr) -> Kahn
-                -- -> Either String Kahn
-  , kahnRecurse -- ^  (BinOrientation, TpltAddr) -> Kahn
-                -- -> Either String Kahn
-  , kahnSort -- ^  Rslt -> (BinOrientation, TpltAddr) -> [Addr]
-             -- -> Either String [Addr]
   ) where
 
 import           Data.Map (Map)
@@ -62,6 +65,58 @@ import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
+
+
+data Kahn = Kahn { kahnRslt   :: Rslt
+                 , kahnTops   :: [Addr]
+                 , kahnSorted :: [Addr] }
+  deriving (Eq,Ord,Show)
+
+-- | Depth-first search.
+-- (For BFS, reverse the order of the expression
+-- `newTops ++ tops` in `kahnIterate`.
+kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
+         -> Either String [Addr]
+kahnSort r (bo,t) as =
+-- TODO speed: this calls `restrictRsltForSort` and `allRelsInvolvingTplts`, but `restrictRsltForSort` also calls `allRelsInvolvingTplts`, with the same arguments. I don't know whether GHC will optimize that away.
+  prefixLeft "kahnSort: " $ do
+  rels :: Set Addr <- allRelsInvolvingTplts r [t]
+  r1 :: Rslt <- restrictRsltForSort as [t] r
+    -- restrict to "nodes", "edges", and the "edge label" at `t`
+  nodes :: [Addr] <-
+    S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
+  tops :: [Addr] <- allTops r1 (bo,t) nodes
+  Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
+  case null $ S.intersection rels $
+       S.fromList $ M.keys $ _addrToRefExpr r2 of
+    True -> Right res
+    False -> Left "data has at least one cycle."
+
+
+-- | = Internals
+
+-- | Splitting kahnRecurse from kahnIterate
+-- might (I don't know) be slower,
+-- but it lets me test a single iteration.
+kahnRecurse :: (BinOrientation, TpltAddr) -> Kahn
+            -> Either String Kahn
+kahnRecurse bt k =
+  prefixLeft "kahnRecurse: " $
+  case kahnTops k of
+    [] -> Right k
+    _ -> kahnIterate bt k >>= kahnRecurse bt
+
+kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
+            -> Either String Kahn
+kahnIterate _ k@(Kahn _ [] _) =
+  Right k
+kahnIterate (bo,t) (Kahn r (top:tops) acc) =
+  prefixLeft "kahnIterate: " $ do
+  jus :: Set Addr <- justUnders (bo,t) r top
+  r1 :: Rslt <- deleteHostsThenDelete top r
+  newTops :: [Addr] <- allTops r1 (bo,t) $
+                       S.toList jus
+  Right $ Kahn r1 (newTops ++ tops) (top : acc)
 
 -- | `allRelsInvolvingTplts r ts` finds every `Rel`
 -- that uses a member of `ts` as a `Tplt`.
@@ -182,51 +237,3 @@ deleteHostsThenDelete a r =
     S.map snd <$> isIn r a
   r1 <- foldM (flip delete) r hosts
   delete a r1
-
-data Kahn = Kahn { kahnRslt   :: Rslt
-                 , kahnTops   :: [Addr]
-                 , kahnSorted :: [Addr] }
-  deriving (Eq,Ord,Show)
-
-kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
-            -> Either String Kahn
-kahnIterate _ k@(Kahn _ [] _) =
-  Right k
-kahnIterate (bo,t) (Kahn r (top:tops) acc) =
-  prefixLeft "kahnIterate: " $ do
-  jus :: Set Addr <- justUnders (bo,t) r top
-  r1 :: Rslt <- deleteHostsThenDelete top r
-  newTops :: [Addr] <- allTops r1 (bo,t) $
-                       S.toList jus
-  Right $ Kahn r1 (newTops ++ tops) (top : acc)
-
--- | Splitting kahnRecurse from kahnIterate
--- might (I don't know) be slower,
--- but it lets me test a single iteration.
-kahnRecurse :: (BinOrientation, TpltAddr) -> Kahn
-            -> Either String Kahn
-kahnRecurse bt k =
-  prefixLeft "kahnRecurse: " $
-  case kahnTops k of
-    [] -> Right k
-    _ -> kahnIterate bt k >>= kahnRecurse bt
-
--- | Depth-first search.
--- (For BFS, reverse the order of the expression
--- `newTops ++ tops` in `kahnIterate`.
-kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
-         -> Either String [Addr]
-kahnSort r (bo,t) as =
--- TODO speed: this calls `restrictRsltForSort` and `allRelsInvolvingTplts`, but `restrictRsltForSort` also calls `allRelsInvolvingTplts`, with the same arguments. I don't know whether GHC will optimize that away.
-  prefixLeft "kahnSort: " $ do
-  rels :: Set Addr <- allRelsInvolvingTplts r [t]
-  r1 :: Rslt <- restrictRsltForSort as [t] r
-    -- restrict to "nodes", "edges", and the "edge label" at `t`
-  nodes :: [Addr] <-
-    S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
-  tops :: [Addr] <- allTops r1 (bo,t) nodes
-  Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
-  case null $ S.intersection rels $
-       S.fromList $ M.keys $ _addrToRefExpr r2 of
-    True -> Right res
-    False -> Left "data has at least one cycle."
