@@ -50,11 +50,11 @@ eParenShowAttr maxDepth r e0 =
 
   g (_, ExprTpltF t) =
     do
-    Tplt ma bs mc :: Tplt AttrString <- ifLefts $ fmap f t
+    Tplt ml js mr :: Tplt AttrString <- ifLefts $ fmap f t
     Right $ concat $ L.intersperse space
-      ( maybeToList ma ++
-        zip' (repeat blank) bs ++
-        maybeToList mc )
+      ( maybeToList ml ++
+        zip' (repeat blank) js ++
+        maybeToList mr )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
     prefixLeft "g of Rel: " $ do
