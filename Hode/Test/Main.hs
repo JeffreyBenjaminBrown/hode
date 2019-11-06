@@ -9,7 +9,7 @@ import Hode.Test.Rslt.Main
 import Hode.Test.Qseq.Main
 
 import Hode.Test.TUI
-import Hode.Test.NoUI
+import Hode.Test.TNoUI
 
 import Hode.Test.TBrick
 import Hode.Test.TGraph

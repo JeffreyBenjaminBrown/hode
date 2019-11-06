@@ -17,7 +17,6 @@ import Data.Functor.Foldable
 import Data.Text (strip, pack, unpack)
 
 import Hode.Rslt.RTypes
-import Hode.Util.UParse
 
 
 trimString :: String -> String

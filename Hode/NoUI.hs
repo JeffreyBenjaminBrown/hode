@@ -28,21 +28,26 @@ module Hode.NoUI (
 
   -- | = search (and display)
   , nFind          -- ^ Rslt -> String -> Either String [(Addr, Expr)]
+  , nFindSort      -- ^ Rslt -> (BinOrientation, TpltAddr)
+                   --        -> String -> Either String [(Addr, Expr)]
+
   , nFindStrings   -- ^ Rslt -> String -> Either String [(Addr, String)]
   , nFindStringsIO -- ^ Rslt -> String -> IO ()
 
-  , module Internal
+  , module Hode.NoUI.Internal
   ) where
 
 import           Control.Monad (foldM)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+import Hode.NoUI.Internal
+import Hode.Rslt.Binary
 import Hode.Rslt.Edit
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
-import Hode.NoUI.Internal as Internal
+import Hode.Rslt.Sort
 import Hode.Util.Misc
 
 
@@ -114,6 +119,14 @@ nFind :: Rslt -> String -> Either String [(Addr, Expr)]
 nFind r s = do as <- S.toList <$> nFindAddrs r s
                es <- ifLefts $ map (addrToExpr r) as
                Right $ zip as es
+
+nFindSort :: Rslt -> (BinOrientation, TpltAddr) -> String
+          -> Either String [(Addr, Expr)]
+nFindSort r bt s = do
+  as :: [Addr] <- S.toList <$> nFindAddrs r s
+                  >>= kahnSort r bt
+  es :: [Expr] <- ifLefts $ map (addrToExpr r) as
+  Right $ zip as es
 
 nFindStrings :: Rslt -> String -> Either String [(Addr, String)]
 nFindStrings r s = do

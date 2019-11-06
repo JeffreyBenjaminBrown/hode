@@ -93,7 +93,7 @@ library
                 , Hode.Test.TBrick
                 , Hode.Test.TGraph
                 , Hode.Test.TPTree
-                , Hode.Test.NoUI
+                , Hode.Test.TNoUI
                 , Hode.Test.TUI
                 , Hode.Test.TUtil
 

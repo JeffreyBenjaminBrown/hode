@@ -15,7 +15,7 @@ ScopedTypeVariables,
 TupleSections #-}
 
 module Hode.Rslt.Sort (
-  , Kahn(..)
+    Kahn(..)
   , kahnSort -- ^  Rslt -> (BinOrientation, TpltAddr) -> [Addr]
              -- -> Either String [Addr]
 
@@ -25,7 +25,7 @@ module Hode.Rslt.Sort (
   , kahnIterate -- ^  (BinOrientation, TpltAddr) -> Kahn
                 -- -> Either String Kahn
 
-    allRelsInvolvingTplts -- ^  Rslt -> [TpltAddr]
+  , allRelsInvolvingTplts -- ^  Rslt -> [TpltAddr]
                           -- -> Either String (Set RelAddr)
   , allNormalMembers      -- ^  Rslt -> [RelAddr]
                           -- -> Either String [RelAddr]
@@ -64,7 +64,6 @@ import Hode.Rslt.RLookup
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
-
 
 
 data Kahn = Kahn { kahnRslt   :: Rslt

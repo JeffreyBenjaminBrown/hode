@@ -9,9 +9,8 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO NoUI
-*** TODO add functeions
+*** TODO add functions
 order
-? load, save
 *** TODO ? separate State and UIState, and use State in NoUI
 type ColumnProps = Map HExpr Int
 data OtherProps = OtherProps {
