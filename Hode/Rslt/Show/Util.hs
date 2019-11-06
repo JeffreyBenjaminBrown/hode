@@ -4,10 +4,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show.Util (
-    hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
+    trimString                -- ^         String -> String
+
+  , hashUnlessEmptyStartOrEnd -- ^ Int -> [String] -> [String]
   , hash                      -- ^ Int ->  String -> String
-  , trimString                -- ^         String -> String
+
   , Parens(..)
+  , paren            -- ^ String -> String
   , parenExprAtDepth -- ^ Int -> Fix (ExprFWith ())
                      --       -> Fix (ExprFWith (Int,Parens))
   ) where
@@ -19,8 +22,8 @@ import Hode.Rslt.RTypes
 import Hode.Util.UParse
 
 
-data Parens = InParens | Naked
-  deriving (Show, Eq, Ord)
+trimString :: String -> String
+trimString = unpack . strip . pack
 
 -- | `hashUnlessEmptyStartOrEnd k js` prefixes
 -- `k` '#' characters to every joint in `js`,
@@ -50,9 +53,12 @@ hashUnlessEmptyStartOrEnd k0 joints = case joints' of
 hash :: Int -> String -> String
 hash k s = replicate k '#' ++ s
 
-trimString :: String -> String
-trimString = unpack . strip . pack
 
+data Parens = InParens | Naked
+  deriving (Show, Eq, Ord)
+
+paren :: String -> String
+paren s = "(" ++ s ++ ")"
 
 -- | Attaches a depth (`Int`) and a `Parens` to each `subExpr` of an `Expr`.
 -- Anything `InParens` will be shown in parens.

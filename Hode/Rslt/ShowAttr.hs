@@ -22,6 +22,9 @@ import Hode.Util.Alternation
 import Hode.Util.UParse
 
 
+-- | This function is very similar to `eParenShow`,
+-- which is simpler.
+
 eParenShowAttr :: Int -> Rslt -> Expr -> Either String AttrString
 eParenShowAttr maxDepth r e0 =
   prefixLeft "eParenShowAttr: " $
@@ -30,7 +33,7 @@ eParenShowAttr maxDepth r e0 =
 
   f :: Fix (ExprFWith (Int,Parens)) -> Either String AttrString
   f (Fix (EFW ((i,InParens),e))) = attrParen <$> g (i,e)
-  f (Fix (EFW ((i,Naked)  ,e))) =                g (i,e)
+  f (Fix (EFW ((i,Naked)   ,e))) =               g (i,e)
 
   -- `fo` = `f, outermost`. For the top-level Expr,
   -- even if it has an `InParens` flag attached,
@@ -39,12 +42,14 @@ eParenShowAttr maxDepth r e0 =
   fo (Fix (EFW ((i,_),e))) = g (i,e)
 
   -- PITFALL: `f` peels off the first `Parens`, not all of them.
+  -- That is why the first argument to `g` has a complex type signature.
   g :: (Int, ExprF (Fix (ExprFWith (Int,Parens))))
     -> Either String AttrString
   g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
   g (_, PhraseF p) = Right [(p,textColor)]
 
-  g (_, ExprTpltF t) = do
+  g (_, ExprTpltF t) =
+    do
     Tplt ma bs mc :: Tplt AttrString <- ifLefts $ fmap f t
     Right $ concat $ L.intersperse space
       ( maybeToList ma ++

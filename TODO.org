@@ -9,11 +9,10 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO studying Rslt.Show
-*** start at Rslt.Show.Wut
-**** parenExprAtDepth is clear*
- See test cases to remember.
- What it does is clear, anyway. How, not so much.
-**** eParenShow: write test cases
+*** make Rslt.ShowAttr like Rslt.Show
+  no hashUnlessEmptyStartOrEnd
+*** delete hashUnlessEmptyStartOrEnd
+and hashUnlessEmptyStartOrEnd' if it's still around
 ** TODO studying Hode.UI
  resume at
    instance Show MemberHosts where

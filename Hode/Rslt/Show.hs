@@ -79,9 +79,6 @@ eParenShow maxDepth r e0 =
   unAddrRec r e0 >>=
   fo . parenExprAtDepth maxDepth . toExprWith () where
 
-  paren :: String -> String
-  paren s = "(" ++ s ++ ")"
-
   f :: Fix (ExprFWith (Int,Parens)) -> Either String String
   f (Fix (EFW ((i,InParens),e))) = paren <$> g (i,e)
   f (Fix (EFW ((i,Naked)   ,e))) =           g (i,e)
@@ -93,6 +90,7 @@ eParenShow maxDepth r e0 =
   fo (Fix (EFW ((i,_),e))) = g (i,e)
 
   -- PITFALL: `f` peels off the first `Parens`, not all of them.
+  -- That is why the first argument to `g` has a complex type signature.
   g :: (Int, ExprF (Fix (ExprFWith (Int,Parens))))
     -> Either String String
   g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
