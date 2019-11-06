@@ -15,7 +15,6 @@ module Hode.UI.Input (
 
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.List.PointedList as P
-import           Data.Set (Set)
 import qualified Data.Set              as S
 import qualified Data.Text             as T
 import           Lens.Micro
@@ -137,22 +136,21 @@ parseAndRunCommand st =
 -- that keeps a list of actions to execute.)
 runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
-
 runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
                           $ g c0 st0
   where
 
   g (CommandFind s h) st =
-    prefixLeft ", called on CommandFind:" $ do
-    let r = st ^. appRslt
+    prefixLeft " called on CommandFind:" $ do
+    let r :: Rslt = st ^. appRslt
 
-    as :: Set Addr <-
-      hExprToAddrs r (mempty :: Subst Addr) h
+    as :: [Addr] <-
+      S.toList <$> hExprToAddrs r (mempty :: Subst Addr) h
 
     let p :: Porest BufferRow
         p = maybe ( porestLeaf $ bufferRow_from_viewExprNode $
                     VQuery "No matches found.") id $
-            P.fromList $ map v_qr $ S.toList as
+            P.fromList $ map v_qr as
           where
           v_qr :: Addr -> PTree BufferRow
           v_qr a = pTreeLeaf $ bufferRow_from_viewExprNode $
