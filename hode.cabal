@@ -62,8 +62,7 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
-                , Hode.Rslt.Show.AttrString
-                , Hode.Rslt.Show.String
+                , Hode.Rslt.ShowAttr
                 , Hode.Rslt.Show.Util
                 , Hode.Rslt.Sort
 

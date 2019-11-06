@@ -3,8 +3,8 @@ ScopedTypeVariables,
 TupleSections,
 ViewPatterns #-}
 
-module Hode.Rslt.Show.AttrString
-  ( eParenShow' -- ^ Int -> Rslt -> Expr -> Either String AttrString
+module Hode.Rslt.ShowAttr
+  ( eParenShowAttr -- ^ Int -> Rslt -> Expr -> Either String AttrString
   , hashUnlessEmptyStartOrEnd' -- ^ Int -> [AttrString] -> [AttrString]
   ) where
 
@@ -22,9 +22,9 @@ import Hode.Util.Alternation
 import Hode.Util.UParse
 
 
-eParenShow' :: Int -> Rslt -> Expr -> Either String AttrString
-eParenShow' maxDepth r e0 =
-  prefixLeft "eParenShow': " $
+eParenShowAttr :: Int -> Rslt -> Expr -> Either String AttrString
+eParenShowAttr maxDepth r e0 =
+  prefixLeft "eParenShowAttr: " $
   unAddrRec r e0 >>=
   fo . parenExprAtDepth maxDepth . toExprWith () where
 

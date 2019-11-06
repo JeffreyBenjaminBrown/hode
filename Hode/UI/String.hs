@@ -13,7 +13,7 @@ import           Lens.Micro
 import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Rslt.Show
+import Hode.Rslt.ShowAttr
 import Hode.UI.ITypes
 import Hode.Util.Misc
 import Hode.Util.PTree
@@ -33,7 +33,7 @@ resultsText st = maybe [] (concatMap $ go 0) p where
 resultView :: Rslt -> Addr -> Either String ViewExpr
 resultView r a = do
   (s :: AttrString) <- prefixLeft "resultView"
-                   $ addrToExpr r a >>= eParenShow' 3 r
+                   $ addrToExpr r a >>= eParenShowAttr 3 r
   Right $ ViewExpr { _viewExpr_Addr = a
                    , _viewExpr_String = s }
 
