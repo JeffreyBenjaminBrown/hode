@@ -6,6 +6,7 @@ module Hode.UI.IUtil (
   , emptySt                -- ^ Rslt -> St
   , emptyBuffer            -- ^                                 Buffer
   , buffer_from_bufferRowTree -- ^ PTree ViewExprNode -> Either String Buffer
+  , mkBufferRowPorest -- ^ Rslt -> [Addr] -> Porest BufferRow
   ) where
 
 import qualified Data.List.PointedList as P
@@ -19,7 +20,7 @@ import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
-import Hode.UI.IUtil.String
+import Hode.UI.IUtil.String (resultView)
 import Hode.UI.ITypes
 import Hode.UI.Window
 import Hode.Util.PTree
@@ -70,3 +71,17 @@ buffer_from_bufferRowTree vt = do
       _bufferQuery     = unAttrString $ vr ^. viewExpr_String
     , _bufferRowPorest = P.fromList [vt]
     }
+
+mkBufferRowPorest :: Rslt -> [Addr] -> Porest BufferRow
+mkBufferRowPorest r as =
+  maybe ( porestLeaf $ bufferRow_from_viewExprNode $
+          VQuery "No matches found.") id $
+  P.fromList $ map v_qr as
+  where
+    v_qr :: Addr -> PTree BufferRow
+    v_qr a = pTreeLeaf $ bufferRow_from_viewExprNode $
+             VExpr $ either err id rv
+      where
+        (rv :: Either String ViewExpr) = resultView r a
+        (err :: String -> ViewExpr) = \se -> error (", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+

@@ -8,21 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO add this to Hode.Util
-  , bufferRowPorest -- ^ Rslt -> [Addr] -> Porest BufferRow
-
-bufferRowPorest :: Rslt -> [Addr] -> Porest BufferRow
-bufferRowPorest r as =
-  maybe ( porestLeaf $ bufferRow_from_viewExprNode $
-          VQuery "No matches found.") id $
-  P.fromList $ map v_qr as
-  where
-    v_qr :: Addr -> PTree BufferRow
-    v_qr a = pTreeLeaf $ bufferRow_from_viewExprNode $
-             VExpr $ either err id rv
-      where
-        (rv :: Either String ViewExpr) = resultView r a
-        (err :: String -> ViewExpr) = \se -> error (", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
 ** TODO sort results in UI
 ** TODO studying Hode.UI
  resume at

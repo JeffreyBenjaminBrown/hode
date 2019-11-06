@@ -143,21 +143,10 @@ runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
   g (CommandFind s h) st =
     prefixLeft " called on CommandFind:" $ do
     let r :: Rslt = st ^. appRslt
-
     as :: [Addr] <-
       S.toList <$> hExprToAddrs r (mempty :: Subst Addr) h
-
     let p :: Porest BufferRow
-        p = maybe ( porestLeaf $ bufferRow_from_viewExprNode $
-                    VQuery "No matches found.") id $
-            P.fromList $ map v_qr as
-          where
-          v_qr :: Addr -> PTree BufferRow
-          v_qr a = pTreeLeaf $ bufferRow_from_viewExprNode $
-                   VExpr $ either err id rv
-            where
-            (rv :: Either String ViewExpr) = resultView r a
-            (err :: String -> ViewExpr) = \se -> error (", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+        p = mkBufferRowPorest r as
 
     Right $ B.continue $ st
       & showingInMainWindow .~ Results
