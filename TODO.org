@@ -24,6 +24,7 @@ data St = St {
 ** TODO ordered display
 (See also "transitive search".)
 *** todo ? multi-Tplt topological sort
+tags: order, transitive
 **** if I could identify a set of tied w/r/t tplt-1 tops
 then I could sort them by tplt 2, etc.
 I suspect I could do this by:

@@ -88,7 +88,7 @@ kahnSort r (bo,t) as =
   Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
   case null $ S.intersection rels $
        S.fromList $ M.keys $ _addrToRefExpr r2 of
-    True -> Right res
+    True -> Right $ filter (flip elem $ S.fromList as) res
     False -> Left "data has at least one cycle."
 
 
