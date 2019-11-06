@@ -1,6 +1,9 @@
 -- | Wraps a list of `String`s with `Attr`s attached.
 
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE
+ScopedTypeVariables,
+ViewPatterns
+#-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Hode.Brick (
@@ -10,7 +13,7 @@ module Hode.Brick (
 
   -- | = `attrStringWrap` is the purpose of `AttrString`
   , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
-  , toLines        -- ^ Int -> [(String,attr)] -> [[(String,attr)]]
+  , toLines        -- ^ Int -> AttrString -> [AttrString]
 
   -- | = mapping across an AttrString
   , attrParen -- ^ AttrString -> AttrString
@@ -19,6 +22,8 @@ module Hode.Brick (
                   --         (s -> s) ->
                   --         (s -> s) ->
                   --         [(s,a)] -> [(s,a)]
+  , attrConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
+                    -- => [(a,b)] -> [(a,b)]
   ) where
 
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
@@ -90,6 +95,7 @@ attrParen :: AttrString -> AttrString
 attrParen x = [("(",sepColor)] ++ x ++ [(")",sepColor)]
 
 attrStrip :: [(String,a)] -> [(String,a)]
+  -- ^ a little more general than `AttrString -> AttrString`
 attrStrip = attrLeftRight both left right where
   both  = Just $ unpack . strip      . pack
   left  =        unpack . stripStart . pack
@@ -109,3 +115,30 @@ attrLeftRight _    left right ((s,a):more) =
   f (p1:p2:ps) = p1 : f (p2:ps)
   f [(s',a')] = [(right s', a')]
   f [] = error "impossible -- f bottoms out at length one, not zero"
+
+attrConsolidate :: forall a b. (Eq a, Eq b, Monoid a)
+                => [(a,b)] -> [(a,b)]
+attrConsolidate =
+  attrUngroup . attrGroup []
+  where
+  attrGroup :: [[(a,b)]] -- accumulator
+            -> [(a,b)]   -- input to consume
+            -> [[(a,b)]]
+  attrGroup acc [] = acc -- done
+  attrGroup acc (a:as) =
+    if fst a == mempty then attrGroup acc as -- skip mempty
+    else if null acc then attrGroup [[a]] as -- first group
+    else let h = head acc
+             hh = head h
+         in if snd a == snd hh -- same color
+            then attrGroup ((a:h):tail acc) as -- same group
+            else attrGroup ([a]:acc) as -- new group
+
+  -- | PITFALL: Assumes every `[(a,b)]` has the same `b`, and none is empty.
+  -- Those will be true if the `[[(a,b)]]` was created via `attrGroup`.
+  attrUngroup :: [[(a,b)]] -> [(a,b)]
+  attrUngroup = map f where
+    f :: [(a,b)] -> (a,b)
+    f [] = error "attrUngroup: should not happen"
+    f cs@((_,b):_) = ( mconcat $ map fst cs,
+                       b )
