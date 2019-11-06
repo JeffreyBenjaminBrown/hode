@@ -14,6 +14,7 @@ module Hode.Rslt.Show.Wut (
 import           Data.Functor.Foldable
 import qualified Data.List as L
 import           Data.Maybe
+import qualified Data.Text as T
 
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
@@ -55,9 +56,12 @@ eParenShow maxDepth r e0 =
     prefixLeft "g of Tplt: " $ do
     Tplt ml js mr :: Tplt String <-
       ifLefts $ fmap f js0
-    Right $ concat ( maybeToList ml ++
-                     L.intersperse " _ " js ++
-                     maybeToList mr )
+    let mss :: Maybe String -> String
+        mss Nothing = ""
+        mss (Just a) = a
+    Right $ (T.unpack . T.strip . T.pack) $ concat $
+      L.intersperse " " $ L.intersperse "_" $
+      ( [mss ml] ++ js ++ [mss mr] )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
     prefixLeft "g of Rel: " $ do
