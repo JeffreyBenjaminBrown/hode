@@ -20,6 +20,7 @@ import Hode.Brick (AttrString)
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Qseq.QTypes
+import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
 import Hode.Util.Misc
@@ -32,19 +33,25 @@ import Hode.Util.PTree
 -- Brick must be unique across windows in any drawn image. (Not every
 -- window Brick draws needs a name. Editors and viewports in particular do.)
 data BrickName = BrickOptionalName OptionalWindowName
-               | BrickMainName MainWindowName deriving (Ord, Show, Eq)
+               | BrickMainName MainWindowName
+  deriving (Ord, Show, Eq)
 data OptionalWindowName = Commands
-                        | Reassurance deriving (Ord, Show, Eq)
+                        | Reassurance
+  deriving (Ord, Show, Eq)
 data MainWindowName = CommandHistory
                     | Results
-                    | SearchBuffers deriving (Ord, Show, Eq)
+                    | SearchBuffers
+  deriving (Ord, Show, Eq)
 
-data Command = CommandInsert       Expr
-             | CommandReplace Addr Expr
-             | CommandDelete  Addr
-             | CommandFind String HExpr
-             | CommandLoad Folder
-             | CommandSave Folder deriving (Show, Eq, Ord)
+data Command =
+    CommandInsert       Expr
+  | CommandReplace Addr Expr
+  | CommandDelete  Addr
+  | CommandFind String HExpr
+  | CommandSort BinOrientation Addr
+  | CommandLoad Folder
+  | CommandSave Folder
+  deriving (Show, Eq, Ord)
 
 type Folder = String
 

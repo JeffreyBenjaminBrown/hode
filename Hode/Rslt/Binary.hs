@@ -10,3 +10,4 @@ data BinMember = LeftMember | RightMember
   deriving (Show, Eq, Ord)
 
 data BinOrientation = RightFirst | LeftFirst
+  deriving (Show, Eq, Ord)

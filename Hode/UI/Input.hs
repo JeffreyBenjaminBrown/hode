@@ -146,7 +146,7 @@ runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
     as :: [Addr] <-
       S.toList <$> hExprToAddrs r (mempty :: Subst Addr) h
     let p :: Porest BufferRow
-        p = mkBufferRowPorest r as
+          = mkBufferRowPorest r as
 
     Right $ B.continue $ st
       & showingInMainWindow .~ Results
