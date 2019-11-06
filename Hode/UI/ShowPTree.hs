@@ -13,6 +13,7 @@ import Hode.Util.PTree
 
 
 porestToWidget :: forall a.
+
      (a -> String) -- ^ shows the columns corresponding to each node
   -> (a -> String) -- ^ shows the nodes that will be arranged like a tree
   -> (a -> Bool) -- ^ whether to hide a node's children
@@ -51,8 +52,8 @@ porestToWidget showColumns showIndented isFolded style p0 =
 
 porestToWidget' :: forall a b n.
      (b -> B.Widget n)
-  -> (a -> b) -- ^ shows the columns corresponding to each node
-  -> (a -> b) -- ^ shows the nodes that will be arranged like a tree
+  -> (a -> b)      -- ^ shows the columns corresponding to each node
+  -> (a -> b)      -- ^ shows the nodes that will be arranged like a tree
   -> (a -> Bool) -- ^ whether to hide a node's children
   -> (PTree a -> B.Widget n -> B.Widget n)
      -- ^ to show the focused node differently

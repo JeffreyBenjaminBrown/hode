@@ -19,6 +19,7 @@ import Hode.Util.Misc
 import Hode.Util.PTree
 
 
+-- | For copying to clipboard.
 resultsText :: St -> [String]
 resultsText st = maybe [] (concatMap $ go 0) p where
   p :: Maybe (Porest BufferRow)
@@ -33,13 +34,13 @@ resultsText st = maybe [] (concatMap $ go 0) p where
 resultView :: Rslt -> Addr -> Either String ViewExpr
 resultView r a = do
   (s :: AttrString) <- prefixLeft "resultView"
-                   $ addrToExpr r a >>= eParenShowAttr 3 r
+                       $ addrToExpr r a >>= eParenShowAttr 3 r
   Right $ ViewExpr { _viewExpr_Addr = a
                    , _viewExpr_String = s }
 
--- | `show_ViewExprNode` is used to display a `ViewExprNode` in the UI. It is distinct
--- from `show` so that `show` can show everything about the `ViewExprNode`,
--- whereas `show_ViewExprNode` hides things that the UI already makes clear.
+-- | `show_ViewExprNode` is used to display a `ViewExprNode` in the UI.
+-- Whereas `show` shows everything about the `ViewExprNode`,
+-- `show_ViewExprNode` hides things that the UI already makes clear.
 show_ViewExprNode :: ViewExprNode -> String
 show_ViewExprNode (VQuery vq)  = vq
 show_ViewExprNode (VExpr x) = show (x ^. viewExpr_Addr) ++ ": "

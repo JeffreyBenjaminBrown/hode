@@ -8,20 +8,22 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO studying Hode.UI
- resume at
-   instance Show MemberHosts where
- add tests for UI.Types
-   it's that complex
-** TODO ? more NoUI
+** TODO NoUI
+*** TODO add functeions
+order
+? load, save
+*** TODO ? separate State and UIState, and use State in NoUI
+type ColumnProps = Map HExpr Int
+data OtherProps = OtherProps {
+  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
+  } deriving (Show, Eq, Ord)
+data St = St {
+    _searchBuffers          :: Maybe (Porest Buffer)
+  , _columnHExprs           :: [HExpr]
+  , _appRslt                :: Rslt
+  }
 ** TODO ordered display
 (See also "transitive search".)
-*** DONE Kahn's algorithm
-runs in time linear in V + E.
-*** DONE single-Tplt topological sort
-**** PITFALL: hit-graph: I couldn't get it to work.
-Function is called `topsort`
-   https://hackage.haskell.org/package/hit-graph-0.1/docs/Data-Graph-Inductive-Query-Topsort.html
 *** todo ? multi-Tplt topological sort
 **** if I could identify a set of tied w/r/t tplt-1 tops
 then I could sort them by tplt 2, etc.
@@ -36,6 +38,11 @@ and later, if need be, implement multi-tplt sort in terms of it.
 **** maybe see earlier-work/lexico-topo-sort
 Most of that work, though, describes a wholly different algorithm.
 I would prefer this one, if it really does make sense.
+** TODO studying Hode.UI
+ resume at
+   instance Show MemberHosts where
+ add tests for UI.Types
+   it's that complex
 ** TODO views: clean them
 *** highlight not everywhere
 *** too much space

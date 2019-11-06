@@ -3,9 +3,10 @@
 
 module Hode.UI.BufferTree
   ( consBuffer_topNext -- ^ Buffer -> St -> St
-  , consBuffer_asChild  -- ^ Buffer -> St -> St
-  , cons_focusedViewExpr_asChildOfBuffer -- ^ St -> Either String St
-  , moveFocusedBuffer -- ^ Direction -> St -> St
+  , consBuffer_asChild -- ^ Buffer -> St -> St
+  , cons_focusedViewExpr_asChildOfBuffer
+                       -- ^ St -> Either String St
+  , moveFocusedBuffer  -- ^ Direction -> St -> St
   ) where
 
 import qualified Data.List.PointedList as P
@@ -23,8 +24,9 @@ consBuffer_topNext :: Buffer -> St -> St
 consBuffer_topNext b = searchBuffers . _Just %~ cons_topNext b
 
 consBuffer_asChild :: Buffer -> St -> St
-consBuffer_asChild b = searchBuffers . _Just . P.focus . setFocusedSubtree
-                      %~ consUnder_andFocus (pTreeLeaf b)
+consBuffer_asChild b =
+  searchBuffers . _Just . P.focus . setFocusedSubtree
+  %~ consUnder_andFocus (pTreeLeaf b)
 
 cons_focusedViewExpr_asChildOfBuffer :: St -> Either String St
 cons_focusedViewExpr_asChildOfBuffer st =

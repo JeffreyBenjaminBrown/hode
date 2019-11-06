@@ -14,7 +14,38 @@
 ScopedTypeVariables,
 TupleSections #-}
 
-module Hode.Rslt.Sort where
+module Hode.Rslt.Sort (
+    allRelsInvolvingTplts -- ^  Rslt -> [TpltAddr]
+                          -- -> Either String (Set RelAddr)
+  , allNormalMembers      -- ^  Rslt -> [RelAddr]
+                          -- -> Either String [RelAddr]
+  , restrictRsltForSort
+    -- ^  [Addr]             -- ^ the `Expr`s to sort
+    -- -> [TpltAddr]         -- ^ how to sort
+    -- -> Rslt               -- ^ the original `Rslt`
+    -- -> Either String Rslt
+      -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder,
+      -- every `Rel` involving those `Tplt`s,
+      -- and every member of those `Rel`s
+  , allExprsButTpltsOrRelsUsingThem -- ^ Rslt -> [TpltAddr]
+                                    -- -> Either String (Set Addr)
+  , isTop -- ^ Rslt -> (BinOrientation, TpltAddr) -> Addr
+          -- -> Either String Bool
+  , allTops -- ^   Rslt
+            -- -> (BinOrientation, TpltAddr)
+            -- -> [Addr] -- ^ candidates
+            -- -> Either String [Addr]
+  , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
+               -- -> Either String (Set Addr)
+  , deleteHostsThenDelete -- ^ Addr -> Rslt -> Either String Rslt
+  , Kahn(..)
+  , kahnIterate -- ^  (BinOrientation, TpltAddr) -> Kahn
+                -- -> Either String Kahn
+  , kahnRecurse -- ^  (BinOrientation, TpltAddr) -> Kahn
+                -- -> Either String Kahn
+  , kahnSort -- ^  Rslt -> (BinOrientation, TpltAddr) -> [Addr]
+             -- -> Either String [Addr]
+  ) where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M

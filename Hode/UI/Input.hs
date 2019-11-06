@@ -1,7 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
 
 module Hode.UI.Input (
     handleUncaughtInput            -- ^ St -> V.Event ->
@@ -141,12 +138,12 @@ parseAndRunCommand st =
 runParsedCommand ::
   Command -> St -> Either String (B.EventM BrickName (B.Next St))
 
-runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
+runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
                           $ g c0 st0
   where
 
   g (CommandFind s h) st =
-    prefixLeft ", called on CommandFind" $ do
+    prefixLeft ", called on CommandFind:" $ do
     let r = st ^. appRslt
 
     as :: Set Addr <-
@@ -162,7 +159,7 @@ runParsedCommand c0 st0 = prefixLeft "-> runParsedCommand"
                    VExpr $ either err id rv
             where
             (rv :: Either String ViewExpr) = resultView r a
-            (err :: String -> ViewExpr) = \se -> error ("called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+            (err :: String -> ViewExpr) = \se -> error (", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
 
     Right $ B.continue $ st
       & showingInMainWindow .~ Results
