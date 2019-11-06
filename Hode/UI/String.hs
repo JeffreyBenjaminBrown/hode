@@ -13,7 +13,7 @@ import           Lens.Micro
 import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Rslt.Show'
+import Hode.Rslt.Show
 import Hode.UI.ITypes
 import Hode.Util.Misc
 import Hode.Util.PTree

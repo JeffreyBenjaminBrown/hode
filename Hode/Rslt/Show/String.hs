@@ -4,28 +4,74 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.Show.Wut (
-    Parens(..)
+module Hode.Rslt.Show.String (
+    eShow      -- ^              Rslt -> Expr -> Either String String
   , eParenShow       -- ^ Int -> Rslt -> Expr -> Either String String
-  , parenExprAtDepth -- ^ Int -> Fix (ExprFWith ())
-                     --       -> Fix (ExprFWith (Int,Parens))
   ) where
 
 import           Data.Functor.Foldable
-import qualified Data.List as L
 import           Data.Maybe
+import qualified Data.List as L
 import qualified Data.Text as T
 
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
 import Hode.Rslt.Show.Util
-import Hode.Util.Misc
 import Hode.Util.Alternation
+import Hode.Util.Misc
 
 
-data Parens = InParens | Naked
-  deriving (Show, Eq, Ord)
+-- | `eShow` provides the simplest way to show an `Expr`.
+-- It prefaces each joint in an `n`th-order relationships with `n` '#' marks.
+eShow :: Rslt -> Expr -> Either String String
+eShow r = prefixLeft "eShow: " . para f where
+  f :: Base Expr (Expr, Either String String) -> Either String String
+
+  f e@(AddrF _) =
+    prefixLeft ", called on Addr: "
+    $ unAddr r (embed $ fmap fst e)
+    >>= eShow r
+
+  f (PhraseF w) = Right w
+
+  f (ExprTpltF pairs) =
+    prefixLeft ", called on ExprTplt: " $ do
+      Tplt ma bs mc <- ifLefts $ fmap snd pairs
+      Right $ L.intercalate " " ( maybeToList ma ++
+                                  zip' (repeat "_") bs ++
+                                  maybeToList mc )
+
+  f relf@(ExprRelF (Rel ms (ExprTplt t0,_))) =
+    -- The recursive argument (second member of the pair) for the Tplt
+    -- is unused -- we don't need to show the whole Tplt, just its parts --
+    -- and therefore not computed.
+    prefixLeft ", called on ExprRel: " $ do
+    t1 :: Tplt String <- ifLefts $ fmap (eShow r) t0
+    mss :: [String] <- ifLefts $ map snd ms
+    let rel :: Expr = embed $ fmap fst relf
+        Tplt ma bs mc :: Tplt String =
+          fmap (hash $ depth rel) t1
+        ss :: [String] =
+          maybeToList ma ++ zip' mss bs ++ maybeToList mc
+    Right $ L.intercalate " " ss
+
+  f (ExprRelF (Rel ms (a@(Addr _), _))) =
+    prefixLeft ", called on Rel: " $ do
+    tpltExpr <- unAddr r a
+    eShow r $ ExprRel $ Rel (map fst ms) tpltExpr
+
+  f x@(ExprRelF _) =
+    Left $ ": ExprRel with non-Tplt for Tplt: "
+    ++ show (embed $ fmap fst x)
+
+
+-- | = `eParenShow` might make highly nested `Expr`s easier to read.
+-- It takes a `maxDepth` parameter,
+-- wraps relationships of order `maxDepth` or higher in parentheses,
+-- and then restarts the count. For instance,
+-- if `eShow e == "a # b ## c # d ### e # f ## g # h"`,
+-- then `eParenShow 2 e == "(a # b ## c # d) # (e # f ## g # h)"`,
 
 eParenShow :: Int -> Rslt -> Expr -> Either String String
 eParenShow maxDepth r e0 =
@@ -75,40 +121,3 @@ eParenShow maxDepth r e0 =
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
-
--- | Attaches a depth (`Int`) and a `Parens` to each `subExpr` of an `Expr`.
--- Anything `InParens` will be shown in parens.
--- The depth of a `Rel` is the maximum `nakedDepth` of its members,
--- where `nakedDepth` is like normal depth,
--- except `InParens` things contribute 0 depth.
-    -- TODO ? should that be 1 instead of 0?
--- The depth of any non-`Rel` is 0.
--- A `Rel` of depth > `maxDepth` is `InParens`.
--- `Tplt`s are also `InParens` (which might not be necessary).
-
-parenExprAtDepth :: Int -> Fix (ExprFWith ())
-                        -> Fix (ExprFWith (Int,Parens))
-parenExprAtDepth maxDepth = g where
-  g (Fix (EFW ((), x))) = Fix $ EFW $ f x where
-
-    f ::                ExprF (Fix (ExprFWith ()))
-      -> ((Int,Parens), ExprF (Fix (ExprFWith (Int,Parens))))
-    f (AddrF a)      =
-      ( (0,Naked), AddrF a)
-    f (PhraseF p)    =
-      ( (0,Naked), PhraseF p)
-
-    f (ExprTpltF js) =
-      ( (0,InParens)
-      , ExprTpltF $
-        fmap (parenExprAtDepth maxDepth) js )
-    f (ExprRelF (Rel ms t)) =
-      ( (d, if d >= maxDepth then InParens else Naked)
-      , ExprRelF $ Rel ms' $
-        parenExprAtDepth maxDepth t) where
-      ms' = map (parenExprAtDepth maxDepth) ms
-      d = (+1) $ maximum $ map h ms' where
-        h = nakedDepth . \(Fix (EFW (b,_))) -> b where
-          nakedDepth :: (Int,Parens) -> Int
-          nakedDepth (_,InParens) = 0
-          nakedDepth (i,_) = i

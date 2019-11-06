@@ -8,8 +8,8 @@ import           Test.HUnit
 
 import           Hode.Rslt.RTypes
 import           Hode.Rslt.Show
+import           Hode.Rslt.Show
 import           Hode.Rslt.Show.Util
-import           Hode.Rslt.Show.Wut
 import qualified Hode.Test.Rslt.RData as D
 
 

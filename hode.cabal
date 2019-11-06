@@ -62,10 +62,9 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
-                , Hode.Rslt.Show'
-                , Hode.Rslt.Show.JustInCase
+                , Hode.Rslt.Show.AttrString
+                , Hode.Rslt.Show.String
                 , Hode.Rslt.Show.Util
-                , Hode.Rslt.Show.Wut
                 , Hode.Rslt.Sort
 
                 , Hode.Test.Hash.Main

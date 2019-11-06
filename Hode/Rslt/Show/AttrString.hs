@@ -3,7 +3,7 @@ ScopedTypeVariables,
 TupleSections,
 ViewPatterns #-}
 
-module Hode.Rslt.Show'
+module Hode.Rslt.Show.AttrString
   ( eParenShow' -- ^ Int -> Rslt -> Expr -> Either String AttrString
   , hashUnlessEmptyStartOrEnd' -- ^ Int -> [AttrString] -> [AttrString]
   ) where
@@ -16,7 +16,7 @@ import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
-import Hode.Rslt.Show.Wut
+import Hode.Rslt.Show.Util hiding (hash)
 import Hode.Util.Misc
 import Hode.Util.Alternation
 import Hode.Util.UParse
@@ -64,8 +64,6 @@ eParenShow' maxDepth r e0 =
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
 
--- | `hashUnlessEmptyStartOrEnd k js` adds `k` #-marks to every joint
--- in `js`, unless it's first or last and the empty string.
 hashUnlessEmptyStartOrEnd' :: Int -> [AttrString] -> [AttrString]
 hashUnlessEmptyStartOrEnd' k0 joints = case joints' of
   [] -> []
