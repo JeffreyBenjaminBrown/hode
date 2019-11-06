@@ -27,12 +27,16 @@ module Hode.NoUI (
                    --   Either String Rslt
 
   -- | = search (and display)
-  , nFind          -- ^ Rslt -> String -> Either String [(Addr, Expr)]
-  , nFindSort      -- ^ Rslt -> (BinOrientation, TpltAddr)
-                   --        -> String -> Either String [(Addr, Expr)]
-
-  , nFindStrings   -- ^ Rslt -> String -> Either String [(Addr, String)]
-  , nFindStringsIO -- ^ Rslt -> String -> IO ()
+  , nFind            -- ^ Rslt
+                     -- -> String -> Either String [(Addr, Expr)]
+  , nFindSort        -- ^ Rslt -> (BinOrientation, TpltAddr)
+                     -- -> String -> Either String [(Addr, Expr)]
+  , nFindStrings     -- ^ Rslt
+                     -- -> String -> Either String [(Addr, String)]
+  , nFindSortStrings -- ^ Rslt -> (BinOrientation, TpltAddr)
+                     -- -> String -> Either String [(Addr, String)]
+  , nFindIO     -- ^ Rslt                              -> String -> IO ()
+  , nFindSortIO -- ^ Rslt -> (BinOrientation,TpltAddr) -> String -> IO ()
 
   , module Hode.NoUI.Internal
   ) where
@@ -120,8 +124,8 @@ nFind r s = do as <- S.toList <$> nFindAddrs r s
                es <- ifLefts $ map (addrToExpr r) as
                Right $ zip as es
 
-nFindSort :: Rslt -> (BinOrientation, TpltAddr) -> String
-          -> Either String [(Addr, Expr)]
+nFindSort :: Rslt -> (BinOrientation, TpltAddr)
+          -> String -> Either String [(Addr, Expr)]
 nFindSort r bt s = do
   as :: [Addr] <- S.toList <$> nFindAddrs r s
                   >>= kahnSort r bt
@@ -134,8 +138,24 @@ nFindStrings r s = do
   ss <- ifLefts $ map (eShow r) es
   Right $ zip as ss
 
-nFindStringsIO :: Rslt -> String -> IO ()
-nFindStringsIO r q = case nFindStrings r q
+nFindSortStrings :: Rslt -> (BinOrientation, TpltAddr)
+                 -> String -> Either String [(Addr, String)]
+nFindSortStrings r bt s = do
+  (as,es) :: ([Addr],[Expr]) <- unzip <$> nFindSort r bt s
+  ss <- ifLefts $ map (eShow r) es
+  Right $ zip as ss
+
+nFindIO :: Rslt -> String -> IO ()
+nFindIO r q =
+  case nFindStrings r q
   of Left err -> putStrLn err
      Right ss -> let f (a,s) = show a ++ ": " ++ s
                  in mapM_ putStrLn $ map f ss
+
+nFindSortIO :: Rslt -> (BinOrientation,TpltAddr) -> String -> IO ()
+nFindSortIO r bt q =
+  case nFindSortStrings r bt q
+  of Left err -> putStrLn err
+     Right ss -> let f (a,s) = show a ++ ": " ++ s
+                 in mapM_ putStrLn $ map f ss
+

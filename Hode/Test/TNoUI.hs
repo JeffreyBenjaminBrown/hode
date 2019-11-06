@@ -9,7 +9,6 @@ import Test.HUnit
 import Hode.NoUI
 import Hode.Rslt.Binary
 import Hode.Rslt.Index
-import Hode.Rslt.RLookup.RConvert
 import Hode.Rslt.RTypes
 
 
@@ -22,39 +21,37 @@ test_module_NoUI = TestList [
 test_nFindSort :: Test
 test_nFindSort = TestCase $ do
   let Right rLine = nInserts (mkRslt mempty)
-        -- These are intentionally out of order
+        -- These are intentionally out of order on the screen.
+        -- (As numbers they are ordered normally.)
         [ "1 #lt 2", "1 #lt 3",
           "0 #lt 1", "0 #lt 2", -- omitted: 0 < 3
           "2 #lt 3" ]
       Right tplt_a  = head . S.toList <$>
                       nFindAddrs rLine "/t /_ lt /_"
-      intElt :: Int -> Addr
-      intElt = either (error "not in graph") id .
-               exprToAddr rLine . Phrase . show
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
       (RightIsBigger,tplt_a)
       "/eval /it #lt /_" )
-    == Right (map (Phrase . show) [0,1,2])
+    == Right (map (Phrase . show) [0,1,2::Int])
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
       (RightIsBigger,tplt_a)
       "/eval /_ #lt /it" )
-    == Right (map (Phrase . show) [1,2,3])
+    == Right (map (Phrase . show) [1,2,3::Int])
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
       (LeftIsBigger,tplt_a)
       "/eval /it #lt /_" )
-    == Right (map (Phrase . show) [2,1,0])
+    == Right (map (Phrase . show) [2,1,0::Int])
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
       (LeftIsBigger,tplt_a)
       "/eval /_ #lt /it" )
-    == Right (map (Phrase . show) [3,2,1])
+    == Right (map (Phrase . show) [3,2,1::Int])
 
 test_insert :: Test
 test_insert = TestCase $ do

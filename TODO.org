@@ -8,36 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO NoUI
-*** TODO add functions
-order
-*** TODO ? separate State and UIState, and use State in NoUI
-type ColumnProps = Map HExpr Int
-data OtherProps = OtherProps {
-  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
-  } deriving (Show, Eq, Ord)
-data St = St {
-    _searchBuffers          :: Maybe (Porest Buffer)
-  , _columnHExprs           :: [HExpr]
-  , _appRslt                :: Rslt
-  }
-** TODO ordered display
-(See also "transitive search".)
-*** todo ? multi-Tplt topological sort
-tags: order, transitive
-**** if I could identify a set of tied w/r/t tplt-1 tops
-then I could sort them by tplt 2, etc.
-I suspect I could do this by:
-  (1) scan the graph for everything that's top. They are tied.
-  (2) When picking off those tied things, if anything becomes top,
-      don't stick it at the end of the same list.
-      Rather put it in a new list. That list will then consist of ties, too.
-  (3) Repeat until done.
-This is especially nice because it means I can just code the single-tplt sort for now,
-and later, if need be, implement multi-tplt sort in terms of it.
-**** maybe see earlier-work/lexico-topo-sort
-Most of that work, though, describes a wholly different algorithm.
-I would prefer this one, if it really does make sense.
 ** TODO studying Hode.UI
  resume at
    instance Show MemberHosts where
@@ -55,6 +25,16 @@ I would prefer this one, if it really does make sense.
  and pad each row's column-cells to match.
 **** Requires undoing commit 2689a4d697ea87be4817a20917f21e447209210a
 *** color hashes in grouping nodes
+** TODO ? separate State and UIState, and use State in NoUI
+type ColumnProps = Map HExpr Int
+data OtherProps = OtherProps {
+  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
+  } deriving (Show, Eq, Ord)
+data St = St {
+    _searchBuffers          :: Maybe (Porest Buffer)
+  , _columnHExprs           :: [HExpr]
+  , _appRslt                :: Rslt
+  }
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
@@ -248,6 +228,22 @@ This allows the set-valued function of v to be referred to by subsequent Queries
 It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
 * TODO re. Rslt
+** TODO ? multi-Tplt topological sort
+tags: order, transitive
+*** if I could identify a set of tied w/r/t tplt-1 tops
+then I could sort them by tplt 2, etc.
+I suspect I could do this by:
+  (1) scan the graph for everything that's top. They are tied.
+  (2) When picking off those tied things, if anything becomes top,
+      don't stick it at the end of the same list.
+      Rather put it in a new list. That list will then consist of ties, too.
+  (3) Repeat until done.
+This is especially nice because it means I can just code the single-tplt sort for now,
+and later, if need be, implement multi-tplt sort in terms of it.
+*** maybe see earlier-work/lexico-topo-sort
+Most of that work, though, describes a wholly different algorithm.
+I would prefer this one, if it really does make sense.
+
 ** transitive search
 *** DONE rethinking purpose
 **** problem: HExpr finds Exprs; while transitive search finds pairs
