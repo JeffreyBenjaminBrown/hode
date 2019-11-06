@@ -184,7 +184,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
 -- | `isTop r (orient,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
 -- no `Expr` in `r` is greater than the one at `a`.
--- For instance, if `ort` is `LeftIsBigger`,
+-- For instance, if `ort` is `RightFirst`,
 -- and `a` is on the right side of some relationship using
 -- `t` as its `Tplt`, then the result is `False`.
 isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
@@ -192,8 +192,8 @@ isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
 isTop r (ort,t) a =
   prefixLeft "isTop: " $ do
   let roleIfLesser = case ort of
-        LeftIsBigger  -> RoleInRel' $ RoleMember 2
-        RightIsBigger -> RoleInRel' $ RoleMember 1
+        RightFirst  -> RoleInRel' $ RoleMember 2
+        LeftFirst -> RoleInRel' $ RoleMember 1
   relsInWhichItIsLesser <- hExprToAddrs r mempty $
     HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ Addr t),
                         (roleIfLesser,          HExpr $ Addr a) ]
@@ -217,8 +217,8 @@ justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
 justUnders (bo,t) r a = let
   h :: HExpr = let
     (bigger, smaller) = case bo of
-      LeftIsBigger ->  (1,2)
-      RightIsBigger -> (2,1)
+      RightFirst ->  (1,2)
+      LeftFirst -> (2,1)
     rel = HMap $ M.fromList
       [ ( RoleInRel' RoleTplt,          HExpr $ Addr t),
         ( RoleInRel' $ RoleMember bigger, HExpr $ Addr a ) ]

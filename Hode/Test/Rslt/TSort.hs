@@ -39,7 +39,7 @@ test_kahnSort = TestCase $ do
       intElt = either (error "not in graph") id .
             exprToAddr rLine . Phrase . show
   assertBool "sort a line" $
-    kahnSort rLine (LeftIsBigger,tplt_a) (map intElt [0..3])
+    kahnSort rLine (RightFirst,tplt_a) (map intElt [0..3])
     == Right (map intElt [3,2,1,0])
 
   let Right rTree = nInserts (mkRslt mempty)
@@ -57,7 +57,7 @@ test_kahnSort = TestCase $ do
 
   assertBool "sort a tree" $ let
     Right (sorted :: [Addr]) =
-      kahnSort rTree (LeftIsBigger,tplt_b) $
+      kahnSort rTree (RightFirst,tplt_b) $
       map elt ["0","00","01","000","001","010","011"]
     Right (shown :: [Expr]) =
       mapM (addrToExpr rTree) sorted
@@ -109,7 +109,7 @@ test_kahnIterate = TestCase $ do
         $ head . S.toList <$> nFindAddrs r (show k)
       Right tplt_a = head . S.toList <$> nFindAddrs r "/t /_ a /_"
   assertBool "" $ let
-    ek = kahnIterate (LeftIsBigger,tplt_a) $
+    ek = kahnIterate (RightFirst,tplt_a) $
          Kahn r [expr 0] []
     in case ek of
          Left s                -> error s
@@ -132,7 +132,7 @@ test_kahnIterate' =
       expr k = either
         (const $ error $ show k ++ " not in the Rslt") id
         $ head . S.toList <$> nFindAddrs r (show k)
-  in kahnIterate (LeftIsBigger,tplt_a) $
+  in kahnIterate (RightFirst,tplt_a) $
      Kahn r [expr 0] []
 
 -- | Without graph isomorphisms, must test by hand.
@@ -167,18 +167,18 @@ test_justUnders = TestCase $ do
       Right n3  = head . S.toList <$> nFindAddrs r "3"
 
   assertBool "just under 0 are 1 and 2, for (bigger #a smaller)"
-    $ justUnders (LeftIsBigger, tplt_a) r n0
+    $ justUnders (RightFirst, tplt_a) r n0
     == Right (S.fromList $ [n1,n2])
 
   assertBool "nothing is under 0, for (smaller #a bigger)"
-    $ justUnders (RightIsBigger, tplt_a) r n0
+    $ justUnders (LeftFirst, tplt_a) r n0
     == Right mempty
 
   assertBool "nothing is under 3, in any sense"
-    $ [ justUnders (LeftIsBigger, tplt_a) r n3,
-        justUnders (RightIsBigger,tplt_a) r n3,
-        justUnders (LeftIsBigger, tplt_b) r n3,
-        justUnders (RightIsBigger,tplt_b) r n3 ]
+    $ [ justUnders (RightFirst, tplt_a) r n3,
+        justUnders (LeftFirst,tplt_a) r n3,
+        justUnders (RightFirst, tplt_b) r n3,
+        justUnders (LeftFirst,tplt_b) r n3 ]
     == replicate 4 (Right mempty)
 
 test_withIsTop :: Test
@@ -196,17 +196,17 @@ test_withIsTop = TestCase $ do
 
   assertBool "0 and 3 are top w/r/t _ #a _ if left is bigger"
     $ ( S.fromList <$>
-        allTops r (LeftIsBigger,tplt_a) [n0,n1,n2,n3] )
+        allTops r (RightFirst,tplt_a) [n0,n1,n2,n3] )
     == Right (S.fromList [n0,n3])
 
   assertBool "2 and 3 are top w/r/t _ #a _ if right is bigger"
     $ ( S.fromList <$>
-        allTops r (RightIsBigger,tplt_a) [n0,n1,n2,n3] )
+        allTops r (LeftFirst,tplt_a) [n0,n1,n2,n3] )
     == Right (S.fromList [n2,n3])
 
   assertBool "0, 1 and 3 are top w/r/t _ #b _ if left is bigger"
     $ ( S.fromList <$>
-        allTops r (LeftIsBigger,tplt_b) [n0,n1,n2,n3] )
+        allTops r (RightFirst,tplt_b) [n0,n1,n2,n3] )
     == Right (S.fromList [n0,n1,n3])
 
 test_allNormalMembers :: Test
@@ -253,16 +253,16 @@ test_nothingIsGreater = TestCase $ do
       Right number_2 = head . S.toList <$> nFindAddrs r "2"
 
   assertBool "If left is bigger, 0 is top." $ Right True ==
-    isTop r (LeftIsBigger, t) number_0
+    isTop r (RightFirst, t) number_0
   assertBool "If right is bigger, it's not." $ Right False ==
-    isTop r (RightIsBigger, t) number_0
+    isTop r (LeftFirst, t) number_0
 
   assertBool "If left is bigger, 2 is not top." $ Right False ==
-    isTop r (LeftIsBigger, t) number_2
+    isTop r (RightFirst, t) number_2
   assertBool "If right is bigger, then it is." $ Right True ==
-    isTop r (RightIsBigger, t) number_2
+    isTop r (LeftFirst, t) number_2
 
   assertBool "1 is not top under either orientation." $ Right False ==
-    isTop r (LeftIsBigger, t) number_1
+    isTop r (RightFirst, t) number_1
   assertBool "Ditto." $ Right False ==
-    isTop r (RightIsBigger, t) number_1
+    isTop r (LeftFirst, t) number_1

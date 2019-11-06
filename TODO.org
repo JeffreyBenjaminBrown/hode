@@ -8,6 +8,7 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
+** TODO sort results in UI
 ** TODO studying Hode.UI
  resume at
    instance Show MemberHosts where

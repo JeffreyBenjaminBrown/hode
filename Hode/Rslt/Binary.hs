@@ -9,4 +9,4 @@ data SearchDir = SearchLeftward | SearchRightward
 data BinMember = LeftMember | RightMember
   deriving (Show, Eq, Ord)
 
-data BinOrientation = LeftIsBigger | RightIsBigger
+data BinOrientation = RightFirst | LeftFirst

@@ -31,25 +31,25 @@ test_nFindSort = TestCase $ do
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
-      (RightIsBigger,tplt_a)
+      (LeftFirst,tplt_a)
       "/eval /it #lt /_" )
     == Right (map (Phrase . show) [0,1,2::Int])
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
-      (RightIsBigger,tplt_a)
+      (LeftFirst,tplt_a)
       "/eval /_ #lt /it" )
     == Right (map (Phrase . show) [1,2,3::Int])
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
-      (LeftIsBigger,tplt_a)
+      (RightFirst,tplt_a)
       "/eval /it #lt /_" )
     == Right (map (Phrase . show) [2,1,0::Int])
 
   assertBool "" $
     ( map snd <$> nFindSort rLine
-      (LeftIsBigger,tplt_a)
+      (RightFirst,tplt_a)
       "/eval /_ #lt /it" )
     == Right (map (Phrase . show) [3,2,1::Int])
 
