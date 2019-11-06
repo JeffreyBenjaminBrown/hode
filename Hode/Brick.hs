@@ -137,8 +137,8 @@ attrConsolidate =
   -- | PITFALL: Assumes every `[(a,b)]` has the same `b`, and none is empty.
   -- Those will be true if the `[[(a,b)]]` was created via `attrGroup`.
   attrUngroup :: [[(a,b)]] -> [(a,b)]
-  attrUngroup = map f where
+  attrUngroup = reverse . map f where
     f :: [(a,b)] -> (a,b)
     f [] = error "attrUngroup: should not happen"
-    f cs@((_,b):_) = ( mconcat $ map fst cs,
+    f cs@((_,b):_) = ( mconcat $ map fst $ reverse cs,
                        b )

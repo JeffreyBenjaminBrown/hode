@@ -56,8 +56,8 @@ eParenShowAttr maxDepth r e0 =
         mss Nothing  = emptyAttrString
         mss (Just a) = a
     Right $ attrStrip $ concat $
-      L.intersperse blank $
       L.intersperse space $
+      L.intersperse blank $
       ( [mss ml] ++ js ++ [mss mr] )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =

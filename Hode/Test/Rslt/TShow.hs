@@ -6,9 +6,10 @@ import           Data.Either
 import           Data.Functor.Foldable
 import           Test.HUnit
 
+import           Hode.Brick
 import           Hode.Rslt.RTypes
 import           Hode.Rslt.Show
-import           Hode.Rslt.Show
+import           Hode.Rslt.ShowAttr
 import           Hode.Rslt.Show.Util
 import qualified Hode.Test.Rslt.RData as D
 
@@ -19,7 +20,24 @@ test_module_rslt_show = TestList [
   , TestLabel "test_eShow" test_eShow
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   , TestLabel "test_eParenShow" test_eParenShow
+  , TestLabel "test_eParenShowAttr" test_eParenShowAttr
   ]
+
+test_eParenShowAttr :: Test
+test_eParenShowAttr = TestCase $ do
+  assertBool "show a Tplt" $
+    ( attrStrip . attrConsolidate <$>
+      ( eParenShowAttr 2 (error "") $
+        ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
+    == Right [("_ is _",textColor)]
+  assertBool "a depth-1 Rel" $
+    ( attrConsolidate <$>
+      ( eParenShowAttr 2 (error "") $
+        ExprRel $ Rel [Phrase "love", Phrase "good"]
+        $ ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
+    == Right [("love ",textColor),
+              ("#",sepColor),
+              ("is good",textColor) ]
 
 test_eParenShow :: Test
 test_eParenShow = TestCase $ do
