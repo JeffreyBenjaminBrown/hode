@@ -1,8 +1,10 @@
-{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE
+DeriveFunctor, DeriveFoldable, DeriveTraversable,
+RankNTypes,
+ScopedTypeVariables,
+TemplateHaskell,
+ViewPatterns,
+TypeFamilies #-}
 
 module Hode.UI.ITypes where
 
@@ -87,65 +89,6 @@ bufferRow_from_viewExprNode n =
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
 -- The subviews of a `VExpr` should be `VMemberFork`s or `VHostFork`s.
 
-type ViewQuery = String -- ^ What the user asked for.
-
-data ViewExpr = ViewExpr {
-    _viewExpr_Addr   :: Addr
-  , _viewExpr_String :: AttrString }
-  deriving (Show, Eq, Ord)
-
--- | The members of some "center" `Expr`.
-data MemberFork = MemberFork {
-  _membersForkCenter :: Addr }
-  deriving (Show, Eq, Ord)
-
--- | The hosts of some "center" `Expr`.
--- If `Expr` `h` hosts the center `Expr` `c`, it could be because
--- (1) `h` is a `Rel`, of which `c` is a member, or
--- (2) `h` is a `Tplt`, in which `c` is a joint
-data HostFork =
-    RelHostFork  RelHosts   -- ^ `Rel`s  that the center is a member of
-  | TpltHostFork TpltHosts  -- ^ `Tplt`s that the center is a joint in
-  deriving (Eq, Ord, Show)
-
--- | `RelHosts` is used to group relationships to which the `Expr` at
--- `memberHostsCenter` belongs.
--- For instance, if the `Expr` at `Addr 3` helps some things,
--- then `RelHosts 3 (RoleMember 1) ["", "helps", ""]` will
--- be one of the groups of relationships involving the `Expr` at `Addr 3`.
-data RelHosts = RelHosts {
-    _memberHostsCenter :: Addr      -- ^ what plays the `Role`
-  , _memberHostsRole   :: Role      -- ^ the `Role` it plays
-  , _memberHostsTplt   :: Tplt Expr -- ^ the kind of `Rel` hosting it
-  } deriving (Eq, Ord)
-
--- | `TpltHosts` is used to group `Tplt`s to which the `Expr` at
--- `jointHostsCenter` belongs.
-data TpltHosts = TpltHosts { _jointHostsCenter :: Addr }
-  deriving (Eq, Ord)
-
--- | Shows the label of the group, not its members.
-instance Show RelHosts where
-  show relHosts = let
-    tplt :: Tplt Expr = _memberHostsTplt relHosts
-    noLeft     = error "show RelHosts: impossible"
-    noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: This math is good."
-    in if _memberHostsRole relHosts == RoleInRel' RoleTplt
-       then "Rels using it as a Tplt"
-       else let RoleInRel' (RoleMember (n :: Int)) =
-                  _memberHostsRole relHosts
-                mbrs = either (const noMiscount) id
-                       $ replaceNth (Phrase $ "it") n
-                       $ replicate (arity tplt) $ Phrase "_"
-            in either (const noLeft) id $
-               eParenShow 3 noRslt $ ExprRel $
-               Rel mbrs $ ExprTplt tplt
-
--- | Shows the label of the group, not its members.
-instance Show TpltHosts where
-  show _ = "Tplts using it as a joint"
-
 data ViewExprNode =
     VQuery      ViewQuery  -- ^ The top of every view tree is this.
   | VExpr       ViewExpr   -- ^ Corresponds to some `Expr`.
@@ -153,13 +96,63 @@ data ViewExprNode =
                            -- parent in the view tree and its children.
   | VHostFork   HostFork   -- ^ Announces the relationship between its
                            -- parent in the view tree and its children.
+  deriving (Eq, Ord, Show)
+
+type ViewQuery = String -- ^ What the user asked for.
+
+data ViewExpr = ViewExpr {
+    _viewExpr_Addr   :: Addr
+  , _viewExpr_String :: AttrString }
+  deriving (Show, Eq, Ord)
+
+-- | A label for the members of some "center" `Expr`.
+data MemberFork = MemberFork {
+  _membersForkCenter :: Addr }
+  deriving (Show, Eq, Ord)
+
+-- | A label for some `Expr`s in which the "center" `Expr`
+-- is involved.
+data HostFork =
+    RelHostFork  RelHosts   -- ^ `Rel`s  that the center is a member of
+  | TpltHostFork TpltHosts  -- ^ `Tplt`s that the center is a joint in
+  deriving (Eq, Ord, Show)
+
+data RelHosts = RelHosts {
+    _memberHostsCenter :: Addr      -- ^ the `RelHosts`
+      -- describes some `Rel`s involving the `Expr` here
+  , _memberHostsRole   :: Role      -- ^ that `Expr` plays
+      -- this `Role` in each of those `Rel`s
+  , _memberHostsTplt   :: Tplt Expr -- ^ and each of those
+     -- `Rel`s has this `Tplt`
+  } deriving (Eq, Ord)
+
+-- | `TpltHosts` is used to group `Tplt`s to which the
+-- `Expr` at `jointHostsCenter` belongs.
+data TpltHosts = TpltHosts {
+  _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
-instance Show ViewExprNode where
-    show (VQuery x)      = "VQuery "      ++ show x
-    show (VExpr x)       = "VExpr "       ++ show x
-    show (VMemberFork x) = "VMemberFork " ++ show x
-    show (VHostFork x)   = "VHostFork "   ++ show x
+-- | Shows the label of the group, not its members.
+instance Show RelHosts where
+  show (_memberHostsRole -> RoleInRel' RoleTplt) =
+    "Rels using it as a Tplt"
+  show relHosts = let
+    tplt :: Tplt Expr = _memberHostsTplt relHosts
+    noLeft     = error "show RelHosts: impossible"
+    noRslt     = error "show RelHosts: Rslt irrelevant"
+    noMiscount = error "show RelHosts: This math is good."
+    RoleInRel' (RoleMember (n :: Int)) =
+      _memberHostsRole relHosts
+    mbrs = either (const noMiscount) id
+           $ replaceNth (Phrase $ "it") n
+           $ replicate (arity tplt) $ Phrase "_"
+    in either (const noLeft) id $
+       eParenShow 3 noRslt $ ExprRel $
+       Rel mbrs $ ExprTplt tplt
+
+-- | Shows the label of the group, not its members.
+instance Show TpltHosts where
+  show _ = "Tplts using it as a joint"
 
 makeLenses ''BufferRow
 makeLenses ''OtherProps
