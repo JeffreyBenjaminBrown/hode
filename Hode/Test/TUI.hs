@@ -8,10 +8,11 @@ import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
 import           Hode.Hash.HTypes
+import           Hode.Rslt.Binary
 import           Hode.Rslt.RTypes
-import           Hode.UI.Input.IParse
-import           Hode.UI.ITypes
 import           Hode.UI.BufferRowTree
+import           Hode.UI.ITypes
+import           Hode.UI.Input.IParse
 import           Hode.Util.VTree
 import qualified Hode.Test.Rslt.RData as D
 
@@ -48,18 +49,27 @@ test_groupHostRels = TestCase $ do
 
 test_pCommand :: T.Test
 test_pCommand = TestCase $ do
-  assertBool "1" $ pCommand (error "irrelevant")
+  assertBool "add" $ pCommand (error "irrelevant")
     "/add done told ya once "
     == Right ( CommandInsert $ Phrase "done told ya once" )
 
-  assertBool "1" $ let s = "done told ya once"
+  assertBool "find" $ let s = "done told ya once"
     in pCommand (error "irrelevant") ("/find " ++ s)
     == Right ( CommandFind s $ HExpr $ Phrase "done told ya once" )
 
-  assertBool "1" $ pCommand (error "irrelevant")
+  assertBool "load" $ pCommand (error "irrelevant")
     "/load somewhere/over/the/rainbow.exe"
     == Right ( CommandLoad "somewhere/over/the/rainbow.exe" )
 
-  assertBool "1" $ pCommand (error "irrelevant")
+  assertBool "save" $ pCommand (error "irrelevant")
     "/save somewhere/over/the/rainbow.exe"
     == Right ( CommandSave "somewhere/over/the/rainbow.exe" )
+
+  assertBool "sort" $ pCommand D.rslt
+    "/sortLeft (/t /_ needs /_)"
+    == Right ( CommandSort LeftFirst 4 )
+
+  assertBool "sort" $ pCommand D.rslt
+    "/sr /@ 4"
+    == Right ( CommandSort RightFirst 4 )
+
