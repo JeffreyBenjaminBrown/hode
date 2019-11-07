@@ -1,4 +1,5 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables,
+TupleSections #-}
 
 module Hode.UI.Input (
     handleUncaughtInput            -- ^ St -> V.Event ->
@@ -27,9 +28,9 @@ import qualified Brick.Focus           as B
 import qualified Graphics.Vty          as V
 
 import Hode.Hash.HLookup
-import Hode.Qseq.QTypes
 import Hode.Rslt.Edit
 import Hode.Rslt.Files
+import Hode.Rslt.Sort
 import Hode.Rslt.RTypes
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
@@ -141,24 +142,6 @@ runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
                           $ g c0 st0
   where
 
-  g (CommandFind s h) st =
-    prefixLeft " called on CommandFind:" $ do
-    let r :: Rslt = st ^. appRslt
-    as :: [Addr] <-
-      S.toList <$> hExprToAddrs r (mempty :: Subst Addr) h
-    let p :: Porest BufferRow
-          = mkBufferRowPorest r as
-
-    Right $ B.continue $ st
-      & showingInMainWindow .~ Results
-      & showingErrorWindow .~ False
-      & (let strip :: String -> String
-             strip = T.unpack . T.strip . T.pack
-         in stSetFocusedBuffer . bufferQuery .~ strip s)
-      & stSetFocusedBuffer . bufferRowPorest . _Just .~ p
-      & ( stSetFocusedBuffer . bufferRowPorest . _Just .
-          P.focus . pTreeHasFocus .~ True )
-
   g (CommandReplace a e) st =
     either Left (Right . f)
     $ replaceExpr a e (st ^. appRslt)
@@ -208,3 +191,28 @@ runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
                           & showingErrorWindow .~ False
                           & showReassurance "Rslt saved."
     B.continue st'
+
+  g cmd st =
+    prefixLeft " called on CommandFind:" $ do
+    let r :: Rslt = st ^. appRslt
+    (s :: String, as :: [Addr]) <- case cmd of
+      CommandFind     s h      ->
+        (s,) <$>
+        ( S.toList <$> hExprToAddrs r mempty h )
+      CommandFindSort s h bo t ->
+        (s,) <$>
+        ( S.toList <$> hExprToAddrs r mempty h
+          >>= kahnSort r (bo,t) )
+      _ -> Left "This should be impossible -- the other cases have already been handled by earlier clauses defining `g`."
+    let p :: Porest BufferRow
+          = mkBufferRowPorest r as
+
+    Right $ B.continue $ st
+      & showingInMainWindow .~ Results
+      & showingErrorWindow .~ False
+      & (let strip :: String -> String
+             strip = T.unpack . T.strip . T.pack
+         in stSetFocusedBuffer . bufferQuery .~ strip s)
+      & stSetFocusedBuffer . bufferRowPorest . _Just .~ p
+      & ( stSetFocusedBuffer . bufferRowPorest . _Just .
+          P.focus . pTreeHasFocus .~ True )
