@@ -14,8 +14,8 @@ module Hode.UI.BufferRowTree
   , members_atFocus       -- ^ St -> Either String (MemberFork, [Addr])
   , insertMembers_atFocus -- ^ St -> Either String St
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
-  , groupHostRels_atFocus -- ^ St ->    Either String [(RoleHosts, [Addr])]
-  , hostGroup_to_view     -- ^ Rslt -> (RoleHosts, [Addr]) ->
+  , groupHostRels_atFocus -- ^ St ->    Either String [(RelHosts, [Addr])]
+  , hostGroup_to_view     -- ^ Rslt -> (RelHosts, [Addr]) ->
                           -- Either String (PTree ViewExprNode)
   , insertHosts_atFocus   -- ^ St -> Either String St
   , closeSubviews_atFocus -- ^ St -> St
@@ -102,7 +102,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
       maybeConsTpltPackage = if null tplt_ras then id else (:) tplt_package
         where tplt_package :: (HostFork, [Addr]) =
                 (tplt_fork, map snd tplt_ras)
-                where tplt_fork = TpltHostFork $ JointHosts a0
+                where tplt_fork = TpltHostFork $ TpltHosts a0
 
   rel_tplts <- let tpltOf :: Addr -> Either String Addr
                    tpltOf a = fills r (RoleInRel' RoleTplt, a)
@@ -119,7 +119,7 @@ groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
       package_rel_groups :: ((Role, Addr),[Addr]) -> (HostFork, [Addr])
       package_rel_groups ((role,t),as) = (RelHostFork relHosts, as)
         where
-          relHosts = RoleHosts { _memberHostsCenter = a0
+          relHosts = RelHosts { _memberHostsCenter = a0
                                , _memberHostsRole = role
                                , _memberHostsTplt = tplt t }
             where tplt :: Addr -> Tplt Expr

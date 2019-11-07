@@ -104,33 +104,33 @@ data MemberFork = MemberFork {
 -- (1) `h` is a `Rel`, of which `c` is a member, or
 -- (2) `h` is a `Tplt`, in which `c` is a joint
 data HostFork =
-    RelHostFork RoleHosts    -- ^ `Rel`s  that the center is a member of
-  | TpltHostFork JointHosts  -- ^ `Tplt`s that the center is a joint in
+    RelHostFork  RelHosts   -- ^ `Rel`s  that the center is a member of
+  | TpltHostFork TpltHosts  -- ^ `Tplt`s that the center is a joint in
   deriving (Eq, Ord, Show)
 
--- | `RoleHosts` is used to group relationships to which the `Expr` at
+-- | `RelHosts` is used to group relationships to which the `Expr` at
 -- `memberHostsCenter` belongs.
 -- For instance, if the `Expr` at `Addr 3` helps some things,
--- then `RoleHosts 3 (RoleMember 1) ["", "helps", ""]` will
+-- then `RelHosts 3 (RoleMember 1) ["", "helps", ""]` will
 -- be one of the groups of relationships involving the `Expr` at `Addr 3`.
-data RoleHosts = RoleHosts {
+data RelHosts = RelHosts {
     _memberHostsCenter :: Addr      -- ^ what plays the `Role`
   , _memberHostsRole   :: Role      -- ^ the `Role` it plays
   , _memberHostsTplt   :: Tplt Expr -- ^ the kind of `Rel` hosting it
   } deriving (Eq, Ord)
 
--- | `JointHosts` is used to group `Tplt`s to which the `Expr` at
+-- | `TpltHosts` is used to group `Tplt`s to which the `Expr` at
 -- `jointHostsCenter` belongs.
-data JointHosts = JointHosts { _jointHostsCenter :: Addr }
+data TpltHosts = TpltHosts { _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
 -- | Shows the label of the group, not its members.
-instance Show RoleHosts where
+instance Show RelHosts where
   show relHosts = let
     tplt :: Tplt Expr = _memberHostsTplt relHosts
-    noLeft     = error "show RoleHosts: impossible"
-    noRslt     = error "show RoleHosts: Rslt irrelevant"
-    noMiscount = error "show RoleHosts: This math is good."
+    noLeft     = error "show RelHosts: impossible"
+    noRslt     = error "show RelHosts: Rslt irrelevant"
+    noMiscount = error "show RelHosts: This math is good."
     in if _memberHostsRole relHosts == RoleInRel' RoleTplt
        then "Rels using it as a Tplt"
        else let RoleInRel' (RoleMember (n :: Int)) =
@@ -143,7 +143,7 @@ instance Show RoleHosts where
                Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.
-instance Show JointHosts where
+instance Show TpltHosts where
   show _ = "Tplts using it as a joint"
 
 data ViewExprNode =
@@ -166,7 +166,7 @@ makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MemberFork
-makeLenses ''RoleHosts
+makeLenses ''RelHosts
 
 
 -- | = Huge types.

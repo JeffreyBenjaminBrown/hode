@@ -20,8 +20,13 @@ This will load all non-broken modules when some are broken.
 **** The right way would be
  compute the max (across all rows) width of each column first,
  and pad each row's column-cells to match.
-**** Requires undoing commit 2689a4d697ea87be4817a20917f21e447209210a
-*** color hashes in grouping nodes
+*** color the hashes in VHostFork rows
+in UI.IUtil.String:
+  show_ViewExprNode (VHostFork (RelHostFork  x)) = show x
+That uses the Show instance for RoleHosts.
+Will need instead to create a ShowAttr (class and) instance.
+*** screen-wrap is broken
+an unmerged branch, showPTree_bughunt, contains work on it
 ** TODO ? separate State and UIState, and use State in NoUI
 type ColumnProps = Map HExpr Int
 data OtherProps = OtherProps {
