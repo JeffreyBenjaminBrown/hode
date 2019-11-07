@@ -91,10 +91,12 @@ type ViewQuery = String -- ^ What the user asked for.
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr   :: Addr
-  , _viewExpr_String :: AttrString } deriving (Show, Eq, Ord)
+  , _viewExpr_String :: AttrString }
+  deriving (Show, Eq, Ord)
 
 -- | The members of some "center" `Expr`.
-data MemberFork = MemberFork { _membersForkCenter :: Addr }
+data MemberFork = MemberFork {
+  _membersForkCenter :: Addr }
   deriving (Show, Eq, Ord)
 
 -- | The hosts of some "center" `Expr`.
@@ -173,9 +175,10 @@ makeLenses ''RoleHosts
 
 -- | A `Buffer` displays search results.
 -- A user will spend most of their time looking at one of these.
-data Buffer = Buffer { _bufferQuery     :: ViewQuery
-                     , _bufferRowPorest :: Maybe (Porest BufferRow)
-                     } deriving (Eq, Show, Ord)
+data Buffer =
+  Buffer { _bufferQuery     :: ViewQuery
+         , _bufferRowPorest :: Maybe (Porest BufferRow)
+         } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
 -- | The entire state of the app.

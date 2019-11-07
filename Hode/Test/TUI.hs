@@ -72,4 +72,3 @@ test_pCommand = TestCase $ do
   assertBool "sort" $ pCommand D.rslt
     "/sr /@ 4"
     == Right ( CommandSort RightFirst 4 )
-

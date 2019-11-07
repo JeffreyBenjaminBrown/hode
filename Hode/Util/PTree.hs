@@ -44,12 +44,12 @@ setPList = sets go where
 -- | == `PTree`, a tree made of `PointedList`s
 
 data PTree a = PTree {
-  _pTreeLabel :: a
+    _pTreeLabel :: a
   , _pTreeHasFocus :: Bool -- ^ PITFALL: permits invalid state.
   -- There should be only one focused node in the tree.
   , _pMTrees :: Maybe (Porest a) }
   deriving (Eq, Show, Ord, Functor, Foldable, Traversable)
-type Porest a =  PointedList (PTree a)
+type Porest a = PointedList (PTree a)
 
 
 -- | = Lenses

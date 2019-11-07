@@ -135,7 +135,8 @@ parseAndRunCommand st =
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
 runParsedCommand ::
-  Command -> St -> Either String (B.EventM BrickName (B.Next St))
+  Command -> St ->
+  Either String (B.EventM BrickName (B.Next St))
 runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
                           $ g c0 st0
   where

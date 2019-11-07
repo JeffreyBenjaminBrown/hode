@@ -9,6 +9,26 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO sort results in UI
+*** TODO sort a PList to match a list
+type Porest a = PointedList (PTree a)
+data PTree a = PTree {
+    _pTreeLabel :: a
+  , _pTreeHasFocus :: Bool
+  , _pMTrees :: Maybe (Porest a) }
+
+sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
+steps
+  create a (Map b a) from the PList
+    -- PITFALL: assume each b maps to a unique a in the PList
+  create a (List a) from the (List b)
+    using the Map
+  convert the (List a) to a (PList a)
+*** TODO apply to UI
+CommandSort BinOrientation Addr
+_bufferRowPorest :: Buffer -> Maybe (Porest BufferRow)
+_viewExprNode :: BufferRow -> ViewExprNode
+data ViewExprNode = ... | VExpr ViewExpr | ...
+_viewExpr_Addr :: ViewExpr -> Addr
 ** TODO studying Hode.UI
  resume at
    instance Show MemberHosts where
