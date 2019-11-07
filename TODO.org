@@ -14,17 +14,19 @@ This will load all non-broken modules when some are broken.
  add tests for UI.Types
    it's that complex
 ** TODO views: clean them
+*** color the hashes in VHostFork rows
+The problem is that show_ViewExprNode' only shows `VExpr`s in color.
+show_ViewExprNode' :: ViewExprNode -> AttrString
+
+Create a ShowAttr class.
+rewrite show_ViewExprNode as an instance of it
+add an instance for RelHosts
 *** highlight not everywhere
 *** represent, render the columns
 **** Currently, each row is rendered separately, without considering others.
 **** The right way would be
  compute the max (across all rows) width of each column first,
  and pad each row's column-cells to match.
-*** color the hashes in VHostFork rows
-in UI.IUtil.String:
-  show_ViewExprNode (VHostFork (RelHostFork  x)) = show x
-That uses the Show instance for RoleHosts.
-Will need instead to create a ShowAttr (class and) instance.
 *** screen-wrap is broken
 an unmerged branch, showPTree_bughunt, contains work on it
 ** TODO ? separate State and UIState, and use State in NoUI

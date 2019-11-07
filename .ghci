@@ -11,5 +11,7 @@ import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
+import qualified Data.List.PointedList as P
+
 
 import qualified Hode.Test.Rslt.RData as D

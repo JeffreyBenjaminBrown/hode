@@ -105,12 +105,12 @@ data ViewExpr = ViewExpr {
   , _viewExpr_String :: AttrString }
   deriving (Show, Eq, Ord)
 
--- | A label for the members of some "center" `Expr`.
+-- | Announces the members of some "center" `Expr`.
 data MemberFork = MemberFork {
   _membersForkCenter :: Addr }
   deriving (Show, Eq, Ord)
 
--- | A label for some `Expr`s in which the "center" `Expr`
+-- | Announces some `Expr`s in which the "center" `Expr`
 -- is involved.
 data HostFork =
     RelHostFork  RelHosts   -- ^ `Rel`s  that the center is a member of
@@ -168,16 +168,16 @@ makeLenses ''RelHosts
 
 -- | A `Buffer` displays search results.
 -- A user will spend most of their time looking at one of these.
-data Buffer =
-  Buffer { _bufferQuery     :: ViewQuery
-         , _bufferRowPorest :: Maybe (Porest BufferRow)
-         } deriving (Eq, Show, Ord)
+data Buffer = Buffer
+  { _bufferQuery     :: ViewQuery
+  , _bufferRowPorest :: Maybe (Porest BufferRow)
+  } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
 -- | The entire state of the app.
 data St = St {
     _focusRing              :: B.FocusRing BrickName
-    -- ^ So far `focusRing` is unused in spirit, but technically used.
+    -- ^ So far unused in spirit, but technically used.
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
   , _uiError                :: String
@@ -197,7 +197,8 @@ bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _)) =
   prefixLeft "bufferRow_from_viewExprNode': " $ do
   let r = st ^. appRslt
       hs = st ^. columnHExprs
-      sub :: Map Var Addr = M.singleton VarRowNode a
+      sub :: Map Var Addr =
+        M.singleton VarRowNode a
   matches :: Map HExpr (Set Addr) <-
     let f h = (h, hExprToAddrs r sub h)
     in ifLefts_map $ M.fromList $ map f hs
@@ -205,7 +206,7 @@ bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _)) =
         M.map S.size matches
   Right $ BufferRow n matchCounts $ OtherProps False
 bufferRow_from_viewExprNode' _ n =
-  Right $ BufferRow n mempty $ OtherProps False
+  Right $ bufferRow_from_viewExprNode n
 
 stGetFocused_Buffer :: Getter St (Maybe Buffer)
 stGetFocused_Buffer = to go where
@@ -219,14 +220,16 @@ stSetFocusedBuffer = sets go where
   go f = searchBuffers . _Just . P.focus . setFocusedSubtree .
          pTreeLabel %~ f
 
-stGetFocused_ViewExprNode_Tree :: Getter St (Maybe (PTree BufferRow))
+stGetFocused_ViewExprNode_Tree ::
+  Getter St (Maybe (PTree BufferRow))
 stGetFocused_ViewExprNode_Tree = to go where
   go :: St -> Maybe (PTree BufferRow)
   go st = st ^? stGetFocused_Buffer . _Just .
     bufferRowPorest . _Just .
     P.focus . getFocusedSubtree . _Just
 
-stSetFocused_ViewExprNode_Tree :: Setter' St (PTree BufferRow)
+stSetFocused_ViewExprNode_Tree ::
+  Setter' St (PTree BufferRow)
 stSetFocused_ViewExprNode_Tree = sets go where
   go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
   go f = stSetFocusedBuffer . bufferRowPorest . _Just .

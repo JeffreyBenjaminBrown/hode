@@ -69,7 +69,7 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
         pTreeLeaf $ BufferRow (VMemberFork ms) mempty $
         OtherProps False
   leaves0 :: [ViewExprNode] <-
-    map VExpr <$> ifLefts (map (resultView $ st ^. appRslt) as)
+    map VExpr <$> ifLefts (map (mkViewExpr $ st ^. appRslt) as)
   leaves1 :: [BufferRow] <- ifLefts $
     map (bufferRow_from_viewExprNode' st) leaves0
   let leaves2 :: [PTree BufferRow] = map pTreeLeaf leaves1
@@ -163,7 +163,7 @@ hostGroup_to_view st (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
   let mustBeOkay = "Impossible: `as` is nonempty, so P.fromList must work."
       r = st ^. appRslt
   rs :: [ViewExpr] <-
-    ifLefts $ map (resultView r) as
+    ifLefts $ map (mkViewExpr r) as
 
   -- The new subtree has two layers: the top and the leaves
   topOfNew <- bufferRow_from_viewExprNode' st $ VHostFork hg

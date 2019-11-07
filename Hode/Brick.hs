@@ -8,6 +8,7 @@ ViewPatterns
 
 module Hode.Brick (
     AttrString
+  , ShowAttr, showAttr
   , sepColor, textColor, addrColor -- ^ V.Attr
   , unAttrString -- ^ AttrString -> String
 
@@ -41,6 +42,9 @@ type AttrString = [(String, V.Attr)]
 
 instance Ord V.Attr where
   a <= b = show a <= show b
+
+class ShowAttr a where
+  showAttr :: a -> AttrString
 
 -- | '#' symbols and parens used to group `Expr`s are "separators".
 -- (Note that ordinary text can include those symbols, too;
@@ -102,10 +106,10 @@ attrStrip = attrLeftRight both left right where
   right =        unpack . stripEnd   . pack
 
 attrLeftRight ::
-  Maybe (s -> s) ->
-        (s -> s) ->
-        (s -> s) ->
-  [(s,a)] -> [(s,a)]
+  Maybe (s -> s)
+  ->    (s -> s)
+  ->    (s -> s)
+  -> [(s,a)] -> [(s,a)]
 attrLeftRight _ _ _ [] = []
 attrLeftRight both left right [(s,a)] =
   [ ( s & maybe (left . right) id both

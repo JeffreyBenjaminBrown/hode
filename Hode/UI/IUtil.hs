@@ -20,7 +20,7 @@ import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
-import Hode.UI.IUtil.String (resultView)
+import Hode.UI.IUtil.String (mkViewExpr)
 import Hode.UI.ITypes
 import Hode.UI.Window
 import Hode.Util.PTree
@@ -82,6 +82,6 @@ mkBufferRowPorest r as =
     v_qr a = pTreeLeaf $ bufferRow_from_viewExprNode $
              VExpr $ either err id rv
       where
-        (rv :: Either String ViewExpr) = resultView r a
+        (rv :: Either String ViewExpr) = mkViewExpr r a
         (err :: String -> ViewExpr) = \se -> error (", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
 
