@@ -45,8 +45,8 @@ show_ViewExprNode :: ViewExprNode -> String
 show_ViewExprNode (VQuery vq)  = vq
 show_ViewExprNode (VExpr x) = show (x ^. viewExpr_Addr) ++ ": "
                               ++ show (x ^. viewExpr_String)
-show_ViewExprNode (VMemberFork _) = " its members"
-show_ViewExprNode (VHostFork (RelHostFork x)) = show x
+show_ViewExprNode (VMemberFork _) = "its members"
+show_ViewExprNode (VHostFork (RelHostFork  x)) = show x
 show_ViewExprNode (VHostFork (TpltHostFork x)) = show x
 
 show_ViewExprNode' :: ViewExprNode -> AttrString

@@ -15,9 +15,6 @@ This will load all non-broken modules when some are broken.
    it's that complex
 ** TODO views: clean them
 *** highlight not everywhere
-*** too much space
- This might require a strategy similar to the use of the `Parens`
- type in `Rslt.Show`.
 *** represent, render the columns
 **** Currently, each row is rendered separately, without considering others.
 **** The right way would be

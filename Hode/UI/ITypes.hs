@@ -132,19 +132,19 @@ instance Show RoleHosts where
     noRslt     = error "show RoleHosts: Rslt irrelevant"
     noMiscount = error "show RoleHosts: This math is good."
     in if _memberHostsRole relHosts == RoleInRel' RoleTplt
-       then " Rels using it as a Tplt"
+       then "Rels using it as a Tplt"
        else let RoleInRel' (RoleMember (n :: Int)) =
                   _memberHostsRole relHosts
                 mbrs = either (const noMiscount) id
                        $ replaceNth (Phrase $ "it") n
                        $ replicate (arity tplt) $ Phrase "_"
-            in (" " ++) $
-               either (const noLeft) id $
-               eParenShow 3 noRslt $ ExprRel $ Rel mbrs $ ExprTplt tplt
+            in either (const noLeft) id $
+               eParenShow 3 noRslt $ ExprRel $
+               Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.
 instance Show JointHosts where
-  show _ = "JointHosts in which it is a joint:"
+  show _ = "Tplts using it as a joint"
 
 data ViewExprNode =
     VQuery      ViewQuery  -- ^ The top of every view tree is this.
@@ -156,10 +156,10 @@ data ViewExprNode =
   deriving (Eq, Ord)
 
 instance Show ViewExprNode where
-   show (VQuery x)      = "VQuery "       ++ show x
-   show (VExpr x)       = "VExpr "        ++ show x
-   show (VMemberFork x) = "VMemberFork " ++ show x
-   show (VHostFork x)   = "VHostFork "   ++ show x
+    show (VQuery x)      = "VQuery "      ++ show x
+    show (VExpr x)       = "VExpr "       ++ show x
+    show (VMemberFork x) = "VMemberFork " ++ show x
+    show (VHostFork x)   = "VHostFork "   ++ show x
 
 makeLenses ''BufferRow
 makeLenses ''OtherProps
