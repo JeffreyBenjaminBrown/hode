@@ -48,7 +48,7 @@ data Command =
   | CommandReplace Addr Expr
   | CommandDelete  Addr
   | CommandFind String HExpr
-  | CommandSort BinOrientation Addr
+  | CommandFindSort BinOrientation TpltAddr HExpr
   | CommandLoad Folder
   | CommandSave Folder
   deriving (Show, Eq, Ord)

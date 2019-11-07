@@ -71,18 +71,28 @@ pCommand_find r s = prefixLeft "pCommand_find:" $ do
   (e1 :: PExpr) <- mapLeft show (parse _pHashExpr "doh 3!" s)
   CommandFind s <$> pExprToHExpr r e1
 
+-- TODO ? In `pCommand_sort`, it's kind of ugly that
+-- `hExprToAddrs` is called for ts, but not as.
+-- They could both be called downstream.
+-- That would make it more like `pCommand_find`.
 pCommand_sort :: BinOrientation -> Rslt -> String
               -> Either String Command
+
 pCommand_sort bo r s =
   prefixLeft "pCommand_sort:" $ do
-  e1 :: PExpr <- mapLeft show $
-                 parse _pHashExpr "doh! 3.1" s
-  as :: Set Addr <- pExprToHExpr r e1 >>=
-                    hExprToAddrs r mempty
-  case S.toList as of
-    [a] -> Right $ CommandSort bo a
+  let p :: Parser (PExpr,PExpr)
+      p = do tplt   <- _pHashExpr
+             search <- _pHashExpr
+             return (tplt,search)
+  (tplt,search) :: (PExpr,PExpr) <-
+    mapLeft show $ parse p "doh! 3.1" s
+  ts :: Set TpltAddr <- pExprToHExpr r tplt >>=
+                        hExprToAddrs r mempty
+  h :: HExpr <- pExprToHExpr r search
+  case S.toList ts of
+    [t] -> Right $ CommandFindSort bo t h
     _ -> Left $ "Can only sort by exactly one Tplt, but "
-         ++ " these Tplts were found: " ++ show as ++ "."
+         ++ " these Tplts were found: " ++ show ts ++ "."
 
 pCommand_load :: String -> Either String Command
 pCommand_load s = CommandLoad <$>
