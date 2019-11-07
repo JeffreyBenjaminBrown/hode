@@ -47,8 +47,8 @@ data Command =
     CommandInsert       Expr
   | CommandReplace Addr Expr
   | CommandDelete  Addr
-  | CommandFind String HExpr
-  | CommandFindSort BinOrientation TpltAddr HExpr
+  | CommandFind     String HExpr
+  | CommandFindSort String HExpr BinOrientation TpltAddr
   | CommandLoad Folder
   | CommandSave Folder
   deriving (Show, Eq, Ord)
