@@ -22,9 +22,9 @@ import Hode.Brick
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
 import Hode.UI.Input
-import Hode.UI.ITypes.Names
-import Hode.UI.ITypes.State
-import Hode.UI.ITypes.Views
+import Hode.UI.Types.Names
+import Hode.UI.Types.State
+import Hode.UI.Types.Views
 import Hode.UI.IUtil
 import Hode.UI.ShowPTree
 import Hode.Util.PTree

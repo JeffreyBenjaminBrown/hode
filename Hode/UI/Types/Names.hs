@@ -1,4 +1,4 @@
-module Hode.UI.ITypes.Names where
+module Hode.UI.Types.Names where
 
 import Hode.Hash.HTypes
 import Hode.Rslt.Binary

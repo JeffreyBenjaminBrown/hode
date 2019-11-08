@@ -34,9 +34,9 @@ import Hode.Rslt.Sort
 import Hode.Rslt.RTypes
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
-import Hode.UI.ITypes.Names
-import Hode.UI.ITypes.State
-import Hode.UI.ITypes.Views
+import Hode.UI.Types.Names
+import Hode.UI.Types.State
+import Hode.UI.Types.Views
 import Hode.UI.IUtil
 import Hode.UI.Input.IParse
 import Hode.UI.IUtil.String

@@ -11,8 +11,8 @@ import           Hode.Hash.HTypes
 import           Hode.Rslt.Binary
 import           Hode.Rslt.RTypes
 import           Hode.UI.BufferRowTree
-import           Hode.UI.ITypes.Names
-import           Hode.UI.ITypes.Views
+import           Hode.UI.Types.Names
+import           Hode.UI.Types.Views
 import           Hode.UI.Input.IParse
 import           Hode.Util.VTree
 import qualified Hode.Test.Rslt.RData as D

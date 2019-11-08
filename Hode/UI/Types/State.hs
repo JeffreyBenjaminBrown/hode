@@ -6,7 +6,7 @@ TemplateHaskell,
 ViewPatterns,
 TypeFamilies #-}
 
-module Hode.UI.ITypes.State where
+module Hode.UI.Types.State where
 
 import           Control.Lens
 import qualified Data.Map as M
@@ -18,8 +18,8 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
-import Hode.UI.ITypes.Names
-import Hode.UI.ITypes.Views
+import Hode.UI.Types.Names
+import Hode.UI.Types.Views
 
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes

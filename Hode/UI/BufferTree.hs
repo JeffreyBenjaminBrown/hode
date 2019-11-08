@@ -12,8 +12,8 @@ module Hode.UI.BufferTree
 import qualified Data.List.PointedList as P
 import           Lens.Micro hiding (has)
 
-import Hode.UI.ITypes.State
-import Hode.UI.ITypes.Views
+import Hode.UI.Types.State
+import Hode.UI.Types.Views
 import Hode.UI.IUtil
 import Hode.UI.Window
 import Hode.Util.Direction

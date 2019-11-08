@@ -6,7 +6,7 @@ TemplateHaskell,
 ViewPatterns,
 TypeFamilies #-}
 
-module Hode.UI.ITypes.Views where
+module Hode.UI.Types.Views where
 
 import Control.Lens
 import Data.Map (Map)
