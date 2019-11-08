@@ -8,6 +8,13 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
+** TODO Rslt.Edit.Terminal
+after replacing with "", move "" back to 0
+-    else replaceExpr a (Phrase "") r -- TODO ? is this okay
++    else -- Move "" there, then move "" back to 0.
++         -- TODO ? is this safe?
++    replaceExpr a (Phrase "") r >>=
++    replaceExpr 0 (Phrase "")
 ** TODO studying Hode.UI
 run the following to get a rough ordering of what to read
   egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
@@ -29,16 +36,7 @@ The right way would be to
   and pad each row's column-cells to match.
 *** screen-wrap is broken
 an unmerged branch, showPTree_bughunt, contains work on it
-** TODO ? separate State and UIState, and use State in NoUI
-type ColumnProps = Map HExpr Int
-data OtherProps = OtherProps {
-  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
-  } deriving (Show, Eq, Ord)
-data St = St {
-    _searchBuffers          :: Maybe (Porest Buffer)
-  , _columnHExprs           :: [HExpr]
-  , _appRslt                :: Rslt
-  }
+** TODO test all the UI functions (manually)
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
@@ -147,6 +145,16 @@ see digraphs-with-text/gadt.hs
 ** TODO simplify result of nPExpr
 e.g. if q = "/trr 1 #< (/it= 0 | 2)", then
 nPExpr q = Right ( PRel $ PNonRel $ ...
+** TODO ? separate State and UIState, and use State in NoUI
+type ColumnProps = Map HExpr Int
+data OtherProps = OtherProps {
+  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
+  } deriving (Show, Eq, Ord)
+data St = St {
+    _searchBuffers          :: Maybe (Porest Buffer)
+  , _columnHExprs           :: [HExpr]
+  , _appRslt                :: Rslt
+  }
 ** wart: ifLefts and LeftStrings
 *** could be replaced with Data.Validation
 which comes with toEither and fromEither

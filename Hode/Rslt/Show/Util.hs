@@ -1,6 +1,3 @@
--- TODO ? Maybe this module could be made simpler,
--- now that Tplt is more complex than a synonym for List.
-
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show.Util (

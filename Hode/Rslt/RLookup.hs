@@ -134,7 +134,8 @@ unAddrRec :: Rslt -> Expr -> Either String Expr
 unAddrRec r = cata f where
   f :: Base Expr (Either String Expr) -> Either String Expr
   f (AddrF a) = addrToExpr r a
-  -- TODO ? `AddrF` is the only interesting case.
+  -- TODO ? clarify, simplify
+  -- `AddrF` is the only interesting case.
   -- Is there a good way to simplify the following boilerplate?
   f (PhraseF p)    = Right $ Phrase p
   f (ExprRelF rel) = ifLefts rel >>= Right . ExprRel

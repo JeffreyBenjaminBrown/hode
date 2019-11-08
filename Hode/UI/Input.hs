@@ -140,58 +140,68 @@ parseAndRunCommand st =
 runParsedCommand ::
   Command -> St ->
   Either String (B.EventM BrickName (B.Next St))
-runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
-                          $ g c0 st0
+runParsedCommand                     c0 st0 =
+  prefixLeft "runParsedCommand:" $ g c0 st0
   where
 
   g (CommandReplace a e) st =
     either Left (Right . f)
     $ replaceExpr a e (st ^. appRslt)
-    where f :: Rslt -> B.EventM BrickName (B.Next St)
-          f r = B.continue $ st & appRslt .~ r
-                                & showingErrorWindow .~ False
-                                & showReassurance msg
-                                & showingInMainWindow .~ Results
-            where msg = "Replaced Expr at " ++ show a ++ "."
+    where
+    f :: Rslt -> B.EventM BrickName (B.Next St)
+    f r = B.continue $ st
+          & appRslt .~ r
+          & showingErrorWindow .~ False
+          & showReassurance ( "Replaced Expr at "
+                              ++ show a ++ "." )
+          & showingInMainWindow .~ Results
 
   g (CommandDelete a) st =
     either Left (Right . f)
     $ delete a (st ^. appRslt)
-    where f :: Rslt -> B.EventM BrickName (B.Next St)
-          f r = B.continue $ st & appRslt .~ r
-                                & showingErrorWindow .~ False
-                                & showReassurance msg
-            where msg = "Deleted Expr at " ++ show a ++ "."
+    where
+    f :: Rslt -> B.EventM BrickName (B.Next St)
+    f r = B.continue $ st & appRslt .~ r
+          & showingErrorWindow .~ False
+          & showReassurance ( "Deleted Expr at "
+                              ++ show a ++ "." )
 
   g (CommandInsert e) st =
     either Left (Right . f)
     $ exprToAddrInsert (st ^. appRslt) e
     where
-      f :: (Rslt, [Aged Addr]) -> B.EventM BrickName (B.Next St)
-      f (r,as) = B.continue $ st & appRslt .~ r
-                 & showingErrorWindow .~ False
-                 & showReassurance ("Exprs added at " ++
-                                    show (catNews as))
-                 & showingInMainWindow .~ Results
+    f :: (Rslt, [Aged Addr]) -> B.EventM BrickName (B.Next St)
+    f (r,as) =
+      B.continue $ st
+      & appRslt .~ r
+      & showingErrorWindow .~ False
+      & showReassurance ( "Exprs added at " ++
+                          show (catNews as) )
+      & showingInMainWindow .~ Results
 
   g (CommandLoad f) st = Right $ do
-    (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
+    (bad :: Bool) <-
+      liftIO $ not <$> doesDirectoryExist f
     if bad
-      then B.continue $ st & showError ("Non-existent folder: " ++ f)
-      else do r <- liftIO $ readRslt f
-              B.continue $ st & appRslt .~ r
-                              & showReassurance "Rslt loaded."
-                              & showingInMainWindow .~ Results
-                              & showingErrorWindow .~ False
+      then B.continue $ st
+           & showError ("Non-existent folder: " ++ f)
+      else do
+      r <- liftIO $ readRslt f
+      B.continue $ st & appRslt .~ r
+        & showReassurance "Rslt loaded."
+        & showingInMainWindow .~ Results
+        & showingErrorWindow .~ False
 
   g (CommandSave f) st = Right $ do
     (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
     st' <- if bad
-      then return $ st & showError ("Non-existent folder: " ++ f)
-      else do liftIO $ writeRslt f $ st ^. appRslt
-              return $ st & showingInMainWindow .~ Results
-                          & showingErrorWindow .~ False
-                          & showReassurance "Rslt saved."
+      then return $ st & showError
+           ("Non-existent folder: " ++ f)
+      else do
+      liftIO $ writeRslt f $ st ^. appRslt
+      return $ st & showingInMainWindow .~ Results
+                  & showingErrorWindow .~ False
+                  & showReassurance "Rslt saved."
     B.continue st'
 
   g cmd st =
@@ -205,10 +215,14 @@ runParsedCommand c0 st0 = prefixLeft "runParsedCommand:"
         (s,) <$>
         ( S.toList <$> hExprToAddrs r mempty h
           >>= kahnSort r (bo,t) )
-      _ -> Left "This should be impossible -- the other cases have already been handled by earlier clauses defining `g`."
-    let p :: Porest BufferRow
+      _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
+    let p :: Porest BufferRow -- new screen to show
           = mkBufferRowPorest r as
 
+    -- TODO ? (&) is consumed from the left, so this looks
+    -- like it changes the query of the old buffer,
+    -- then switches to the new buffer with no query string.
+    -- It also seems not to set to False the old focus.
     Right $ B.continue $ st
       & showingInMainWindow .~ Results
       & showingErrorWindow .~ False
