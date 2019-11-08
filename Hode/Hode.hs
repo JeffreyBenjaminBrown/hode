@@ -57,7 +57,9 @@ import Hode.Rslt.Sort as X
 import Hode.UI.BufferRowTree as X
 import Hode.UI.BufferTree as X
 import Hode.UI.Clipboard as X
-import Hode.UI.ITypes as X
+import Hode.UI.ITypes.Names as X
+import Hode.UI.ITypes.State as X
+import Hode.UI.ITypes.Views as X
 import Hode.UI.IUtil as X
 import Hode.UI.Input as X
 import Hode.UI.Input.IParse as X

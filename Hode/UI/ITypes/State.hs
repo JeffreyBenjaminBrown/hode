@@ -6,7 +6,7 @@ TemplateHaskell,
 ViewPatterns,
 TypeFamilies #-}
 
-module Hode.UI.ITypes where
+module Hode.UI.ITypes.State where
 
 import           Control.Lens
 import qualified Data.Map as M

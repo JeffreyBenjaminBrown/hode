@@ -12,7 +12,7 @@ import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.ShowAttr
-import Hode.UI.ITypes
+import Hode.UI.ITypes.State
 import Hode.UI.ITypes.Views
 import Hode.Util.Misc
 import Hode.Util.PTree
