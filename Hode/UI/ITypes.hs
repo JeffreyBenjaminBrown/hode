@@ -18,7 +18,7 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
-import Hode.Brick (AttrString)
+import Hode.Brick
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Qseq.QTypes
@@ -132,6 +132,7 @@ data TpltHosts = TpltHosts {
   _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
+
 -- | Shows the label of the group, not its members.
 instance Show RelHosts where
   show (_memberHostsRole -> RoleInRel' RoleTplt) =
@@ -160,6 +161,25 @@ makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MemberFork
 makeLenses ''RelHosts
+
+
+-- | Whereas `show` shows everything about the `ViewExprNode`,
+-- `showBrief` hides things the UI already makes clear.
+instance ShowBrief ViewExprNode where
+  showBrief (VQuery vq) = vq
+  showBrief (VExpr x) =
+    show (x ^. viewExpr_Addr) ++ ": "
+    ++ show (x ^. viewExpr_String)
+  showBrief (VMemberFork _) = "its members"
+  showBrief (VHostFork (RelHostFork  x)) = show x
+  showBrief (VHostFork (TpltHostFork x)) = show x
+
+instance ShowAttr ViewExprNode where
+  showAttr (VExpr ve) =
+    [(show $ _viewExpr_Addr ve, addrColor)]
+    ++ _viewExpr_String ve
+  showAttr x =
+    [(showBrief x, textColor)]
 
 
 -- | = Huge types.

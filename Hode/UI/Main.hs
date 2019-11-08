@@ -25,7 +25,6 @@ import Hode.UI.Input
 import Hode.UI.ITypes
 import Hode.UI.IUtil
 import Hode.UI.ShowPTree
-import Hode.UI.IUtil.String
 import Hode.Util.PTree
 
 
@@ -105,7 +104,7 @@ appDraw st0 = [w] where
 
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
-    Just p -> let showNode = show_ViewExprNode' . _viewExprNode
+    Just p -> let showNode = showAttr . _viewExprNode
                   getFolded = _folded . _otherProps
                   showColumns :: BufferRow -> AttrString
                   showColumns bfr =

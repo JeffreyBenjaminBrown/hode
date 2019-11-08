@@ -18,8 +18,8 @@ This will load all non-broken modules when some are broken.
 The problem is that show_ViewExprNode' only shows `VExpr`s in color.
 show_ViewExprNode' :: ViewExprNode -> AttrString
 
-Create a ShowAttr class.
-rewrite show_ViewExprNode as an instance of it
+ShowAttr:
+rewrite show_ViewExprNode as an instance
 add an instance for RelHosts
 *** highlight not everywhere
 *** represent, render the columns

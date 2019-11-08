@@ -4,8 +4,9 @@
 , ViewPatterns #-}
 
 module Hode.Util.Misc (
+    ShowBrief, showBrief
   -- | = the `Aged` type
-    Aged(..), unAged
+  ,  Aged(..), unAged
   , catNews -- ^ [Aged a] -> [a]
 
   -- | = Fix
@@ -49,6 +50,10 @@ import qualified Data.Set    as S
 import           Data.Vector (Vector)
 import qualified Data.Vector as V
 import           Lens.Micro
+
+
+class ShowBrief a where
+  showBrief :: a -> String
 
 
 -- | The `Aged` type
