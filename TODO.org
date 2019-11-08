@@ -14,13 +14,7 @@ This will load all non-broken modules when some are broken.
  add tests for UI.Types
    it's that complex
 ** TODO views: clean them
-*** color the hashes in VHostFork rows
-The problem is that show_ViewExprNode' only shows `VExpr`s in color.
-show_ViewExprNode' :: ViewExprNode -> AttrString
-
-ShowAttr:
-rewrite show_ViewExprNode as an instance
-add an instance for RelHosts
+*** columns not shown at top of tree
 *** highlight not everywhere
 *** represent, render the columns
 **** Currently, each row is rendered separately, without considering others.

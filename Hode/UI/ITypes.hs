@@ -25,6 +25,7 @@ import Hode.Qseq.QTypes
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
+import Hode.Rslt.ShowAttr
 import Hode.Util.Misc
 import Hode.Util.PTree
 
@@ -132,16 +133,16 @@ data TpltHosts = TpltHosts {
   _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
-
 -- | Shows the label of the group, not its members.
 instance Show RelHosts where
+  -- PITFALL: Egregious duplication; see `ShowAttr` instance.
   show (_memberHostsRole -> RoleInRel' RoleTplt) =
     "Rels using it as a Tplt"
   show relHosts = let
     tplt :: Tplt Expr = _memberHostsTplt relHosts
     noLeft     = error "show RelHosts: impossible"
     noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: This math is good."
+    noMiscount = error "show RelHosts: Did I miscount?"
     RoleInRel' (RoleMember (n :: Int)) =
       _memberHostsRole relHosts
     mbrs = either (const noMiscount) id
@@ -149,6 +150,24 @@ instance Show RelHosts where
            $ replicate (arity tplt) $ Phrase "_"
     in either (const noLeft) id $
        eParenShow 3 noRslt $ ExprRel $
+       Rel mbrs $ ExprTplt tplt
+
+instance ShowAttr RelHosts where
+  -- PITFALL: Egregious duplication; see `Show` instance.
+  showAttr (_memberHostsRole -> RoleInRel' RoleTplt) =
+    [("Rels using it as a Tplt",textColor)]
+  showAttr relHosts = let
+    tplt :: Tplt Expr = _memberHostsTplt relHosts
+    noLeft     = error "show RelHosts: impossible"
+    noRslt     = error "show RelHosts: Rslt irrelevant"
+    noMiscount = error "show RelHosts: Did I miscount?"
+    RoleInRel' (RoleMember (n :: Int)) =
+      _memberHostsRole relHosts
+    mbrs = either (const noMiscount) id
+           $ replaceNth (Phrase $ "it") n
+           $ replicate (arity tplt) $ Phrase "_"
+    in either (const noLeft) id $
+       eParenShowAttr 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.
@@ -178,6 +197,8 @@ instance ShowAttr ViewExprNode where
   showAttr (VExpr ve) =
     [(show $ _viewExpr_Addr ve, addrColor)]
     ++ _viewExpr_String ve
+  showAttr (VHostFork (RelHostFork r)) =
+    showAttr r
   showAttr x =
     [(showBrief x, textColor)]
 
