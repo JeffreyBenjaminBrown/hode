@@ -9,12 +9,16 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO studying Hode.UI
- resume at
-   instance Show MemberHosts where
- add tests for UI.Types
-   it's that complex
+run the following to get a rough ordering of what to read
+  egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
+resume at
+  ShowPTree.hs
 ** TODO views: clean them
 *** columns not shown at top of tree
+change the Buffer type
+  to compute the maximum string length in each column
+change ShowPTree.hs
+  to use that
 *** highlight not everywhere
 *** represent, render the columns
 **** Currently, each row is rendered separately, without considering others.

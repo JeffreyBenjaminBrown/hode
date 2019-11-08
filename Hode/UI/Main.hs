@@ -102,7 +102,8 @@ appDraw st0 = [w] where
     Nothing -> str "There are no results to show. Add one with M-S-t."
     Just p ->
       viewport (BrickMainName SearchBuffers) B.Vertical $
-      porestToWidget (const "") _bufferQuery (const True) focusStyle p
+      porestToWidget strWrap (const "")
+      _bufferQuery (const True) focusStyle p
 
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
@@ -113,7 +114,7 @@ appDraw st0 = [w] where
                     concatMap ((:[]) . (, textColor) . show) $
                     M.elems $ _columnProps bfr
       in viewport (BrickMainName Results) B.Vertical $
-         porestToWidget' attrStringWrap showColumns
+         porestToWidget attrStringWrap showColumns
          showNode getFolded focusStyle p
 
 

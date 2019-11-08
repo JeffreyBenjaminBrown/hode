@@ -72,7 +72,7 @@ pCommand_find r s = prefixLeft "pCommand_find:" $ do
   CommandFind s <$> pExprToHExpr r e1
 
 -- TODO ? In `pCommand_sort`, it's kind of ugly that
--- `hExprToAddrs` is called for ts, but not as.
+-- `hExprToAddrs` is called for `ts` and not for `as`.
 -- They could both be called downstream.
 -- That would make it more like `pCommand_find`.
 pCommand_sort :: BinOrientation -> Rslt -> String
