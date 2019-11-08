@@ -8,13 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO Rslt.Edit.Terminal
-after replacing with "", move "" back to 0
--    else replaceExpr a (Phrase "") r -- TODO ? is this okay
-+    else -- Move "" there, then move "" back to 0.
-+         -- TODO ? is this safe?
-+    replaceExpr a (Phrase "") r >>=
-+    replaceExpr 0 (Phrase "")
 ** TODO studying Hode.UI
 run the following to get a rough ordering of what to read
   egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2

@@ -40,7 +40,7 @@ data BufferRow = BufferRow {
 -- A `VMemberFork`  or `VHostFork` announces the relationship
 -- between its parent in the view tree and its children.
 --
--- PITFALL: `VTree ViewExprNode` permits invalid state.
+-- PITFALL: `PTree ViewExprNode` permits invalid state.
 -- A `VQuery` should be nowhere but the top of the tree.
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
 -- The subviews of a `VExpr` should be `VMemberFork`s or `VHostFork`s.

@@ -72,4 +72,4 @@ import Hode.Util.Direction as X
 import Hode.Util.Misc as X
 import Hode.Util.PTree as X
 import Hode.Util.UParse as X
-import Hode.Util.VTree as X
+

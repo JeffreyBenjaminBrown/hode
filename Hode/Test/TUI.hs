@@ -3,7 +3,6 @@
 module Hode.Test.TUI where
 
 import qualified Data.Set        as S
-import qualified Data.Vector     as V
 import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
@@ -14,17 +13,7 @@ import           Hode.UI.BufferRowTree
 import           Hode.UI.Types.Names
 import           Hode.UI.Types.Views
 import           Hode.UI.Input.IParse
-import           Hode.Util.VTree
 import qualified Hode.Test.Rslt.RData as D
-
-
-aViewExprNodeTree :: VTree ViewExprNode
-aViewExprNodeTree = VTree {
-    _vTreeFocalChild = 0
-  , _vTreeIsFocused = False
-  , _vTreeLabel = VQuery "top"
-  , _vTrees = V.fromList
-    $ map (vTreeLeaf . VQuery .show) [0,1 :: Int] }
 
 
 test_module_ui :: T.Test

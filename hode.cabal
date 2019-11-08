@@ -118,7 +118,6 @@ library
                 , Hode.Util.Misc
                 , Hode.Util.PTree
                 , Hode.Util.UParse
-                , Hode.Util.VTree
   other-modules:
   build-depends:
                 base
