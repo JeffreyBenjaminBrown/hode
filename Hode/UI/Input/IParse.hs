@@ -13,7 +13,7 @@ import Hode.Hash.HParse
 import Hode.Hash.HTypes
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
-import Hode.UI.ITypes
+import Hode.UI.ITypes.Names
 import Hode.Util.Misc
 import Hode.Util.UParse
 

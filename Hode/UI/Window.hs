@@ -14,6 +14,7 @@ import qualified Data.Text.Zipper.Generic as TxZ
 import qualified Brick.Widgets.Edit       as B
 
 import Hode.UI.ITypes
+import Hode.UI.ITypes.Names
 
 
 hideReassurance :: St -> St

@@ -22,6 +22,8 @@ import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
 import Hode.UI.IUtil.String (mkViewExpr)
 import Hode.UI.ITypes
+import Hode.UI.ITypes.Names
+import Hode.UI.ITypes.Views
 import Hode.UI.Window
 import Hode.Util.PTree
 

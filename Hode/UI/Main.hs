@@ -23,6 +23,8 @@ import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
 import Hode.UI.Input
 import Hode.UI.ITypes
+import Hode.UI.ITypes.Names
+import Hode.UI.ITypes.Views
 import Hode.UI.IUtil
 import Hode.UI.ShowPTree
 import Hode.Util.PTree

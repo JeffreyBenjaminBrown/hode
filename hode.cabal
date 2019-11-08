@@ -101,6 +101,8 @@ library
                 , Hode.UI.BufferTree
                 , Hode.UI.Clipboard
                 , Hode.UI.ITypes
+                , Hode.UI.ITypes.Names
+                , Hode.UI.ITypes.Views
                 , Hode.UI.IUtil
                 , Hode.UI.IUtil.String
                 , Hode.UI.Input

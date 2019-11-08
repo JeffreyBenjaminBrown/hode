@@ -8,7 +8,7 @@ import           Lens.Micro
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
 
-import Hode.UI.ITypes
+import Hode.UI.ITypes.Names
 import Hode.Util.PTree
 
 
