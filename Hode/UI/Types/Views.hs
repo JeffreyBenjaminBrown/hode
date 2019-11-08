@@ -19,8 +19,6 @@ import Hode.Rslt.ShowAttr
 import Hode.Util.Misc
 
 
--- | = Views
-
 type ColumnProps = Map HExpr Int
 
 data OtherProps = OtherProps {
@@ -32,10 +30,6 @@ data BufferRow = BufferRow {
   , _columnProps  :: ColumnProps
   , _otherProps   :: OtherProps
   } deriving (Show, Eq, Ord)
-
-bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
-bufferRow_from_viewExprNode n =
-  BufferRow n mempty $ OtherProps False
 
 
 -- | = A `ViewExprNode` is a node in a tree of descendents of search results.
@@ -95,6 +89,13 @@ data TpltHosts = TpltHosts {
   _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
+
+-- | = Functions (inc. TH-generated lenses)
+
+bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
+bufferRow_from_viewExprNode n =
+  BufferRow n mempty $ OtherProps False
+
 -- | Shows the label of the group, not its members.
 instance Show RelHosts where
   -- PITFALL: Egregious duplication; see `ShowAttr` instance.
@@ -136,13 +137,15 @@ instance ShowAttr RelHosts where
 instance Show TpltHosts where
   show _ = "Tplts using it as a joint"
 
+-- PITFALL: These lenses have to be defined *right here*,
+-- after the `Show` instances that `ViewExprNode` depends on,
+-- and before the `Show` instances for `ViewExprNode` itself.
 makeLenses ''BufferRow
 makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
 makeLenses ''MemberFork
 makeLenses ''RelHosts
-
 
 -- | Whereas `show` shows everything about the `ViewExprNode`,
 -- `showBrief` hides things the UI already makes clear.
@@ -163,3 +166,4 @@ instance ShowAttr ViewExprNode where
     showAttr r
   showAttr x =
     [(showBrief x, textColor)]
+

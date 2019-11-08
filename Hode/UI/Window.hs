@@ -18,7 +18,8 @@ import Hode.UI.Types.State
 
 
 hideReassurance :: St -> St
-hideReassurance = showingOptionalWindows %~ M.insert Reassurance False
+hideReassurance = showingOptionalWindows
+                  %~ M.insert Reassurance False
 
 showError, showReassurance :: String -> St -> St
 showError msg =

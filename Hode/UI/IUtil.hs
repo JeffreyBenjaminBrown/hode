@@ -45,7 +45,7 @@ emptySt r = St {
             , HMap $ M.singleton (RoleInRel' $ RoleMember 3) $ HVar VarRowNode
             ] ]
   , _uiError   = ""
-  , _reassurance = "It's all good."
+  , _reassurance = "This window is for reassurance. It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""
   , _commandHistory = []
   , _appRslt   = r

@@ -98,7 +98,7 @@ handleKeyboard_atResultsWindow st ev = case ev of
 
   V.EvKey (V.KChar 'w') [V.MMeta] -> do
     -- TODO : slightly buggy: conjures, copies some empty lines.
-    liftIO ( toClipboard $ unlines $ resultsText st )
+    liftIO ( toClipboard $ unlines $ focusedBufferStrings st )
     B.continue $ st
       & showReassurance "Results window copied to clipboard."
 

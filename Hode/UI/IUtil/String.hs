@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.IUtil.String (
-    resultsText  -- ^ St -> [String]
+    focusedBufferStrings  -- ^ St -> [String]
   , mkViewExpr   -- ^ Rslt -> Addr -> Either String ViewExpr
   ) where
 
@@ -19,8 +19,10 @@ import Hode.Util.PTree
 
 
 -- | Render an entire `Buffer` to text.
-resultsText :: St -> [String]
-resultsText st = maybe [] (concatMap $ go 0) p where
+focusedBufferStrings :: St -> [String]
+focusedBufferStrings st =
+  maybe [] (concatMap $ go 0) p
+  where
   p :: Maybe (Porest BufferRow)
   p = st ^? stGetFocused_Buffer . _Just .
       bufferRowPorest . _Just

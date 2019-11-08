@@ -12,19 +12,21 @@ This will load all non-broken modules when some are broken.
 run the following to get a rough ordering of what to read
   egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
 resume at
-  ShowPTree.hs
+  BufferRowTree.hs
 ** TODO views: clean them
 *** columns not shown at top of tree
-change the Buffer type
-  to compute the maximum string length in each column
-change ShowPTree.hs
-  to use that
 *** highlight not everywhere
 *** represent, render the columns
-**** Currently, each row is rendered separately, without considering others.
-**** The right way would be
- compute the max (across all rows) width of each column first,
- and pad each row's column-cells to match.
+**** TODO
+change the Buffer type
+  to compute the maximum string length in each column
+change the showColumns argument to ShowPTree.hs
+  to use that new Buffer field
+**** problem description
+Currently, each row is rendered separately, without considering others.
+The right way would be to
+  compute the max (across all rows) width of each column first,
+  and pad each row's column-cells to match.
 *** screen-wrap is broken
 an unmerged branch, showPTree_bughunt, contains work on it
 ** TODO ? separate State and UIState, and use State in NoUI

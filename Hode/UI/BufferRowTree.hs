@@ -1,10 +1,3 @@
--- | This code could be a lot shorter if I understood and/or used:
---   (1) prisms? traversals?) something to let me lens into a Vector
---   to modify it, where the return type is `Either String (Vector a)`
---   rather than `Vector a`.
---   (2) Zippers instead of Vectors. (This would obviate the first task.)
---   (2a) Mutable Vectors instead of immutable ones.
-
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}

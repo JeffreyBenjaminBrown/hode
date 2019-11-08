@@ -107,12 +107,13 @@ appDraw st0 = [w] where
 
   resultWindow = case b ^. bufferRowPorest of
     Nothing -> str "There are no results to show (yet)."
-    Just p -> let showNode = showAttr . _viewExprNode
-                  getFolded = _folded . _otherProps
-                  showColumns :: BufferRow -> AttrString
-                  showColumns bfr =
-                    concatMap ((:[]) . (, textColor) . show) $
-                    M.elems $ _columnProps bfr
+    Just p -> let
+      showNode = showAttr . _viewExprNode
+      getFolded = _folded . _otherProps
+      showColumns :: BufferRow -> AttrString
+      showColumns bfr =
+        concatMap ((:[]) . (, textColor) . show) $
+        M.elems $ _columnProps bfr
       in viewport (BrickMainName Results) B.Vertical $
          porestToWidget attrStringWrap showColumns
          showNode getFolded focusStyle p
