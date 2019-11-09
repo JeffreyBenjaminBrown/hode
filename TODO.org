@@ -10,13 +10,18 @@ This will load all non-broken modules when some are broken.
 * TODO next
 ** TODO studying Hode.UI
 resume at
-  BufferTree.hs
+  IUtil.hs
 skipped ahead, already studied
   Input.hs
 run the following to get a rough ordering of what to read
   egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
 ** TODO tackle TODO items in UI/
 ** TODO test all the UI functions (manually)
+** TODO bugs
+*** buffer view does not show children
+though they are present -- they can be navigated to and from
+*** screen-wrap is broken
+an unmerged branch, showPTree_bughunt, contains work on it
 ** TODO views: clean them
 *** TODO first: indentation is uneven
 (Fixing this might fix other issues.)
@@ -36,8 +41,6 @@ Currently, each row is rendered separately, without considering others.
 The right way would be to
   compute the max (across all rows) width of each column first,
   and pad each row's column-cells to match.
-*** screen-wrap is broken
-an unmerged branch, showPTree_bughunt, contains work on it
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
