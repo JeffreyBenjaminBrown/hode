@@ -106,10 +106,16 @@ deriveEq1 ''ExprFWith
 -- than `Expr`s, for speed and compactness.
 data Rslt = Rslt {
     _addrToRefExpr :: Map Addr RefExpr
+      -- ^ Given an `Addr`, tells you what's there.
+      -- Every other field is derived from this one.
   , _refExprToAddr :: Map RefExpr Addr
+      -- ^ The inverse of _addrToRefExpr.
   , _variety       :: Map Addr (ExprCtr, Arity)
+      -- ^ Tells you what kind of thing is there.
   , _has           :: Map Addr (Map Role Addr)
+      -- ^ Tells you its members, if any.
   , _isIn          :: Map Addr (Set (Role, Addr))
+      -- ^ Tells you its hosts, i.e. what it belongs to.
   } deriving (Eq, Ord, Read, Show)
 
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.
