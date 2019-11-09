@@ -1,10 +1,7 @@
 {-# LANGUAGE
-DeriveFunctor, DeriveFoldable, DeriveTraversable,
-RankNTypes,
 ScopedTypeVariables,
-TemplateHaskell,
-ViewPatterns,
-TypeFamilies #-}
+TemplateHaskell
+#-}
 
 module Hode.UI.Types.State where
 

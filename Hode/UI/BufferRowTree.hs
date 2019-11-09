@@ -1,6 +1,5 @@
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase,
+ScopedTypeVariables #-}
 
 module Hode.UI.BufferRowTree
   ( moveFocusedViewExprNode   -- ^ Direction -> St -> St

@@ -1,10 +1,10 @@
 -- | This module handles the step that follows parsing:
 -- creating `HExpr`s from `PExpr`s and `PRel`s.
 
-{-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE LambdaCase
+, ViewPatterns
+, ScopedTypeVariables
+#-}
 
 module Hode.Hash.Convert (
     pRelToHExpr          -- ^ PRel  -> Either String HExpr

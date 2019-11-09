@@ -25,25 +25,30 @@ import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.Window
+import Hode.Util.Misc
 import Hode.Util.PTree
 
 
 unEitherSt :: St -> Either String St -> St
-unEitherSt old (Left s) = old & showError s
-unEitherSt _ (Right new) = new & showingErrorWindow .~ False
+unEitherSt old (Left s) =
+  old & showError s
+unEitherSt _ (Right new) =
+  new & showingErrorWindow .~ False
 
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
-  , _columnHExprs = -- TODO : This is a hack. In TODO.org,
-      -- see the section called  (HExpr: add a symbol for "involves")
-      [ HOr [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) $ HVar VarRowNode
-            , HMap $ M.singleton (RoleInRel' $ RoleMember 1) $ HVar VarRowNode
-            , HMap $ M.singleton (RoleInRel' $ RoleMember 2) $ HVar VarRowNode
-            , HMap $ M.singleton (RoleInRel' $ RoleMember 3) $ HVar VarRowNode
-            ] ]
+  , _columnHExprs =
+      [ HOr -- count how many relationships something is in
+      -- TODO : This is a hack. In TODO.org,
+      -- see the section called (HExpr: add a symbol for "involves")
+        [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) $ HVar VarRowNode
+        , HMap $ M.singleton (RoleInRel' $ RoleMember 1) $ HVar VarRowNode
+        , HMap $ M.singleton (RoleInRel' $ RoleMember 2) $ HVar VarRowNode
+        , HMap $ M.singleton (RoleInRel' $ RoleMember 3) $ HVar VarRowNode
+        ] ]
   , _uiError   = ""
   , _reassurance = "This window is for reassurance. It's all good."
   , _commands  = B.editor (BrickOptionalName Commands) Nothing ""
@@ -64,7 +69,8 @@ emptyBuffer = Buffer {
 
 -- | TODO : This ought to handle `VMember`s and `VCenterRole`s too.
 buffer_from_bufferRowTree :: PTree BufferRow -> Either String Buffer
-buffer_from_bufferRowTree vt = do
+buffer_from_bufferRowTree vt =
+  prefixLeft "buffer_from_bufferRowTree:" $ do
   let (br :: BufferRow) = vt ^. pTreeLabel
   vr :: ViewExpr <- case br ^. viewExprNode of
     VExpr x -> Right x

@@ -9,10 +9,14 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO studying Hode.UI
-run the following to get a rough ordering of what to read
-  egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
 resume at
   BufferRowTree.hs
+skipped ahead, already studied
+  Input.hs
+run the following to get a rough ordering of what to read
+  egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
+** TODO tackle TODO items in UI/
+** TODO test all the UI functions (manually)
 ** TODO views: clean them
 *** columns not shown at top of tree
 *** highlight not everywhere
@@ -29,7 +33,6 @@ The right way would be to
   and pad each row's column-cells to match.
 *** screen-wrap is broken
 an unmerged branch, showPTree_bughunt, contains work on it
-** TODO test all the UI functions (manually)
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.

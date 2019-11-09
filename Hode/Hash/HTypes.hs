@@ -3,7 +3,7 @@
 , TemplateHaskell
 , TypeFamilies
 , DeriveFunctor, DeriveFoldable, DeriveTraversable
-, ViewPatterns #-}
+#-}
 
 module Hode.Hash.HTypes where
 

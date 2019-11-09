@@ -1,11 +1,10 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable
+, ScopedTypeVariables
+, TemplateHaskell
+, TypeFamilies
+, ViewPatterns #-}
 
 module Hode.Util.PTree where
 

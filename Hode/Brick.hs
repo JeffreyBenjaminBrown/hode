@@ -1,8 +1,6 @@
 -- | Wraps a list of `String`s with `Attr`s attached.
 
-{-# LANGUAGE
-ScopedTypeVariables,
-ViewPatterns
+{-# LANGUAGE ScopedTypeVariables
 #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 

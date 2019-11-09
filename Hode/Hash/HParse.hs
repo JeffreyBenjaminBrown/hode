@@ -1,6 +1,5 @@
 -- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
 
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Hash.HParse (

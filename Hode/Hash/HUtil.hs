@@ -1,8 +1,8 @@
 -- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
 
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE LambdaCase
+, ScopedTypeVariables
+#-}
 
 module Hode.Hash.HUtil (
     hor             -- ^ [Addr] -> HExpr

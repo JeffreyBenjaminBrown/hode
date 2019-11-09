@@ -47,14 +47,18 @@ import Hode.Util.Misc
 import Hode.Util.PTree
 
 
-handleUncaughtInput :: St -> V.Event -> B.EventM BrickName (B.Next St)
+handleUncaughtInput ::
+  St -> V.Event -> B.EventM BrickName (B.Next St)
 handleUncaughtInput st ev =
   B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (BrickOptionalName Commands) -> B.handleEventLensed
+    Just (BrickOptionalName Commands) ->
+      -- let the user type into the Commands window
+      B.handleEventLensed
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
 
-handleKeyboard_atBufferWindow :: St -> V.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atBufferWindow ::
+  St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atBufferWindow st ev = case ev of
   V.EvKey (V.KChar 'e') [V.MMeta] -> B.continue
     $ moveFocusedBuffer DirPrev
@@ -78,7 +82,8 @@ handleKeyboard_atBufferWindow st ev = case ev of
 
   _ -> handleUncaughtInput st ev
 
-handleKeyboard_atResultsWindow :: St -> V.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atResultsWindow ::
+  St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev = case ev of
   V.EvKey (V.KChar 'h') [V.MMeta] -> B.continue $ unEitherSt st
     $ insertHosts_atFocus   st
@@ -117,24 +122,28 @@ handleKeyboard_atResultsWindow st ev = case ev of
 
   _ -> handleUncaughtInput st ev
 
-parseAndRunCommand :: St -> B.EventM BrickName (B.Next St)
+parseAndRunCommand ::
+  St -> B.EventM BrickName (B.Next St)
 parseAndRunCommand st =
-  let cmd = unlines $ B.getEditContents $ st ^. commands
+  let cmd :: String = unlines $ B.getEditContents
+                      $ st ^. commands
   in case pCommand (st ^. appRslt) cmd of
-    Left parseErr -> B.continue $ unEitherSt st $ Left parseErr
-      -- PITFALL: these two Lefts have different types.
-    Right parsedCmd -> case runParsedCommand parsedCmd st of
-      Left runErr -> B.continue $ unEitherSt st $ Left runErr
-        -- PITFALL: these two Lefts have different types.
-      Right evNextSt -> (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
-                        evNextSt
+    Left parseErr ->
+      B.continue $ unEitherSt st $ Left parseErr
+    Right parsedCmd ->
+      case runParsedCommand parsedCmd st of
+        Left runErr ->
+          B.continue $ unEitherSt st $ Left runErr
+        Right evNextSt ->
+          (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
+          evNextSt
         -- PITFALL: Don't call `unEitherSt` on this `evNextSt`, because
         -- it might be showing errors, because the load and save commnads
         -- must return Right in order to perform IO.
 
 
 -- | Pitfall: this looks like it could just return `St` rather
--- than `Event ... St`, but it needs IO to load and save.
+-- than `EventM ... St`, but it needs IO to load and save.
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
 runParsedCommand ::

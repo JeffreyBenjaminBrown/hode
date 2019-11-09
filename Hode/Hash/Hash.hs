@@ -1,6 +1,6 @@
--- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns
+, ScopedTypeVariables
+#-}
 
 module Hode.Hash.Hash where
 

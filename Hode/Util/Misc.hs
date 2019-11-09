@@ -1,7 +1,6 @@
 {-# LANGUAGE RankNTypes
 , ScopedTypeVariables
-, InstanceSigs
-, ViewPatterns #-}
+#-}
 
 module Hode.Util.Misc (
     ShowBrief, showBrief
