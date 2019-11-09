@@ -10,7 +10,7 @@ This will load all non-broken modules when some are broken.
 * TODO next
 ** TODO studying Hode.UI
 resume at
-  IUtil.hs
+  Main.hs
 skipped ahead, already studied
   Input.hs
 run the following to get a rough ordering of what to read
