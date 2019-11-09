@@ -74,70 +74,14 @@ insertMembers_atFocus st = prefixLeft "-> insertMembers_atFocus" $ do
 
   Right $ st & stSetFocused_ViewExprNode_Tree %~ consUnder_andFocus new
 
-groupHostRels :: Rslt -> Addr -> Either String [(HostFork, [Addr])]
-groupHostRels r a0 = prefixLeft "-> groupHostRels" $ do
-  ras :: [(Role, Addr)] <-
-    prefixLeft ("computing ras from " ++ show a0)
-    $ S.toList <$> isIn r a0
-  vs :: [ExprCtr] <- prefixLeft ", computing varieties"
-    $ map fst
-    <$> ifLefts (map (variety r . snd) ras)
-
-  -- The rest of the work divides into grouping the `Rel`s that a0 is in,
-  -- and building one group of `Tplt`s, if it's nonempty.
-  let (tplt_ras :: [(Role,Addr)], rel_ras :: [(Role,Addr)]) =
-        both %~ map fst $ L.partition isTplt ravs
-        where ravs :: [((Role,Addr),ExprCtr)] = zip ras vs
-              isTplt :: ((Role,Addr),ExprCtr) -> Bool
-              isTplt = (\case TpltCtr -> True; _ -> False) . snd
-
-  let maybeConsTpltPackage :: [(HostFork, [Addr])] -> [(HostFork, [Addr])]
-      maybeConsTpltPackage = if null tplt_ras then id else (:) tplt_package
-        where tplt_package :: (HostFork, [Addr]) =
-                (tplt_fork, map snd tplt_ras)
-                where tplt_fork = TpltHostFork $ TpltHosts a0
-
-  rel_tplts <- let tpltOf :: Addr -> Either String Addr
-                   tpltOf a = fills r (RoleInRel' RoleTplt, a)
-               in prefixLeft "while computing rel_tplts"
-                  $ ifLefts $ map (tpltOf . snd) rel_ras
-
-  let rel_groups :: Map (Role,Addr) [Addr] -- key are (Role, Tplt) pairs
-      rel_groups = foldr f M.empty $ zip rel_ras rel_tplts
-        where f :: ((Role, Addr), Addr) -> Map (Role, Addr) [Addr]
-                                        -> Map (Role, Addr) [Addr]
-              f ((role,a),t) m = M.insertWith (++) (role,t) [a] m
-          -- `f` is efficient: `a` is prepended, not appended.
-
-      package_rel_groups :: ((Role, Addr),[Addr]) -> (HostFork, [Addr])
-      package_rel_groups ((role,t),as) = (RelHostFork relHosts, as)
-        where
-          relHosts = RelHosts { _memberHostsCenter = a0
-                               , _memberHostsRole = role
-                               , _memberHostsTplt = tplt t }
-            where tplt :: Addr -> Tplt Expr
-                  tplt a = es
-                    where Right (ExprTplt es) = addrToExpr r a
-
-  Right $ maybeConsTpltPackage
-    $ map package_rel_groups (M.toList rel_groups)
-
-groupHostRels_atFocus :: St -> Either String [(HostFork, [Addr])]
-groupHostRels_atFocus st = prefixLeft "-> groupHostRels_atFocus'" $ do
-  a :: Addr <-
-    let errMsg = "Buffer not found or focused ViewExprNode not found."
-    in maybe (Left errMsg) Right $
-       st ^? stGetFocused_ViewExprNode_Tree . _Just .
-       pTreeLabel . viewExprNode . _VExpr . viewExpr_Addr
-  groupHostRels (st ^. appRslt) a
-
 insertHosts_atFocus :: St -> Either String St
-insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
-  (groups :: [(HostFork, [Addr])]) <-
+insertHosts_atFocus st =
+  prefixLeft "insertHosts_atFocus:" $ do
+  groups :: [(HostFork, [Addr])] <-
     groupHostRels_atFocus st
-  (newTrees :: [PTree BufferRow]) <-
+  newTrees :: [PTree BufferRow] <-
     ifLefts $ map (hostGroup_to_view st) groups
-  (preexist :: Maybe (Porest BufferRow)) <-
+  preexist :: Maybe (Porest BufferRow) <-
     let errMsg = "focused ViewExprNode not found."
     in maybe (Left errMsg) Right $ st ^?
        stGetFocused_ViewExprNode_Tree . _Just . pMTrees
@@ -148,19 +92,93 @@ insertHosts_atFocus st = prefixLeft "-> insertHosts_atFocus" $ do
                    P.fromList (foldr (:) preexist' newTrees)
   Right $ st & stSetFocused_ViewExprNode_Tree %~ insert
 
+groupHostRels_atFocus ::
+  St -> Either String [(HostFork, [Addr])]
+groupHostRels_atFocus st =
+  prefixLeft "-> groupHostRels_atFocus'" $ do
+  a :: Addr <- maybe
+    (Left "Buffer or focused ViewExprNode not found.")
+    Right $ st ^? stGetFocused_ViewExprNode_Tree . _Just .
+      pTreeLabel . viewExprNode . _VExpr . viewExpr_Addr
+  groupHostRels (st ^. appRslt) a
+
+groupHostRels ::
+  Rslt -> Addr -> Either String [(HostFork, [Addr])]
+groupHostRels r a0 =
+  prefixLeft "groupHostRels:" $ do
+  ras :: [(Role, HostAddr)] <-
+    S.toList <$> isIn r a0
+  vs :: [ExprCtr] <-
+    map fst <$> ifLefts (map (variety r . snd) ras)
+
+  -- Separate `ras` into `Tplt`s and `Rel`s
+  let ( tplt_ras :: [(Role,TpltAddr)],
+        rel_ras  :: [(Role,RelAddr)] ) =
+        both %~ map fst $ L.partition isTplt ravs
+        where
+          ravs :: [((Role,HostAddr),ExprCtr)] = zip ras vs
+          isTplt :: ((Role,HostAddr),ExprCtr) -> Bool
+          isTplt = (\case TpltCtr -> True; _ -> False) . snd
+
+  -- There might not be any `Tplt` hosts to add.
+  let maybeConsTpltHosts ::
+        [(HostFork, [Addr])] -> [(HostFork, [Addr])]
+      maybeConsTpltHosts =
+        if null tplt_ras then id else (:) tpltHosts
+        where tpltHosts :: (HostFork, [Addr]) =
+                (tplt_fork, map snd tplt_ras)
+                where tplt_fork = TpltHostFork $ TpltHosts a0
+
+  -- The rest of the work divides into grouping the `Rel`s that a0 is in,
+  -- and building one group of `Tplt`s, if it's nonempty.
+  rel_tplts <- let tpltOf :: Addr -> Either String Addr
+                   tpltOf a = fills r (RoleInRel' RoleTplt, a)
+               in prefixLeft "while computing rel_tplts"
+                  $ ifLefts $ map (tpltOf . snd) rel_ras
+
+  let rel_groups :: Map (Role,Addr) [Addr]
+      rel_groups =
+        foldr f M.empty $ zip rel_ras rel_tplts
+        where f ::    ((Role, Addr), Addr)
+                -> Map (Role, Addr) [Addr]
+                -> Map (Role, Addr) [Addr]
+              f ((role,a),t) m =
+                M.insertWith (++) (role,t) [a] m
+          -- `f` is efficient: `a` is prepended, not appended.
+
+      package_rel_groups ::
+        ((Role, Addr),[Addr]) -> (HostFork, [Addr])
+      package_rel_groups ((role,t),as) =
+        (RelHostFork relHosts, as)
+        where
+          relHosts = RelHosts { _memberHostsCenter = a0
+                               , _memberHostsRole = role
+                               , _memberHostsTplt = tplt t }
+            where tplt :: Addr -> Tplt Expr
+                  tplt a = es
+                    where Right (ExprTplt es) = addrToExpr r a
+
+  Right $ maybeConsTpltHosts
+    $ map package_rel_groups (M.toList rel_groups)
+
+-- | `hostGroup_to_view st (hg, as)` makes 2-layer tree.
+-- `hg` is the root.
+-- The `ViewExpr`s creates from `as` form the other layer.
 hostGroup_to_view :: St -> (HostFork, [Addr])
                   -> Either String (PTree BufferRow)
-hostGroup_to_view st (hg, as) = prefixLeft "-> hostGroup_to_view" $ do
-  case as of [] -> Left "There are no host Exprs to show."
-             _  -> Right ()
-  let mustBeOkay = "Impossible: `as` is nonempty, so P.fromList must work."
+hostGroup_to_view st (hg, as) =
+  prefixLeft "-> hostGroup_to_view" $ do
+  if null as then Left "There are no host Exprs to show."
+             else Right ()
+  let mustBeOkay = "Impossible: `as` is nonempty, "
+                   ++ "so P.fromList must work."
       r = st ^. appRslt
-  rs :: [ViewExpr] <-
+  ves :: [ViewExpr] <-
     ifLefts $ map (mkViewExpr r) as
 
-  -- The new subtree has two layers: the top and the leaves
-  topOfNew <- bufferRow_from_viewExprNode' st $ VHostFork hg
-  let leaves0 :: [ViewExprNode] = map VExpr rs
+  topOfNew :: BufferRow <-
+    bufferRow_from_viewExprNode' st $ VHostFork hg
+  let leaves0 :: [ViewExprNode] = map VExpr ves
   leaves1 :: [BufferRow] <- ifLefts $
     map (bufferRow_from_viewExprNode' st) leaves0
   Right $ PTree {

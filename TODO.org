@@ -18,6 +18,11 @@ run the following to get a rough ordering of what to read
 ** TODO tackle TODO items in UI/
 ** TODO test all the UI functions (manually)
 ** TODO views: clean them
+*** TODO first: indentation is uneven
+(Fixing this might fix other issues.)
+
+under each ViewExpr it is only 1 space.
+Under other things it is 2 spaces.
 *** columns not shown at top of tree
 *** highlight not everywhere
 *** represent, render the columns
@@ -136,6 +141,7 @@ If anything is modified, ask "are you sure? Your repo has uncommitted changes; s
 
 If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
+** TODO visually indicate whether a a node with descendents is folded
 ** to include arity in the a node's type
 see digraphs-with-text/gadt.hs
 ** TODO simplify result of nPExpr
