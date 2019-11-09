@@ -3,12 +3,12 @@ ScopedTypeVariables #-}
 
 module Hode.UI.BufferRowTree
   ( moveFocusedViewExprNode   -- ^ Direction -> St -> St
-  , insertMembers_atFocus -- ^ St -> Either String St
-  , members_atFocus       -- ^ St -> Either String (MemberFork, [Addr])
-  , insertHosts_atFocus   -- ^ St -> Either String St
-  , groupHostRels_atFocus -- ^ St ->    Either String [(RelHosts, [Addr])]
+  , insertMembers_atFocus -- ^ St ->    Either String St
+  , members_atFocus       -- ^ St ->    Either String (MemberFork, [Addr])
+  , insertHosts_atFocus   -- ^ St ->    Either String St
+  , groupHostRels_atFocus -- ^ St ->    Either String [(HostFork, [Addr])]
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
-  , hostGroup_to_forkTree -- ^ Rslt -> (RelHosts, [Addr]) ->
+  , hostGroup_to_forkTree -- ^ Rslt -> (HostFork, [Addr]) ->
                           -- Either String (PTree ViewExprNode)
   , closeSubviews_atFocus -- ^ St -> St
   , foldSubviews_atFocus  -- ^ St -> St
