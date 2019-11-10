@@ -98,6 +98,7 @@ getFocusedSubtree = to go where
     Nothing -> Nothing
     Just ts -> go $ ts ^. P.focus
 
+-- | Change something about the focused subtree.
 setFocusedSubtree :: Setter' (PTree a) (PTree a)
 setFocusedSubtree = sets go where
   go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a

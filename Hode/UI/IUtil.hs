@@ -94,4 +94,5 @@ mkBufferRowPorest r as =
     mkLeaf a =
       pTreeLeaf $ bufferRow_from_viewExprNode $
       VExpr $ either err id $ mkViewExpr r a
-    (err :: String -> ViewExpr) = \se -> error (", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
+    err :: String -> ViewExpr
+    err s = error $ ", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ s

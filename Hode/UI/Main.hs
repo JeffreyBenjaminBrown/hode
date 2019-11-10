@@ -53,71 +53,82 @@ app = B.App
 -- Each `ViewExprNodeTree`'s `viewIsFocused` field is `False` outside of `appDisplay`.
 appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
-  w = B.center $
-    (if st0 ^. showingErrorWindow then errorWindow else mainWindow)
+  w :: B.Widget BrickName =
+    B.center $
+    ( if st0 ^. showingErrorWindow
+      then errorWindow else mainWindow )
     <=> optionalWindows
 
-  st = st0 & stSetFocusedBuffer .~ b
-           & ( searchBuffers . _Just . P.focus
-               . setFocusedSubtree . pTreeHasFocus .~ True )
-           & stSetFocused_ViewExprNode_Tree . pTreeHasFocus .~ True
-  (b :: Buffer) = maybe err id $  st0 ^? stGetFocused_Buffer . _Just where
-      err = error "Focused Buffer not found."
+  st :: St = st0
+    & ( searchBuffers . _Just . P.focus
+        . setFocusedSubtree
+        -- set focus in the SearchBuffers window
+        . pTreeHasFocus .~ True )
+    & ( stSetFocused_ViewExprNode_Tree
+        -- set focus in the Results window
+        . pTreeHasFocus .~ True )
 
-  mainWindow = case st ^. showingInMainWindow of
-    SearchBuffers  -> bufferWindow
-    CommandHistory -> commandHistoryWindow
-    Results        -> resultWindow
+  b :: Buffer = maybe
+    (error "Focused Buffer not found.") id
+    $ st0 ^? stGetFocused_Buffer . _Just
 
-  optionalWindows =
-    ( if (st ^. showingOptionalWindows) M.! Reassurance
-      then reassuranceWindow else emptyWidget ) <=>
-    ( if (st ^. showingOptionalWindows) M.! Commands
-      then commandWindow else emptyWidget )
+  mainWindow :: B.Widget BrickName =
+    case st ^. showingInMainWindow of
+      SearchBuffers  -> bufferWindow
+      CommandHistory -> commandHistoryWindow
+      Results        -> resultWindow
 
-  commandHistoryWindow, commandWindow, errorWindow, resultWindow, reassuranceWindow, bufferWindow :: B.Widget BrickName
+  optionalWindows :: B.Widget BrickName =
+    mShow Reassurance reassuranceWindow <=>
+    mShow Commands commandWindow
+    where mShow wName window =
+            if (st ^. showingOptionalWindows) M.! wName
+            then window else emptyWidget
 
-  commandHistoryWindow =
+  commandHistoryWindow :: B.Widget BrickName =
     strWrap $ unlines $ map show $ st0 ^. commandHistory
 
-  commandWindow = vLimit 1
-    ( B.withFocusRing (st^.focusRing)
-      (B.renderEditor $ str . unlines) (st^.commands) )
+  commandWindow :: B.Widget BrickName =
+    vLimit 1
+    ( B.withFocusRing (st ^. focusRing)
+      (B.renderEditor $ str . unlines) (st ^. commands) )
 
-  errorWindow = vBox
+  errorWindow :: B.Widget BrickName = vBox
     [ strWrap $ st ^. uiError
-    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press Alt-R (to go to Results), Alt-B (SearchBuffers), or Alt-H (command History)." ]
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to Results), M-S-b (SearchBuffers), or M-S-h (command History)." ]
 
-  reassuranceWindow = withAttr (B.attrName "reassurance")
+  reassuranceWindow :: B.Widget BrickName =
+    withAttr (B.attrName "reassurance")
     $ strWrap $ st0 ^. reassurance
+
+  bufferWindow :: B.Widget BrickName = maybe
+    (str "There are no buffers to show. Add one with M-S-t.")
+    ( viewport (BrickMainName SearchBuffers) B.Vertical
+      . ( porestToWidget strWrap (const "")
+          _bufferQuery (const True) focusStyle ) )
+    (st ^. searchBuffers)
+
+  resultWindow :: B.Widget BrickName = maybe
+    (str "There are no results to show (yet).")
+    ( let showNode :: BufferRow -> AttrString =
+            showAttr . _viewExprNode
+          getFolded :: BufferRow -> Bool =
+            _folded . _otherProps
+          showColumns :: BufferRow -> AttrString =
+            concatMap ((:[]) . (, textColor) . show)
+            . M.elems . _columnProps
+      in ( viewport (BrickMainName Results) B.Vertical
+         . ( porestToWidget attrStringWrap showColumns
+             showNode getFolded focusStyle ) ) )
+    (b ^. bufferRowPorest)
 
   focusStyle :: PTree a -> B.Widget BrickName
                         -> B.Widget BrickName
-  focusStyle bt = visible .  withAttr (B.attrName x) where
-    x = if not $ bt ^. pTreeHasFocus
-        then "unfocused result"
-        else  "focused result"
-
-  bufferWindow = case st ^. searchBuffers of
-    Nothing -> str "There are no results to show. Add one with M-S-t."
-    Just p ->
-      viewport (BrickMainName SearchBuffers) B.Vertical $
-      porestToWidget strWrap (const "")
-      _bufferQuery (const True) focusStyle p
-
-  resultWindow = case b ^. bufferRowPorest of
-    Nothing -> str "There are no results to show (yet)."
-    Just p -> let
-      showNode = showAttr . _viewExprNode
-      getFolded = _folded . _otherProps
-      showColumns :: BufferRow -> AttrString
-      showColumns bfr =
-        concatMap ((:[]) . (, textColor) . show) $
-        M.elems $ _columnProps bfr
-      in viewport (BrickMainName Results) B.Vertical $
-         porestToWidget attrStringWrap showColumns
-         showNode getFolded focusStyle p
-
+  focusStyle bt =
+    visible . ( withAttr $ B.attrName $
+                if not $ bt ^. pTreeHasFocus
+                  then "unfocused result"
+                  else   "focused result" )
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]
                 -> Maybe (B.CursorLocation BrickName)
@@ -143,19 +154,18 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
     $ st & showingInMainWindow .~ Results
          & showingErrorWindow .~ False
   -- Brick-focus-related stuff. So far unneeded.
-    -- PITFALL: The focused `Window` is distinct from the focused
-    -- widget within the `mainWindow`.
+    -- PITFALL: The focused `Window` is distinct from
+    -- the focused widget within the `mainWindow`.
     -- V.EvKey (V.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
     -- V.EvKey V.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
 
   _ -> case st ^. showingInMainWindow of
-    Results       -> handleKeyboard_atResultsWindow      st ev
-    SearchBuffers -> handleKeyboard_atBufferWindow st ev
-    _             -> handleUncaughtInput                  st ev
+    Results       -> handleKeyboard_atResultsWindow st ev
+    SearchBuffers -> handleKeyboard_atBufferWindow  st ev
+    _             -> handleUncaughtInput            st ev
 
 
 appHandleEvent st _ = B.continue st
-
 
 appAttrMap :: B.AttrMap
 appAttrMap = let
