@@ -8,15 +8,8 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO studying Hode.UI
-resume at
-  Main.hs
-skipped ahead, already studied
-  Input.hs
-run the following to get a rough ordering of what to read
-  egrep "import *Hode.UI" -r . --color --count | sort -t: -n -k2
-** TODO tackle TODO items in UI/
 ** TODO test all the UI functions (manually)
+** TODO tackle TODO items in UI/
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
