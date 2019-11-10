@@ -129,7 +129,6 @@ parseAndRunCommand st =
         -- it might be showing errors, because the load and save commnads
         -- must return Right in order to perform IO.
 
-
 -- | Pitfall: this looks like it could just return `St` rather
 -- than `EventM ... St`, but it needs IO to load and save.
 -- (If I really want to keep it pure I could add a field in St

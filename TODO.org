@@ -8,13 +8,19 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO test all the UI functions (manually)
 ** TODO tackle TODO items in UI/
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
 *** screen-wrap is broken
 an unmerged branch, showPTree_bughunt, contains work on it
+*** TODO copy to clipboard broken on Nix
+ I see this in the ui:
+   Results window copied to clipboard.
+   /bin/sh: xsel: command not found
+ On my system there's no such folder, and xsel is here:
+   [jeff@jbb-dell:~]$ which xsel
+   /run/current-system/sw/bin/xsel
 ** TODO views: clean them
 *** TODO first: indentation is uneven
 (Fixing this might fix other issues.)
