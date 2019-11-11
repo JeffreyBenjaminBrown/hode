@@ -13,6 +13,11 @@ module Hode.Brick (
   -- | = `attrStringWrap` is the purpose of `AttrString`
   , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
   , toLines        -- ^ Int -> AttrString -> [AttrString]
+  , toLines' -- ^ Int -> AttrString -> [AttrString]
+  , extractLine            -- ^ Int -> [(String,a)]
+                 -- -> ([(String,a)], [(String,a)])
+  , splitAtLastSpaceBefore -- ^ Int -> (String,c)
+                   -- -> ((String,c), (String,c))
 
   -- | = mapping across an AttrString
   , attrParen -- ^ AttrString -> AttrString
@@ -23,6 +28,7 @@ module Hode.Brick (
                   --         [(s,a)] -> [(s,a)]
   , attrConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
                     -- => [(a,b)] -> [(a,b)]
+  , attrStringLength -- ^ AttrString -> Int
   , sepColor, textColor, addrColor -- ^ V.Attr
   ) where
 
@@ -80,7 +86,38 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
 
+toLines' :: Int -> AttrString -> [AttrString]
+toLines' maxLength as0 = let
+  (one :: AttrString, rest :: AttrString) =
+    extractLine maxLength as0
+  in if null rest then [one]
+     else one : toLines' maxLength rest
 
+extractLine :: forall a. Eq a =>
+  Int -> [(String,a)] -> ([(String,a)], [(String,a)])
+extractLine maxLength as0 = go 0 as0 where
+  go _ [] = ([],[])
+  go ((>= maxLength) -> True) as = ([],as)
+  go k (a:as) =
+    let (one,more) =
+          splitAtLastSpaceBefore maxLength a
+        h = length $ fst one
+        as' = if null $ fst more
+              then as else more : as
+    in first (one:) $ go (k+h) as'
+
+splitAtLastSpaceBefore ::
+  Int -> (String,c) -> ((String,c), (String,c))
+splitAtLastSpaceBefore maxLength (s,c) =
+  let (atMost :: String, rest :: String) =
+        splitAt maxLength s
+      (no :: String, yes :: String) =
+        span ((/=) ' ') $ reverse atMost
+  in if null yes
+     then ( (atMost,             c),
+            (rest,               c) )
+     else ( (reverse yes,        c),
+            (reverse no ++ rest, c) )
 
 -- | = mapping across an AttrString
 
@@ -140,6 +177,9 @@ attrConsolidate =
     f [] = error "attrUngroup: should not happen"
     f cs@((_,b):_) = ( mconcat $ map fst $ reverse cs,
                        b )
+
+attrStringLength :: AttrString -> Int
+attrStringLength = sum . map (length . fst)
 
 -- | '#' symbols and parens used to group `Expr`s are "separators".
 -- (Note that ordinary text can include those symbols, too;
