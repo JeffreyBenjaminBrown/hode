@@ -79,7 +79,7 @@ buffer_from_bufferRowTree ptbr =
       VExpr x -> Right x
       _ -> Left $ "called from a non-VExpr."
   Right $ Buffer
-    { _bufferQuery = unAttrString $ ve ^. viewExpr_String
+    { _bufferQuery = unColorString $ ve ^. viewExpr_String
     , _bufferRowPorest = P.fromList [ptbr]
     }
 

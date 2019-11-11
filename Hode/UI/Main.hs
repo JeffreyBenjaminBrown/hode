@@ -110,11 +110,11 @@ appDraw st0 = [w] where
 
   resultWindow :: B.Widget BrickName = maybe
     (str "There are no results to show (yet).")
-    ( let showNode :: BufferRow -> AttrString =
+    ( let showNode :: BufferRow -> ColorString =
             showAttr . _viewExprNode
           getFolded :: BufferRow -> Bool =
             _folded . _otherProps
-          showColumns :: BufferRow -> AttrString =
+          showColumns :: BufferRow -> ColorString =
             concatMap ((:[]) . (, TextColor) . show)
             . M.elems . _columnProps
       in ( viewport (BrickMainName Results) B.Vertical

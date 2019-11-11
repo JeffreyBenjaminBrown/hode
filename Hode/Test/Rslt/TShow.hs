@@ -19,19 +19,19 @@ test_module_rslt_show = TestList [
     TestLabel "test_eShow" test_eShow
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   , TestLabel "test_eParenShow" test_eParenShow
-  , TestLabel "test_eParenShowAttr" test_eParenShowAttr
+  , TestLabel "test_eParenShowColor" test_eParenShowColor
   ]
 
-test_eParenShowAttr :: Test
-test_eParenShowAttr = TestCase $ do
+test_eParenShowColor :: Test
+test_eParenShowColor = TestCase $ do
   assertBool "show a Tplt" $
     ( attrStrip . attrConsolidate <$>
-      ( eParenShowAttr 2 (error "") $
+      ( eParenShowColor 2 (error "") $
         ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
     == Right [("_ is _", TextColor)]
   assertBool "a depth-1 Rel" $
     ( attrConsolidate <$>
-      ( eParenShowAttr 2 (error "") $
+      ( eParenShowColor 2 (error "") $
         ExprRel $ Rel [Phrase "love", Phrase "good"]
         $ ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
     == Right [("love "  , TextColor),
@@ -66,7 +66,7 @@ test_eParenShow = TestCase $ do
     Right "trees #in Earth ##eat CO2"
   assertBool "depth-1 rel, max depth 1" $ f 1 r2 ==
     Right "(trees #in Earth) #eat CO2"
-  assertBool "Rel arity 2, Tplt arity 1. (PITFALL: Whether an Expr is valid is beyond eParenShowAttrs purview; for that, use Hode.Rslt.RValid.validExpr)."
+  assertBool "Rel arity 2, Tplt arity 1. (PITFALL: Whether an Expr is valid is beyond eParenShowColors purview; for that, use Hode.Rslt.RValid.validExpr)."
     $ isRight $ f 2 $
     ExprRel $ Rel [Phrase "trees", Phrase "CO2"] dog
 

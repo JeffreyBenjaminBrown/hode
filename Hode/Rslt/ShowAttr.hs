@@ -4,7 +4,7 @@ TupleSections,
 ViewPatterns #-}
 
 module Hode.Rslt.ShowAttr
-  ( eParenShowAttr -- ^ Int -> Rslt -> Expr -> Either String AttrString
+  ( eParenShowColor -- ^ Int -> Rslt -> Expr -> Either String ColorString
   ) where
 
 import           Data.Functor.Foldable
@@ -23,35 +23,35 @@ import Hode.Util.Alternation
 -- | This function is very similar to `eParenShow`,
 -- which is simpler.
 
-eParenShowAttr :: Int -> Rslt -> Expr -> Either String AttrString
-eParenShowAttr maxDepth r e0 =
-  prefixLeft "eParenShowAttr: " $
+eParenShowColor :: Int -> Rslt -> Expr -> Either String ColorString
+eParenShowColor maxDepth r e0 =
+  prefixLeft "eParenShowColor: " $
   unAddrRec r e0 >>=
   fo . parenExprAtDepth maxDepth . toExprWith () where
 
-  f :: Fix (ExprFWith (Int,Parens)) -> Either String AttrString
+  f :: Fix (ExprFWith (Int,Parens)) -> Either String ColorString
   f (Fix (EFW ((i,InParens),e))) = attrParen <$> g (i,e)
   f (Fix (EFW ((i,Naked)   ,e))) =               g (i,e)
 
   -- `fo` = `f, outermost`. For the top-level Expr,
   -- even if it has an `InParens` flag attached,
   -- it is printed without surrounding parentheses.
-  fo :: Fix (ExprFWith (Int,Parens)) -> Either String AttrString
+  fo :: Fix (ExprFWith (Int,Parens)) -> Either String ColorString
   fo (Fix (EFW ((i,_),e))) = g (i,e)
 
   -- PITFALL: `f` peels off the first `Parens`, not all of them.
   -- That is why the first argument to `g` has a complex type signature.
   g :: (Int, ExprF (Fix (ExprFWith (Int,Parens))))
-    -> Either String AttrString
+    -> Either String ColorString
   g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
   g (_, PhraseF p) = Right [(p,TextColor)]
 
   g (_, ExprTpltF t) =
     prefixLeft "g of Tplt: " $ do
-    Tplt ml js mr :: Tplt AttrString <-
+    Tplt ml js mr :: Tplt ColorString <-
       ifLefts $ fmap f t
-    let mss :: Maybe AttrString -> AttrString
-        mss Nothing  = emptyAttrString
+    let mss :: Maybe ColorString -> ColorString
+        mss Nothing  = emptyColorString
         mss (Just a) = a
     Right $ attrStrip $ concat $
       L.intersperse space $
@@ -60,8 +60,8 @@ eParenShowAttr maxDepth r e0 =
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
     prefixLeft "g of Rel: " $ do
-    ms1 :: [AttrString] <- ifLefts $ map f ms0
-    Tplt ml js mr :: Tplt AttrString <-
+    ms1 :: [ColorString] <- ifLefts $ map f ms0
+    Tplt ml js mr :: Tplt ColorString <-
       ifLefts $ fmap (hash n) <$> fmap f t
     Right $ concat $ L.intersperse space $
       maybeToList ml ++
@@ -71,10 +71,10 @@ eParenShowAttr maxDepth r e0 =
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
 
-blank, space, emptyAttrString :: AttrString
+blank, space, emptyColorString :: ColorString
 blank = [("_", TextColor)]
 space = [(" ", TextColor)]
-emptyAttrString = [("", TextColor)]
+emptyColorString = [("", TextColor)]
 
-hash :: Int -> AttrString -> AttrString
+hash :: Int -> ColorString -> ColorString
 hash k s = (replicate k '#', SepColor) : s

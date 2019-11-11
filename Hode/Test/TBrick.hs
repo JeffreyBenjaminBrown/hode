@@ -25,7 +25,7 @@ test_toLines' = TestCase $ do
 test_extractLine :: Test
 test_extractLine = TestCase $ do
   assertBool "" $ ([],[]) ==
-    extractLine (error "meh") ([] :: AttrString)
+    extractLine (error "meh") ([] :: ColorString)
   assertBool "stops once its length is greater than 2" $
     extractLine 2 [("a",1),("b",2),("c",3),("dd",4 :: Int)]
     == ([("a",1),("b",2)],
@@ -60,7 +60,7 @@ test_attrStringLength = TestCase $ do
 
 test_attrStrip :: Test
 test_attrStrip = TestCase $ do
-  assertBool "0" $ attrStrip [] == ([] :: AttrString)
+  assertBool "0" $ attrStrip [] == ([] :: ColorString)
   assertBool "1" $ attrStrip [(" x ",())] == [("x",())]
   assertBool "2" $ attrStrip [ (" x ",())
                              , (" x ",()) ] == [ ("x ",())

@@ -37,8 +37,8 @@ focusedBufferStrings st =
 
 mkViewExpr :: Rslt -> Addr -> Either String ViewExpr
 mkViewExpr r a = do
-  (s :: AttrString) <- prefixLeft "mkViewExpr:"
-    $ addrToExpr r a >>= eParenShowAttr 3 r
+  (s :: ColorString) <- prefixLeft "mkViewExpr:"
+    $ addrToExpr r a >>= eParenShowColor 3 r
   Right $ ViewExpr { _viewExpr_Addr = a
                    , _viewExpr_String = s }
 

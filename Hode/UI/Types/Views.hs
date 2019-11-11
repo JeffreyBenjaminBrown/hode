@@ -57,7 +57,7 @@ type ViewQuery = String
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr   :: Addr
-  , _viewExpr_String :: AttrString }
+  , _viewExpr_String :: ColorString }
   deriving (Show, Eq, Ord)
 
 -- | Announces the members of some "center" `Expr`.
@@ -128,7 +128,7 @@ instance ShowAttr RelHosts where
            $ replaceNth (Phrase $ "it") n
            $ replicate (arity tplt) $ Phrase "_"
     in either (const noLeft) id $
-       eParenShowAttr 3 noRslt $ ExprRel $
+       eParenShowColor 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.

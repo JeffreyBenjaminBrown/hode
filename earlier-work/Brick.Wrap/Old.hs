@@ -1,5 +1,5 @@
 -- | `attrStringWrap` builds a `Widget` intended to be like Brick's
--- `strWrap`, but for `AttrString`s.
+-- `strWrap`, but for `ColorString`s.
 --
 -- There's an unmerged branch in Hode where I worked on the problem,
 -- called showPTree_bughunt.
@@ -15,8 +15,8 @@
 
 module Hode.Brick.Wrap.Old (
     attrStringWrapOld -- ^ [(String,V.Attr)] -> Widget n
-  , linesToImage      -- ^ [AttrString] -> V.Image
-  , toLinesOld        -- ^ Int -> AttrString -> [AttrString]
+  , linesToImage      -- ^ [ColorString] -> V.Image
+  , toLinesOld        -- ^ Int -> ColorString -> [ColorString]
   , colorToVtyAttr    -- ^ Color -> V.Attr
   ) where
 
@@ -31,10 +31,10 @@ import qualified Brick.BorderMap as B
 import Hode.Brick
 
 
--- | = `attrStringWrap` is the purpose of `AttrString`
+-- | = `attrStringWrap` is the purpose of `ColorString`
 
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
-attrStringWrapOld ::  AttrString -> Widget n
+attrStringWrapOld ::  ColorString -> Widget n
 attrStringWrapOld ss =
   Widget Fixed Fixed $ do
   -- TODO ? PITFALL: I don't know why a `Fixed, Fixed` size policy works.
@@ -45,7 +45,7 @@ attrStringWrapOld ss =
         i :: V.Image = linesToImage $ toLinesOld w ss
     return $ Result i [] [] [] B.empty
 
-linesToImage :: [AttrString] -> V.Image
+linesToImage :: [ColorString] -> V.Image
 linesToImage = let
   g (s :: String, a :: V.Attr) = V.string a s
   in V.vertCat
@@ -54,7 +54,7 @@ linesToImage = let
 
 -- | PITFALL: Does not consider the case in which a single token
 -- does not fit on one line. Its right side will be truncated.
-toLinesOld :: Int -> AttrString -> [AttrString]
+toLinesOld :: Int -> ColorString -> [ColorString]
 toLinesOld maxWidth = reverse . map reverse . f 0 [] where
   f _       acc               []                = acc
   f _       []                ((s,a):moreInput) =

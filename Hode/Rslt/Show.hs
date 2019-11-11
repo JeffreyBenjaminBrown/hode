@@ -1,6 +1,6 @@
 -- | PITFALL: Retain for illustrative purposes.
 -- This code is mostly supplanted by the even more complex
--- `eParenShowAttr`.
+-- `eParenShowColor`.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 

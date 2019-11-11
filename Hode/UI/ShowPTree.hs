@@ -12,7 +12,7 @@ import Hode.Util.PTree
 
 
 -- | To show `String`s, set `b2w = Brick.Widgets.Core.strWrap`.
--- To show `AttrString`s, use `b2s = Hode.Brick.attrStringWrap`
+-- To show `ColorString`s, use `b2s = Hode.Brick.attrStringWrap`
 porestToWidget :: forall a b n.
      (b -> B.Widget n)
   -> (a -> b)      -- ^ shows the columns corresponding to each node

@@ -6,19 +6,19 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Hode.Brick (
-    AttrString, Color(..)
+    ColorString, Color(..)
   , ShowAttr, showAttr
-  , unAttrString -- ^ AttrString -> String
+  , unColorString -- ^ ColorString -> String
 
-  , attrStringWrap' -- ^ Int -> AttrString -> Widget n
-  , toLines' -- ^ Int -> AttrString -> [AttrString]
+  , attrStringWrap' -- ^ Int -> ColorString -> Widget n
+  , toLines' -- ^ Int -> ColorString -> [ColorString]
   , extractLine            -- ^ Int -> [(String,a)]
                  -- -> ([(String,a)], [(String,a)])
   , splitAtLastSpaceBefore -- ^ Int -> (String,c)
                    -- -> ((String,c), (String,c))
 
-  -- | = mapping across an AttrString
-  , attrParen -- ^ AttrString -> AttrString
+  -- | = mapping across an ColorString
+  , attrParen -- ^ ColorString -> ColorString
   , attrStrip -- ^ [(String,a)] -> [(String,a)]
   , attrLeftRight -- ^ Maybe (s -> s) ->
                   --         (s -> s) ->
@@ -26,7 +26,7 @@ module Hode.Brick (
                   --         [(s,a)] -> [(s,a)]
   , attrConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
                     -- => [(a,b)] -> [(a,b)]
-  , attrStringLength -- ^ AttrString -> Int
+  , attrStringLength -- ^ ColorString -> Int
   , sepColor, textColor, addrColor -- ^ V.Attr
   , colorToAttrName -- ^ Color -> B.AttrName
   ) where
@@ -43,7 +43,7 @@ import qualified Brick.AttrMap as B
 
 
 -- | Like `String`, but different substrings can have different fonts.
-type AttrString = [(String, Color)]
+type ColorString = [(String, Color)]
 
 data Color = TextColor | SepColor | AddrColor
   deriving (Show,Eq,Ord,Enum)
@@ -52,27 +52,27 @@ instance Ord V.Attr where
   a <= b = show a <= show b
 
 class ShowAttr a where
-  showAttr :: a -> AttrString
+  showAttr :: a -> ColorString
 
-unAttrString :: AttrString -> String
-unAttrString = concatMap fst
+unColorString :: ColorString -> String
+unColorString = concatMap fst
 
 
 -- | TODO ? `attrStringWrap' maxLength`
 -- does not quite behave as expected:
 -- sometimes the line is slightly longer than `maxLength`.
-attrStringWrap' :: forall n. Int -> AttrString -> Widget n
+attrStringWrap' :: forall n. Int -> ColorString -> Widget n
 attrStringWrap' maxLength =
   let drawLineSegment :: (String,Color) -> Widget n
       drawLineSegment (s,c) =
         withAttr (colorToAttrName c) $ str s
-      drawLine :: AttrString -> Widget n
+      drawLine :: ColorString -> Widget n
       drawLine = hBox . map drawLineSegment
   in vBox . map drawLine . toLines' maxLength
 
-toLines' :: Int -> AttrString -> [AttrString]
+toLines' :: Int -> ColorString -> [ColorString]
 toLines' maxLength as0 = let
-  (one :: AttrString, rest :: AttrString) =
+  (one :: ColorString, rest :: ColorString) =
     extractLine maxLength as0
   in if null rest then [one]
      else one : toLines' maxLength rest
@@ -103,14 +103,14 @@ splitAtLastSpaceBefore maxLength (s,c) =
      else ( (reverse yes,        c),
             (reverse no ++ rest, c) )
 
--- | = mapping across an AttrString
+-- | = mapping across an ColorString
 
-attrParen :: AttrString -> AttrString
+attrParen :: ColorString -> ColorString
 attrParen x = [("(",SepColor)] ++ x ++ [(")",SepColor)]
 
 -- | `attrStrip` is like `strip` from Data.Text
 attrStrip :: [(String,a)] -> [(String,a)]
-  -- ^ a little more general than `AttrString -> AttrString`
+  -- ^ a little more general than `ColorString -> ColorString`
 attrStrip = attrLeftRight both left right where
   both  = Just $ unpack . strip      . pack
   left  =        unpack . stripStart . pack
@@ -162,7 +162,7 @@ attrConsolidate =
     f cs@((_,b):_) = ( mconcat $ map fst $ reverse cs,
                        b )
 
-attrStringLength :: AttrString -> Int
+attrStringLength :: ColorString -> Int
 attrStringLength = sum . map (length . fst)
 
 -- | '#' symbols and parens used to group `Expr`s are "separators".
