@@ -118,7 +118,7 @@ appDraw st0 = [w] where
             concatMap ((:[]) . (, TextColor) . show)
             . M.elems . _columnProps
       in ( viewport (BrickMainName Results) B.Vertical
-         . ( porestToWidget attrStringWrap showColumns
+         . ( porestToWidget (attrStringWrap' 65) showColumns
              showNode getFolded focusStyle ) ) )
     (b ^. bufferRowPorest)
 

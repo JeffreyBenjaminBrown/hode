@@ -96,14 +96,17 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
 
+-- | TODO ? `attrStringWrap' maxLength`
+-- does not quite behave as expected:
+-- sometimes the line is slightly longer than `maxLength`.
 attrStringWrap' :: forall n. Int -> AttrString -> Widget n
-attrStringWrap' k =
+attrStringWrap' maxLength =
   let drawLineSegment :: (String,Color) -> Widget n
       drawLineSegment (s,c) =
         withAttr (colorToAttrName c) $ str s
       drawLine :: AttrString -> Widget n
       drawLine = hBox . map drawLineSegment
-  in vBox . map drawLine . toLines' k
+  in vBox . map drawLine . toLines' maxLength
 
 toLines' :: Int -> AttrString -> [AttrString]
 toLines' maxLength as0 = let

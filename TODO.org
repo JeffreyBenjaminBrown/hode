@@ -19,10 +19,11 @@ This will load all non-broken modules when some are broken.
   using B.AttrNames, not V.Attrs
 ***** DONE in Hode.Brick, make a new Wrap function
   use toLines'
-***** replace the old Wrap function in Hode.ui
+***** DONE replace the old Wrap function in Hode.ui
 ***** retire toLines, the old Wrap function,
   and Hode/Brick/ScreenWrap/JustInCase.hs
 ***** rename AttrString -> ColorString
+***** subdivide Wrap from the rest of Hode.Brick
 **** dead work
 an unmerged branch, showPTree_bughunt, contains work on it
 *** buffer view does not show children

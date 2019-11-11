@@ -3,7 +3,7 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP #-}
-module Hode.Brick.HBoxColors where
+module Hode.Brick.HBoxColors (main) where
 
 import Graphics.Vty
   ( Attr, white, blue, cyan, green, red, yellow
