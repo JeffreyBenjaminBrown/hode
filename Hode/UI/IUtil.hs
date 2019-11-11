@@ -42,7 +42,7 @@ emptySt r = St {
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs =
       [ HOr -- Count the relationships something is in.
-      -- TODO : This is a hack. In TODO.org,
+      -- TODO : This is an incomplete hack. In TODO.org,
       -- see the section called (HExpr: add a symbol for "involves")
         [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) $ HVar VarRowNode
         , HMap $ M.singleton (RoleInRel' $ RoleMember 1) $ HVar VarRowNode

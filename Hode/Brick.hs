@@ -1,13 +1,13 @@
 -- | Wraps a list of `String`s with `Attr`s attached.
 
 {-# LANGUAGE ScopedTypeVariables
+, ViewPatterns
 #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Hode.Brick (
     AttrString
   , ShowAttr, showAttr
-  , sepColor, textColor, addrColor -- ^ V.Attr
   , unAttrString -- ^ AttrString -> String
 
   -- | = `attrStringWrap` is the purpose of `AttrString`
@@ -23,16 +23,17 @@ module Hode.Brick (
                   --         [(s,a)] -> [(s,a)]
   , attrConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
                     -- => [(a,b)] -> [(a,b)]
+  , sepColor, textColor, addrColor -- ^ V.Attr
   ) where
 
+import           Control.Arrow (first)
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
 import           Lens.Micro hiding (both)
 
 import qualified Graphics.Vty as V
+import           Brick.Types
 import           Brick.Util (on)
 import qualified Brick.BorderMap as B
-
-import Brick.Types
 
 
 -- | Like `String`, but different substrings can have different fonts.
@@ -43,17 +44,6 @@ instance Ord V.Attr where
 
 class ShowAttr a where
   showAttr :: a -> AttrString
-
--- | '#' symbols and parens used to group `Expr`s are "separators".
--- (Note that ordinary text can include those symbols, too;
--- in that case they will not be colored differently.)
-sepColor, textColor, addrColor :: V.Attr
-(sepColor, textColor, addrColor) =
-  let rc :: Int -> Int -> Int -> V.Color
-      rc = V.rgbColor
-  in ( rc 255 255 255 `on` rc 1 0 0
-     , rc 255 255 255 `on` rc 0 1 0
-     , rc 255 255 255 `on` rc 0 0 1 )
 
 unAttrString :: AttrString -> String
 unAttrString = concatMap fst
@@ -91,11 +81,13 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
        else f newLen     (((s,a):line):moreOutput) moreInput
 
 
+
 -- | = mapping across an AttrString
 
 attrParen :: AttrString -> AttrString
 attrParen x = [("(",sepColor)] ++ x ++ [(")",sepColor)]
 
+-- | `attrStrip` is like `strip` from Data.Text
 attrStrip :: [(String,a)] -> [(String,a)]
   -- ^ a little more general than `AttrString -> AttrString`
 attrStrip = attrLeftRight both left right where
@@ -103,6 +95,10 @@ attrStrip = attrLeftRight both left right where
   left  =        unpack . stripStart . pack
   right =        unpack . stripEnd   . pack
 
+-- | `attrLeftRight both left right sas` applies `left` to the first
+-- member of `sas` and `right` to the last member, with one exception:
+-- if `both == Just f` and `sas` is a singleton,
+-- it applies `both` and leaves `left` and `right` unuesd.
 attrLeftRight ::
   Maybe (s -> s)
   ->    (s -> s)
@@ -144,3 +140,14 @@ attrConsolidate =
     f [] = error "attrUngroup: should not happen"
     f cs@((_,b):_) = ( mconcat $ map fst $ reverse cs,
                        b )
+
+-- | '#' symbols and parens used to group `Expr`s are "separators".
+-- (Note that ordinary text can include those symbols, too;
+-- in that case they will not be colored differently.)
+sepColor, textColor, addrColor :: V.Attr
+(sepColor, textColor, addrColor) =
+  let rc :: Int -> Int -> Int -> V.Color
+      rc = V.rgbColor
+  in ( rc 255 255 255 `on` rc 1 0 0
+     , rc 255 255 255 `on` rc 0 1 0
+     , rc 255 255 255 `on` rc 0 0 1 )

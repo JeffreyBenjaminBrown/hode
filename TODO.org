@@ -9,10 +9,10 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO bugs
-*** buffer view does not show children
-though they are present -- they can be navigated to and from
 *** screen-wrap is broken
 an unmerged branch, showPTree_bughunt, contains work on it
+*** buffer view does not show children
+though they are present -- they can be navigated to and from
 *** TODO copy to clipboard broken on Nix
  I see this in the ui:
    Results window copied to clipboard.
