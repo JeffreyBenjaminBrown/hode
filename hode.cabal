@@ -24,6 +24,8 @@ library
                   Hode.Hode
                 , Hode.Temp
                 , Hode.Brick
+                , Hode.Brick.Mine
+                , Hode.Brick.Model
                 -- , Hode.Data.Graph    -- to avoid collisions
                 , Hode.Data.Map
                 -- , Hode.Data.Relation -- to avoid collisions
