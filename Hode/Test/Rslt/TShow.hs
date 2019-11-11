@@ -28,15 +28,15 @@ test_eParenShowAttr = TestCase $ do
     ( attrStrip . attrConsolidate <$>
       ( eParenShowAttr 2 (error "") $
         ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
-    == Right [("_ is _",textColor)]
+    == Right [("_ is _", TextColor)]
   assertBool "a depth-1 Rel" $
     ( attrConsolidate <$>
       ( eParenShowAttr 2 (error "") $
         ExprRel $ Rel [Phrase "love", Phrase "good"]
         $ ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
-    == Right [("love ",textColor),
-              ("#",sepColor),
-              ("is good",textColor) ]
+    == Right [("love "  , TextColor),
+              ("#"      , SepColor),
+              ("is good", TextColor) ]
 
 test_eParenShow :: Test
 test_eParenShow = TestCase $ do

@@ -6,7 +6,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Hode.Brick (
-    AttrString
+    AttrString, Color(..)
   , ShowAttr, showAttr
   , unAttrString -- ^ AttrString -> String
 
@@ -32,7 +32,7 @@ module Hode.Brick (
   , sepColor, textColor, addrColor -- ^ V.Attr
   ) where
 
-import           Control.Arrow (first)
+import           Control.Arrow (first,second)
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
 import           Lens.Micro hiding (both)
 
@@ -43,7 +43,15 @@ import qualified Brick.BorderMap as B
 
 
 -- | Like `String`, but different substrings can have different fonts.
-type AttrString = [(String, V.Attr)]
+type AttrString = [(String, Color)]
+
+data Color = TextColor | SepColor | AddrColor
+  deriving (Show,Eq,Ord,Enum)
+
+colorToVtyAttr :: Color -> V.Attr
+colorToVtyAttr TextColor = textColor
+colorToVtyAttr SepColor  = sepColor
+colorToVtyAttr AddrColor = addrColor
 
 instance Ord V.Attr where
   a <= b = show a <= show b
@@ -70,8 +78,11 @@ attrStringWrap ss =
     return $ Result i [] [] [] B.empty
 
 linesToImage :: [AttrString] -> V.Image
-linesToImage = let g (s,a) = V.string a s
-  in V.vertCat . map (V.horizCat . map g)
+linesToImage = let
+  g (s :: String, a :: V.Attr) = V.string a s
+  in V.vertCat
+     . map (V.horizCat . map g)
+     . map (map $ second colorToVtyAttr)
 
 -- | PITFALL: Does not consider the case in which a single token
 -- does not fit on one line. Its right side will be truncated.
@@ -122,7 +133,7 @@ splitAtLastSpaceBefore maxLength (s,c) =
 -- | = mapping across an AttrString
 
 attrParen :: AttrString -> AttrString
-attrParen x = [("(",sepColor)] ++ x ++ [(")",sepColor)]
+attrParen x = [("(",SepColor)] ++ x ++ [(")",SepColor)]
 
 -- | `attrStrip` is like `strip` from Data.Text
 attrStrip :: [(String,a)] -> [(String,a)]

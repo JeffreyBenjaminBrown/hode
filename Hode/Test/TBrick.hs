@@ -31,7 +31,7 @@ test_extractLine = TestCase $ do
     == ([("a",1),("b",2)],
         [("c",3),("dd",4)])
   assertBool "never becomes greater than 5" $
-    let s = [("a",1),("b",2),("c",3)]
+    let s = [("a",1),("b",2),("c",3::Int)]
     in extractLine 5 s == (s,[])
 
 test_splitAtLastSpaceBefore :: Test

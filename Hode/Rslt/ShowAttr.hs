@@ -44,7 +44,7 @@ eParenShowAttr maxDepth r e0 =
   g :: (Int, ExprF (Fix (ExprFWith (Int,Parens))))
     -> Either String AttrString
   g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
-  g (_, PhraseF p) = Right [(p,textColor)]
+  g (_, PhraseF p) = Right [(p,TextColor)]
 
   g (_, ExprTpltF t) =
     prefixLeft "g of Tplt: " $ do
@@ -71,14 +71,10 @@ eParenShowAttr maxDepth r e0 =
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
 
-blank :: AttrString
-blank = [("_", textColor)]
-
-space :: AttrString
-space = [(" ", textColor)]
-
-emptyAttrString :: AttrString
-emptyAttrString = [("", textColor)]
+blank, space, emptyAttrString :: AttrString
+blank = [("_", TextColor)]
+space = [(" ", TextColor)]
+emptyAttrString = [("", TextColor)]
 
 hash :: Int -> AttrString -> AttrString
-hash k s = (replicate k '#', sepColor) : s
+hash k s = (replicate k '#', SepColor) : s

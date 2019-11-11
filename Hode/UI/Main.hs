@@ -115,7 +115,7 @@ appDraw st0 = [w] where
           getFolded :: BufferRow -> Bool =
             _folded . _otherProps
           showColumns :: BufferRow -> AttrString =
-            concatMap ((:[]) . (, textColor) . show)
+            concatMap ((:[]) . (, TextColor) . show)
             . M.elems . _columnProps
       in ( viewport (BrickMainName Results) B.Vertical
          . ( porestToWidget attrStringWrap showColumns

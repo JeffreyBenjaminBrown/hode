@@ -116,7 +116,7 @@ instance Show RelHosts where
 instance ShowAttr RelHosts where
   -- PITFALL: Egregious duplication; see `Show` instance.
   showAttr (_memberHostsRole -> RoleInRel' RoleTplt) =
-    [("Rels using it as a Tplt",textColor)]
+    [("Rels using it as a Tplt",TextColor)]
   showAttr relHosts = let
     tplt :: Tplt Expr = _memberHostsTplt relHosts
     noLeft     = error "show RelHosts: impossible"
@@ -158,10 +158,10 @@ instance ShowBrief ViewExprNode where
 
 instance ShowAttr ViewExprNode where
   showAttr (VExpr ve) =
-    [(show $ _viewExpr_Addr ve, addrColor)]
+    [(show $ _viewExpr_Addr ve, AddrColor)]
     ++ _viewExpr_String ve
   showAttr (VHostFork (RelHostFork r)) =
     showAttr r
   showAttr x =
-    [(showBrief x, textColor)]
+    [(showBrief x, TextColor)]
 
