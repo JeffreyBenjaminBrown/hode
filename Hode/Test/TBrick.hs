@@ -5,6 +5,7 @@ module Hode.Test.TBrick where
 import           Test.HUnit
 
 import Hode.Brick
+import Hode.Brick.Wrap
 
 
 test_module_hode_brick :: Test
@@ -14,13 +15,13 @@ test_module_hode_brick = TestList [
   , TestLabel "test_splitAtLastSpaceBefore"
     test_splitAtLastSpaceBefore
   , TestLabel "test_extractLine" test_extractLine
-  , TestLabel "test_toLines'" test_toLines'
+  , TestLabel "test_toLines" test_toLines
   ]
 
-test_toLines' :: Test
-test_toLines' = TestCase $ do
-  assertBool "" $ toLines' 0 [] == [[]]
-  assertBool "" $ toLines' 4 [] == [[]]
+test_toLines :: Test
+test_toLines = TestCase $ do
+  assertBool "" $ toLines 0 [] == [[]]
+  assertBool "" $ toLines 4 [] == [[]]
 
 test_extractLine :: Test
 test_extractLine = TestCase $ do

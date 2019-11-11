@@ -13,7 +13,7 @@ import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
-import Hode.Rslt.ShowAttr
+import Hode.Rslt.ShowColor
 import Hode.Util.Misc
 
 
@@ -96,7 +96,7 @@ bufferRow_from_viewExprNode n =
 
 -- | Shows the label of the group, not its members.
 instance Show RelHosts where
-  -- PITFALL: Egregious duplication; see `ShowAttr` instance.
+  -- PITFALL: Egregious duplication; see `ShowColor` instance.
   show (_memberHostsRole -> RoleInRel' RoleTplt) =
     "Rels using it as a Tplt"
   show relHosts = let
@@ -113,11 +113,11 @@ instance Show RelHosts where
        eParenShow 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
-instance ShowAttr RelHosts where
+instance ShowColor RelHosts where
   -- PITFALL: Egregious duplication; see `Show` instance.
-  showAttr (_memberHostsRole -> RoleInRel' RoleTplt) =
+  showColor (_memberHostsRole -> RoleInRel' RoleTplt) =
     [("Rels using it as a Tplt",TextColor)]
-  showAttr relHosts = let
+  showColor relHosts = let
     tplt :: Tplt Expr = _memberHostsTplt relHosts
     noLeft     = error "show RelHosts: impossible"
     noRslt     = error "show RelHosts: Rslt irrelevant"
@@ -156,12 +156,12 @@ instance ShowBrief ViewExprNode where
   showBrief (VHostFork (RelHostFork  x)) = show x
   showBrief (VHostFork (TpltHostFork x)) = show x
 
-instance ShowAttr ViewExprNode where
-  showAttr (VExpr ve) =
+instance ShowColor ViewExprNode where
+  showColor (VExpr ve) =
     [(show $ _viewExpr_Addr ve, AddrColor)]
     ++ _viewExpr_String ve
-  showAttr (VHostFork (RelHostFork r)) =
-    showAttr r
-  showAttr x =
+  showColor (VHostFork (RelHostFork r)) =
+    showColor r
+  showColor x =
     [(showBrief x, TextColor)]
 

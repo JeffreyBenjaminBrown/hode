@@ -5,7 +5,7 @@
 
 module Hode.Brick.Wrap.Demo
     demo            -- ^ IO ()
-  , attrStringWrap' -- ^ [(String,V.Attr)] -> Widget n
+  , colorStringWrap' -- ^ [(String,V.Attr)] -> Widget n
   ) where
 
 import           Lens.Micro
@@ -23,7 +23,7 @@ demo :: IO ()
 demo = simpleMain $ vBox [h, h] where
 
   h :: Widget ()
-  h = hBox [ attrStringWrap content ] where
+  h = hBox [ colorStringWrap content ] where
 
     content :: [(String, V.Attr)]
     content = [ ("%%       #######a ",red)
@@ -35,12 +35,12 @@ demo = simpleMain $ vBox [h, h] where
       blue = V.defAttr `V.withForeColor` V.blue
 
 
--- | `attrStringWrap'` appears to have been totally unnecessary.
--- I wrote it because I thought `attrStringWrap` wasn't working,
+-- | `colorStringWrap'` appears to have been totally unnecessary.
+-- I wrote it because I thought `colorStringWrap` wasn't working,
 -- when in fact the problem was `toLines`.
 -- It is based on `Brick.Widgets.Core.txtWrapWith`.
-attrStringWrap' ::  [(String,V.Attr)] -> Widget n
-attrStringWrap' ss =
+colorStringWrap' ::  [(String,V.Attr)] -> Widget n
+colorStringWrap' ss =
   Widget Greedy Fixed $ do
     c <- getContext
     let theLines = fmap (fmap $ _1 %~ fixEmpty) $

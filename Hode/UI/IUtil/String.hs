@@ -11,7 +11,7 @@ import           Lens.Micro
 import Hode.Brick
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
-import Hode.Rslt.ShowAttr
+import Hode.Rslt.ShowColor
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.Util.Misc

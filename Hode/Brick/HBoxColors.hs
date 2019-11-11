@@ -14,6 +14,7 @@ import Brick.AttrMap (attrMap, AttrMap)
 import qualified Graphics.Vty         as V
 
 import Hode.Brick
+import Hode.Brick.Wrap
 
 main :: IO ()
 main = flip defaultMain () $
@@ -42,7 +43,7 @@ ui = vBox [
     str "Specifying an attribute name bla bla bla."
   , hBox [ withAttr (colorToAttrName TextColor) $ str "Hello, ",
            withAttr (colorToAttrName AddrColor) $ str "Dolly!" ]
-  , attrStringWrap' 10
+  , colorStringWrap 10
       [ ("12345", TextColor)
       , ("123 45", AddrColor)
       , ("123 45", TextColor)

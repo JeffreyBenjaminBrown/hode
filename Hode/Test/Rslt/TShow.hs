@@ -9,7 +9,7 @@ import           Test.HUnit
 import           Hode.Brick
 import           Hode.Rslt.RTypes
 import           Hode.Rslt.Show
-import           Hode.Rslt.ShowAttr
+import           Hode.Rslt.ShowColor
 import           Hode.Rslt.Show.Util
 import qualified Hode.Test.Rslt.RData as D
 

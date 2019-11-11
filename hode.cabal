@@ -63,7 +63,7 @@ library
                 , Hode.Rslt.RUtil
                 , Hode.Rslt.RValid
                 , Hode.Rslt.Show
-                , Hode.Rslt.ShowAttr
+                , Hode.Rslt.ShowColor
                 , Hode.Rslt.Show.Util
                 , Hode.Rslt.Sort
 

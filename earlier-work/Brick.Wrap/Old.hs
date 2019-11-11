@@ -1,4 +1,4 @@
--- | `attrStringWrap` builds a `Widget` intended to be like Brick's
+-- | `colorStringWrap` builds a `Widget` intended to be like Brick's
 -- `strWrap`, but for `ColorString`s.
 --
 -- There's an unmerged branch in Hode where I worked on the problem,
@@ -14,9 +14,11 @@
 #-}
 
 module Hode.Brick.Wrap.Old (
-    attrStringWrapOld -- ^ [(String,V.Attr)] -> Widget n
+    V.Attr(..)
+  , colorStringWrapOld -- ^ [(String,V.Attr)] -> Widget n
   , linesToImage      -- ^ [ColorString] -> V.Image
   , toLinesOld        -- ^ Int -> ColorString -> [ColorString]
+  , sepColor, textColor, addrColor -- ^ V.Attr
   , colorToVtyAttr    -- ^ Color -> V.Attr
   ) where
 
@@ -27,15 +29,20 @@ import           Lens.Micro hiding (both)
 import qualified Graphics.Vty as V
 import           Brick.Types
 import qualified Brick.BorderMap as B
+import           Brick.Util (on)
 
 import Hode.Brick
 
 
--- | = `attrStringWrap` is the purpose of `ColorString`
+-- | = `colorStringWrap` is the purpose of `ColorString`
 
 -- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
-attrStringWrapOld ::  ColorString -> Widget n
-attrStringWrapOld ss =
+
+instance Ord V.Attr where
+  a <= b = show a <= show b
+
+colorStringWrapOld ::  ColorString -> Widget n
+colorStringWrapOld ss =
   Widget Fixed Fixed $ do
   -- TODO ? PITFALL: I don't know why a `Fixed, Fixed` size policy works.
   -- I expected to need it to be greedy in the horizontal dimension,
@@ -64,6 +71,17 @@ toLinesOld maxWidth = reverse . map reverse . f 0 [] where
     in if newLen > maxWidth
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
+
+-- | '#' symbols and parens used to group `Expr`s are "separators".
+-- (Note that ordinary text can include those symbols, too;
+-- in that case they will not be colored differently.)
+sepColor, textColor, addrColor :: V.Attr
+(sepColor, textColor, addrColor) =
+  let rc :: Int -> Int -> Int -> V.Color
+      rc = V.rgbColor
+  in ( rc 255 255 255 `on` rc 1 0 0
+     , rc 255 255 255 `on` rc 0 1 0
+     , rc 255 255 255 `on` rc 0 0 1 )
 
 colorToVtyAttr :: Color -> V.Attr
 colorToVtyAttr TextColor = textColor

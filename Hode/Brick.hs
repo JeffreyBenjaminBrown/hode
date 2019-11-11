@@ -7,17 +7,11 @@
 
 module Hode.Brick (
     ColorString, Color(..)
-  , ShowAttr, showAttr
+  , colorToAttrName  -- ^ Color -> B.AttrName
+  , ShowColor, showColor
   , unColorString -- ^ ColorString -> String
 
-  , attrStringWrap' -- ^ Int -> ColorString -> Widget n
-  , toLines' -- ^ Int -> ColorString -> [ColorString]
-  , extractLine            -- ^ Int -> [(String,a)]
-                 -- -> ([(String,a)], [(String,a)])
-  , splitAtLastSpaceBefore -- ^ Int -> (String,c)
-                   -- -> ((String,c), (String,c))
-
-  -- | = mapping across an ColorString
+  -- | = mapping across a ColorString
   , attrParen -- ^ ColorString -> ColorString
   , attrStrip -- ^ [(String,a)] -> [(String,a)]
   , attrLeftRight -- ^ Maybe (s -> s) ->
@@ -27,81 +21,31 @@ module Hode.Brick (
   , attrConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
                     -- => [(a,b)] -> [(a,b)]
   , attrStringLength -- ^ ColorString -> Int
-  , sepColor, textColor, addrColor -- ^ V.Attr
-  , colorToAttrName -- ^ Color -> B.AttrName
   ) where
 
-import           Control.Arrow (first)
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
 import           Lens.Micro hiding (both)
 
-import qualified Graphics.Vty as V
-import           Brick.Types
-import           Brick.Widgets.Core (hBox,vBox,str,withAttr)
-import           Brick.Util (on)
 import qualified Brick.AttrMap as B
 
 
 -- | Like `String`, but different substrings can have different fonts.
 type ColorString = [(String, Color)]
 
+colorToAttrName :: Color -> B.AttrName
+colorToAttrName TextColor = B.attrName "textColor"
+colorToAttrName SepColor  = B.attrName "sepColor"
+colorToAttrName AddrColor = B.attrName "addrColor"
+
 data Color = TextColor | SepColor | AddrColor
   deriving (Show,Eq,Ord,Enum)
 
-instance Ord V.Attr where
-  a <= b = show a <= show b
-
-class ShowAttr a where
-  showAttr :: a -> ColorString
+class ShowColor a where
+  showColor :: a -> ColorString
 
 unColorString :: ColorString -> String
 unColorString = concatMap fst
 
-
--- | TODO ? `attrStringWrap' maxLength`
--- does not quite behave as expected:
--- sometimes the line is slightly longer than `maxLength`.
-attrStringWrap' :: forall n. Int -> ColorString -> Widget n
-attrStringWrap' maxLength =
-  let drawLineSegment :: (String,Color) -> Widget n
-      drawLineSegment (s,c) =
-        withAttr (colorToAttrName c) $ str s
-      drawLine :: ColorString -> Widget n
-      drawLine = hBox . map drawLineSegment
-  in vBox . map drawLine . toLines' maxLength
-
-toLines' :: Int -> ColorString -> [ColorString]
-toLines' maxLength as0 = let
-  (one :: ColorString, rest :: ColorString) =
-    extractLine maxLength as0
-  in if null rest then [one]
-     else one : toLines' maxLength rest
-
-extractLine :: forall a. Eq a =>
-  Int -> [(String,a)] -> ([(String,a)], [(String,a)])
-extractLine maxLength as0 = go 0 as0 where
-  go _ [] = ([],[])
-  go ((>= maxLength) -> True) as = ([],as)
-  go k (a:as) =
-    let (one,more) =
-          splitAtLastSpaceBefore maxLength a
-        h = length $ fst one
-        as' = if null $ fst more
-              then as else more : as
-    in first (one:) $ go (k+h) as'
-
-splitAtLastSpaceBefore ::
-  Int -> (String,c) -> ((String,c), (String,c))
-splitAtLastSpaceBefore maxLength (s,c) =
-  let (atMost :: String, rest :: String) =
-        splitAt maxLength s
-      (no :: String, yes :: String) =
-        span ((/=) ' ') $ reverse atMost
-  in if null yes
-     then ( (atMost,             c),
-            (rest,               c) )
-     else ( (reverse yes,        c),
-            (reverse no ++ rest, c) )
 
 -- | = mapping across an ColorString
 
@@ -164,19 +108,3 @@ attrConsolidate =
 
 attrStringLength :: ColorString -> Int
 attrStringLength = sum . map (length . fst)
-
--- | '#' symbols and parens used to group `Expr`s are "separators".
--- (Note that ordinary text can include those symbols, too;
--- in that case they will not be colored differently.)
-sepColor, textColor, addrColor :: V.Attr
-(sepColor, textColor, addrColor) =
-  let rc :: Int -> Int -> Int -> V.Color
-      rc = V.rgbColor
-  in ( rc 255 255 255 `on` rc 1 0 0
-     , rc 255 255 255 `on` rc 0 1 0
-     , rc 255 255 255 `on` rc 0 0 1 )
-
-colorToAttrName :: Color -> B.AttrName
-colorToAttrName TextColor = B.attrName "textColor"
-colorToAttrName SepColor  = B.attrName "sepColor"
-colorToAttrName AddrColor = B.attrName "addrColor"

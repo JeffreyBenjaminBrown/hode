@@ -19,6 +19,7 @@ import           Brick.Util (on)
 import qualified Graphics.Vty         as V
 
 import Hode.Brick
+import Hode.Brick.Wrap
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
 import Hode.UI.Input
@@ -111,14 +112,14 @@ appDraw st0 = [w] where
   resultWindow :: B.Widget BrickName = maybe
     (str "There are no results to show (yet).")
     ( let showNode :: BufferRow -> ColorString =
-            showAttr . _viewExprNode
+            showColor . _viewExprNode
           getFolded :: BufferRow -> Bool =
             _folded . _otherProps
           showColumns :: BufferRow -> ColorString =
             concatMap ((:[]) . (, TextColor) . show)
             . M.elems . _columnProps
       in ( viewport (BrickMainName Results) B.Vertical
-         . ( porestToWidget (attrStringWrap' 65) showColumns
+         . ( porestToWidget (colorStringWrap 65) showColumns
              showNode getFolded focusStyle ) ) )
     (b ^. bufferRowPorest)
 

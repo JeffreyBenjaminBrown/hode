@@ -3,7 +3,7 @@ ScopedTypeVariables,
 TupleSections,
 ViewPatterns #-}
 
-module Hode.Rslt.ShowAttr
+module Hode.Rslt.ShowColor
   ( eParenShowColor -- ^ Int -> Rslt -> Expr -> Either String ColorString
   ) where
 
