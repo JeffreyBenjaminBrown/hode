@@ -6,21 +6,10 @@
 module Hode.Brick.HBoxColors (main) where
 
 import Graphics.Vty
-  ( Attr, white, blue, cyan, green, red, yellow
-  , black, withURL
-  )
-
 import Brick.Main
 import Brick.Types (Widget)
 import Brick.Widgets.Core
-  ( (<=>)
-  , withAttr
-  , vBox, hBox
-  , str
-  , hyperlink
-  , modifyDefAttr
-  )
-import Brick.Util (on, fg)
+import Brick.Util (on)
 import Brick.AttrMap (attrMap, AttrMap)
 import qualified Graphics.Vty         as V
 

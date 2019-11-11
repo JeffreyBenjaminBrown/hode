@@ -10,9 +10,6 @@ module Hode.Brick (
   , ShowAttr, showAttr
   , unAttrString -- ^ AttrString -> String
 
-  -- | = `attrStringWrap` is the purpose of `AttrString`
-  , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
-  , toLines        -- ^ Int -> AttrString -> [AttrString]
   , attrStringWrap' -- ^ Int -> AttrString -> Widget n
   , toLines' -- ^ Int -> AttrString -> [AttrString]
   , extractLine            -- ^ Int -> [(String,a)]
@@ -34,7 +31,7 @@ module Hode.Brick (
   , colorToAttrName -- ^ Color -> B.AttrName
   ) where
 
-import           Control.Arrow (first,second)
+import           Control.Arrow (first)
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
 import           Lens.Micro hiding (both)
 
@@ -43,7 +40,6 @@ import           Brick.Types
 import           Brick.Widgets.Core (hBox,vBox,str,withAttr)
 import           Brick.Util (on)
 import qualified Brick.AttrMap as B
-import qualified Brick.BorderMap as B
 
 
 -- | Like `String`, but different substrings can have different fonts.
@@ -61,40 +57,6 @@ class ShowAttr a where
 unAttrString :: AttrString -> String
 unAttrString = concatMap fst
 
-
--- | = `attrStringWrap` is the purpose of `AttrString`
-
--- | Based on `myFill` from [the rendering docs](https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#using-the-rendering-context).
-attrStringWrap ::  AttrString -> Widget n
-attrStringWrap ss =
-  Widget Fixed Fixed $ do
-  -- TODO ? PITFALL: I don't know why a `Fixed, Fixed` size policy works.
-  -- I expected to need it to be greedy in the horizontal dimension,
-  -- but so far this gives better results.
-    ctx <- getContext
-    let w = ctx^.availWidthL
-        i :: V.Image = linesToImage $ toLines w ss
-    return $ Result i [] [] [] B.empty
-
-linesToImage :: [AttrString] -> V.Image
-linesToImage = let
-  g (s :: String, a :: V.Attr) = V.string a s
-  in V.vertCat
-     . map (V.horizCat . map g)
-     . map (map $ second colorToVtyAttr)
-
--- | PITFALL: Does not consider the case in which a single token
--- does not fit on one line. Its right side will be truncated.
-toLines :: Int -> AttrString -> [AttrString]
-toLines maxWidth = reverse . map reverse . f 0 [] where
-  f _       acc               []                = acc
-  f _       []                ((s,a):moreInput) =
-    f (length s) [[(s,a)]] moreInput
-  f lineLen o@(line:moreOutput) ((s,a):moreInput) =
-    let newLen = lineLen + length s
-    in if newLen > maxWidth
-       then f (length s) ([(s,a)]     :o)          moreInput
-       else f newLen     (((s,a):line):moreOutput) moreInput
 
 -- | TODO ? `attrStringWrap' maxLength`
 -- does not quite behave as expected:
@@ -213,11 +175,6 @@ sepColor, textColor, addrColor :: V.Attr
   in ( rc 255 255 255 `on` rc 1 0 0
      , rc 255 255 255 `on` rc 0 1 0
      , rc 255 255 255 `on` rc 0 0 1 )
-
-colorToVtyAttr :: Color -> V.Attr
-colorToVtyAttr TextColor = textColor
-colorToVtyAttr SepColor  = sepColor
-colorToVtyAttr AddrColor = addrColor
 
 colorToAttrName :: Color -> B.AttrName
 colorToAttrName TextColor = B.attrName "textColor"
