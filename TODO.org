@@ -8,7 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO tackle TODO items in UI/
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from

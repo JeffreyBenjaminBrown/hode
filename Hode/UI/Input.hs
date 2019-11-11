@@ -118,11 +118,11 @@ parseAndRunCommand st =
   in case pCommand (st ^. appRslt) cmd of
     Left parseErr ->
       B.continue $ unEitherSt st $ Left parseErr
-    Right parsedCmd ->
+    Right (parsedCmd :: Command) ->
       case runParsedCommand parsedCmd st of
         Left runErr ->
           B.continue $ unEitherSt st $ Left runErr
-        Right evNextSt ->
+        Right (evNextSt :: B.EventM BrickName (B.Next St)) ->
           (fmap $ fmap $ commandHistory %~ (:) parsedCmd)
           evNextSt
         -- PITFALL: Don't call `unEitherSt` on this `evNextSt`, because
@@ -140,6 +140,10 @@ runParsedCommand                     c0 st0 =
   prefixLeft "runParsedCommand:" $ g c0 st0
   where
 
+  itWorked :: String -> St -> St
+  itWorked s = showReassurance s
+               . (showingInMainWindow .~ Results)
+
   g (CommandReplace a e) st =
     either Left (Right . f)
     $ replaceExpr a e (st ^. appRslt)
@@ -147,10 +151,8 @@ runParsedCommand                     c0 st0 =
     f :: Rslt -> B.EventM BrickName (B.Next St)
     f r = B.continue $ st
           & appRslt .~ r
-          & showingErrorWindow .~ False
-          & showReassurance ( "Replaced Expr at "
-                              ++ show a ++ "." )
-          & showingInMainWindow .~ Results
+          & itWorked ( "Replaced Expr at "
+                       ++ show a ++ "." )
 
   g (CommandDelete a) st =
     either Left (Right . f)
@@ -158,9 +160,8 @@ runParsedCommand                     c0 st0 =
     where
     f :: Rslt -> B.EventM BrickName (B.Next St)
     f r = B.continue $ st & appRslt .~ r
-          & showingErrorWindow .~ False
-          & showReassurance ( "Deleted Expr at "
-                              ++ show a ++ "." )
+          & itWorked ( "Deleted Expr at "
+                       ++ show a ++ "." )
 
   g (CommandInsert e) st =
     either Left (Right . f)
@@ -170,10 +171,8 @@ runParsedCommand                     c0 st0 =
     f (r,as) =
       B.continue $ st
       & appRslt .~ r
-      & showingErrorWindow .~ False
-      & showReassurance ( "Exprs added at " ++
-                          show (catNews as) )
-      & showingInMainWindow .~ Results
+      & itWorked ( "Exprs added at " ++
+                   show (catNews as) )
 
   g (CommandLoad f) st = Right $ do
     (bad :: Bool) <-
@@ -184,9 +183,7 @@ runParsedCommand                     c0 st0 =
       else do
       r <- liftIO $ readRslt f
       B.continue $ st & appRslt .~ r
-        & showReassurance "Rslt loaded."
-        & showingInMainWindow .~ Results
-        & showingErrorWindow .~ False
+        & itWorked "Rslt loaded."
 
   g (CommandSave f) st = Right $ do
     (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
@@ -195,9 +192,7 @@ runParsedCommand                     c0 st0 =
            ("Non-existent folder: " ++ f)
       else do
       liftIO $ writeRslt f $ st ^. appRslt
-      return $ st & showingInMainWindow .~ Results
-                  & showingErrorWindow .~ False
-                  & showReassurance "Rslt saved."
+      return $ st & itWorked "Rslt saved."
     B.continue st'
 
   g cmd st =
@@ -214,17 +209,14 @@ runParsedCommand                     c0 st0 =
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
     let p :: Porest BufferRow -- new screen to show
           = mkBufferRowPorest r as
+            & P.focus . pTreeHasFocus .~ True
 
-    -- TODO ? (&) is consumed from the left, so this looks
-    -- like it changes the query of the old buffer,
-    -- then switches to the new buffer with no query string.
-    -- It also seems not to set to False the old focus.
     Right $ B.continue $ st
-      & showingInMainWindow .~ Results
-      & showingErrorWindow .~ False
-      & (let strip :: String -> String
-             strip = T.unpack . T.strip . T.pack
-         in stSetFocusedBuffer . bufferQuery .~ strip s)
-      & stSetFocusedBuffer . bufferRowPorest . _Just .~ p
-      & ( stSetFocusedBuffer . bufferRowPorest . _Just .
-          P.focus . pTreeHasFocus .~ True )
+      & ( ( -- PITFALL : Replaces the Buffer's old contents.
+            -- TODO ? Create a new Buffer instead.
+            let strip :: String -> String
+                strip = T.unpack . T.strip . T.pack
+            in stSetFocusedBuffer . bufferQuery .~ strip s )
+          . ( stSetFocusedBuffer . bufferRowPorest . _Just
+              .~ p ) )
+      & itWorked "Search successful."
