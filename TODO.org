@@ -15,9 +15,9 @@ This will load all non-broken modules when some are broken.
   and a way to convert the enums to B.AttrName (for new version),
   and to the V.Attr values sepColor, textColor, addrColor
     (for backward compatibility until the new version wowrks)
-***** in Hode.Brick.Mine, build a screen from AttrStrings
+***** DONE in Hode.Brick.Mine, build a screen from AttrStrings
   using B.AttrNames, not V.Attrs
-***** in Hode.Brick, make a new Wrap function
+***** DONE in Hode.Brick, make a new Wrap function
   use toLines'
 ***** replace the old Wrap function in Hode.ui
 ***** retire toLines, the old Wrap function,

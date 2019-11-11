@@ -13,6 +13,7 @@ module Hode.Brick (
   -- | = `attrStringWrap` is the purpose of `AttrString`
   , attrStringWrap -- ^        [(String,V.Attr)] -> Widget n
   , toLines        -- ^ Int -> AttrString -> [AttrString]
+  , attrStringWrap' -- ^ Int -> AttrString -> Widget n
   , toLines' -- ^ Int -> AttrString -> [AttrString]
   , extractLine            -- ^ Int -> [(String,a)]
                  -- -> ([(String,a)], [(String,a)])
@@ -39,6 +40,7 @@ import           Lens.Micro hiding (both)
 
 import qualified Graphics.Vty as V
 import           Brick.Types
+import           Brick.Widgets.Core (hBox,vBox,str,withAttr)
 import           Brick.Util (on)
 import qualified Brick.AttrMap as B
 import qualified Brick.BorderMap as B
@@ -93,6 +95,15 @@ toLines maxWidth = reverse . map reverse . f 0 [] where
     in if newLen > maxWidth
        then f (length s) ([(s,a)]     :o)          moreInput
        else f newLen     (((s,a):line):moreOutput) moreInput
+
+attrStringWrap' :: forall n. Int -> AttrString -> Widget n
+attrStringWrap' k =
+  let drawLineSegment :: (String,Color) -> Widget n
+      drawLineSegment (s,c) =
+        withAttr (colorToAttrName c) $ str s
+      drawLine :: AttrString -> Widget n
+      drawLine = hBox . map drawLineSegment
+  in vBox . map drawLine . toLines' k
 
 toLines' :: Int -> AttrString -> [AttrString]
 toLines' maxLength as0 = let

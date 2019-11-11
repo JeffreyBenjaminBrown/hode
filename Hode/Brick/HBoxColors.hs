@@ -53,4 +53,11 @@ ui = vBox [
     str "Specifying an attribute name bla bla bla."
   , hBox [ withAttr (colorToAttrName TextColor) $ str "Hello, ",
            withAttr (colorToAttrName AddrColor) $ str "Dolly!" ]
+  , attrStringWrap' 10
+      [ ("12345", TextColor)
+      , ("123 45", AddrColor)
+      , ("123 45", TextColor)
+      , ("123 45", SepColor)
+      , ("12345", SepColor)
+      ]
   ]
