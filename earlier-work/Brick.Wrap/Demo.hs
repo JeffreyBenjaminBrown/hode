@@ -3,7 +3,7 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Brick.ScreenWrap.JustInCase (
+module Hode.Brick.Wrap.Demo
     demo            -- ^ IO ()
   , attrStringWrap' -- ^ [(String,V.Attr)] -> Widget n
   ) where

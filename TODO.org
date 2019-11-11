@@ -20,7 +20,7 @@ This will load all non-broken modules when some are broken.
 ***** DONE in Hode.Brick, make a new Wrap function
   use toLines'
 ***** DONE replace the old Wrap function in Hode.ui
-***** retire toLines, the old Wrap function,
+***** DONE retire toLines, the old Wrap function,
   and Hode/Brick/ScreenWrap/JustInCase.hs
 ***** rename AttrString -> ColorString
 ***** subdivide Wrap from the rest of Hode.Brick
