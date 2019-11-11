@@ -30,6 +30,7 @@ module Hode.Brick (
                     -- => [(a,b)] -> [(a,b)]
   , attrStringLength -- ^ AttrString -> Int
   , sepColor, textColor, addrColor -- ^ V.Attr
+  , colorToAttrName -- ^ Color -> B.AttrName
   ) where
 
 import           Control.Arrow (first,second)
@@ -39,6 +40,7 @@ import           Lens.Micro hiding (both)
 import qualified Graphics.Vty as V
 import           Brick.Types
 import           Brick.Util (on)
+import qualified Brick.AttrMap as B
 import qualified Brick.BorderMap as B
 
 
@@ -47,11 +49,6 @@ type AttrString = [(String, Color)]
 
 data Color = TextColor | SepColor | AddrColor
   deriving (Show,Eq,Ord,Enum)
-
-colorToVtyAttr :: Color -> V.Attr
-colorToVtyAttr TextColor = textColor
-colorToVtyAttr SepColor  = sepColor
-colorToVtyAttr AddrColor = addrColor
 
 instance Ord V.Attr where
   a <= b = show a <= show b
@@ -202,3 +199,13 @@ sepColor, textColor, addrColor :: V.Attr
   in ( rc 255 255 255 `on` rc 1 0 0
      , rc 255 255 255 `on` rc 0 1 0
      , rc 255 255 255 `on` rc 0 0 1 )
+
+colorToVtyAttr :: Color -> V.Attr
+colorToVtyAttr TextColor = textColor
+colorToVtyAttr SepColor  = sepColor
+colorToVtyAttr AddrColor = addrColor
+
+colorToAttrName :: Color -> B.AttrName
+colorToAttrName TextColor = B.attrName "textColor"
+colorToAttrName SepColor  = B.attrName "sepColor"
+colorToAttrName AddrColor = B.attrName "addrColor"

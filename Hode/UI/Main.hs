@@ -169,6 +169,8 @@ appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
 appAttrMap = let
+  rc :: Int -> Int -> Int -> V.Color
+    = V.rgbColor
   gray (k :: Int) = V.rgbColor k k k
   black     = gray 0
   --gray1   = gray 1 -- PITFALL: Vty offers darker non-black grays.
@@ -182,4 +184,7 @@ appAttrMap = let
     , (B.attrName "reassurance"      , white   `on` darkGreen)
     , (B.attrName "unfocused result" , white   `on` black)
     , (B.attrName "focused result"   , white   `on` darkGreen)
+    , (B.attrName "sepColor"         , rc 255 255 255 `on` rc 1 0 0)
+    , (B.attrName "textColor"        , rc 255 255 255 `on` rc 0 1 0)
+    , (B.attrName "addrColor"        , rc 255 255 255 `on` rc 0 0 1)
     ]

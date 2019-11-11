@@ -11,11 +11,10 @@ This will load all non-broken modules when some are broken.
 ** TODO bugs
 *** screen-wrap is broken
 **** TODO in order
-***** change AttrString to [(String,NewEnumType)]
+***** DONE change AttrString to [(String,NewEnumType)]
   and a way to convert the enums to B.AttrName (for new version),
   and to the V.Attr values sepColor, textColor, addrColor
     (for backward compatibility until the new version wowrks)
-***** rename AttrString -> ColorString
 ***** in Hode.Brick.Mine, build a screen from AttrStrings
   using B.AttrNames, not V.Attrs
 ***** in Hode.Brick, make a new Wrap function
@@ -23,6 +22,7 @@ This will load all non-broken modules when some are broken.
 ***** replace the old Wrap function in Hode.ui
 ***** retire toLines, the old Wrap function,
   and Hode/Brick/ScreenWrap/JustInCase.hs
+***** rename AttrString -> ColorString
 **** dead work
 an unmerged branch, showPTree_bughunt, contains work on it
 *** buffer view does not show children
