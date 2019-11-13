@@ -52,26 +52,26 @@ porestToWidget b2w showColumns showIndented isFolded style p0 =
        , padLeft (B.Pad $ 2 * indent) $
          b2w $ showIndented $ _pTreeLabel t ]
 
-showPorest :: forall a b. Monoid b
-  => (String -> b) -- ^ for inserting whitespace, for indentation
-  -> (a -> b)      -- ^ Show a node's column information.
+showPorest :: forall a d. Monoid d
+  => (String -> d) -- ^ for inserting whitespace, for indentation
+  -> (a -> d)      -- ^ Display a node's column information.
                    -- This info will be left-justified.
-  -> (a -> b)      -- ^ Show a node's payload. This info will be
+  -> (a -> d)      -- ^ Display a node's payload. This info will be
                    -- indented to form a tree.
   -> (a -> Bool)   -- ^ whether to hide a node's children
-  -> Porest a      -- ^ what to show
+  -> Porest a      -- ^ what to display
   -> [( Bool,      -- ^ whether it has focus
-        b )]       -- ^ how it looks
+        d )]       -- ^ how it looks
 showPorest toString showColumns showPayload isFolded p0 =
   fShow p where
 
   p :: Porest (Int, a)
   p = fmap writeLevels p0
 
-  fShow :: Porest (Int,a) -> [(Bool,b)]
+  fShow :: Porest (Int,a) -> [(Bool,d)]
   fShow = concatMap recursive . toList
 
-  recursive :: PTree (Int,a) -> [(Bool,b)]
+  recursive :: PTree (Int,a) -> [(Bool,d)]
   recursive pt =
     once pt :
     case pt ^. pMTrees of
@@ -81,7 +81,7 @@ showPorest toString showColumns showPayload isFolded p0 =
           then []
           else fShow pts
 
-  once :: PTree (Int,a) -> (Bool, b)
+  once :: PTree (Int,a) -> (Bool, d)
   once t0 =
     let t :: PTree a  = fmap snd t0
         a :: a        = _pTreeLabel t

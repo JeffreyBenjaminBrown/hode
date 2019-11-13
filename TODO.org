@@ -9,8 +9,9 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO divide porestToWidget
-Generate a list of ColorStrings instead of a Widget.
-Add tests wherever that makes newly possible.
+Find the maximum length of each column.
+  This means the columns for a node will have to be kept separate.
+Insert whitespace into columns as necessary.
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
