@@ -60,6 +60,6 @@ splitAtLastSpaceBefore maxLength (s,c) =
         span ((/=) ' ') $ reverse atMost
   in if null yes
      then ( (atMost,             c),
-            (rest,               c) )
+            (              rest, c) )
      else ( (reverse yes,        c),
             (reverse no ++ rest, c) )

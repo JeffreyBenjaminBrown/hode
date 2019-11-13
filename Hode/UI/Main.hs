@@ -135,7 +135,6 @@ appChooseCursor :: St -> [B.CursorLocation BrickName]
                 -> Maybe (B.CursorLocation BrickName)
 appChooseCursor = B.focusRingCursor (^. focusRing)
 
-
 appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) = case ev of

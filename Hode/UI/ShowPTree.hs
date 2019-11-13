@@ -8,6 +8,7 @@ import           Lens.Micro
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
 
+import Hode.Brick
 import Hode.Util.PTree
 
 
@@ -50,3 +51,42 @@ porestToWidget b2w showColumns showIndented isFolded style p0 =
        [ b2w $ showColumns a
        , padLeft (B.Pad $ 2 * indent) $
          b2w $ showIndented $ _pTreeLabel t ]
+
+porestToColorStrings :: forall a.
+     (a -> ColorString) -- ^ Show a node's column information.
+                        -- This info will be left-justified.
+  -> (a -> ColorString) -- ^ Show a node's payload. This info will be
+                        -- indented to form a tree.
+  -> (a -> Bool)        -- ^ whether to hide a node's children
+  -> Porest a           -- ^ what to show
+  -> [( Bool,           -- ^ whether it has focus
+        ColorString )]  -- ^ how it looks
+porestToColorStrings showColumns showPayload isFolded p0 =
+  fShow p where
+
+  p :: Porest (Int, a)
+  p = fmap writeLevels p0
+
+  fShow :: Porest (Int,a) -> [(Bool,ColorString)]
+  fShow = concatMap recursive . toList
+
+  recursive :: PTree (Int,a) -> [(Bool,ColorString)]
+  recursive pt =
+    once pt :
+    case pt ^. pMTrees of
+      Nothing -> []
+      Just pts ->
+        if isFolded $ snd $ _pTreeLabel pt
+          then []
+          else fShow pts
+
+  once :: PTree (Int,a) -> (Bool, ColorString)
+  once t0 =
+    let t :: PTree a  = fmap snd t0
+        a :: a        = _pTreeLabel t
+        indent :: Int = fst $ _pTreeLabel t0
+    in ( _pTreeHasFocus t,
+         showColumns a ++
+         [ (replicate (2*indent) ' ',
+            TextColor ) ] ++
+         showPayload (_pTreeLabel t) )

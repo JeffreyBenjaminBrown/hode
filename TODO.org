@@ -8,10 +8,10 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO bugs
-*** divide porestToWidget
+** TODO divide porestToWidget
 Generate a list of ColorStrings instead of a Widget.
-Add tests wherever newly possible.
+Add tests wherever that makes newly possible.
+** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
 *** TODO copy to clipboard: broken on Nix
