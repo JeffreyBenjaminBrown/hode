@@ -56,8 +56,8 @@ showPorest :: forall a d. Monoid d
   => (String -> d) -- ^ for inserting whitespace, for indentation
   -> (a -> d)      -- ^ Display a node's column information.
                    -- This info will be left-justified.
-  -> (a -> d)      -- ^ Display a node's payload. This info will be
-                   -- indented to form a tree.
+  -> (a -> d)      -- ^ Display a node's payload.
+                   -- This info will be indented to form a tree.
   -> (a -> Bool)   -- ^ whether to hide a node's children
   -> Porest a      -- ^ what to display
   -> [( Bool,      -- ^ whether it has focus

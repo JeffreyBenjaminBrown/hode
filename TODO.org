@@ -8,8 +8,33 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
+** TODO modify PTree
+move showPorest to Util/PTree
+fold over PTree or a Porest
+  e.g. to compute the max length of columns
+map over PTree or Porest
+  e.g. to draw onto its BufferRows
 ** TODO divide porestToWidget
-Find the maximum length of each column.
+*** TODO thinking
+**** be able to draw onto BufferRows
+Either they should have optional fields, or they should be Functors.
+I guess Functors is more natural --
+that way the optional ones won't get in the way when unneeded.
+**** relevant types
+data Buffer = Buffer
+  { _bufferQuery     :: ViewQuery
+  , _bufferRowPorest :: Maybe (Porest BufferRow) }
+data BufferRow = BufferRow {
+    _viewExprNode :: ViewExprNode
+  , _columnProps  :: ColumnProps
+  , _otherProps   :: OtherProps }
+data ViewExprNode = VQuery      ViewQuery
+                  | VExpr       ViewExpr
+                  | VMemberFork MemberFork
+                  | VHostFork   HostFork
+*** TODO code
+Separate column-drawing into its own function.
+  Find the maximum length of each column.
   This means the columns for a node will have to be kept separate.
 Insert whitespace into columns as necessary.
 ** TODO bugs
