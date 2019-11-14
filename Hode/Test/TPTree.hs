@@ -8,7 +8,7 @@ import           Test.HUnit hiding (Test, test)
 import           Lens.Micro
 import qualified Data.List.PointedList as P
 
-import           Hode.Util.PTree
+import           Hode.PTree.Initial
 import           Hode.Util.Direction
 
 

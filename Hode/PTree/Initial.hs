@@ -6,7 +6,7 @@
 , TypeFamilies
 , ViewPatterns #-}
 
-module Hode.Util.PTree where
+module Hode.PTree.Initial where
 
 import           Control.Arrow ((>>>))
 import           Control.Lens

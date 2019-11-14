@@ -26,7 +26,7 @@ import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.Window
 import Hode.Util.Misc
-import Hode.Util.PTree
+import Hode.PTree.Initial
 
 
 unEitherSt :: St -> Either String St -> St

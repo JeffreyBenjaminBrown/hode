@@ -15,7 +15,7 @@ import Hode.Rslt.ShowColor
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.Util.Misc
-import Hode.Util.PTree
+import Hode.PTree.Initial
 
 
 -- | Render an entire `Buffer` to text.

@@ -30,7 +30,7 @@ import Hode.UI.Types.Views
 import Hode.UI.IUtil.String
 import Hode.Util.Direction
 import Hode.Util.Misc
-import Hode.Util.PTree
+import Hode.PTree.Initial
 
 
 moveFocusedViewExprNode :: Direction -> St -> St

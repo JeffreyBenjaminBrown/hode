@@ -1,8 +1,8 @@
 -- | Based on one of the tutorial programs from Brick.
 -- Probably the one called Attr-something.
 
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings
+, ScopedTypeVariables #-}
 module Hode.Brick.HBoxColors (main) where
 
 import Graphics.Vty

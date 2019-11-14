@@ -1,4 +1,5 @@
 {-# LANGUAGE ViewPatterns
+, ScopedTypeVariables
 #-}
 
 module Hode.Brick.Wrap (

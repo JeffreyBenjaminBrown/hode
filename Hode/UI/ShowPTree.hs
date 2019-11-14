@@ -9,7 +9,7 @@ import qualified Brick.Types          as B
 import           Brick.Widgets.Core
 
 import Hode.Brick
-import Hode.Util.PTree
+import Hode.PTree.Initial
 
 
 -- | To show `String`s, set `b2w = Brick.Widgets.Core.strWrap`.

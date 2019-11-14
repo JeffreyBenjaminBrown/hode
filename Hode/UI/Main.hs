@@ -28,7 +28,7 @@ import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.IUtil
 import Hode.UI.ShowPTree
-import Hode.Util.PTree
+import Hode.PTree.Initial
 
 
 ui :: IO St

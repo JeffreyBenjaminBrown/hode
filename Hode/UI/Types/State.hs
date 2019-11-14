@@ -23,7 +23,7 @@ import Hode.Hash.HTypes
 import Hode.Qseq.QTypes
 import Hode.Rslt.RTypes
 import Hode.Util.Misc
-import Hode.Util.PTree
+import Hode.PTree.Initial
 
 
 -- | A `Buffer` displays search results.

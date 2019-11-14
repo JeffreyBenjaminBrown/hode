@@ -41,6 +41,8 @@ library
                 , Hode.NoUI
                 , Hode.NoUI.Internal
 
+                , Hode.PTree.Initial
+
                 , Hode.Qseq.MkLeaf
                 , Hode.Qseq.QTypes
                 , Hode.Qseq.QValid
@@ -117,7 +119,6 @@ library
                 , Hode.Util.Alternation
                 , Hode.Util.Direction
                 , Hode.Util.Misc
-                , Hode.Util.PTree
                 , Hode.Util.UParse
   other-modules:
   build-depends:

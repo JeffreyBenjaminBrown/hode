@@ -576,6 +576,9 @@ To move "right" in the buffer ring is to move to the buffer with the least index
 ** view notes from a text ordered by source text or topic
 ** collective note taking
 https://blogs.agu.org/geoedtrek/2016/12/28/collaborative-note-taking/
+** google isn't that great
+https://news.ycombinator.com/item?id=21515181
+https://stratechery.com/2019/the-google-squeeze/
 * bugs
 ** meh: the empty unary relationship
 "# x" is treated the same as "x #"
