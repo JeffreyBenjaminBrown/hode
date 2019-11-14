@@ -42,6 +42,7 @@ library
                 , Hode.NoUI.Internal
 
                 , Hode.PTree.Initial
+                , Hode.PTree.PShow
 
                 , Hode.Qseq.MkLeaf
                 , Hode.Qseq.QTypes
@@ -112,8 +113,6 @@ library
                 , Hode.UI.Input.IParse
                 , Hode.UI.Main
                 , Hode.UI.RsltViewTree
-                , Hode.UI.ShowPTree
-                , Hode.UI.ShowPTree.HandTest
                 , Hode.UI.Window
 
                 , Hode.Util.Alternation

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.ShowPTree where
+module Hode.PTree.PShow where
 
 import           Data.Foldable (toList)
 import           Lens.Micro
