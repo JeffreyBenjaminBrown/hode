@@ -20,12 +20,45 @@ test_module_pTree = TestList [
   , TestLabel "test_moveFocus_inPTree" test_moveFocus_inPTree
   , TestLabel "test_moveFocus_inPorest" test_moveFocus_inPorest
   , TestLabel "test_pListLenses" test_pListLenses
+  , TestLabel "test_map" test_map
   ]
+
+test_map :: T.Test
+test_map = TestCase $ do
+  assertBool "flat PTree" $ fmap (+1)
+    (PTree 1 True Nothing) ==
+    PTree 2 True Nothing
+  assertBool "2-level PTree" $ fmap (+1)
+    (PTree 1 True $ P.fromList [PTree 2 True Nothing
+                               ,PTree 3 True Nothing]) ==
+    (PTree 2 True $ P.fromList [PTree 3 True Nothing
+                               ,PTree 4 True Nothing])
+  assertBool "flat Porest" $
+    fmap ( fmap ( fmap (+1) ) )
+      -- 3 fmaps: the Maybe, the PointedList, each PTree
+    ( P.fromList [ PTree 1 True Nothing
+                 , PTree 2 True Nothing ]
+      :: Maybe (Porest Int) ) ==
+    ( P.fromList [ PTree 2 True Nothing
+                 , PTree 3 True Nothing ] )
+  assertBool "2-level Porest" $
+    fmap ( fmap ( fmap (+1) ) )
+      -- 3 fmaps: the Maybe, the PointedList, each PTree
+    ( P.fromList [ PTree 1 True $
+                   P.fromList [ PTree 2 True Nothing,
+                                PTree 3 True Nothing ]
+                 , PTree 4 True Nothing ]
+      :: Maybe (Porest Int) ) ==
+    ( P.fromList [ PTree 2 True $
+                   P.fromList [ PTree 3 True Nothing,
+                                PTree 4 True Nothing ]
+                 , PTree 5 True Nothing ] )
 
 test_pListLenses :: T.Test
 test_pListLenses = TestCase $ do
-  let toPList = maybe (error "impossible: P.fromList fails only on []") id
-                . P.fromList
+  let toPList = maybe
+        (error "impossible: P.fromList fails only on []")
+        id . P.fromList
       l  = [1..3 :: Int]
       l' = [4..6 :: Int]
       pl  = toPList l

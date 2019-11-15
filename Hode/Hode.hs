@@ -21,7 +21,7 @@ import Hode.Test.Main as X
 -- import Hode.Test.Rslt.TIndex_and_Valid as X
 -- import Hode.Test.Rslt.TLookup as X
 -- import Hode.Test.Rslt.TShow as X
-import Hode.Test.Rslt.TSort as X
+-- import Hode.Test.Rslt.TSort as X
 -- import Hode.Test.TBrick as X
 -- import Hode.Test.TGraph as X
 -- import Hode.Test.TMain as X
