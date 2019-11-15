@@ -8,9 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO modify PTree
-fold over PTree or a Porest
-  e.g. to compute the max length of columns
 ** TODO divide porestToWidget
 *** TODO thinking
 **** be able to draw onto BufferRows

@@ -51,7 +51,8 @@ data PTree a = PTree {
   , _pMTrees :: Maybe (Porest a) }
   deriving (Eq, Show, Ord, Functor, Foldable, Traversable)
 type Porest a = PointedList (PTree a)
-
+  -- ^ PITFALL: Folding over a Porest is a little confusing.
+  -- See Hode.Test.TPTree.
 
 -- | = Lenses
 

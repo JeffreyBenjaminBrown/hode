@@ -21,7 +21,51 @@ test_module_pTree = TestList [
   , TestLabel "test_moveFocus_inPorest" test_moveFocus_inPorest
   , TestLabel "test_pListLenses" test_pListLenses
   , TestLabel "test_map" test_map
+  , TestLabel "test_fold" test_fold
   ]
+
+test_fold :: T.Test
+test_fold = TestCase $ do
+  assertBool "foldr" $ foldr (:) []
+    ( PTree 3 True $
+      P.fromList [ PTree 2 True Nothing
+                 , PTree 1 True Nothing] )
+    == [3,2,1]
+  assertBool "foldl" $ foldl (flip (:)) []
+    ( PTree 3 True $
+      P.fromList [ PTree 2 True Nothing
+                 , PTree 1 True Nothing] )
+    == [1,2,3]
+  assertBool "Foldable already defines maximum" $ maximum
+    ( PTree 1 True $
+      P.fromList [ PTree 2 True Nothing
+                 , PTree 3 True Nothing] )
+    == 3
+  assertBool "Make sure order doesn't matter" $ maximum
+    ( PTree 3 True $
+      P.fromList [ PTree 2 True Nothing
+                 , PTree 1 True Nothing] )
+    == 3
+
+  assertBool "a Porest" $
+    fmap (fmap maximum)
+    ( P.fromList [ PTree 1 True $
+                   P.fromList [ PTree 2 True Nothing,
+                                PTree 3 True Nothing ]
+                 , PTree 4 True Nothing ]
+      :: Maybe (Porest Int) )
+    == P.fromList [3,4]
+
+  assertBool "a Porest" $
+    fmap -- into the Maybe
+    ( maximum . -- maximum across the PTrees
+      fmap maximum ) -- maximum within each PTree
+    ( P.fromList [ PTree 1 True $
+                   P.fromList [ PTree 2 True Nothing,
+                                PTree 3 True Nothing ]
+                 , PTree 4 True Nothing ]
+      :: Maybe (Porest Int) )
+    == Just 4
 
 test_map :: T.Test
 test_map = TestCase $ do
