@@ -68,7 +68,6 @@ import Hode.NoUI as X
 import Hode.PTree.PShow as X
 import Hode.UI.IUtil.String as X
 import Hode.UI.Window as X
-import Hode.Util.Direction as X
 import Hode.Util.Misc as X
 import Hode.PTree.Initial as X
 import Hode.Util.UParse as X

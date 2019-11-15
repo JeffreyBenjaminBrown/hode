@@ -9,9 +9,6 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO modify PTree
-delete Direction.hs
-  it should be folded into PTree.Initial --
-  the only times it is imported, that is imported too
 fold over PTree or a Porest
   e.g. to compute the max length of columns
 map over PTree or Porest

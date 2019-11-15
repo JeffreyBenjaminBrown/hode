@@ -16,7 +16,9 @@ import qualified Data.List.PointedList as P
 import           Data.Maybe
 import           Data.Functor.Foldable.TH
 
-import Hode.Util.Direction
+
+data Direction = DirPrev | DirNext | DirUp | DirDown
+  deriving (Show,Eq, Ord)
 
 
 -- | == `PointedList`

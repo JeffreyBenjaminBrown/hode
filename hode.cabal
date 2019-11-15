@@ -116,7 +116,6 @@ library
                 , Hode.UI.Window
 
                 , Hode.Util.Alternation
-                , Hode.Util.Direction
                 , Hode.Util.Misc
                 , Hode.Util.UParse
   other-modules:

@@ -42,7 +42,6 @@ import Hode.UI.Input.IParse
 import Hode.UI.IUtil.String
 import Hode.UI.BufferRowTree
 import Hode.UI.Window
-import Hode.Util.Direction
 import Hode.Util.Misc
 import Hode.PTree.Initial
 

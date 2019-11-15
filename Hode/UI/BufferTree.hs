@@ -18,7 +18,6 @@ import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.IUtil
 import Hode.UI.Window
-import Hode.Util.Direction
 import Hode.Util.Misc
 import Hode.PTree.Initial
 
