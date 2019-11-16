@@ -80,8 +80,8 @@ resultWindow b = let
                         -> B.Widget BrickName
   focusStyle bt =
     if bt ^. pTreeHasFocus
-    then visible . withAttr (B.attrName   "focused result")
-    else           withAttr (B.attrName "unfocused result")
+    then visible . withAttr (B.attrName "white on green")
+    else id
 
   in maybe (str "There are no results to show (yet).")
      ( viewport (BrickMainName Results) B.Vertical
