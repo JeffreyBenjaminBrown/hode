@@ -2,6 +2,7 @@
 :set -XScopedTypeVariables
 :set -XTupleSections
 
+import Control.Arrow
 import Control.Lens
 import Control.Monad
 import Data.Functor.Foldable

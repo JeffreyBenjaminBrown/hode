@@ -2,6 +2,7 @@
 
 module Hode.PTree.PShow where
 
+import           Control.Arrow (second)
 import           Control.Lens
 import           Data.Foldable (toList)
 import qualified Data.Map as M
@@ -64,7 +65,7 @@ showPorest :: forall a d. Monoid d
   -> Porest a      -- ^ what to display
   -> [( Bool,      -- ^ whether it has focus
         d )]       -- ^ how it looks
-showPorest toString showColumns showPayload isFolded p0 =
+showPorest fromString showColumns showPayload isFolded p0 =
   fShow p where
 
   p :: Porest (Int, a)
@@ -90,12 +91,29 @@ showPorest toString showColumns showPayload isFolded p0 =
         indent :: Int = fst $ _pTreeLabel t0
     in ( _pTreeHasFocus t,
          showColumns a <>
-         toString (replicate (2*indent) ' ') <>
+         fromString (replicate (2*indent) ' ') <>
          showPayload (_pTreeLabel t) )
 
--- | PITFALL: Assumes the lists in the input are of equal length.
+withPaddedColumns :: forall a t d.
+  -- ^ Here `t d` is probably `String` or `ColorString`.
+  (Foldable t, Monoid (t d))
+  => (String -> t d) -- ^ will be used to inject whitespace
+  -> (a -> [t d]) -- ^ how to draw the column cells at a row
+  -> Porest a
+  -> Porest (a, [t d])
+withPaddedColumns fromString makeColumns p0 = let
+  p1 :: Porest (a, [t d]) = withColumns makeColumns p0
+  lengths :: [Int] = maxColumnLengths $ fmap (fmap snd) p1
+  leftPad :: Int -> t d -> t d
+  leftPad k s = fromString (replicate (k - length s) ' ') <> s
+  in fmap (fmap $ second $ zipWith ($) $ map leftPad lengths) p1
+
+-- | Computes the maximum length of each `t b`.
+-- See test suite if that doesn't make sense.
+-- PITFALL: Assumes the lists in the input are all of equal length.
 maxColumnLengths :: forall t b. Foldable t
-                 => Porest [t b] -> [Int]
+  -- ^ Here `t d` is probably `String` or `ColorString`.
+  => Porest [t b] -> [Int]
 maxColumnLengths p0 = let
   p1 :: Porest [Int] =
     fmap (fmap $ map length) p0
@@ -110,6 +128,6 @@ maxColumnLengths p0 = let
   maxima = foldr update zeros
   in maxima $ fmap maxima p1
 
-tupleColumns :: (a -> [b]) -> Porest a -> Porest (a, [b])
-tupleColumns makeColumns =
+withColumns :: (a -> [b]) -> Porest a -> Porest (a, [b])
+withColumns makeColumns =
   fmap $ fmap $ \x -> (x, makeColumns x)
