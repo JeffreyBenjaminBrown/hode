@@ -170,7 +170,7 @@ runParsedCommand                     c0 st0 =
     f (r,as) =
       B.continue $ st
       & appRslt .~ r
-      & itWorked ( "Exprs added at " ++
+      & itWorked ( "Expr(s) added at " ++
                    show (catNews as) )
 
   g (CommandLoad f) st = Right $ do

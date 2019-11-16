@@ -100,7 +100,7 @@ appDraw st0 = [w] where
     , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to Results), M-S-b (SearchBuffers), or M-S-h (command History)." ]
 
   reassuranceWindow :: B.Widget BrickName =
-    withAttr (B.attrName "reassurance")
+    withAttr (B.attrName "white on blue")
     $ strWrap $ st0 ^. reassurance
 
   bufferWindow :: B.Widget BrickName = maybe
@@ -163,15 +163,13 @@ appAttrMap = let
   --gray1   = gray 1 -- PITFALL: Vty offers darker non-black grays.
   --  -- See VTY issue https://github.com/jtdaugherty/vty/issues/172
   white     = gray 255
-  darkBlue  = V.rgbColor 0 0 (1::Int)
-  darkGreen = V.rgbColor 0 1 (0::Int)
+  darkBlue  = rc 0 0 1
+  darkGreen = rc 0 1 0
+  darkRed   = rc 1 0 0
   in B.attrMap V.defAttr
     [ (B.editAttr                    , V.black `on` V.red) -- unused
     , (B.editFocusedAttr             , white   `on` darkBlue)
-    , (B.attrName "reassurance"      , white   `on` darkGreen)
-    , (B.attrName "unfocused result" , white   `on` black)
-    , (B.attrName "focused result"   , white   `on` darkGreen)
-    , (B.attrName "sepColor"         , rc 255 255 255 `on` rc 1 0 0)
-    , (B.attrName "textColor"        , rc 255 255 255 `on` rc 0 1 0)
-    , (B.attrName "addrColor"        , rc 255 255 255 `on` rc 0 0 1)
+    , (B.attrName "white on red"     , white   `on` darkRed)
+    , (B.attrName "white on green"   , white   `on` darkGreen)
+    , (B.attrName "white on blue"    , white   `on` darkBlue)
     ]
