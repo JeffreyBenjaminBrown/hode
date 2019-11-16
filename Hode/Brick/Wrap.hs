@@ -3,7 +3,8 @@
 #-}
 
 module Hode.Brick.Wrap (
-    colorStringWrap         -- ^ Int -> ColorString -> Widget n
+    colorStringWrap        -- ^ Int -> ColorString -> Widget n
+  , colorStringWrap'       -- ^ Int -> (Bool, ColorString) -> Widget n
   , toLines                -- ^ Int -> ColorString -> [ColorString]
   , extractLine            -- ^ Int -> [(String,a)]
                            -- -> ([(String,a)], [(String,a)])
@@ -23,14 +24,25 @@ import Hode.Brick
 -- wrapping it after around `maxLength` characters.
 -- TODO ? PITFALL: does not quite behave as expected:
 -- sometimes the line is slightly longer than `maxLength`.
-colorStringWrap :: forall n. Int -> ColorString -> Widget n
-colorStringWrap maxLength =
+colorStringWrap :: forall n.
+  Int -> ColorString -> Widget n
+colorStringWrap maxLength cs =
   let drawLineSegment :: (String,Color) -> Widget n
       drawLineSegment (s,c) =
-        withAttr (colorToAttrName c) $ str s
-      drawLine :: ColorString -> Widget n
-      drawLine = hBox . map drawLineSegment
-  in vBox . map drawLine . toLines maxLength
+        withAttr (colorToAttrName False c) $ str s
+      drawLine :: ColorString -> Widget n =
+        hBox . map drawLineSegment
+  in vBox $ map drawLine $ toLines maxLength cs
+
+colorStringWrap' :: forall n.
+  Int -> (Bool, ColorString) -> Widget n
+colorStringWrap' maxLength (isFocused, cs) =
+  let drawLineSegment :: (String,Color) -> Widget n
+      drawLineSegment (s,c) =
+        withAttr (colorToAttrName isFocused c) $ str s
+      drawLine :: ColorString -> Widget n =
+        hBox . map drawLineSegment
+  in vBox $ map drawLine $ toLines maxLength cs
 
 -- | `toLines maxLength as0` divides a `ColorString` into lines
 -- of maximum length roughly equal to `maxLength`.

@@ -16,6 +16,7 @@ import qualified Graphics.Vty         as V
 import Hode.Brick
 import Hode.Brick.Wrap
 
+
 main :: IO ()
 main = flip defaultMain () $
   ( App { appDraw = const [ui]
@@ -41,13 +42,13 @@ theMap = let
 ui :: Widget n
 ui = vBox [
     str "Specifying an attribute name bla bla bla."
-  , hBox [ withAttr (colorToAttrName TextColor) $ str "Hello, ",
-           withAttr (colorToAttrName AddrColor) $ str "Dolly!" ]
-  , colorStringWrap 10
-      [ ("12345", TextColor)
-      , ("123 45", AddrColor)
-      , ("123 45", TextColor)
-      , ("123 45", SepColor)
-      , ("12345", SepColor)
-      ]
+  , hBox [ withAttr (colorToAttrName False TextColor) $ str "Hello, ",
+           withAttr (colorToAttrName True  TextColor) $ str "Dolly!" ]
+  , colorStringWrap' 10
+      ( False, [ ("12345", TextColor)
+               , ("123 45", AddrColor)
+               , ("123 45", TextColor)
+               , ("123 45", SepColor)
+               , ("12345", SepColor)
+               ] )
   ]

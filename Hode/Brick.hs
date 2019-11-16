@@ -36,10 +36,13 @@ type ColorString = [(String, Color)]
 toColorString :: String -> ColorString
 toColorString s = [(s, TextColor)]
 
-colorToAttrName :: Color -> B.AttrName
-colorToAttrName TextColor = B.attrName "textColor"
-colorToAttrName SepColor  = B.attrName "sepColor"
-colorToAttrName AddrColor = B.attrName "addrColor"
+colorToAttrName :: Bool -> Color -> B.AttrName
+colorToAttrName False TextColor = B.attrName "textColor"
+colorToAttrName False SepColor  = B.attrName "sepColor"
+colorToAttrName False AddrColor = B.attrName "addrColor"
+colorToAttrName True  TextColor = B.attrName "addrColor"
+colorToAttrName True  SepColor  = B.attrName "textColor"
+colorToAttrName True  AddrColor = B.attrName "sepColor"
 
 data Color = TextColor | SepColor | AddrColor
   deriving (Show,Eq,Ord,Enum)

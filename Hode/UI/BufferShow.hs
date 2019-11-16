@@ -49,22 +49,18 @@ resultWindow' b =
       ( maybe (error "impossible -- null case already handled")
         id $ b ^. bufferRowPorest )
 
-    style :: Bool -> B.Widget BrickName
-                  -> B.Widget BrickName
-    style isFocused =
-      if isFocused
-      then visible . withAttr (B.attrName   "focused result")
-      else           withAttr (B.attrName "unfocused result")
-
     oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget BrickName
     oneRowWidget (isFocused,cols,node) =
-      style isFocused $ hBox
+      (if isFocused then visible else id) $
+      hBox
       [ strWrap $ show (isFocused, cols)
-      , colorStringWrap 65 cols
-        -- PITFALL: `colorStringWrap` is overkill here, because
+      , colorStringWrap' 65 (isFocused, cols)
+        -- PITFALL: `colorStringWrap` is overkill for `cols`:
         -- `cols` should be too short ever to need wrapping.
+        -- Moreover if it does wrap, that means there is no room
+        -- for the actual content of the node.
         -- TODO ? write, use a simpler alternative to `colorStringWrap`.
-      , colorStringWrap 65 node]
+      , colorStringWrap' 65 (isFocused, node) ]
 
   in viewport (BrickMainName Results) B.Vertical
      $ vBox $ map oneRowWidget rows

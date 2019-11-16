@@ -9,26 +9,15 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO divide porestToWidget
-*** TODO thinking
-**** DONE be able to draw onto BufferRows
-Just tuple something onto the BufferRow:
-Porest BufferRow -> Porest (BufferRow,a)
-**** relevant types
-data Buffer = Buffer
-  { _bufferQuery     :: ViewQuery
-  , _bufferRowPorest :: Maybe (Porest BufferRow) }
-data BufferRow = BufferRow {
-    _viewExprNode :: ViewExprNode
-  , _columnProps  :: ColumnProps
-  , _otherProps   :: OtherProps }
-data ViewExprNode = VQuery      ViewQuery
-                  | VExpr       ViewExpr
-                  | VMemberFork MemberFork
-                  | VHostFork   HostFork
 *** TODO code
+Fix cursor highlight.
+  Add opposites to each of the Colors.
+  Write a utility to invert a ColorString's color.
 Use showPorest'.
-Delete showPorest, porestToWidget.
-Rename showPorest' -> showPorest.
+Delete showPorest, porestToWidget, colorstringwrap
+Rename showPorest' -> showPorest,
+       colorstringwrap' -> colorstringwrap
+       others?
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
