@@ -1,5 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables
 , TupleSections #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module Hode.Test.TPTree where
 

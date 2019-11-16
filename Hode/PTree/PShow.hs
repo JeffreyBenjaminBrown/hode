@@ -3,15 +3,14 @@
 module Hode.PTree.PShow where
 
 import           Control.Arrow (second)
-import           Control.Lens
+import           Control.Lens hiding (Level)
 import           Data.Foldable (toList)
-import qualified Data.Map as M
 import qualified Data.List.PointedList as P
 
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
 
-import Hode.Brick
+import Hode.Hash.HTypes (Level)
 import Hode.PTree.Initial
 
 
@@ -30,12 +29,12 @@ porestToWidget :: forall a b n.
 porestToWidget b2w showColumns showIndented isFolded style p0 =
   fShow p where
 
-  p :: Porest (Int, a) = fmap writeLevels p0
+  p :: Porest (Level, a) = fmap writeLevels p0
 
-  fShow :: Porest (Int,a) -> B.Widget n
+  fShow :: Porest (Level,a) -> B.Widget n
   fShow = vBox . map recursiveWidget . toList
 
-  recursiveWidget :: PTree (Int,a) -> B.Widget n
+  recursiveWidget :: PTree (Level,a) -> B.Widget n
   recursiveWidget pt =
     oneTreeRowWidget pt <=> rest where
     rest = case pt ^. pMTrees of
@@ -45,22 +44,25 @@ porestToWidget b2w showColumns showIndented isFolded style p0 =
                True -> emptyWidget
                False -> fShow pts
 
-  oneTreeRowWidget :: PTree (Int,a) -> B.Widget n
+  oneTreeRowWidget :: PTree (Level,a) -> B.Widget n
   oneTreeRowWidget t0 =
-    let t :: PTree a  = fmap snd t0
-        a :: a        = _pTreeLabel t
-        indent :: Int = fst $ _pTreeLabel t0
-    in style t $ hBox
+    let indent :: Level   = fst $ _pTreeLabel t0
+        a      :: a       = snd $ _pTreeLabel t0
+    in style (fmap snd t0) $ -- TODO ? speed:
+         -- hopefully laziness implies that `snd`
+         -- is applied only at the root, not throughout t0.
+         -- If not, drop everything below the root first.
+       hBox
        [ b2w $ showColumns a
        , padLeft (B.Pad $ 2 * indent) $
-         b2w $ showIndented $ _pTreeLabel t ]
+         b2w $ showIndented a ]
 
 showPorest :: forall a d. Monoid d
   => (String -> d) -- ^ for inserting whitespace, for indentation
   -> (a -> d)      -- ^ Display a node's column information.
-                   -- This info will be left-justified.
+                   --   This info will be left-justified.
   -> (a -> d)      -- ^ Display a node's payload.
-                   -- This info will be indented to form a tree.
+                   --   This info will be indented to form a tree.
   -> (a -> Bool)   -- ^ whether to hide a node's children
   -> Porest a      -- ^ what to display
   -> [( Bool,      -- ^ whether it has focus
@@ -68,13 +70,13 @@ showPorest :: forall a d. Monoid d
 showPorest fromString showColumns showPayload isFolded p0 =
   fShow p where
 
-  p :: Porest (Int, a)
+  p :: Porest (Level, a)
   p = fmap writeLevels p0
 
-  fShow :: Porest (Int,a) -> [(Bool,d)]
+  fShow :: Porest (Level,a) -> [(Bool,d)]
   fShow = concatMap recursive . toList
 
-  recursive :: PTree (Int,a) -> [(Bool,d)]
+  recursive :: PTree (Level,a) -> [(Bool,d)]
   recursive pt =
     once pt :
     case pt ^. pMTrees of
@@ -84,25 +86,42 @@ showPorest fromString showColumns showPayload isFolded p0 =
           then []
           else fShow pts
 
-  once :: PTree (Int,a) -> (Bool, d)
+  once :: PTree (Level,a) -> (Bool, d)
   once t0 =
-    let t :: PTree a  = fmap snd t0
-        a :: a        = _pTreeLabel t
-        indent :: Int = fst $ _pTreeLabel t0
-    in ( _pTreeHasFocus t,
+    let indent :: Level = fst $ _pTreeLabel t0
+        a      :: a     = snd $ _pTreeLabel t0
+    in ( _pTreeHasFocus t0,
          showColumns a <>
          fromString (replicate (2*indent) ' ') <>
-         showPayload (_pTreeLabel t) )
+         showPayload a)
 
-withPaddedColumns :: forall a t d.
+showPorest' :: forall a t d.
+  (Foldable t, Monoid d, Monoid (t d))
+  => (String -> t d) -- ^ for inserting whitespace, for indentation
+  -> (a -> [t d])    -- ^ Display a node's column information.
+                     --   This info will be left-justified.
+  -> (a -> d)        -- ^ Display a node's payload.
+                     --   This info will be indented to form a tree.
+  -> (a -> Bool)     -- ^ whether to hide a node's children
+  -> Porest a        -- ^ what to display
+  -> [( Bool,        -- ^ whether it has focus
+        d )]         -- ^ how it looks
+
+showPorest' fromString showColumns showPayload isFolded p0 =
+  let pw :: Porest (Level, (a, [t d])) =
+        fmap writeLevels $
+        porestWithPaddedColumns fromString showColumns p0
+  in error ""
+
+porestWithPaddedColumns :: forall a t d.
   -- ^ Here `t d` is probably `String` or `ColorString`.
   (Foldable t, Monoid (t d))
   => (String -> t d) -- ^ will be used to inject whitespace
   -> (a -> [t d]) -- ^ how to draw the column cells at a row
   -> Porest a
   -> Porest (a, [t d])
-withPaddedColumns fromString makeColumns p0 = let
-  p1 :: Porest (a, [t d]) = withColumns makeColumns p0
+porestWithPaddedColumns fromString makeColumns p0 = let
+  p1 :: Porest (a, [t d]) = porestWith makeColumns p0
   lengths :: [Int] = maxColumnLengths $ fmap (fmap snd) p1
   leftPad :: Int -> t d -> t d
   leftPad k s = fromString (replicate (k - length s) ' ') <> s
@@ -123,11 +142,12 @@ maxColumnLengths p0 = let
     $ ( p0 ^. P.focus :: PTree [t b] )
   update :: [Int] -> [Int] -> [Int]
   update acc [] = acc
+  update [] new = [] -- this case is redundant, but GHC doesn't know that
   update (a:acc) (b:new) = max a b : update acc new
   maxima :: Foldable f => f [Int] -> [Int]
   maxima = foldr update zeros
   in maxima $ fmap maxima p1
 
-withColumns :: (a -> [b]) -> Porest a -> Porest (a, [b])
-withColumns makeColumns =
+porestWith :: (a -> [b]) -> Porest a -> Porest (a, [b])
+porestWith makeColumns =
   fmap $ fmap $ \x -> (x, makeColumns x)
