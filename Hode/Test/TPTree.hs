@@ -1,4 +1,5 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables
+, TupleSections #-}
 
 module Hode.Test.TPTree where
 
@@ -47,7 +48,7 @@ test_fold = TestCase $ do
                  , PTree 1 True Nothing] )
     == 3
 
-  assertBool "a Porest" $
+  assertBool "maximum of each PTree in a Porest" $
     fmap (fmap maximum)
     ( P.fromList [ PTree 1 True $
                    P.fromList [ PTree 2 True Nothing,
@@ -56,7 +57,7 @@ test_fold = TestCase $ do
       :: Maybe (Porest Int) )
     == P.fromList [3,4]
 
-  assertBool "a Porest" $
+  assertBool "maximum in a Porest" $
     fmap -- into the Maybe
     ( maximum . -- maximum across the PTrees
       fmap maximum ) -- maximum within each PTree
@@ -69,14 +70,15 @@ test_fold = TestCase $ do
 
 test_map :: T.Test
 test_map = TestCase $ do
-  assertBool "flat PTree" $ fmap (+1)
+  assertBool "flat PTree, changing type" $ fmap (,"a")
     (PTree 1 True Nothing) ==
-    PTree 2 True Nothing
+    PTree (1,"a") True Nothing
   assertBool "2-level PTree" $ fmap (+1)
     (PTree 1 True $ P.fromList [PTree 2 True Nothing
                                ,PTree 3 True Nothing]) ==
     (PTree 2 True $ P.fromList [PTree 3 True Nothing
                                ,PTree 4 True Nothing])
+
   assertBool "flat Porest" $
     fmap ( fmap ( fmap (+1) ) )
       -- 3 fmaps: the Maybe, the PointedList, each PTree
@@ -85,6 +87,7 @@ test_map = TestCase $ do
       :: Maybe (Porest Int) ) ==
     ( P.fromList [ PTree 2 True Nothing
                  , PTree 3 True Nothing ] )
+
   assertBool "2-level Porest" $
     fmap ( fmap ( fmap (+1) ) )
       -- 3 fmaps: the Maybe, the PointedList, each PTree

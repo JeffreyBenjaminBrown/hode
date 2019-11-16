@@ -10,10 +10,9 @@ This will load all non-broken modules when some are broken.
 * TODO next
 ** TODO divide porestToWidget
 *** TODO thinking
-**** be able to draw onto BufferRows
-Either they should have optional fields, or they should be Functors.
-I guess Functors is more natural --
-that way the optional ones won't get in the way when unneeded.
+**** DONE be able to draw onto BufferRows
+Just tuple something onto the BufferRow:
+Porest BufferRow -> Porest (BufferRow,a)
 **** relevant types
 data Buffer = Buffer
   { _bufferQuery     :: ViewQuery
@@ -30,6 +29,9 @@ data ViewExprNode = VQuery      ViewQuery
 Separate column-drawing into its own function.
   Find the maximum length of each column.
   This means the columns for a node will have to be kept separate.
+g :: BufferRow -> ([String], BufferRow)
+g br = ( map (show . snd) . M.toList . _columnProps $ br,
+         br )
 Insert whitespace into columns as necessary.
 ** TODO bugs
 *** buffer view does not show children

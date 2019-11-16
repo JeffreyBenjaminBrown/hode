@@ -2,8 +2,10 @@
 
 module Hode.PTree.PShow where
 
+import           Control.Lens
 import           Data.Foldable (toList)
-import           Lens.Micro
+import qualified Data.Map as M
+import qualified Data.List.PointedList as P
 
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
@@ -90,3 +92,24 @@ showPorest toString showColumns showPayload isFolded p0 =
          showColumns a <>
          toString (replicate (2*indent) ' ') <>
          showPayload (_pTreeLabel t) )
+
+-- | PITFALL: Assumes the lists in the input are of equal length.
+maxColumnLengths :: forall t b. Foldable t
+                 => Porest [t b] -> [Int]
+maxColumnLengths p0 = let
+  p1 :: Porest [Int] =
+    fmap (fmap $ map length) p0
+  zeros :: [Int] =
+    map (const 0)
+    $ foldr1 const -- takes the first element (efficiently, I think)
+    $ ( p0 ^. P.focus :: PTree [t b] )
+  update :: [Int] -> [Int] -> [Int]
+  update acc [] = acc
+  update (a:acc) (b:new) = max a b : update acc new
+  maxima :: Foldable f => f [Int] -> [Int]
+  maxima = foldr update zeros
+  in maxima $ fmap maxima p1
+
+tupleColumns :: (a -> [b]) -> Porest a -> Porest (a, [b])
+tupleColumns makeColumns =
+  fmap $ fmap $ \x -> (x, makeColumns x)
