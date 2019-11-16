@@ -32,6 +32,8 @@ colorStringWrap maxLength =
       drawLine = hBox . map drawLineSegment
   in vBox . map drawLine . toLines maxLength
 
+-- | `toLines maxLength as0` divides a `ColorString` into lines
+-- of maximum length roughly equal to `maxLength`.
 toLines :: Int -> ColorString -> [ColorString]
 toLines maxLength as0 = let
   (one :: ColorString, rest :: ColorString) =

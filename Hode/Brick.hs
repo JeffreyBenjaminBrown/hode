@@ -7,6 +7,7 @@
 
 module Hode.Brick (
     ColorString, Color(..)
+  , toColorString -- ^ String -> ColorString
   , colorToAttrName  -- ^ Color -> B.AttrName
   , ShowColor, showColor
   , unColorString -- ^ ColorString -> String
@@ -31,6 +32,9 @@ import qualified Brick.AttrMap as B
 
 -- | Like `String`, but different substrings can have different fonts.
 type ColorString = [(String, Color)]
+
+toColorString :: String -> ColorString
+toColorString s = [(s, TextColor)]
 
 colorToAttrName :: Color -> B.AttrName
 colorToAttrName TextColor = B.attrName "textColor"

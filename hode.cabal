@@ -105,6 +105,7 @@ library
                 , Hode.Test.TUtil
 
                 , Hode.UI.BufferRowTree
+                , Hode.UI.BufferShow
                 , Hode.UI.BufferTree
                 , Hode.UI.Clipboard
                 , Hode.UI.ITypes.Names

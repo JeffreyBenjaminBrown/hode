@@ -20,15 +20,16 @@ import qualified Graphics.Vty         as V
 
 import Hode.Brick
 import Hode.Brick.Wrap
+import Hode.PTree.Initial
+import Hode.PTree.PShow
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
+import Hode.UI.BufferShow
+import Hode.UI.IUtil
 import Hode.UI.Input
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.IUtil
-import Hode.PTree.PShow
-import Hode.PTree.Initial
 
 
 ui :: IO St
@@ -77,7 +78,7 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       SearchBuffers  -> bufferWindow
       CommandHistory -> commandHistoryWindow
-      Results        -> resultWindow
+      Results        -> resultWindow b
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>
@@ -108,20 +109,6 @@ appDraw st0 = [w] where
       . ( porestToWidget strWrap (const "")
           _bufferQuery (const True) focusStyle ) )
     (st ^. searchBuffers)
-
-  resultWindow :: B.Widget BrickName = maybe
-    (str "There are no results to show (yet).")
-    ( let showNode :: BufferRow -> ColorString =
-            showColor . _viewExprNode
-          getFolded :: BufferRow -> Bool =
-            _folded . _otherProps
-          showColumns :: BufferRow -> ColorString =
-            concatMap ((:[]) . (, TextColor) . show)
-            . M.elems . _columnProps
-      in ( viewport (BrickMainName Results) B.Vertical
-         . ( porestToWidget (colorStringWrap 65) showColumns
-             showNode getFolded focusStyle ) ) )
-    (b ^. bufferRowPorest)
 
   focusStyle :: PTree a -> B.Widget BrickName
                         -> B.Widget BrickName
