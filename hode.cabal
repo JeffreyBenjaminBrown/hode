@@ -76,6 +76,10 @@ library
                 , Hode.Test.Hash.TParse
                 , Hode.Test.Hash.TTransitive
 
+                , Hode.Test.Main
+
+                , Hode.Test.PTree.TPInitial
+
                 , Hode.Test.Qseq.TLeaf
                 , Hode.Test.Qseq.TProgram
                 , Hode.Test.Qseq.TQuery
@@ -92,11 +96,8 @@ library
                 , Hode.Test.Rslt.TShow
                 , Hode.Test.Rslt.TSort
 
-                , Hode.Test.Main
-
                 , Hode.Test.TBrick
                 , Hode.Test.TGraph
-                , Hode.Test.TPTree
                 , Hode.Test.TNoUI
                 , Hode.Test.TUI
                 , Hode.Test.TUtil

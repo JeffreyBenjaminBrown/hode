@@ -2,7 +2,7 @@
 , TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
-module Hode.Test.TPTree where
+module Hode.Test.PTree.TPInitial where
 
 import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
@@ -11,11 +11,10 @@ import           Lens.Micro
 import qualified Data.List.PointedList as P
 
 import Hode.PTree.Initial
-import Hode.PTree.PShow
 
 
-test_module_pTree :: T.Test
-test_module_pTree = TestList [
+test_module_pTree_initial :: T.Test
+test_module_pTree_initial = TestList [
     TestLabel "test_porestLeaf"     test_porestLeaf
   , TestLabel "test_focusedSubtree" test_focusedSubtree
   , TestLabel "test_focusedChild"   test_focusedChild
@@ -25,18 +24,7 @@ test_module_pTree = TestList [
   , TestLabel "test_pListLenses" test_pListLenses
   , TestLabel "test_map" test_map
   , TestLabel "test_fold" test_fold
-  , TestLabel "test_maxColumnLengths" test_maxColumnLengths
   ]
-
-test_maxColumnLengths :: T.Test
-test_maxColumnLengths = TestCase $ do
-  assertBool "" $ fmap maxColumnLengths
-    ( P.fromList [ PTree ["1","1"] True $
-                   P.fromList [ PTree ["1","12"]  True Nothing,
-                                PTree ["12345",""]  True Nothing ]
-                 , PTree ["12","1"] True Nothing ]
-      :: Maybe (Porest [String]) )
-    == Just [5, 2]
 
 test_fold :: T.Test
 test_fold = TestCase $ do

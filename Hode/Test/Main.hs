@@ -13,7 +13,8 @@ import Hode.Test.TNoUI
 
 import Hode.Test.TBrick
 import Hode.Test.TGraph
-import Hode.Test.TPTree
+import Hode.Test.PTree.TPInitial
+import Hode.Test.PTree.TPShow
 
 
 tests :: IO Counts
@@ -25,7 +26,8 @@ tests = runTestTT $ TestList
   , test_module_ui
   , test_module_NoUI
 
-  , test_module_pTree
+  , test_module_pTree_initial
+  , test_module_pTree_show
   , test_module_util
   , test_module_graph
   , test_module_hode_brick
