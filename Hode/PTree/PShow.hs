@@ -96,23 +96,47 @@ showPorest fromString showColumns showPayload isFolded p0 =
          showPayload a)
 
 showPorest' :: forall a t d.
-  (Foldable t, Monoid d, Monoid (t d))
+  (Foldable t, Monoid (t d))
+  -- ^ Here `t d` is probably `String` or `ColorString`.
   => (String -> t d) -- ^ for inserting whitespace, for indentation
   -> (a -> [t d])    -- ^ Display a node's column information.
                      --   This info will be left-justified.
-  -> (a -> d)        -- ^ Display a node's payload.
+  -> (a -> t d)      -- ^ Display a node's payload.
                      --   This info will be indented to form a tree.
   -> (a -> Bool)     -- ^ whether to hide a node's children
   -> Porest a        -- ^ what to display
   -> [( Bool,        -- ^ whether it has focus
-        d )]         -- ^ how it looks
+        t d )]       -- ^ how it looks
 
 showPorest' fromString showColumns showPayload isFolded p0 =
-  let
-  pw :: Porest (Level, (a, [t d])) =
+  fShow plc where
+
+  plc :: Porest (Level, (a, [t d])) =
     fmap writeLevels $
     porestWithPaddedColumns fromString showColumns p0
-  in error ""
+
+  fShow :: Porest (Level, (a, [t d])) -> [(Bool,t d)]
+  fShow = concatMap recursive . toList
+
+  recursive :: PTree (Level, (a, [t d])) -> [(Bool, t d)]
+  recursive pt =
+    oneNode pt :
+    case pt ^. pMTrees of
+      Nothing -> []
+      Just pts ->
+        if isFolded $ fst . snd $ _pTreeLabel pt
+          then []
+          else fShow pts
+
+  oneNode :: PTree (Level,(a, [t d])) -> (Bool, t d)
+  oneNode t = let
+    indent :: Level = fst $       _pTreeLabel t
+    cols   :: [t d] = snd $ snd $ _pTreeLabel t
+    a      :: a     = fst $ snd $ _pTreeLabel t
+    in ( _pTreeHasFocus t
+       , mconcat cols <>
+         fromString (replicate (2*indent) ' ') <>
+         showPayload a )
 
 porestWithPaddedColumns :: forall a t d.
   -- ^ Here `t d` is probably `String` or `ColorString`.
@@ -143,7 +167,7 @@ maxColumnLengths p0 = let
     $ ( p0 ^. P.focus :: PTree [t b] )
   update :: [Int] -> [Int] -> [Int]
   update acc [] = acc
-  update [] new = [] -- this case is redundant, but GHC doesn't know that
+  update [] _ = [] -- this case is redundant, but GHC doesn't know that
   update (a:acc) (b:new) = max a b : update acc new
   maxima :: Foldable f => f [Int] -> [Int]
   maxima = foldr update zeros

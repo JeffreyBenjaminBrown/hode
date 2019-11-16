@@ -26,13 +26,9 @@ data ViewExprNode = VQuery      ViewQuery
                   | VMemberFork MemberFork
                   | VHostFork   HostFork
 *** TODO code
-Separate column-drawing into its own function.
-  Find the maximum length of each column.
-  This means the columns for a node will have to be kept separate.
-g :: BufferRow -> ([String], BufferRow)
-g br = ( map (show . snd) . M.toList . _columnProps $ br,
-         br )
-Insert whitespace into columns as necessary.
+Use showPorest'.
+Delete showPorest, porestToWidget.
+Rename showPorest' -> showPorest.
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
