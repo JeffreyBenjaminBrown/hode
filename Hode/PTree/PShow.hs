@@ -68,7 +68,8 @@ showPorest' :: forall a t d.
   -> (a -> Bool)     -- ^ whether to hide a node's children
   -> Porest a        -- ^ what to display
   -> [( Bool,        -- ^ whether it has focus
-        t d )]       -- ^ how it looks
+        t d ,        -- ^ the columns
+        t d )]       -- ^ the payload
 
 showPorest' fromString showColumns showPayload isFolded p0 =
   fShow plc where
@@ -77,10 +78,10 @@ showPorest' fromString showColumns showPayload isFolded p0 =
     fmap writeLevels $
     porestWithPaddedColumns fromString showColumns p0
 
-  fShow :: Porest (Level, (a, [t d])) -> [(Bool,t d)]
+  fShow :: Porest (Level, (a, [t d])) -> [(Bool,t d, t d)]
   fShow = concatMap recursive . toList
 
-  recursive :: PTree (Level, (a, [t d])) -> [(Bool, t d)]
+  recursive :: PTree (Level, (a, [t d])) -> [(Bool, t d, t d)]
   recursive pt =
     oneNode pt :
     case pt ^. pMTrees of
@@ -90,14 +91,14 @@ showPorest' fromString showColumns showPayload isFolded p0 =
           then []
           else fShow pts
 
-  oneNode :: PTree (Level,(a, [t d])) -> (Bool, t d)
+  oneNode :: PTree (Level,(a, [t d])) -> (Bool, t d, t d)
   oneNode t = let
     indent :: Level = fst $       _pTreeLabel t
     cols   :: [t d] = snd $ snd $ _pTreeLabel t
     a      :: a     = fst $ snd $ _pTreeLabel t
     in ( _pTreeHasFocus t
-       , mconcat cols <>
-         fromString (replicate (1 + 2*indent) ' ') <>
+       , mconcat cols
+       , fromString (replicate (2*indent) ' ') <>
          showPayload a )
 
 porestWithPaddedColumns :: forall a t d.

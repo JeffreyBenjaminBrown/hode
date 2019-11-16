@@ -34,12 +34,12 @@ test_showPorest' = TestCase $ do
         , PTree [0,1] False $
           P.fromList [ PTree [2,2] False Nothing ] ]
         :: Maybe (Porest [Int]) )
-      :: Maybe [(Bool, String)] )
+      :: Maybe [(Bool, String, String)] )
 
-    == Just [ (False, "  1 1 [1,1]")
-            , (True,  "  112   [1,12]")
-            , (False, "123 0   [123,0]")
-            , (False, "  0 1 [0,1]") ]
+    == Just [ (False, "  1 1", "[1,1]"     )
+            , (True , "  112", "  [1,12]"  )
+            , (False, "123 0", "  [123,0]" )
+            , (False, "  0 1", "[0,1]"     ) ]
 
 test_porestWithPaddedColumns :: T.Test
 test_porestWithPaddedColumns = TestCase $ do
