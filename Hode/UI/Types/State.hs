@@ -64,7 +64,9 @@ bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _)) =
     in ifLefts_map $ M.fromList $ map f hs
   let matchCounts :: Map HExpr Int =
         M.map S.size matches
-  Right $ BufferRow n matchCounts $ OtherProps False
+  Right $ BufferRow { _viewExprNode = n
+                    , _columnProps = matchCounts
+                    , _otherProps = OtherProps False }
 bufferRow_from_viewExprNode' _ n =
   Right $ bufferRow_from_viewExprNode n
 
