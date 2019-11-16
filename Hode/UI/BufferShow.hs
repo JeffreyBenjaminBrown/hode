@@ -50,11 +50,11 @@ resultWindow' b =
         id $ b ^. bufferRowPorest )
 
     style :: Bool -> B.Widget BrickName
-                       -> B.Widget BrickName
+                  -> B.Widget BrickName
     style isFocused =
-      visible . ( withAttr $ B.attrName $
-                  if isFocused then   "focused result"
-                               else "unfocused result" )
+      if isFocused
+      then visible . withAttr (B.attrName   "focused result")
+      else           withAttr (B.attrName "unfocused result")
 
     oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget BrickName
     oneRowWidget (isFocused,cols,node) =
@@ -68,7 +68,6 @@ resultWindow' b =
 
   in viewport (BrickMainName Results) B.Vertical
      $ vBox $ map oneRowWidget rows
-
 
 resultWindow :: Buffer -> B.Widget BrickName
 resultWindow b = let
@@ -84,10 +83,9 @@ resultWindow b = let
   focusStyle :: PTree a -> B.Widget BrickName
                         -> B.Widget BrickName
   focusStyle bt =
-    visible . ( withAttr $ B.attrName $
-                if not $ bt ^. pTreeHasFocus
-                  then "unfocused result"
-                  else   "focused result" )
+    if bt ^. pTreeHasFocus
+    then visible . withAttr (B.attrName   "focused result")
+    else           withAttr (B.attrName "unfocused result")
 
   in maybe (str "There are no results to show (yet).")
      ( viewport (BrickMainName Results) B.Vertical
