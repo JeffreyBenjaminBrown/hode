@@ -45,12 +45,12 @@ porestToWidget b2w showColumns showIndented isFolded style p0 =
                False -> fShow pts
 
   oneTreeRowWidget :: PTree (Level,a) -> B.Widget n
-  oneTreeRowWidget t0 =
-    let indent :: Level   = fst $ _pTreeLabel t0
-        a      :: a       = snd $ _pTreeLabel t0
-    in style (fmap snd t0) $ -- TODO ? speed:
+  oneTreeRowWidget t =
+    let indent :: Level   = fst $ _pTreeLabel t
+        a      :: a       = snd $ _pTreeLabel t
+    in style (fmap snd t) $ -- TODO ? speed:
          -- hopefully laziness implies that `snd`
-         -- is applied only at the root, not throughout t0.
+         -- is applied only at the root, not throughout `t`.
          -- If not, drop everything below the root first.
        hBox
        [ b2w $ showColumns a
@@ -87,10 +87,10 @@ showPorest fromString showColumns showPayload isFolded p0 =
           else fShow pts
 
   once :: PTree (Level,a) -> (Bool, d)
-  once t0 =
-    let indent :: Level = fst $ _pTreeLabel t0
-        a      :: a     = snd $ _pTreeLabel t0
-    in ( _pTreeHasFocus t0,
+  once t =
+    let indent :: Level = fst $ _pTreeLabel t
+        a      :: a     = snd $ _pTreeLabel t
+    in ( _pTreeHasFocus t,
          showColumns a <>
          fromString (replicate (2*indent) ' ') <>
          showPayload a)
@@ -108,9 +108,10 @@ showPorest' :: forall a t d.
         d )]         -- ^ how it looks
 
 showPorest' fromString showColumns showPayload isFolded p0 =
-  let pw :: Porest (Level, (a, [t d])) =
-        fmap writeLevels $
-        porestWithPaddedColumns fromString showColumns p0
+  let
+  pw :: Porest (Level, (a, [t d])) =
+    fmap writeLevels $
+    porestWithPaddedColumns fromString showColumns p0
   in error ""
 
 porestWithPaddedColumns :: forall a t d.
