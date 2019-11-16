@@ -135,7 +135,7 @@ showPorest' fromString showColumns showPayload isFolded p0 =
     a      :: a     = fst $ snd $ _pTreeLabel t
     in ( _pTreeHasFocus t
        , mconcat cols <>
-         fromString (replicate (2*indent) ' ') <>
+         fromString (replicate (1 + 2*indent) ' ') <>
          showPayload a )
 
 porestWithPaddedColumns :: forall a t d.

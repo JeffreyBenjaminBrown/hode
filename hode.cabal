@@ -79,6 +79,7 @@ library
                 , Hode.Test.Main
 
                 , Hode.Test.PTree.TPInitial
+                , Hode.Test.PTree.TPShow
 
                 , Hode.Test.Qseq.TLeaf
                 , Hode.Test.Qseq.TProgram

@@ -17,7 +17,31 @@ test_module_pTree_show :: T.Test
 test_module_pTree_show = TestList [
     TestLabel "test_maxColumnLengths" test_maxColumnLengths
   , TestLabel "test_porestWithPaddedColumns" test_porestWithPaddedColumns
+  , TestLabel "test_showPorest'" test_showPorest'
   ]
+
+test_showPorest' :: T.Test
+test_showPorest' = TestCase $ do
+  assertBool "" $
+    ( fmap
+      ( showPorest' id (map show) show
+        ((==0) . head ) ) -- if list starts with 0, no subtree
+
+      ( P.fromList
+        [ PTree [1,1] False $
+          P.fromList [ PTree [1,12]  True  Nothing,
+                       PTree [123,0] False Nothing ]
+        , PTree [0,1] False $
+          P.fromList [ PTree [2,2] False Nothing ] ]
+        :: Maybe (Porest [Int]) )
+      :: Maybe [(Bool, String)] )
+
+    == Just [ (False, "  1 1 [1,1]")
+            , (True,  "  112   [1,12]")
+            , (False, "123 0   [123,0]")
+            , (False, "  0 1 [0,1]") ]
+
+
 
 test_porestWithPaddedColumns :: T.Test
 test_porestWithPaddedColumns = TestCase $ do
