@@ -26,6 +26,8 @@ data ViewExprNode = VQuery      ViewQuery
                   | VMemberFork MemberFork
                   | VHostFork   HostFork
 *** TODO code
+Rewrite showPorest' to keep columns and payload separate.
+  Because the payload needs to be wrapped.
 Use showPorest'.
 Delete showPorest, porestToWidget.
 Rename showPorest' -> showPorest.

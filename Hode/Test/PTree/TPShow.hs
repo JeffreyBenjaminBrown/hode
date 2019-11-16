@@ -41,8 +41,6 @@ test_showPorest' = TestCase $ do
             , (False, "123 0   [123,0]")
             , (False, "  0 1 [0,1]") ]
 
-
-
 test_porestWithPaddedColumns :: T.Test
 test_porestWithPaddedColumns = TestCase $ do
   assertBool "" $ fmap

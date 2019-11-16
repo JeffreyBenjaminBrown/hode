@@ -57,44 +57,6 @@ porestToWidget b2w showColumns showIndented isFolded style p0 =
        , padLeft (B.Pad $ 2 * indent) $
          b2w $ showIndented a ]
 
-showPorest :: forall a d. Monoid d
-  => (String -> d) -- ^ for inserting whitespace, for indentation
-  -> (a -> d)      -- ^ Display a node's column information.
-                   --   This info will be left-justified.
-  -> (a -> d)      -- ^ Display a node's payload.
-                   --   This info will be indented to form a tree.
-  -> (a -> Bool)   -- ^ whether to hide a node's children
-  -> Porest a      -- ^ what to display
-  -> [( Bool,      -- ^ whether it has focus
-        d )]       -- ^ how it looks
-showPorest fromString showColumns showPayload isFolded p0 =
-  fShow p where
-
-  p :: Porest (Level, a)
-  p = fmap writeLevels p0
-
-  fShow :: Porest (Level,a) -> [(Bool,d)]
-  fShow = concatMap recursive . toList
-
-  recursive :: PTree (Level,a) -> [(Bool,d)]
-  recursive pt =
-    once pt :
-    case pt ^. pMTrees of
-      Nothing -> []
-      Just pts ->
-        if isFolded $ snd $ _pTreeLabel pt
-          then []
-          else fShow pts
-
-  once :: PTree (Level,a) -> (Bool, d)
-  once t =
-    let indent :: Level = fst $ _pTreeLabel t
-        a      :: a     = snd $ _pTreeLabel t
-    in ( _pTreeHasFocus t,
-         showColumns a <>
-         fromString (replicate (2*indent) ' ') <>
-         showPayload a)
-
 showPorest' :: forall a t d.
   (Foldable t, Monoid (t d))
   -- ^ Here `t d` is probably `String` or `ColorString`.
