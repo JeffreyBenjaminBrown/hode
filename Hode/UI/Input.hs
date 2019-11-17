@@ -206,9 +206,9 @@ runParsedCommand                     c0 st0 =
         ( S.toList <$> hExprToAddrs r mempty h
           >>= kahnSort r (bo,t) )
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
-    let p :: Porest BufferRow -- new screen to show
-          = mkBufferRowPorest st as
-            & P.focus . pTreeHasFocus .~ True
+    p :: Porest BufferRow <- -- new screen to show
+      (P.focus . pTreeHasFocus .~ True)
+      <$> mkBufferRowPorest st as
 
     Right $ B.continue $ st
       & ( ( -- PITFALL : Replaces the Buffer's old contents.

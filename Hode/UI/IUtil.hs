@@ -19,7 +19,6 @@ import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
-import Hode.UI.IUtil.String (mkViewExpr)
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
