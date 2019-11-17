@@ -153,6 +153,12 @@ ifNothings ms =
     True -> Just $ map fromJust ms
     False -> Nothing
 
+-- | The `Either` monad aborts at the first `Left`,
+-- and only reports that one. `LeftStrings` reports them all.
+-- To use it, replace constructs like
+--   as :: [a] <- mapM f xs
+-- with
+--   as :: [a] <- ifLefts $ map f xs
 class LeftStrings t where
   ifLefts :: t (Either String a) -> Either String (t a)
 

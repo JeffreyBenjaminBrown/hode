@@ -159,8 +159,8 @@ appAttrMap = let
   rc :: Int -> Int -> Int -> V.Color
     = V.rgbColor
   gray (k :: Int) = V.rgbColor k k k
-  black     = gray 0
-  --gray1   = gray 1 -- PITFALL: Vty offers darker non-black grays.
+  -- black  = gray 0
+  -- gray1  = gray 1 -- PITFALL: Vty offers darker non-black grays.
   --  -- See VTY issue https://github.com/jtdaugherty/vty/issues/172
   white     = gray 255
   darkBlue  = rc 0 0 1
