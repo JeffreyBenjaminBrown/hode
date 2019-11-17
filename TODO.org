@@ -9,12 +9,12 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO divide porestToWidget
-*** TODO more
 Use showPorest' for the SearchBuffers window.
 Delete showPorest, porestToWidget, colorstringwrap
 Rename showPorest' -> showPorest,
        colorstringwrap' -> colorstringwrap
        others?
+merge into master
 ** TODO bugs
 *** buffer view does not show children
 though they are present -- they can be navigated to and from
@@ -25,25 +25,6 @@ though they are present -- they can be navigated to and from
  On my system there's no such folder, and xsel is here:
    [jeff@jbb-dell:~]$ which xsel
    /run/current-system/sw/bin/xsel
-** TODO views: clean them
-*** TODO first: indentation is uneven
-(Fixing this might fix other issues.)
-
-under each ViewExpr it is only 1 space.
-Under other things it is 2 spaces.
-*** columns not shown at top of tree
-*** highlight not everywhere
-*** represent, render the columns
-**** TODO
-change the Buffer type
-  to compute the maximum string length in each column
-change the showColumns argument to ShowPTree.hs
-  to use that new Buffer field
-**** problem description
-Currently, each row is rendered separately, without considering others.
-The right way would be to
-  compute the max (across all rows) width of each column first,
-  and pad each row's column-cells to match.
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.

@@ -4,29 +4,18 @@
 
 module Hode.UI.BufferShow where
 
-import qualified Data.List.PointedList as P
 import qualified Data.Map             as M
 import           Lens.Micro
 
-import qualified Brick.Main           as B
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
-import qualified Brick.Widgets.Center as B
-import qualified Brick.Widgets.Edit   as B
 import qualified Brick.AttrMap        as B
-import qualified Brick.Focus          as B
-import           Brick.Util (on)
-import qualified Graphics.Vty         as V
 
 import Hode.Brick
 import Hode.Brick.Wrap
-import Hode.Rslt.Index (mkRslt)
-import Hode.Rslt.RTypes
-import Hode.UI.Input
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.IUtil
 import Hode.PTree.PShow
 import Hode.PTree.Initial
 
@@ -36,15 +25,9 @@ resultWindow' b =
   if null $ b ^. bufferRowPorest
   then (str "There are no results to show (yet).")
   else let
-    showColumns :: BufferRow -> [ColorString]
-    showColumns =
--- This is a debugging hack.
-      (:[]) . (:[]) . (, TextColor) . (++ "ipa") . show
-      . M.elems -- use whatever's interesting here
-      . _columnProps
--- This is what I want to do, but it shows nothing.
---      map ((:[]) . (, TextColor) . show)
---      . M.elems . _columnProps
+    showColumns :: BufferRow -> [ColorString] =
+      map ((:[]) . (, TextColor) . show)
+      . M.elems . _columnProps
     showNode :: BufferRow -> ColorString =
       showColor . _viewExprNode
     getFolded :: BufferRow -> Bool =
@@ -59,8 +42,7 @@ resultWindow' b =
     oneRowWidget (isFocused,cols,node) =
       (if isFocused then visible else id) $
       hBox
-      [ strWrap $ show (attrConsolidate cols, isFocused)
-      , colorStringWrap' 65 (isFocused, cols)
+      [ colorStringWrap' 65 (isFocused, cols)
         -- PITFALL: `colorStringWrap` is overkill for `cols`:
         -- `cols` should be too short ever to need wrapping.
         -- Moreover if it does wrap, that means there is no room

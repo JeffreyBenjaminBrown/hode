@@ -18,8 +18,6 @@ import qualified Brick.Focus          as B
 import           Brick.Util (on)
 import qualified Graphics.Vty         as V
 
-import Hode.Brick
-import Hode.Brick.Wrap
 import Hode.PTree.Initial
 import Hode.PTree.PShow
 import Hode.Rslt.Index (mkRslt)
@@ -29,7 +27,6 @@ import Hode.UI.IUtil
 import Hode.UI.Input
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
-import Hode.UI.Types.Views
 
 
 ui :: IO St
