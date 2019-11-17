@@ -24,7 +24,6 @@ library
                   Hode.Hode
                 , Hode.Temp
                 , Hode.Brick
-                , Hode.Brick.HBoxColors
                 , Hode.Brick.Wrap
                 -- , Hode.Data.Graph    -- to avoid collisions
                 , Hode.Data.Map

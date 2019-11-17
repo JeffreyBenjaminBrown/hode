@@ -3,8 +3,7 @@
 #-}
 
 module Hode.Brick.Wrap (
-    colorStringWrap        -- ^ Int -> ColorString -> Widget n
-  , colorStringWrap'       -- ^ Int -> (Bool, ColorString) -> Widget n
+    colorStringWrap'       -- ^ Int -> (Bool, ColorString) -> Widget n
   , toLines                -- ^ Int -> ColorString -> [ColorString]
   , extractLine            -- ^ Int -> [(String,a)]
                            -- -> ([(String,a)], [(String,a)])
@@ -19,20 +18,6 @@ import           Brick.Widgets.Core
 
 import Hode.Brick
 
-
--- | `colorStringWrap maxLength` displays a `ColorString` in color,
--- wrapping it after around `maxLength` characters.
--- TODO ? PITFALL: does not quite behave as expected:
--- sometimes the line is slightly longer than `maxLength`.
-colorStringWrap :: forall n.
-  Int -> ColorString -> Widget n
-colorStringWrap maxLength cs =
-  let drawLineSegment :: (String,Color) -> Widget n
-      drawLineSegment (s,c) =
-        withAttr (colorToAttrName False c) $ str s
-      drawLine :: ColorString -> Widget n =
-        hBox . map drawLineSegment
-  in vBox $ map drawLine $ toLines maxLength cs
 
 colorStringWrap' :: forall n.
   Int -> (Bool, ColorString) -> Widget n

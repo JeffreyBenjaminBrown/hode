@@ -1,6 +1,46 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.PTree.PShow where
+module Hode.PTree.PShow (
+
+  prestToWidget -- ^ (Ord n, Show n)
+  -- => n                    -- ^ Brick name for the window
+  -- -> (a -> [ColorString]) -- ^ to show the columns next to each payload
+  -- -> (a -> ColorString)   -- ^ to show each payload
+  -- -> (a -> Bool)          -- ^ is a node is hiding its children
+  -- -> Maybe (Porest a)
+  -- -> B.Widget n
+
+  , oneRowWidget -- ^ (Bool, ColorString, ColorString) -> B.Widget n
+
+  , showPorest' -- ^ forall a t d.
+  -- (Foldable t, Monoid (t d))
+  -- -- ^ Here `t d` is probably `String` or `ColorString`.
+  -- => (String -> t d) -- ^ for inserting whitespace, for indentation
+  -- -> (a -> [t d])    -- ^ Display a node's column information.
+  --                    --   This info will be left-justified.
+  -- -> (a -> t d)      -- ^ Display a node's payload.
+  --                    --   This info will be indented to form a tree.
+  -- -> (a -> Bool)     -- ^ whether to hide a node's children
+  -- -> Porest a        -- ^ what to display
+  -- -> [( Bool,        -- ^ whether it has focus
+  --       t d ,        -- ^ the columns
+  --       t d )]       -- ^ the payload
+
+  , porestWithPaddedColumns -- ^ forall a t d.
+  -- -- ^ Here `t d` is probably `String` or `ColorString`.
+  -- (Foldable t, Monoid (t d))
+  -- => (String -> t d) -- ^ will be used to inject whitespace
+  -- -> (a -> [t d]) -- ^ how to draw the column cells at a row
+  -- -> Porest a
+  -- -> Porest (a, [t d])
+
+  , maxColumnLengths -- ^ forall t b. Foldable t
+  -- -- ^ Here `t d` is probably `String` or `ColorString`.
+  -- => Porest [t b] -> [Int]
+
+  , porestWith -- ^ (a -> [b]) -> Porest a -> Porest (a, [b])
+
+) where
 
 import           Control.Arrow (second)
 import           Control.Lens hiding (Level)
