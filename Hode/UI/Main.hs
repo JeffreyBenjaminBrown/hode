@@ -19,7 +19,6 @@ import           Brick.Util (on)
 import qualified Graphics.Vty         as V
 
 import Hode.PTree.Initial
-import Hode.PTree.PShow
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.RTypes
 import Hode.UI.BufferShow
@@ -73,8 +72,8 @@ appDraw st0 = [w] where
 
   mainWindow :: B.Widget BrickName =
     case st ^. showingInMainWindow of
-      SearchBuffers  -> bufferWindow
       CommandHistory -> commandHistoryWindow
+      SearchBuffers  -> bufferWindow' $ st ^. searchBuffers
       Results        -> resultWindow' b
 
   optionalWindows :: B.Widget BrickName =
@@ -99,21 +98,6 @@ appDraw st0 = [w] where
   reassuranceWindow :: B.Widget BrickName =
     withAttr (B.attrName "white on blue")
     $ strWrap $ st0 ^. reassurance
-
-  bufferWindow :: B.Widget BrickName = maybe
-    (str "There are no buffers to show. Add one with M-S-t.")
-    ( viewport (BrickMainName SearchBuffers) B.Vertical
-      . ( porestToWidget strWrap (const "")
-          _bufferQuery (const True) focusStyle ) )
-    (st ^. searchBuffers)
-
-  focusStyle :: PTree a -> B.Widget BrickName
-                        -> B.Widget BrickName
-  focusStyle bt =
-    visible . ( withAttr $ B.attrName $
-                if not $ bt ^. pTreeHasFocus
-                  then "unfocused result"
-                  else   "focused result" )
 
 appChooseCursor :: St -> [B.CursorLocation BrickName]
                 -> Maybe (B.CursorLocation BrickName)

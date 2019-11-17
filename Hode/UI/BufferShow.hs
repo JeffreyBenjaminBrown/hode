@@ -2,7 +2,11 @@
 , ScopedTypeVariables
 , TupleSections #-}
 
-module Hode.UI.BufferShow where
+module Hode.UI.BufferShow (
+    resultWindow' -- ^ Buffer -> B.Widget BrickName
+  , resultWindow  -- ^ Buffer -> B.Widget BrickName
+  , bufferWindow' -- ^ Maybe (Porest Buffer) -> B.Widget BrickName
+  ) where
 
 import qualified Data.Map             as M
 import           Lens.Micro
@@ -23,7 +27,7 @@ import Hode.PTree.Initial
 resultWindow' :: Buffer -> B.Widget BrickName
 resultWindow' b =
   if null $ b ^. bufferRowPorest
-  then (str "There are no results to show (yet).")
+  then str "There are no results to show (yet)."
   else let
     showColumns :: BufferRow -> [ColorString] =
       map ((:[]) . (, TextColor) . show)
@@ -40,8 +44,8 @@ resultWindow' b =
 
     oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget BrickName
     oneRowWidget (isFocused,cols,node) =
-      (if isFocused then visible else id) $
-      hBox
+      (if isFocused then visible else id)
+      $ hBox
       [ colorStringWrap' 65 (isFocused, cols)
         -- PITFALL: `colorStringWrap` is overkill for `cols`:
         -- `cols` should be too short ever to need wrapping.
@@ -76,3 +80,34 @@ resultWindow b = let
        . ( porestToWidget (colorStringWrap 65) showColumns
            showNode getFolded focusStyle ) )
      (b ^. bufferRowPorest)
+
+bufferWindow' :: Maybe (Porest Buffer) -> B.Widget BrickName
+bufferWindow' p =
+  if null p
+  then str "There are no buffers to show. Add one with M-S-t."
+  else let
+    showColumns :: Buffer -> [ColorString] =
+      const []
+    showNode :: Buffer -> ColorString =
+      (:[]) . (,TextColor) . _bufferQuery
+    getFolded :: Buffer -> Bool =
+      const False
+    rows :: [(Bool, ColorString, ColorString)] =
+      showPorest' toColorString showColumns showNode getFolded
+      $ maybe (error "impossible: null case already handled.")
+      id p
+
+    oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget BrickName
+    oneRowWidget (isFocused,cols,node) =
+      (if isFocused then visible else id)
+      $ hBox
+      [ colorStringWrap' 65 (isFocused, cols)
+        -- PITFALL: `colorStringWrap` is overkill for `cols`:
+        -- `cols` should be empty.
+        -- Moreover if it does wrap, that means there is no room
+        -- for the actual content of the node.
+        -- TODO ? write, use a simpler alternative to `colorStringWrap`.
+      , colorStringWrap' 65 (isFocused, node) ]
+
+  in viewport (BrickMainName Results) B.Vertical
+     $ vBox $ map oneRowWidget rows

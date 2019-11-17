@@ -9,7 +9,7 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO divide porestToWidget
-Use showPorest' for the SearchBuffers window.
+factor common code from bufferWindow', resultWindow'
 Delete showPorest, porestToWidget, colorstringwrap
 Rename showPorest' -> showPorest,
        colorstringwrap' -> colorstringwrap
