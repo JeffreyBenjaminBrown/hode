@@ -12,6 +12,7 @@ module Hode.UI.BufferRowTree
                           -- Either String (PTree ViewExprNode)
   , closeSubviews_atFocus -- ^ St -> St
   , foldSubviews_atFocus  -- ^ St -> St
+  , mkBufferRowPorest -- ^ Rslt -> [Addr] -> Porest BufferRow
   ) where
 
 import           Data.Foldable (toList)
@@ -202,3 +203,18 @@ foldSubviews_atFocus =
     ( stSetFocused_ViewExprNode_Tree . pTreeLabel
       . otherProps . folded )
     %~ not
+
+-- | Creates a depth-1 forest, i.e. with nothing but leaves.
+mkBufferRowPorest :: St -> [Addr] -> Porest BufferRow
+mkBufferRowPorest st as =
+  maybe ( porestLeaf $ bufferRow_from_viewExprNode $
+          VQuery "No matches found.") id $
+  P.fromList $ map mkLeaf as
+  where
+    r :: Rslt = st ^. appRslt
+    mkLeaf :: Addr -> PTree BufferRow
+    mkLeaf a =
+      pTreeLeaf $ bufferRow_from_viewExprNode $
+      VExpr $ either err id $ mkViewExpr r a
+    err :: String -> ViewExpr
+    err s = error $ ", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ s

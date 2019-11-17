@@ -9,10 +9,25 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO divide porestToWidget
-*** TODO code
-bugfix: There are no columns shown at the top level,
-  maybe because those are not ViewExprs.
-Use showPorest'.
+*** TODO bugfix: There are no columns shown at the top level.
+Those top nodes are ViewExprs, just like the ones with columns below.
+**** TODO where the problem is
+IUtil.mkBufferRowPorest, at this line:
+  pTreeLeaf $ bufferRow_from_viewExprNode $
+If I move that to Hode.UI.BufferRowTree,
+  can I import bufferRow_from_viewExprNode'?
+**** leads
+To find more functions that make Buffer-somethings:
+  egrep "\->.*Buffer" --color -r . -C 3
+
+IUtil:      mkBufferRowPorest :: Rslt -> [Addr] -> Porest BufferRow
+IUtil:      buffer_from_bufferRowTree ::
+IUtil:       PTree BufferRow -> Either String Buffer
+Types/Views:bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
+Types/State-bufferRow_from_viewExprNode'
+Types/State:  :: St -> ViewExprNode -> Either String BufferRow
+*** TODO more
+Use showPorest' for the SearchBuffers window.
 Delete showPorest, porestToWidget, colorstringwrap
 Rename showPorest' -> showPorest,
        colorstringwrap' -> colorstringwrap

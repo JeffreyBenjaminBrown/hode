@@ -6,7 +6,6 @@ module Hode.UI.IUtil (
   , emptyBuffer            -- ^ Buffer
   , buffer_from_bufferRowTree -- ^ PTree ViewExprNode
                               -- -> Either String Buffer
-  , mkBufferRowPorest -- ^ Rslt -> [Addr] -> Porest BufferRow
   ) where
 
 import qualified Data.List.PointedList as P
@@ -82,17 +81,3 @@ buffer_from_bufferRowTree ptbr =
     { _bufferQuery = unColorString $ ve ^. viewExpr_String
     , _bufferRowPorest = P.fromList [ptbr]
     }
-
--- | Creates a depth-1 forest, i.e. with nothing but leaves.
-mkBufferRowPorest :: Rslt -> [Addr] -> Porest BufferRow
-mkBufferRowPorest r as =
-  maybe ( porestLeaf $ bufferRow_from_viewExprNode $
-          VQuery "No matches found.") id $
-  P.fromList $ map mkLeaf as
-  where
-    mkLeaf :: Addr -> PTree BufferRow
-    mkLeaf a =
-      pTreeLeaf $ bufferRow_from_viewExprNode $
-      VExpr $ either err id $ mkViewExpr r a
-    err :: String -> ViewExpr
-    err s = error $ ", called on Find: should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ s

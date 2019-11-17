@@ -207,7 +207,7 @@ runParsedCommand                     c0 st0 =
           >>= kahnSort r (bo,t) )
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
     let p :: Porest BufferRow -- new screen to show
-          = mkBufferRowPorest r as
+          = mkBufferRowPorest st as
             & P.focus . pTreeHasFocus .~ True
 
     Right $ B.continue $ st
