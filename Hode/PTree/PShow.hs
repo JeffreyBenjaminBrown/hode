@@ -10,52 +10,41 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Types          as B
 import           Brick.Widgets.Core
 
+import Hode.Brick
+import Hode.Brick.Wrap
 import Hode.Hash.HTypes (Level)
 import Hode.PTree.Initial
 
 
--- | To show `String`s, set `b2w = Brick.Widgets.Core.strWrap`.
--- To show `ColorString`s, use `b2s = Hode.Brick.colorStringWrap`
-porestToWidget :: forall a b n.
-     (b -> B.Widget n)
-  -> (a -> b)      -- ^ shows the columns corresponding to each node
-  -> (a -> b)      -- ^ shows the nodes that will be arranged like a tree
-  -> (a -> Bool) -- ^ whether to hide a node's children
-  -> (PTree a -> B.Widget n -> B.Widget n)
-     -- ^ to show the focused node differently
-     -- (it could be used for other stuff too)
-  -> Porest a -- ^ The Porest to show
+prestToWidget :: (Ord n, Show n)
+  => n                    -- ^ Brick name for the window
+  -> (a -> [ColorString]) -- ^ to show the columns next to each payload
+  -> (a -> ColorString)   -- ^ to show each payload
+  -> (a -> Bool)          -- ^ is a node is hiding its children
+  -> Maybe (Porest a)
   -> B.Widget n
-porestToWidget b2w showColumns showIndented isFolded style p0 =
-  fShow p where
+prestToWidget name showColumns showNode getFolded p =
+  if null p
+  then str "There are no buffers to show. Add one with M-S-t."
+  else let
+  rows :: [(Bool, ColorString, ColorString)] =
+    showPorest' toColorString showColumns showNode getFolded
+    $ maybe err id p
+    where
+      err = error "impossible: null case handled earlier."
+  in viewport name B.Vertical
+     $ vBox $ map oneRowWidget rows
 
-  p :: Porest (Level, a) = fmap writeLevels p0
-
-  fShow :: Porest (Level,a) -> B.Widget n
-  fShow = vBox . map recursiveWidget . toList
-
-  recursiveWidget :: PTree (Level,a) -> B.Widget n
-  recursiveWidget pt =
-    oneTreeRowWidget pt <=> rest where
-    rest = case pt ^. pMTrees of
-             Nothing -> emptyWidget
-             Just pts ->
-               case isFolded $ snd $ _pTreeLabel pt of
-               True -> emptyWidget
-               False -> fShow pts
-
-  oneTreeRowWidget :: PTree (Level,a) -> B.Widget n
-  oneTreeRowWidget t =
-    let indent :: Level   = fst $ _pTreeLabel t
-        a      :: a       = snd $ _pTreeLabel t
-    in style (fmap snd t) $ -- TODO ? speed:
-         -- hopefully laziness implies that `snd`
-         -- is applied only at the root, not throughout `t`.
-         -- If not, drop everything below the root first.
-       hBox
-       [ b2w $ showColumns a
-       , padLeft (B.Pad $ 2 * indent) $
-         b2w $ showIndented a ]
+-- | PITFALL: `colorStringWrap` is overkill for `cols`,
+-- which should be short. If `cols` is long enough to wrap,
+-- there will be no room for the actual content of the node.
+-- TODO ? write, use a simpler alternative to `colorStringWrap`.
+oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget n
+oneRowWidget (isFocused,cols,node) =
+  (if isFocused then visible else id)
+  $ hBox
+  [ colorStringWrap' 65 (isFocused, cols)
+  , colorStringWrap' 65 (isFocused, node) ]
 
 showPorest' :: forall a t d.
   (Foldable t, Monoid (t d))

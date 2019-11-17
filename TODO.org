@@ -9,15 +9,12 @@ This will load all non-broken modules when some are broken.
 ** update
 * TODO next
 ** TODO divide porestToWidget
-factor common code from bufferWindow', resultWindow'
 Delete showPorest, porestToWidget, colorstringwrap
 Rename showPorest' -> showPorest,
        colorstringwrap' -> colorstringwrap
        others?
 merge into master
 ** TODO bugs
-*** buffer view does not show children
-though they are present -- they can be navigated to and from
 *** TODO copy to clipboard: broken on Nix
  I see this in the ui:
    Results window copied to clipboard.
