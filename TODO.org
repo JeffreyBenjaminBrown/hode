@@ -8,11 +8,6 @@ This will load all non-broken modules when some are broken.
 ** reduce redunddancy in views
 ** update
 * TODO next
-** TODO divide porestToWidget
-Rename showPorest' -> showPorest,
-       prestToWidget -> porestToWidget
-       colorstringwrap' -> colorstringwrap
-       others?
 merge into master
 ** TODO bugs
 *** TODO copy to clipboard: broken on Nix

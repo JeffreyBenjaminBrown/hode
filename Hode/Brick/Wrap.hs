@@ -3,7 +3,7 @@
 #-}
 
 module Hode.Brick.Wrap (
-    colorStringWrap'       -- ^ Int -> (Bool, ColorString) -> Widget n
+    colorStringWrap       -- ^ Int -> (Bool, ColorString) -> Widget n
   , toLines                -- ^ Int -> ColorString -> [ColorString]
   , extractLine            -- ^ Int -> [(String,a)]
                            -- -> ([(String,a)], [(String,a)])
@@ -19,9 +19,9 @@ import           Brick.Widgets.Core
 import Hode.Brick
 
 
-colorStringWrap' :: forall n.
+colorStringWrap :: forall n.
   Int -> (Bool, ColorString) -> Widget n
-colorStringWrap' maxLength (isFocused, cs) =
+colorStringWrap maxLength (isFocused, cs) =
   let drawLineSegment :: (String,Color) -> Widget n
       drawLineSegment (s,c) =
         withAttr (colorToAttrName isFocused c) $ str s

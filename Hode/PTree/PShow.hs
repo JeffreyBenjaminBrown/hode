@@ -2,7 +2,7 @@
 
 module Hode.PTree.PShow (
 
-  prestToWidget -- ^ (Ord n, Show n)
+  porestToWidget -- ^ (Ord n, Show n)
   -- => n                    -- ^ Brick name for the window
   -- -> (a -> [ColorString]) -- ^ to show the columns next to each payload
   -- -> (a -> ColorString)   -- ^ to show each payload
@@ -12,7 +12,7 @@ module Hode.PTree.PShow (
 
   , oneRowWidget -- ^ (Bool, ColorString, ColorString) -> B.Widget n
 
-  , showPorest' -- ^ forall a t d.
+  , showPorest -- ^ forall a t d.
   -- (Foldable t, Monoid (t d))
   -- -- ^ Here `t d` is probably `String` or `ColorString`.
   -- => (String -> t d) -- ^ for inserting whitespace, for indentation
@@ -56,19 +56,19 @@ import Hode.Hash.HTypes (Level)
 import Hode.PTree.Initial
 
 
-prestToWidget :: (Ord n, Show n)
+porestToWidget :: (Ord n, Show n)
   => n                    -- ^ Brick name for the window
   -> (a -> [ColorString]) -- ^ to show the columns next to each payload
   -> (a -> ColorString)   -- ^ to show each payload
   -> (a -> Bool)          -- ^ is a node is hiding its children
   -> Maybe (Porest a)
   -> B.Widget n
-prestToWidget name showColumns showNode getFolded p =
+porestToWidget name showColumns showNode getFolded p =
   if null p
   then str "There are no buffers to show. Add one with M-S-t."
   else let
   rows :: [(Bool, ColorString, ColorString)] =
-    showPorest' toColorString showColumns showNode getFolded
+    showPorest toColorString showColumns showNode getFolded
     $ maybe err id p
     where
       err = error "impossible: null case handled earlier."
@@ -83,10 +83,10 @@ oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget n
 oneRowWidget (isFocused,cols,node) =
   (if isFocused then visible else id)
   $ hBox
-  [ colorStringWrap' 65 (isFocused, cols)
-  , colorStringWrap' 65 (isFocused, node) ]
+  [ colorStringWrap 65 (isFocused, cols)
+  , colorStringWrap 65 (isFocused, node) ]
 
-showPorest' :: forall a t d.
+showPorest :: forall a t d.
   (Foldable t, Monoid (t d))
   -- ^ Here `t d` is probably `String` or `ColorString`.
   => (String -> t d) -- ^ for inserting whitespace, for indentation
@@ -100,7 +100,7 @@ showPorest' :: forall a t d.
         t d ,        -- ^ the columns
         t d )]       -- ^ the payload
 
-showPorest' fromString showColumns showPayload isFolded p0 =
+showPorest fromString showColumns showPayload isFolded p0 =
   fShow plc where
 
   plc :: Porest (Level, (a, [t d])) =

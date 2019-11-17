@@ -29,7 +29,7 @@ bufferWindow = let
     (:[]) . (,TextColor) . _bufferQuery
   getFolded :: Buffer -> Bool =
     const False
-  in prestToWidget name showColumns showNode getFolded
+  in porestToWidget name showColumns showNode getFolded
 
 resultWindow :: Buffer -> B.Widget BrickName
 resultWindow = let
@@ -41,5 +41,5 @@ resultWindow = let
     showColor . _viewExprNode
   getFolded :: BufferRow -> Bool =
     _folded . _otherProps
-  in prestToWidget name showColumns showNode getFolded
+  in porestToWidget name showColumns showNode getFolded
      . (^. bufferRowPorest)
