@@ -94,8 +94,8 @@ showPorest' fromString showColumns showPayload isFolded p0 =
   oneNode :: PTree (Level,(a, [t d])) -> (Bool, t d, t d)
   oneNode t = let
     indent :: Level = fst $       _pTreeLabel t
-    cols   :: [t d] = snd $ snd $ _pTreeLabel t
     a      :: a     = fst $ snd $ _pTreeLabel t
+    cols   :: [t d] = snd $ snd $ _pTreeLabel t
     in ( _pTreeHasFocus t
        , mconcat cols
        , fromString (replicate (2*indent) ' ') <>

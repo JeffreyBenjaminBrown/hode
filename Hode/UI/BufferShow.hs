@@ -36,9 +36,15 @@ resultWindow' b =
   if null $ b ^. bufferRowPorest
   then (str "There are no results to show (yet).")
   else let
-    showColumns :: BufferRow -> [ColorString] =
-      map ((:[]) . (, TextColor) . show)
-      . M.elems . _columnProps
+    showColumns :: BufferRow -> [ColorString]
+    showColumns =
+-- This is a debugging hack.
+      (:[]) . (:[]) . (, TextColor) . (++ "ipa") . show
+      . M.elems -- use whatever's interesting here
+      . _columnProps
+-- This is what I want to do, but it shows nothing.
+--      map ((:[]) . (, TextColor) . show)
+--      . M.elems . _columnProps
     showNode :: BufferRow -> ColorString =
       showColor . _viewExprNode
     getFolded :: BufferRow -> Bool =
@@ -53,7 +59,7 @@ resultWindow' b =
     oneRowWidget (isFocused,cols,node) =
       (if isFocused then visible else id) $
       hBox
-      [ strWrap $ show (isFocused, cols)
+      [ strWrap $ show (attrConsolidate cols, isFocused)
       , colorStringWrap' 65 (isFocused, cols)
         -- PITFALL: `colorStringWrap` is overkill for `cols`:
         -- `cols` should be too short ever to need wrapping.

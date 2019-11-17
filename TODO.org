@@ -10,6 +10,8 @@ This will load all non-broken modules when some are broken.
 * TODO next
 ** TODO divide porestToWidget
 *** TODO code
+bugfix: There are no columns shown at the top level,
+  maybe because those are not ViewExprs.
 Use showPorest'.
 Delete showPorest, porestToWidget, colorstringwrap
 Rename showPorest' -> showPorest,

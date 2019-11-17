@@ -40,19 +40,19 @@ emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
-  , _columnHExprs =
+  , _columnHExprs = let hv = HVar VarRowNode in
       [ HOr -- Count the relationships something is in.
       -- TODO : This is an incomplete hack. In TODO.org,
-      -- see the section called (HExpr: add a symbol for "involves")
-        [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) $ HVar VarRowNode
-        , HMap $ M.singleton (RoleInRel' $ RoleMember 1) $ HVar VarRowNode
-        , HMap $ M.singleton (RoleInRel' $ RoleMember 2) $ HVar VarRowNode
-        , HMap $ M.singleton (RoleInRel' $ RoleMember 3) $ HVar VarRowNode
+      -- see section called (HExpr: add a symbol for "involves")
+        [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) hv
+        , HMap $ M.singleton (RoleInRel' $ RoleMember 1) hv
+        , HMap $ M.singleton (RoleInRel' $ RoleMember 2) hv
+        , HMap $ M.singleton (RoleInRel' $ RoleMember 3) hv
         ] ]
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
-  , _commands    = B.editor
-    (BrickOptionalName Commands) Nothing ""
+  , _commands    = B.editor (BrickOptionalName Commands)
+                   Nothing ""
   , _commandHistory = []
   , _appRslt        = r
   , _showingErrorWindow  = False
