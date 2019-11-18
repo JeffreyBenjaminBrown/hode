@@ -6,9 +6,23 @@ This will load all non-broken modules when some are broken.
 * TODO user-friendliness
 ** TODO use "it" two levels deep
 *** how
-change mkViewExpr to show a center as "it":
-  -mkViewExpr :: Rslt ->                 Addr -> Either String ViewExpr
-  +mkViewExpr :: Rslt -> (Maybe Addr) -> Addr -> Either String ViewExpr
+**** rewrite eParenShow
+***** to retain Addr info
+  Currently it uses `parenExprAtDepth` to convert an `Expr` into an `ExprF`.
+  Write somethign similar to attach the `Addr` of each sub-`Expr`.
+***** to accept a Maybe Addr indicating the center of the view
+  If any sub-`Expr` has that as its address,
+  it is drawn simply as [("it", SepColor)]
+**** rewrite eParenShowColor similarly
+**** change mkViewExpr to hand off a center to eParenShowColor
+  mkViewExpr :: Rslt -> (Maybe Addr) -> Addr -> Either String ViewExpr
+  mkViewExpr r center a =
+    prefixLeft "mkViewExpr:" $ do
+    (s :: ColorString) <-
+      addrToExpr r a >>= eParenShowColor 3 r
+    Right $ ViewExpr
+      { _viewExpr_Addr = a
+      , _viewExpr_String = s }
 *** what
 Not just in the group, but in its children.
 ** TODO if a group has only one member, omit the group

@@ -66,13 +66,7 @@ insertMembers_atFocus st =
 members_atFocus :: St -> Either String (MemberFork, [Addr])
 members_atFocus st =
   prefixLeft "members_atFocus:" $ do
-  foc :: PTree BufferRow <-
-    maybe (error "Focused ViewExprNode not found.") Right $
-    st ^? stGetFocused_ViewExprNode_Tree . _Just
-  a :: Addr <-
-    case foc ^. pTreeLabel . viewExprNode of
-      VExpr rv -> Right $ rv ^. viewExpr_Addr
-      _        -> Left $ "Can only be called from a VExpr."
+  a <- focusAddr st
   as :: [Addr] <-
     M.elems <$> has (st ^. appRslt) a
   Right (MemberFork a, as)
@@ -168,12 +162,12 @@ groupHostRels r a0 =
     $ map mkRelFork
     $ M.toList rel_groups
 
--- | `hostGroup_to_forkTree st (hg, as)` makes 2-layer tree.
--- `hg` is the root.
+-- | `hostGroup_to_forkTree st (hf, as)` makes 2-layer tree.
+-- `hf` is the root.
 -- The `ViewExpr`s creates from `as` form the other layer.
 hostGroup_to_forkTree :: St -> (HostFork, [Addr])
                   -> Either String (PTree BufferRow)
-hostGroup_to_forkTree st (hg, as) =
+hostGroup_to_forkTree st (hf, as) =
   prefixLeft "-> hostGroup_to_forkTree" $ do
   if null as then Left "There are no host Exprs to show."
              else Right ()
@@ -184,7 +178,7 @@ hostGroup_to_forkTree st (hg, as) =
     ifLefts $ map (mkViewExpr r) as
 
   topOfNew :: BufferRow <-
-    bufferRow_from_viewExprNode' st $ VHostFork hg
+    bufferRow_from_viewExprNode' st $ VHostFork hf
   let leaves0 :: [ViewExprNode] = map VExpr ves
   leaves1 :: [BufferRow] <- ifLefts $
     map (bufferRow_from_viewExprNode' st) leaves0

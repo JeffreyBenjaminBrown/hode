@@ -97,3 +97,12 @@ stSetFocused_ViewExprNode_Tree = sets go where
   go f = stSetFocusedBuffer .
          bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f
+
+focusAddr :: St -> Either String Addr
+focusAddr st = do
+  foc :: PTree BufferRow <-
+    maybe (error "Focused ViewExprNode not found.") Right $
+    st ^? stGetFocused_ViewExprNode_Tree . _Just
+  case foc ^. pTreeLabel . viewExprNode of
+    VExpr rv -> Right $ rv ^. viewExpr_Addr
+    _        -> Left $ "Can only be called from a VExpr."
