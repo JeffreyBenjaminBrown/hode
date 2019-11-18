@@ -64,7 +64,7 @@ emptyBuffer = Buffer
   { _bufferQuery = "(empty buffer)"
   , _bufferRowPorest =
     Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery
-    "If you run a search, what it finds will be shown here" }
+    "If you run a search, what it finds will be shown here." }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
 buffer_from_bufferRowTree ::

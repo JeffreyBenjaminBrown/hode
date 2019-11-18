@@ -3,20 +3,26 @@ https://github.com/commercialhaskell/stack/issues/5037
 This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
-* roadmap|pressing (duplicative)
-** transitivity, order
-** reduce redunddancy in views
-** update
-* TODO next
-merge into master
-** TODO bugs
-*** TODO copy to clipboard: broken on Nix
- I see this in the ui:
-   Results window copied to clipboard.
-   /bin/sh: xsel: command not found
- On my system there's no such folder, and xsel is here:
-   [jeff@jbb-dell:~]$ which xsel
-   /run/current-system/sw/bin/xsel
+* TODO user-friendliness
+** TODO use "it" two levels deep
+*** how
+change mkViewExpr to show a center as "it":
+  -mkViewExpr :: Rslt ->                 Addr -> Either String ViewExpr
+  +mkViewExpr :: Rslt -> (Maybe Addr) -> Addr -> Either String ViewExpr
+*** what
+Not just in the group, but in its children.
+** TODO if a group has only one member, omit the group
+** TODO upon save, delete unused phrases and templates
+* TODO bugs
+** TODO distance to wrap should shrink with columns, indentation
+** TODO if a join includes space, it must be drawn in parens
+** TODO copy to clipboard: broken on Nix
+I see this in the ui:
+  Results window copied to clipboard.
+  /bin/sh: xsel: command not found
+On my system there's no such folder, and xsel is here:
+  [jeff@jbb-dell:~]$ which xsel
+  /run/current-system/sw/bin/xsel
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
@@ -151,7 +157,7 @@ The root information is(will be) duplicated by the buffer.
 *** the alternation is not enforced
 It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
-* TODO views, rad
+* TODO views
 ** TODO count more stuff in the left column(s)
 *** St._columnHExprs: let the user add HExprs
 Currently it's fixed at a single HExpr,

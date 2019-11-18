@@ -164,4 +164,3 @@ instance ShowColor ViewExprNode where
     showColor r
   showColor x =
     [(showBrief x, TextColor)]
-
