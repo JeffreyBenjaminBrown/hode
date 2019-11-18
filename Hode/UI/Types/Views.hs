@@ -87,6 +87,19 @@ data TpltHosts = TpltHosts {
   _jointHostsCenter :: Addr }
   deriving (Eq, Ord)
 
+class HasCenterAddr a where
+  centerAddr :: a -> Addr
+
+instance HasCenterAddr TpltHosts where
+  centerAddr = _jointHostsCenter
+
+instance HasCenterAddr RelHosts where
+  centerAddr = _memberHostsCenter
+
+instance HasCenterAddr HostFork where
+  centerAddr (RelHostFork f) = centerAddr f
+  centerAddr (TpltHostFork f) = centerAddr f
+
 
 -- | = Functions (inc. TH-generated lenses)
 
