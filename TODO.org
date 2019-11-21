@@ -7,6 +7,8 @@ This will load all non-broken modules when some are broken.
 ** TODO use "it" two levels deep
 *** how
 **** rewrite eParenShow
+eParenShow is used to show things that are not in the graph --
+for instance, when showing a RelHosts, it creates a fictitious Rel.
 ***** to retain Addr info
   Currently it uses `parenExprAtDepth` to convert an `Expr` into an `ExprF`.
   Write somethign similar to attach the `Addr` of each sub-`Expr`.

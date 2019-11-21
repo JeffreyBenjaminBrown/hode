@@ -91,11 +91,12 @@ makeBaseFunctor ''Expr
 deriveShow1 ''ExprF
 deriveEq1 ''ExprF
 
--- ^ Use `ExprFWith`, for example, to attach an `Int`
--- to every level of an Expr:
+-- ^ Use `ExprFWith` with `Fix` to, for example,
+-- attach a depth (`Int`) to every level of an Expr:
 --   import Data.Functor.Foldable (Fix)
 --   x :: Fix (ExprFWith Int)
---   x = Fix $ EFW (1 , ExprRelF $ Rel [...] $ Fix $ EFW (2, ...))
+--   x = Fix $ EFW (1, ExprRelF $ Rel [...]
+--                     $ Fix $ EFW (2, ...) )
 newtype ExprFWith b a = EFW (b, ExprF a)
 unEFW :: ExprFWith b a -> (b, ExprF a)
 unEFW (EFW ba) = ba

@@ -44,27 +44,27 @@ paren s = "(" ++ s ++ ")"
 parenExprAtDepth :: Int -> Fix (ExprFWith ())
                         -> Fix (ExprFWith (Int,Parens))
 parenExprAtDepth maxDepth = g where
-  g (Fix (EFW ((), x))) = Fix $ EFW $ f x where
+  g (Fix (EFW ((), x))) = Fix $ EFW $ f x
 
-    f ::                ExprF (Fix (ExprFWith ()))
-      -> ((Int,Parens), ExprF (Fix (ExprFWith (Int,Parens))))
-    f (AddrF a)      =
-      ( (0,Naked), AddrF a)
-    f (PhraseF p)    =
-      ( (0,Naked), PhraseF p)
+  f ::                ExprF (Fix (ExprFWith ()))
+    -> ((Int,Parens), ExprF (Fix (ExprFWith (Int,Parens))))
+  f (AddrF a)      =
+    ( (0,Naked), AddrF a)
+  f (PhraseF p)    =
+    ( (0,Naked), PhraseF p)
 
-    f (ExprTpltF js) =
-      ( (0,InParens)
-      , ExprTpltF $
-        fmap (parenExprAtDepth maxDepth) js )
-    f (ExprRelF (Rel ms t)) =
-      ( (d, if d >= maxDepth then InParens else Naked)
-      , ExprRelF $ Rel ms' $
-        parenExprAtDepth maxDepth t) where
-      ms' = map (parenExprAtDepth maxDepth) ms
-      d = (+1) $ maximum $ map h ms' where
-        h = nakedDepth . \(Fix (EFW (b,_))) -> b where
-          nakedDepth :: (Int,Parens) -> Int
-          nakedDepth (_,InParens) = 0
-          nakedDepth (i,_) = i
+  f (ExprTpltF js) =
+    ( (0,InParens)
+    , ExprTpltF $
+      fmap (parenExprAtDepth maxDepth) js )
 
+  f (ExprRelF (Rel ms t)) =
+    ( (d, if d >= maxDepth then InParens else Naked)
+    , ExprRelF $ Rel ms' $
+      parenExprAtDepth maxDepth t) where
+    ms' = map (parenExprAtDepth maxDepth) ms
+    d = (+1) $ maximum $ map h ms' where
+      h = nakedDepth . \(Fix (EFW (b,_))) -> b where
+        nakedDepth :: (Int,Parens) -> Int
+        nakedDepth (_,InParens) = 0
+        nakedDepth (i,_) = i

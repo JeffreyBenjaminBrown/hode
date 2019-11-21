@@ -22,6 +22,7 @@ test_addrToExprWith = TestCase $ do
     addrToExprWith D.rslt 1 == Right
     ( Fix $ EFW
       ( 1, PhraseF "dog") )
+
   let t = Fix $ EFW
           ( 4, ExprTpltF $ Tplt Nothing
                [ Fix $ EFW (3, PhraseF "needs") ]
@@ -36,13 +37,13 @@ test_addrToExprWith = TestCase $ do
         [ Fix $ EFW (1, PhraseF "dog")
         , Fix $ EFW (2, PhraseF "oxygen") ]
         t ) )
+
   assertBool "Tplt with right cap" $
     addrToExprWith D.rslt_rightCapped 4 == Right
     ( Fix $ EFW
       ( 4, ExprTpltF $ Tplt Nothing
            [ Fix $ EFW (3, PhraseF "needs") ]
            $ Just $ Fix $ EFW (1, PhraseF "dog") ) )
-
 
 test_toExprWith :: Test
 test_toExprWith = TestCase $ do
