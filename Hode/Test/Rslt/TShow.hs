@@ -18,6 +18,7 @@ test_module_rslt_show :: Test
 test_module_rslt_show = TestList [
     TestLabel "test_eShow" test_eShow
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
+  , TestLabel "test_parenExprAtDepth'" test_parenExprAtDepth'
   , TestLabel "test_eParenShow" test_eParenShow
   , TestLabel "test_eParenShowColor" test_eParenShowColor
   ]
@@ -106,6 +107,46 @@ test_parenExprAtDepth = TestCase $ do
   assertBool "" $ parenExprAtDepth 2 -- maxDepth 2 => InParens
     ( fe [ fe [fe0], fe0 ] ) ==
     dw (2,InParens) [dw (1,Naked) [dw0], dw0]
+
+test_parenExprAtDepth' :: Test
+test_parenExprAtDepth' = TestCase $ do
+
+  let fe0 :: Bool ->  Fix (ExprFWith Bool)
+      fe  :: Bool -> [Fix (ExprFWith Bool)]
+                  ->  Fix (ExprFWith Bool)
+      fe0 b = Fix $ EFW ( b, AddrF 0 )
+      fe b ms = Fix $ EFW
+        ( b, ExprRelF $ Rel ms $ fe0 $ not b )
+
+  -- like fe, but with depth and wrappedness
+  let dw0 :: Bool ->  Fix (ExprFWith (Bool,(Int,Parens)))
+      dw  :: (Bool,(Int,Parens))
+        -> [Fix (ExprFWith (Bool,(Int,Parens)))]
+        ->  Fix (ExprFWith (Bool,(Int,Parens)))
+      dw0 b = Fix $ EFW ( ( b
+                          , (0,Naked) )
+                        , AddrF 0 )
+      dw (b,ip) ms = Fix $ EFW
+        ( (b,ip),
+          ExprRelF $ Rel ms $ dw0 $ not b )
+
+  assertBool "" $ parenExprAtDepth' 2 (fe0 True)
+    == dw0 True
+  assertBool "" $ parenExprAtDepth' 3 (fe0 True)
+    == dw0 True
+  assertBool "" $ parenExprAtDepth' 2
+    (fe True [fe0 False]) ==
+    dw (True,(1,Naked)) [dw0 False]
+  assertBool "" $ parenExprAtDepth' 3
+    ( fe True           [ fe False             [fe0 True]
+                        , fe0 False ] ) ==
+    dw (True,(2,Naked)) [ dw (False,(1,Naked)) [dw0 True]
+                        , dw0 False]
+  assertBool "" $ parenExprAtDepth' 2
+    ( fe True              [ fe False             [fe0 True]
+                           , fe0 False ] ) ==
+    dw (True,(2,InParens)) [ dw (False,(1,Naked)) [dw0 True]
+                           , dw0 False]
 
 test_eShow :: Test
 test_eShow = TestCase $ do

@@ -6,6 +6,8 @@ This will load all non-broken modules when some are broken.
 * TODO user-friendliness
 ** TODO use "it" two levels deep
 *** how
+**** use parenExprAtDepth'
+and delete the other one, and rename
 **** rewrite eParenShow
 eParenShow is used to show things that are not in the graph --
 for instance, when showing a RelHosts, it creates a fictitious Rel.
