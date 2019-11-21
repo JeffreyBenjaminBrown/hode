@@ -87,24 +87,30 @@ toExprWith b x = Fix $ EFW (b, f x) where
   f (ExprRel (Rel ms t)) = ExprRelF $
     Rel (map (toExprWith b) ms) (toExprWith b t)
 
--- TODO ? seems like it could be shorter and safer using
--- `Data.Functor.Foldable.ana`.
--- The signature of `ana`'s first argument would be
+-- | `addrToExprWith r a` returns the `Expr` at `a`,
+-- pairing the `Addr` of every sub-`Expr` with its content.
+--
+-- TODO ? this definition seems like it could be
+-- shorter and safer using `Data.Functor.Foldable.ana`.
+-- But then the signature of `ana`'s first argument would be
 -- `Base Addr (Either String (Fix (ExprFWith Addr)))`,
--- though, which makes my eyes cross.
+-- which makes my eyes cross.
 addrToExprWith :: Rslt -> Addr
                -> Either String (Fix (ExprFWith Addr))
+
 addrToExprWith r a =
   prefixLeft "addrToExprWith:" $
   case M.lookup a $ _addrToRefExpr r of
     Nothing -> Left $ "Addr " ++ show a ++ " not found."
     Just re -> case re of
       Phrase' s -> Right $ Fix $ EFW (a, PhraseF s)
+
       Rel' (Rel as0 t0) -> do
         as <- mapM (addrToExprWith r) as0
         t <- addrToExprWith r t0
         Right $ Fix $ EFW
           (a, ExprRelF $ Rel as t)
+
       Tplt' (Tplt mj js0 mk) -> do
         j <- case mj of
           Nothing -> Right Nothing
