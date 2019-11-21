@@ -124,6 +124,7 @@ library
   other-modules:
   build-depends:
                 base
+              , bifunctors
               , brick
                 , vty
               , containers

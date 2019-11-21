@@ -10,7 +10,6 @@ module Hode.Rslt.Show.Util (
                      --       -> Fix (ExprFWith (Int,Parens))
   , parenExprAtDepth' -- ^ Int -> Fix (ExprFWith att)
                       -- -> Fix (ExprFWith (att,(Int,Parens)))
-
   ) where
 
 import Data.Functor.Foldable

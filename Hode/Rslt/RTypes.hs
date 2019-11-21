@@ -4,6 +4,9 @@
 
 module Hode.Rslt.RTypes where
 
+import Data.Bifunctor
+import Data.Bifunctor.TH
+import Data.Functor.Foldable
 import Data.Functor.Foldable.TH
 import Text.Show.Deriving
 import Data.Eq.Deriving
@@ -98,10 +101,22 @@ deriveEq1 ''ExprF
 --   x = Fix $ EFW (1, ExprRelF $ Rel [...]
 --                     $ Fix $ EFW (2, ...) )
 newtype ExprFWith b a = EFW (b, ExprF a)
-unEFW :: ExprFWith b a -> (b, ExprF a)
-unEFW (EFW ba) = ba
+  deriving Functor
+deriveBifunctor ''ExprFWith
 deriveShow1 ''ExprFWith
 deriveEq1 ''ExprFWith
+
+unEFW :: ExprFWith b a -> (b, ExprF a)
+unEFW (EFW ba) = ba
+
+-- | `fmapFirst` can be used to recursively map across the first
+-- element of each `ExprFWith` in a `Fix (ExprFWith _)`.
+fmapFirst :: (Bifunctor f, Functor (f b))
+          => (b -> c) -> Fix (f b)
+                      -> Fix (f c)
+fmapFirst f (Fix x) = Fix $
+  first f $ fmap (fmapFirst f) $ x
+
 
 -- | = A `Rslt` is a database of `Expr`s. It stores `RefExpr`s rather
 -- than `Expr`s, for speed and compactness.
