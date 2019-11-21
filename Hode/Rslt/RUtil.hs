@@ -5,7 +5,9 @@ module Hode.Rslt.RUtil (
     LeftStrings(..)
   , replaceInTplt   -- ^ a -> RoleInTplt -> Tplt a -> Either String (Tplt a)
   , replaceInRel    -- ^ a -> RoleInRel -> Rel a -> Either String (Rel a)
-  , toExprWith      -- ^ b -> Expr -> Fix (ExprFWith b)
+  , toExprWith      -- ^ b -> Expr ->    Fix (ExprFWith b)
+  , addrToExprWith  -- ^  Rslt -> Addr
+                    -- -> Either String (Fix (ExprFWith Addr))
   , exprWithout     -- ^             Fix (ExprFWith b) -> Expr
   , mapExprFWith    -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
 
@@ -84,6 +86,35 @@ toExprWith b x = Fix $ EFW (b, f x) where
         fmap (toExprWith b) js
   f (ExprRel (Rel ms t)) = ExprRelF $
     Rel (map (toExprWith b) ms) (toExprWith b t)
+
+-- TODO ? seems like it could be shorter and safer using
+-- `Data.Functor.Foldable.ana`.
+-- The signature of `ana`'s first argument would be
+-- `Base Addr (Either String (Fix (ExprFWith Addr)))`,
+-- though, which makes my eyes cross.
+addrToExprWith :: Rslt -> Addr
+               -> Either String (Fix (ExprFWith Addr))
+addrToExprWith r a =
+  prefixLeft "addrToExprWith:" $
+  case M.lookup a $ _addrToRefExpr r of
+    Nothing -> Left $ "Addr " ++ show a ++ " not found."
+    Just re -> case re of
+      Phrase' s -> Right $ Fix $ EFW (a, PhraseF s)
+      Rel' (Rel as0 t0) -> do
+        as <- mapM (addrToExprWith r) as0
+        t <- addrToExprWith r t0
+        Right $ Fix $ EFW
+          (a, ExprRelF $ Rel as t)
+      Tplt' (Tplt mj js0 mk) -> do
+        j <- case mj of
+          Nothing -> Right Nothing
+          Just x -> Just <$> addrToExprWith r x
+        js <- mapM (addrToExprWith r) js0
+        k <- case mk of
+          Nothing -> Right Nothing
+          Just x -> Just <$> addrToExprWith r x
+        Right $ Fix $ EFW
+          (a, ExprTpltF $ Tplt j js k)
 
 exprWithout :: Fix (ExprFWith b) -> Expr
 exprWithout (Fix (EFW (_, x))) = f x where

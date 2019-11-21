@@ -72,9 +72,9 @@ eParenShowColor maxDepth r e0 =
     "g given a Rel with a non-Tplt in the Tplt position."
 
 blank, space, emptyColorString :: ColorString
-blank = [("_", TextColor)]
-space = [(" ", TextColor)]
-emptyColorString = [("", TextColor)]
+blank            = [("_", TextColor)]
+space            = [(" ", TextColor)]
+emptyColorString = [("" , TextColor)]
 
 hash :: Int -> ColorString -> ColorString
 hash k s = (replicate k '#', SepColor) : s
