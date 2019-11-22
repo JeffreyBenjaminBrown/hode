@@ -6,17 +6,11 @@ This will load all non-broken modules when some are broken.
 * TODO user-friendliness
 ** TODO use "it" two levels deep
 *** how
-**** use parenExprAtDepth'
-and delete the other one, and rename
-**** rewrite eParenShow
-eParenShow is used to show things that are not in the graph --
+**** use eParenShow' and parenExprAtDepth'
+NOTE: eParenShow is used to show things that are not in the graph --
 for instance, when showing a RelHosts, it creates a fictitious Rel.
-***** to retain Addr info
-  Currently it uses `parenExprAtDepth` to convert an `Expr` into an `ExprF`.
-  Write somethign similar to attach the `Addr` of each sub-`Expr`.
-***** to accept a Maybe Addr indicating the center of the view
-  If any sub-`Expr` has that as its address,
-  it is drawn simply as [("it", SepColor)]
+
+Then delete parenExprAtDepth, and rename.
 **** rewrite eParenShowColor similarly
 **** change mkViewExpr to hand off a center to eParenShowColor
   mkViewExpr :: Rslt -> (Maybe Addr) -> Addr -> Either String ViewExpr
