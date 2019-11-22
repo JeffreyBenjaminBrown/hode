@@ -5,7 +5,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * TODO user-friendliness
 ** TODO use "it" two levels deep
-*** how
 **** use eParenShow' and parenExprAtDepth'
 NOTE: eParenShow is used to show things that are not in the graph --
 for instance, when showing a RelHosts, it creates a fictitious Rel.
@@ -21,8 +20,6 @@ Then delete parenExprAtDepth, and rename.
     Right $ ViewExpr
       { _viewExpr_Addr = a
       , _viewExpr_String = s }
-*** what
-Not just in the group, but in its children.
 ** TODO if a group has only one member, omit the group
 ** TODO upon save, delete unused phrases and templates
 * TODO bugs
