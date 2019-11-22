@@ -10,6 +10,8 @@ module Hode.Util.Misc (
 
   -- | = Fix
   , unFix -- ^ Fix f -> f (Fix f)
+  , fmapFirst -- ^ (Bifunctor f, Functor (f b))
+              -- => (b -> c) -> Fix (f b) -> Fix (f c)
 
   -- | = Lenses etc.
   , eitherIntoTraversal -- ^ Traversal' a b -> (b -> Either String b)
@@ -39,7 +41,9 @@ module Hode.Util.Misc (
   , ifLefts_mapKeys -- ^ Map (Either String k) a -> Either String (Map k a)
   ) where
 
+
 import           Data.Either hiding (lefts)
+import           Data.Bifunctor
 import           Data.Functor.Foldable
 import           Data.Maybe
 import           Data.Map    (Map)
@@ -73,6 +77,15 @@ catNews = catMaybes . map f where
 
 unFix :: Fix f -> f (Fix f)
 unFix (Fix f) = f
+
+-- | `fmapFirst` can be used, e.g.,
+-- to recursively map across the first element of each
+-- `ExprFWith` in a `Fix (ExprFWith _)`.
+fmapFirst :: (Bifunctor f, Functor (f b))
+          => (b -> c) -> Fix (f b)
+                      -> Fix (f c)
+fmapFirst f (Fix x) = Fix $
+  first f $ fmap (fmapFirst f) $ x
 
 
 -- | = Lenses etc.
