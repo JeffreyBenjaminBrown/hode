@@ -7,6 +7,9 @@
 module Hode.Rslt.Show (
     eShow      -- ^              Rslt -> Expr -> Either String String
   , eParenShow       -- ^ Int -> Rslt -> Expr -> Either String String
+  , eParenShow' -- ^  (a -> Maybe String)
+                -- -> Fix (ExprFWith (a, (Int, Parens)))
+                -- -> Either String String
   ) where
 
 import           Data.Functor.Foldable
@@ -79,15 +82,15 @@ eParenShow maxDepth r e0 =
   unAddrRec r e0 >>=
   fo . parenExprAtDepth maxDepth . toExprWith () where
 
-  f :: Fix (ExprFWith (Int,Parens)) -> Either String String
-  f (Fix (EFW ((i,InParens),e))) = paren <$> g (i,e)
-  f (Fix (EFW ((i,Naked)   ,e))) =           g (i,e)
-
-  -- `fo` = `f, outermost`. For the top-level Expr,
-  -- even if it has an `InParens` flag attached,
+  -- `fo` is like `f`, but for the "outermost" expression.
+  -- Even if that top-level `Expr` has an `InParens` flag attached,
   -- it is printed without surrounding parentheses.
   fo :: Fix (ExprFWith (Int,Parens)) -> Either String String
   fo (Fix (EFW ((i,_),e))) = g (i,e)
+
+  f :: Fix (ExprFWith (Int,Parens)) -> Either String String
+  f (Fix (EFW ((i,InParens),e))) = paren <$> g (i,e)
+  f (Fix (EFW ((i,Naked)   ,e))) =           g (i,e)
 
   -- PITFALL: `f` peels off the first `Parens`, not all of them.
   -- That is why the first argument to `g` has a complex type signature.
@@ -100,6 +103,62 @@ eParenShow maxDepth r e0 =
     prefixLeft "g of Tplt: " $ do
     Tplt ml js mr :: Tplt String <-
       ifLefts $ fmap f js0
+    let mss :: Maybe String -> String
+        mss Nothing = ""
+        mss (Just a) = a
+    Right $ (T.unpack . T.strip . T.pack) $ concat $
+      L.intersperse " " $ L.intersperse "_" $
+      ( [mss ml] ++ js ++ [mss mr] )
+
+  g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
+    prefixLeft "g of Rel: " $ do
+    ms1 :: [String] <- ifLefts $ map f ms0
+    Tplt ml js mr :: Tplt String <-
+      (hash n <$>) <$> -- Tplt in Either => two fmaps
+      ifLefts (fmap f t)
+    Right $ concat $ L.intersperse " " $
+      maybeToList ml ++ zip' ms1 js ++
+      maybeToList mr
+
+  g (_, ExprRelF (Rel _ _)) = Left $
+    "g given a Rel with a non-Tplt in the Tplt position."
+
+
+eParenShow' :: forall a
+  .  (a -> Maybe String)
+  -> Fix (ExprFWith (a, (Int, Parens)))
+  -> Either String String
+eParenShow' shortCircuit ef0 =
+  prefixLeft "eParenShow: " $ fo ef0 where
+
+  shortOrG :: a -> Int
+           -> ExprF (Fix (ExprFWith (a, (Int, Parens))))
+           -> Either String String
+  shortOrG a i e =
+    case shortCircuit a of Just s -> Right s -- don't recurse
+                           Nothing -> g (i,e)
+
+  -- `fo` is like `f`, but for the "outermost" `Expr`..
+  -- Even if that top-level `Expr` has an `InParens` flag attached,
+  -- it is printed without surrounding parentheses.
+  fo :: Fix (ExprFWith (a,(Int,Parens))) -> Either String String
+  fo (Fix (EFW ((a,(i,_)),e)))       =           shortOrG a i e
+
+  f :: Fix (ExprFWith (a,(Int,Parens))) -> Either String String
+  f (Fix (EFW ((a,(i,InParens)),e))) = paren <$> shortOrG a i e
+  f (Fix (EFW ((a,(i,Naked))   ,e))) =           shortOrG a i e
+
+  -- PITFALL: `f` peels off the first `Parens`, not all of them.
+  -- That is why the first argument to `g` has a complex type signature.
+  g :: (Int, ExprF (Fix (ExprFWith (a,(Int,Parens)))))
+    -> Either String String
+  g (_, AddrF _) = Left "Should this be possible? Currently it isn't."
+  g (_, PhraseF p) = Right p
+
+  g (_, ExprTpltF t) =
+    prefixLeft "g of Tplt: " $ do
+    Tplt ml js mr :: Tplt String <-
+      ifLefts $ fmap f t
     let mss :: Maybe String -> String
         mss Nothing = ""
         mss (Just a) = a
