@@ -1,4 +1,3 @@
--- for the Variant library
 {-# LANGUAGE ScopedTypeVariables
 #-}
 

@@ -5,11 +5,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Show (
-    eShow      -- ^              Rslt -> Expr -> Either String String
-  , eParenShow       -- ^ Int -> Rslt -> Expr -> Either String String
-  , eParenShow' -- ^  (a -> Maybe String)
-                -- -> Fix (ExprFWith (a, (Int, Parens)))
-                -- -> Either String String
+    eShow           -- ^        Rslt -> Expr -> Either String String
+  , eParenShow      -- ^ Int -> Rslt -> Expr -> Either String String
+  , eParenShowInner -- ^  (a -> Maybe String)
+                    -- -> Fix (ExprFWith (a, (Int, Parens)))
+                    -- -> Either String String
   ) where
 
 import           Data.Functor.Foldable
@@ -123,12 +123,11 @@ eParenShow maxDepth r e0 =
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
 
-
-eParenShow' :: forall a
+eParenShowInner :: forall a
   .  (a -> Maybe String)
   -> Fix (ExprFWith (a, (Int, Parens)))
   -> Either String String
-eParenShow' shortCircuit ef0 =
+eParenShowInner shortCircuit ef0 =
   prefixLeft "eParenShow: " $ fo ef0 where
 
   shortOrG :: a -> Int
