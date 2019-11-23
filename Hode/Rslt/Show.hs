@@ -8,14 +8,12 @@
 module Hode.Rslt.Show (
     eShow           -- ^        Rslt -> Expr -> Either String String
   , eParenShow      -- ^ Int -> Rslt -> Expr -> Either String String
-  , eParenShowExpr
-    -- ^  Int      -- ^ maximum depth before parenthesizing an `Expr`
-    -- -> Rslt -> Expr -> Either String String
+  , eParenShowExpr  -- ^ Int -> Rslt -> Expr -> Either String String
   , eParenShowAddr
     -- ^ Int       -- ^ maximum depth before parenthesizing an `Expr`
+    -- -> Rslt
     -- -> Set Addr -- ^ these `Addr`s will be shown as `Addr`s
     --             --   rather than expanded into text
-    -- -> Rslt
     -- -> Addr     -- ^ what to show
     -- -> Either String String
   , eParenShowInner -- ^  (a -> Maybe String)
@@ -148,12 +146,12 @@ eParenShowExpr maxDepth r e =
 
 eParenShowAddr
   :: Int      -- ^ maximum depth before parenthesizing an `Expr`
+  -> Rslt
   -> Set Addr -- ^ these `Addr`s will be shown as `Addr`s
               --   rather than expanded into text
-  -> Rslt
   -> Addr     -- ^ what to show
   -> Either String String
-eParenShowAddr maxDepth as r a0 =
+eParenShowAddr maxDepth r as a0 =
   prefixLeft "eParenShowAddr:" $ do
   let showAsAddr :: Addr -> Maybe String
       showAsAddr a = if S.member a as
