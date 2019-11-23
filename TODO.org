@@ -4,27 +4,13 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * TODO user-friendliness
-** TODO use "it" two levels deep
-**** use eParenShow' and parenExprAtDepth'
-NOTE: eParenShow is used to show things that are not in the graph --
-for instance, when showing a RelHosts, it creates a fictitious Rel.
-
-Then delete parenExprAtDepth, and rename.
-**** rewrite eParenShowColor similarly
-**** change mkViewExpr to hand off a center to eParenShowColor
-  mkViewExpr :: Rslt -> (Maybe Addr) -> Addr -> Either String ViewExpr
-  mkViewExpr r center a =
-    prefixLeft "mkViewExpr:" $ do
-    (s :: ColorString) <-
-      addrToExpr r a >>= eParenShowColor 3 r
-    Right $ ViewExpr
-      { _viewExpr_Addr = a
-      , _viewExpr_String = s }
+** TODO folding indicator
+Or at least, upon inserting contents, unfold.
 ** TODO if a group has only one member, omit the group
 ** TODO upon save, delete unused phrases and templates
 * TODO bugs
-** TODO distance to wrap should shrink with columns, indentation
-** TODO if a join includes space, it must be drawn in parens
+** todo ? distance to wrap should shrink with columns, indentation
+** TODO if a joint includes space, it must be drawn in parens
 ** TODO copy to clipboard: broken on Nix
 I see this in the ui:
   Results window copied to clipboard.

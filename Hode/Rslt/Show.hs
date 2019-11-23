@@ -117,7 +117,7 @@ eParenShowInner :: forall a
   -> Fix (ExprFWith (a, (Int, Parens)))
   -> Either String String
 eParenShowInner shortCircuit ef0 =
-  prefixLeft "eParenShow: " $ fo ef0 where
+  prefixLeft "eParenShowInner: " $ fo ef0 where
 
   shortOrG :: a -> Int
            -> ExprF (Fix (ExprFWith (a, (Int, Parens))))
