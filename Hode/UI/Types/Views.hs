@@ -123,7 +123,7 @@ instance Show RelHosts where
            $ replaceNth (Phrase $ "it") n
            $ replicate (arity tplt) $ Phrase "_"
     in either (const noLeft) id $
-       eParenShow 3 noRslt $ ExprRel $
+       eParenShowExpr 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
 instance ShowColor RelHosts where
@@ -141,7 +141,7 @@ instance ShowColor RelHosts where
            $ replaceNth (Phrase $ "it") n
            $ replicate (arity tplt) $ Phrase "_"
     in either (const noLeft) id $
-       eParenShowColor 3 noRslt $ ExprRel $
+       eParenShowColorExpr 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.

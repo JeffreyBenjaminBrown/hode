@@ -7,7 +7,6 @@
 
 module Hode.Rslt.Show (
     eShow           -- ^        Rslt -> Expr -> Either String String
-  , eParenShow      -- ^ Int -> Rslt -> Expr -> Either String String
   , eParenShowExpr  -- ^ Int -> Rslt -> Expr -> Either String String
   , eParenShowAddr
     -- ^ Int       -- ^ maximum depth before parenthesizing an `Expr`
@@ -77,59 +76,12 @@ eShow r = prefixLeft "eShow: " . para f where
     ++ show (embed $ fmap fst x)
 
 
--- | = `eParenShow` might make highly nested `Expr`s easier to read.
+-- | = `eParenShowExpr` makes nested `Expr`s easier to read.
 -- It takes a `maxDepth` parameter,
 -- wraps relationships of order `maxDepth` or higher in parentheses,
 -- and then restarts the count. For instance,
 -- if `eShow e == "a # b ## c # d ### e # f ## g # h"`,
 -- then `eParenShow 2 e == "(a # b ## c # d) # (e # f ## g # h)"`,
-
-eParenShow :: Int -> Rslt -> Expr -> Either String String
-eParenShow maxDepth r e0 =
-  prefixLeft "eParenShow: " $
-  unAddrRec r e0 >>=
-  fo . parenExprAtDepth maxDepth . toExprWith () where
-
-  -- `fo` is like `f`, but for the "outermost" expression.
-  -- Even if that top-level `Expr` has an `InParens` flag attached,
-  -- it is printed without surrounding parentheses.
-  fo :: Fix (ExprFWith (Int,Parens)) -> Either String String
-  fo (Fix (EFW ((i,_),e))) = g (i,e)
-
-  f :: Fix (ExprFWith (Int,Parens)) -> Either String String
-  f (Fix (EFW ((i,InParens),e))) = paren <$> g (i,e)
-  f (Fix (EFW ((i,Naked)   ,e))) =           g (i,e)
-
-  -- PITFALL: `f` peels off the first `Parens`, not all of them.
-  -- That is why the first argument to `g` has a complex type signature.
-  g :: (Int, ExprF (Fix (ExprFWith (Int,Parens))))
-    -> Either String String
-  g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
-  g (_, PhraseF p) = Right p
-
-  g (_, ExprTpltF js0) =
-    prefixLeft "g of Tplt: " $ do
-    Tplt ml js mr :: Tplt String <-
-      ifLefts $ fmap f js0
-    let mss :: Maybe String -> String
-        mss Nothing = ""
-        mss (Just a) = a
-    Right $ (T.unpack . T.strip . T.pack) $ concat $
-      L.intersperse " " $ L.intersperse "_" $
-      ( [mss ml] ++ js ++ [mss mr] )
-
-  g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
-    prefixLeft "g of Rel: " $ do
-    ms1 :: [String] <- ifLefts $ map f ms0
-    Tplt ml js mr :: Tplt String <-
-      (hash n <$>) <$> -- Tplt in Either => two fmaps
-      ifLefts (fmap f t)
-    Right $ concat $ L.intersperse " " $
-      maybeToList ml ++ zip' ms1 js ++
-      maybeToList mr
-
-  g (_, ExprRelF (Rel _ _)) = Left $
-    "g given a Rel with a non-Tplt in the Tplt position."
 
 eParenShowExpr
   :: Int -- ^ maximum depth before parenthesizing an `Expr`
@@ -141,6 +93,8 @@ eParenShowExpr maxDepth r e =
     <$> unAddrRec r e
   eParenShowInner (const Nothing) x
 
+-- | `eParenShowAddr` is like `eParenShowExpr`.
+-- The type signature explains their differences.
 eParenShowAddr
   :: Int      -- ^ maximum depth before parenthesizing an `Expr`
   -> Rslt
