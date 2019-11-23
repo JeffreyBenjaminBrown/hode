@@ -41,13 +41,14 @@ moveFocusedViewExprNode d =
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st =
   prefixLeft "insertMembers_atFocus:" $ do
+  a <- focusAddr st
   (ms,as) :: (MemberFork, [Addr]) <-
     members_atFocus st
 
   -- The new subtree has two levels: top and leaves.
   leaves0 :: [ViewExprNode] <-
-    map VExpr <$> ifLefts
-    (map (mkViewExpr $ st ^. appRslt) as)
+    let f = mkViewExpr (st ^. appRslt) $ S.singleton a
+    in map VExpr <$> ifLefts (map f as)
   leaves1 :: [BufferRow] <- ifLefts $
     map (bufferRow_from_viewExprNode' st) leaves0
   let leaves2 :: [PTree BufferRow] =
@@ -166,7 +167,7 @@ groupHostRels r a0 =
 -- `hf` is the root.
 -- The `ViewExpr`s creates from `as` form the other layer.
 hostGroup_to_forkTree :: St -> (HostFork, [Addr])
-                  -> Either String (PTree BufferRow)
+                      -> Either String (PTree BufferRow)
 hostGroup_to_forkTree st (hf, as) =
   prefixLeft "-> hostGroup_to_forkTree" $ do
   if null as then Left "There are no host Exprs to show."
@@ -174,8 +175,9 @@ hostGroup_to_forkTree st (hf, as) =
   let mustBeOkay = "Impossible: `as` is nonempty, "
                    ++ "so P.fromList must work."
       r = st ^. appRslt
+  a <- focusAddr st
   ves :: [ViewExpr] <-
-    ifLefts $ map (mkViewExpr r) as
+    ifLefts $ map (mkViewExpr r $ S.singleton a) as
 
   topOfNew :: BufferRow <-
     bufferRow_from_viewExprNode' st $ VHostFork hf
@@ -205,7 +207,7 @@ mkBufferRowPorest st as = do
       mkLeaf :: Addr -> Either String (PTree BufferRow)
       mkLeaf a =
         pTreeLeaf <$> bufferRow_from_viewExprNode' st
-        (VExpr $ either err id $ mkViewExpr r a)
+        (VExpr $ either err id $ mkViewExpr r mempty a)
         where err :: String -> ViewExpr
               err s = error $ "should be impossible: `a` should be present, as it was just found by `hExprToAddrs`. Here's the original error: " ++ s ++ "."
   p :: [PTree BufferRow] <-

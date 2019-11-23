@@ -7,6 +7,7 @@ ViewPatterns
 module Hode.UI.Types.Views where
 
 import Control.Lens
+import Data.Set (Set)
 import Data.Map (Map)
 
 import Hode.Brick
@@ -52,12 +53,16 @@ data ViewExprNode =
                            -- parent in the view tree and its children.
   deriving (Eq, Ord, Show)
 
--- | What the user asked for.
+-- | What the user searched for.
 type ViewQuery = String
 
 data ViewExpr = ViewExpr {
-    _viewExpr_Addr   :: Addr
-  , _viewExpr_String :: ColorString }
+    _viewExpr_Addr        :: Addr
+  , _viewExpr_showAsAddrs :: Set Addr
+    -- ^ any sub-`Expr` at any of these `Addr`s will be shown
+    -- not as text, but as the `Addr` in question.
+    -- Used to eliminate redundancy in views.
+  , _viewExpr_String      :: ColorString }
   deriving (Show, Eq, Ord)
 
 -- | Announces the members of some "center" `Expr`.

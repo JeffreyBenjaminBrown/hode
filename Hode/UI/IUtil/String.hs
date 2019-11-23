@@ -5,6 +5,7 @@ module Hode.UI.IUtil.String (
   , mkViewExpr   -- ^ Rslt -> Addr -> Either String ViewExpr
   ) where
 
+import           Data.Set (Set)
 import           Data.Foldable (toList)
 import           Lens.Micro
 
@@ -35,10 +36,13 @@ focusedBufferStrings st =
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s
 
-mkViewExpr :: Rslt -> Addr -> Either String ViewExpr
-mkViewExpr r a = do
-  (s :: ColorString) <- prefixLeft "mkViewExpr:"
-    $ addrToExpr r a >>= eParenShowColorExpr 3 r
+mkViewExpr :: Rslt -> Set Addr -> Addr
+           -> Either String ViewExpr
+mkViewExpr r as a =
+  prefixLeft "mkViewExpr:" $ do
+  s :: ColorString <-
+    eParenShowColorAddr 3 r as a
   Right $ ViewExpr { _viewExpr_Addr = a
+                   , _viewExpr_showAsAddrs = as
                    , _viewExpr_String = s }
 
