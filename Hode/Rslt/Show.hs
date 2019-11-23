@@ -19,8 +19,8 @@ module Hode.Rslt.Show (
   ) where
 
 import           Data.Functor.Foldable
-import           Data.Maybe
 import qualified Data.List as L
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set as S
 import qualified Data.Text as T

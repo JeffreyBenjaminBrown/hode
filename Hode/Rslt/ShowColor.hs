@@ -4,12 +4,22 @@ TupleSections,
 ViewPatterns #-}
 
 module Hode.Rslt.ShowColor
-  ( eParenShowColor -- ^ Int -> Rslt -> Expr -> Either String ColorString
+  ( eParenShowColor      -- ^ Int -> Rslt -> Expr -> Either String ColorString
+  , eParenShowColorExpr  -- ^ Int -> Rslt -> Expr -> Either String ColorString
+  , eParenShowColorAddr
+    -- ^ Int       -- ^ maximum depth before parenthesizing an `Expr`
+    -- -> Rslt
+    -- -> Set Addr -- ^ these `Addr`s will be shown as `Addr`s
+    --             --   rather than expanded into text
+    -- -> Addr     -- ^ what to show
+    -- -> Either String ColorString
   ) where
 
 import           Data.Functor.Foldable
-import           Data.Maybe
 import qualified Data.List as L
+import           Data.Maybe
+import           Data.Set (Set)
+import qualified Data.Set as S
 
 import Hode.Brick
 import Hode.Rslt.RLookup
@@ -70,6 +80,34 @@ eParenShowColor maxDepth r e0 =
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
+
+eParenShowColorExpr
+  :: Int -- ^ maximum depth before parenthesizing an `Expr`
+  -> Rslt -> Expr -> Either String ColorString
+eParenShowColorExpr maxDepth r e =
+  prefixLeft "eParenShowColorExpr:" $ do
+  x :: Fix (ExprFWith ((), (Int, Parens))) <-
+    parenExprAtDepth' maxDepth . toExprWith ()
+    <$> unAddrRec r e
+  eParenShowColorInner (const Nothing) x
+
+-- TODO ? factor out code this has in common with `eParenShowInner`
+eParenShowColorAddr
+  :: Int      -- ^ maximum depth before parenthesizing an `Expr`
+  -> Rslt
+  -> Set Addr -- ^ these `Addr`s will be shown as `Addr`s
+              --   rather than expanded into text
+  -> Addr     -- ^ what to show
+  -> Either String ColorString
+eParenShowColorAddr maxDepth r as a0 =
+  prefixLeft "eParenShowColorAddr:" $ do
+  let showAsAddr :: Addr -> Maybe ColorString
+      showAsAddr a = if S.member a as
+                     then Just [("@" ++ show a,AddrColor)]
+                     else Nothing
+  fea :: Fix (ExprFWith (Addr,(Int,Parens))) <-
+    parenExprAtDepth' maxDepth <$> addrToExprWith r a0
+  eParenShowColorInner showAsAddr fea
 
 -- TODO : factor out code this has in common with `eParenShowInner`
 eParenShowColorInner :: forall a

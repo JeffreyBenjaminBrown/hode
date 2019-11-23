@@ -3,7 +3,6 @@
 module Hode.Test.Rslt.TShow where
 
 import           Data.Either
-import           Data.Set (Set)
 import qualified Data.Set as S
 import           Data.Functor.Foldable
 import           Test.HUnit
