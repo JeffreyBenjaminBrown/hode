@@ -89,7 +89,7 @@ eParenShowExpr
 eParenShowExpr maxDepth r e =
   prefixLeft "eParenShowExpr:" $ do
   x :: Fix (ExprFWith ((), (Int, Parens))) <-
-    parenExprAtDepth' maxDepth . toExprWith ()
+    parenExprAtDepth maxDepth . toExprWith ()
     <$> unAddrRec r e
   eParenShowInner (const Nothing) x
 
@@ -109,7 +109,7 @@ eParenShowAddr maxDepth r as a0 =
                      then Just $ "@" ++ show a
                      else Nothing
   fea :: Fix (ExprFWith (Addr,(Int,Parens))) <-
-    parenExprAtDepth' maxDepth <$> addrToExprWith r a0
+    parenExprAtDepth maxDepth <$> addrToExprWith r a0
   eParenShowInner showAsAddr fea
 
 eParenShowInner :: forall a

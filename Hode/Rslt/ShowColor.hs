@@ -37,7 +37,7 @@ eParenShowColorExpr
 eParenShowColorExpr maxDepth r e =
   prefixLeft "eParenShowColorExpr:" $ do
   x :: Fix (ExprFWith ((), (Int, Parens))) <-
-    parenExprAtDepth' maxDepth . toExprWith ()
+    parenExprAtDepth maxDepth . toExprWith ()
     <$> unAddrRec r e
   eParenShowColorInner (const Nothing) x
 
@@ -56,7 +56,7 @@ eParenShowColorAddr maxDepth r as a0 =
                      then Just [("@" ++ show a,SepColor)]
                      else Nothing
   fea :: Fix (ExprFWith (Addr,(Int,Parens))) <-
-    parenExprAtDepth' maxDepth <$> addrToExprWith r a0
+    parenExprAtDepth maxDepth <$> addrToExprWith r a0
   eParenShowColorInner showAsAddr fea
 
 -- TODO : factor out code this has in common with `eParenShowInner`

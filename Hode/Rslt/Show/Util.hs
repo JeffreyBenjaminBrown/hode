@@ -6,7 +6,7 @@ module Hode.Rslt.Show.Util (
 
   , Parens(..)
   , paren            -- ^ String -> String
-  , parenExprAtDepth' -- ^ Int -> Fix (ExprFWith att)
+  , parenExprAtDepth -- ^ Int -> Fix (ExprFWith att)
                       -- -> Fix (ExprFWith (att,(Int,Parens)))
   ) where
 
@@ -41,10 +41,10 @@ paren s = "(" ++ s ++ ")"
 -- A `Rel` of depth > `maxDepth` is `InParens`.
 -- `Tplt`s are also `InParens` (which might not be necessary).
 
-parenExprAtDepth'
+parenExprAtDepth
   :: forall att. Int -> Fix (ExprFWith att)
   -> Fix (ExprFWith (att,(Int,Parens)))
-parenExprAtDepth' maxDepth = g where
+parenExprAtDepth maxDepth = g where
   g (Fix (EFW (att, x))) = Fix $ EFW $ f att x
 
   f :: att -> ExprF (Fix (ExprFWith att))
@@ -58,11 +58,11 @@ parenExprAtDepth' maxDepth = g where
   f att (ExprTpltF js) =
     ( (att,(0,InParens))
     , ExprTpltF $
-      fmap (parenExprAtDepth' maxDepth) js )
+      fmap (parenExprAtDepth maxDepth) js )
 
   f att (ExprRelF (Rel ms t)) = let
     ms' :: [Fix (ExprFWith (att, (Int, Parens)))]
-    ms' = map (parenExprAtDepth' maxDepth) ms
+    ms' = map (parenExprAtDepth maxDepth) ms
     d = (+1) $ maximum $ map h ms'
       where h = nakedDepth .
                 \(Fix (EFW ((_,(i,p)),_))) -> (i,p)
@@ -74,4 +74,4 @@ parenExprAtDepth' maxDepth = g where
                , if d >= maxDepth
                  then InParens else Naked ) )
        , ExprRelF $ Rel ms' $
-         parenExprAtDepth' maxDepth t )
+         parenExprAtDepth maxDepth t )
