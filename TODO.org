@@ -5,9 +5,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * TODO user-friendliness
 ** TODO use "it" two levels deep
-rename attrParen -> colorParen
-**** replace eParenShow
-with eParenShowAddr and eParenShowExpr
 **** use eParenShow' and parenExprAtDepth'
 NOTE: eParenShow is used to show things that are not in the graph --
 for instance, when showing a RelHosts, it creates a fictitious Rel.

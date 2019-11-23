@@ -13,15 +13,15 @@ module Hode.Brick (
   , unColorString -- ^ ColorString -> String
 
   -- | = mapping across a ColorString
-  , attrParen -- ^ ColorString -> ColorString
-  , attrStrip -- ^ [(String,a)] -> [(String,a)]
-  , attrLeftRight -- ^ Maybe (s -> s) ->
+  , colorParen -- ^ ColorString -> ColorString
+  , colorStrip -- ^ [(String,a)] -> [(String,a)]
+  , colorLeftRight -- ^ Maybe (s -> s) ->
                   --         (s -> s) ->
                   --         (s -> s) ->
                   --         [(s,a)] -> [(s,a)]
-  , attrConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
+  , colorConsolidate -- ^ forall a b. (Eq a, Eq b, Monoid a)
                     -- => [(a,b)] -> [(a,b)]
-  , attrStringLength -- ^ ColorString -> Int
+  , colorStringLength -- ^ ColorString -> Int
   ) where
 
 import           Data.Text (strip, stripStart, stripEnd, pack, unpack)
@@ -56,62 +56,62 @@ unColorString = concatMap fst
 
 -- | = mapping across an ColorString
 
-attrParen :: ColorString -> ColorString
-attrParen x = [("(",SepColor)] ++ x ++ [(")",SepColor)]
+colorParen :: ColorString -> ColorString
+colorParen x = [("(",SepColor)] ++ x ++ [(")",SepColor)]
 
--- | `attrStrip` is like `strip` from Data.Text
-attrStrip :: [(String,a)] -> [(String,a)]
+-- | `colorStrip` is like `strip` from Data.Text
+colorStrip :: [(String,a)] -> [(String,a)]
   -- ^ a little more general than `ColorString -> ColorString`
-attrStrip = attrLeftRight both left right where
+colorStrip = colorLeftRight both left right where
   both  = Just $ unpack . strip      . pack
   left  =        unpack . stripStart . pack
   right =        unpack . stripEnd   . pack
 
--- | `attrLeftRight both left right sas` applies `left` to the first
+-- | `colorLeftRight both left right sas` applies `left` to the first
 -- member of `sas` and `right` to the last member, with one exception:
 -- if `both == Just f` and `sas` is a singleton,
 -- it applies `both` and leaves `left` and `right` unuesd.
-attrLeftRight ::
+colorLeftRight ::
   Maybe (s -> s)
   ->    (s -> s)
   ->    (s -> s)
   -> [(s,a)] -> [(s,a)]
-attrLeftRight _ _ _ [] = []
-attrLeftRight both left right [(s,a)] =
+colorLeftRight _ _ _ [] = []
+colorLeftRight both left right [(s,a)] =
   [ ( s & maybe (left . right) id both
     , a) ]
-attrLeftRight _    left right ((s,a):more) =
+colorLeftRight _    left right ((s,a):more) =
   (left $ s, a) : f more where
   f (p1:p2:ps) = p1 : f (p2:ps)
   f [(s',a')] = [(right s', a')]
   f [] = error "impossible -- f bottoms out at length one, not zero"
 
-attrConsolidate :: forall a b. (Eq a, Eq b, Monoid a)
+colorConsolidate :: forall a b. (Eq a, Eq b, Monoid a)
                 => [(a,b)] -> [(a,b)]
-attrConsolidate =
-  attrUngroup . attrGroup []
+colorConsolidate =
+  colorUngroup . colorGroup []
   where
-  attrGroup :: [[(a,b)]] -- accumulator
+  colorGroup :: [[(a,b)]] -- accumulator
             -> [(a,b)]   -- input to consume
             -> [[(a,b)]]
-  attrGroup acc [] = acc -- done
-  attrGroup acc (a:as) =
-    if fst a == mempty then attrGroup acc as -- skip mempty
-    else if null acc then attrGroup [[a]] as -- first group
+  colorGroup acc [] = acc -- done
+  colorGroup acc (a:as) =
+    if fst a == mempty then colorGroup acc as -- skip mempty
+    else if null acc then colorGroup [[a]] as -- first group
     else let h = head acc
              hh = head h
          in if snd a == snd hh -- same color
-            then attrGroup ((a:h):tail acc) as -- same group
-            else attrGroup ([a]:acc) as -- new group
+            then colorGroup ((a:h):tail acc) as -- same group
+            else colorGroup ([a]:acc) as -- new group
 
   -- | PITFALL: Assumes every `[(a,b)]` has the same `b`, and none is empty.
-  -- Those will be true if the `[[(a,b)]]` was created via `attrGroup`.
-  attrUngroup :: [[(a,b)]] -> [(a,b)]
-  attrUngroup = reverse . map f where
+  -- Those will be true if the `[[(a,b)]]` was created via `colorGroup`.
+  colorUngroup :: [[(a,b)]] -> [(a,b)]
+  colorUngroup = reverse . map f where
     f :: [(a,b)] -> (a,b)
-    f [] = error "attrUngroup: should not happen"
+    f [] = error "colorUngroup: should not happen"
     f cs@((_,b):_) = ( mconcat $ map fst $ reverse cs,
                        b )
 
-attrStringLength :: ColorString -> Int
-attrStringLength = sum . map (length . fst)
+colorStringLength :: ColorString -> Int
+colorStringLength = sum . map (length . fst)

@@ -81,7 +81,7 @@ eParenShowColorInner shortCircuit ef0 =
   fo (Fix (EFW ((a,(i,_)),e)))       =               shortOrG a i e
 
   f :: Fix (ExprFWith (a,(Int,Parens))) -> Either String ColorString
-  f (Fix (EFW ((a,(i,InParens)),e))) = attrParen <$> shortOrG a i e
+  f (Fix (EFW ((a,(i,InParens)),e))) = colorParen <$> shortOrG a i e
   f (Fix (EFW ((a,(i,Naked))   ,e))) =               shortOrG a i e
 
   -- PITFALL: `f` peels off the first `Parens`, not all of them.
@@ -99,7 +99,7 @@ eParenShowColorInner shortCircuit ef0 =
     let mss :: Maybe ColorString -> ColorString
         mss Nothing  = emptyColorString
         mss (Just a) = a
-    Right $ attrStrip $ concat $
+    Right $ colorStrip $ concat $
       L.intersperse space $
       L.intersperse blank $
       ( [mss ml] ++ js ++ [mss mr] )

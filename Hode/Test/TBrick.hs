@@ -10,8 +10,8 @@ import Hode.Brick.Wrap
 
 test_module_hode_brick :: Test
 test_module_hode_brick = TestList [
-    TestLabel "test_attrStrip" test_attrStrip
-  , TestLabel "test_attrStringLength" test_attrStringLength
+    TestLabel "test_colorStrip" test_colorStrip
+  , TestLabel "test_colorStringLength" test_colorStringLength
   , TestLabel "test_splitAtLastSpaceBefore"
     test_splitAtLastSpaceBefore
   , TestLabel "test_extractLine" test_extractLine
@@ -51,23 +51,23 @@ test_splitAtLastSpaceBefore = TestCase $ do
     == (("abcd",()), ("abcd",()))
 
 
-test_attrStringLength :: Test
-test_attrStringLength = TestCase $ do
+test_colorStringLength :: Test
+test_colorStringLength = TestCase $ do
   let irr = error "irrelevant"
-  assertBool "" $ attrStringLength [] == 0
-  assertBool "" $ attrStringLength [("hi!", irr)] == 3
-  assertBool "" $ attrStringLength [("hi!", irr),
+  assertBool "" $ colorStringLength [] == 0
+  assertBool "" $ colorStringLength [("hi!", irr)] == 3
+  assertBool "" $ colorStringLength [("hi!", irr),
                                     ("bye!",irr)] == 7
 
-test_attrStrip :: Test
-test_attrStrip = TestCase $ do
-  assertBool "0" $ attrStrip [] == ([] :: ColorString)
-  assertBool "1" $ attrStrip [(" x ",())] == [("x",())]
-  assertBool "2" $ attrStrip [ (" x ",())
+test_colorStrip :: Test
+test_colorStrip = TestCase $ do
+  assertBool "0" $ colorStrip [] == ([] :: ColorString)
+  assertBool "1" $ colorStrip [(" x ",())] == [("x",())]
+  assertBool "2" $ colorStrip [ (" x ",())
                              , (" x ",()) ] == [ ("x ",())
                                                , (" x",())
                                                ]
-  assertBool "3" $ attrStrip [ (" x ",())
+  assertBool "3" $ colorStrip [ (" x ",())
                              , (" x ",())
                              , (" x ",()) ] == [ ("x ",())
                                                , (" x ",())

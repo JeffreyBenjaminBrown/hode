@@ -28,12 +28,12 @@ test_module_rslt_show = TestList [
 test_eParenShowColorExpr :: Test
 test_eParenShowColorExpr = TestCase $ do
   assertBool "show a Tplt" $
-    ( attrStrip . attrConsolidate <$>
+    ( colorStrip . colorConsolidate <$>
       ( eParenShowColorExpr 2 (error "") $
         ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
     == Right [("_ is _", TextColor)]
   assertBool "a depth-1 Rel" $
-    ( attrConsolidate <$>
+    ( colorConsolidate <$>
       ( eParenShowColorExpr 2 (error "") $
         ExprRel $ Rel [Phrase "love", Phrase "good"]
         $ ExprTplt $ Tplt Nothing [Phrase "is"] Nothing ) )
