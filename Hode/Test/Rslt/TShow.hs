@@ -3,6 +3,8 @@
 module Hode.Test.Rslt.TShow where
 
 import           Data.Either
+import           Data.Set (Set)
+import qualified Data.Set as S
 import           Data.Functor.Foldable
 import           Test.HUnit
 
@@ -19,7 +21,8 @@ test_module_rslt_show = TestList [
     TestLabel "test_eShow" test_eShow
   , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   , TestLabel "test_parenExprAtDepth'" test_parenExprAtDepth'
-  , TestLabel "test_eParenShow" test_eParenShow
+  , TestLabel "test_eParenShowExpr" test_eParenShowExpr
+  , TestLabel "test_eParenShowAddr" test_eParenShowAddr
   , TestLabel "test_eParenShowColor" test_eParenShowColor
   ]
 
@@ -39,9 +42,23 @@ test_eParenShowColor = TestCase $ do
               ("#"      , SepColor),
               ("is good", TextColor) ]
 
-test_eParenShow :: Test
-test_eParenShow = TestCase $ do
-  let f k = eParenShow k D.rslt_rightCapped
+test_eParenShowAddr :: Test
+test_eParenShowAddr = TestCase $ do
+  let sa k = eParenShowAddr k D.rslt_rightCapped
+      se k = eParenShowExpr k D.rslt_rightCapped
+  mapM_ (\a -> assertBool "" ( sa 3 mempty a ==
+                               se 3 (Addr a) ) )
+        [0..6]
+  assertBool "show dog as Addr" $
+    sa 3 (S.singleton 1) 1 == Right "@1"
+  assertBool "show dog as Addr in Rel" $
+    sa 3 (S.singleton 1) 5 == Right "@1 #needs oxygen #@1"
+  assertBool "including a Rel's Tplt in showAsAddr set: no effect"
+    $ sa 3 (S.singleton 4) 5 == Right "dog #needs oxygen #dog"
+
+test_eParenShowExpr :: Test
+test_eParenShowExpr = TestCase $ do
+  let f k = eParenShowExpr k D.rslt_rightCapped
   assertBool "hi" $ f   2  (Phrase "hi") == Right "hi"
   assertBool "hi" $ f (-1) (Phrase "hi") == Right "hi"
   assertBool "rel with no tplt" $ isLeft $ f 2 $
