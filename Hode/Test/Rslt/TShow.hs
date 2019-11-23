@@ -18,7 +18,6 @@ import qualified Hode.Test.Rslt.RData as D
 test_module_rslt_show :: Test
 test_module_rslt_show = TestList [
     TestLabel "test_eShow" test_eShow
-  , TestLabel "test_parenExprAtDepth" test_parenExprAtDepth
   , TestLabel "test_parenExprAtDepth'" test_parenExprAtDepth'
   , TestLabel "test_eParenShowExpr" test_eParenShowExpr
   , TestLabel "test_eParenShowAddr" test_eParenShowAddr
@@ -93,37 +92,6 @@ test_eParenShowExpr = TestCase $ do
 -- from a synonym for [] to something more complex, during
 -- commit 8d163edd7381afa8955eacfd6683ff090db4688a
 -- Date:   Sat Sep 14 20:00:12 2019 -0500
-
-test_parenExprAtDepth :: Test
-test_parenExprAtDepth = TestCase $ do
-
-  let fe0 :: Fix (ExprFWith ())
-      fe :: [Fix (ExprFWith ())]
-         ->  Fix (ExprFWith ())
-      fe0 = Fix $ EFW ( (), AddrF 0 )
-      fe ms = Fix $ EFW
-        ( (), ExprRelF $ Rel ms $ fe0 )
-
-  -- like fe, but with depth and wrappedness
-  let dw0 ::                 Fix (ExprFWith (Int,Parens))
-      dw :: (Int,Parens) -> [Fix (ExprFWith (Int,Parens))]
-                         ->  Fix (ExprFWith (Int,Parens))
-      dw0 = Fix $ EFW ((0,Naked), AddrF 0)
-      dw ip ms = Fix $ EFW
-        ( ip, ExprRelF $ Rel ms dw0 )
-
-  assertBool "" $ parenExprAtDepth 2 fe0 == dw0
-  assertBool "" $ parenExprAtDepth 3 fe0 == dw0
-  assertBool "" $ parenExprAtDepth 2
-    (fe [fe0]) ==
-    dw (1,Naked) [dw0]
-  assertBool "" $ parenExprAtDepth 3
-    ( fe [ fe [fe0], fe0 ] ) ==
-    dw (2,Naked)    [dw (1,Naked) [dw0], dw0]
-  assertBool "" $ parenExprAtDepth 2 -- maxDepth 2 => InParens
-    ( fe [ fe [fe0], fe0 ] ) ==
-    dw (2,InParens) [dw (1,Naked) [dw0], dw0]
-
 test_parenExprAtDepth' :: Test
 test_parenExprAtDepth' = TestCase $ do
 
