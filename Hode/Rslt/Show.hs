@@ -2,11 +2,22 @@
 -- This code is mostly supplanted by the even more complex
 -- `eParenShowColor`.
 
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables
+#-}
 
 module Hode.Rslt.Show (
     eShow           -- ^        Rslt -> Expr -> Either String String
   , eParenShow      -- ^ Int -> Rslt -> Expr -> Either String String
+  , eParenShowExpr
+    -- ^  Int      -- ^ maximum depth before parenthesizing an `Expr`
+    -- -> Rslt -> Expr -> Either String String
+  , eParenShowAddr
+    -- ^ Int       -- ^ maximum depth before parenthesizing an `Expr`
+    -- -> Set Addr -- ^ these `Addr`s will be shown as `Addr`s
+    --             --   rather than expanded into text
+    -- -> Rslt
+    -- -> Addr     -- ^ what to show
+    -- -> Either String String
   , eParenShowInner -- ^  (a -> Maybe String)
                     -- -> Fix (ExprFWith (a, (Int, Parens)))
                     -- -> Either String String
@@ -15,6 +26,8 @@ module Hode.Rslt.Show (
 import           Data.Functor.Foldable
 import           Data.Maybe
 import qualified Data.List as L
+import           Data.Set (Set)
+import qualified Data.Set as S
 import qualified Data.Text as T
 
 import Hode.Rslt.RLookup
@@ -122,6 +135,33 @@ eParenShow maxDepth r e0 =
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
+
+eParenShowExpr
+  :: Int -- ^ maximum depth before parenthesizing an `Expr`
+  -> Rslt -> Expr -> Either String String
+eParenShowExpr maxDepth r e =
+  prefixLeft "eParenShowExpr:" $ do
+  x :: Fix (ExprFWith ((), (Int, Parens))) <-
+    parenExprAtDepth' maxDepth . toExprWith ()
+    <$> unAddrRec r e
+  eParenShowInner (const Nothing) x
+
+eParenShowAddr
+  :: Int      -- ^ maximum depth before parenthesizing an `Expr`
+  -> Set Addr -- ^ these `Addr`s will be shown as `Addr`s
+              --   rather than expanded into text
+  -> Rslt
+  -> Addr     -- ^ what to show
+  -> Either String String
+eParenShowAddr maxDepth as r a0 =
+  prefixLeft "eParenShowAddr:" $ do
+  let showAsAddr :: Addr -> Maybe String
+      showAsAddr a = if S.member a as
+                     then Just $ "@" ++ show a
+                     else Nothing
+  fea :: Fix (ExprFWith (Addr,(Int,Parens))) <-
+    parenExprAtDepth' maxDepth <$> addrToExprWith r a0
+  eParenShowInner showAsAddr fea
 
 eParenShowInner :: forall a
   .  (a -> Maybe String)
