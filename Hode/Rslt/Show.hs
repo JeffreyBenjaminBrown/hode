@@ -16,9 +16,6 @@ module Hode.Rslt.Show (
     --             --   rather than expanded into text
     -- -> Addr     -- ^ what to show
     -- -> Either String String
-  , eParenShowInner -- ^  (a -> Maybe String)
-                    -- -> Fix (ExprFWith (a, (Int, Parens)))
-                    -- -> Either String String
   ) where
 
 import           Data.Functor.Foldable
