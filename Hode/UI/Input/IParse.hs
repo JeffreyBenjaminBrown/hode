@@ -67,7 +67,7 @@ pCommand_delete s = prefixLeft "pCommand_delete:" $ do
 pCommand_find :: Rslt -> String -> Either String Command
 -- PITFALL: Don't add an implicit Eval at the top of every search parsed in
 -- the UI, because an Eval will return nothing if there are no Its below.
-pCommand_find r s = prefixLeft "pCommand_find::" $ do
+pCommand_find r s = prefixLeft "pCommand_find:" $ do
   (e1 :: PExpr) <- mapLeft show (parse _pHashExpr "UI.Input.IParse error 4" s)
   CommandFind s <$> pExprToHExpr r e1
 

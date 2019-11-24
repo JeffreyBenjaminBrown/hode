@@ -65,7 +65,7 @@ eParenShowColorInner :: forall a
   -> Fix (ExprFWith (a, (Int, Parens)))
   -> Either String ColorString
 eParenShowColorInner shortCircuit ef0 =
-  prefixLeft "eParenShowColorInner: " $ fo ef0 where
+  prefixLeft "eParenShowColorInner:" $ fo ef0 where
 
   shortOrG :: a -> Int
            -> ExprF (Fix (ExprFWith (a, (Int, Parens))))
@@ -93,7 +93,7 @@ eParenShowColorInner shortCircuit ef0 =
   g (_, PhraseF p) = Right [(p,TextColor)]
 
   g (_, ExprTpltF t) =
-    prefixLeft "g of Tplt: " $ do
+    prefixLeft "g of Tplt:" $ do
     Tplt ml js mr :: Tplt ColorString <-
       ifLefts $ fmap f t
     let mss :: Maybe ColorString -> ColorString
@@ -105,7 +105,7 @@ eParenShowColorInner shortCircuit ef0 =
       ( [mss ml] ++ js ++ [mss mr] )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
-    prefixLeft "g of Rel: " $ do
+    prefixLeft "g of Rel:" $ do
     ms1 :: [ColorString] <- ifLefts $ map f ms0
     Tplt ml js mr :: Tplt ColorString <-
       ifLefts $ fmap (hash n) <$> fmap f t

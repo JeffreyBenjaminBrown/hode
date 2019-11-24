@@ -195,7 +195,7 @@ runParsedCommand                     c0 st0 =
     B.continue st'
 
   g cmd st =
-    prefixLeft ", called to find and maybe sort:" $ do
+    prefixLeft "called to find and maybe sort:" $ do
     let r :: Rslt = st ^. appRslt
     (s :: String, as :: [Addr]) <- case cmd of
       CommandFind     s h      ->

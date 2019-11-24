@@ -18,7 +18,7 @@ import Hode.Util.Misc
 -- | = Pure editing
 
 delete :: Addr -> Rslt -> Either String Rslt
-delete a r = prefixLeft "delete: " $ do
+delete a r = prefixLeft "delete:" $ do
   hosts <- isIn r a
   if not $ null hosts
     then Left "Expr to be deleted is a member of other Exprs."
@@ -33,7 +33,7 @@ delete a r = prefixLeft "delete: " $ do
 -- | `replaceExpr a e r` replaces the `Expr` at `a`.
 -- The set of `Addr`s in `r` remains unchanged.
 replaceExpr :: Addr -> Expr -> Rslt -> Either String Rslt
-replaceExpr a0 e0 r0 = prefixLeft "replaceExpr: " $
+replaceExpr a0 e0 r0 = prefixLeft "replaceExpr:" $
                        go a0 anAbsentPhrase r0 >>=
                        go a0 e0
   where
@@ -41,7 +41,7 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr: " $
     -- PITFALL: If the new `Expr` contains the old one, `go` will crash.
     -- That's why `anAbsentPhrase` is used.
     go :: Addr -> Expr -> Rslt -> Either String Rslt
-    go a e r = prefixLeft "replaceExpr: " $ do
+    go a e r = prefixLeft "replaceExpr:" $ do
       (r1 :: Rslt, aes :: [Aged Addr]) <- exprToAddrInsert r e
       a1 :: Addr <- if length aes > 0 then Right $ unAged $ head aes else
         Left "There should be an address for the Tplt. (Not a user error.)"

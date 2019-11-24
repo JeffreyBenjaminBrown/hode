@@ -35,18 +35,18 @@ import Hode.Util.Misc
 -- | `eShow` provides the simplest way to show an `Expr`.
 -- It prefaces each joint in an `n`th-order relationships with `n` '#' marks.
 eShow :: Rslt -> Expr -> Either String String
-eShow r = prefixLeft "eShow: " . para f where
+eShow r = prefixLeft "eShow:" . para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
 
   f e@(AddrF _) =
-    prefixLeft ", called on Addr: "
+    prefixLeft "called on Addr:"
     $ unAddr r (embed $ fmap fst e)
     >>= eShow r
 
   f (PhraseF w) = Right w
 
   f (ExprTpltF pairs) =
-    prefixLeft ", called on ExprTplt: " $ do
+    prefixLeft "called on ExprTplt:" $ do
       Tplt ma bs mc <- ifLefts $ fmap snd pairs
       Right $ L.intercalate " " ( maybeToList ma ++
                                   zip' (repeat "_") bs ++
@@ -56,7 +56,7 @@ eShow r = prefixLeft "eShow: " . para f where
     -- The recursive argument (second member of the pair) for the Tplt
     -- is unused -- we don't need to show the whole Tplt, just its parts --
     -- and therefore not computed.
-    prefixLeft ", called on ExprRel: " $ do
+    prefixLeft "called on ExprRel:" $ do
     t1 :: Tplt String <- ifLefts $ fmap (eShow r) t0
     mss :: [String] <- ifLefts $ map snd ms
     let rel :: Expr = embed $ fmap fst relf
@@ -67,7 +67,7 @@ eShow r = prefixLeft "eShow: " . para f where
     Right $ L.intercalate " " ss
 
   f (ExprRelF (Rel ms (a@(Addr _), _))) =
-    prefixLeft ", called on Rel: " $ do
+    prefixLeft "called on Rel:" $ do
     tpltExpr <- unAddr r a
     eShow r $ ExprRel $ Rel (map fst ms) tpltExpr
 
@@ -117,7 +117,7 @@ eParenShowInner :: forall a
   -> Fix (ExprFWith (a, (Int, Parens)))
   -> Either String String
 eParenShowInner shortCircuit ef0 =
-  prefixLeft "eParenShowInner: " $ fo ef0 where
+  prefixLeft "eParenShowInner:" $ fo ef0 where
 
   shortOrG :: a -> Int
            -> ExprF (Fix (ExprFWith (a, (Int, Parens))))
@@ -144,7 +144,7 @@ eParenShowInner shortCircuit ef0 =
   g (_, PhraseF p) = Right p
 
   g (_, ExprTpltF t) =
-    prefixLeft "g of Tplt: " $ do
+    prefixLeft "g of Tplt:" $ do
     Tplt ml js mr :: Tplt String <-
       ifLefts $ fmap f t
     let mss :: Maybe String -> String
@@ -155,7 +155,7 @@ eParenShowInner shortCircuit ef0 =
       ( [mss ml] ++ js ++ [mss mr] )
 
   g (n, ExprRelF (Rel ms0 (Fix (EFW (_, ExprTpltF t))))) =
-    prefixLeft "g of Rel: " $ do
+    prefixLeft "g of Rel:" $ do
     ms1 :: [String] <- ifLefts $ map f ms0
     Tplt ml js mr :: Tplt String <-
       (hash n <$>) <$> -- Tplt in Either => two fmaps

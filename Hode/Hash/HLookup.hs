@@ -52,7 +52,7 @@ hFind he = Find f $ hVars he
 -- matches the `Expr` at an `Addr`, without having to find everything
 -- else that matches the `HExpr`. It isn't totally implemented.
 hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
-hMatches r h0 a0 = prefixLeft "hMatches: " $ do
+hMatches r h0 a0 = prefixLeft "hMatches:" $ do
   e0 :: Expr <- addrToExpr r a0
   case h0 of
     HExpr e -> unAddr r e >>= Right . (== e0)
@@ -99,7 +99,7 @@ hExprToExpr :: Rslt -> HExpr -> Either String Expr
 hExprToExpr _ (HExpr e) = Right e
 
 hExprToExpr r h@(HMap mh) =
-  prefixLeft "hExprToExpr, called on HMap: " $ do
+  prefixLeft "hExprToExpr, called on HMap:" $ do
   me :: Map Role Expr <-
     ifLefts_map $ M.map (hExprToExpr r) mh
   t :: Expr <-
@@ -134,9 +134,9 @@ hExprToAddrs :: Rslt -> Subst Addr -> HExpr ->
 hExprToAddrs r s (HMap m) =
   -- Strategy: Find every sub-Expr in m, and then find every Expr
   -- that has one of those (level-1) sub-Exprs in each specified Role.
-  prefixLeft "hExprToAddrs, called on HMap: " $ do
+  prefixLeft "hExprToAddrs, called on HMap:" $ do
   permissible_members :: Map Role (Set Addr) <-
-    prefixLeft "computing permissible_members: "
+    prefixLeft "computing permissible_members:"
     $ ifLefts_map $ M.map (hExprToAddrs r s) m
 
   let hostCandidates ::
@@ -145,22 +145,22 @@ hExprToAddrs r s (HMap m) =
         -- `m` says the `as` are acceptable to fill `role` in
         -- some host. This returns all those hosts.
         roleHostPairs :: Set (Role, Addr) <-
-          prefixLeft "at HMap / f: " $ S.unions <$>
+          prefixLeft "at HMap / f:" $ S.unions <$>
           ifLefts_set (S.map (isIn r) as)
         Right $ S.map snd
           $ S.filter ((==) role . fst) roleHostPairs
 
   hcs :: Map Role (Set Addr) <-
-    prefixLeft "calculating hcs: " $ ifLefts_map $
+    prefixLeft "calculating hcs:" $ ifLefts_map $
     M.mapWithKey hostCandidates permissible_members
   case null hcs of
     True  -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hcs
 
 hExprToAddrs r s (HEval hm paths) =
-  prefixLeft "hExprToAddrs, called on HEval: " $ do
+  prefixLeft "hExprToAddrs, called on HEval:" $ do
     (hosts :: Set Addr) <-
-      prefixLeft "computing hosts: "
+      prefixLeft "computing hosts:"
       $ hExprToAddrs r s hm
     (its :: Set (Set Addr)) <-
       ifLefts_set $ S.map (subExprs r paths) hosts
@@ -173,26 +173,26 @@ hExprToAddrs _ s (HVar v) =
 hExprToAddrs r _ (HExpr e) = S.singleton <$> exprToAddr r e
 
 hExprToAddrs r s (HDiff base exclude) =
-  prefixLeft "hExprToAddrs, called on HDiff: " $ do
-    b <- prefixLeft ", calculating base"
+  prefixLeft "hExprToAddrs, called on HDiff:" $ do
+    b <- prefixLeft "calculating base:"
          $ hExprToAddrs r s base
-    e <- prefixLeft ", calculating exclude"
+    e <- prefixLeft "calculating exclude:"
          $ hExprToAddrs r s exclude
     Right $ S.difference b e
 
 -- | TRICK: For speed, put the most selective searches first in the list.
 hExprToAddrs r s (HAnd hs) =
-  prefixLeft "hExprToAddrs, called on HAnd: "
+  prefixLeft "hExprToAddrs, called on HAnd:"
   $ foldr1 S.intersection
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
 hExprToAddrs r s (HOr hs) =
-  prefixLeft "hExprToAddrs, called on HOr: "
+  prefixLeft "hExprToAddrs, called on HOr:"
   $ foldr1 S.union
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
 hExprToAddrs r sub (HReach d ht hs) =
-  prefixLeft "hExprToAddrs, called on HReach: " $ do
+  prefixLeft "hExprToAddrs, called on HReach:" $ do
   s <- S.toList <$> hExprToAddrs r sub hs
   t <- S.toList <$> hExprToAddrs r sub ht
   S.fromList <$> reachable d r t s
@@ -205,7 +205,7 @@ hExprToAddrs r sub (HTrans d targets ht he hs) =
   -- And if you want to know which ends can be reached by some start,
   -- then once a start has reached some ends,
   -- you can remove those ends when testing the remaining starts.
-  prefixLeft "hExprToAddrs, called on HTrans: " $ do
+  prefixLeft "hExprToAddrs, called on HTrans:" $ do
   t :: [Addr] <- S.toList <$> hExprToAddrs r sub ht
   e :: [Addr] <- S.toList <$> hExprToAddrs r sub he
   s :: [Addr] <- S.toList <$> hExprToAddrs r sub hs
@@ -252,7 +252,7 @@ transitiveRels1 :: SearchDir
   -> Addr -- ^ the place to start
   -> Either String [(Addr,Addr)]
 transitiveRels1 d r ts fs s =
-  prefixLeft "transitiveRels: " $ do
+  prefixLeft "transitiveRels:" $ do
   found <- L.intersect fs <$> reachable d r ts [s]
   let pair = case d of SearchRightward -> (s,)
                        SearchLeftward  -> (,s)
@@ -270,7 +270,7 @@ reachable :: SearchDir
                     -- To use more than one is weird but legal.
           -> [Addr] -- ^ starting `Expr`s
           -> Either String [Addr]
-reachable d r ts as = prefixLeft "reachable: " $ do
+reachable d r ts as = prefixLeft "reachable:" $ do
   _ <- ifLefts $ map (isBinaryTemplate r) ts
   f [] as
   where

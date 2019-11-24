@@ -78,7 +78,7 @@ kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
          -> Either String [Addr]
 kahnSort r (bo,t) as =
 -- TODO speed: this calls `restrictRsltForSort` and `allRelsInvolvingTplts`, but `restrictRsltForSort` also calls `allRelsInvolvingTplts`, with the same arguments. I don't know whether GHC will optimize that away.
-  prefixLeft "kahnSort: " $ do
+  prefixLeft "kahnSort:" $ do
   rels :: Set Addr <- allRelsInvolvingTplts r [t]
   r1 :: Rslt <- restrictRsltForSort as [t] r
     -- restrict to "nodes", "edges", and the "edge label" at `t`
@@ -100,7 +100,7 @@ kahnSort r (bo,t) as =
 kahnRecurse :: (BinOrientation, TpltAddr) -> Kahn
             -> Either String Kahn
 kahnRecurse bt k =
-  prefixLeft "kahnRecurse: " $
+  prefixLeft "kahnRecurse:" $
   case kahnTops k of
     [] -> Right k
     _ -> kahnIterate bt k >>= kahnRecurse bt
@@ -110,7 +110,7 @@ kahnIterate :: (BinOrientation, TpltAddr) -> Kahn
 kahnIterate _ k@(Kahn _ [] _) =
   Right k
 kahnIterate (bo,t) (Kahn r (top:tops) acc) =
-  prefixLeft "kahnIterate: " $ do
+  prefixLeft "kahnIterate:" $ do
   jus :: Set Addr <- justUnders (bo,t) r top
   r1 :: Rslt <- deleteHostsThenDelete top r
   newTops :: [Addr] <- allTops r1 (bo,t) $
@@ -122,7 +122,7 @@ kahnIterate (bo,t) (Kahn r (top:tops) acc) =
 allRelsInvolvingTplts ::
   Rslt -> [TpltAddr] -> Either String (Set RelAddr)
 allRelsInvolvingTplts r ts =
-  prefixLeft "allRelsInvolvingTplts: " $ do
+  prefixLeft "allRelsInvolvingTplts:" $ do
   hostRels :: [Set (Role, RelAddr)] <-
     ifLefts $ map (isIn r) ts
   Right $ S.unions $
@@ -135,7 +135,7 @@ allRelsInvolvingTplts r ts =
 allNormalMembers ::
   Rslt -> [RelAddr] -> Either String [RelAddr]
 allNormalMembers r rels =
-  prefixLeft "allNormalMembers: " $ do
+  prefixLeft "allNormalMembers:" $ do
   members :: [Map Role Addr] <-
     ifLefts $ map (has r) rels
   Right $ concatMap
@@ -150,7 +150,7 @@ restrictRsltForSort ::
   -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
   -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
 restrictRsltForSort es ts r =
-  prefixLeft "restrictRsltForSort: " $ do
+  prefixLeft "restrictRsltForSort:" $ do
   rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
   mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
   let refExprs = M.restrictKeys (_addrToRefExpr r) $
@@ -170,7 +170,7 @@ restrictRsltForSort es ts r =
 allExprsButTpltsOrRelsUsingThem ::
   Rslt -> [TpltAddr] -> Either String (Set Addr)
 allExprsButTpltsOrRelsUsingThem r ts =
-  prefixLeft "allExprsButTpltsOrRelsUsingThem: " $ do
+  prefixLeft "allExprsButTpltsOrRelsUsingThem:" $ do
   let as :: Set Addr =
         S.fromList $ M.keys $ _addrToRefExpr r
   tsUsers :: Set Addr <-
@@ -190,7 +190,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
 isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
         -> Either String Bool
 isTop r (ort,t) a =
-  prefixLeft "isTop: " $ do
+  prefixLeft "isTop:" $ do
   let roleIfLesser = case ort of
         RightFirst  -> RoleInRel' $ RoleMember 2
         LeftFirst -> RoleInRel' $ RoleMember 1
@@ -204,7 +204,7 @@ allTops :: Rslt
         -> [Addr] -- ^ candidates
         -> Either String [Addr]
 allTops r (bo,t) as =
-  prefixLeft "allTops: " $ do
+  prefixLeft "allTops:" $ do
   let withIsTop :: Addr -> Either String (Bool, Addr)
       withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
@@ -223,7 +223,7 @@ justUnders (bo,t) r a = let
       [ ( RoleInRel' RoleTplt,          HExpr $ Addr t),
         ( RoleInRel' $ RoleMember bigger, HExpr $ Addr a ) ]
     in HEval rel [[RoleMember smaller]]
-  in prefixLeft "justUnders: " $
+  in prefixLeft "justUnders:" $
      hExprToAddrs r mempty h
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
@@ -231,7 +231,7 @@ justUnders (bo,t) r a = let
 deleteHostsThenDelete ::
   Addr -> Rslt -> Either String Rslt
 deleteHostsThenDelete a r =
-  prefixLeft "deleteHostsThenDelete: " $ do
+  prefixLeft "deleteHostsThenDelete:" $ do
   hosts :: Set Addr <-
     S.map snd <$> isIn r a
   r1 <- foldM (flip delete) r hosts

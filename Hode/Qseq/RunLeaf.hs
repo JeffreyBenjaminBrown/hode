@@ -22,7 +22,7 @@ runVarTest p sp s t = (varTestFunction t) sp p s
 runFind :: forall e sp.
            sp -> Subst e -> Find e sp -> Either String (CondElts e)
 runFind sp s (Find find deps) = do
-  (found :: Set e) <- prefixLeft "-> runFind: " $ find sp s
+  (found :: Set e) <- prefixLeft "runFind:" $ find sp s
   let used = M.restrictKeys s deps :: Subst e
   Right $ M.fromSet (const $ S.singleton used) found
 
@@ -30,14 +30,14 @@ runTestOnElt :: forall e sp.
                 sp -> Subst e -> Test e sp -> e
              -> Either String (Bool, Subst e)
 runTestOnElt sp s (Test test deps) e = do
-  (passes :: Bool) <- prefixLeft "-> runTestOnElt: " $ test sp s e
+  (passes :: Bool) <- prefixLeft "runTestOnElt:" $ test sp s e
   let used = M.restrictKeys s deps :: Subst e
   Right (passes, used)
 
 runTest :: forall e sp. Ord e
         => sp -> Subst e -> Test e sp -> CondElts e
         -> Either String (CondElts e)
-runTest sp s0 q ce = prefixLeft "-> runTest: " $ do
+runTest sp s0 q ce = prefixLeft "runTest:" $ do
   (passed :: Map e (Bool, Subst e)) <-
     (<$>) (M.filter fst)
     $ ifLefts_map

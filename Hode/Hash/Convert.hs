@@ -42,7 +42,7 @@ import Hode.Util.Misc
 -- the outer joint on that side of the corresponding HExpr should be null.
 
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
-pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
+pRelToHExpr r = prefixLeft "pRelToHExpr:" . para f where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
   f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
@@ -94,7 +94,7 @@ pRelToHExpr r = prefixLeft "pRelToHExpr: " . para f where
 --    go _ = error "todo: even more"
 
 pExprToHExpr :: Rslt -> PExpr -> Either String HExpr
-pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
+pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
   px@(pExprIsSpecific -> False) ->
     Left $ show px ++ " is not specific enough."
 
@@ -168,7 +168,7 @@ pExprToHExpr r = prefixLeft "-> pExprToHExpr" . \case
 
 
 pMapToHMap :: Rslt -> PMap -> Either String HMap
-pMapToHMap r = prefixLeft "pMapToHMap: "
+pMapToHMap r = prefixLeft "pMapToHMap:"
   . ifLefts_map
   . M.map (pExprToHExpr r)
   . M.filter pExprIsSpecific
@@ -196,7 +196,7 @@ roleToRoleInRel p = Left $ "roleToRoleInRel: Role " ++ show p ++
                     " is not a RoleInRel."
 
 pathsToIts_sub_pExpr :: PExpr -> Either String [RelPath]
-pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
+pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
 
   f :: Base PExpr (PExpr, Either String [RelPath])
     -> Either String [RelPath]
@@ -223,7 +223,7 @@ pathsToIts_sub_pExpr = prefixLeft "-> pathsToIts_sub_pExpr" . para f where
   f (PRelF pr)       = pathsToIts_sub_pRel pr
 
 pathsToIts_sub_pRel :: PRel -> Either String [RelPath]
-pathsToIts_sub_pRel = prefixLeft "-> pathsToIts_sub_pRel" . cata f where
+pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel:" . cata f where
   f :: Base PRel (Either String [RelPath])
     -> Either String [RelPath]
   f AbsentF         = Right []

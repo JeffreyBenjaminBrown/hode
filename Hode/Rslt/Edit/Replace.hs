@@ -26,7 +26,7 @@ import Hode.Rslt.Edit.Initial
 
 replaceInRole :: Role -> Addr -> HostAddr -> Rslt -> Either String Rslt
 replaceInRole spot new host r =
-  prefixLeft "replaceInRole: " $ do
+  prefixLeft "replaceInRole:" $ do
   _                          <- addrToRefExpr r new
   oldHostRefExpr             <- addrToRefExpr r host
   (hostHas :: Map Role Addr) <- has r host
@@ -62,7 +62,7 @@ replaceInRole spot new host r =
 -- and substitutes the new one for the old one everywhere it appeared.
 replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
 replaceRefExpr re oldAddr r0 =
-  prefixLeft "replace: " $
+  prefixLeft "replace:" $
   case refExprToAddr r0 re of
     Right newAddr -> do
       r2 <- _substitute newAddr oldAddr r0
@@ -78,7 +78,7 @@ replaceRefExpr re oldAddr r0 =
 -- in every host that used to hold `old`.
 _substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 _substitute new old r0 =
-  prefixLeft "_substitute: " $ do
+  prefixLeft "_substitute:" $ do
   (roles :: Set (Role, Addr)) <- isIn r0 old
   let f :: Either String Rslt -> (Role, Addr) -> Either String Rslt
       f e@(Left _) _ = e

@@ -54,7 +54,7 @@ makeLenses ''St
 bufferRow_from_viewExprNode'
   :: St -> ViewExprNode -> Either String BufferRow
 bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
-  prefixLeft "bufferRow_from_viewExprNode': " $ do
+  prefixLeft "bufferRow_from_viewExprNode':" $ do
   let r = st ^. appRslt
       hs = st ^. columnHExprs
       sub :: Map Var Addr =

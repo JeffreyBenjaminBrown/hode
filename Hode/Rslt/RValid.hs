@@ -46,7 +46,7 @@ verifyVariety r a (mc,ma) = do
 
 validExpr :: Rslt -> Expr -> Either String ()
 validExpr r =
-  prefixLeft "validExpr: " . para f where
+  prefixLeft "validExpr:" . para f where
   f :: Base Expr (Expr, Either String ()) -> Either String ()
   f (AddrF a)   = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
@@ -76,7 +76,7 @@ validExpr r =
 
 validRefExpr :: Rslt -> RefExpr -> Either String ()
 validRefExpr r e =
-  prefixLeft "validRefExpr: " $
+  prefixLeft "validRefExpr:" $
   validTplt r e >>
   refExprRefsExist r e
 
@@ -85,7 +85,7 @@ validRefExpr r e =
 -- has the right Arity.
 validTplt :: Rslt -> RefExpr -> Either String ()
 validTplt r (Rel' (Rel aMembers aTplt)) =
-  prefixLeft "validTplt: " $ do
+  prefixLeft "validTplt:" $ do
     (ctr,ar) <- variety r aTplt
     if ctr == TpltCtr        then Right ()
       else Left $ "expr at " ++ show aTplt ++ " not a Tplt.\n"
@@ -98,7 +98,7 @@ validTplt _ _ = Right ()
 
 refExprRefsExist :: Rslt -> RefExpr -> Either String ()
 refExprRefsExist r e =
-  prefixLeft "refExprRefsExist: " $ let
+  prefixLeft "refExprRefsExist:" $ let
   f :: [Addr] -> Either String ()
   f as = case allAddrsPresent r as of
     Right () -> Right ()
@@ -113,7 +113,7 @@ refExprRefsExist r e =
 
 validRslt :: Rslt -> Either String ()
 validRslt r =
-  prefixLeft "validRslt: " $ do
+  prefixLeft "validRslt:" $ do
   let unmatched = relsWithoutMatchingTplts r
       in if null unmatched then Right ()
          else Left $ "rels without matching Tplts:\n"
@@ -167,6 +167,6 @@ relsWithoutMatchingTplts r =
 
 allAddrsPresent :: Rslt -> [Addr] -> Either String ()
 allAddrsPresent r as =
-  prefixLeft "allAddrsPresent: "
+  prefixLeft "allAddrsPresent:"
   $ void (ifLefts $ map (addrToRefExpr r) as)
   >> Right ()

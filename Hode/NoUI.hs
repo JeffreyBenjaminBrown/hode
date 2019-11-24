@@ -87,7 +87,7 @@ nShowRsltIO r = either putStrLn (mapM_ putStrLn) $
 -- | = edit: insert
 
 nInsert :: Rslt -> String -> Either String (Rslt, [Aged Addr])
-nInsert r s = prefixLeft "nInsert: " $
+nInsert r s = prefixLeft "nInsert:" $
               nExpr r s >>= exprToAddrInsert r
 
 nInsert' :: Rslt -> String -> Either String Rslt
@@ -101,18 +101,18 @@ nInserts r ss = foldM nInsert' r ss
 -- | = edit: other
 
 nDelete :: Rslt -> String -> Either String Rslt
-nDelete r s = prefixLeft "nDelete: " $
+nDelete r s = prefixLeft "nDelete:" $
               nExpr r s >>= exprToAddr r >>= flip delete r
 
 nReplace :: Rslt -> Addr -> String -> Either String Rslt
 nReplace r a s =
-  prefixLeft "nReplace: " $ do e <- nExpr r s
+  prefixLeft "nReplace:" $ do e <- nExpr r s
                                replaceExpr a e r
 
 nReplaceInRole :: Rslt -> Role -> Addr -> String
                -> Either String Rslt
 nReplaceInRole r role host new =
-  prefixLeft "nReplaceInRole: " $ do
+  prefixLeft "nReplaceInRole:" $ do
   new' <- nExpr r new >>= exprToAddr r
   replaceInRole role new' host r
 

@@ -77,20 +77,20 @@ _replaceInRefExpr r spot new host = let
               ++ " in " ++ show re ++ "."
 
   in
-  prefixLeft "_replaceInRefExpr: " $ do
+  prefixLeft "_replaceInRefExpr:" $ do
   void $ addrToRefExpr r new
   f spot host
 
 insert :: RefExpr -> Rslt -> Either String Rslt
 insert e r =
-  prefixLeft "insert: " $ do
+  prefixLeft "insert:" $ do
   a <- nextAddr r
   insertAt a e r
 
 -- | like `insert`, but specifying which `Addr` to give the new expression
 insertAt :: Addr -> RefExpr -> Rslt -> Either String Rslt
 insertAt a e r =
-  prefixLeft "insertAt: " $ do
+  prefixLeft "insertAt:" $ do
   void $ validRefExpr r e
   let errMsg = "Addr " ++ show a ++ " already occupied.\n"
       in void $ either Right (const $ Left errMsg)
@@ -113,7 +113,7 @@ _insert a e r = Rslt {
 
 deleteIfUnused :: Addr -> Rslt -> Either String Rslt
 deleteIfUnused a r =
-  prefixLeft "deleteIfUnused: " $ do
+  prefixLeft "deleteIfUnused:" $ do
   users <- isIn r a
   if null users
     then _deleteInternalMentionsOf a r
@@ -126,7 +126,7 @@ deleteIfUnused a r =
 -- or "the thing" (hence "internal" mentions), but not the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r =
-  prefixLeft "_deleteInternalMentionsOf" $ do
+  prefixLeft "_deleteInternalMentionsOf:" $ do
   (aHas       ::           Map Role Addr) <- has r a
   let (_has2  :: Map Addr (Map Role Addr)) = M.delete a $ _has r
       (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r

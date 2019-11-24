@@ -73,7 +73,7 @@ pathInBounds vt (p:ps) = let vs = vt ^. vTrees
 
 vathInBounds :: Vorest a -> Vath -> Either String ()
 vathInBounds vor (i,p) = do
-  prefixLeft "vathInBounds" $ inBounds' vor i
+  prefixLeft "vathInBounds:" $ inBounds' vor i
   pathInBounds (vor V.! i) p
 
 atPath :: Path -> Traversal' (VTree a) (VTree a)
@@ -85,7 +85,7 @@ atVath :: Vath -> Traversal' (Vorest a) (VTree a)
 atVath (i,p) = from vector . ix i . atPath p
 
 consUnderFocus :: Path -> VTree a -> VTree a -> Either String (VTree a)
-consUnderFocus p new host = prefixLeft "consAtFocus" $ do
+consUnderFocus p new host = prefixLeft "consAtFocus:" $ do
   _ <- pathInBounds host p
   Right $ host & atPath p . vTrees %~ V.cons new
 
@@ -94,7 +94,7 @@ moveFocusInTree :: Direction -> (Path, VTree a)
 moveFocusInTree DirUp p@([],_) = Right p
 moveFocusInTree DirUp (p,a)    = Right (f p, a)
   where f = reverse . tail . reverse
-moveFocusInTree DirDown (p,a) = prefixLeft "moveFocusInTree" $ do
+moveFocusInTree DirDown (p,a) = prefixLeft "moveFocusInTree:" $ do
   foc <- let err = "bad focus " ++ show p
          in maybe (Left err) Right
             $ a ^? atPath p
@@ -133,7 +133,7 @@ moveFocusInTree DirNext (p,a) = do
 moveFocusInVorest :: forall a. Direction -> (Vath, Vorest a)
                            -> Either String (Vath, Vorest a)
 moveFocusInVorest DirUp ((i,[]),vor) = Right ((i,[]),vor)
-moveFocusInVorest DirDown ((i,[]),vor) = prefixLeft "moveFocusInVorest" $ do
+moveFocusInVorest DirDown ((i,[]),vor) = prefixLeft "moveFocusInVorest:" $ do
   inBounds' vor i
   let j = (vor V.! i) ^. vTreeFocalChild
   Right ((i,[j]),vor)
@@ -141,7 +141,7 @@ moveFocusInVorest DirPrev ((i,[]),vor) = Right ((i',[]),vor) where
   i' = max (i-1) 0
 moveFocusInVorest DirNext ((i,[]),vor) = Right ((i',[]),vor) where
   i' = min (i+1) $ V.length vor - 1
-moveFocusInVorest d ((i,p),vor) = prefixLeft "moveFocusInVorest" $ do
+moveFocusInVorest d ((i,p),vor) = prefixLeft "moveFocusInVorest:" $ do
   -- TODO : simplify via liftEitherIntoTraversal
   -- (where the traversal is something like `from vector . ix i`)
   inBounds' vor i

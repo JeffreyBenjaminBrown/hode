@@ -45,7 +45,7 @@ reconcileDetsAcrossVars :: forall e. (Ord e, Show e)
                         => Possible e -> Subst e -> Set Var
                         -> Either String (Set (Subst e))
 reconcileDetsAcrossVars p s dets =
-  prefixLeft "-> reconcileDetsAcrossVars: " $
+  prefixLeft "reconcileDetsAcrossVars:" $
   case null dets of
     True -> Left $ "reconcileDetsAcrossVars: empty 'dets' argument.\n"
     False -> do (se :: Set (Set (Subst e))) <-

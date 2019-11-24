@@ -35,7 +35,7 @@ usesNoSourceBeforeItExists vqs = case null bad of
     in (S.insert v defined, S.union badAcc moreBad)
 
 validQuery :: Query e sp -> Either String ()
-validQuery q = prefixLeft "-> validQuery" $ do
+validQuery q = prefixLeft "validQuery:" $ do
   usesOnlyIntroducedVars q
   conditionIsVarTestlike q
   noIntroducedVarMasked q
@@ -136,7 +136,7 @@ conditionIsVarTestlike _ = Right ()
 -- | A Var can only be used (by a Test, VarTest or Find)
 -- if it has first been introduced by a ForAll or a ForSome.
 usesOnlyIntroducedVars :: Query e sp -> Either String ()
-usesOnlyIntroducedVars q0 = prefixLeft "-> usesOnlyIntroducedVars: "
+usesOnlyIntroducedVars q0 = prefixLeft "usesOnlyIntroducedVars:"
                             $ f S.empty q0 where
   f :: Set Var -> Query e sp -> Either String ()
   -- The `Set Var` is those Vars that have been introduced so far --

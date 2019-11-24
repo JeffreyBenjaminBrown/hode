@@ -42,7 +42,7 @@ import Util.VTree
 -- TODO ? some clever `Traversal` work could probably make
 -- `moveFocusedViewExprNode` into a one-liner
 moveFocusedViewExprNode :: Direction -> St -> Either String St
-moveFocusedViewExprNode d st = prefixLeft "moveFocusedViewExprNode" $ do
+moveFocusedViewExprNode d st = prefixLeft "moveFocusedViewExprNode:" $ do
   b <- maybe (Left "Bad vathToBuffer in St.") Right
     $ st ^? stBuffer st
   (p :: Path, vt :: VTree ViewExprNode) <- moveFocusInTree d
@@ -51,7 +51,7 @@ moveFocusedViewExprNode d st = prefixLeft "moveFocusedViewExprNode" $ do
              & stBuffer st . bufferPath .~ p
 
 members_atFocus :: St -> Either String (MembersGroup, [Addr])
-members_atFocus st = prefixLeft "members_atFocus" $ do
+members_atFocus st = prefixLeft "members_atFocus:" $ do
   (b :: Buffer) <- let msg = "bad vathToBuffer"
     in maybe (Left msg) Right $ st ^? stBuffer st
   let (viewPath :: Path) = b ^. bufferPath
@@ -64,7 +64,7 @@ members_atFocus st = prefixLeft "members_atFocus" $ do
   Right ( MembersGroup a, as )
 
 insertMembers_atFocus :: St -> Either String St
-insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
+insertMembers_atFocus st = prefixLeft "insertMembers_atFocus:" $ do
   ((ms,as) :: (MembersGroup, [Addr])) <- members_atFocus st
   let (topOfNew :: VTree ViewExprNode) = vTreeLeaf $ VMemberGroup ms
   (leavesOfNew :: [VTree ViewExprNode]) <- map (vTreeLeaf . VExpr)
@@ -77,7 +77,7 @@ insertMembers_atFocus st = prefixLeft "insertMembers_atFocus" $ do
   Right $ st & stBuffer st . bufferView .~ vt'
 
 groupHostRels_atFocus :: St -> Either String [(ViewCenterRole, [Addr])]
-groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
+groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus':" $ do
   let noBufferMsg = Left "Cannot be done when there is no buffer."
   (top :: VTree ViewExprNode) <- maybe noBufferMsg Right
     $ st ^? stBuffer st . bufferView
@@ -91,7 +91,7 @@ groupHostRels_atFocus st = prefixLeft "groupHostRels_atFocus'" $ do
   groupHostRels (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
-insertHosts_atFocus st = prefixLeft "insertHosts_atFocus" $ do
+insertHosts_atFocus st = prefixLeft "insertHosts_atFocus:" $ do
   (groups :: [(ViewCenterRole, [Addr])]) <-
     groupHostRels_atFocus st
   (newTrees :: [VTree ViewExprNode]) <- ifLefts ""
@@ -115,7 +115,7 @@ hostRelGroup_to_view r (crv, as) = do
                     V.fromList $ map (vTreeLeaf . VExpr) rs }
 
 closeSubviews_atFocus :: St -> Either String St
-closeSubviews_atFocus st = st & prefixLeft "closeSubviews_atFocus"
+closeSubviews_atFocus st = st & prefixLeft "closeSubviews_atFocus:"
   . eitherIntoTraversal (stBuffer st) go where
 
   go :: Buffer -> Either String Buffer

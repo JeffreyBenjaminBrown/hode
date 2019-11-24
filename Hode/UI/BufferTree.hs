@@ -24,7 +24,7 @@ import Hode.PTree.Initial
 
 cons_focusedViewExpr_asChildOfBuffer :: St -> Either String St
 cons_focusedViewExpr_asChildOfBuffer st =
-  prefixLeft "cons_focusedViewExpr_asChild" $ do
+  prefixLeft "cons_focusedViewExpr_asChild:" $ do
   b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st ^. stGetFocused_Buffer
   (ptbr :: PTree BufferRow) <-

@@ -124,8 +124,8 @@ mkVTestCompare compare eev eev' = VarTest go deps where
 
   go :: sp -> Possible e -> Subst e -> Either String Bool
   go _ _ s = do
-    (e  :: e) <- prefixLeft "mkVTestCompare" $ either_varToElt s eev
-    (e' :: e) <- prefixLeft "mkVTestCompare" $ either_varToElt s eev'
+    (e  :: e) <- prefixLeft "mkVTestCompare:" $ either_varToElt s eev
+    (e' :: e) <- prefixLeft "mkVTestCompare:" $ either_varToElt s eev'
     Right $ compare e e'
 
 

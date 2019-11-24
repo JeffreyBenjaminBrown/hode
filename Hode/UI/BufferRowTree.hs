@@ -169,7 +169,7 @@ groupHostRels r a0 =
 hostGroup_to_forkTree :: St -> (HostFork, [Addr])
                       -> Either String (PTree BufferRow)
 hostGroup_to_forkTree st (hf, as) =
-  prefixLeft "-> hostGroup_to_forkTree" $ do
+  prefixLeft "hostGroup_to_forkTree:" $ do
   if null as then Left "There are no host Exprs to show."
              else Right ()
   let mustBeOkay = "Impossible: `as` is nonempty, "

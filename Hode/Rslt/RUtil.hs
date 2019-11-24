@@ -32,7 +32,7 @@ import Hode.Util.Misc
 
 instance LeftStrings Rel where
   ifLefts (Rel es e) =
-    prefixLeft "ifLefts_rel: " $
+    prefixLeft "ifLefts_rel:" $
     let lefts = filter isLeft $ e : es
         fr = fromRight $ error "impossible"
         fl = fromLeft $ error "impossible"
@@ -42,7 +42,7 @@ instance LeftStrings Rel where
 
 instance LeftStrings Tplt where
   ifLefts (Tplt fore mids aft) =
-    prefixLeft "ifLefts_tplt: " $
+    prefixLeft "ifLefts_tplt:" $
     let as = maybeToList fore ++ mids ++ maybeToList aft
         lefts = filter isLeft as
         fr = fromRight $ error "impossible"
@@ -172,4 +172,4 @@ maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _addrToRefExpr
   where errMsg = Left $ "maxAddr: empty Rslt.\n"
 
 nextAddr :: Rslt -> Either String Addr
-nextAddr r = (+1) <$> prefixLeft "nextAddr" (maxAddr r)
+nextAddr r = (+1) <$> prefixLeft "nextAddr:" (maxAddr r)
