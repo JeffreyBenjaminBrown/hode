@@ -40,13 +40,13 @@ pCommand r s =
 
 pCommand_insert :: Rslt -> String -> Either String Command
 pCommand_insert r s = CommandInsert <$>
-  prefixLeft "pCommand_insert"
+  prefixLeft "pCommand_insert:"
   ( mapLeft show (parse _pHashExpr "UI.Input.IParse error 1" s)
     >>= pExprToHExpr r
     >>= hExprToExpr r )
 
 pCommand_replace :: Rslt -> String -> Either String Command
-pCommand_replace r s = prefixLeft "pCommand_replace" $ do
+pCommand_replace r s = prefixLeft "pCommand_replace:" $ do
   (a,px) <- let p :: Parser (Addr, PExpr)
                 p = do a <- fromIntegral <$> integer
                        px <- _pHashExpr
@@ -56,7 +56,7 @@ pCommand_replace r s = prefixLeft "pCommand_replace" $ do
   Right $ CommandReplace a e
 
 pCommand_delete :: String -> Either String Command
-pCommand_delete s = prefixLeft "pCommand_delete" $ do
+pCommand_delete s = prefixLeft "pCommand_delete:" $ do
   a <- let p = fromIntegral <$> integer
        in mapLeft show $ parse p "UI.Input.IParse error 3" s
   Right $ CommandDelete a
@@ -67,7 +67,7 @@ pCommand_delete s = prefixLeft "pCommand_delete" $ do
 pCommand_find :: Rslt -> String -> Either String Command
 -- PITFALL: Don't add an implicit Eval at the top of every search parsed in
 -- the UI, because an Eval will return nothing if there are no Its below.
-pCommand_find r s = prefixLeft "pCommand_find:" $ do
+pCommand_find r s = prefixLeft "pCommand_find::" $ do
   (e1 :: PExpr) <- mapLeft show (parse _pHashExpr "UI.Input.IParse error 4" s)
   CommandFind s <$> pExprToHExpr r e1
 
@@ -97,10 +97,10 @@ pCommand_sort bo r s =
 
 pCommand_load :: String -> Either String Command
 pCommand_load s = CommandLoad <$>
-  ( prefixLeft "pCommand_load"
+  ( prefixLeft "pCommand_load:"
     $ mapLeft show (parse filepath "UI.Input.IParse error 6" s) )
 
 pCommand_save :: String -> Either String Command
 pCommand_save s = CommandSave <$>
-  ( prefixLeft "pCommand_save"
+  ( prefixLeft "pCommand_save:"
     $ mapLeft show (parse filepath "UI.Input.IParse error 7" s) )

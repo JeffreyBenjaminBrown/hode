@@ -3,7 +3,26 @@ https://github.com/commercialhaskell/stack/issues/5037
 This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
+* backup the data repo
 * TODO user-friendliness
+** TODO HExpr: add "involves"
+*** the current (slow, incomplete) hack
+**** what it is
+Use an HMap that looks for whether the known thing is the template or the 1st, 2nd, 3rd member of the search target. This is the default column shown in the Results buffers.
+**** why it's not great
+It checks for things redundantly.
+It would miss any members of an arity-4 relationship (if they existed).
+*** what it means
+A Tplt involves all its joints.
+A Rel involves its template and all its members.
+*** PITFALL : Involves does not play nicely with pathsToIts
+Even the Involves that only goes 1 layer deep is confusing.
+Once it is implemented, Paths needs to not be integers lists;
+they will have to be lists of (Integer | Wildcard),
+where a Wildcard stands for "any number could go here".
+** TODO HExpr: add "involves-recursive"
+** TODO how to delete a buffer
+** TODO searching for OR should not fail if some terms do
 ** TODO folding indicator
 Or at least, upon inserting contents, unfold.
 ** TODO if a group has only one member, omit the group
@@ -423,23 +442,6 @@ topological sort
 ***** The functions in Hash.HLookup deserve complication for transitivity.
  Hash, after all, is the query language,
  and in that language transitive search is a distinct concept.
-** TODO HExpr: add a symbol for "involves"
-*** the current (slow, incomplete) hack
-**** what it is
-Use an HMap that looks for whether the known thing is the template or the 1st, 2nd, 3rd member of the search target. This is the default column shown in the Results buffers.
-**** why it's not great
-It checks for things redundantly.
-It would miss any members of an arity-4 relationship (if they existed).
-*** what it means
-A Tplt involves all its joints.
-A Rel involves its template and all its members.
-*** PITFALL : Involves does not play nicely with pathsToIts
-Even the Involves that only goes 1 layer deep is confusing.
-Once it is implemented, Paths need to not be integers lists;
-they will have to be lists of (Integer | Wildcard),
-where a Wildcard stands for "any number could go here".
-*** Add involves*
-
 ** (#fast) isIn ought to return two maps, not a set
 a map from Role to Set Addr
    because the item in question often holds the same Role in multiple Exprs
