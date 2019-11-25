@@ -1,0 +1,1 @@
+Hode requires a stack.yaml file in its top directory. If you run Nix, copy nix.yaml to the top of the file tree, and rename it to stack.yaml. If you use any other system, do that to default.yaml instead of nix.yaml.

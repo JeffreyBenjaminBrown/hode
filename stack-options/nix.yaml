@@ -1,3 +1,5 @@
+# Make this your stack.yaml file if you use NixOS.
+
 nix:
   enable: true
   packages: [xsel]

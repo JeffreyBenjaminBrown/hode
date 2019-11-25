@@ -1,9 +1,9 @@
-bugs-in-ghc-and-gitlab/
 .emacs.desktop*
 _hiding
 debug
 git-comment.txt
 .stack-work/
+stack.yaml
 stack.yaml.lock
 *~
 jbb

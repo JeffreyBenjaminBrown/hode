@@ -1,0 +1,33 @@
+# Make this your stack.yaml file if you use anything but NixOS.
+
+resolver: nightly-2019-03-09 # works!
+  # GHC 8.6.4
+
+# resolver: lts-14.12
+  # works on Ubuntu system, but not on Nix
+  # GHC 8.6.5
+
+# resolver: nightly-2019-10-30
+  # doesn't even work (with these dependencies) on the Ubuntu system.
+  # (A project with no dependencies works fine.)
+
+###
+### Other configurations, past and maybe future
+###
+
+  # 2019-02-09  # worked before (on Ubuntu 18.04),
+                # but Nix complains it has no ghc863
+
+  # 2019-05-09  # all kinds of errors
+
+  # lts-14.1    # cannot open shared object file: doesn't exist
+
+  # Reports no error but hangs.
+    # Also not yet recommended: Stack has not been tested with GHC 8.8
+    # (However, in a fresh stack project with no dependencies,
+    # this resolver works fine.)
+    #
+    # resolver: nightly-2019-10-26
+    # extra-deps:
+    #   - brick-0.50@sha256:c06764c6471f982283d68757dbbf6ab6c75a7e86dd9ca93d3abad7e9c89b766a,14378
+    #   - vty-5.26@sha256:7b1aeebff12d9c8ad43fe997ee0e29cd651eff2d5a0aeceeb9df2ee68efe9c53,20307
