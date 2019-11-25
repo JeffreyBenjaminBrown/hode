@@ -1,3 +1,7 @@
+nix:
+  enable: true
+  packages: [xsel]
+
 resolver: nightly-2019-03-09 # works!
   # GHC 8.6.4
 

@@ -169,7 +169,7 @@ instance ShowBrief ViewExprNode where
   showBrief (VQuery vq) = vq
   showBrief (VExpr x) =
     show (x ^. viewExpr_Addr) ++ ": "
-    ++ show (x ^. viewExpr_String)
+    ++ unColorString (x ^. viewExpr_String)
   showBrief (VMemberFork _) = "its members"
   showBrief (VHostFork (RelHostFork  x)) = show x
   showBrief (VHostFork (TpltHostFork x)) = show x

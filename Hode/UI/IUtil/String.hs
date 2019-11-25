@@ -28,10 +28,10 @@ focusedBufferStrings st =
       bufferRowPorest . _Just
 
   go :: Int -> PTree BufferRow -> [String]
-  go i tv = indent ( showBrief $
-                     tv ^. pTreeLabel . viewExprNode )
+  go i tbr = indent ( showBrief $
+                      tbr ^. pTreeLabel . viewExprNode )
             : concatMap (go $ i+1)
-            (maybe [] id $ toList <$> tv ^. pMTrees)
+            (maybe [] id $ toList <$> tbr ^. pMTrees)
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s
 

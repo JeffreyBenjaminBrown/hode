@@ -5,6 +5,16 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO user-friendliness
+** TODO copy to clipboard
+It represents newlines the wrong way.
+PITFALL: Might be okay on Ubuntu.
+** TODO toggle show addresses
+** TODO shortcut: copy address
+** TODO toggle showAsAddr
+Sometimes you might want to see the full expression -- particularly after nesting.
+
+Maybe for the whole page, maybe for the focused node.
+** TODO ? multi-line expressions
 ** TODO HExpr: add "involves"
 *** the current (slow, incomplete) hack
 **** what it is
@@ -21,22 +31,19 @@ Once it is implemented, Paths needs to not be integers lists;
 they will have to be lists of (Integer | Wildcard),
 where a Wildcard stands for "any number could go here".
 ** TODO HExpr: add "involves-recursive"
-** TODO how to delete a buffer
+** TODO delete from a PTree (esp. a PTree Buffer)
+Not delete children.
+Introduce a mark for tree nodes of which some but not all children are shown.
 ** TODO searching for OR should not fail if some terms do
 ** TODO folding indicator
 Or at least, upon inserting contents, unfold.
 ** TODO if a group has only one member, omit the group
 ** TODO upon save, delete unused phrases and templates
+** TODO ? offer to delete orphaned nodes
+If a member of something deleted is not remember of anything else, ask whether to delete it, too -- and recurse.
 * TODO bugs
 ** todo ? distance to wrap should shrink with columns, indentation
 ** TODO if a joint includes space, it must be drawn in parens
-** TODO copy to clipboard: broken on Nix
-I see this in the ui:
-  Results window copied to clipboard.
-  /bin/sh: xsel: command not found
-On my system there's no such folder, and xsel is here:
-  [jeff@jbb-dell:~]$ which xsel
-  /run/current-system/sw/bin/xsel
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
@@ -451,6 +458,39 @@ a map from Addr to Set Role
 ** ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive.
 It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
+* TODO save disk space w/ multi-line files
+** demonstrating the problem: one-file-per-statement is wasteful
+[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ ls
+0.rslt   21.rslt  30.rslt  41.rslt  4.rslt   58.rslt  66.rslt  74.rslt  87.rslt  9.rslt
+11.rslt  22.rslt  32.rslt  42.rslt  50.rslt  59.rslt  67.rslt  75.rslt  88.rslt
+14.rslt  23.rslt  35.rslt  43.rslt  51.rslt  5.rslt   68.rslt  7.rslt   89.rslt
+15.rslt  24.rslt  36.rslt  44.rslt  52.rslt  60.rslt  69.rslt  80.rslt  8.rslt
+17.rslt  25.rslt  37.rslt  45.rslt  53.rslt  61.rslt  6.rslt   81.rslt  90.rslt
+18.rslt  26.rslt  38.rslt  46.rslt  54.rslt  62.rslt  70.rslt  83.rslt  91.rslt
+19.rslt  27.rslt  39.rslt  47.rslt  55.rslt  63.rslt  71.rslt  84.rslt  92.rslt
+1.rslt   28.rslt  3.rslt   48.rslt  56.rslt  64.rslt  72.rslt  85.rslt  93.rslt
+20.rslt  2.rslt   40.rslt  49.rslt  57.rslt  65.rslt  73.rslt  86.rslt  94.rslt
+
+[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ du -hs .
+332K    .
+
+[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ for i in *; do echo $i $(cat $i) >> test; done
+
+[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ du -hs test
+4,0K    test
+
+[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ head test
+0.rslt p ""
+
+11.rslt p "see"
+14.rslt r [9,15] 17)
+15.rslt p "https://github.com/commercialhaskell/stack/issues/5037"
+17.rslt t (Just 65) [11] Nothing)
+18.rslt p "is-a"
+19.rslt t Nothing [18] Nothing)
+1.rslt p "has-problem"
+20.rslt p "template haskell"
+21.rslt p "extension"
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.

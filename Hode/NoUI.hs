@@ -107,7 +107,7 @@ nDelete r s = prefixLeft "nDelete:" $
 nReplace :: Rslt -> Addr -> String -> Either String Rslt
 nReplace r a s =
   prefixLeft "nReplace:" $ do e <- nExpr r s
-                               replaceExpr a e r
+                              replaceExpr a e r
 
 nReplaceInRole :: Rslt -> Role -> Addr -> String
                -> Either String Rslt
