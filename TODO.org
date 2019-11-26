@@ -6,7 +6,10 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO user-friendliness
 ** TODO delete from a PTree (esp. a PTree Buffer)
-Not delete children.
+Not delete children, which is already implemented.
+*** in SearchBuffers, add a shortcut for itx
+and move the shortcut for "create child buffer"
+*** if deleting a PTree is possible from Results
 Introduce a mark for tree nodes of which some but not all children are shown.
 ** TODO HExpr: add "involves"
 *** the current (slow, incomplete) hack

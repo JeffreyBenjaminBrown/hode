@@ -157,6 +157,14 @@ hExprToAddrs r s (HMap m) =
     True  -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hcs
 
+hExprToAddrs r s (HMember h) =
+  prefixLeft "hExprToAddrs, called on HMember:" $ do
+  members :: Set Addr <- hExprToAddrs r s h
+  hosts :: Set Addr <-
+    (S.map snd) . S.unions <$>
+    ifLefts_set (S.map (isIn r) members)
+  Right hosts
+
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval:" $ do
     (hosts :: Set Addr) <-

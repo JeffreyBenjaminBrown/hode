@@ -35,6 +35,7 @@ hVars :: HExpr -> Set Var
 hVars = cata f where
   f :: Base HExpr (Set Var) -> Set Var
   f (HMapF m)           = S.unions $ M.elems m
+  f (HMemberF m)        = m
   f (HEvalF m _)        = m
   f (HVarF v)           = S.singleton v
   f (HExprF _)          = S.empty
