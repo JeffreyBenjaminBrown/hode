@@ -29,6 +29,7 @@ module Hode.Hash.HLookup (
                 -- -> Either String [Addr]
   ) where
 
+import           Data.Either
 import qualified Data.List      as L
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -87,9 +88,8 @@ hMatches r h0 a0 = prefixLeft "hMatches:" $ do
       bs :: [Bool] <- ifLefts $ map (\h -> hMatches r h a0) hs
       Right $ and bs
 
-    HOr hs -> do
-      bs :: [Bool] <- ifLefts $ map (\h -> hMatches r h a0) hs
-      Right $ or bs
+    HOr hs ->
+      Right $ or $ rights $ map (\h -> hMatches r h a0) hs
 
     HReach _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HReach"
     HTrans _ _ _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HTrans"
@@ -187,9 +187,12 @@ hExprToAddrs r s (HAnd hs) =
   <$> ifLefts (map (hExprToAddrs r s) hs )
 
 hExprToAddrs r s (HOr hs) =
-  prefixLeft "hExprToAddrs, called on HOr:"
-  $ foldr1 S.union
-  <$> ifLefts (map (hExprToAddrs r s) hs )
+  prefixLeft "hExprToAddrs, called on HOr:" $ do
+  let found :: [Set Addr] =
+        rights $ map (hExprToAddrs r s) hs
+  if null found
+    then Left $ "No matches."
+    else Right $ S.unions found
 
 hExprToAddrs r sub (HReach d ht hs) =
   prefixLeft "hExprToAddrs, called on HReach:" $ do
