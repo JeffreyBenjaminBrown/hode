@@ -46,3 +46,27 @@ mkViewExpr r vo as a =
   Right $ ViewExpr { _viewExpr_Addr = a
                    , _viewExpr_showAsAddrs = as
                    , _viewExpr_String = s }
+
+redraw_viewExpr_Strings
+  :: Rslt -> ViewOptions -> Buffer -> Either String Buffer
+redraw_viewExpr_Strings r vo b0 = let
+  redrawPorest :: Porest BufferRow -> Either String (Porest BufferRow)
+  redrawPorest = mapM redrawPTree
+  redrawPTree :: PTree BufferRow -> Either String (PTree BufferRow)
+  redrawPTree = mapM redrawSingle
+
+  redrawSingle :: BufferRow -> Either String BufferRow
+  redrawSingle br = case _viewExprNode br of
+    VExpr ve0 -> do
+      ve <- mkViewExpr r vo
+            (_viewExpr_showAsAddrs ve0)
+            (_viewExpr_Addr ve0)
+      Right $ br & viewExprNode .~ VExpr ve
+    _ -> Right br
+
+  in case _bufferRowPorest b0 of
+       Nothing -> Right b0
+       Just pbr0 -> do
+         pbr :: Porest BufferRow <-
+           redrawPorest pbr0
+         Right $ b0 { _bufferRowPorest = Just pbr }

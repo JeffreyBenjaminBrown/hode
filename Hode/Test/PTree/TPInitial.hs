@@ -75,10 +75,17 @@ test_map = TestCase $ do
     (PTree 1 True Nothing) ==
     PTree (1,"a") True Nothing
   assertBool "2-level PTree" $ fmap (+1)
-    (PTree 1 True $ P.fromList [PTree 2 True Nothing
-                               ,PTree 3 True Nothing]) ==
-    (PTree 2 True $ P.fromList [PTree 3 True Nothing
-                               ,PTree 4 True Nothing])
+    (PTree 1 True $ P.fromList [ PTree 2 True Nothing
+                               , PTree 3 True Nothing]) ==
+    (PTree 2 True $ P.fromList [ PTree 3 True Nothing
+                               , PTree 4 True Nothing])
+
+  assertBool "2-level PTree changing type" $ fmap (Right . (+1))
+    ( PTree 1 True $ P.fromList [ PTree 2 True Nothing
+                                , PTree 3 True Nothing]) ==
+    ( PTree (Right 2 :: Either String Int)
+      True $ P.fromList [ PTree (Right 3) True Nothing
+                        , PTree (Right 4) True Nothing])
 
   assertBool "flat Porest" $
     fmap ( fmap ( fmap (+1) ) )
