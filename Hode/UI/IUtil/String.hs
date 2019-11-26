@@ -3,6 +3,7 @@
 module Hode.UI.IUtil.String (
     focusedBufferStrings  -- ^ St -> [String]
   , mkViewExpr   -- ^ Rslt -> Addr -> Either String ViewExpr
+  , redraw_focusedBuffer -- ^ St -> Either String St
   ) where
 
 import           Data.Set (Set)
@@ -47,9 +48,21 @@ mkViewExpr r vo as a =
                    , _viewExpr_showAsAddrs = as
                    , _viewExpr_String = s }
 
+redraw_focusedBuffer :: St -> Either String St
+redraw_focusedBuffer st =
+  prefixLeft "redraw_focusedBuffer:" $ do
+  let r :: Rslt = st ^. appRslt
+      vo :: ViewOptions = st ^. viewOptions
+  case st ^. stGetFocused_Buffer of
+    Nothing -> Left "Focused buffer not found."
+    Just b0 -> do
+      b :: Buffer <- redraw_viewExpr_Strings r vo b0
+      Right $ st & stSetFocusedBuffer .~ b
+
 redraw_viewExpr_Strings
   :: Rslt -> ViewOptions -> Buffer -> Either String Buffer
-redraw_viewExpr_Strings r vo b0 = let
+redraw_viewExpr_Strings r vo b0 =
+  prefixLeft "redraw_viewExpr_Strings:" $ let
   redrawPorest :: Porest BufferRow -> Either String (Porest BufferRow)
   redrawPorest = mapM redrawPTree
   redrawPTree :: PTree BufferRow -> Either String (PTree BufferRow)

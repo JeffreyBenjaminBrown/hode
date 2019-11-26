@@ -90,7 +90,11 @@ handleKeyboard_atResultsWindow st ev =
 
   V.EvKey (V.KChar 'a') [V.MMeta] ->
     go $ (viewOptions . viewOpt_ShowAddresses %~ not)
-       . showReassurance "Toggled: show addresses to left of expressions."
+     . showReassurance "Toggled: show addresses to left of expressions."
+  V.EvKey (V.KChar 'A') [V.MMeta] ->
+    goe $ redraw_focusedBuffer
+     . showReassurance "Toggled: replace some already-stated expressions with their addresses."
+     . (viewOptions . viewOpt_ShowAsAddresses %~ not)
 
   V.EvKey (V.KChar 'b') [V.MMeta] ->
     goe cons_focusedViewExpr_asChildOfBuffer

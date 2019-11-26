@@ -5,7 +5,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO user-friendliness
-** TODO toggle showAsAddr
 ** TODO copy to clipboard: buggy on Nix
 On Nix it represents newlines the wrong way.
 ** TODO shortcut: copy address
