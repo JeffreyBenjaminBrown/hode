@@ -35,12 +35,14 @@ focusedBufferStrings st =
     where indent :: String -> String
           indent s = replicate (2*i) ' ' ++ s
 
-mkViewExpr :: Rslt -> Set Addr -> Addr
+mkViewExpr :: Rslt -> ViewOptions -> Set Addr -> Addr
            -> Either String ViewExpr
-mkViewExpr r as a =
+mkViewExpr r vo as a =
   prefixLeft "mkViewExpr:" $ do
   s :: ColorString <-
-    eParenShowColorAddr 3 r as a
+    let as' = if _viewOpt_ShowAsAddresses vo
+              then as else mempty
+    in eParenShowColorAddr 3 r as' a
   Right $ ViewExpr { _viewExpr_Addr = a
                    , _viewExpr_showAsAddrs = as
                    , _viewExpr_String = s }

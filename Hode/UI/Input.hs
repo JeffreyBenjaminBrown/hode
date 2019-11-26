@@ -89,7 +89,8 @@ handleKeyboard_atResultsWindow st ev =
   V.EvKey (V.KChar 'F') [V.MMeta] -> go foldSubviews_atFocus
 
   V.EvKey (V.KChar 'a') [V.MMeta] ->
-    go $ viewOptions . viewOpt_ShowAddresses %~ not
+    go $ (viewOptions . viewOpt_ShowAddresses %~ not)
+       . showReassurance "Toggled: show addresses to left of expressions."
 
   V.EvKey (V.KChar 'b') [V.MMeta] ->
     goe cons_focusedViewExpr_asChildOfBuffer
