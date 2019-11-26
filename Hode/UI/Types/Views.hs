@@ -196,7 +196,7 @@ instance ShowBrief ViewExprNode where
 instance ShowColor ViewOptions ViewExprNode where
   showColor vo (VExpr ve) =
     ( if _viewOpt_ShowAddresses vo
-      then [(show $ _viewExpr_Addr ve, AddrColor)]
+      then [(show (_viewExpr_Addr ve) ++ " ", AddrColor)]
       else [] )
     ++ _viewExpr_String ve
   showColor vo (VHostFork (RelHostFork r)) =
