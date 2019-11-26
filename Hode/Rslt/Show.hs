@@ -158,7 +158,8 @@ eParenShowInner shortCircuit ef0 =
     prefixLeft "g of Rel:" $ do
     ms1 :: [String] <- ifLefts $ map f ms0
     Tplt ml js mr :: Tplt String <-
-      (hash n <$>) <$> -- Tplt in Either => two fmaps
+      (hash n . parenJoint_ifIncludesSpace <$>) <$>
+        -- Tplt in Either => two fmaps
       ifLefts (fmap f t)
     Right $ concat $ L.intersperse " " $
       maybeToList ml ++ zip' ms1 js ++
@@ -166,3 +167,9 @@ eParenShowInner shortCircuit ef0 =
 
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
+
+parenJoint_ifIncludesSpace :: String -> String
+parenJoint_ifIncludesSpace s =
+  if not $ elem ' ' s
+  then s
+  else "(" ++ s ++ ")"

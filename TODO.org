@@ -6,7 +6,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO bugs
 ** TODO unary relationships are broken
-** TODO if a joint includes space, it must be drawn in parens
 ** todo ? distance to wrap should shrink with columns, indentation
 * TODO user-friendliness
 ** TODO delete from a PTree (esp. a PTree Buffer)
