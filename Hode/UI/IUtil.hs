@@ -53,6 +53,7 @@ emptySt r = St {
                    Nothing ""
   , _commandHistory = []
   , _appRslt        = r
+  , _viewOptions    = defaulViewOptions
   , _showingErrorWindow  = False
   , _showingInMainWindow = Results
   , _showingOptionalWindows = M.fromList [ (Commands   , True)

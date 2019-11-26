@@ -31,14 +31,14 @@ bufferWindow = let
     const False
   in porestToWidget name showColumns showNode getFolded
 
-resultWindow :: Buffer -> B.Widget BrickName
-resultWindow = let
+resultWindow :: ViewOptions -> Buffer -> B.Widget BrickName
+resultWindow vo = let
   name = BrickMainName Results
   showColumns :: BufferRow -> [ColorString] =
     map ((:[]) . (, TextColor) . show)
     . M.elems . _columnProps
   showNode :: BufferRow -> ColorString =
-    showColor . _viewExprNode
+    showColor vo . _viewExprNode
   getFolded :: BufferRow -> Bool =
     _folded . _otherProps
   in porestToWidget name showColumns showNode getFolded

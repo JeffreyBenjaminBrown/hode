@@ -1,5 +1,6 @@
 {-# LANGUAGE
 ScopedTypeVariables,
+MultiParamTypeClasses,
 TemplateHaskell,
 ViewPatterns
 #-}
@@ -17,6 +18,24 @@ import Hode.Rslt.Show
 import Hode.Rslt.ShowColor
 import Hode.Util.Misc
 
+
+data ViewOptions = ViewOptions
+  { _viewOpt_ShowAddresses :: Bool
+    -- ^ Whether to show its address next to each `Expr`.
+  , _viewOpt_ShowAsAddresses :: Bool
+    -- ^ Whether to reduce redundancy
+    -- by sometimes replacing an `Expr` with its address.
+  , _viewOpt_WrapLength :: Int }
+    -- ^ How many characters to show before wrapping
+    -- around to the left side of the screen.
+    -- (If I was better with Brick, I might not need this.)
+makeLenses ''ViewOptions
+
+defaulViewOptions :: ViewOptions
+defaulViewOptions = ViewOptions
+  { _viewOpt_ShowAddresses = True
+  , _viewOpt_ShowAsAddresses = True
+  , _viewOpt_WrapLength = 60 }
 
 type ColumnProps = Map HExpr Int
 
@@ -131,11 +150,11 @@ instance Show RelHosts where
        eParenShowExpr 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
-instance ShowColor RelHosts where
+instance ShowColor ViewOptions RelHosts where
   -- PITFALL: Egregious duplication; see `Show` instance.
-  showColor (_memberHostsRole -> RoleInRel' RoleTplt) =
+  showColor _ (_memberHostsRole -> RoleInRel' RoleTplt) =
     [("Rels using it as a Tplt",TextColor)]
-  showColor relHosts = let
+  showColor _ relHosts = let
     tplt :: Tplt Expr = _memberHostsTplt relHosts
     noLeft     = error "show RelHosts: impossible"
     noRslt     = error "show RelHosts: Rslt irrelevant"
@@ -174,11 +193,13 @@ instance ShowBrief ViewExprNode where
   showBrief (VHostFork (RelHostFork  x)) = show x
   showBrief (VHostFork (TpltHostFork x)) = show x
 
-instance ShowColor ViewExprNode where
-  showColor (VExpr ve) =
-    [(show $ _viewExpr_Addr ve, AddrColor)]
+instance ShowColor ViewOptions ViewExprNode where
+  showColor vo (VExpr ve) =
+    ( if _viewOpt_ShowAddresses vo
+      then [(show $ _viewExpr_Addr ve, AddrColor)]
+      else [] )
     ++ _viewExpr_String ve
-  showColor (VHostFork (RelHostFork r)) =
-    showColor r
-  showColor x =
+  showColor vo (VHostFork (RelHostFork r)) =
+    showColor vo r
+  showColor _ x =
     [(showBrief x, TextColor)]

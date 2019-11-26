@@ -1,6 +1,7 @@
 -- | Wraps a list of `String`s with `Attr`s attached.
 
 {-# LANGUAGE ScopedTypeVariables
+, MultiParamTypeClasses
 , ViewPatterns
 #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -47,8 +48,8 @@ colorToAttrName True  AddrColor = B.attrName "white on red"
 data Color = TextColor | SepColor | AddrColor
   deriving (Show,Eq,Ord,Enum)
 
-class ShowColor a where
-  showColor :: a -> ColorString
+class ShowColor options a where
+  showColor :: options -> a -> ColorString
 
 unColorString :: ColorString -> String
 unColorString = concatMap fst

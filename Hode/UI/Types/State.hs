@@ -45,6 +45,7 @@ data St = St {
   , _commands               :: B.Editor String BrickName
   , _commandHistory         :: [Command]
   , _appRslt                :: Rslt
+  , _viewOptions            :: ViewOptions
   , _showingErrorWindow     :: Bool -- ^ overrides main window
   , _showingInMainWindow    :: MainWindowName
   , _showingOptionalWindows :: Map OptionalWindowName Bool

@@ -1,6 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE OverloadedStrings
+, ScopedTypeVariables
+, TupleSections #-}
 
 module Hode.UI.Main where
 
@@ -74,7 +74,7 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
       SearchBuffers  -> bufferWindow $ st ^. searchBuffers
-      Results        -> resultWindow b
+      Results        -> resultWindow (st ^. viewOptions) b
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>
