@@ -4,11 +4,14 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO bugs
+** TODO unary relationships are broken
+** TODO if a joint includes space, it must be drawn in parens
+** todo ? distance to wrap should shrink with columns, indentation
 * TODO user-friendliness
-** TODO copy to clipboard: buggy on Nix
-On Nix it represents newlines the wrong way.
-** TODO shortcut: copy address
-** TODO ? multi-line expressions
+** TODO delete from a PTree (esp. a PTree Buffer)
+Not delete children.
+Introduce a mark for tree nodes of which some but not all children are shown.
 ** TODO HExpr: add "involves"
 *** the current (slow, incomplete) hack
 **** what it is
@@ -24,19 +27,19 @@ Even the Involves that only goes 1 layer deep is confusing.
 Once it is implemented, Paths needs to not be integers lists;
 they will have to be lists of (Integer | Wildcard),
 where a Wildcard stands for "any number could go here".
-** TODO HExpr: add "involves-recursive"
-** TODO delete from a PTree (esp. a PTree Buffer)
-Not delete children.
-Introduce a mark for tree nodes of which some but not all children are shown.
+*** TODO HExpr: add "involves-k" (to depth k)
+*** TODO HExpr: add "involves-star" (to arbitrary depth)
 ** TODO folding indicator
 Or at least, upon inserting contents, unfold.
-** TODO if a group has only one member, omit the group
 ** TODO upon save, delete unused phrases and templates
+unless maybe it's a long phrase
+** TODO ? multi-line expressions
 ** TODO ? offer to delete orphaned nodes
 If a member of something deleted is not remember of anything else, ask whether to delete it, too -- and recurse.
-* TODO bugs
-** todo ? distance to wrap should shrink with columns, indentation
-** TODO if a joint includes space, it must be drawn in parens
+** TODO copy to clipboard: buggy on Nix
+On Nix it represents newlines the wrong way.
+** TODO shortcut: copy address
+** TODO if a group has only one member, omit the group
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
@@ -569,10 +572,6 @@ https://blogs.agu.org/geoedtrek/2016/12/28/collaborative-note-taking/
 ** google isn't that great
 https://news.ycombinator.com/item?id=21515181
 https://stratechery.com/2019/the-google-squeeze/
-* bugs
-** meh: the empty unary relationship
-"# x" is treated the same as "x #"
-and it displays the same as "x"
 * DONE ? overly cautious
 ** fancy alternatives to Either
  Matt Parsons's magic generic-lens strategy:
