@@ -44,4 +44,3 @@ mkViewExpr r as a =
   Right $ ViewExpr { _viewExpr_Addr = a
                    , _viewExpr_showAsAddrs = as
                    , _viewExpr_String = s }
-

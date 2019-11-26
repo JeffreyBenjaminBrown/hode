@@ -7,7 +7,6 @@ This will load all non-broken modules when some are broken.
 * TODO user-friendliness
 ** TODO copy to clipboard: buggy on Nix
 On Nix it represents newlines the wrong way.
-** TODO toggle show addresses
 ** TODO shortcut: copy address
 ** TODO toggle showAsAddr
 Sometimes you might want to see the full expression -- particularly after nesting.

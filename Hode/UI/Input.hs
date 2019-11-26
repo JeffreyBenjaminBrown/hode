@@ -80,13 +80,16 @@ handleKeyboard_atBufferWindow st ev =
 handleKeyboard_atResultsWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev =
-  let go f = B.continue $ f st
+  let go  f = B.continue $ f st
       goe f = B.continue $ unEitherSt st $ f st
   in case ev of
   V.EvKey (V.KChar 'h') [V.MMeta] -> goe insertHosts_atFocus
   V.EvKey (V.KChar 'm') [V.MMeta] -> goe insertMembers_atFocus
   V.EvKey (V.KChar 'c') [V.MMeta] -> go closeSubviews_atFocus
   V.EvKey (V.KChar 'F') [V.MMeta] -> go foldSubviews_atFocus
+
+  V.EvKey (V.KChar 'a') [V.MMeta] ->
+    go $ viewOptions . viewOpt_ShowAddresses %~ not
 
   V.EvKey (V.KChar 'b') [V.MMeta] ->
     goe cons_focusedViewExpr_asChildOfBuffer
