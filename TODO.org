@@ -4,9 +4,6 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO bugs
-** TODO unary relationships are broken
-** todo ? distance to wrap should shrink with columns, indentation
 * TODO user-friendliness
 ** TODO delete from a PTree (esp. a PTree Buffer)
 Not delete children.
@@ -39,6 +36,7 @@ If a member of something deleted is not remember of anything else, ask whether t
 On Nix it represents newlines the wrong way.
 ** TODO shortcut: copy address
 ** TODO if a group has only one member, omit the group
+** todo ? distance to wrap should shrink with columns, indentation
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.

@@ -28,7 +28,8 @@ import Hode.Rslt.Edit.Initial
 -- precedes those of its children.
 exprToAddrInsert :: Rslt -> Expr -> Either String (Rslt, [Aged Addr])
 exprToAddrInsert r ei =
-  prefixLeft "exprToAddrInsert:" $ do
+  prefixLeft ("exprToAddrInsert, called on " ++ show ei ++ ":\n")
+  $ do
   let (mra :: Maybe Addr) = either (const Nothing) Just
                             $ exprToAddr r ei
   case mra of
@@ -52,12 +53,14 @@ exprToAddrInsert_rootNotFound r0 (Phrase w) = do
 
 exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
   prefixLeft "exprToAddrInsert_rootNotFound:" $ do
+  if null a && null bs && null c
+    then  Left "empty list of joints in Tplt"
+    else Right ()
   (r1 :: Rslt, as1 :: [Aged Addr]) <- case a of
     Nothing -> Right (r0,[])
     Just a' -> exprToAddrInsert r0 a'
-  (r2 :: Rslt, as2 :: [[Aged Addr]]) <- do -- note the list of lists
-    if null bs then Left "empty list of joints in Tplt"
-      else exprToAddrInsert_list r1 bs
+  (r2 :: Rslt, as2 :: [[Aged Addr]]) <- -- note: list of lists
+    exprToAddrInsert_list r1 bs
   (r3 :: Rslt, as3 :: [Aged Addr]) <- case c of
     Nothing -> Right (r2,[])
     Just c' -> exprToAddrInsert r2 c'
