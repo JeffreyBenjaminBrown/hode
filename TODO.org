@@ -8,9 +8,6 @@ This will load all non-broken modules when some are broken.
 ** TODO copy to clipboard: buggy on Nix
 On Nix it represents newlines the wrong way.
 ** TODO shortcut: copy address
-** TODO upon making a new buffer from a node
-that node (e.g. the top of the new buffer) should have its
-_viewExpr_showAsAddrs field set to S.empty
 ** TODO ? multi-line expressions
 ** TODO HExpr: add "involves"
 *** the current (slow, incomplete) hack
