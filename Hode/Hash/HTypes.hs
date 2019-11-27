@@ -26,6 +26,7 @@ data HExpr where
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
   HMap :: HMap -> HExpr -- ^ The search workhorse.
   HMember :: HExpr -> HExpr
+  HInvolves :: Int -> HExpr -> HExpr
   HEval :: HExpr      -- ^ First, find matches to this.
         -> [RelPath] -- ^ Then, traverse each match along these paths,
         -- and return whatever each path leads to.
@@ -71,6 +72,7 @@ data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
     PExpr Expr
   | PMap PMap
   | PMember PExpr
+  | PInvolves Int PExpr
   | PEval PExpr
   | PVar Var
   | PDiff PExpr PExpr

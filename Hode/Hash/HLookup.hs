@@ -93,6 +93,8 @@ hMatches r h0 a0 = prefixLeft "hMatches:" $ do
 
     HReach _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HReach"
     HTrans _ _ _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HTrans"
+    HMember _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMember"
+    HInvolves _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HInvolves."
 
 -- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
 hExprToExpr :: Rslt -> HExpr -> Either String Expr
@@ -164,6 +166,16 @@ hExprToAddrs r s (HMember h) =
     (S.map snd) . S.unions <$>
     ifLefts_set (S.map (isIn r) members)
   Right hosts
+
+hExprToAddrs r s (HInvolves 0 h) =
+  hExprToAddrs r s $ HMember h
+
+hExprToAddrs r s (HInvolves k h) = do
+  as :: Set Addr <-
+    hExprToAddrs r s $ HInvolves (k-1) h
+  S.union as <$>
+    ( hExprToAddrs r s $ HMember $ HOr $
+      map (HExpr . Addr) $ S.toList as )
 
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval:" $ do

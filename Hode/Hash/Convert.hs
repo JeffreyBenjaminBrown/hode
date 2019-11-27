@@ -98,9 +98,10 @@ pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
   px@(pExprIsSpecific -> False) ->
     Left $ show px ++ " is not specific enough."
 
-  PExpr s   -> Right $ HExpr s
-  PMap m    -> HMap <$> pMapToHMap r m
-  PMember m -> HMember <$> pExprToHExpr r m
+  PExpr s -> Right $ HExpr s
+  PMap m        -> HMap        <$> pMapToHMap r m
+  PMember m     -> HMember     <$> pExprToHExpr r m
+  PInvolves k m -> HInvolves k <$> pExprToHExpr r m
   PEval pnr -> do (x :: HExpr) <- pExprToHExpr r pnr
                   ps <- pathsToIts_pExpr pnr
                   Right $ HEval x ps
@@ -202,7 +203,9 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
   f :: Base PExpr (PExpr, Either String [RelPath])
     -> Either String [RelPath]
   f (PExprF _) = Right []
-  f (PMemberF _) = Left "Not implemented: RelPath through PMember. (Putting a PMember inside an HEval will cause this error.)"
+  f (PMemberF _) = Left "Not implemented: RelPath through PMember. (A PMember inside an HEval will raise this error.)"
+  f (PInvolvesF _ _) = Left "Not implemented: RelPath through PInvolves. (A PInvolves inside an HEval will raise this error.)"
+
   f (PMapF m)  = do
     (m' :: Map Role [RelPath]) <-
       ifLefts_map $ M.map snd m
@@ -210,6 +213,7 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
         g (role, paths) = do rel <- roleToRoleInRel role
                              Right $ map ((:) rel) paths
     concat <$> mapM g (M.toList m')
+
   f (PEvalF _) = Right []
     -- don't recurse into a new PEval context; the paths to
     -- that PEval's `it`s are not the path to this one's.
