@@ -70,6 +70,7 @@ type HMap = Map Role HExpr
 data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
     PExpr Expr
   | PMap PMap
+  | PMember PExpr
   | PEval PExpr
   | PVar Var
   | PDiff PExpr PExpr

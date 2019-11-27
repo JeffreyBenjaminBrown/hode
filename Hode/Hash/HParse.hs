@@ -115,6 +115,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , pTransLeft
        , pTransRight
        , pMap
+       , pMember
        , pEval
        , pVar
        , pAny
@@ -193,6 +194,11 @@ pMap = lexeme (precisely "/map" <|> precisely "/roles")
                 x <- pPExpr
                 return ( RoleInRel' $ RoleMember i, x       )
 
+pMember :: Parser PExpr
+pMember = lexeme ( foldr1 (<|>)
+                 $ map (try . precisely) ["/member","/m"] )
+         >> ( PMember <$> _pHashExpr )
+
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)
                  $ map (try . precisely) ["/eval","/e"] )
@@ -214,7 +220,6 @@ pAny = lexeme ( foldr1 (<|>)
 pIt :: Parser PExpr
 pIt =     (lexeme (precisely "/it=") >> It . Just <$> _pHashExpr)
       <|> (lexeme (precisely "/it")  >> return (It Nothing) )
-
 
 -- | like `phrase`, but includes every character that's not special
 -- Hash syntax.

@@ -100,6 +100,7 @@ pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
 
   PExpr s   -> Right $ HExpr s
   PMap m    -> HMap <$> pMapToHMap r m
+  PMember m -> HMember <$> pExprToHExpr r m
   PEval pnr -> do (x :: HExpr) <- pExprToHExpr r pnr
                   ps <- pathsToIts_pExpr pnr
                   Right $ HEval x ps
@@ -201,6 +202,7 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
   f :: Base PExpr (PExpr, Either String [RelPath])
     -> Either String [RelPath]
   f (PExprF _) = Right []
+  f (PMemberF _) = Left "Not implemented: RelPath through PMember. (Putting a PMember inside an HEval will cause this error.)"
   f (PMapF m)  = do
     (m' :: Map Role [RelPath]) <-
       ifLefts_map $ M.map snd m

@@ -4,6 +4,7 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO test things I just added
 * TODO user-friendliness
 ** TODO delete from a PTree (esp. a PTree Buffer)
 Not delete children, which is already implemented.
@@ -176,6 +177,11 @@ It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
 * TODO views
 ** TODO count more stuff in the left column(s)
+*** "tags"
+todo apps use these.
+Anything in a "/it #(has tag) x" relationship, if x is among the tag columns,
+has a checkmark in that column.
+The user can list what tags to show from the command line.
 *** St._columnHExprs: let the user add HExprs
 Currently it's fixed at a single HExpr,
 which indicates how many Rels or Tplts it's a top-level member of.
