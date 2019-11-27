@@ -12,23 +12,6 @@ Not delete children, which is already implemented.
 and move the shortcut for "create child buffer"
 *** if deleting a PTree is possible from Results
 Introduce a mark for tree nodes of which some but not all children are shown.
-** TODO HExpr: add "involves"
-*** the current (slow, incomplete) hack
-**** what it is
-Use an HMap that looks for whether the known thing is the template or the 1st, 2nd, 3rd member of the search target. This is the default column shown in the Results buffers.
-**** why it's not great
-It checks for things redundantly.
-It would miss any members of an arity-4 relationship (if they existed).
-*** what it means
-A Tplt involves all its joints.
-A Rel involves its template and all its members.
-*** PITFALL : Involves does not play nicely with pathsToIts
-Even the Involves that only goes 1 layer deep is confusing.
-Once it is implemented, Paths needs to not be integers lists;
-they will have to be lists of (Integer | Wildcard),
-where a Wildcard stands for "any number could go here".
-*** TODO HExpr: add "involves-k" (to depth k)
-*** TODO HExpr: add "involves-star" (to arbitrary depth)
 ** TODO folding indicator
 Or at least, upon inserting contents, unfold.
 ** TODO upon save, delete unused phrases and templates
@@ -41,6 +24,16 @@ On Nix it represents newlines the wrong way.
 ** TODO shortcut: copy address
 ** TODO if a group has only one member, omit the group
 ** todo ? distance to wrap should shrink with columns, indentation
+* TODO HExpr: extend HMember and HInvolves
+*** implement HMember-Star
+which searches to arbitrary depth
+*** Permit them to be inside `HEval`s
+Involves does not play nicely with pathsToIts.
+Even the Involves that only goes 1 layer deep is confusing.
+Once it is implemented, Paths needs to not be integers lists;
+they will have to be lists of (Integer | Wildcard),
+where a Wildcard stands for "any number could go here".
+
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.

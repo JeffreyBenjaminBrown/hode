@@ -38,15 +38,7 @@ emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
-  , _columnHExprs = let hv = HVar VarRowNode in
-      [ HOr -- Count the relationships something is in.
-      -- TODO : This is an incomplete hack. In TODO.org,
-      -- see section called (HExpr: add a symbol for "involves")
-        [ HMap $ M.singleton (RoleInRel'   RoleTplt    ) hv
-        , HMap $ M.singleton (RoleInRel' $ RoleMember 1) hv
-        , HMap $ M.singleton (RoleInRel' $ RoleMember 2) hv
-        , HMap $ M.singleton (RoleInRel' $ RoleMember 3) hv
-        ] ]
+  , _columnHExprs = [ HMember $ HVar VarRowNode ]
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
   , _commands    = B.editor (BrickOptionalName Commands)

@@ -37,6 +37,7 @@ import qualified Data.Map as M
 import           Data.List (intersperse)
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
+import           Text.Megaparsec.Char.Lexer (decimal)
 
 import Hode.Hash.EitherExpr
 import Hode.Hash.HTypes
@@ -116,6 +117,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , pTransRight
        , pMap
        , pMember
+       , pInvolves
        , pEval
        , pVar
        , pAny
@@ -198,6 +200,14 @@ pMember :: Parser PExpr
 pMember = lexeme ( foldr1 (<|>)
                  $ map (try . precisely) ["/member","/m"] )
          >> ( PMember <$> _pHashExpr )
+
+-- | Example: "/i-2 a" finds any `Rel` that involves "a"
+-- in either its first or its second level.
+pInvolves :: Parser PExpr
+pInvolves = do
+  foldr1 (<|>) (map (try . string) ["/involves","/i"])
+  >> string "-"
+  >> PInvolves <$> decimal <*> _pHashExpr
 
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)

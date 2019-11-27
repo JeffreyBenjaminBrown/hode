@@ -167,15 +167,18 @@ hExprToAddrs r s (HMember h) =
     ifLefts_set (S.map (isIn r) members)
   Right hosts
 
-hExprToAddrs r s (HInvolves 0 h) =
+hExprToAddrs r s (HInvolves 1 h) =
   hExprToAddrs r s $ HMember h
 
-hExprToAddrs r s (HInvolves k h) = do
-  as :: Set Addr <-
-    hExprToAddrs r s $ HInvolves (k-1) h
-  S.union as <$>
-    ( hExprToAddrs r s $ HMember $ HOr $
-      map (HExpr . Addr) $ S.toList as )
+hExprToAddrs r s (HInvolves k h) =
+  case k < 1 of
+  True -> Left $ "First argument of HInvolves must be an integer > 0."
+  False -> do
+    as :: Set Addr <-
+      hExprToAddrs r s $ HInvolves (k-1) h
+    S.union as <$>
+      ( hExprToAddrs r s $ HMember $ HOr $
+        map (HExpr . Addr) $ S.toList as )
 
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval:" $ do
