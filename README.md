@@ -1,4 +1,4 @@
-See below for how to install.
+Skip to the end of this README for how to install.
 
 # There are video introductions
 
@@ -60,7 +60,7 @@ and for queries which retrieve subsets of a `Rslt`.
 ## Qseq
 
 (This hasn't made it's way into the UI yet,
-but it's implemented.)
+but if you're a curious hacker, it's implemented.)
 
 [Qseq](Hode/Qseq/) is a metalanguage for search.
 It lets you combine multiple searches in some underlying search language.
@@ -80,17 +80,3 @@ Clone the repo,
 then run `stack run` from the command line.
 The first time you run it,
 it will take a long time to load.
-
-# Hode does not back up your data.
-
-Hode uses a simple,
-human-readable format for saving to and reading from disk.
-This means it works well with Git,
-or any other version-control software.
-Each expression corresponds to a unique file,
-making the diffs between versions of your data readable.
-
-I suggest using such software to backup your data.
-
-If you ask Hode to overwrite a big beautiful graph with a tiny stupid one,
-Hode will obey.

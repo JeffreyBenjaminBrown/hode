@@ -9,6 +9,18 @@ When I plan to enter a complex expression,
 I prefer to write it in another application,
 then copy and paste it into Hode.
 
+## Note: Hode does not back up your data.
+
+If you ask Hode to overwrite a big beautiful graph with a tiny stupid one,
+Hode will obey.
+
+I suggest using version control software to back up your data.
+Hode uses a simple,
+human-readable format for saving to and reading from disk.
+This means it works well with Git, or anything like it.
+Each expression corresponds to a unique file,
+making the diffs between versions of your data readable.
+
 # To start the UI
 
 Call `stack run` from the command line,
