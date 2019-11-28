@@ -87,7 +87,7 @@ appDraw st0 = [w] where
     strWrap $ unlines $ map show $ st0 ^. commandHistory
 
   commandWindow :: B.Widget BrickName =
-    vLimit 1
+    vLimit 2
     ( B.withFocusRing (st ^. focusRing)
       (B.renderEditor $ str . unlines) (st ^. commands) )
 
