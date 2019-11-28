@@ -1,23 +1,23 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.1.
+-- This file was generated from package.yaml by hpack version 0.31.1.
 -- see: https://github.com/sol/hpack
 -- hash: 50c217e5504795a9a5e4f7076fe411927aff1660b9a3254c11556b640002d529
 
 name:           hode
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/hode#readme>
-homepage:       https://github.com/githubuser/hode#readme
-bug-reports:    https://github.com/githubuser/hode/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2019 Author name here
-license:        BSD3
+description:    Please see the README file
+homepage:       https://github.com/JeffreyBenjaminBrown/hode
+bug-reports:    https://github.com/JeffreyBenjaminBrown/hode/issues
+author:         Jeffrey Benjamin Brown
+maintainer:     jeffbrown.the@gmail.com
+copyright:      2019 Jeffrey Benjamin Brown
+license:        GPL-3
 build-type:     Simple
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/hode
+  location: https://github.com/JeffreyBenjaminBrown/hode
 
 library
   exposed-modules:

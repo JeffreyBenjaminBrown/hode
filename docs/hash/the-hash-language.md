@@ -3,14 +3,13 @@
 (If you're hurrying to the part where you can actually use the app,
 you could skip the "advanced queries" section.)
 
-
 # What Hash is
 
 Hash is a language for reading and writing a `Rslt`.
 Even though a `Rslt` is more complex than a graph,
-Hash is simpler than common graph-writing languages (such as Turtle),
-and *way* simpler than other graph query languages (such as Sparql or Gremlin).
-
+Hash is simpler than common graph-writing languages (e.g. Turtle),
+and *way*,
+*way* simpler than other graph query languages (e.g. Sparql or Gremlin).
 
 # Writing to a Rslt with Hash
 
@@ -26,7 +25,6 @@ they do now.
 (Because I feel like writing out the word `/add` is too much work,
 there are 2-character abbreviations available for every common keyword.
 See the "abbreviations" file in the documentation.)
-
 
 ## Special characters, quotes and escape characters
 
@@ -51,7 +49,6 @@ The inner quotation marks do need escaping, though.
 (Otherwise the parser would think you were done writing the phrase
 when it encountered the quotation mark to the left of `Hi`).
 
-
 # Querying a RSLT with Hash
 
 Querying is a little more complex than writing,
@@ -62,8 +59,8 @@ Each of them is preceded by the `/` symbol.
 
 Every query starts with the symbol `/find` (or `/f`).
 
-
 ## Basic queries
+
 ### Query for a Phrase by writing it
 
 `/find bob` will display the `Expr` "bob", if it is present.
@@ -71,14 +68,12 @@ This is good for two things:
 determining whether it's in the database,
 and finding its address.
 
-
 ### Query for a Hash expression by, again, writing it
 
 For instance,
 `/find bob #flattered alice` will search for and return the `Expr`
 `bob #flattered alice`,
 if it is present.
-
 
 ### Query for anything using the wildcard `/_`
 
@@ -91,17 +86,14 @@ rather than the entire "flattered" relationship,
 you can use the keywords `/eval` and `/it`
 (see the "advanced queries" section below).
 
-
 ### Query for an `Addr` with `/addr` (or `/@`), followed by a number
 
 For instance, if "bob" is stored at `Addr` 1,
 then `/f /@ 1 #flattered /_` will find every expression of the form `bob #flattered /_`.
 
-
 ### Query for multiple `Addrs` with `/addrs` (or `/@s`), followed by numbers and (dash-separated) ranges of numbers
 
 For instance, the command "/f /@s 1 10-12 42" would display the five `Expr`s located at the following `Addr` values: 1, 10, 11, 12 and 42.
-
 
 ### Set operations: union (`|`), interseciton (`&`), and difference (`\`)
 
@@ -114,8 +106,22 @@ and `|` the `union` operator.
 `(/eval you #like /it) \ (/eval I #(cannot afford) /it)`
 will list the things you like, minus the ones I cannot afford.
 
-
 ## Advanced queries
+
+### Query for superexpressions using `/member` (or `/m` and `/involves` (or `/i`)
+
+If you'd like to find every relationship with "salsa"
+as a top-level member,
+you can write "/member salsa".
+
+Equivalently, you could write "/involves-1 salsa".
+
+If you'd like to find anything for which "salsa"
+is in one of the top two levels,
+you can write "/involves-2 salsa".
+
+You can write "/involves-k" for any positive value of "k".
+If you ask for a big value, the search might be slow.
 
 ### Replace a superexpression with a subexpression using `/eval` and `/it` (or `/it=`)
 
@@ -153,7 +159,6 @@ You can actually include more than one `/it` in an `/eval` statement.
 For instance, `/eval /it #married /it` would return every married person,
 regardless of whether they are listed first or second in the marriage relationship.
 
-
 #### Using `/it=` to restrict the possible targets in an `/eval` query
 
 You might want to restrict the set of possibilities considered for the "/it" variable(s) in an "/eval" expression. For instance, if you want to know who among Jane and Jim is coming to your wedding, you could ask:
@@ -166,11 +171,9 @@ ask which of your classmates is invited:
 
 `/f /eval (/it= (/eval /it #is a classmate of mine)) #is coming to my wedding`
 
-
 #### PITFALL: `/it=` cannot be followed by an alphanumeric character
 
 `/it=` is a keyword, just like `/it` or `/eval`, which means it must be followed by a non-alphanumeric character (typically a space or a left parenthesis).b Just like writing `/italy` or `/evaleye` would confuse the parser, so too will writing `/it=x` confuse the parser.
-
 
 ### (Reflexive) transitive search
 
@@ -182,7 +185,6 @@ Similarly, you can find everything less than or equal to 2 by running
 
 Hash treats any relationship used in a transitive search as reflexive.
 Thus even though we called the relationship "#<", it is effectively "<=".
-
 
 #### PITFALL: Hode believes you
 
@@ -196,7 +198,6 @@ then save your work before searching it transitively.
 
 That's because Hode will crash if it encounters a cycle.
 It won't respond to keypresses, and you'll need to kill it from outside.
-
 
 ### Count `&`, `|` and `\` symbols like `#` symbols
 
@@ -215,7 +216,6 @@ you could write
 
 It saves three keystrokes, and is arguably more readable.
 
-
 ### Query for "Hash maps" using /roles or /map
 
 Consider the command `/find /roles (1 a) (2 a # b)`.
@@ -224,7 +224,6 @@ and the second is the relationship "a # b".
 
 (There's also a way to specify the template,
 but in that case it's not clear why you wouldn't use a hash expression instead of /map.)
-
 
 ### You might (?) need to precede a Hash expression with the /hash keyword
 

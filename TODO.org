@@ -4,7 +4,6 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO test things I just added
 * TODO user-friendliness
 ** TODO delete from a PTree (esp. a PTree Buffer)
 Not delete children, which is already implemented.
@@ -25,15 +24,14 @@ On Nix it represents newlines the wrong way.
 ** TODO if a group has only one member, omit the group
 ** todo ? distance to wrap should shrink with columns, indentation
 * TODO HExpr: extend HMember and HInvolves
-*** implement HMember-Star
+** implement HMember-Star
 which searches to arbitrary depth
-*** Permit them to be inside `HEval`s
+** Permit them to be inside `HEval`s
 Involves does not play nicely with pathsToIts.
 Even the Involves that only goes 1 layer deep is confusing.
 Once it is implemented, Paths needs to not be integers lists;
 they will have to be lists of (Integer | Wildcard),
 where a Wildcard stands for "any number could go here".
-
 * PIFALLs | warts
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
