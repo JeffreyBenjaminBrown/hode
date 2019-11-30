@@ -64,12 +64,14 @@ data BufferRow = BufferRow {
 -- The subviews of a `VExpr` should be `VMemberFork`s or `VHostFork`s.
 
 data ViewExprNode =
-    VQuery      ViewQuery  -- ^ The top of every view tree is this.
-  | VExpr       ViewExpr   -- ^ Corresponds to some `Expr`.
-  | VMemberFork MemberFork -- ^ Announces the relationship between its
-                           -- parent in the view tree and its children.
-  | VHostFork   HostFork   -- ^ Announces the relationship between its
-                           -- parent in the view tree and its children.
+    VQuery      ViewQuery -- ^ The top of every view tree is this.
+  | VExpr       ViewExpr -- ^ Corresponds to some `Expr`.
+  | VMemberFork -- ^ Announces the relationship between its
+                -- parent in the view tree and its children.
+  | VHostFork   HostFork -- ^ Announces the relationship between its
+                         -- parent in the view tree and its children.
+  | VSearchHosts -- ^ Announces the relationship between its view-parent
+                 -- and the results when it is evaluated as a search.
   deriving (Eq, Ord, Show)
 
 -- | What the user searched for.
@@ -82,10 +84,6 @@ data ViewExpr = ViewExpr {
     -- not as text, but as the `Addr` in question.
     -- Used to eliminate redundancy in views.
   , _viewExpr_String      :: ColorString }
-  deriving (Show, Eq, Ord)
-
--- | Announces the members of some "center" `Expr`.
-data MemberFork = MemberFork
   deriving (Show, Eq, Ord)
 
 -- | Announces some `Expr`s in which the "center" `Expr`
@@ -178,7 +176,6 @@ makeLenses ''BufferRow
 makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
-makeLenses ''MemberFork
 makeLenses ''RelHosts
 
 -- | Whereas `show` shows everything about the `ViewExprNode`,
@@ -188,7 +185,7 @@ instance ShowBrief ViewExprNode where
   showBrief (VExpr x) =
     show (x ^. viewExpr_Addr) ++ ": "
     ++ unColorString (x ^. viewExpr_String)
-  showBrief (VMemberFork _) = "its members"
+  showBrief VMemberFork = "its members"
   showBrief (VHostFork (RelHostFork  x)) = show x
   showBrief (VHostFork (TpltHostFork x)) = show x
 

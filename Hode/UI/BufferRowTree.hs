@@ -44,7 +44,7 @@ insertMembers_atFocus st =
   let r :: Rslt = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
   a <- focusAddr st
-  (ms,as) :: (MemberFork, [Addr]) <-
+  as :: [Addr] <-
     members_atFocus st
 
   -- The new subtree has two levels: top and leaves.
@@ -60,19 +60,17 @@ insertMembers_atFocus st =
     Right $ P.fromList leaves2
 
   let new :: PTree BufferRow =
-        pTreeLeaf ( BufferRow (VMemberFork ms)
+        pTreeLeaf ( BufferRow VMemberFork
                     mempty $ OtherProps False )
         & pMTrees .~ Just leaves3
   Right $ st & ( stSetFocused_ViewExprNode_Tree
                  %~ consUnder_andFocus new )
 
-members_atFocus :: St -> Either String (MemberFork, [Addr])
+members_atFocus :: St -> Either String [Addr]
 members_atFocus st =
   prefixLeft "members_atFocus:" $ do
   a <- focusAddr st
-  as :: [Addr] <-
-    M.elems <$> has (st ^. appRslt) a
-  Right (MemberFork, as)
+  M.elems <$> has (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st =
