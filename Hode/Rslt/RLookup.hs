@@ -20,8 +20,11 @@ module Hode.Rslt.RLookup (
   , findSubExprs -- ^ [RelPath] -> Either Addr Var -> Find Addr Rslt
   , subExprs     -- ^ Rslt -> [RelPath] -> Addr -> Either String (Set Addr)
   , subExpr      -- ^ Rslt -> Addr -> RelPath   -> Either String Addr
-  , unAddr       -- ^ Rslt -> Expr               -> Either String Expr
-  , unAddrRec    -- ^ Rslt -> Expr               -> Either String Expr
+
+  -- | = Misc
+  , flatten       -- ^ Rslt -> Expr -> Either String [String]
+  , unAddr        -- ^ Rslt -> Expr -> Either String Expr
+  , unAddrRec     -- ^ Rslt -> Expr -> Either String Expr
   ) where
 
 import           Data.Functor (void)
@@ -120,7 +123,18 @@ subExpr r a (rl : rls) =
   subExpr r member_of_a rls
 
 
--- | == A utility
+-- | = Misc
+
+-- | flattening "this #is nice ##because mountains"`
+-- produces `this nice mountains`.
+flatten :: Rslt -> Expr -> Either String [String]
+flatten r = cata f where
+  f :: Base Expr (Either String [String]) -> Either String [String]
+  f (AddrF a) = unAddr r (Addr a) >>= flatten r
+  f (PhraseF s) = Right [s]
+  f (ExprTpltF t) = Left $
+    "flatten: not defined for Tplt \"" ++ show t ++ "\"."
+  f (ExprRelF (Rel rs _)) = concat <$> ifLefts rs
 
 unAddr :: Rslt -> Expr -> Either String Expr
 unAddr r (Addr a) = addrToExpr r a
