@@ -72,7 +72,7 @@ members_atFocus st =
   a <- focusAddr st
   as :: [Addr] <-
     M.elems <$> has (st ^. appRslt) a
-  Right (MemberFork a, as)
+  Right (MemberFork, as)
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st =

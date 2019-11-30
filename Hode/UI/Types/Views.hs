@@ -85,8 +85,7 @@ data ViewExpr = ViewExpr {
   deriving (Show, Eq, Ord)
 
 -- | Announces the members of some "center" `Expr`.
-data MemberFork = MemberFork {
-  _membersForkCenter :: Addr }
+data MemberFork = MemberFork
   deriving (Show, Eq, Ord)
 
 -- | Announces some `Expr`s in which the "center" `Expr`

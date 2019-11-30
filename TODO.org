@@ -9,10 +9,8 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO represent searches as expressions
-** how
-*** write a flatten-to-string function
- Given any Rel, it strips all the joints.
-*** write an "evaluate focused node as hash expression" function
+** TODO write an "evaluate focused node as hash expression" function
+use Rslt.RLookup.flatten
 ** why
 *** It sucks to have to:
 create a node "projects like hode",
