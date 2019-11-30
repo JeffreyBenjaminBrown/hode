@@ -11,6 +11,16 @@ This will load all non-broken modules when some are broken.
 * TODO represent searches as expressions
 ** TODO write an "evaluate focused node as hash expression" function
 use Rslt.RLookup.flatten
+model after
+  insertHosts_atFocus :: St -> Either String St
+    in BufferRowTree.hs
+  runParsedCommand :: Command -> St
+                   -> Either String (B.EventM BrickName (B.Next St))
+    specifically the last clause, "g cmd st -> ..."
+*** TODO ? back-references
+When a new node is added that matches an extant search,
+the search will find it, but (without further work)
+it will not find the search as a neighbor.
 ** why
 *** It sucks to have to:
 create a node "projects like hode",
@@ -74,7 +84,9 @@ includes a 121-character-long line.
 Move buffers.
 Delete buffers.
 Annotate buffers.
-*** TODO ? delete from any PTree
+*** TODO delete parent from any PTree
+and move children up to where it was
+*** TODO delete from any PTree
 **** in SearchBuffers, add a shortcut for it
  and move the shortcut for "create child buffer"
 **** if deleting a PTree is possible from Results
