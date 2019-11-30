@@ -63,7 +63,7 @@ and for queries which retrieve subsets of a `Rslt`.
 but if you're a curious hacker, it's implemented.)
 
 [Qseq](Hode/Qseq/) is a metalanguage for search.
-It lets you combine multiple searches in some underlying search language.
+It lets you use existential and universal quantifiers to string together searches in some underlying search language.
 
 # How to install
 

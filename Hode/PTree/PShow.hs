@@ -138,16 +138,26 @@ porestWithPaddedColumns :: forall a t d.
   -> (a -> [t d]) -- ^ how to draw the column cells at a row
   -> Porest a
   -> Porest (a, [t d])
+
 porestWithPaddedColumns fromString makeColumns p0 = let
   p1 :: Porest (a, [t d]) = porestWith makeColumns p0
   lengths :: [Int] = maxColumnLengths $ fmap (fmap snd) p1
   leftPad :: Int -> t d -> t d
   leftPad k s = fromString (replicate (k - length s) ' ') <> s
-  in fmap (fmap $ second $ zipWith ($) $ map leftPad lengths) p1
+  -- `emptyColumns` is needed because non-`ViewExpr` payloads
+  -- (which are used to group `ViewExpr`s) have empty column data.
+  emptyColumns :: [t d] -> [t d]
+  emptyColumns [] = [fromString $ replicate (sum lengths) ' ']
+  emptyColumns a = a
+  in fmap ( fmap $ second $
+            emptyColumns . (zipWith ($) $ map leftPad lengths)
+          ) p1
 
 -- | Computes the maximum length of each `t b`.
--- See test suite if that doesn't make sense.
+-- See test suite for a demo.
 -- PITFALL: Assumes the lists in the input are all of equal length.
+-- If some of them are instead empty (as happens with every `BufferRow`
+-- with a non-`ViewExpr` payload), they are effectively ignored.
 maxColumnLengths :: forall t b. Foldable t
   -- ^ Here `t d` is probably `String` or `ColorString`.
   => Porest [t b] -> [Int]

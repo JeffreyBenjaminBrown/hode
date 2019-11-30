@@ -1,10 +1,67 @@
+* DISCLAIMER: This document is
+not really intended to be understood by anybody but myself.
+For documentation, please see the README.md file.
+If that's not enough, check out the docs/ folder.
 * PTIFALL: stack gchi: if no libraries are available
 https://github.com/commercialhaskell/stack/issues/5037
 This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO big-think
+** who cares?
+*** TODO Projects with extremely similar goals
+**** Agora
+And extremely similar envisioned user experience.
+https://flancia.org/agora/
+**** Perkeep
+https://perkeep.org/
+*** "convergence"
+https://link.springer.com/article/10.1007/s11051-019-4638-7?wt_mc=Internal.Event.1.SEM.ArticleAuthorIncrementalIssue&utm_source=ArticleAuthorIncrementalIssue&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorIncrementalIssue_20191108&fbclid=IwAR08OarPih1ava0yDKrM_PK07xLSZ2ZSV_bzmvukc7RpNzQQHNzvRa8qxs8
+*** fake news
+https://www.fakerfact.org/about
+*** "navigating digital information"
+https://www.youtube.com/watch?v=M5YKW6fhlss&list=PL8dPuuaLjXtN07XYqqWSKpPrtNDiCHTzU&index=11
+*** distributed search
+** representing things
+*** anticipate whether a sub-expression will be searched for
+*** name conflicts
+It would be better if distinct things could share a name.
+** orderings
+*** a user should be able to give defaults
+*** ordering members of the same group should be easy
+** problems
+*** it's hard to judge without an interesting graph
+**** would help: smsn
+**** would help: a Haskell-based way to navigate the smsn VCS repo
+from
+   /home/jeff/_stale/pre-2019-07/smsn,maybe-latest-data/kb-not-encfs/vcs
+run
+  grep "title qq" -r personal/ public/ private/ universal/ observatorio/
+*** my Hode data looks impenetrable to others
+**** would help: synonyms
+*** reading and navigation are slow
+**** would help: compress binary groups
+**** would help: don't group single items
+**** might help: better columns
+Some as counts, some otherwise.
+**** might help: distinguish "of interest" expressions
+** smsn?
+** types?
 * TODO user-friendliness
+** TODO maintain a list of templates
+and a keyword /templates that lets you see them all.
+** TODO cannot implement the joint "#:"
+** TODO readability
+*** wrapping is buggy
+For instance, the display of this (at address 153 in jbb/)
+   ###re ##solve tmux #has-problem sometimes the status bar is cluttered ##by keep only window names ###note-that status-right #can put any label at the right of the status bar, e.g. the current time.
+includes a 121-character-long line.
+*** compress binary groups
+** TODO edit the SearchBuffers buffer
+Move buffers.
+Delete buffers.
+Annotate buffers.
 ** TODO delete from a PTree (esp. a PTree Buffer)
 Not delete children, which is already implemented.
 *** in SearchBuffers, add a shortcut for itx
@@ -15,6 +72,7 @@ Introduce a mark for tree nodes of which some but not all children are shown.
 Or at least, upon inserting contents, unfold.
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
+PITFALL: But don't delete the empty string.
 ** TODO ? multi-line expressions
 ** TODO ? offer to delete orphaned nodes
 If a member of something deleted is not remember of anything else, ask whether to delete it, too -- and recurse.
