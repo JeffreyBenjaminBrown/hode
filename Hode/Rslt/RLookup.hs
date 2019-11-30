@@ -16,7 +16,7 @@ module Hode.Rslt.RLookup (
   , C.addrToExpr    -- ^ Rslt -> Addr    -> Either String Expr
   , C.refExprToAddr -- ^ Rslt -> RefExpr -> Either String Addr
 
-  -- | = misc
+  -- | = subExprs
   , findSubExprs -- ^ [RelPath] -> Either Addr Var -> Find Addr Rslt
   , subExprs     -- ^ Rslt -> [RelPath] -> Addr -> Either String (Set Addr)
   , subExpr      -- ^ Rslt -> Addr -> RelPath   -> Either String Addr
@@ -96,15 +96,12 @@ fills x (r,a) =
   maybe err Right $ M.lookup r positions
 
 
--- | == build `Query`s for `Rslt`s
+-- | = Find sub-`Expr`s of an `Expr`
 
 findSubExprs :: [RelPath] -> Either Addr Var -> Find Addr Rslt
 findSubExprs paths = mkFindFrom f where
   f :: Rslt -> Addr -> Either String (Set Addr)
   f r a = subExprs r paths a
-
-
--- | = Find sub-`Expr`s of an `Expr`
 
 subExprs :: Rslt -> [RelPath] -> Addr -> Either String (Set Addr)
 subExprs r rls a =

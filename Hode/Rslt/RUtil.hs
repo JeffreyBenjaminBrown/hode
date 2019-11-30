@@ -2,15 +2,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.RUtil (
+  -- | = Rel
     LeftStrings(..)
   , replaceInTplt   -- ^ a -> RoleInTplt -> Tplt a -> Either String (Tplt a)
   , replaceInRel    -- ^ a -> RoleInRel -> Rel a -> Either String (Rel a)
+
+  -- | = ExprFWith
   , toExprWith      -- ^ b -> Expr ->    Fix (ExprFWith b)
   , addrToExprWith  -- ^  Rslt -> Addr
                     -- -> Either String (Fix (ExprFWith Addr))
   , exprWithout     -- ^             Fix (ExprFWith b) -> Expr
   , mapExprFWith    -- ^ (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
 
+  -- | = `Expr`s
   , depth          -- ^ Expr -> Int
   , refExprVariety -- ^ RefExpr -> (ExprCtr, Arity)
   , arity          -- ^ RefExpr -> Arity
@@ -145,7 +149,7 @@ mapExprFWith f (Fix (EFW (b,x))) = Fix $ EFW (f b, g x) where
     fmap (mapExprFWith f) js
 
 
--- | = For `Expr`s
+-- | = `Expr`s
 
 depth :: Expr -> Int
 depth = cata f where

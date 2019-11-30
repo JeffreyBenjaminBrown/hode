@@ -8,6 +8,22 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO represent searches as expressions
+** how
+*** write a flatten-to-string function
+ Given any Rel, it strips all the joints.
+*** write an "evaluate focused node as hash expression" function
+** why
+*** It sucks to have to:
+create a node "projects like hode",
+and then redundantly populate every such project x with
+"x #is-like hode" and "x #is-in projects like hode",
+*** I would prefer to
+simply encode "x #is-like hode"
+and create the weird search-node N = "/e /it #is-like hode".
+  (Note that if I change hode's name, the search-node will still work).
+Then, given a project (such as "#for hode #ask who cares"),
+I would only have to create a relationship like "#re P #see N".
 * TODO big-think
 ** who cares?
 *** TODO Projects with extremely similar goals
