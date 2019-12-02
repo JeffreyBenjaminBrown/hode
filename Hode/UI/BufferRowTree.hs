@@ -171,24 +171,18 @@ hostGroup_to_forkTree st (hf, as) =
   prefixLeft "hostGroup_to_forkTree:" $ do
   if null as then Left "There are no host Exprs to show."
              else Right ()
-  let mustBeOkay = "Impossible: `as` is nonempty, "
-                   ++ "so P.fromList must work."
-      r :: Rslt = st ^. appRslt
+  let r :: Rslt = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
   a <- focusAddr st
-  ves :: [ViewExpr] <-
-    ifLefts $ map (mkViewExpr r vo $ S.singleton a) as
 
   topOfNew :: BufferRow <-
     bufferRow_from_viewExprNode' st $ VHostFork hf
-  let leaves0 :: [ViewExprNode] = map VExpr ves
-  leaves1 :: [BufferRow] <- ifLefts $
-    map (bufferRow_from_viewExprNode' st) leaves0
+  leaves :: Porest BufferRow <-
+    addrsToBufferRows st (S.singleton a) as
   Right $ PTree {
       _pTreeLabel    = topOfNew
     , _pTreeHasFocus = False
-    , _pMTrees       = maybe (error mustBeOkay) Just $
-                       P.fromList $ map pTreeLeaf leaves1 }
+    , _pMTrees       = Just leaves }
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =
@@ -219,5 +213,5 @@ addrsToBufferRows st showAsAddr as =
     map (bufferRow_from_viewExprNode' st) leaves0
   let leaves2 :: [PTree BufferRow] =
         map pTreeLeaf leaves1
-  maybe (Left "Expr has no members.") Right
+  maybe (Left "Nothing to show.") Right
     $ P.fromList leaves2
