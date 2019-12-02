@@ -12,7 +12,12 @@ module Hode.UI.BufferRowTree
                           -- Either String (PTree ViewExprNode)
   , closeSubviews_atFocus -- ^ St -> St
   , foldSubviews_atFocus  -- ^ St -> St
-  , mkBufferRowPorest -- ^ Rslt -> [Addr] -> Porest BufferRow
+  , addrsToBufferRows
+    -- ^ St
+    -- Set Addr -- ^ show these (can be empty) as `Addr`s,
+    --            -- not (complex) `Expr`s
+    -- [Addr] -- ^ each of these becomes a `BufferRow`
+    -- Either String (Porest BufferRow)
   ) where
 
 import           Data.Foldable (toList)
@@ -20,6 +25,7 @@ import           Data.Map (Map)
 import qualified Data.List             as L
 import qualified Data.List.PointedList as P
 import qualified Data.Map              as M
+import           Data.Set (Set)
 import qualified Data.Set              as S
 
 import           Lens.Micro hiding (has, folded)
@@ -38,31 +44,24 @@ moveFocusedViewExprNode d =
   stSetFocusedBuffer . bufferRowPorest . _Just
   %~ moveFocusInPorest d
 
+-- TODO ? Why is this so different from `insertHosts_atFocus`?
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st =
   prefixLeft "insertMembers_atFocus:" $ do
-  let r :: Rslt = st ^. appRslt
+  let r  :: Rslt        = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
-  a <- focusAddr st
-  as :: [Addr] <-
-    members_atFocus st
+  a            <- focusAddr st
+  as :: [Addr] <- members_atFocus st
 
-  -- The new subtree has two levels: top and leaves.
-  leaves0 :: [ViewExprNode] <-
-    let f = mkViewExpr r vo $ S.singleton a
-    in map VExpr <$> ifLefts (map f as)
-  leaves1 :: [BufferRow] <- ifLefts $
-    map (bufferRow_from_viewExprNode' st) leaves0
-  let leaves2 :: [PTree BufferRow] =
-        map pTreeLeaf leaves1
-  leaves3 :: Porest BufferRow <-
-    maybe (Left "Expr has no members.")
-    Right $ P.fromList leaves2
+  -- The new subtree has depth two.
+  -- The leaves are the second level.
+  leaves :: Porest BufferRow <-
+    addrsToBufferRows st (S.singleton a) as
 
   let new :: PTree BufferRow =
         pTreeLeaf ( BufferRow VMemberFork
                     mempty $ OtherProps False )
-        & pMTrees .~ Just leaves3
+        & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
                  %~ consUnder_andFocus new )
 
@@ -201,20 +200,24 @@ foldSubviews_atFocus =
       . otherProps . folded )
     %~ not
 
--- | Creates a depth-1 forest, i.e. with nothing but leaves.
-mkBufferRowPorest :: St -> [Addr] -> Either String (Porest BufferRow)
-mkBufferRowPorest st as = do
-  let r :: Rslt = st ^. appRslt
+-- | Creates a flat (depth 1) `Porest`.
+-- For insertion beneath a forking `ViewExprNode`.
+addrsToBufferRows
+  :: St
+  -> Set Addr -- ^ show these (can be empty) as `Addr`s,
+              -- not (complex) `Expr`s
+  -> [Addr] -- ^ each of these becomes a `BufferRow`
+  -> Either String (Porest BufferRow)
+addrsToBufferRows st showAsAddr as =
+  prefixLeft "addrsToBufferRows:" $ do
+  let r  :: Rslt        = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
-      mkLeaf :: Addr -> Either String (PTree BufferRow)
-      mkLeaf a =
-        pTreeLeaf <$> bufferRow_from_viewExprNode' st
-        (VExpr $ either err id $ mkViewExpr r vo mempty a)
-        where err :: String -> ViewExpr
-              err s = error $ "should be impossible: `a` should be present, as it was just found by `hExprToAddrs`. Here's the original error: " ++ s ++ "."
-  p :: [PTree BufferRow] <-
-    ifLefts $ map mkLeaf as
-  Right ( maybe ( porestLeaf $ bufferRow_from_viewExprNode $
-                  VQuery "No matches found.") id $
-          P.fromList p )
-
+  leaves0 :: [ViewExprNode] <-
+    let f = mkViewExpr r vo showAsAddr
+    in map VExpr <$> ifLefts (map f as)
+  leaves1 :: [BufferRow] <- ifLefts $
+    map (bufferRow_from_viewExprNode' st) leaves0
+  let leaves2 :: [PTree BufferRow] =
+        map pTreeLeaf leaves1
+  maybe (Left "Expr has no members.") Right
+    $ P.fromList leaves2

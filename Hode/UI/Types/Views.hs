@@ -70,8 +70,8 @@ data ViewExprNode =
                 -- parent in the view tree and its children.
   | VHostFork   HostFork -- ^ Announces the relationship between its
                          -- parent in the view tree and its children.
-  | VSearchHosts -- ^ Announces the relationship between its view-parent
-                 -- and the results when it is evaluated as a search.
+  | VSearchFork -- ^ Announces the relationship between its view-parent
+                -- and the results when that is evaluated as a search.
   deriving (Eq, Ord, Show)
 
 -- | What the user searched for.

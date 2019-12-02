@@ -216,7 +216,7 @@ runParsedCommand                     c0 st0 =
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
     p :: Porest BufferRow <- -- new screen to show
       (P.focus . pTreeHasFocus .~ True)
-      <$> mkBufferRowPorest st as
+      <$> addrsToBufferRows st mempty as
 
     Right $ B.continue $ st
       & ( ( -- PITFALL : Replaces the Buffer's old contents.
