@@ -8,20 +8,12 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO represent searches as expressions
-** TODO write an "evaluate focused node as hash expression" function
-use Rslt.RLookup.flatten
-model after
-  insertHosts_atFocus :: St -> Either String St
-    in BufferRowTree.hs
-  runParsedCommand :: Command -> St
-                   -> Either String (B.EventM BrickName (B.Next St))
-    specifically the last clause, "g cmd st -> ..."
-*** TODO ? back-references
+* TODO evaluate node as search
+** TODO ? back-references
 When a new node is added that matches an extant search,
 the search will find it, but (without further work)
 it will not find the search as a neighbor.
-** why
+** document how, why
 *** It sucks to have to:
 create a node "projects like hode",
 and then redundantly populate every such project x with

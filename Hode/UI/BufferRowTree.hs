@@ -9,7 +9,7 @@ module Hode.UI.BufferRowTree (
   , foldSubviews_atFocus  -- ^ St -> St
 
   -- | = inserting layers of nodes
-  , insertSearchResults_focusedNode  -- ^ St -> Either String St
+  , insertSearchResults_atFocus  -- ^ St -> Either String St
   , searchResults_at -- ^ Rslt -> Addr -> Either String (Set Addr)
 
   , insertMembers_atFocus -- ^ St ->    Either String St
@@ -69,9 +69,9 @@ foldSubviews_atFocus =
 -- | = inserting layers of nodes
 
 -- TODO : much in common with `insertMembers_atFocus`
-insertSearchResults_focusedNode :: St -> Either String St
-insertSearchResults_focusedNode st =
-  prefixLeft "insertSearchResults_focusedNode:" $ do
+insertSearchResults_atFocus :: St -> Either String St
+insertSearchResults_atFocus st =
+  prefixLeft "insertSearchResults_atFocus:" $ do
   as :: Set Addr <-
     focusAddr st >>= searchResults_at (st ^. appRslt)
   leaves :: Porest BufferRow <-

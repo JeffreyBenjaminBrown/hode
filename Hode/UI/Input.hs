@@ -83,6 +83,7 @@ handleKeyboard_atResultsWindow st ev =
   let go  f = B.continue $ f st
       goe f = B.continue $ unEitherSt st $ f st
   in case ev of
+  V.EvKey (V.KChar 'S') [V.MMeta] -> goe insertSearchResults_atFocus
   V.EvKey (V.KChar 'h') [V.MMeta] -> goe insertHosts_atFocus
   V.EvKey (V.KChar 'm') [V.MMeta] -> goe insertMembers_atFocus
   V.EvKey (V.KChar 'c') [V.MMeta] -> go closeSubviews_atFocus
