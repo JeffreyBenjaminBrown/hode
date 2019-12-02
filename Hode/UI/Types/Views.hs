@@ -188,6 +188,7 @@ instance ShowBrief ViewExprNode where
   showBrief VMemberFork = "its members"
   showBrief (VHostFork (RelHostFork  x)) = show x
   showBrief (VHostFork (TpltHostFork x)) = show x
+  showBrief VSearchFork = "its search results"
 
 instance ShowColor ViewOptions ViewExprNode where
   showColor vo (VExpr ve) =

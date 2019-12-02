@@ -1,8 +1,14 @@
 {-# LANGUAGE LambdaCase,
 ScopedTypeVariables #-}
 
-module Hode.UI.BufferRowTree
-  ( moveFocusedViewExprNode   -- ^ Direction -> St -> St
+module Hode.UI.BufferRowTree (
+
+  -- | = misc. other changes around the focused node
+    moveFocusedViewExprNode   -- ^ Direction -> St -> St
+  , closeSubviews_atFocus -- ^ St -> St
+  , foldSubviews_atFocus  -- ^ St -> St
+
+  -- | = inserting layers of nodes
   , insertMembers_atFocus -- ^ St ->    Either String St
   , members_atFocus       -- ^ St ->    Either String (MemberFork, [Addr])
   , insertHosts_atFocus   -- ^ St ->    Either String St
@@ -10,8 +16,6 @@ module Hode.UI.BufferRowTree
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
   , hostGroup_to_forkTree -- ^ Rslt -> (HostFork, [Addr]) ->
                           -- Either String (PTree ViewExprNode)
-  , closeSubviews_atFocus -- ^ St -> St
-  , foldSubviews_atFocus  -- ^ St -> St
   , addrsToBufferRows
     -- ^ St
     -- Set Addr -- ^ show these (can be empty) as `Addr`s,
@@ -39,23 +43,33 @@ import Hode.Util.Misc
 import Hode.PTree.Initial
 
 
+-- | = misc. other changes around the focused node
+
 moveFocusedViewExprNode :: Direction -> St -> St
 moveFocusedViewExprNode d =
   stSetFocusedBuffer . bufferRowPorest . _Just
   %~ moveFocusInPorest d
 
--- TODO ? Why is this so different from `insertHosts_atFocus`?
+closeSubviews_atFocus :: St -> St
+closeSubviews_atFocus =
+  stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing
+
+foldSubviews_atFocus :: St -> St
+foldSubviews_atFocus =
+  ( stSetFocused_ViewExprNode_Tree . pTreeLabel
+    . otherProps . folded )
+  %~ not
+
+
+-- | = inserting layers of nodes
+
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st =
   prefixLeft "insertMembers_atFocus:" $ do
-  let r  :: Rslt        = st ^. appRslt
-      vo :: ViewOptions = st ^. viewOptions
   a            <- focusAddr st
   as :: [Addr] <- members_atFocus st
-
-  -- The new subtree has depth two.
-  -- The leaves are the second level.
   leaves :: Porest BufferRow <-
+    -- The new subtree has depth two. This is the second level.
     addrsToBufferRows st (S.singleton a) as
 
   let new :: PTree BufferRow =
@@ -171,8 +185,6 @@ hostGroup_to_forkTree st (hf, as) =
   prefixLeft "hostGroup_to_forkTree:" $ do
   if null as then Left "There are no host Exprs to show."
              else Right ()
-  let r :: Rslt = st ^. appRslt
-      vo :: ViewOptions = st ^. viewOptions
   a <- focusAddr st
 
   topOfNew :: BufferRow <-
@@ -183,16 +195,6 @@ hostGroup_to_forkTree st (hf, as) =
       _pTreeLabel    = topOfNew
     , _pTreeHasFocus = False
     , _pMTrees       = Just leaves }
-
-closeSubviews_atFocus :: St -> St
-closeSubviews_atFocus =
-  stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing
-
-foldSubviews_atFocus :: St -> St
-foldSubviews_atFocus =
-    ( stSetFocused_ViewExprNode_Tree . pTreeLabel
-      . otherProps . folded )
-    %~ not
 
 -- | Creates a flat (depth 1) `Porest`.
 -- For insertion beneath a forking `ViewExprNode`.
