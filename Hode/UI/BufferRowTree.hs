@@ -9,13 +9,17 @@ module Hode.UI.BufferRowTree (
   , foldSubviews_atFocus  -- ^ St -> St
 
   -- | = inserting layers of nodes
+  , insertSearchResults_focusedNode  -- ^ St -> Either String St
+  , searchResults_at -- ^ Rslt -> Addr -> Either String (Set Addr)
+
   , insertMembers_atFocus -- ^ St ->    Either String St
-  , members_atFocus       -- ^ St ->    Either String (MemberFork, [Addr])
+
   , insertHosts_atFocus   -- ^ St ->    Either String St
   , groupHostRels_atFocus -- ^ St ->    Either String [(HostFork, [Addr])]
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
   , hostGroup_to_forkTree -- ^ Rslt -> (HostFork, [Addr]) ->
                           -- Either String (PTree ViewExprNode)
+
   , addrsToBufferRows
     -- ^ St
     -- Set Addr -- ^ show these (can be empty) as `Addr`s,
@@ -34,13 +38,14 @@ import qualified Data.Set              as S
 
 import           Lens.Micro hiding (has, folded)
 
+import Hode.NoUI
+import Hode.PTree.Initial
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
+import Hode.UI.IUtil.String
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.IUtil.String
 import Hode.Util.Misc
-import Hode.PTree.Initial
 
 
 -- | = misc. other changes around the focused node
@@ -63,27 +68,42 @@ foldSubviews_atFocus =
 
 -- | = inserting layers of nodes
 
+-- TODO : much in common with `insertMembers_atFocus`
+insertSearchResults_focusedNode :: St -> Either String St
+insertSearchResults_focusedNode st =
+  prefixLeft "insertSearchResults_focusedNode:" $ do
+  as :: Set Addr <-
+    focusAddr st >>= searchResults_at (st ^. appRslt)
+  leaves :: Porest BufferRow <-
+    -- The new subtree has depth two. This is the second level.
+    addrsToBufferRows st mempty $ S.toList as
+  let new :: PTree BufferRow =
+        pTreeLeaf ( BufferRow VSearchFork
+                    mempty $ OtherProps False )
+        & pMTrees .~ Just leaves
+  Right $ st & ( stSetFocused_ViewExprNode_Tree
+                 %~ consUnder_andFocus new )
+
+searchResults_at :: Rslt -> Addr -> Either String (Set Addr)
+searchResults_at r a =
+  prefixLeft "searchResults_at:" $ do
+  ss :: [String] <- addrToExpr r a >>= flatten r
+  nFindAddrs r $ concat $ L.intersperse " " ss
+
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st =
   prefixLeft "insertMembers_atFocus:" $ do
   a            <- focusAddr st
-  as :: [Addr] <- members_atFocus st
+  as :: [Addr] <- M.elems <$> has (st ^. appRslt) a
   leaves :: Porest BufferRow <-
     -- The new subtree has depth two. This is the second level.
     addrsToBufferRows st (S.singleton a) as
-
   let new :: PTree BufferRow =
         pTreeLeaf ( BufferRow VMemberFork
                     mempty $ OtherProps False )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
                  %~ consUnder_andFocus new )
-
-members_atFocus :: St -> Either String [Addr]
-members_atFocus st =
-  prefixLeft "members_atFocus:" $ do
-  a <- focusAddr st
-  M.elems <$> has (st ^. appRslt) a
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st =
