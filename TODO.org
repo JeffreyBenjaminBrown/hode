@@ -8,6 +8,37 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO pressing
+** TODO count more stuff in the left column(s)
+*** "tags"
+todo apps use these.
+Anything in a "/it #(has tag) x" relationship, if x is among the tag columns,
+has a checkmark in that column.
+The user can list what tags to show from the command line.
+*** St._columnHExprs: let the user add HExprs
+Currently it's fixed at a single HExpr,
+which indicates how many Rels or Tplts it's a top-level member of.
+*** let each HExpr column can be given a title
+by changing columnHExprs to Map String [HExpr]
+*** let each buffer keep its own list of HExprs
+** TODO filters, throughout the view-Porest
+not just its top level
+** TODO edit the SearchBuffers buffer
+Move buffers.
+Delete buffers.
+Annotate buffers.
+*** TODO delete parent from any PTree
+and move children up to where it was
+*** TODO delete from any PTree
+**** in SearchBuffers, add a shortcut for it
+ and move the shortcut for "create child buffer"
+**** if deleting a PTree is possible from Results
+ Introduce a mark for tree nodes of which some but not all children are shown.
+** TODO cannot implement the joint "#:"
+** ordering is awkward
+*** a user should be able to rely on defaults
+*** the defaults should extend to view-children
+*** ordering members of the same group should be easy
 * TODO big-think
 ** who cares?
 *** TODO Projects with extremely similar goals
@@ -23,6 +54,9 @@ https://www.fakerfact.org/about
 *** "navigating digital information"
 https://www.youtube.com/watch?v=M5YKW6fhlss&list=PL8dPuuaLjXtN07XYqqWSKpPrtNDiCHTzU&index=11
 *** distributed search
+** if I'm ambivalent about (currently) implementing a fewature
+Use the software, wait for a use case to arise,
+document the use case under the "todo" item.
 ** representing things
 *** anticipate whether a sub-expression will be searched for
 *** name conflicts
@@ -38,10 +72,6 @@ It would be better if distinct things could share a name.
 **** might help: better columns
 Some as counts, some otherwise.
 **** might help: distinguish "of interest" expressions
-*** ordering is awkward
-**** a user should be able to rely on defaults
-**** the defaults should extend to view-children
-**** ordering members of the same group should be easy
 ** types?
 * TODO easy
 ** TODO merge two nodes
@@ -54,24 +84,53 @@ commit 15201a6561b4181695f72bcb176136f43c94f853
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
 PITFALL: But don't delete the empty string.
+** TODO replace the term "joint" with "separator"
+** TODO : change: can insertHosts_atFocus when they're already there
 * TODO user-friendliness
-** TODO cannot implement the joint "#:"
+** TODO insertion list
+*** plan
+**** data St = ...
++  , _insertionBuffer :: Buffer
+**** initially, just add the final result of insertions
+**** then refactor insertion so it returns the full history of added things
+*** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existedx
+** TODO documentation: order of topics
+How to add.
+How to move focus, add neighbors.
+*Then* what the Rslt is and how to query.
+** TODO ? in UI, separate sort from search
+*** why
+you could apply a sort without having to run the search again
+*** sort a PList to match a list
+ type Porest a = PointedList (PTree a)
+ data PTree a = PTree {
+     _pTreeLabel :: a
+   , _pTreeHasFocus :: Bool
+   , _pMTrees :: Maybe (Porest a) }
+
+ sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
+ steps
+   create a (Map b a) from the PList
+     -- PITFALL: assume each b maps to a unique a in the PList
+   create a (List a) from the (List b)
+     using the Map
+   convert the (List a) to a (PList a)
+*** apply to UI
+CommandSort BinOrientation Addr
+_bufferRowPorest :: Buffer -> Maybe (Porest BufferRow)
+_viewExprNode :: BufferRow -> ViewExprNode
+data ViewExprNode = ... | VExpr ViewExpr | ...
+_viewExpr_Addr :: ViewExpr -> Addr
 ** TODO wrapping is buggy
 For instance, the display of this (at address 153 in jbb/)
    ###re ##solve tmux #has-problem sometimes the status bar is cluttered ##by keep only window names ###note-that status-right #can put any label at the right of the status bar, e.g. the current time.
 includes a 121-character-long line.
-** TODO edit the SearchBuffers buffer
-Move buffers.
-Delete buffers.
-Annotate buffers.
-*** TODO delete parent from any PTree
-and move children up to where it was
-*** TODO delete from any PTree
-**** in SearchBuffers, add a shortcut for it
- and move the shortcut for "create child buffer"
-**** if deleting a PTree is possible from Results
- Introduce a mark for tree nodes of which some but not all children are shown.
+*** todo ? temp fix: allow user to change wrap length
+*** todo ? distance to wrap should shrink with columns, indentation
 ** TODO folding indicator
+Visually indicate whether a node with descendents is folded.
 Or at least, upon inserting contents, unfold.
 ** TODO ? multi-line expressions
 ** TODO ? offer to delete orphaned nodes
@@ -84,7 +143,16 @@ On Nix it represents newlines the wrong way.
 When a new node is added that matches an extant search,
 the search will find it, but (without further work)
 it will not find the search as a neighbor.
-** todo ? distance to wrap should shrink with columns, indentation
+** safer open and save
+To write, first run `git status`.
+If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
+
+If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
+** document the precedence order of the language
+and mention that you can use parens liberally to make it more obvious
+** show path to here
+(Not a big deal because the cursor path is remembered.)
+Add a toggleable window above the Results window.
 * TODO HExpr: extend HMember and HInvolves
 ** implement HMember-Star
 which searches to arbitrary depth
@@ -149,55 +217,7 @@ Use screenkey to show key presses:
    https://gitlab.com/wavexx/screenkey#installation-and-basic-usage
 and SimpleScreenRecorder.
 Audio interface: remember to select both input and output devices.
-* user-friendliness
-** TODO replace the term "joint" with "separator"
-** TODO use (Lisp?) to control GHCI
-** TODO give names to searches
-** TODO insertion list
-*** plan
-**** data St = ...
-+  , _insertionBuffer :: Buffer
-**** initially, just add the final result of insertions
-**** then refactor insertion so it returns the full history of added things
-*** complications
-(1) inserting a compound expression inserts subexpressions
-(2) don't record insertion if it already existed
-** TODO ? in UI, separate sort from search
-*** why
-you could apply a sort without having to run the search again
-*** sort a PList to match a list
- type Porest a = PointedList (PTree a)
- data PTree a = PTree {
-     _pTreeLabel :: a
-   , _pTreeHasFocus :: Bool
-   , _pMTrees :: Maybe (Porest a) }
-
- sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
- steps
-   create a (Map b a) from the PList
-     -- PITFALL: assume each b maps to a unique a in the PList
-   create a (List a) from the (List b)
-     using the Map
-   convert the (List a) to a (PList a)
-*** apply to UI
-CommandSort BinOrientation Addr
-_bufferRowPorest :: Buffer -> Maybe (Porest BufferRow)
-_viewExprNode :: BufferRow -> ViewExprNode
-data ViewExprNode = ... | VExpr ViewExpr | ...
-_viewExpr_Addr :: ViewExpr -> Addr
-** can insertHosts_atFocus when they're already there
-** document the precedence order of the language
-and mention that you can use parens liberally to make it more obvious
-** show path to here
-(Not a big deal because the cursor path is remembered.)
-Add a toggleable window above the Results window.
-** safer open and save
-To write, first run `git status`.
-If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
-
-If it's not a repo, ask, "Are you sure you don't want to turn that data into a Git repo first?"
 * coder-friendliness
-** TODO visually indicate whether a a node with descendents is folded
 ** to include arity in the a node's type
 see digraphs-with-text/gadt.hs
 ** TODO simplify result of nPExpr
@@ -219,7 +239,7 @@ which comes with toEither and fromEither
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
 *** LeftStrings could be more polymorphic
 https://www.reddit.com/r/haskellquestions/comments/d4f6px/class_should_apply_to_a_functor_only_when_its/
-** wart: HExpr and PExpr are complex and nearly isomorphic
+** wart ? HExpr and PExpr are complex and nearly isomorphic
 ** wart: RsltViewTree is not natural
 *** the root
 The root is supposed to only be a Query,
@@ -229,28 +249,6 @@ The root information is(will be) duplicated by the buffer.
 It should be that each ViewResult can only have a Host or Members as a child,
 and vice-versa.
 * TODO views
-** TODO count more stuff in the left column(s)
-*** "tags"
-todo apps use these.
-Anything in a "/it #(has tag) x" relationship, if x is among the tag columns,
-has a checkmark in that column.
-The user can list what tags to show from the command line.
-*** St._columnHExprs: let the user add HExprs
-Currently it's fixed at a single HExpr,
-which indicates how many Rels or Tplts it's a top-level member of.
-*** let each HExpr column can be given a title
-by changing columnHExprs to Map String [HExpr]
-*** let each buffer keep its own list of HExprs
-** TODO reduce redundancy in views
-this
-  <complex expr>
-    it #is _
-      <complex expr> #is <condition 1>
-could be reduced to this
-  <complex expr>
-    it #is _
-      it #is <condition 1>
-** a way to kill buffers
 ** TODO marking things in a tree
 *** buffer nicknames
 Let the user add a nickname to a buffer,
@@ -510,42 +508,9 @@ a map from Role to Set Addr
 a map from Addr to Set Role
    because the item in question could (although this will be rare) hold
    multiple Roles within the same Expr
-** ? To avoid redundant tree-climbing
+** stale ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive.
 It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
-* TODO save disk space w/ multi-line files
-** demonstrating the problem: one-file-per-statement is wasteful
-[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ ls
-0.rslt   21.rslt  30.rslt  41.rslt  4.rslt   58.rslt  66.rslt  74.rslt  87.rslt  9.rslt
-11.rslt  22.rslt  32.rslt  42.rslt  50.rslt  59.rslt  67.rslt  75.rslt  88.rslt
-14.rslt  23.rslt  35.rslt  43.rslt  51.rslt  5.rslt   68.rslt  7.rslt   89.rslt
-15.rslt  24.rslt  36.rslt  44.rslt  52.rslt  60.rslt  69.rslt  80.rslt  8.rslt
-17.rslt  25.rslt  37.rslt  45.rslt  53.rslt  61.rslt  6.rslt   81.rslt  90.rslt
-18.rslt  26.rslt  38.rslt  46.rslt  54.rslt  62.rslt  70.rslt  83.rslt  91.rslt
-19.rslt  27.rslt  39.rslt  47.rslt  55.rslt  63.rslt  71.rslt  84.rslt  92.rslt
-1.rslt   28.rslt  3.rslt   48.rslt  56.rslt  64.rslt  72.rslt  85.rslt  93.rslt
-20.rslt  2.rslt   40.rslt  49.rslt  57.rslt  65.rslt  73.rslt  86.rslt  94.rslt
-
-[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ du -hs .
-332K    .
-
-[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ for i in *; do echo $i $(cat $i) >> test; done
-
-[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ du -hs test
-4,0K    test
-
-[jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ head test
-0.rslt p ""
-
-11.rslt p "see"
-14.rslt r [9,15] 17)
-15.rslt p "https://github.com/commercialhaskell/stack/issues/5037"
-17.rslt t (Just 65) [11] Nothing)
-18.rslt p "is-a"
-19.rslt t Nothing [18] Nothing)
-1.rslt p "has-problem"
-20.rslt p "template haskell"
-21.rslt p "extension"
 * ? how to make variable collision avoidance easier?
 Consider QAnd [ Find child of some x, Test equal to no x].
 That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
@@ -553,8 +518,11 @@ The solution is to change the varName in the Test. This puts, however,
 an annoying burden on the user.
 * ? safety, speed
 ** TODO add tests
+tag untested
 *** searching for OR should not fail if some terms do
 test hMatches and hLookup (in Hode.Hash.HLookup)
+*** test pathsToIts_*, eval
+*** Hode.Util.PTree.writeLevels
 ** To use GHC 8.10's newer garbage collector
 https://well-typed.com/blog/2019/10/nonmoving-gc-merge/
 Our new collector has been merged to GHC’s master branch and will be present in GHC 8.10.1. For a program to use the concurrent non-moving collector it must be compiled with GHC’s -threaded flag and invoked with the +RTS -xn runtime system flag.
@@ -565,6 +533,9 @@ https://cs-syd.eu/posts/2019-08-28-millismos
 ** ? use lists rather than sets until needed
 e.g. in HExprToAddrs, or the RLookup functions.
 That is, unless set fusion works as well.
+*** use lists in some places for fusion, short-circuiting, instead of maps, sets
+ Example: mapping over a map, and then looking for lefts, is slower than turning the map into a list, mapping over the list, and short-circuiting at the first Left.
+ hExprToAddrs (the Hash language find routine) called on the HMap constructor, for instance, does this.
 ** there are some list-set mismatches
 rightReachable, for instance, uses lists, because it's fast.
 But it has to convert the output of hExprToAddrs to a list, using Set.toList.
@@ -572,8 +543,6 @@ It would be nice if a version of hExprToAddrs existed that used lists, not sets.
 ** for jumping around the view
 Could include in the St a map from Addr to Path, so that a user can ask to jump straight to the View corresponding to a given Addr.
 (If it's in the buffer multiple times, cycle between them.)
-** if moving focus ever gets slow
-replace those vectors of subviews with zippers
 ** redundant cases should be last among definitions
 example: In this:
     pExprToHExpr :: PExpr -> Either String HExpr
@@ -583,9 +552,6 @@ example: In this:
       Left $ "pExprToHExpr: Any is not specific enough."
 I only wrote the Any case to make GHCI not issue a warning.
 It should come last.
-** use lists in some places for fusion, short-circuiting, instead of maps, sets
-Example: mapping over a map, and then looking for lefts, is slower than turning the map into a list, mapping over the list, and short-circuiting at the first Left.
-hExprToAddrs (the Hash language find routine) called on the HMap constructor, for instance, does this.
 ** speed when asking for multiple variables that determined a given one
 For varPossibilities, just use the unconditional found values.
 For the input-output criteria, just use VarTest.
@@ -613,7 +579,39 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
 ** ? test mixed queries more
 *** a ForAll with a ForSome condition
 *** a ForAll with a ForAll condition
-** test pathsToIts_*, eval
+** TODO save disk space w/ multi-line files
+*** demonstrating the problem: one-file-per-statement is wasteful
+ [jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ ls
+ 0.rslt   21.rslt  30.rslt  41.rslt  4.rslt   58.rslt  66.rslt  74.rslt  87.rslt  9.rslt
+ 11.rslt  22.rslt  32.rslt  42.rslt  50.rslt  59.rslt  67.rslt  75.rslt  88.rslt
+ 14.rslt  23.rslt  35.rslt  43.rslt  51.rslt  5.rslt   68.rslt  7.rslt   89.rslt
+ 15.rslt  24.rslt  36.rslt  44.rslt  52.rslt  60.rslt  69.rslt  80.rslt  8.rslt
+ 17.rslt  25.rslt  37.rslt  45.rslt  53.rslt  61.rslt  6.rslt   81.rslt  90.rslt
+ 18.rslt  26.rslt  38.rslt  46.rslt  54.rslt  62.rslt  70.rslt  83.rslt  91.rslt
+ 19.rslt  27.rslt  39.rslt  47.rslt  55.rslt  63.rslt  71.rslt  84.rslt  92.rslt
+ 1.rslt   28.rslt  3.rslt   48.rslt  56.rslt  64.rslt  72.rslt  85.rslt  93.rslt
+ 20.rslt  2.rslt   40.rslt  49.rslt  57.rslt  65.rslt  73.rslt  86.rslt  94.rslt
+
+ [jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ du -hs .
+ 332K    .
+
+ [jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ for i in *; do echo $i $(cat $i) >> test; done
+
+ [jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ du -hs test
+ 4,0K    test
+
+ [jeff@jbb-dell:~/code/rslt/hode/jbb/temp]$ head test
+ 0.rslt p ""
+
+ 11.rslt p "see"
+ 14.rslt r [9,15] 17)
+ 15.rslt p "https://github.com/commercialhaskell/stack/issues/5037"
+ 17.rslt t (Just 65) [11] Nothing)
+ 18.rslt p "is-a"
+ 19.rslt t Nothing [18] Nothing)
+ 1.rslt p "has-problem"
+ 20.rslt p "template haskell"
+ 21.rslt p "extension"
 * far off
 ** synthetic templates
 _ is a member of _" is a "synthetic" template. There might be others.
@@ -658,7 +656,7 @@ cached
 editor
 viewport -- would be infinite-sized, because nested
 * DONE ? obvious|stale|excessive
-** why evaluating a Hash expression as a search is possible
+** why evaluating a Hash expression as a search is implemented
 *** It sucks to have to:
 create a node "projects like hode",
 and then redundantly populate every such project x with
@@ -669,7 +667,6 @@ and create the weird search-node N = "/e /it #is-like hode".
   (Note that if I change hode's name, the search-node will still work).
 Then, given a project (such as "#for hode #ask who cares"),
 I would only have to create a relationship like "#re P #see N".
-** untested : Hode.Util.PTree.writeLevels
 ** forall and exists clauses for variable functions of variables
 *** Example
  [ (X, ..)
