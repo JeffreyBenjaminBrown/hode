@@ -63,7 +63,7 @@ test_mkRslt = TestCase $ do
       ,(4,S.fromList [(RoleInRel' $ RoleTplt,5)
                      ,(RoleInRel' $ RoleTplt,6)])
       ,(5,S.fromList [(RoleInRel' $ RoleMember 1,6)])],
-    _templates = S.singleton 4 }
+    _tplts = S.singleton 4 }
 
 test_checkDb :: Test
 test_checkDb = TestCase $ do

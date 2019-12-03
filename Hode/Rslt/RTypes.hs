@@ -122,7 +122,7 @@ data Rslt = Rslt {
       -- ^ Tells you its members, if any.
   , _isIn          :: Map Addr (Set (Role, Addr))
       -- ^ Tells you its hosts, i.e. what it belongs to.
-  , _templates :: Set Addr
+  , _tplts :: Set Addr
   } deriving (Eq, Ord, Read, Show)
 
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.

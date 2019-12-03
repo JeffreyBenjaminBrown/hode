@@ -49,7 +49,7 @@ mkRslt es = go es' where
     , _has = hasMap
     , _isIn = foldl invertAndAddPositions M.empty
               $ M.toList $ M.map M.toList hasMap
-    , _templates = ts
+    , _tplts = ts
     }
 
 

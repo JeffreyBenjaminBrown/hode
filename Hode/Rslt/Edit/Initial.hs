@@ -52,8 +52,8 @@ renameAddr_unsafe old new r = let
                    M.mapKeys aa . M.map (M.map aa)
           , _isIn = _isIn r &
                     M.mapKeys aa . M.map (S.map $ _2 %~ aa)
-          , _templates = _templates r &
-                         S.map aa
+          , _tplts = _tplts r &
+                     S.map aa
           }
 
 -- | `_replaceInRefExpr r spot new host` returns something like `host`,
@@ -112,9 +112,9 @@ _insert a e r = Rslt {
       in if null positions then _has r
          else M.insert a positions $ _has r
   , _isIn = invertAndAddPositions (_isIn r) (a, refExprPositions e)
-  , _templates = case e of
-      Tplt' _ -> S.insert a $ _templates r
-      _       ->              _templates r
+  , _tplts = case e of
+      Tplt' _ -> S.insert a $ _tplts r
+      _       ->              _tplts r
   }
 
 deleteIfUnused :: Addr -> Rslt -> Either String Rslt
@@ -152,5 +152,5 @@ _deleteInternalMentionsOf a r =
     , _variety = M.delete a $ _variety r
     , _addrToRefExpr = M.delete a $ _addrToRefExpr r
     , _refExprToAddr = _refExprToAddr2
-    , _templates = S.delete a $ _templates r
+    , _tplts = S.delete a $ _tplts r
     }

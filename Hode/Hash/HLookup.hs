@@ -247,7 +247,7 @@ hExprToAddrs r sub (HTrans d targets ht he hs) =
   Right $ S.fromList $ firsts ++ seconds
 
 hExprToAddrs r _ HTplts =
-  Right $ _templates r
+  Right $ _tplts r
 
 
 -- | == Transitive search utilities
