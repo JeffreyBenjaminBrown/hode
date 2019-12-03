@@ -333,6 +333,64 @@ This copies everything in the currently-displayed results buffer,
 even if it does not all fit on the screen.
 
 ### `M-r`: Replace the command window with this buffer's last successful search
+### `M-S`: Insert results of evaluating focus as a search
+#### The idea
+
+Suppose you often find yourself running
+
+`/find alice | bob | chris`
+
+You can add that search as an expression to your graph.
+Once it's in your graph, when it has focus
+(see the section called "Move focus" earlier),
+you can run it by pressing `M-S`.
+The search results will be inserted underneath it.
+
+#### Encoding a search: the fragile way
+
+There are many ways you could add that search as an expression in the graph. Here is the simplest way:
+
+`/add "alice | bob | chris"`
+
+Note that the query has been wrapped in quotation marks. Otherwise Hode would try, as usual, to interpret the `|` symbols to mean "or", and it would get confused. (If Hode enjoyed sarcasm, it might respond, "Which one do you want to add -- alice or bob or chris?")
+
+#### Why that way is fragile
+
+Suppose your graph had an error, and you had to change "bob" to "rob".
+Every expression that "bob" was in now says "rob" instead.
+But the search you encoded did not include "bob" --
+it contained instead the string "alice | bob | chris".
+So now the search is broken --
+it will continue looking for "bob", not "rob".
+
+#### Econding a search: the robust way
+
+Here is a better way to encode the same search:
+
+`/add alice # "|" # bob # "|" # chris`
+
+Each term in the search -- the words and the `|` symbols --
+are now separated by `#` marks. When you run the search,
+the expression is "flattened": the # marks are stripped away,
+and the results joined together (with spaces in between).
+
+This way, when you press `M-S`, the search that gets run is the same:
+
+`alice | bob | chris`
+
+But since each term in the search has been encoded as a separate entity,
+Hode "knows what they are". If you change "bob" to "rob",
+it will change in the search too.
+
+(You don't have to wrap "alice" or "bob" or "chris" in quotation marks,
+because they contain no characters that Hode treats specially.)
+
+#### PITFALL: Back references are not currently implemented
+
+Suppose node X encodes a search that finds nodes Y and Z.
+If you evaluate X, you will find Y and Z.
+But if you visit Y or Z,
+you will receive no information about its relationship to X.
 
 ## Keyboard commands that work from the Buffers buffer
 

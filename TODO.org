@@ -8,22 +8,6 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO evaluate node as search
-** TODO ? back-references
-When a new node is added that matches an extant search,
-the search will find it, but (without further work)
-it will not find the search as a neighbor.
-** document how, why
-*** It sucks to have to:
-create a node "projects like hode",
-and then redundantly populate every such project x with
-"x #is-like hode" and "x #is-in projects like hode",
-*** I would prefer to
-simply encode "x #is-like hode"
-and create the weird search-node N = "/e /it #is-like hode".
-  (Note that if I change hode's name, the search-node will still work).
-Then, given a project (such as "#for hode #ask who cares"),
-I would only have to create a relationship like "#re P #see N".
 * TODO big-think
 ** who cares?
 *** TODO Projects with extremely similar goals
@@ -92,6 +76,10 @@ If a member of something deleted is not remember of anything else, ask whether t
 On Nix it represents newlines the wrong way.
 ** TODO shortcut: copy address
 ** TODO if a group has only one member, omit the group
+** TODO ? back-references for searches encoded as Exprs
+When a new node is added that matches an extant search,
+the search will find it, but (without further work)
+it will not find the search as a neighbor.
 ** todo ? distance to wrap should shrink with columns, indentation
 * TODO HExpr: extend HMember and HInvolves
 ** implement HMember-Star
@@ -665,7 +653,18 @@ cached
 **** these won't work for holding a single widget
 editor
 viewport -- would be infinite-sized, because nested
-* DONE ? obvious|stale
+* DONE ? obvious|stale|excessive
+** why evaluating a Hash expression as a search is possible
+*** It sucks to have to:
+create a node "projects like hode",
+and then redundantly populate every such project x with
+"x #is-like hode" and "x #is-in projects like hode",
+*** I would prefer to
+simply encode "x #is-like hode"
+and create the weird search-node N = "/e /it #is-like hode".
+  (Note that if I change hode's name, the search-node will still work).
+Then, given a project (such as "#for hode #ask who cares"),
+I would only have to create a relationship like "#re P #see N".
 ** untested : Hode.Util.PTree.writeLevels
 ** forall and exists clauses for variable functions of variables
 *** Example
