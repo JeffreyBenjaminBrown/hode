@@ -26,9 +26,17 @@ emptyRslt = mkRslt mempty
 
 mkRslt :: Map Addr RefExpr -> Rslt
 mkRslt es = go es' where
-  es' :: Map Addr RefExpr
-  es' = if not $ M.null es
-        then es else M.singleton 0 $ Phrase' ""
+  -- TODO ? speed: build ts at the same time as the map,
+  -- to avoid looping over the addresses twice.
+  ts :: Set Addr =
+    M.keysSet $ M.filter f es where
+    f = \case (Tplt' _) -> True
+              _ -> False
+
+  es' :: Map Addr RefExpr =
+    if not $ M.null es
+    then es else M.singleton 0 $ Phrase' ""
+
   go :: Map Addr RefExpr -> Rslt
   go m = let
     hasMap :: Map Addr (Map Role Addr) =
@@ -41,6 +49,7 @@ mkRslt es = go es' where
     , _has = hasMap
     , _isIn = foldl invertAndAddPositions M.empty
               $ M.toList $ M.map M.toList hasMap
+    , _templates = ts
     }
 
 

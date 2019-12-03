@@ -52,6 +52,8 @@ renameAddr_unsafe old new r = let
                    M.mapKeys aa . M.map (M.map aa)
           , _isIn = _isIn r &
                     M.mapKeys aa . M.map (S.map $ _2 %~ aa)
+          , _templates = _templates r &
+                         S.map aa
           }
 
 -- | `_replaceInRefExpr r spot new host` returns something like `host`,
@@ -81,6 +83,7 @@ _replaceInRefExpr r spot new host = let
   void $ addrToRefExpr r new
   f spot host
 
+-- TODO ? unused
 insert :: RefExpr -> Rslt -> Either String Rslt
 insert e r =
   prefixLeft "insert:" $ do
@@ -109,6 +112,9 @@ _insert a e r = Rslt {
       in if null positions then _has r
          else M.insert a positions $ _has r
   , _isIn = invertAndAddPositions (_isIn r) (a, refExprPositions e)
+  , _templates = case e of
+      Tplt' _ -> S.insert a $ _templates r
+      _       ->              _templates r
   }
 
 deleteIfUnused :: Addr -> Rslt -> Either String Rslt
@@ -127,12 +133,10 @@ deleteIfUnused a r =
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r =
   prefixLeft "_deleteInternalMentionsOf:" $ do
-  (aHas       ::           Map Role Addr) <- has r a
-  let (_has2  :: Map Addr (Map Role Addr)) = M.delete a $ _has r
-      (_isIn1 :: Map Addr (Set (Role, Addr))) = _isIn r
-      (_isIn2 :: Map Addr (Set (Role, Addr))) =
+  aHas       ::           Map Role Addr <- has r a
+  let _isIn2 :: Map Addr (Set (Role, Addr)) =
         M.filter (not . null)
-        $ M.foldlWithKey f _isIn1 aHas
+        $ M.foldlWithKey f (_isIn r) aHas
         where
           f :: Map Addr (Set (Role, Addr)) -> Role -> Addr
             -> Map Addr (Set (Role, Addr))
@@ -143,9 +147,10 @@ _deleteInternalMentionsOf a r =
     Right $ M.delete e $ _refExprToAddr r
 
   Right $ Rslt {
-    _has  = _has2
+      _has  = M.delete a $ _has r
     , _isIn = _isIn2
     , _variety = M.delete a $ _variety r
     , _addrToRefExpr = M.delete a $ _addrToRefExpr r
     , _refExprToAddr = _refExprToAddr2
+    , _templates = S.delete a $ _templates r
     }
