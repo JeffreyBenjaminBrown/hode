@@ -45,6 +45,7 @@ hVars = cata f where
   f (HOrF hs)           = S.unions hs
   f (HReachF _ t s)     = S.unions $ [t,s]
   f (HTransF _ _ t e s) = S.unions $ [t,e,s]
+  f HTpltsF             = S.empty
 
 -- | Substitute something(s) for the variable(s) in an `HExpr`.
 hSub :: M.Map Var HExpr -> HExpr -> HExpr

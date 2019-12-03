@@ -91,6 +91,10 @@ hMatches r h0 a0 = prefixLeft "hMatches:" $ do
     HOr hs ->
       Right $ or $ rights $ map (\h -> hMatches r h a0) hs
 
+    HTplts -> Right $ case e0 of
+      ExprTplt _ -> True
+      _          -> False
+
     HReach _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HReach"
     HTrans _ _ _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HTrans"
     HMember _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMember"
@@ -241,6 +245,9 @@ hExprToAddrs r sub (HTrans d targets ht he hs) =
       seconds = if not $ elem SearchRightward targets then []
         else map snd pairs
   Right $ S.fromList $ firsts ++ seconds
+
+hExprToAddrs r _ HTplts =
+  Right $ _templates r
 
 
 -- | == Transitive search utilities

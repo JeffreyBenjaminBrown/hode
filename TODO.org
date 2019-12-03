@@ -44,9 +44,8 @@ Some as counts, some otherwise.
 **** ordering members of the same group should be easy
 ** types?
 * TODO easy
-** TODO find templates from UI
-and a keyword /templates that lets you see them all.
-And maybe a list of transitive templates too.
+** TODO find templates
+Add HTemplates, which finds all templates.
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
 PITFALL: But don't delete the empty string.

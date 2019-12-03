@@ -52,6 +52,7 @@ data HExpr where
     -> HExpr -- ^ expression(s) to end at
     -> HExpr -- ^ expression(s) to start from
     -> HExpr
+  HTplts :: HExpr -- ^ find all `Tplt`s in the `Rslt`
   deriving (Eq, Ord, Show)
 
 -- | Example: if x is never the second member of anything, then the `HMap`
