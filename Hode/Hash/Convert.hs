@@ -162,6 +162,8 @@ pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
   It (Just pnr) -> pExprToHExpr r pnr
   PRel pr       -> pRelToHExpr r pr
 
+  PTplts -> Right HTplts
+
   -- These redundant checks (to keep GHCI from warning me) should come last.
   Any -> Left $
     "pExprToHExpr: Any is not specific enough."
@@ -224,9 +226,10 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
   f (PReachF _)    = Right [] -- TODO ? allow inspection (recurse inside)
   f (PTransF _ _)  = Right [] -- TODO ? allow inspection (recurse inside)
   f AnyF           = Right []
-  f (ItF Nothing)  = Right [[]]
+  f (ItF Nothing)  = Right [[]] -- PITFALL: *not* empty! Rather, found it.
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
   f (PRelF pr)       = pathsToIts_sub_pRel pr
+  f PTpltsF        = Right []
 
 pathsToIts_sub_pRel :: PRel -> Either String [RelPath]
 pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel:" . cata f where

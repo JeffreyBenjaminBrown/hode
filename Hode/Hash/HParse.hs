@@ -117,6 +117,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , pTransRight
        , pMap
        , pMember
+       , pAllTplts
        , pInvolves
        , pEval
        , pVar
@@ -200,6 +201,11 @@ pMember :: Parser PExpr
 pMember = lexeme ( foldr1 (<|>)
                  $ map (try . precisely) ["/member","/m"] )
          >> ( PMember <$> _pHashExpr )
+
+pAllTplts :: Parser PExpr
+pAllTplts = lexeme ( foldr1 (<|>)
+                     $ map (try . precisely) ["/tplts","/ts"] )
+            >> return PTplts
 
 -- | Example: "/i-2 a" finds any `Rel` that involves "a"
 -- in either its first or its second level.

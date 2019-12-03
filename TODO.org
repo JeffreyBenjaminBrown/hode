@@ -44,8 +44,13 @@ Some as counts, some otherwise.
 **** ordering members of the same group should be easy
 ** types?
 * TODO easy
-** TODO find templates
-Add HTemplates, which finds all templates.
+** TODO merge two nodes
+e.g. because (and why can this happen?)
+two identical templates exist at different addresses.
+
+For an example of that error,
+see jbb/ until (but not after)
+commit 15201a6561b4181695f72bcb176136f43c94f853
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
 PITFALL: But don't delete the empty string.

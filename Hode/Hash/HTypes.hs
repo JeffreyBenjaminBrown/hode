@@ -84,6 +84,7 @@ data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
   | Any
   | It (Maybe PExpr)
   | PRel PRel
+  | PTplts
    deriving (Eq, Show)
 
 type PMap = Map Role PExpr
