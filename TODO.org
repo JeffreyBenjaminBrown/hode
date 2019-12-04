@@ -35,10 +35,54 @@ and move children up to where it was
 **** if deleting a PTree is possible from Results
  Introduce a mark for tree nodes of which some but not all children are shown.
 ** TODO cannot implement the separator "#:"
-** ordering is awkward
+** TODO ordering is awkward
+*** TODO ? in UI, separate sort from search
+**** why
+ you might want to sort without having to run the search again
+**** sort a PList to match a list
+  type Porest a = PointedList (PTree a)
+  data PTree a = PTree {
+      _pTreeLabel :: a
+    , _pTreeHasFocus :: Bool
+    , _pMTrees :: Maybe (Porest a) }
+
+  sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
+  steps
+    create a (Map b a) from the PList
+      -- PITFALL: assume each b maps to a unique a in the PList
+    create a (List a) from the (List b)
+      using the Map
+    convert the (List a) to a (PList a)
+**** apply to UI
+ CommandSort BinOrientation Addr
+ _bufferRowPorest :: Buffer -> Maybe (Porest BufferRow)
+ _viewExprNode :: BufferRow -> ViewExprNode
+ data ViewExprNode = ... | VExpr ViewExpr | ...
+ _viewExpr_Addr :: ViewExpr -> Addr
 *** a user should be able to rely on defaults
 *** the defaults should extend to view-children
 *** ordering members of the same group should be easy
+* TODO easy
+** TODO merge two nodes
+e.g. because (and why can this happen?)
+two identical templates exist at different addresses.
+
+For an example of that error,
+see jbb/ until (but not after)
+commit 15201a6561b4181695f72bcb176136f43c94f853
+** TODO upon save, delete unused phrases and templates
+unless maybe it's a long phrase
+PITFALL: But don't delete the empty string.
+** TODO : change: can insertHosts_atFocus when they're already there
+** TODO insertion list
+*** plan
+**** data St = ...
++  , _insertionBuffer :: Buffer
+**** initially, just add the final result of insertions
+**** then refactor insertion so it returns the full history of added things
+*** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existedx
 * TODO big-think
 ** who cares?
 *** TODO Projects with extremely similar goals
@@ -73,55 +117,11 @@ It would be better if distinct things could share a name.
 Some as counts, some otherwise.
 **** might help: distinguish "of interest" expressions
 ** types?
-* TODO easy
-** TODO merge two nodes
-e.g. because (and why can this happen?)
-two identical templates exist at different addresses.
-
-For an example of that error,
-see jbb/ until (but not after)
-commit 15201a6561b4181695f72bcb176136f43c94f853
-** TODO upon save, delete unused phrases and templates
-unless maybe it's a long phrase
-PITFALL: But don't delete the empty string.
-** TODO : change: can insertHosts_atFocus when they're already there
 * TODO user-friendliness
-** TODO insertion list
-*** plan
-**** data St = ...
-+  , _insertionBuffer :: Buffer
-**** initially, just add the final result of insertions
-**** then refactor insertion so it returns the full history of added things
-*** complications
-(1) inserting a compound expression inserts subexpressions
-(2) don't record insertion if it already existedx
 ** TODO documentation: order of topics
 How to add.
 How to move focus, add neighbors.
 *Then* what the Rslt is and how to query.
-** TODO ? in UI, separate sort from search
-*** why
-you could apply a sort without having to run the search again
-*** sort a PList to match a list
- type Porest a = PointedList (PTree a)
- data PTree a = PTree {
-     _pTreeLabel :: a
-   , _pTreeHasFocus :: Bool
-   , _pMTrees :: Maybe (Porest a) }
-
- sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
- steps
-   create a (Map b a) from the PList
-     -- PITFALL: assume each b maps to a unique a in the PList
-   create a (List a) from the (List b)
-     using the Map
-   convert the (List a) to a (PList a)
-*** apply to UI
-CommandSort BinOrientation Addr
-_bufferRowPorest :: Buffer -> Maybe (Porest BufferRow)
-_viewExprNode :: BufferRow -> ViewExprNode
-data ViewExprNode = ... | VExpr ViewExpr | ...
-_viewExpr_Addr :: ViewExpr -> Addr
 ** TODO wrapping is buggy
 For instance, the display of this (at address 153 in jbb/)
    ###re ##solve tmux #has-problem sometimes the status bar is cluttered ##by keep only window names ###note-that status-right #can put any label at the right of the status bar, e.g. the current time.
