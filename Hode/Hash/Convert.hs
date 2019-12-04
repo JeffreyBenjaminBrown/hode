@@ -37,9 +37,9 @@ import Hode.Util.Misc
 --                         , Absent ]
 --                  ["j"] ) )
 --
--- In an HExpr, no member can be absent, but joints can be empty.
+-- In an HExpr, no member can be absent, but separators can be empty.
 -- When an outer member of a PRel is present,
--- the outer joint on that side of the corresponding HExpr should be null.
+-- the outer separator on that side of the corresponding HExpr should be null.
 
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
 pRelToHExpr r = prefixLeft "pRelToHExpr:" . para f where

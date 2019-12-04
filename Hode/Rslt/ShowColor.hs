@@ -108,7 +108,7 @@ eParenShowColorInner shortCircuit ef0 =
     prefixLeft "g of Rel:" $ do
     ms1 :: [ColorString] <- ifLefts $ map f ms0
     Tplt ml js mr :: Tplt ColorString <-
-      ifLefts $ fmap (hash n . parenJoint_ifIncludesSpace) <$> fmap f t
+      ifLefts $ fmap (hash n . parenSeparator_ifIncludesSpace) <$> fmap f t
     Right $ concat $ L.intersperse space $
       maybeToList ml ++
       zip' ms1 js ++
@@ -122,8 +122,8 @@ blank            = [("_", TextColor)]
 space            = [(" ", TextColor)]
 emptyColorString = [("" , TextColor)]
 
-parenJoint_ifIncludesSpace :: ColorString -> ColorString
-parenJoint_ifIncludesSpace cs =
+parenSeparator_ifIncludesSpace :: ColorString -> ColorString
+parenSeparator_ifIncludesSpace cs =
   if not $ elem ' ' $ unColorString cs
   then cs
   else [("(",TextColor)] ++ cs ++ [(")",TextColor)]

@@ -34,10 +34,10 @@ The template is what lets us distinguish the relationship "Bill #likes Mary"
 from the relationship "Bill #confuses Mary".
 
 A `Tplt` contains a list of `Expr` values,
-which we might call "joints" or "separators".
+which we might call "separators".
 In the relationshiop "Bill #gave flowers #to Mary",
-the `Tplt` has two joints: "gave" and "flowers".
-A joint can involve multiple words,
+the `Tplt` has two separators: "gave" and "flowers".
+A separator can involve multiple words,
 in which case it helps to use parentheses,
 as in, "Bill #(gave or intended to give) flowers #to Mary".
 
@@ -46,10 +46,11 @@ is to intersperse an underscore where a member would go.
 For instance, we could refer to the "likes" `Tplt` as "_ likes _",
 and the "maybe" `Tplt` as "maybe _".
 
-Note that "separator" and "joint" are imperfect metaphors:
-A joint in a `Tplt` in Hode usually separates two things,
+Note that the term "separator" is not exactly accurate:
+A separator in a `Tplt` in Hode usually separates two things,
 but in some cases it only borders on one
-(like the "sometimes" in "everybody #needs somebody #sometimes).
+(like the "maybe" in "#maybe I'm amazed",
+or the "sometimes" in "everybody #needs somebody #sometimes).
 
 ## Compound `Rel`s
 
@@ -59,7 +60,7 @@ It is a binary "knows" relationship between "Mary"
 and the binary relationship "Bill #likes Sue".
 We say the "knows" relationship is "higher" than the "likes" relationship.
 
-We can vary the number of hash symbols attached to a joint to indicate how high a relationship is.
+We can vary the number of hash symbols attached to a separator to indicate how high a relationship is.
 This is optional, but it makes things easier to read.
 For instance, the previous relationship could be written without parentheses as
 "Mary ##knows Bill #likes Sue".

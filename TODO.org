@@ -34,7 +34,7 @@ and move children up to where it was
  and move the shortcut for "create child buffer"
 **** if deleting a PTree is possible from Results
  Introduce a mark for tree nodes of which some but not all children are shown.
-** TODO cannot implement the joint "#:"
+** TODO cannot implement the separator "#:"
 ** ordering is awkward
 *** a user should be able to rely on defaults
 *** the defaults should extend to view-children
@@ -84,7 +84,6 @@ commit 15201a6561b4181695f72bcb176136f43c94f853
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
 PITFALL: But don't delete the empty string.
-** TODO replace the term "joint" with "separator"
 ** TODO : change: can insertHosts_atFocus when they're already there
 * TODO user-friendliness
 ** TODO insertion list
@@ -166,8 +165,8 @@ where a Wildcard stands for "any number could go here".
 ** TODO Hode.Rslt.Edit.delete is ugly
 It can cause the address of (Phrase "") to change.
 It assumes you want "" in your graph.
-** TODO searching for a Tplt with empty-string joints
-One needs to represent the empty joint as \"\", as in this:
+** TODO searching for a Tplt with empty-string separators
+One needs to represent the empty separator as \"\", as in this:
    Right r = nInserts (mkRslt mempty) [ "0 # 1", "1 # 2" ]
    t = nFind r "/t /_ \"\" /_"
 ** in Qseq

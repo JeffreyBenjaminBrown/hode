@@ -77,7 +77,7 @@ pExprIsUnique = \case PExpr _ -> True
 -- | To simplify a `PRel` or `PExpr` is to
 -- (1) flatten sections of the form `PNonRel (PRel x)` into `x`
 -- (2) flatten sections of the form `PRel (PNonRel x)` into `x`
--- (3) unwrap any "Rel" with one member and no joints.
+-- (3) unwrap any "Rel" with one member and no separators.
 
 simplifyPRel :: PRel -> PRel
 simplifyPRel = cata f where

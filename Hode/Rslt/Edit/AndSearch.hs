@@ -54,7 +54,7 @@ exprToAddrInsert_rootNotFound r0 (Phrase w) = do
 exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
   prefixLeft "exprToAddrInsert_rootNotFound:" $ do
   if null a && null bs && null c
-    then  Left "empty list of joints in Tplt"
+    then  Left "invalid Tplt: must have at least one separator."
     else Right ()
   (r1 :: Rslt, as1 :: [Aged Addr]) <- case a of
     Nothing -> Right (r0,[])

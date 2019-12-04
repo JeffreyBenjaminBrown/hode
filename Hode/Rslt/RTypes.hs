@@ -32,7 +32,7 @@ type HostAddr   = Addr -- ^ could be a `Rel` or a `Tplt`
 data RoleInRel = RoleTplt | RoleMember Int
   deriving (Eq, Ord, Read, Show)
 
-data RoleInTplt = RoleCapLeft | RoleCapRight | RoleJoint Int
+data RoleInTplt = RoleCapLeft | RoleCapRight | RoleSeparator Int
   deriving (Eq, Ord, Read, Show)
 
 data Role = RoleInTplt' RoleInTplt | RoleInRel' RoleInRel
@@ -56,10 +56,10 @@ deriveEq1 ''Rel
 
 -- ^ A `Tplt` describes a kind of first-order relationship.
 -- For instance, any "_ #needs _" relationship uses
--- `Tplt Nothing ["needs"] Nothing`, because it has one interior joint
--- and no exterior joints. By contrast, any "#the _ #of _" relationship
+-- `Tplt Nothing ["needs"] Nothing`, because it has one interior separator
+-- and no exterior separators. By contrast, any "#the _ #of _" relationship
 -- would use `Tplt (Just "the") ["of"] Nothing`, because it
--- has an interior joint ("of") and a left-hand joint ("the").
+-- has an interior separator ("of") and a left-hand separator ("the").
 -- Note that at least one of those things has to be present,
 -- but it could be the empty string.
 -- Elaborating a bit more of that pattern:

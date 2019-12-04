@@ -71,7 +71,7 @@ refExprPositions = \case
   Tplt' (Tplt a bs c) -> a' ++ bs' ++ c' where
     a' = maybeToList $ fmap (r,) a where
       r = RoleInTplt' RoleCapLeft
-    bs' = map (first $ RoleInTplt' . RoleJoint) $
+    bs' = map (first $ RoleInTplt' . RoleSeparator) $
           zip [1..] bs
     c' = maybeToList $ fmap (r,) c where
       r = RoleInTplt' RoleCapRight

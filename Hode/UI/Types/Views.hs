@@ -90,7 +90,7 @@ data ViewExpr = ViewExpr {
 -- is involved.
 data HostFork =
     RelHostFork  RelHosts   -- ^ `Rel`s  that the center is a member of
-  | TpltHostFork TpltHosts  -- ^ `Tplt`s that the center is a joint in
+  | TpltHostFork TpltHosts  -- ^ `Tplt`s that the center is a separator in
   deriving (Eq, Ord, Show)
 
 data RelHosts = RelHosts {
@@ -103,16 +103,16 @@ data RelHosts = RelHosts {
   } deriving (Eq, Ord)
 
 -- | `TpltHosts` is used to group `Tplt`s to which the
--- `Expr` at `jointHostsCenter` belongs.
+-- `Expr` at `separatorHostsCenter` belongs.
 data TpltHosts = TpltHosts {
-  _jointHostsCenter :: Addr }
+  _separatorHostsCenter :: Addr }
   deriving (Eq, Ord)
 
 class HasCenterAddr a where
   centerAddr :: a -> Addr
 
 instance HasCenterAddr TpltHosts where
-  centerAddr = _jointHostsCenter
+  centerAddr = _separatorHostsCenter
 
 instance HasCenterAddr RelHosts where
   centerAddr = _memberHostsCenter
@@ -167,7 +167,7 @@ instance ShowColor ViewOptions RelHosts where
 
 -- | Shows the label of the group, not its members.
 instance Show TpltHosts where
-  show _ = "Tplts using it as a joint"
+  show _ = "Tplts using it as a separator"
 
 -- PITFALL: These lenses have to be defined *right here*,
 -- after the `Show` instances that `ViewExprNode` depends on,

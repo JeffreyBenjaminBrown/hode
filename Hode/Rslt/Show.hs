@@ -33,7 +33,7 @@ import Hode.Util.Misc
 
 
 -- | `eShow` provides the simplest way to show an `Expr`.
--- It prefaces each joint in an `n`th-order relationships with `n` '#' marks.
+-- It prefaces each separator in an `n`th-order relationships with `n` '#' marks.
 eShow :: Rslt -> Expr -> Either String String
 eShow r = prefixLeft "eShow:" . para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
@@ -158,7 +158,7 @@ eParenShowInner shortCircuit ef0 =
     prefixLeft "g of Rel:" $ do
     ms1 :: [String] <- ifLefts $ map f ms0
     Tplt ml js mr :: Tplt String <-
-      (hash n . parenJoint_ifIncludesSpace <$>) <$>
+      (hash n . parenSeparator_ifIncludesSpace <$>) <$>
         -- Tplt in Either => two fmaps
       ifLefts (fmap f t)
     Right $ concat $ L.intersperse " " $
@@ -168,8 +168,8 @@ eParenShowInner shortCircuit ef0 =
   g (_, ExprRelF (Rel _ _)) = Left $
     "g given a Rel with a non-Tplt in the Tplt position."
 
-parenJoint_ifIncludesSpace :: String -> String
-parenJoint_ifIncludesSpace s =
+parenSeparator_ifIncludesSpace :: String -> String
+parenSeparator_ifIncludesSpace s =
   if not $ elem ' ' s
   then s
   else "(" ++ s ++ ")"

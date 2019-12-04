@@ -46,7 +46,7 @@ test_mkRslt = TestCase $ do
       ,(5,(RelCtr,2))
       ,(6,(RelCtr,2))],
     _has = M.fromList
-      [(4,M.fromList [(RoleInTplt' $ RoleJoint 1,3)
+      [(4,M.fromList [(RoleInTplt' $ RoleSeparator 1,3)
                      ,(RoleInTplt' $ RoleCapRight,1)])
       ,(5,M.fromList [(RoleInRel' $ RoleTplt,4)
                      ,(RoleInRel' $ RoleMember 1,1)
@@ -59,7 +59,7 @@ test_mkRslt = TestCase $ do
                      ,(RoleInTplt' $ RoleCapRight,4)])
       ,(2,S.fromList [(RoleInRel' $ RoleMember 2,5)
                      ,(RoleInRel' $ RoleMember 2,6)])
-      ,(3,S.fromList [(RoleInTplt' $ RoleJoint 1,4)])
+      ,(3,S.fromList [(RoleInTplt' $ RoleSeparator 1,4)])
       ,(4,S.fromList [(RoleInRel' $ RoleTplt,5)
                      ,(RoleInRel' $ RoleTplt,6)])
       ,(5,S.fromList [(RoleInRel' $ RoleMember 1,6)])],

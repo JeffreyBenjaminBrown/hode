@@ -61,7 +61,7 @@ replaceInTplt a' RoleCapLeft (Tplt (Just _) bs c) =
   Right $ Tplt (Just a') bs c
 replaceInTplt c' RoleCapRight (Tplt a bs (Just _)) =
   Right $ Tplt a bs (Just c')
-replaceInTplt b (RoleJoint k) (Tplt a bs c) = do
+replaceInTplt b (RoleSeparator k) (Tplt a bs c) = do
   bs' <- replaceNth b k bs
   Right $ Tplt a bs' c
 replaceInTplt _ rol t =

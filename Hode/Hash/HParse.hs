@@ -180,8 +180,8 @@ pTplt = lexeme ( foldr1 (<|>) $
 _pTplt :: Parser Expr
 _pTplt =
   let blank = Left  <$> pAny
-      joint = Right <$> lexeme hashPhrase
-  in some (blank <|> joint) >>=
+      separator = Right <$> lexeme hashPhrase
+  in some (blank <|> separator) >>=
      return . ExprTplt . fmap Phrase . tpltFromEithers
 
 pMap :: Parser PExpr

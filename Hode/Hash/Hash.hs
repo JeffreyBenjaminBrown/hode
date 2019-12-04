@@ -37,7 +37,7 @@ import Hode.Hash.HTypes
 -- `HExpr $ Rel [n] m`, where `n` is the address of `Phrase "not"` and
 -- `m` is the address of `Tplt [Phrase "maybe"]`.
 
-hash :: Level -> Joint -> PRel -> PRel -> Either String PRel
+hash :: Level -> Separator -> PRel -> PRel -> Either String PRel
 hash l j -- ignore non-exhaustive error
   a@(isOpen -> False)
   b@(isOpen -> False)
@@ -78,20 +78,20 @@ hash _ _ (Open _ _ _) (Open _ _ _) = error "seems impossible."
 hash _ _ _ _                       = error "impossible."
 
 
-mergeIntoLeft :: Joint -> PRel -> PRel -> Either String PRel
-mergeIntoLeft j (Open l mbrs joints) pr =
-  Right $ Open l (mbrs ++ [pr]) (joints ++ [j])
+mergeIntoLeft :: Separator -> PRel -> PRel -> Either String PRel
+mergeIntoLeft j (Open l mbrs separators) pr =
+  Right $ Open l (mbrs ++ [pr]) (separators ++ [j])
 mergeIntoLeft _ pr _ = Left $ "mergeIntoLeft: PRel " ++ show pr
   ++ " cannot receive more (if Closed) or any (if Leaf or Absent) members."
 
-mergeIntoRight :: Joint -> PRel -> PRel -> Either String PRel
-mergeIntoRight j pr (Open l mbrs joints) =
-  Right $ Open l (pr:mbrs) (j:joints)
+mergeIntoRight :: Separator -> PRel -> PRel -> Either String PRel
+mergeIntoRight j pr (Open l mbrs separators) =
+  Right $ Open l (pr:mbrs) (j:separators)
 mergeIntoRight _ _ pr = Left $ "mergeIntoRight: PRel " ++ show pr
   ++ " cannot receive more (if Closed) or any (if Leaf or Absent) members."
 
 
-startOpen :: Level -> Joint -> PRel -> PRel -> Either String PRel
+startOpen :: Level -> Separator -> PRel -> PRel -> Either String PRel
 startOpen _ _ Absent Absent =
   Left $ "startOpen called with two Absent members."
 startOpen l j a b = Right $ Open l [a,b] [j]

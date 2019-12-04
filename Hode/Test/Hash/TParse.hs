@@ -159,7 +159,7 @@ test_parse_rels = TestCase $ do
                [ pnrPhrase "a b", pnrPhrase "c d"]
                [ "w x" ] )
 
-  assertBool "1 level 2 joints" $ parse pRel "wut" "I #am ##because I #think"
+  assertBool "1 level 2 separators" $ parse pRel "wut" "I #am ##because I #think"
     == Right ( Open 2
                [ Open 1
                  [ pnrPhrase "I", Absent]
@@ -170,7 +170,7 @@ test_parse_rels = TestCase $ do
                ]
                [ "because" ] )
 
-  assertBool "2 levels 2 joints" $ parse pRel "wut"
+  assertBool "2 levels 2 separators" $ parse pRel "wut"
     "I #think ##therefore I #am thinking ##so #like yeah man"
     == Right ( Open 2 [ Open 1 [ pnrPhrase "I"
                                , Absent] [ "think"]

@@ -78,10 +78,10 @@ test_exprToAddr = TestCase $ do
 test_has :: Test
 test_has = TestCase $ do
   assertBool "tplt" $ has D.rslt 4
-    == Right ( M.fromList [ ( RoleInTplt' $ RoleJoint 1, 3 ) ] )
+    == Right ( M.fromList [ ( RoleInTplt' $ RoleSeparator 1, 3 ) ] )
   assertBool "tplt" $ has D.rslt_rightCapped 4
     == Right ( M.fromList [ ( RoleInTplt' $ RoleCapRight, 1),
-                            ( RoleInTplt' $ RoleJoint 1, 3 ) ] )
+                            ( RoleInTplt' $ RoleSeparator 1, 3 ) ] )
   assertBool "rel" $ has D.rslt 5
     == Right ( M.fromList [ ( RoleInRel' $ RoleMember 1, 1 )
                           , ( RoleInRel' $ RoleMember 2, 2 )
@@ -108,9 +108,9 @@ test_fills = TestCase $ do
   assertBool "tplt has no left cap" $ isLeft $
     fills D.rslt (RoleInTplt' $ RoleCapLeft, 4)
   assertBool "1st in tplt" $
-    fills D.rslt (RoleInTplt' $ RoleJoint 1, 4) == Right 3
+    fills D.rslt (RoleInTplt' $ RoleSeparator 1, 4) == Right 3
   assertBool "2nd in tplt" $ isLeft $
-    fills D.rslt (RoleInTplt' $ RoleJoint 2, 4)
+    fills D.rslt (RoleInTplt' $ RoleSeparator 2, 4)
   assertBool "1st in rel"
     $ fills D.rslt (RoleInRel' $ RoleMember 2, 5) == Right 2
   assertBool "2nd in rel"
