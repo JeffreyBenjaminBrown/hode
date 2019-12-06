@@ -10,6 +10,9 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO pressing
 ** TODO ordering is critical
+*** TODO order the templates
+Some should always be top -- e.g. "pitfalls", "frequent".
+There can be more than one ordering.
 *** TODO ordering members of the same group should be easy
 *** TODO ? in UI, separate sort from search
 **** why
@@ -36,7 +39,28 @@ This will load all non-broken modules when some are broken.
  _viewExpr_Addr :: ViewExpr -> Addr
 *** a user should be able to rely on defaults
 *** the defaults should extend to view-children
-** TODO count more stuff in the left column(s)
+** TODO reading and navigation are slow
+*** TODO would help: compress binary groups
+*** TODO hide in context
+in the context of golf, any phrase ending in "of golf"
+can be omitted
+**** how not to repeat a context?
+ My data currently includes (fake addresses):
+   @1: extend ##o columns #of hode
+   @2: #to @1 #do ...
+
+ As it stands that's fine,
+ but I would like to create a Hode to-do list:
+   @3: #for hode #do @1
+ i.e.
+   @3: #for hode #do (extend ##o columns #of hode)
+*** would help: synonyms
+*** would help: don't group single items
+*** might help ? better columns
+Some as counts, some otherwise.
+*** might help ? distinguish "of interest" expressions
+
+** count more stuff in the left column(s)
 *** ? use hMatches
 *** let the user add HExprs to _columnHExprs
 *** let each HExpr column be given a title
@@ -44,8 +68,10 @@ This will load all non-broken modules when some are broken.
 *** indicate matches ala chmod
 A single decimal (hex) digit can indicate whether an `Expr`
 matches up to 3 (4) separate `HExpr`s.
-** TODO filters, throughout the view-Porest
+** filters, throughout the view-Porest
 not just its top level
+** cannot implement the separator "#:"
+* TODO easy
 ** TODO edit the SearchBuffers buffer
 Move buffers.
 Delete buffers.
@@ -57,21 +83,23 @@ and move children up to where it was
  and move the shortcut for "create child buffer"
 **** if deleting a PTree is possible from Results
  Introduce a mark for tree nodes of which some but not all children are shown.
-** TODO cannot implement the separator "#:"
-* TODO easy
 ** TODO shortcut to empty the command window
 was implemented already once
 ** TODO merge two nodes
+*** why
 e.g. because (and why can this happen?)
 two identical templates exist at different addresses.
 
 For an example of that error,
 see jbb/ until (but not after)
 commit 15201a6561b4181695f72bcb176136f43c94f853
+*** how
+If they are not identical, one of them is the "survivor".
+They can be templates, if they have the same arity.
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
 PITFALL: But don't delete the empty string.
-** TODO : change: can insertHosts_atFocus when they're already there
+** TODO change: can insertHosts_atFocus when they're already there
 ** TODO insertion list
 *** plan
 **** data St = ...
@@ -109,30 +137,9 @@ where "needed" can be
   needed for readability
 *** name conflicts
 It would be better if distinct things could share a name.
-*** hide in context
-in the context of golf, any phrase ending in "of golf"
-can be omitted
-*** how not to repeat a context?
-My data currently includes (fake addresses):
-  @1: extend ##o columns #of hode
-  @2: #to @1 #do ...
-
-As it stands that's fine,
-but I would like to create a Hode to-do list:
-  @3: #for hode #do @1
-i.e.
-  @3: #for hode #do (extend ##o columns #of hode)
 ** problems
 *** it's hard to judge without an interesting graph
 **** would help: smsn
-*** my Hode data looks impenetrable to others
-**** would help: synonyms
-*** reading and navigation are slow
-**** would help: compress binary groups
-**** would help: don't group single items
-**** might help: better columns
-Some as counts, some otherwise.
-**** might help: distinguish "of interest" expressions
 ** types?
 * TODO user-friendliness
 ** TODO documentation: order of topics
@@ -340,6 +347,11 @@ This allows the set-valued function of v to be referred to by subsequent Queries
 *** TODO why it's tricky
 It would require introducing a type for checking input-output relationships.
 Otherwise there is no record of the names used by the input and the output for validProgram to refer to.
+** ? how to make variable collision avoidance easier?
+ Consider QAnd [ Find child of some x, Test equal to no x].
+ That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
+ The solution is to change the varName in the Test. This puts, however,
+ an annoying burden on the user.
 * TODO re. Rslt
 ** TODO ? multi-Tplt topological sort
 tags: order, transitive
@@ -528,11 +540,6 @@ a map from Addr to Set Role
 ** stale ? To avoid redundant tree-climbing
 Recursive calls to a function that evaluates something at an ExprImg by first evaluating it along each of its branches could be expensive.
 It could be avoided by making the ImgExpr abstract, a functor over some parameter a that is paired with each constructor.
-* ? how to make variable collision avoidance easier?
-Consider QAnd [ Find child of some x, Test equal to no x].
-That's an existential find followed by a universal test over the same variable. The find binds x, then the Test deletes that binding.
-The solution is to change the varName in the Test. This puts, however,
-an annoying burden on the user.
 * ? safety, speed
 ** TODO add tests
 tag untested
@@ -543,11 +550,11 @@ test hMatches and hLookup (in Hode.Hash.HLookup)
 ** To use GHC 8.10's newer garbage collector
 https://well-typed.com/blog/2019/10/nonmoving-gc-merge/
 Our new collector has been merged to GHC’s master branch and will be present in GHC 8.10.1. For a program to use the concurrent non-moving collector it must be compiled with GHC’s -threaded flag and invoked with the +RTS -xn runtime system flag.
-** ? someone else wrote a tree editor
+** ? someone wrote a tree editor
 https://cs-syd.eu/posts/2019-06-28-microsmos
 and then a forest editor:
 https://cs-syd.eu/posts/2019-08-28-millismos
-** ? use lists rather than sets until needed
+** TODO ? use lists rather than sets until needed
 e.g. in HExprToAddrs, or the RLookup functions.
 That is, unless set fusion works as well.
 *** use lists in some places for fusion, short-circuiting, instead of maps, sets
@@ -569,7 +576,7 @@ example: In this:
       Left $ "pExprToHExpr: Any is not specific enough."
 I only wrote the Any case to make GHCI not issue a warning.
 It should come last.
-** speed when asking for multiple variables that determined a given one
+** QSeq: speed when asking for multiple variables that determined a given one
 For varPossibilities, just use the unconditional found values.
 For the input-output criteria, just use VarTest.
 *** once that's complete, ditch some unused functions in Subst.hs
@@ -589,11 +596,11 @@ How outputs could be tracked:
   In the resulting [?], Look up a value of that Var.
   In the resulting [?], look up the output Var.
   This produces all the possible values that input value could cause in the output.
-** speed|space optimization
+** QSeq: speed|space optimization
 *** skip recording unneeded dependent bindings
 You can tell from reading a Program's [ (VarFunc, Query) ] argument which elements of the Substs will never be referred to; those would not have to be recorded.
-** todo ? safety : check that every Set in a CondElts is nonempty
-** ? test mixed queries more
+** QSeq: todo ? safety : check that every Set in a CondElts is nonempty
+** QSeq: ? test mixed queries more
 *** a ForAll with a ForSome condition
 *** a ForAll with a ForAll condition
 ** TODO save disk space w/ multi-line files
