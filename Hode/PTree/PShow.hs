@@ -83,9 +83,9 @@ oneRowWidget :: (Bool, ColorString, ColorString) -> B.Widget n
 oneRowWidget (isFocused,cols,node) =
   (if isFocused then visible else id)
   $ hBox
-  [ colorStringWrap 65 (isFocused, cols)
+  [ colorStringWrap 55 (isFocused, cols)
   , str " "
-  , colorStringWrap 65 (isFocused, node) ]
+  , colorStringWrap 55 (isFocused, node) ]
 
 showPorest :: forall a t d.
   (Foldable t, Monoid (t d))

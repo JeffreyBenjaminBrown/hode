@@ -9,33 +9,8 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO pressing
-** TODO count more stuff in the left column(s)
-*** "tags"
-todo apps use these.
-Anything in a "/it #(has tag) x" relationship, if x is among the tag columns,
-has a checkmark in that column.
-The user can list what tags to show from the command line.
-*** St._columnHExprs: let the user add HExprs
-Currently it's fixed at a single HExpr,
-which indicates how many Rels or Tplts it's a top-level member of.
-*** let each HExpr column can be given a title
-by changing columnHExprs to Map String [HExpr]
-*** let each buffer keep its own list of HExprs
-** TODO filters, throughout the view-Porest
-not just its top level
-** TODO edit the SearchBuffers buffer
-Move buffers.
-Delete buffers.
-Annotate buffers.
-*** TODO delete parent from any PTree
-and move children up to where it was
-*** TODO delete from any PTree
-**** in SearchBuffers, add a shortcut for it
- and move the shortcut for "create child buffer"
-**** if deleting a PTree is possible from Results
- Introduce a mark for tree nodes of which some but not all children are shown.
-** TODO cannot implement the separator "#:"
-** TODO ordering is awkward
+** TODO ordering is critical
+*** TODO ordering members of the same group should be easy
 *** TODO ? in UI, separate sort from search
 **** why
  you might want to sort without having to run the search again
@@ -61,8 +36,31 @@ and move children up to where it was
  _viewExpr_Addr :: ViewExpr -> Addr
 *** a user should be able to rely on defaults
 *** the defaults should extend to view-children
-*** ordering members of the same group should be easy
+** TODO count more stuff in the left column(s)
+*** ? use hMatches
+*** let the user add HExprs to _columnHExprs
+*** let each HExpr column be given a title
+*** let each buffer keep its own list of HExprs
+*** indicate matches ala chmod
+A single decimal (hex) digit can indicate whether an `Expr`
+matches up to 3 (4) separate `HExpr`s.
+** TODO filters, throughout the view-Porest
+not just its top level
+** TODO edit the SearchBuffers buffer
+Move buffers.
+Delete buffers.
+Annotate buffers.
+*** TODO delete parent from any PTree
+and move children up to where it was
+*** TODO delete from any PTree
+**** in SearchBuffers, add a shortcut for it
+ and move the shortcut for "create child buffer"
+**** if deleting a PTree is possible from Results
+ Introduce a mark for tree nodes of which some but not all children are shown.
+** TODO cannot implement the separator "#:"
 * TODO easy
+** TODO shortcut to empty the command window
+was implemented already once
 ** TODO merge two nodes
 e.g. because (and why can this happen?)
 two identical templates exist at different addresses.
@@ -98,13 +96,32 @@ https://www.fakerfact.org/about
 *** "navigating digital information"
 https://www.youtube.com/watch?v=M5YKW6fhlss&list=PL8dPuuaLjXtN07XYqqWSKpPrtNDiCHTzU&index=11
 *** distributed search
+** am I stumped as a user?
+The number of ways to represent something is huge.
+Paralyzingly huge.
 ** if I'm ambivalent about (currently) implementing a fewature
 Use the software, wait for a use case to arise,
 document the use case under the "todo" item.
 ** representing things
-*** anticipate whether a sub-expression will be searched for
+*** anticipate whether a sub-expression will be "needed"
+where "needed" can be
+  searched for
+  needed for readability
 *** name conflicts
 It would be better if distinct things could share a name.
+*** hide in context
+in the context of golf, any phrase ending in "of golf"
+can be omitted
+*** how not to repeat a context?
+My data currently includes (fake addresses):
+  @1: extend ##o columns #of hode
+  @2: #to @1 #do ...
+
+As it stands that's fine,
+but I would like to create a Hode to-do list:
+  @3: #for hode #do @1
+i.e.
+  @3: #for hode #do (extend ##o columns #of hode)
 ** problems
 *** it's hard to judge without an interesting graph
 **** would help: smsn
@@ -123,11 +140,12 @@ How to add.
 How to move focus, add neighbors.
 *Then* what the Rslt is and how to query.
 ** TODO wrapping is buggy
+*** example
 For instance, the display of this (at address 153 in jbb/)
    ###re ##solve tmux #has-problem sometimes the status bar is cluttered ##by keep only window names ###note-that status-right #can put any label at the right of the status bar, e.g. the current time.
 includes a 121-character-long line.
-*** todo ? temp fix: allow user to change wrap length
 *** todo ? distance to wrap should shrink with columns, indentation
+*** todo ? temp fix: allow user to change wrap length
 ** TODO folding indicator
 Visually indicate whether a node with descendents is folded.
 Or at least, upon inserting contents, unfold.
