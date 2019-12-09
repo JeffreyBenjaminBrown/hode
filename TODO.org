@@ -110,27 +110,30 @@ PITFALL: But don't delete the empty string.
 (1) inserting a compound expression inserts subexpressions
 (2) don't record insertion if it already existedx
 * TODO big-think
-** who cares?
-*** TODO Projects with extremely similar goals
-**** Agora
-And extremely similar envisioned user experience.
-https://flancia.org/agora/
-**** Perkeep
-https://perkeep.org/
-*** "convergence"
-https://link.springer.com/article/10.1007/s11051-019-4638-7?wt_mc=Internal.Event.1.SEM.ArticleAuthorIncrementalIssue&utm_source=ArticleAuthorIncrementalIssue&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorIncrementalIssue_20191108&fbclid=IwAR08OarPih1ava0yDKrM_PK07xLSZ2ZSV_bzmvukc7RpNzQQHNzvRa8qxs8
-*** fake news
-https://www.fakerfact.org/about
-*** "navigating digital information"
-https://www.youtube.com/watch?v=M5YKW6fhlss&list=PL8dPuuaLjXtN07XYqqWSKpPrtNDiCHTzU&index=11
-*** distributed search
-** am I stumped as a user?
-The number of ways to represent something is huge.
-Paralyzingly huge.
-** if I'm ambivalent about (currently) implementing a fewature
-Use the software, wait for a use case to arise,
-document the use case under the "todo" item.
+** soft
+*** who cares?
+**** TODO Projects with extremely similar goals
+***** Agora
+ And extremely similar envisioned user experience.
+ https://flancia.org/agora/
+***** Perkeep
+ https://perkeep.org/
+**** "convergence"
+ https://link.springer.com/article/10.1007/s11051-019-4638-7?wt_mc=Internal.Event.1.SEM.ArticleAuthorIncrementalIssue&utm_source=ArticleAuthorIncrementalIssue&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorIncrementalIssue_20191108&fbclid=IwAR08OarPih1ava0yDKrM_PK07xLSZ2ZSV_bzmvukc7RpNzQQHNzvRa8qxs8
+**** fake news
+ https://www.fakerfact.org/about
+**** "navigating digital information"
+ https://www.youtube.com/watch?v=M5YKW6fhlss&list=PL8dPuuaLjXtN07XYqqWSKpPrtNDiCHTzU&index=11
+**** distributed search
+*** am I stumped as a user?
+ The number of ways to represent something is huge.
+ Paralyzingly huge.
+*** if I'm ambivalent about (currently) implementing a fewature
+ Use the software, wait for a use case to arise,
+ document the use case under the "todo" item.
 ** representing things
+*** unordered "set tplts" of variable size
+As in "A + B = C", or "A & B & ... => X"
 *** anticipate whether a sub-expression will be "needed"
 where "needed" can be
   searched for

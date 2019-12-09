@@ -67,16 +67,28 @@ It lets you use existential and universal quantifiers to string together searche
 
 # How to install
 
-First you'll need the Haskell toolkit [`Stack`](https://docs.haskellstack.org/en/stable/README/) installed.
-If you want to be able to traffic to and from the clipboard using the keyboard
-(which can be handy if your data does not fit on screen at once)
-you'll also need to have `xsel` installed, too.
+## Prerequisites
 
-You might need a few more things I don't remember
-(`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
-If so, Stack will let you know.
+Before installing Hode, you'll need to first have installed
+
+* [`Stack`](https://docs.haskellstack.org/en/stable/README/), the Haskell toolkit
+
+* [`Git`](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), the version-control software
+
+* Optionally, if you run Linux and want to be able to traffic to and from the clipboard using the keyboard
+(which can be handy if your data does not fit on screen at once)
+you'll need to install `xsel`.
+If you don't run Linux, don't worry about it.
+
+## Install Hode
 
 Clone the repo,
 then run `stack run` from the command line.
 The first time you run it,
 it will take a long time to load.
+
+Depending on your system, Stack might complain that
+you need a few more things installed.
+(`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
+If it does, install those too.
+Then return to the cloned repo and try `stack run` again.
