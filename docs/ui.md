@@ -23,8 +23,7 @@ making the diffs between versions of your data readable.
 
 # To start the UI
 
-Call `stack run` from the command line,
-or call `ui` from inside GHCI.
+Call `ui` from inside GHCI.
 
 If you want to hack around,
 you can also call `uiFromSt st` from GHCI,

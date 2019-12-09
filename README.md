@@ -67,6 +67,8 @@ It lets you use existential and universal quantifiers to string together searche
 
 # How to install
 
+Hode is unavailable for Windows. (That's because it relies on the [Brick](https://hackage.haskell.org/package/brick) terminal interface library.)
+
 ## Prerequisites
 
 Before installing Hode, you'll need to first have installed
@@ -75,20 +77,25 @@ Before installing Hode, you'll need to first have installed
 
 * [`Git`](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), the version-control software
 
-* Optionally, if you run Linux and want to be able to traffic to and from the clipboard using the keyboard
-(which can be handy if your data does not fit on screen at once)
-you'll need to install `xsel`.
-If you don't run Linux, don't worry about it.
+* Optionally, you can install [`xsel`](https://linux.die.net/man/1/xsel)
+for trafficking to and from the clipboard without using the mouse.
 
 ## Install Hode
 
-Clone the repo,
-then run `stack run` from the command line.
-The first time you run it,
-it will take a long time to load.
+Open a console (a.k.a. "terminal", "command line", "command prompt").
+Clone the repo, enter it, and start ghci:
+```
+git clone https://github.com/JeffreyBenjaminBrown/hode
+cd hode
+stack ghci
+```
+The first time you try that,
+it will take a long time to start.
 
 Depending on your system, Stack might complain that
 you need a few more things installed.
 (`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
 If it does, install those too.
-Then return to the cloned repo and try `stack run` again.
+Then return to the cloned repo and try `stack ghci` again.
+
+Once that works and you're in GHCI, run `ui`.

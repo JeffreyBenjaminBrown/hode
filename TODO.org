@@ -8,6 +8,8 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO `stack run` is broken
+once it's fixed, document it
 * TODO pressing
 ** TODO ordering is critical
 *** TODO order the templates
