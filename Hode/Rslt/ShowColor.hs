@@ -53,7 +53,7 @@ eParenShowColorAddr maxDepth r as a0 =
   prefixLeft "eParenShowColorAddr:" $ do
   let showAsAddr :: Addr -> Maybe ColorString
       showAsAddr a = if S.member a as
-                     then Just [("@" ++ show a,SepColor)]
+                     then Just [("@" ++ show a,AddrColor)]
                      else Nothing
   fea :: Fix (ExprFWith (Addr,(Int,Parens))) <-
     parenExprAtDepth maxDepth <$> addrToExprWith r a0
