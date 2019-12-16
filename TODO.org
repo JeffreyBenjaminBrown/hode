@@ -154,11 +154,17 @@ PITFALL: But don't delete the empty string.
 ** soft
 *** who cares?
 **** TODO Projects with extremely similar goals
+***** "Knowledge Representation" research community
+https://en.wikipedia.org/wiki/Knowledge_representation_and_reasoning
 ***** Agora
- And extremely similar envisioned user experience.
+ Extremely similar goals, envisioned user experience.
  https://flancia.org/agora/
 ***** Perkeep
+ Extremely similar goals.
  https://perkeep.org/
+***** Cyc
+knowledge base for AI
+https://en.wikipedia.org/wiki/Cyc
 **** "convergence"
  https://link.springer.com/article/10.1007/s11051-019-4638-7?wt_mc=Internal.Event.1.SEM.ArticleAuthorIncrementalIssue&utm_source=ArticleAuthorIncrementalIssue&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorIncrementalIssue_20191108&fbclid=IwAR08OarPih1ava0yDKrM_PK07xLSZ2ZSV_bzmvukc7RpNzQQHNzvRa8qxs8
 **** fake news

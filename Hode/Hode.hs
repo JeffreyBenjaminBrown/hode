@@ -1,9 +1,8 @@
 module Hode.Hode (module X) where
 
 import Hode.Brick as X
--- import Hode.Brick.ScreenWrap.JustInCase as X
--- import Hode.Data.Graph as X    -- to avoid collisions
--- import Hode.Data.Relation as X -- to avoid collisions
+-- import Hode.Data.Graph as X    -- commented out to avoid collisions
+-- import Hode.Data.Relation as X -- commented out to avoid collisions
 import Hode.Test.Main as X
 -- import Hode.Test.Hash.TConvert as X
 -- import Hode.Test.Hash.THLookup as X
@@ -53,7 +52,6 @@ import Hode.Rslt.RValid as X
 import Hode.Rslt.Show as X
 import Hode.Rslt.ShowColor as X
 import Hode.Rslt.Sort as X
--- import Hode.Rslt.Show.JustInCase as X
 import Hode.UI.BufferRowTree as X
 import Hode.UI.BufferTree as X
 import Hode.UI.Clipboard as X

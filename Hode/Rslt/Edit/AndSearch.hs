@@ -45,7 +45,7 @@ exprToAddrInsert_rootNotFound ::
 exprToAddrInsert_rootNotFound _ (Addr a) =
   Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
 
-exprToAddrInsert_rootNotFound r0 (Phrase w) = do
+exprToAddrInsert_rootNotFound r0 (Phrase w) =
   prefixLeft "exprToAddrInsert_rootNotFound:" $ do
   a <- nextAddr r0
   r1 <- insertAt a (Phrase' w) r0

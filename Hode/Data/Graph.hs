@@ -1,6 +1,18 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Data.Graph where
+module Hode.Data.Graph (
+    Graph(..)
+
+  -- | = Building and reading graphs
+  , mkGraph                   -- ^ [( e, [e] )] -> Graph e
+  , parents                   -- ^ Graph e -> e -> Set e
+  , children                  -- ^ Graph e -> e -> Set e
+  , invertMapToSet            -- ^ Map a (Set a) -> Map a (Set a)
+
+-- | = building `Query`s to search a `Graph`
+  , findChildren, findParents -- ^ Either e Var -> Find e (Graph e)
+  , findAllNodes              -- ^ Graph e      -> Find e (Graph e)
+  ) where
 
 import           Data.Map (Map)
 import qualified Data.Map       as M
@@ -12,13 +24,13 @@ import Hode.Qseq.QTypes
 
 
 data Graph e = Graph {
-    graphNodes    :: Set e             -- ^ good for disconnected graphs
+    graphNodes    :: Set e           -- ^ in case of disconnected graphs
   , graphChildren :: Map e (Set e)   -- ^ keys are parents
   , graphParents  :: Map e (Set e) } -- ^ keys are children
   deriving (Show, Eq, Ord)
 
 
--- | Building and reading graphs
+-- | = Building and reading graphs
 
 -- | Given a list of (parent, [child]) pairs, this produces a graph.
 -- It can only create graphs with no isolated nodes.
@@ -49,7 +61,7 @@ invertMapToSet = foldl addInversion M.empty . M.toList where
       f m a = M.insertWith S.union a (S.singleton a1) m -- each a maps to a1
 
 
--- | == building `Query`s to search a `Graph`
+-- | = building `Query`s to search a `Graph`
 
 findChildren, findParents :: (Ord e, Show e)
                           => Either e Var -> Find e (Graph e)

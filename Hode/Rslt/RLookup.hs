@@ -10,6 +10,9 @@ module Hode.Rslt.RLookup (
   , fills   -- ^ Rslt -> (Role, Addr) -> Either String Addr
 
   -- | = convert bewteen `Addr`, `Expr`, `RefExpr`
+  --
+  -- These make up the entirety of the module
+  -- Hode.Rslt.RLookup.RConvert
   , C.refExprToExpr -- ^ Rslt -> RefExpr -> Either String Expr
   , C.exprToAddr    -- ^ Rslt -> Expr    -> Either String Addr
   , C.addrToRefExpr -- ^ Rslt -> Addr    -> Either String RefExpr
