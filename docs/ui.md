@@ -23,15 +23,25 @@ making the diffs between versions of your data readable.
 
 # To start the UI
 
-Call `ui` from inside GHCI.
+## The simplest way
 
-If you want to hack around,
-you can also call `uiFromSt st` from GHCI,
-where `st` has type `St`,
+Call `stack run` from the command line.
+
+## A more flexible way
+
+Call `stack ghci` from the command line.
+Now, from within GHCI, you can:
+
+* Call `st <- ui` to start the UI. This way, once you exit the UI,
+`st` will be an object of type `St` (the state of the app),
+which you can mess with.
+
+* Call `uiFromSt st` from GHCI, where `st` has type `St`,
 to provide your own initial state to the app.
-The commands `ui`,
-`uiFromSt` and `uiFromRslt` all return an `St`,
-which contains all the information used in a Hode session.
+
+* Call `uiFromRslt r`, where `r` has type `Rslt`,
+to provide your own initial graph to the app,
+and otherwise use all the default values.
 
 # What you see (and how to change the way things are shown)
 
