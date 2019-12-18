@@ -62,13 +62,13 @@ handleKeyboard_atBufferWindow st ev =
   let go f = B.continue $ f $ st & hideReassurance
   in case ev of
   V.EvKey (V.KChar 'e') [V.MMeta] ->
-    go $ moveFocusedBuffer DirPrev
+    go $ moveFocus_inBufferTree DirPrev
   V.EvKey (V.KChar 'd') [V.MMeta] ->
-    go $ moveFocusedBuffer DirNext
+    go $ moveFocus_inBufferTree DirNext
   V.EvKey (V.KChar 'f') [V.MMeta] ->
-    go $ moveFocusedBuffer DirDown
+    go $ moveFocus_inBufferTree DirDown
   V.EvKey (V.KChar 's') [V.MMeta] ->
-    go $ moveFocusedBuffer DirUp
+    go $ moveFocus_inBufferTree DirUp
 
   V.EvKey (V.KChar 'c') [V.MMeta] ->
     go $ consBuffer_asChild emptyBuffer

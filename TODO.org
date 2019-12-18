@@ -9,16 +9,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO edit a PTree
-Subtasks marked TODO are blocking ordering.
-*** nudge things up|down
-**** if deleting a PTree is possible from Results
- Introduce a mark for tree nodes of which some but not all children are shown.
-**** in SearchBuffers, add a shortcut for it
- and move the shortcut for "create child buffer"
-*** Annotate things.
-*** delete parent from any PTree
-and move children up to where it was
 ** TODO ordering
 *** steps
 **** move Exprs vertically
@@ -192,6 +182,16 @@ It would be better if distinct things could share a name.
 **** would help: smsn
 ** types?
 * TODO user-friendliness
+** TODO edit a PTree
+Subtasks marked TODO are blocking ordering.
+*** nudge things up|down
+**** if deleting a PTree is possible from Results
+ Introduce a mark for tree nodes of which some but not all children are shown.
+**** in SearchBuffers, add a shortcut for it
+ and move the shortcut for "create child buffer"
+*** Annotate things.
+*** delete parent from any PTree
+and move children up to where it was
 ** TODO documentation: order of topics
 How to add.
 How to move focus, add neighbors.

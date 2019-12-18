@@ -54,16 +54,16 @@ import Util.VTree
 handleKeyboard_atBufferWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atBufferWindow st ev = case ev of
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirPrev
+    $ unEitherSt st . moveFocus_inBufferTree DirPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirNext
+    $ unEitherSt st . moveFocus_inBufferTree DirNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirDown
+    $ unEitherSt st . moveFocus_inBufferTree DirDown
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedBuffer DirUp
+    $ unEitherSt st . moveFocus_inBufferTree DirUp
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
