@@ -36,17 +36,19 @@ module Hode.PTree.Initial (
   , pTrees                    -- ^ Traversal' (PTree a) (Porest a)
 
   -- | ** PTree creators
-  , pTreeLeaf                 -- ^ a -> PTree a
-  , porestLeaf                -- ^ a -> Porest a
+  , pTreeLeaf          -- ^ a -> PTree a
+  , porestLeaf         -- ^ a -> Porest a
 
   -- | ** PTree modifiers
-  , writeLevels               -- ^ PTree a -> PTree (Int,a)
-  , cons_topNext              -- ^       a -> Porest a -> Porest a
-  , consUnder_andFocus        -- ^ PTree a -> PTree a -> PTree a
-  , moveFocusInPTree          -- ^ Direction -> PTree a -> PTree a
-  , moveFocusInPorest         -- ^ Direction -> Porest a -> Porest a
-  , nudgeInPTree              -- ^ Direction -> PTree a -> PTree a
-  , nudgeInPorest             -- ^ Direction -> Porest a -> Porest a
+  , writeLevels        -- ^ PTree a -> PTree (Int,a)
+  , cons_topNext       -- ^       a -> Porest a -> Porest a
+  , consUnder_andFocus -- ^ PTree a -> PTree a -> PTree a
+  , deleteInPorest     -- ^ Porest a -> Maybe (Porest a)
+  , deleteInPTree      -- ^ PTree a -> PTree a
+  , moveFocusInPTree   -- ^ Direction -> PTree a -> PTree a
+  , moveFocusInPorest  -- ^ Direction -> Porest a -> Porest a
+  , nudgeInPTree       -- ^ Direction -> PTree a -> PTree a
+  , nudgeInPorest      -- ^ Direction -> Porest a -> Porest a
   ) where
 
 import           Control.Arrow ((>>>))
@@ -256,6 +258,23 @@ moveFocusInPorest d p =
        DirPrev -> p & P.focus . pTreeHasFocus .~ False
                      & prevIfPossible
                      & P.focus . pTreeHasFocus .~ True
+
+deleteInPorest :: Porest a -> Maybe (Porest a)
+deleteInPorest p =
+  case p ^. P.focus . pTreeHasFocus
+  of True ->  (P.focus . pTreeHasFocus .~ True)
+              <$> P.deleteLeft p
+     False -> Just $ p & P.focus %~ deleteInPTree
+
+deleteInPTree :: forall a. PTree a -> PTree a
+deleteInPTree t =
+  let mp :: Maybe (Porest a) =
+        t ^? ( getParentOfFocusedSubtree . _Just
+               . pMTrees . _Just )
+  in case mp of
+       Nothing -> t
+       Just p -> t & ( setParentOfFocusedSubtree . pMTrees
+                       .~ P.deleteLeft p )
 
 nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
 nudgeInPTree dir t =

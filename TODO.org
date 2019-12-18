@@ -11,8 +11,8 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO edit a PTree
 Subtasks marked TODO are blocking ordering.
-*** TODO Move things.
 *** TODO delete things
+*** TODO nudge things up|down
 **** if deleting a PTree is possible from Results
  Introduce a mark for tree nodes of which some but not all children are shown.
 **** in SearchBuffers, add a shortcut for it
