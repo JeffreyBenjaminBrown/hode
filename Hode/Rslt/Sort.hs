@@ -50,6 +50,7 @@ module Hode.Rslt.Sort (
   , deleteHostsThenDelete -- ^ Addr -> Rslt -> Either String Rslt
   ) where
 
+import qualified Data.List      as L
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -202,6 +203,9 @@ isTop r (ort,t) a =
 isIsolated :: Rslt -> TpltAddr -> Addr
            -> Either String Bool
 isIsolated r t a =
+  -- TODO ? speed: `partitionIsolated` calls this a lot.
+  -- Each time, it has to run `hExprToAddrs` on the `HMap`.
+  -- It could be faster to move that into `partitionIsolated`.
   prefixLeft "isIsolated:" $ do
   connections :: Set Addr <-
         hExprToAddrs r mempty $ HAnd
@@ -219,14 +223,16 @@ allTops r (bo,t) as =
       withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
 
-allIsolated :: Rslt -> TpltAddr
-            -> [Addr] -- ^ candidates
-            -> Either String [Addr]
-allIsolated r t as =
-  prefixLeft "allIsolated:" $ do
+partitionIsolated :: Rslt -> TpltAddr
+                  -> [Addr] -- ^ candidates
+                  -> Either String ([Addr],[Addr])
+partitionIsolated r t as =
+  prefixLeft "partitionIsolated:" $ do
   let withIsIsolated :: Addr -> Either String (Bool, Addr)
       withIsIsolated a = (,a) <$> isIsolated r t a
-  map snd . filter fst <$> mapM withIsIsolated as
+  (isolated, connected) <-
+    L.partition fst <$> mapM withIsIsolated as
+  Right $ (map snd isolated, map snd connected)
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
 -- lie just beneath `a`, where the menaing of "beneath"
