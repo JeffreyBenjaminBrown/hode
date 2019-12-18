@@ -258,31 +258,18 @@ moveFocusInPorest d p =
                      & P.focus . pTreeHasFocus .~ True
 
 nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
-nudgeInPTree DirUp   t = t -- you can only nudge across the same level
-nudgeInPTree DirDown t = t -- you can only nudge across the same level
 nudgeInPTree dir t =
-  case t ^? getParentOfFocusedSubtree . _Just of
-    Nothing -> t -- you can't nudge the root
-    Just pst ->
-      let n = case dir of DirPrev -> -1
-                          DirNext -> 1
-                          _ -> error "impossible: case handled earlier."
-          sp :: Porest a = -- sub-Porest
-            maybe err id $ _pMTrees pst where
-            err = error "impossible: we called getParentOfFocusedSubtree."
-          sp' = maybe sp id $ P.moveN n sp
-            -- maybe you can't nudge any further in that direction
-      in t & setParentOfFocusedSubtree .~
-         (pst {_pMTrees = Just sp'})
+  let nudge = case dir of
+        DirPrev -> nudgePrev
+        DirNext -> nudgeNext
+        _       -> id  -- you can only nudge across the same level
+  in t & setParentOfFocusedSubtree . pMTrees . _Just %~ nudge
 
 nudgeInPorest :: forall a. Direction -> Porest a -> Porest a
-nudgeInPorest DirUp   p = p -- you can only nudge across the same level
-nudgeInPorest DirDown p = p -- you can only nudge across the same level
 nudgeInPorest dir p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ nudgeInPTree dir
-     True -> let n = case dir of
-                       DirPrev -> -1
-                       DirNext -> 1
-                       _ -> error "impossible: case handled earlier."
-             in maybe p id $ P.moveN n p
+     True -> case dir of
+               DirPrev -> nudgePrev p
+               DirNext -> nudgeNext p
+               _       -> p -- you can only nudge across the same level
