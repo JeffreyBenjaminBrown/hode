@@ -44,6 +44,8 @@ module Hode.PTree.Initial (
   , consUnder_andFocus        -- ^ PTree a -> PTree a -> PTree a
   , moveFocusInPTree          -- ^ Direction -> PTree a -> PTree a
   , moveFocusInPorest         -- ^ Direction -> Porest a -> Porest a
+  , nudgeInPTree              -- ^ Direction -> PTree a -> PTree a
+  , nudgeInPorest             -- ^ Direction -> Porest a -> Porest a
   ) where
 
 import           Control.Arrow ((>>>))
@@ -233,15 +235,45 @@ moveFocusInPTree DirNext t =
        in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
 
 moveFocusInPorest :: Direction -> Porest a -> Porest a
-moveFocusInPorest d as =
-  case as ^. P.focus . pTreeHasFocus
-  of False -> as & P.focus %~ moveFocusInPTree d
+moveFocusInPorest d p =
+  case p ^. P.focus . pTreeHasFocus
+  of False -> p & P.focus %~ moveFocusInPTree d
      True -> case d of
-       DirUp   -> as & P.focus %~ moveFocusInPTree d
-       DirDown -> as & P.focus %~ moveFocusInPTree d
-       DirNext -> as & P.focus . pTreeHasFocus .~ False
+       DirUp   -> p & P.focus %~ moveFocusInPTree d
+       DirDown -> p & P.focus %~ moveFocusInPTree d
+       DirNext -> p & P.focus . pTreeHasFocus .~ False
                      & nextIfPossible
                      & P.focus . pTreeHasFocus .~ True
-       DirPrev -> as & P.focus . pTreeHasFocus .~ False
+       DirPrev -> p & P.focus . pTreeHasFocus .~ False
                      & prevIfPossible
                      & P.focus . pTreeHasFocus .~ True
+
+nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
+nudgeInPTree DirUp   t = t -- you can only nudge across the same level
+nudgeInPTree DirDown t = t -- you can only nudge across the same level
+nudgeInPTree dir t =
+  case t ^? getParentOfFocusedSubtree . _Just of
+    Nothing -> t -- you can't nudge the root
+    Just pst ->
+      let n = case dir of DirPrev -> -1
+                          DirNext -> 1
+                          _ -> error "impossible: case handled earlier."
+          sp :: Porest a = -- sub-Porest
+            maybe err id $ _pMTrees pst where
+            err = error "impossible: we called getParentOfFocusedSubtree."
+          sp' = maybe sp id $ P.moveN n sp
+            -- maybe you can't nudge any further in that direction
+      in t & setParentOfFocusedSubtree .~
+         (pst {_pMTrees = Just sp'})
+
+nudgeInPorest :: forall a. Direction -> Porest a -> Porest a
+nudgeInPorest DirUp   p = p -- you can only nudge across the same level
+nudgeInPorest DirDown p = p -- you can only nudge across the same level
+nudgeInPorest dir p =
+  case p ^. P.focus . pTreeHasFocus
+  of False -> p & P.focus %~ nudgeInPTree dir
+     True -> let n = case dir of
+                       DirPrev -> -1
+                       DirNext -> 1
+                       _ -> error "impossible: case handled earlier."
+             in maybe p id $ P.moveN n p
