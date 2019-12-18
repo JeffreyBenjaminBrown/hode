@@ -6,7 +6,44 @@
 , TypeFamilies
 , ViewPatterns #-}
 
-module Hode.PTree.Initial where
+module Hode.PTree.Initial (
+
+  -- | ** `PointedList`
+    Direction(..)
+  , PointedList(..) -- ^ exports the Ord instance
+  , Porest
+    , prevIfPossible, nextIfPossible -- ^ PointedList a -> PointedList a
+    , getPList                       -- ^ Getter  (PointedList a) [a]
+    , setPList                       -- ^ Setter' (PointedList a) [a]
+
+  -- | ** `PTree`, a tree made of `PointedList`s
+  , PTree(..)
+    , pMTrees
+    , pTreeLabel
+    , pTreeHasFocus -- ^ PITFALL: permits invalid state.
+    , pMTreesF
+    , pTreeLabelF
+    , pTreeHasFocusF -- ^ PITFALL: permits invalid state.
+
+  -- | * PTree optics
+  , getFocusedChild           -- ^ Getter  (PTree a) (Maybe (PTree a))
+  , getParentOfFocusedSubtree -- ^ Getter  (PTree a) (Maybe (PTree a))
+  , setParentOfFocusedSubtree -- ^ Setter' (PTree a) (PTree a)
+  , getFocusedSubtree         -- ^ Getter  (PTree a) (Maybe (PTree a))
+  , setFocusedSubtree         -- ^ Setter' (PTree a) (PTree a)
+  , pTrees                    -- ^ Traversal' (PTree a) (Porest a)
+
+  -- | * PTree creators
+  , pTreeLeaf                 -- ^ a -> PTree a
+  , porestLeaf                -- ^ a -> Porest a
+
+  -- | * PTree modifiers
+  , writeLevels               -- ^ PTree a -> PTree (Int,a)
+  , cons_topNext              -- ^       a -> Porest a -> Porest a
+  , consUnder_andFocus        -- ^ PTree a -> PTree a -> PTree a
+  , moveFocusInPTree          -- ^ Direction -> PTree a -> PTree a
+  , moveFocusInPorest         -- ^ Direction -> Porest a -> Porest a
+  ) where
 
 import           Control.Arrow ((>>>))
 import           Control.Lens
@@ -21,7 +58,7 @@ data Direction = DirPrev | DirNext | DirUp | DirDown
   deriving (Show,Eq, Ord)
 
 
--- | == `PointedList`
+-- | ** `PointedList`
 
 instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
@@ -42,7 +79,7 @@ setPList = sets go where
     where msg = "setList: Impossible: x is non-null, so P.fromList works"
 
 
--- | == `PTree`, a tree made of `PointedList`s
+-- | ** `PTree`, a tree made of `PointedList`s
 
 data PTree a = PTree {
     _pTreeLabel :: a
@@ -54,7 +91,8 @@ type Porest a = PointedList (PTree a)
   -- ^ PITFALL: Folding over a Porest is a little confusing.
   -- See Hode.Test.TPTree.
 
--- | = Lenses
+
+-- | * PTree optics
 
 makeLenses      ''PTree
 makeBaseFunctor ''PTree
@@ -110,11 +148,11 @@ setFocusedSubtree = sets go where
     Nothing -> t
     Just _ -> t & pMTrees . _Just . P.focus %~ go f
 
-
--- | = Creators
-
 pTrees :: Traversal' (PTree a) (Porest a)
 pTrees = pMTrees . _Just
+
+
+-- | * PTree creators
 
 pTreeLeaf :: a -> PTree a
 pTreeLeaf a = PTree { _pTreeLabel = a
@@ -125,7 +163,7 @@ porestLeaf :: a -> Porest a
 porestLeaf = P.singleton . pTreeLeaf
 
 
--- | = Modifiers
+-- | * PTree modifiers
 
 -- | The root has level 0, its children level 1, etc.
 writeLevels :: PTree a -> PTree (Int,a)

@@ -9,7 +9,18 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO ordering is critical
+** TODO edit a PTree
+Subtasks marked TODO are blocking ordering.
+*** TODO Move things.
+*** TODO delete things
+**** if deleting a PTree is possible from Results
+ Introduce a mark for tree nodes of which some but not all children are shown.
+**** in SearchBuffers, add a shortcut for it
+ and move the shortcut for "create child buffer"
+*** Annotate things.
+*** delete parent from any PTree
+and move children up to where it was
+** TODO ordering
 *** steps
 **** move Exprs vertically
 If they are not in a sort range, this has no effect on the graph,
@@ -111,17 +122,6 @@ not just its top level
 Buffers should have types.
 Most Buffers are of type RsltView.
 One of them is of type BufferView.
-** TODO edit the SearchBuffers buffer
-Move buffers.
-Delete buffers.
-Annotate buffers.
-*** TODO delete parent from any PTree
-and move children up to where it was
-*** TODO delete from any PTree
-**** in SearchBuffers, add a shortcut for it
- and move the shortcut for "create child buffer"
-**** if deleting a PTree is possible from Results
- Introduce a mark for tree nodes of which some but not all children are shown.
 ** TODO shortcut to empty the command window
 was implemented already once
 ** TODO merge two nodes
@@ -163,6 +163,9 @@ https://en.wikipedia.org/wiki/Knowledge_representation_and_reasoning
 ***** Cyc
 knowledge base for AI
 https://en.wikipedia.org/wiki/Cyc
+**** TODO websites for announcing stuff
+https://app.ryeboard.com/card/92672dba-a4a8-4be0-88db-b4feca771afa
+https://news.ycombinator.com/item?id=21812786
 **** "convergence"
  https://link.springer.com/article/10.1007/s11051-019-4638-7?wt_mc=Internal.Event.1.SEM.ArticleAuthorIncrementalIssue&utm_source=ArticleAuthorIncrementalIssue&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorIncrementalIssue_20191108&fbclid=IwAR08OarPih1ava0yDKrM_PK07xLSZ2ZSV_bzmvukc7RpNzQQHNzvRa8qxs8
 **** fake news
