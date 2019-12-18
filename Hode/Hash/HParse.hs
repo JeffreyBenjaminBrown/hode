@@ -204,7 +204,8 @@ pMember = lexeme ( foldr1 (<|>)
 
 pAllTplts :: Parser PExpr
 pAllTplts = lexeme ( foldr1 (<|>)
-                     $ map (try . precisely) ["/tplts","/ts"] )
+                     $ map (try . precisely)
+                     ["/templates","/tplts","/ts"] )
             >> return PTplts
 
 -- | Example: "/i-2 a" finds any `Rel` that involves "a"
