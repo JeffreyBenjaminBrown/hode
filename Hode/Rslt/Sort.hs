@@ -188,7 +188,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
 -- and `a` is on the right side of some relationship using
 -- `t` as its `Tplt`, then the result is `False`.
 isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
-        -> Either String Bool
+      -> Either String Bool
 isTop r (ort,t) a =
   prefixLeft "isTop:" $ do
   let roleIfLesser = case ort of
@@ -199,6 +199,16 @@ isTop r (ort,t) a =
                         (roleIfLesser,          HExpr $ Addr a) ]
   Right $ null relsInWhichItIsLesser
 
+isIsolated :: Rslt -> TpltAddr -> Addr
+           -> Either String Bool
+isIsolated r t a =
+  prefixLeft "isIsolated:" $ do
+  connections :: Set Addr <-
+        hExprToAddrs r mempty $ HAnd
+        [ HMap $ M.singleton (RoleInRel' RoleTplt) (HExpr $ Addr t)
+        , HMember $ HExpr $ Addr a ]
+  Right $ if null connections then True else False
+
 allTops :: Rslt
         -> (BinOrientation, TpltAddr)
         -> [Addr] -- ^ candidates
@@ -208,6 +218,15 @@ allTops r (bo,t) as =
   let withIsTop :: Addr -> Either String (Bool, Addr)
       withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
+
+allIsolated :: Rslt -> TpltAddr
+            -> [Addr] -- ^ candidates
+            -> Either String [Addr]
+allIsolated r t as =
+  prefixLeft "allIsolated:" $ do
+  let withIsIsolated :: Addr -> Either String (Bool, Addr)
+      withIsIsolated a = (,a) <$> isIsolated r t a
+  map snd . filter fst <$> mapM withIsIsolated as
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
 -- lie just beneath `a`, where the menaing of "beneath"
