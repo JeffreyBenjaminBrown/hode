@@ -47,8 +47,8 @@ module Hode.PTree.Initial (
   , deleteInPTree      -- ^ PTree a -> PTree a
   , moveFocusInPTree   -- ^ Direction -> PTree a -> PTree a
   , moveFocusInPorest  -- ^ Direction -> Porest a -> Porest a
-  , nudgeInPTree       -- ^ Direction -> PTree a -> PTree a
   , nudgeInPorest      -- ^ Direction -> Porest a -> Porest a
+  , nudgeInPTree       -- ^ Direction -> PTree a -> PTree a
   ) where
 
 import           Control.Arrow ((>>>))
@@ -250,7 +250,7 @@ moveFocusInPorest d p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ moveFocusInPTree d
      True -> case d of
-       DirUp   -> p & P.focus %~ moveFocusInPTree d
+       DirUp   -> p -- this is as `DirUp` as it gets
        DirDown -> p & P.focus %~ moveFocusInPTree d
        DirNext -> p & P.focus . pTreeHasFocus .~ False
                      & nextIfPossible
@@ -275,14 +275,6 @@ deleteInPTree t =
        ( setParentOfFocusedSubtree . pMTrees
          .~ deleteInPorest p )
 
-nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
-nudgeInPTree dir t =
-  let nudge = case dir of
-        DirPrev -> nudgePrev
-        DirNext -> nudgeNext
-        _       -> id  -- you can only nudge across the same level
-  in t & setParentOfFocusedSubtree . pMTrees . _Just %~ nudge
-
 nudgeInPorest :: forall a. Direction -> Porest a -> Porest a
 -- PITFALL: Not tested, but it's exactly the same idiom as
 -- `moveFocusInPorest`, which is tested.
@@ -293,3 +285,8 @@ nudgeInPorest dir p =
                DirPrev -> nudgePrev p
                DirNext -> nudgeNext p
                _       -> p -- you can only nudge across the same level
+
+nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
+nudgeInPTree dir =
+  setParentOfFocusedSubtree . pMTrees . _Just
+  %~ nudgeInPorest dir
