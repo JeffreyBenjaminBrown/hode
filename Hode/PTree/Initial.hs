@@ -15,6 +15,7 @@ module Hode.PTree.Initial (
   , prevIfPossible, nextIfPossible -- ^ PointedList a -> PointedList a
   , getPList                       -- ^ Getter  (PointedList a) [a]
   , setPList                       -- ^ Setter' (PointedList a) [a]
+  , nudgePrev, nudgeNext      -- ^ P.PointedList a -> P.PointedList a
 
   -- | *** `PTree`, a tree made of `PointedList`s
   , PTree(..)
@@ -80,6 +81,14 @@ setPList = sets go where
               [] -> pl
               x -> maybe (error msg) id $ P.fromList x
     where msg = "setList: Impossible: x is non-null, so P.fromList works"
+
+nudgePrev, nudgeNext :: P.PointedList a -> P.PointedList a
+nudgePrev p@(P.PointedList []     _ _)      = p
+nudgePrev   (P.PointedList (a:as) f bs)     =
+             P.PointedList as     f (a:bs)
+nudgeNext p@(P.PointedList _      _ [])     = p
+nudgeNext   (P.PointedList as     f (b:bs)) =
+             P.PointedList (b:as) f bs
 
 
 -- | *** `PTree`, a tree made of `PointedList`s

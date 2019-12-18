@@ -24,6 +24,7 @@ test_module_pTree_initial = TestList [
   , TestLabel "test_pListLenses" test_pListLenses
   , TestLabel "test_map" test_map
   , TestLabel "test_fold" test_fold
+  , TestLabel "test_nudge" test_nudge
   , TestLabel "test_nudgeInPTree" test_nudgeInPTree
   ]
 
@@ -53,6 +54,13 @@ test_nudgeInPTree = TestCase $ do
                     , PTree 3 False Nothing
                     , PTree 2 True  Nothing ] ) -- focused
 
+test_nudge :: T.Test
+test_nudge = TestCase $ do
+  -- PITFALL: For efficiency, a `PointedList`'s first list appears reversed.
+  -- Thus the numbers [1..4] appear here in order.
+  let pl =                        P.PointedList [2,1] 0 [3,4]
+  assertBool "" $ nudgePrev pl == P.PointedList [1] 0 [2,3,4]
+  assertBool "" $ nudgeNext pl == P.PointedList [3,2,1] 0 [4]
 
 test_fold :: T.Test
 test_fold = TestCase $ do
