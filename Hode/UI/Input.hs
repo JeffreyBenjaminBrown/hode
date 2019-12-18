@@ -113,13 +113,13 @@ handleKeyboard_atResultsWindow st ev =
     go $ showReassurance "Results window copied to clipboard."
 
   V.EvKey (V.KChar 'e') [V.MMeta] -> go $
-    nudgeFocused_viewExprNode DirPrev . hideReassurance
+    nudgeFocus_inViewExprNodes DirPrev . hideReassurance
   V.EvKey (V.KChar 'd') [V.MMeta] -> go $
-    nudgeFocused_viewExprNode DirNext . hideReassurance
+    nudgeFocus_inViewExprNodes DirNext . hideReassurance
   V.EvKey (V.KChar 'f') [V.MMeta] -> go $
-    nudgeFocused_viewExprNode DirDown . hideReassurance
+    nudgeFocus_inViewExprNodes DirDown . hideReassurance
   V.EvKey (V.KChar 's') [V.MMeta] -> go $
-    nudgeFocused_viewExprNode DirUp .   hideReassurance
+    nudgeFocus_inViewExprNodes DirUp .   hideReassurance
 
   _ -> handleUncaughtInput st ev
 

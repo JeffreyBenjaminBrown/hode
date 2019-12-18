@@ -45,10 +45,10 @@ module Hode.PTree.Initial (
   , consUnder_andFocus -- ^ PTree a -> PTree a -> PTree a
   , deleteInPorest     -- ^ Porest a -> Maybe (Porest a)
   , deleteInPTree      -- ^ PTree a -> PTree a
-  , nudgeFocus_inPTree   -- ^ Direction -> PTree a -> PTree a
-  , nudgeFocus_inPorest  -- ^ Direction -> Porest a -> Porest a
-  , nudgeInPorest      -- ^ Direction -> Porest a -> Porest a
-  , nudgeInPTree       -- ^ Direction -> PTree a -> PTree a
+  , nudgeFocus_inPTree  -- ^ Direction -> PTree a -> PTree a
+  , nudgeFocus_inPorest -- ^ Direction -> Porest a -> Porest a
+  , nudgeInPorest       -- ^ Direction -> Porest a -> Porest a
+  , nudgeInPTree        -- ^ Direction -> PTree a -> PTree a
   ) where
 
 import           Control.Arrow ((>>>))

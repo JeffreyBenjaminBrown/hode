@@ -4,9 +4,9 @@ ScopedTypeVariables #-}
 module Hode.UI.BufferRowTree (
 
   -- | = misc. other changes around the focused node
-    nudgeFocused_viewExprNode   -- ^ Direction -> St -> St
-  , closeSubviews_atFocus -- ^ St -> St
-  , foldSubviews_atFocus  -- ^ St -> St
+    nudgeFocus_inViewExprNodes -- ^ Direction -> St -> St
+  , closeSubviews_atFocus      -- ^              St -> St
+  , foldSubviews_atFocus       -- ^              St -> St
 
   -- | = inserting layers of nodes
   , insertSearchResults_atFocus  -- ^ St -> Either String St
@@ -50,8 +50,8 @@ import Hode.Util.Misc
 
 -- | = misc. other changes around the focused node
 
-nudgeFocused_viewExprNode :: Direction -> St -> St
-nudgeFocused_viewExprNode d =
+nudgeFocus_inViewExprNodes :: Direction -> St -> St
+nudgeFocus_inViewExprNodes d =
   stSetFocusedBuffer . bufferRowPorest . _Just
   %~ nudgeFocus_inPorest d
 
