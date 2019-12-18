@@ -5,6 +5,7 @@ module Hode.UI.BufferRowTree (
 
   -- | = misc. other changes around the focused node
     nudgeFocus_inViewExprNodes -- ^ Direction -> St -> St
+  , nudge_viewExprNode         -- ^ Direction -> St -> St
   , closeSubviews_atFocus      -- ^              St -> St
   , foldSubviews_atFocus       -- ^              St -> St
 
@@ -54,6 +55,11 @@ nudgeFocus_inViewExprNodes :: Direction -> St -> St
 nudgeFocus_inViewExprNodes d =
   stSetFocusedBuffer . bufferRowPorest . _Just
   %~ nudgeFocus_inPorest d
+
+nudge_viewExprNode :: Direction -> St -> St
+nudge_viewExprNode d =
+  stSetFocusedBuffer . bufferRowPorest . _Just
+  %~ nudgeInPorest d
 
 closeSubviews_atFocus :: St -> St
 closeSubviews_atFocus =

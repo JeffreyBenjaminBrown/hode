@@ -121,6 +121,11 @@ handleKeyboard_atResultsWindow st ev =
   V.EvKey (V.KChar 's') [V.MMeta] -> go $
     nudgeFocus_inViewExprNodes DirUp .   hideReassurance
 
+  V.EvKey (V.KChar 'E') [V.MMeta] -> go $
+    nudge_viewExprNode DirPrev . hideReassurance
+  V.EvKey (V.KChar 'D') [V.MMeta] -> go $
+    nudge_viewExprNode DirNext . hideReassurance
+
   _ -> handleUncaughtInput st ev
 
 parseAndRunCommand ::
