@@ -5,10 +5,11 @@ ViewPatterns
 
 module Hode.UI.BufferTree
   ( cons_focusedViewExpr_asChildOfBuffer
-                       -- ^ St -> Either String St
-  , moveFocus_inBufferTree  -- ^ Direction -> St -> St
-  , consBuffer_topNext -- ^ Buffer    -> St -> St
-  , consBuffer_asChild -- ^ Buffer    -> St -> St
+                           -- ^ St -> Either String St
+  , moveFocus_inBufferTree -- ^ Direction -> St -> St
+  , moveFocusedBuffer      -- ^ Direction -> St -> St
+  , consBuffer_topNext     -- ^ Buffer    -> St -> St
+  , consBuffer_asChild     -- ^ Buffer    -> St -> St
   ) where
 
 import qualified Data.List.PointedList as P
@@ -44,6 +45,10 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
 moveFocus_inBufferTree :: Direction -> St -> St
 moveFocus_inBufferTree d =
   searchBuffers . _Just %~ moveFocusInPorest d
+
+moveFocusedBuffer :: Direction -> St -> St
+moveFocusedBuffer d =
+  searchBuffers . _Just %~ nudgeInPorest d
 
 consBuffer_topNext :: Buffer -> St -> St
 consBuffer_topNext b =

@@ -70,6 +70,11 @@ handleKeyboard_atBufferWindow st ev =
   V.EvKey (V.KChar 's') [V.MMeta] ->
     go $ moveFocus_inBufferTree DirUp
 
+  V.EvKey (V.KChar 'E') [V.MMeta] ->
+    go $ moveFocusedBuffer DirPrev
+  V.EvKey (V.KChar 'D') [V.MMeta] ->
+    go $ moveFocusedBuffer DirNext
+
   V.EvKey (V.KChar 'c') [V.MMeta] ->
     go $ consBuffer_asChild emptyBuffer
   V.EvKey (V.KChar 't') [V.MMeta] ->
