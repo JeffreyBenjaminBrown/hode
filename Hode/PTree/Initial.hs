@@ -8,36 +8,37 @@
 
 module Hode.PTree.Initial (
 
-  -- | ** `PointedList`
     Direction(..)
+
+  -- | *** `PointedList`
   , PointedList(..) -- ^ exports the Ord instance
-  , Porest
-    , prevIfPossible, nextIfPossible -- ^ PointedList a -> PointedList a
-    , getPList                       -- ^ Getter  (PointedList a) [a]
-    , setPList                       -- ^ Setter' (PointedList a) [a]
+  , prevIfPossible, nextIfPossible -- ^ PointedList a -> PointedList a
+  , getPList                       -- ^ Getter  (PointedList a) [a]
+  , setPList                       -- ^ Setter' (PointedList a) [a]
 
-  -- | ** `PTree`, a tree made of `PointedList`s
+  -- | *** `PTree`, a tree made of `PointedList`s
   , PTree(..)
-    , pMTrees
-    , pTreeLabel
-    , pTreeHasFocus -- ^ PITFALL: permits invalid state.
-    , pMTreesF
-    , pTreeLabelF
-    , pTreeHasFocusF -- ^ PITFALL: permits invalid state.
+  , Porest
+  , pMTrees
+  , pTreeLabel
+  , pTreeHasFocus -- ^ PITFALL: permits invalid state.
+  , pMTreesF
+  , pTreeLabelF
+  , pTreeHasFocusF -- ^ PITFALL: permits invalid state.
 
-  -- | * PTree optics
+  -- | ** PTree optics
   , getFocusedChild           -- ^ Getter  (PTree a) (Maybe (PTree a))
-  , getParentOfFocusedSubtree -- ^ Getter  (PTree a) (Maybe (PTree a))
-  , setParentOfFocusedSubtree -- ^ Setter' (PTree a) (PTree a)
   , getFocusedSubtree         -- ^ Getter  (PTree a) (Maybe (PTree a))
   , setFocusedSubtree         -- ^ Setter' (PTree a) (PTree a)
+  , getParentOfFocusedSubtree -- ^ Getter  (PTree a) (Maybe (PTree a))
+  , setParentOfFocusedSubtree -- ^ Setter' (PTree a) (PTree a)
   , pTrees                    -- ^ Traversal' (PTree a) (Porest a)
 
-  -- | * PTree creators
+  -- | ** PTree creators
   , pTreeLeaf                 -- ^ a -> PTree a
   , porestLeaf                -- ^ a -> Porest a
 
-  -- | * PTree modifiers
+  -- | ** PTree modifiers
   , writeLevels               -- ^ PTree a -> PTree (Int,a)
   , cons_topNext              -- ^       a -> Porest a -> Porest a
   , consUnder_andFocus        -- ^ PTree a -> PTree a -> PTree a
@@ -58,7 +59,7 @@ data Direction = DirPrev | DirNext | DirUp | DirDown
   deriving (Show,Eq, Ord)
 
 
--- | ** `PointedList`
+-- | *** `PointedList`
 
 instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
@@ -79,12 +80,14 @@ setPList = sets go where
     where msg = "setList: Impossible: x is non-null, so P.fromList works"
 
 
--- | ** `PTree`, a tree made of `PointedList`s
+-- | *** `PTree`, a tree made of `PointedList`s
 
 data PTree a = PTree {
     _pTreeLabel :: a
   , _pTreeHasFocus :: Bool -- ^ PITFALL: permits invalid state.
-  -- There should be only one focused node in the tree.
+    -- There should be only one focused node in the tree.
+    -- PITFALL: The entire path to the focus is marked,
+    -- not via this field, but via the focus of each Porest.
   , _pMTrees :: Maybe (Porest a) }
   deriving (Eq, Show, Ord, Functor, Foldable, Traversable)
 type Porest a = PointedList (PTree a)
@@ -92,7 +95,7 @@ type Porest a = PointedList (PTree a)
   -- See Hode.Test.TPTree.
 
 
--- | * PTree optics
+-- | ** PTree optics
 
 makeLenses      ''PTree
 makeBaseFunctor ''PTree
@@ -107,9 +110,31 @@ getFocusedChild :: Getter (PTree a) (Maybe (PTree a))
 getFocusedChild = to go where
   go :: PTree a -> Maybe (PTree a)
   go (_pTreeHasFocus -> True) = Nothing
+    -- If it has focus, none of its children should.
   go t = case _pMTrees t of
     Nothing -> Nothing
     Just ts -> listToMaybe $ filter _pTreeHasFocus $ toList ts
+      -- Since at most one child should have focus,
+      -- listToMaybe encounters a list with either 0 or 1 elements.
+
+-- | If the `PTree` has more than one subtree for which
+-- `pTreeHasFocus` is true (which it shouldn't), this returns the first.
+getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
+getFocusedSubtree = to go where
+  go :: PTree a -> Maybe (PTree a)
+  go t@(_pTreeHasFocus -> True) = Just t
+  go t = case _pMTrees t of
+    Nothing -> Nothing
+    Just ts -> go $ ts ^. P.focus
+
+-- | Change something about the focused subtree.
+setFocusedSubtree :: Setter' (PTree a) (PTree a)
+setFocusedSubtree = sets go where
+  go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a
+  go f t@(_pTreeHasFocus -> True) = f t
+  go f t = case _pMTrees t of
+    Nothing -> t
+    Just _ -> t & pMTrees . _Just . P.focus %~ go f
 
 getParentOfFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
 getParentOfFocusedSubtree = to go where
@@ -129,30 +154,11 @@ setParentOfFocusedSubtree = sets go where
       Nothing -> t
       Just _ -> t & pMTrees . _Just . P.focus %~ go f
 
--- | If the `PTree` has (it sohuldn't) more than one subtree for which
--- `pTreeHasFocus` is true, this returns the first such.
-getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
-getFocusedSubtree = to go where
-  go :: PTree a -> Maybe (PTree a)
-  go t@(_pTreeHasFocus -> True) = Just t
-  go t = case _pMTrees t of
-    Nothing -> Nothing
-    Just ts -> go $ ts ^. P.focus
-
--- | Change something about the focused subtree.
-setFocusedSubtree :: Setter' (PTree a) (PTree a)
-setFocusedSubtree = sets go where
-  go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a
-  go f t@(_pTreeHasFocus -> True) = f t
-  go f t = case _pMTrees t of
-    Nothing -> t
-    Just _ -> t & pMTrees . _Just . P.focus %~ go f
-
 pTrees :: Traversal' (PTree a) (Porest a)
 pTrees = pMTrees . _Just
 
 
--- | * PTree creators
+-- | ** PTree creators
 
 pTreeLeaf :: a -> PTree a
 pTreeLeaf a = PTree { _pTreeLabel = a
@@ -163,7 +169,7 @@ porestLeaf :: a -> Porest a
 porestLeaf = P.singleton . pTreeLeaf
 
 
--- | * PTree modifiers
+-- | ** PTree modifiers
 
 -- | The root has level 0, its children level 1, etc.
 writeLevels :: PTree a -> PTree (Int,a)
@@ -172,22 +178,22 @@ writeLevels = f 0 where
   f i pt = pt
     { _pTreeLabel = (i, _pTreeLabel pt)
     , _pMTrees = fmap (fmap $ f $ i+1) $ _pMTrees pt }
-      -- The outer fmap gets into the Maybe,
-      -- and the inner gets into the PointedList.
+      -- The outer fmap reaches into the Maybe,
+      -- and the inner reaches into the PointedList.
 
 cons_topNext :: a -> Porest a -> Porest a
 cons_topNext a =
   P.focus . pTreeHasFocus .~ False >>>
-  P.insertRight (pTreeLeaf a)      >>>
+  P.insertRight (pTreeLeaf a)      >>> -- moves focus to `a`
   P.focus . pTreeHasFocus .~ True
 
 -- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
 consUnder_andFocus :: forall a. PTree a -> PTree a -> PTree a
 consUnder_andFocus newFocus oldFocus =
-  let (ts'' :: [PTree a]) =
+  let ts'' :: [PTree a] =
         let m = newFocus & pTreeHasFocus .~ True
         in case _pMTrees oldFocus of
-             Nothing -> m : []
+             Nothing -> [m]
              Just ts ->
                let ts' = ts & P.focus . pTreeHasFocus .~ False
                in m : toList ts'
