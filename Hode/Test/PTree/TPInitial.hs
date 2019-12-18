@@ -43,16 +43,17 @@ test_nudgeInPTree = TestCase $ do
         [ PTree 3 False Nothing ]
   assertBool "prev" $
     nudgeInPTree DirPrev midFocused ==
-    PTree 0 False ( P.fromList
-                    [ PTree 2 True  Nothing -- focused
-                    , PTree 1 False Nothing
+    PTree 0 False ( Just $ P.PointedList []
+                    ( PTree 2 True  Nothing ) -- focused
+                    [ PTree 1 False Nothing
                     , PTree 3 False Nothing ] )
   assertBool "next" $
     nudgeInPTree DirNext midFocused ==
-    PTree 0 False ( P.fromList
-                    [ PTree 1 False Nothing
-                    , PTree 3 False Nothing
-                    , PTree 2 True  Nothing ] ) -- focused
+    PTree 0 False ( Just $ P.PointedList
+                    [ PTree 3 False Nothing
+                    , PTree 1 False Nothing ]
+                    ( PTree 2 True  Nothing ) -- focused
+                    [] )
 
 test_nudge :: T.Test
 test_nudge = TestCase $ do

@@ -266,6 +266,8 @@ nudgeInPTree dir t =
   in t & setParentOfFocusedSubtree . pMTrees . _Just %~ nudge
 
 nudgeInPorest :: forall a. Direction -> Porest a -> Porest a
+-- PITFALL: Not tested, but it's exactly the same idiom as
+-- `moveFocusInPorest`, which is tested.
 nudgeInPorest dir p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ nudgeInPTree dir
