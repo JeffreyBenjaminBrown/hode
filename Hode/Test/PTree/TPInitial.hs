@@ -26,7 +26,39 @@ test_module_pTree_initial = TestList [
   , TestLabel "test_fold" test_fold
   , TestLabel "test_nudge" test_nudge
   , TestLabel "test_nudgeInPTree" test_nudgeInPTree
+  , TestLabel "test_delete" test_delete
   ]
+
+test_delete :: T.Test
+test_delete = TestCase $ do
+
+  let tn = PTree 1 False $ -- Tree, no focus
+           P.fromList [ PTree 2 False Nothing
+                      , PTree 3 False Nothing ]
+      t1 = PTree 1 True $ -- Tree, focus at top
+           P.fromList [ PTree 2 False Nothing
+                      , PTree 3 False Nothing ]
+      t2 = PTree 1 False $ -- Tree, focus on 2
+           P.fromList [ PTree 2 True Nothing
+                      , PTree 3 False Nothing ]
+      t3 = PTree 1 False $ -- Tree, focus on 3, 2 absent
+           P.fromList [ PTree 3 True Nothing ]
+
+  assertBool "can't delete top of tree" $
+    deleteInPTree tn == tn
+  assertBool "delete 2, left focused on 3" $
+    deleteInPTree t2 == t3
+
+  assertBool "tn becomes t1 and replaces t2" $
+    deleteInPorest (P.PointedList [] t1 [tn, t3])
+    == Just (P.PointedList [] t1 [t3])
+  assertBool "invalid input (multiple focus)" $
+    deleteInPorest (P.PointedList [] t1 [t1, t3])
+    == Just (P.PointedList [] t1 [t3])
+  assertBool "Replaces from left when possible" $
+    deleteInPorest (P.PointedList [tn] t1 [t3])
+    == Just (P.PointedList [] t1 [t3])
+
 
 test_nudgeInPTree :: T.Test
 test_nudgeInPTree = TestCase $ do

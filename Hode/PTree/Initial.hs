@@ -268,13 +268,12 @@ deleteInPorest p =
 
 deleteInPTree :: forall a. PTree a -> PTree a
 deleteInPTree t =
-  let mp :: Maybe (Porest a) =
-        t ^? ( getParentOfFocusedSubtree . _Just
+  case t ^? ( getParentOfFocusedSubtree . _Just
                . pMTrees . _Just )
-  in case mp of
-       Nothing -> t
-       Just p -> t & ( setParentOfFocusedSubtree . pMTrees
-                       .~ P.deleteLeft p )
+  of Nothing              -> t -- you can't delete the root
+     Just (p :: Porest a) -> t &
+       ( setParentOfFocusedSubtree . pMTrees
+         .~ deleteInPorest p )
 
 nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
 nudgeInPTree dir t =
