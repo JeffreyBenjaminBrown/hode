@@ -24,7 +24,35 @@ test_module_pTree_initial = TestList [
   , TestLabel "test_pListLenses" test_pListLenses
   , TestLabel "test_map" test_map
   , TestLabel "test_fold" test_fold
+  , TestLabel "test_nudgeInPTree" test_nudgeInPTree
   ]
+
+test_nudgeInPTree :: T.Test
+test_nudgeInPTree = TestCase $ do
+  let topFocused = PTree 3 True $
+          P.fromList [ PTree 2 False Nothing
+                     , PTree 1 False Nothing]
+  assertBool "top" $
+    nudgeInPTree DirPrev topFocused == topFocused &&
+    nudgeInPTree DirNext topFocused == topFocused
+
+  let midFocused = PTree 0 False $ Just $ P.PointedList
+        [ PTree 1 False Nothing ]
+        ( PTree 2 True  Nothing )
+        [ PTree 3 False Nothing ]
+  assertBool "prev" $
+    nudgeInPTree DirPrev midFocused ==
+    PTree 0 False ( P.fromList
+                    [ PTree 2 True  Nothing -- focused
+                    , PTree 1 False Nothing
+                    , PTree 3 False Nothing ] )
+  assertBool "next" $
+    nudgeInPTree DirNext midFocused ==
+    PTree 0 False ( P.fromList
+                    [ PTree 1 False Nothing
+                    , PTree 3 False Nothing
+                    , PTree 2 True  Nothing ] ) -- focused
+
 
 test_fold :: T.Test
 test_fold = TestCase $ do
