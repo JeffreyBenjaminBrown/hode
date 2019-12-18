@@ -24,8 +24,30 @@ test_module_rslt_sort = TestList [
   TestLabel "test_kahnIterate" test_kahnIterate,
   TestLabel "test_allExprsButTpltsOrRelsUsingThem"
     test_allExprsButTpltsOrRelsUsingThem,
-  TestLabel "test_kahnSort" test_kahnSort
+  TestLabel "test_kahnSort" test_kahnSort,
+  TestLabel "test_partitionIsolated" test_partitionIsolated
   ]
+
+test_partitionIsolated :: Test
+test_partitionIsolated = TestCase $ do
+  let Right rLine = nInserts (mkRslt mempty)
+        [ "x"
+        , "0 #a 1", "1 #a 2", "2 #a 3"
+        , "y" ]
+      Right tplt_a  = head . S.toList <$>
+                      nFindAddrs rLine "/t /_ a /_"
+      stringElt :: String -> Addr
+      stringElt = either (error "not in graph") id .
+                  exprToAddr rLine . Phrase
+      Right (isol,conn) =
+        partitionIsolated rLine tplt_a
+        $ map stringElt ["0","1","2","3","x","y"]
+  assertBool "x and y are isolated" $
+    S.fromList isol ==
+    S.fromList (map stringElt ["x","y"])
+  assertBool "the numbers are connected" $
+    S.fromList conn ==
+    S.fromList (map (stringElt . show) [0..3::Int])
 
 -- | See also `test_kahnSort'`, a manual test,
 -- which shows what happens with branches.

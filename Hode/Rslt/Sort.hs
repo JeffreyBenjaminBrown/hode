@@ -41,10 +41,14 @@ module Hode.Rslt.Sort (
                                     -- -> Either String (Set Addr)
   , isTop -- ^ Rslt -> (BinOrientation, TpltAddr) -> Addr
           -- -> Either String Bool
-  , allTops -- ^   Rslt
+  , allTops -- ^  Rslt
             -- -> (BinOrientation, TpltAddr)
             -- -> [Addr] -- ^ candidates
             -- -> Either String [Addr]
+  , partitionIsolated -- ^ Rslt -> TpltAddr
+                      -- -> [Addr] -- ^ candidates
+                      -- -> Either String ([Addr],[Addr])
+
   , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
                -- -> Either String (Set Addr)
   , deleteHostsThenDelete -- ^ Addr -> Rslt -> Either String Rslt
