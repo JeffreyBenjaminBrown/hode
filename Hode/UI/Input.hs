@@ -80,6 +80,9 @@ handleKeyboard_atBufferWindow st ev =
   V.EvKey (V.KChar 't') [V.MMeta] ->
     go $ consBuffer_topNext emptyBuffer
 
+  V.EvKey (V.KChar 'w') [V.MMeta] ->
+    go   deleteFocused_buffer
+
   _ -> handleUncaughtInput st ev
 
 handleKeyboard_atResultsWindow ::

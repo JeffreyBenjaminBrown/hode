@@ -5,11 +5,14 @@ ViewPatterns
 
 module Hode.UI.BufferTree
   ( cons_focusedViewExpr_asChildOfBuffer
-                           -- ^ St -> Either String St
+                            -- ^ St -> Either String St
+  , consBuffer_topNext      -- ^ Buffer    -> St -> St
+  , consBuffer_asChild      -- ^ Buffer    -> St -> St
+
+  , deleteFocused_buffer    -- ^ St -> St
+
   , nudgeFocus_inBufferTree -- ^ Direction -> St -> St
-  , nudgeFocused_buffer      -- ^ Direction -> St -> St
-  , consBuffer_topNext     -- ^ Buffer    -> St -> St
-  , consBuffer_asChild     -- ^ Buffer    -> St -> St
+  , nudgeFocused_buffer     -- ^ Direction -> St -> St
   ) where
 
 import qualified Data.List.PointedList as P
@@ -42,14 +45,6 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
   redraw_focusedBuffer $
     hideReassurance . consBuffer_asChild b' $ st0
 
-nudgeFocus_inBufferTree :: Direction -> St -> St
-nudgeFocus_inBufferTree d =
-  searchBuffers . _Just %~ nudgeFocus_inPorest d
-
-nudgeFocused_buffer :: Direction -> St -> St
-nudgeFocused_buffer d =
-  searchBuffers . _Just %~ nudgeInPorest d
-
 consBuffer_topNext :: Buffer -> St -> St
 consBuffer_topNext b =
   searchBuffers . _Just %~ cons_topNext b
@@ -58,3 +53,18 @@ consBuffer_asChild :: Buffer -> St -> St
 consBuffer_asChild b =
   searchBuffers . _Just . P.focus . setFocusedSubtree
   %~ consUnder_andFocus (pTreeLeaf b)
+
+deleteFocused_buffer :: St -> St
+deleteFocused_buffer st =
+  case _searchBuffers st of
+    Nothing -> st
+    Just (p :: Porest Buffer) ->
+      st & searchBuffers .~ deleteInPorest p
+
+nudgeFocus_inBufferTree :: Direction -> St -> St
+nudgeFocus_inBufferTree d =
+  searchBuffers . _Just %~ nudgeFocus_inPorest d
+
+nudgeFocused_buffer :: Direction -> St -> St
+nudgeFocused_buffer d =
+  searchBuffers . _Just %~ nudgeInPorest d

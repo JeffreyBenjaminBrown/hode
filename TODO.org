@@ -11,16 +11,12 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** steps
-**** move Exprs vertically
-If they are not in a sort range, this has no effect on the graph,
-just the current view.
-If they are in a sort range, this changes their order in it.
-**** highlight range
-**** rank a highlighted range
-by some template
 **** let user define for the Rslt (via the Rslt?)
 transitive templates
 a priority ordering on templates
+**** highlight range
+**** rank a highlighted range
+by some template
 **** BIG: sort-aware display
 ***** use the VQuery constructor, simplify the Buffer type
 Currently I use ViewQuery as a Buffer label,
