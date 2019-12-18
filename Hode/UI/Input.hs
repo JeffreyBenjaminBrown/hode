@@ -62,18 +62,18 @@ handleKeyboard_atBufferWindow st ev =
   let go f = B.continue $ f $ st & hideReassurance
   in case ev of
   V.EvKey (V.KChar 'e') [V.MMeta] ->
-    go $ moveFocus_inBufferTree DirPrev
+    go $ nudgeFocus_inBufferTree DirPrev
   V.EvKey (V.KChar 'd') [V.MMeta] ->
-    go $ moveFocus_inBufferTree DirNext
+    go $ nudgeFocus_inBufferTree DirNext
   V.EvKey (V.KChar 'f') [V.MMeta] ->
-    go $ moveFocus_inBufferTree DirDown
+    go $ nudgeFocus_inBufferTree DirDown
   V.EvKey (V.KChar 's') [V.MMeta] ->
-    go $ moveFocus_inBufferTree DirUp
+    go $ nudgeFocus_inBufferTree DirUp
 
   V.EvKey (V.KChar 'E') [V.MMeta] ->
-    go $ moveFocusedBuffer DirPrev
+    go $ nudgeFocused_buffer DirPrev
   V.EvKey (V.KChar 'D') [V.MMeta] ->
-    go $ moveFocusedBuffer DirNext
+    go $ nudgeFocused_buffer DirNext
 
   V.EvKey (V.KChar 'c') [V.MMeta] ->
     go $ consBuffer_asChild emptyBuffer
@@ -113,13 +113,13 @@ handleKeyboard_atResultsWindow st ev =
     go $ showReassurance "Results window copied to clipboard."
 
   V.EvKey (V.KChar 'e') [V.MMeta] -> go $
-    moveFocusedViewExprNode DirPrev . hideReassurance
+    nudgeFocused_viewExprNode DirPrev . hideReassurance
   V.EvKey (V.KChar 'd') [V.MMeta] -> go $
-    moveFocusedViewExprNode DirNext . hideReassurance
+    nudgeFocused_viewExprNode DirNext . hideReassurance
   V.EvKey (V.KChar 'f') [V.MMeta] -> go $
-    moveFocusedViewExprNode DirDown . hideReassurance
+    nudgeFocused_viewExprNode DirDown . hideReassurance
   V.EvKey (V.KChar 's') [V.MMeta] -> go $
-    moveFocusedViewExprNode DirUp .   hideReassurance
+    nudgeFocused_viewExprNode DirUp .   hideReassurance
 
   _ -> handleUncaughtInput st ev
 

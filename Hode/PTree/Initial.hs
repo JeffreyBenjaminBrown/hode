@@ -45,8 +45,8 @@ module Hode.PTree.Initial (
   , consUnder_andFocus -- ^ PTree a -> PTree a -> PTree a
   , deleteInPorest     -- ^ Porest a -> Maybe (Porest a)
   , deleteInPTree      -- ^ PTree a -> PTree a
-  , moveFocusInPTree   -- ^ Direction -> PTree a -> PTree a
-  , moveFocusInPorest  -- ^ Direction -> Porest a -> Porest a
+  , nudgeFocus_inPTree   -- ^ Direction -> PTree a -> PTree a
+  , nudgeFocus_inPorest  -- ^ Direction -> Porest a -> Porest a
   , nudgeInPorest      -- ^ Direction -> Porest a -> Porest a
   , nudgeInPTree       -- ^ Direction -> PTree a -> PTree a
   ) where
@@ -213,8 +213,8 @@ consUnder_andFocus newFocus oldFocus =
   in oldFocus & pTreeHasFocus .~ False
               & pMTrees .~ P.fromList ts''
 
-moveFocusInPTree :: Direction -> PTree a -> PTree a
-moveFocusInPTree DirUp t =
+nudgeFocus_inPTree :: Direction -> PTree a -> PTree a
+nudgeFocus_inPTree DirUp t =
   case t ^? getParentOfFocusedSubtree . _Just of
     Nothing -> t & pTreeHasFocus .~ True
     Just st -> let
@@ -222,14 +222,14 @@ moveFocusInPTree DirUp t =
                &                             pTreeHasFocus .~ True
       in t & setParentOfFocusedSubtree .~ st'
 
-moveFocusInPTree DirDown t =
+nudgeFocus_inPTree DirDown t =
   case t ^? getFocusedSubtree . _Just . pMTrees . _Just
   of Nothing -> t
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ True
                 in t & setFocusedSubtree . pMTrees .~ Just ts'
                      & setFocusedSubtree . pTreeHasFocus .~ False
 
-moveFocusInPTree DirPrev t =
+nudgeFocus_inPTree DirPrev t =
   case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
   of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
@@ -237,7 +237,7 @@ moveFocusInPTree DirPrev t =
                              & P.focus . pTreeHasFocus .~ True
        in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
 
-moveFocusInPTree DirNext t =
+nudgeFocus_inPTree DirNext t =
   case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
   of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
@@ -245,13 +245,13 @@ moveFocusInPTree DirNext t =
                              & P.focus . pTreeHasFocus .~ True
        in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
 
-moveFocusInPorest :: Direction -> Porest a -> Porest a
-moveFocusInPorest d p =
+nudgeFocus_inPorest :: Direction -> Porest a -> Porest a
+nudgeFocus_inPorest d p =
   case p ^. P.focus . pTreeHasFocus
-  of False -> p & P.focus %~ moveFocusInPTree d
+  of False -> p & P.focus %~ nudgeFocus_inPTree d
      True -> case d of
        DirUp   -> p -- this is as `DirUp` as it gets
-       DirDown -> p & P.focus %~ moveFocusInPTree d
+       DirDown -> p & P.focus %~ nudgeFocus_inPTree d
        DirNext -> p & P.focus . pTreeHasFocus .~ False
                      & nextIfPossible
                      & P.focus . pTreeHasFocus .~ True
@@ -277,7 +277,7 @@ deleteInPTree t =
 
 nudgeInPorest :: forall a. Direction -> Porest a -> Porest a
 -- PITFALL: Not tested, but it's exactly the same idiom as
--- `moveFocusInPorest`, which is tested.
+-- `nudgeFocus_inPorest`, which is tested.
 nudgeInPorest dir p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ nudgeInPTree dir

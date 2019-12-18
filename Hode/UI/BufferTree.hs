@@ -6,8 +6,8 @@ ViewPatterns
 module Hode.UI.BufferTree
   ( cons_focusedViewExpr_asChildOfBuffer
                            -- ^ St -> Either String St
-  , moveFocus_inBufferTree -- ^ Direction -> St -> St
-  , moveFocusedBuffer      -- ^ Direction -> St -> St
+  , nudgeFocus_inBufferTree -- ^ Direction -> St -> St
+  , nudgeFocused_buffer      -- ^ Direction -> St -> St
   , consBuffer_topNext     -- ^ Buffer    -> St -> St
   , consBuffer_asChild     -- ^ Buffer    -> St -> St
   ) where
@@ -42,12 +42,12 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
   redraw_focusedBuffer $
     hideReassurance . consBuffer_asChild b' $ st0
 
-moveFocus_inBufferTree :: Direction -> St -> St
-moveFocus_inBufferTree d =
-  searchBuffers . _Just %~ moveFocusInPorest d
+nudgeFocus_inBufferTree :: Direction -> St -> St
+nudgeFocus_inBufferTree d =
+  searchBuffers . _Just %~ nudgeFocus_inPorest d
 
-moveFocusedBuffer :: Direction -> St -> St
-moveFocusedBuffer d =
+nudgeFocused_buffer :: Direction -> St -> St
+nudgeFocused_buffer d =
   searchBuffers . _Just %~ nudgeInPorest d
 
 consBuffer_topNext :: Buffer -> St -> St
