@@ -9,8 +9,30 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
+** TODO sorting
+*** ? needs a closure algorithm
+**** motivation
+Suppose [a,b,c] are to be shown, and a > b, and c > d.
+None of them are isolated from the closure of (>),
+but among [a,b,c], c is isolated.
+It should be shown in the unsorted group.
+*** ? compromise: don't consider non-local connections
+*** HARD: How to change order given non-local connections?
+Consider the numbers 1..5 under the natural ordering.
+Suppose we show [1,3,5], and then reorder them to [1,5,3].
+How should the underlying graph chnage?
+
+If we just add a connection 5 > 3, the relation is no longer transitive.
+
+We could delete the relationship that 5 bears to 4.
+But if we then reordered the data to [1,3,5],
+we would not arrive back at the original graph.
+
+The most "correct" way would be to prompt the user that there are nonlocal transitive relationships involving 3 and 5,
+and show each such path (in this case there's only one: 3 < 4 < 5),
+and ask them to choose a link to break from the path.
 ** TODO ordering
-*** in kahn sort algorithm, put unrelated things last, not first
+*** in kahn sort algorithm, put unrelated things last
 *** `Tplt`s: record metadata
 transitive templates
 later, a priority ordering on templates
@@ -95,6 +117,7 @@ can be omitted
 Some as counts, some otherwise.
 *** might help ? distinguish "of interest" expressions
 
+** TODO templates for sets of arbitrary size
 ** count more stuff in the left column(s)
 *** ? use hMatches
 *** let the user add HExprs to _columnHExprs
