@@ -74,10 +74,10 @@ testHMatches = TestCase $ do
     == Right False
 
   assertBool "HEval" $ hMatches r
-    (HEval (HExpr $ Addr 10) [[RoleMember 1]]) 2
+    (HEval (HExpr $ ExprAddr 10) [[RoleMember 1]]) 2
     == Right True
   assertBool "HEval false" $ hMatches r
-    (HEval (HExpr $ Addr 10) [[RoleMember 2]]) 2
+    (HEval (HExpr $ ExprAddr 10) [[RoleMember 2]]) 2
     == Right False
 
 test_hExprToExpr :: Test
@@ -89,9 +89,9 @@ test_hExprToExpr = TestCase $ do
     $ M.fromList [ (RoleInRel' $ RoleTplt    , HExpr $ Phrase "galk")
                  , (RoleInRel' $ RoleMember 1, HVar (vs "x")) ]
   assertBool "arity mismatch" $ isLeft $ hExprToExpr D.big $ HMap
-    $ M.singleton (RoleInRel' $ RoleTplt) $ HExpr $ Addr 4
+    $ M.singleton (RoleInRel' $ RoleTplt) $ HExpr $ ExprAddr 4
   assertBool "good" $ isLeft $ hExprToExpr D.big $ HMap
-    $ M.fromList [ (RoleInRel' $ RoleTplt    , HExpr $ Addr 4)
+    $ M.fromList [ (RoleInRel' $ RoleTplt    , HExpr $ ExprAddr 4)
                  , (RoleInRel' $ RoleMember 1, HExpr $ Phrase "yo!") ]
 
 test_hExprToAddrs :: Test
@@ -101,26 +101,26 @@ test_hExprToAddrs = TestCase $ do
     -- One HEval inside another
 
   assertBool "find 2" $ hExprToAddrs D.big M.empty
-    ( HExpr $ Addr 2)
+    ( HExpr $ ExprAddr 2)
     == Right ( S.fromList [2] )
 
   assertBool "9 is the only Expr with 2 as member 1"
     $ hExprToAddrs D.big M.empty
     ( HMap $ M.fromList [ ( RoleInRel' $ RoleMember 1,
-                            HExpr $ Addr 2) ] )
+                            HExpr $ ExprAddr 2) ] )
     == Right ( S.fromList [9] )
 
   assertBool "nothing has 10 as its first member."
     $ hExprToAddrs D.big M.empty
     ( HMap $ M.fromList [ ( RoleInRel' $ RoleMember 1,
-                            HExpr $ Addr 10) ] )
+                            HExpr $ ExprAddr 10) ] )
     == Right S.empty
 
   assertBool "2 is the first member of the only thing (9) that has 2 as its first member. (Duh.)"
     $ hExprToAddrs D.big M.empty
     ( HEval
       ( HMap $ M.fromList [ (RoleInRel' $ RoleMember 1,
-                             HExpr $ Addr 2) ] )
+                             HExpr $ ExprAddr 2) ] )
       [ [ RoleMember 1 ] ] )
     == Right ( S.fromList [2] )
 
@@ -134,7 +134,7 @@ test_hExprToAddrs = TestCase $ do
     $ hExprToAddrs D.big M.empty
     ( HEval
       ( HMap $ M.fromList [ (RoleInRel' $ RoleMember 2,
-                             HExpr $ Addr 3) ] )
+                             HExpr $ ExprAddr 3) ] )
       [ [ RoleMember 1 ] ] )
     == Right ( S.fromList [2] )
 
@@ -143,7 +143,7 @@ test_hExprToAddrs = TestCase $ do
     ( HMap ( M.singleton (RoleInRel' $ RoleMember 2)
              $ HEval
              ( HMap $ M.fromList [ (RoleInRel' $ RoleMember 1,
-                                    HExpr $ Addr 2) ] )
+                                    HExpr $ ExprAddr 2) ] )
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 

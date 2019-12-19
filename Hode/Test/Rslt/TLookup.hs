@@ -28,10 +28,10 @@ test_module_rslt_exprToAddr = TestList [
 
 test_unAddr :: Test
 test_unAddr = TestCase $ do
-  assertBool "" $ unAddr (mkRslt mempty) (Addr 0) == Right (Phrase "")
+  assertBool "" $ unAddr (mkRslt mempty) (ExprAddr 0) == Right (Phrase "")
   assertBool "" $ ( unAddrRec (mkRslt mempty)
                     $ ExprRel $ Rel
-                    [ Addr 0, Phrase "dog" ] $ Phrase "" ) ==
+                    [ ExprAddr 0, Phrase "dog" ] $ Phrase "" ) ==
     Right (ExprRel $ Rel [ Phrase "", Phrase "dog" ] $ Phrase "")
 
 test_refExprToExpr :: Test
@@ -52,10 +52,10 @@ test_refExprToExpr = TestCase $ do
 
 test_exprToAddr :: Test
 test_exprToAddr = TestCase $ do
-  assertBool "1" $ (R.exprToAddr D.rslt $ Addr 0)
+  assertBool "1" $ (R.exprToAddr D.rslt $ ExprAddr 0)
     == Right 0
   assertBool "2" $ isLeft
-                 $ (R.exprToAddr D.rslt $ Addr $ -10000)
+                 $ (R.exprToAddr D.rslt $ ExprAddr $ -10000)
   assertBool "3" $ (R.exprToAddr D.rslt $ Phrase "needs")
     == Right 3
   assertBool "4" $ (R.exprToAddr D.rslt $ either (error "wut") id
@@ -67,13 +67,13 @@ test_exprToAddr = TestCase $ do
                           Nothing [Phrase "needs"] Nothing )
 
   assertBool "6" $ Right 5 ==
-    R.exprToAddr D.rslt ( ExprRel $ Rel [ Addr 1
+    R.exprToAddr D.rslt ( ExprRel $ Rel [ ExprAddr 1
                                         , Phrase "oxygen"]
-                          $ Addr 4 )
+                          $ ExprAddr 4 )
   assertBool "7" $ isLeft $
-    R.exprToAddr D.rslt ( ExprRel $ Rel [ Addr 1
+    R.exprToAddr D.rslt ( ExprRel $ Rel [ ExprAddr 1
                                         , Phrase "oxygen"]
-                          $ Addr 6 )
+                          $ ExprAddr 6 )
 
 test_has :: Test
 test_has = TestCase $ do

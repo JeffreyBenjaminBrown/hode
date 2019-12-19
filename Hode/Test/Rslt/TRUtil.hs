@@ -47,8 +47,8 @@ test_addrToExprWith = TestCase $ do
 
 test_toExprWith :: Test
 test_toExprWith = TestCase $ do
-  let a = Addr 0
-      f = AddrF 0
+  let a = ExprAddr 0
+      f = ExprAddrF 0
       fw :: Fix (ExprFWith ()) =
         Fix $ EFW ( (), f )
       e = ExprRel $ Rel

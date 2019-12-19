@@ -84,7 +84,7 @@ replaceInRel new (RoleMember k) (Rel as a) = do
 toExprWith :: forall b. b -> Expr -> Fix (ExprFWith b)
 toExprWith b x = Fix $ EFW (b, f x) where
   f :: Expr -> ExprF (Fix (ExprFWith b))
-  f (Addr a)             = AddrF a
+  f (ExprAddr a)         = ExprAddrF a
   f (Phrase p)           = PhraseF p
   f (ExprTplt js)        = ExprTpltF $
         fmap (toExprWith b) js
@@ -129,7 +129,7 @@ addrToExprWith r a =
 exprWithout :: Fix (ExprFWith b) -> Expr
 exprWithout (Fix (EFW (_, x))) = f x where
   f :: ExprF (Fix (ExprFWith b)) -> Expr
-  f (AddrF a) = Addr a
+  f (ExprAddrF a) = ExprAddr a
   f (PhraseF p) = Phrase p
   f (ExprRelF (Rel ms t)) = ExprRel $
     Rel (map exprWithout ms) $ exprWithout t
@@ -141,7 +141,7 @@ mapExprFWith :: forall b c.
   (b -> c) -> Fix (ExprFWith b) -> Fix (ExprFWith c)
 mapExprFWith f (Fix (EFW (b,x))) = Fix $ EFW (f b, g x) where
   g :: ExprF (Fix (ExprFWith b)) -> ExprF (Fix (ExprFWith c))
-  g (AddrF a) = AddrF a
+  g (ExprAddrF a) = ExprAddrF a
   g (PhraseF a) = PhraseF a
   g (ExprRelF (Rel ms t)) = ExprRelF $ Rel
     (map (mapExprFWith f) ms) $ mapExprFWith f t
@@ -154,7 +154,7 @@ mapExprFWith f (Fix (EFW (b,x))) = Fix $ EFW (f b, g x) where
 depth :: Expr -> Int
 depth = cata f where
   f :: Base Expr Int -> Int
-  f (AddrF _)               = 0
+  f (ExprAddrF _)           = 0
   f (PhraseF _)             = 0
   f (ExprRelF (Rel mems _)) = 1 +
     (if null mems then 0 else maximum mems)

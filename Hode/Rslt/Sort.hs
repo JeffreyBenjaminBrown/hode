@@ -185,7 +185,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
   tsUsers :: Set Addr <-
     hExprToAddrs r mempty $
     HMap $ M.singleton (RoleInRel' RoleTplt) $
-    HOr $ map (HExpr . Addr) ts
+    HOr $ map (HExpr . ExprAddr) ts
   Right ( S.difference
           ( S.difference as $ S.fromList ts )
           tsUsers )
@@ -214,8 +214,8 @@ isTop r (ort,t) a =
         RightFirst  -> RoleInRel' $ RoleMember 2
         LeftFirst   -> RoleInRel' $ RoleMember 1
   relsInWhichItIsLesser <- hExprToAddrs r mempty $
-    HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ Addr t),
-                        (roleOfLesser,          HExpr $ Addr a) ]
+    HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ ExprAddr t),
+                        (roleOfLesser,          HExpr $ ExprAddr a) ]
   Right $ null relsInWhichItIsLesser
 
 partitionIsolated :: Rslt -> TpltAddr
@@ -238,8 +238,8 @@ isIsolated r t a =
   prefixLeft "isIsolated:" $ do
   connections :: Set Addr <-
         hExprToAddrs r mempty $ HAnd
-        [ HMap $ M.singleton (RoleInRel' RoleTplt) (HExpr $ Addr t)
-        , HMember $ HExpr $ Addr a ]
+        [ HMap $ M.singleton (RoleInRel' RoleTplt) (HExpr $ ExprAddr t)
+        , HMember $ HExpr $ ExprAddr a ]
   Right $ if null connections then True else False
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
@@ -253,8 +253,8 @@ justUnders (bo,t) r a = let
       RightFirst ->  (1,2)
       LeftFirst -> (2,1)
     rel = HMap $ M.fromList
-      [ ( RoleInRel' RoleTplt,          HExpr $ Addr t),
-        ( RoleInRel' $ RoleMember bigger, HExpr $ Addr a ) ]
+      [ ( RoleInRel' RoleTplt,          HExpr $ ExprAddr t),
+        ( RoleInRel' $ RoleMember bigger, HExpr $ ExprAddr a ) ]
     in HEval rel [[RoleMember smaller]]
   in prefixLeft "justUnders:" $
      hExprToAddrs r mempty h

@@ -45,7 +45,7 @@ exprToAddr r e = prefixLeft "exprToAddr:" $
   case e of
     Phrase w -> refExprToAddr r $ Phrase' w
   
-    Addr a -> addrToRefExpr r a >>= const (Right a)
+    ExprAddr a -> addrToRefExpr r a >>= const (Right a)
   
     ExprTplt te -> do
       tr <- ifLefts $ fmap (exprToAddr r) te

@@ -17,18 +17,19 @@ test_module_rslt_valid = TestList [
 test_validExpr :: Test
 test_validExpr = TestCase $ do
   let meh = error "irrelevant"
-  assertBool "1" $ Right () == validExpr D.big (Addr 0)
-  assertBool "1" $ isLeft $    validExpr D.big (Addr 100)
+  assertBool "1" $ Right () == validExpr D.big (ExprAddr 0)
+  assertBool "1" $ isLeft $    validExpr D.big (ExprAddr 100)
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "2" $ Right () == validExpr meh   (Phrase "a b c")
   assertBool "ExprRel, invalid member" $ isLeft
-    $  validExpr D.big (ExprRel $ Rel [ Addr 100 ] $ Addr 101 )
+    $  validExpr D.big (ExprRel $ Rel [ ExprAddr 100 ] $ ExprAddr 101 )
   assertBool "ExprRel, false Tplt" $ isLeft
-    $  validExpr D.big ( ExprRel $ Rel [ Addr 0, Addr 0 ] $ Addr 0)
+    $  validExpr D.big ( ExprRel $ Rel
+                         [ ExprAddr 0, ExprAddr 0 ] $ ExprAddr 0)
   assertBool "ExprRel, arity mismatch" $ isLeft
-    $  validExpr D.big ( ExprRel $ Rel [] $ Addr 4)
+    $  validExpr D.big ( ExprRel $ Rel [] $ ExprAddr 4)
   assertBool "ExprRel"                 $ Right ()
-    == validExpr D.big ( ExprRel $ Rel [Addr 0] $ Addr 4)
+    == validExpr D.big ( ExprRel $ Rel [ExprAddr 0] $ ExprAddr 4)
 
 test_validRefExpr :: Test
 test_validRefExpr = TestCase $ do

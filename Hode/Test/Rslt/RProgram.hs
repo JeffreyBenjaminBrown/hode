@@ -32,7 +32,7 @@ test_rslt_hash_query :: T.Test
 test_rslt_hash_query = TestCase $ do
   assertBool "<any> #like <any>" $ runProgram D.b2
     [ ( (vs "a"), QFind $ hFind $ HMap $ M.fromList
-                  [ ( RoleInRel' RoleTplt, HExpr $ Addr 8 ) ] ) ]
+                  [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 8 ) ] ) ]
     == Right ( M.singleton (vs "a") $
                M.fromList [ ( 1, S.singleton M.empty)
                           , (10, S.singleton M.empty)
@@ -41,8 +41,8 @@ test_rslt_hash_query = TestCase $ do
 
   assertBool "fish #like <any>" $ runProgram D.b2
     [ ( (vs "a"), QFind $ hFind $ HMap $ M.fromList
-                  [ ( RoleInRel' RoleTplt, HExpr $ Addr 8 )
-                  , ( RoleInRel' $ RoleMember 1, HExpr $ Addr 2 )
+                  [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 8 )
+                  , ( RoleInRel' $ RoleMember 1, HExpr $ ExprAddr 2 )
                   ] ) ]
     == Right ( M.singleton (vs "a") $
                M.fromList [ ( 1, S.singleton M.empty)
@@ -50,10 +50,10 @@ test_rslt_hash_query = TestCase $ do
 
   assertBool "<any> #like (<it> #is exercise)" $ runProgram D.b2
     [ ( (vs "a"), QFind $ hFind $ HMap $ M.fromList
-                  [ ( RoleInRel' RoleTplt, HExpr $ Addr 8 )
+                  [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 8 )
                   , ( RoleInRel' $ RoleMember 2
                     , HEval ( HMap $ M.fromList
-                              [ ( RoleInRel' RoleTplt, HExpr $ Addr 15)
+                              [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 15)
                               , ( RoleInRel' $ RoleMember 2,
                                   HExpr $ Phrase "exercise") ] )
                       $ [[ RoleMember 1 ]]
@@ -66,11 +66,11 @@ test_rslt_hash_query = TestCase $ do
     [ ( (vs "a")
       , QFind $ hFind $ HEval
         ( HMap $ M.fromList
-          [ ( RoleInRel' RoleTplt, HExpr $ Addr 8 )
+          [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 8 )
           , ( RoleInRel' $ RoleMember 2
             , HEval
               ( HMap $ M.fromList
-                [ ( RoleInRel' RoleTplt, HExpr $ Addr 15)
+                [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 15)
                 , ( RoleInRel' $ RoleMember 2,
                     HExpr $ Phrase "exercise") ] )
               $ [[ RoleMember 1 ]]
@@ -84,10 +84,10 @@ test_rslt_hash_query = TestCase $ do
     [ ( (vs "a")
       , QFind $ hFind $ HAnd
         [ ( HEval ( HMap $ M.fromList -- <it> #need <any>
-                    [ ( RoleInRel' RoleTplt, HExpr $ Addr 7 ) ] )
+                    [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 7 ) ] )
             [[ RoleMember 1 ]] )
         , ( HEval ( HMap $ M.fromList -- <any> #need <it>
-                    [ ( RoleInRel' RoleTplt, HExpr $ Addr 7 ) ] )
+                    [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 7 ) ] )
             [[ RoleMember 2 ]] ) ] ) ]
     == Right ( M.singleton (vs "a") $
                M.fromList [ (2, S.singleton M.empty) ] )
@@ -98,7 +98,7 @@ test_rslt_hash_query = TestCase $ do
     $ runProgram D.b2
     [ ( (vs "a"), QFind $ hFind
                   ( HEval ( HMap $ M.fromList -- <it> #need <any>
-                            [ ( RoleInRel' RoleTplt, HExpr $ Addr 7 ) ] )
+                            [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 7 ) ] )
                     [[ RoleMember 1 ]]  ) )
 
     , ( (vs "b"),
@@ -106,7 +106,7 @@ test_rslt_hash_query = TestCase $ do
           $ QAnd [ QFind $ hFind
                    ( HEval
                      ( HMap $ M.fromList -- <any> #need <it>
-                       [ ( RoleInRel' RoleTplt, HExpr $ Addr 7 ) ] )
+                       [ ( RoleInRel' RoleTplt, HExpr $ ExprAddr 7 ) ] )
                      [[ RoleMember 2 ]] )
                  , QTest $ mkTest (==) $ Right (vs "a1") ] ) )
     ]
@@ -128,23 +128,25 @@ test_rslt_hash_query = TestCase $ do
       [ ( (vs "nl") -- "<it> #need <any> && <it> #like <any>"
           , QFind $ hFind $ HAnd
             [ ( HEval
-                ( HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ Addr 7 )
+                ( HMap $ M.singleton (RoleInRel' RoleTplt) $
+                  HExpr $ ExprAddr 7 )
                 [[ RoleMember 1 ]] )
             , ( HEval
-                ( HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ Addr 8 )
+                ( HMap $ M.singleton (RoleInRel' RoleTplt) $
+                  HExpr $ ExprAddr 8 )
                 [[ RoleMember 1 ]] ) ] )
 
         , ( (vs "n") -- for all nl1 in nl, "x #need <it>"
           , QQuant $ ForSome (vs "nl1") (vs "nl") $ QFind $ hFind $ HEval
             ( HMap $ M.fromList
-              [ ( RoleInRel' $ RoleTplt, HExpr $ Addr 7 )
+              [ ( RoleInRel' $ RoleTplt, HExpr $ ExprAddr 7 )
               , ( RoleInRel' $ RoleMember 1, HVar (vs "nl1") ) ] )
             [[ RoleMember 2 ]] )
 
         , ( (vs "l") -- for all nl1 in nl, "x #like <it>"
           , QQuant $ ForSome (vs "nl1") (vs "nl") $ QFind $ hFind $ HEval
             ( HMap $ M.fromList
-              [ ( RoleInRel' $ RoleTplt, HExpr $ Addr 8 )
+              [ ( RoleInRel' $ RoleTplt, HExpr $ ExprAddr 8 )
               , ( RoleInRel' $ RoleMember 1, HVar (vs "nl1") ) ] )
             [[ RoleMember 2 ]] )
 
@@ -186,7 +188,7 @@ test_rslt_query = TestCase $ do
 
   assertBool "1" $ runProgram D.rslt
     [ ( (vs "a"), QFind $ mkFind
-        $ \sp -> S.singleton <$> R.exprToAddr sp (Addr 0) ) ]
+        $ \sp -> S.singleton <$> R.exprToAddr sp (ExprAddr 0) ) ]
     == Right ( M.singleton (vs "a")
                $ M.singleton 0 $ S.singleton M.empty )
 

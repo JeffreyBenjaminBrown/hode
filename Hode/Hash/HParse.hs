@@ -152,7 +152,7 @@ _pHashExpr = PRel <$> pRel
 pAddr :: Parser Expr
 pAddr = lexeme  ( foldr1 (<|>)
                   $ map (try . precisely) ["/addr","/@"] )
-        >> Addr . fromIntegral <$> integer
+        >> ExprAddr . fromIntegral <$> integer
 
 -- | `pAddrs` parses the string "/@s 1-10 100 30-40 101"
 -- to be the disjunction (POr) of 22 `Addr`s.
@@ -167,7 +167,7 @@ pAddrs = do
                  return [min0 .. max0]
   as <- some $ lexeme $
         try range <|> ((: []) <$> integer)
-  return $ POr $ map (PExpr . Addr . fromIntegral) $ concat as
+  return $ POr $ map (PExpr . ExprAddr . fromIntegral) $ concat as
 
 pPhrase :: Parser PExpr
 pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase

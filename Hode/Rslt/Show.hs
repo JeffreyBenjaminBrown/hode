@@ -38,7 +38,7 @@ eShow :: Rslt -> Expr -> Either String String
 eShow r = prefixLeft "eShow:" . para f where
   f :: Base Expr (Expr, Either String String) -> Either String String
 
-  f e@(AddrF _) =
+  f e@(ExprAddrF _) =
     prefixLeft "called on Addr:"
     $ unAddr r (embed $ fmap fst e)
     >>= eShow r
@@ -66,7 +66,7 @@ eShow r = prefixLeft "eShow:" . para f where
           maybeToList ma ++ zip' mss bs ++ maybeToList mc
     Right $ L.intercalate " " ss
 
-  f (ExprRelF (Rel ms (a@(Addr _), _))) =
+  f (ExprRelF (Rel ms (a@(ExprAddr _), _))) =
     prefixLeft "called on Rel:" $ do
     tpltExpr <- unAddr r a
     eShow r $ ExprRel $ Rel (map fst ms) tpltExpr
@@ -140,7 +140,7 @@ eParenShowInner shortCircuit ef0 =
   -- That is why the first argument to `g` has a complex type signature.
   g :: (Int, ExprF (Fix (ExprFWith (a,(Int,Parens)))))
     -> Either String String
-  g (_, AddrF _) = Left "Should this be possible? Currently it isn't."
+  g (_, ExprAddrF _) = Left "Should this be possible? Currently it isn't."
   g (_, PhraseF p) = Right p
 
   g (_, ExprTpltF t) =

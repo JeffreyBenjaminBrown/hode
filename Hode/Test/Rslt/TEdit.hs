@@ -81,7 +81,7 @@ test_replaceExpr :: Test
 test_replaceExpr = TestCase $ do
   let newRel      :: Rel Addr = Rel [1,3] 4
       new_refExpr :: RefExpr  = Rel' newRel
-      new_expr    :: Expr     = ExprRel $ fmap Addr newRel
+      new_expr    :: Expr     = ExprRel $ fmap ExprAddr newRel
       refExprs    :: M.Map Addr RefExpr =
         D.refExprs & M.insert 5 new_refExpr
   assertBool "something" $ R.replaceExpr 5 new_expr D.rslt ==
@@ -90,11 +90,11 @@ test_replaceExpr = TestCase $ do
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do
   assertBool "1" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
-                     Nothing [Addr 3] Nothing )
+                     Nothing [ExprAddr 3] Nothing )
     == Right (D.rslt, [Old 4])
 
   assertBool "2" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
-                     Nothing [Addr 1] Nothing )
+                     Nothing [ExprAddr 1] Nothing )
     == Right ( either error id $
                R.insertAt 7 (Tplt' $ Tplt Nothing [1] Nothing) D.rslt
              , [New 7, Old 1] )

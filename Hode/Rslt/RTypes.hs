@@ -13,7 +13,7 @@ import           Data.Map (Map)
 import           Data.Set (Set)
 
 
-type Addr = Int -- ^ Address
+type Addr = Int
 type Arity = Int
 
 class HasArity e where
@@ -78,7 +78,7 @@ instance HasArity (Tplt a) where
   arity (Tplt _ seps _) = length seps + 1
 
 data Expr =
-    Addr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
+    ExprAddr Addr -- ^ Refers to the `Expr` at the `Addr` in some `Rslt`.
      -- The other `Expr` constructors are meaningful on their own, but this
     -- one requires some `Rslt` for context.
   | Phrase String   -- ^ (Could be a phrase too.)

@@ -45,7 +45,7 @@ test_eParenShowAddr = TestCase $ do
   let sa k = eParenShowAddr k D.rslt_rightCapped
       se k = eParenShowExpr k D.rslt_rightCapped
   mapM_ (\a -> assertBool "" ( sa 3 mempty a ==
-                               se 3 (Addr a) ) )
+                               se 3 (ExprAddr a) ) )
         [0..6]
   assertBool "show dog as Addr" $
     sa 3 (S.singleton 1) 1 == Right "@1"
@@ -98,7 +98,7 @@ test_parenExprAtDepth = TestCase $ do
   let fe0 :: Bool ->  Fix (ExprFWith Bool)
       fe  :: Bool -> [Fix (ExprFWith Bool)]
                   ->  Fix (ExprFWith Bool)
-      fe0 b = Fix $ EFW ( b, AddrF 0 )
+      fe0 b = Fix $ EFW ( b, ExprAddrF 0 )
       fe b ms = Fix $ EFW
         ( b, ExprRelF $ Rel ms $ fe0 $ not b )
 
@@ -109,7 +109,7 @@ test_parenExprAtDepth = TestCase $ do
         ->  Fix (ExprFWith (Bool,(Int,Parens)))
       dw0 b = Fix $ EFW ( ( b
                           , (0,Naked) )
-                        , AddrF 0 )
+                        , ExprAddrF 0 )
       dw (b,ip) ms = Fix $ EFW
         ( (b,ip),
           ExprRelF $ Rel ms $ dw0 $ not b )

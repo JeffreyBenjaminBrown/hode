@@ -105,7 +105,7 @@ test_parse_hExpr = TestCase $ do
 test_parse_pPExpr :: Test
 test_parse_pPExpr = TestCase $ do
   assertBool "addr" $ parse pAddr "wut" "/addr 34 "
-    == Right (Addr 34)
+    == Right (ExprAddr 34)
   assertBool "word" $ parse pPhrase "wut" "sammich bagel 1234"
     == Right (PExpr $ Phrase "sammich bagel 1234")
 
