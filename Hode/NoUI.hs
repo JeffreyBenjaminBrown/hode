@@ -102,7 +102,7 @@ nInserts r ss = foldM nInsert' r ss
 
 nDelete :: Rslt -> String -> Either String Rslt
 nDelete r s = prefixLeft "nDelete:" $
-              nExpr r s >>= exprToAddr r >>= flip delete r
+              nExpr r s >>= exprToAddr r >>= flip deleteIfUnused r
 
 nReplace :: Rslt -> Addr -> String -> Either String Rslt
 nReplace r a s =

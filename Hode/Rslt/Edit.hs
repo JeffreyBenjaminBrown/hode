@@ -1,8 +1,6 @@
 module Hode.Rslt.Edit (
     moveRefExpr           -- ^ Addr -> Addr -> Rslt
                           -- -> Either String Rslt
-  , delete                -- ^ Addr ->         Rslt
-                          -- -> Either String Rslt
   , replaceExpr           -- ^ Expr -> Addr -> Rslt
                           -- -> Either String (Rslt, Addr)
   , exprToAddrInsert      -- ^ Rslt -> Expr

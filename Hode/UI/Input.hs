@@ -177,7 +177,7 @@ runParsedCommand                     c0 st0 =
 
   g (CommandDelete a) st =
     either Left (Right . f)
-    $ delete a (st ^. appRslt)
+    $ deleteIfUnused a (st ^. appRslt)
     where
     f :: Rslt -> B.EventM BrickName (B.Next St)
     f r = B.continue $ st & appRslt .~ r

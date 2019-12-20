@@ -126,10 +126,12 @@ deleteIfUnused a r =
     else Left $ "deleteIfUnused: Addr " ++ show a
          ++ " is used in other RefExprs.\n"
 
--- | PITFALL: `_deleteInternalMentionsOf` could put the Rslt into an
--- invalid state, if it was run on an RefExpr that appears in other
--- RefExprs. This only deletes mentions in which it is the container
--- or "the thing" (hence "internal" mentions), but not the contained.
+-- | PITFALL: `_deleteInternalMentionsOf a`
+-- could put the `Rslt` into an invalid state,
+-- by being was run on an `RefExpr` that appears in other `RefExprs`.
+-- That's because it only deletes mentions in which `a` is the container
+-- (hence "internal" mentions) or "the thing" (as in `_variety`).
+-- It does *not* delete mentions in which `a` is the contained.
 _deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
 _deleteInternalMentionsOf a r =
   prefixLeft "_deleteInternalMentionsOf:" $ do

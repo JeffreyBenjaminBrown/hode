@@ -67,7 +67,7 @@ import           Control.Monad (mapM,foldM)
 
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
-import Hode.Rslt.Edit.Terminal (delete)
+import Hode.Rslt.Edit (deleteIfUnused)
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
 import Hode.Rslt.Binary
@@ -267,5 +267,5 @@ deleteHostsThenDelete a r =
   prefixLeft "deleteHostsThenDelete:" $ do
   hosts :: Set Addr <-
     S.map snd <$> isIn r a
-  foldM (flip delete) r hosts >>=
-    delete a
+  foldM (flip deleteIfUnused) r hosts >>=
+    deleteIfUnused a

@@ -33,20 +33,18 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_moveRefExpr" test_moveRefExpr
   ]
 
-tpltInRel = mkRslt $ M.fromList
-            [ (0, Phrase' "")
-            , (1, Tplt'$ Tplt Nothing [0] Nothing)
-            , (2, Rel' $ Rel [1,1] 1) ]
-tpltInRel' = mkRslt $ M.fromList
-            [ (1, Phrase' "")
-            , (3, Tplt'$ Tplt Nothing [1] Nothing)
-            , (2, Rel' $ Rel [3,3] 3) ]
-
 test_moveRefExpr :: Test
 test_moveRefExpr = TestCase $ do
-  assertBool "" $
-    R.moveRefExpr 4 1 tpltInRel
-    == Right tpltInRel'
+  let r = mkRslt $ M.fromList
+          [ (0, Phrase' "")
+          , (1, Tplt'$ Tplt (Just 0) [] Nothing)
+          , (2, Rel' $ Rel [1] 1) ]
+
+  assertBool "" $ R.moveRefExpr 4 1 r ==
+    Right ( mkRslt $ M.fromList
+            [ (0, Phrase' "")
+            , (4, Tplt'$ Tplt (Just 0) [] Nothing)
+            , (2, Rel' $ Rel [4] 4) ] )
 
 test_replaceInRefExpr :: Test
 test_replaceInRefExpr = TestCase $ do
@@ -224,11 +222,14 @@ test_deleteIfUnused = TestCase $ do
   -- from D.rslt, remove the Par called 6 (because it uses the Rel'5)
   -- and insert at 6 (Rel' $ Rel [1,1] 4), before deleting at 5 (Rel'(1,2) 4).
   -- Now 1 should be in the new rel and not the old, and 2 should be in nothing.
-  let (without_6    :: Rslt) = mkRslt $ M.delete 6 D.refExprs
-      (with_new_rel :: Rslt) = either error id
-                               $ R.insertAt 6 (Rel' $ Rel [1,1] 4) without_6
-      (r            :: Rslt) = either error id
-                               $ R.deleteIfUnused 5 with_new_rel
+  let without_6    :: Rslt =
+        mkRslt $ M.delete 6 D.refExprs
+      with_new_rel :: Rslt =
+        either error id
+        $ R.insertAt 6 (Rel' $ Rel [1,1] 4) without_6
+      r            :: Rslt =
+        either error id
+        $ R.deleteIfUnused 5 with_new_rel
   assertBool "valid 1" $ isRight $ validRslt without_6
   assertBool "valid 2" $ isRight $ validRslt with_new_rel
   assertBool "valid 3" $ isRight $ validRslt r

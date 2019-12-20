@@ -10,35 +10,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO permit moving addresses, then build-in some expressions
-*** TODO bug in moving addresses
-**** the problem
-When you delete an Addr, but another Addr has the same RefExpr,
-they both get deleted, at least from _refExprToAddr.
-**** to see it
-tpltInRel = mkRslt $ M.fromList
-    [ (0, Phrase' "")
-    , (1, Tplt'$ Tplt Nothing [0] Nothing)
-    , (2, Rel' $ Rel [1,1] 1) ]
-
-:m -Hode.Data.Relation
-old = 1
-new = 3
-Right re = addrToRefExpr tpltInRel old
-Right r1 = insertAt new re tpltInRel
-Right r2 = substitute new old r1
-Right r3 = delete old r2
-  -- if I do this, it works, but if I use
-  -- deleteIfUnused, it doesn't
-r3 == tpltInRel'
-
-
--- _addrToRefExpr, _refExprToAddr, _variety, _has, _isIn, _tplts
-f = _has
-f tpltInRel
-f r1
-f r2
-f r3
--- the last one is bad
 *** expressions to build in
 transitive
 _ is _ -- in the sense of "x has the quality y"
