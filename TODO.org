@@ -10,9 +10,19 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO permit moving addresses, then build-in some expressions
+*** how to move addresses
+If the new address "target" is full:
+  Copy what's at target to newAddr.
+  Replace appearances of target with newAddr.
+  Delete what's at target.
+Then:
+  Copy what's at old to target.
+  Replace appearances of old with target.
+  Delete what's at old.
 *** expressions to build in
 transitive
 _ is _ -- in the sense of "x has the quality y"
+** TODO buggy: deletion does not update _tplts
 ** TODO sorting
 *** ? needs a closure algorithm
 **** motivation

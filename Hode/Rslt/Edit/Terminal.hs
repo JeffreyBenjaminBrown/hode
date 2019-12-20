@@ -1,21 +1,44 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-name-shadowing #-}
 
 module Hode.Rslt.Edit.Terminal (
-    delete      -- ^ Addr ->         Rslt -> Either String Rslt
+    moveRefExpr -- ^ Addr -> Addr -> Rslt -> Either String Rslt
+  , delete      -- ^ Addr ->         Rslt -> Either String Rslt
   , replaceExpr -- ^ Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
   ) where
 
 import           Data.Either
+import qualified Data.Map as M
 
 import Hode.Rslt.Edit.AndSearch
 import Hode.Rslt.Edit.Initial
 import Hode.Rslt.Edit.Replace
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
+import Hode.Rslt.RUtil (nextAddr)
 import Hode.Util.Misc
 
 
--- | = Pure editing
+moveRefExpr :: Addr -> Addr -> Rslt -> Either String Rslt
+-- PITFALL: lots of intentional name-shadowing
+moveRefExpr new old r =
+  prefixLeft "moveRefExpr:" $ let
+  go :: Addr -> Addr -> Rslt -> Either String Rslt
+  go new old r0 =
+    prefixLeft "moveRefExpr:" $ do
+    if null $ M.lookup new $ _addrToRefExpr r0
+      then Right ()
+      else Left "new Addr must not yet be present."
+    re <- addrToRefExpr r old
+    r <- insertAt new re r
+    r <- substitute new old r
+    delete old r
+
+  in if null $ M.lookup new $ _addrToRefExpr r
+     then go new old r
+     else do na <- nextAddr r
+             r <- go na new r
+             go new old r
 
 delete :: Addr -> Rslt -> Either String Rslt
 delete a r = prefixLeft "delete:" $ do
@@ -43,8 +66,9 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr:" $
     go :: Addr -> Expr -> Rslt -> Either String Rslt
     go a e r = prefixLeft "replaceExpr:" $ do
       (r1 :: Rslt, aes :: [Aged Addr]) <- exprToAddrInsert r e
-      a1 :: Addr <- if length aes > 0 then Right $ unAged $ head aes else
-        Left "There should be an address for the Tplt. (Not a user error.)"
+      a1 :: Addr <- if length aes > 0
+        then Right $ unAged $ head aes
+        else Left "There should be an address for the Tplt. (Not a user error.)"
       rx1 :: RefExpr             <- addrToRefExpr r1 a1
       r2 :: Rslt                 <- replaceRefExpr rx1 a r1
       Right $ renameAddr_unsafe a1 a r2
