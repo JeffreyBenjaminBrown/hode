@@ -25,11 +25,8 @@ moveRefExpr :: Addr -> Addr -> Rslt -> Either String Rslt
 moveRefExpr new old r =
   prefixLeft "moveRefExpr:" $ let
   go :: Addr -> Addr -> Rslt -> Either String Rslt
-  go new old r0 =
-    prefixLeft "moveRefExpr:" $ do
-    if null $ M.lookup new $ _addrToRefExpr r0
-      then Right ()
-      else Left "new Addr must not yet be present."
+  go new old r0 = do
+    -- PITFALL: Assumes `new` is empty.
     re <- addrToRefExpr r old
     r <- insertAt new re r
     r <- substitute new old r

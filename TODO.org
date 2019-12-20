@@ -10,15 +10,30 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO permit moving addresses, then build-in some expressions
-*** how to move addresses
-If the new address "target" is full:
-  Copy what's at target to newAddr.
-  Replace appearances of target with newAddr.
-  Delete what's at target.
-Then:
-  Copy what's at old to target.
-  Replace appearances of old with target.
-  Delete what's at old.
+*** TODO bug in moving addresses
+**** the problem
+When you delete an Addr, but another Addr has the same RefExpr,
+they both get deleted, at least from _refExprToAddr.
+**** to see it
+tpltInRel = mkRslt $ M.fromList
+    [ (0, Phrase' "")
+    , (1, Tplt'$ Tplt Nothing [0] Nothing)
+    , (2, Rel' $ Rel [1,1] 1) ]
+
+:m -Hode.Data.Relation
+old = 1
+new = 3
+Right re = addrToRefExpr tpltInRel old
+Right r1 = insertAt new re tpltInRel
+Right r2 = substitute new old r1
+Right r3 = delete old r2
+
+-- _addrToRefExpr, _refExprToAddr, _variety, _has, _isIn, _tplts
+f = _refExprToAddr
+f tpltInRel	-- good
+f r1		-- good
+f r2		-- good
+f r3		-- bad
 *** expressions to build in
 transitive
 _ is _ -- in the sense of "x has the quality y"

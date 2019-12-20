@@ -33,14 +33,19 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_moveRefExpr" test_moveRefExpr
   ]
 
+r = mkRslt $ M.fromList
+    [ (0, Phrase' "")
+    , (1, Phrase' "dog")
+    , (2, Tplt'$ Tplt Nothing [1] Nothing)
+    , (3, Rel' $ Rel [1,1] 2) ]
+t = ( mkRslt $ M.fromList
+      [ (1, Phrase' "")
+      , (4, Phrase' "dog")
+      , (2, Tplt'$ Tplt Nothing [1] Nothing)
+      , (3, Rel' $ Rel [4,4] 2) ] )
 test_moveRefExpr :: Test
 test_moveRefExpr = TestCase $ do
-  let r = mkRslt $ M.fromList
-          [ (0, Phrase' "")
-          , (1, Phrase' "dog")
-          , (2, Tplt'$ Tplt Nothing [3] Nothing)
-          , (3, Rel' $ Rel [1,1] 2) ]
-  assertBool "todo" False
+  assertBool "" $ R.moveRefExpr 4 1 r == Right t
 
 test_replaceInRefExpr :: Test
 test_replaceInRefExpr = TestCase $ do
