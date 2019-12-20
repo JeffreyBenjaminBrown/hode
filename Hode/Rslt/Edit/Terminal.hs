@@ -77,5 +77,5 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr:" $
     anAbsentPhrase = Phrase $ aap s0 where
       s0 = "&b(;HG65Lcsd.21%^!#$o6tB6*)"
       aap :: String -> String
-      aap s = if isRight $ refExprToAddr r0 (Phrase' s)
-              then s else s ++ s
+      aap s = if isLeft $ refExprToAddr r0 (Phrase' s)
+              then s else aap $ s ++ s
