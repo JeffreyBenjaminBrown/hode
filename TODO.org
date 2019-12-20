@@ -138,6 +138,7 @@ not just its top level
 sorting
 nudging (M-E, M-D)
 deleting buffers
+moving address
 ** TODO rename data types
 Buffers should have types.
 Most Buffers are of type RsltView.

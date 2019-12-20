@@ -28,6 +28,7 @@ pCommand r s =
     "/f"         -> pCommand_find    r t
     "/replace"   -> pCommand_replace r t
     "/r"         -> pCommand_replace r t
+    "/move"      -> pCommand_move      t
     "/delete"    -> pCommand_delete    t
     "/d"         -> pCommand_delete    t
     "/load"      -> pCommand_load      t
@@ -54,6 +55,15 @@ pCommand_replace r s = prefixLeft "pCommand_replace:" $ do
     in mapLeft show $ parse p "UI.Input.IParse error 2" s
   e <- pExprToHExpr r px >>= hExprToExpr r
   Right $ CommandReplace a e
+
+pCommand_move :: String -> Either String Command
+pCommand_move s = prefixLeft "pCommand_move:" $ do
+  (old,new) <- let p :: Parser (Addr, Addr)
+                   p = do old <- fromIntegral <$> integer
+                          new <- fromIntegral <$> integer
+                          return (old,new)
+    in mapLeft show $ parse p "UI.Input.IParse error 2.5" s
+  Right $ CommandMove old new
 
 pCommand_delete :: String -> Either String Command
 pCommand_delete s = prefixLeft "pCommand_delete:" $ do

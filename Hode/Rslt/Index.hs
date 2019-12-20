@@ -34,8 +34,12 @@ mkRslt es = go es' where
               _ -> False
 
   es' :: Map Addr RefExpr =
-    if not $ M.null es
-    then es else M.singleton 0 $ Phrase' ""
+    if M.null es
+    then M.fromList [ (0, Phrase' "")
+                    , (1, Phrase' "transitive")
+                    , (2, Phrase' "is")
+                    , (3, Tplt' $ Tplt Nothing [2] Nothing) ]
+    else es
 
   go :: Map Addr RefExpr -> Rslt
   go m = let

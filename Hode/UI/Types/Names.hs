@@ -24,6 +24,7 @@ data MainWindowName = CommandHistory
 data Command =
     CommandInsert       Expr
   | CommandReplace Addr Expr
+  | CommandMove Addr Addr
   | CommandDelete  Addr
   | CommandFind     String HExpr
   | CommandFindSort String HExpr BinOrientation TpltAddr

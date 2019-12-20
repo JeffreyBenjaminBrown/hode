@@ -175,6 +175,16 @@ runParsedCommand                     c0 st0 =
           & itWorked ( "Replaced Expr at "
                        ++ show a ++ "." )
 
+  g (CommandMove old new) st =
+    either Left (Right . f)
+    $ moveRefExpr old new (st ^. appRslt)
+    where
+    f :: Rslt -> B.EventM BrickName (B.Next St)
+    f r = B.continue $ st
+          & appRslt .~ r
+          & itWorked ( "Moved Expr from " ++ show old
+                       ++ " to " ++ show new ++ "." )
+
   g (CommandDelete a) st =
     either Left (Right . f)
     $ deleteIfUnused a (st ^. appRslt)
