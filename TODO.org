@@ -9,8 +9,7 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO permit moving addresses, then build-in some expressions
-*** expressions to build in
+** TODO build-in some expressions
 transitive
 _ is _ -- in the sense of "x has the quality y"
 ** TODO sorting

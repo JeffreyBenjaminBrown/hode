@@ -20,21 +20,21 @@ import Hode.Util.Misc
 
 moveRefExpr :: Addr -> Addr -> Rslt -> Either String Rslt
 -- PITFALL: lots of intentional name-shadowing
-moveRefExpr new old r =
+moveRefExpr old new r =
   prefixLeft "moveRefExpr:" $ let
   go :: Addr -> Addr -> Rslt -> Either String Rslt
-  go new old r = do
+  go old new r = do
     -- PITFALL: Assumes `new` is empty.
     re <- addrToRefExpr r old
     r <- insertAt new re r
-    r <- substitute new old r
+    r <- substitute old new r
     deleteIfUnused old r
 
   in if null $ M.lookup new $ _addrToRefExpr r
-     then go new old r
+     then go old new r
      else do na <- nextAddr r
-             r <- go na new r
-             go new old r
+             r <- go new na r
+             go old new r
 
 -- | `replaceExpr a e r` replaces the `Expr` at `a`.
 -- The set of `Addr`s in `r` remains unchanged.

@@ -3,7 +3,7 @@
 module Hode.Rslt.Edit.Replace (
     replaceRefExpr  -- ^      RefExpr -> Addr -> Rslt -> Either String Rslt
   , replaceInRole  -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
-  , substitute      -- ^         Addr -> Addr -> Rslt -> Either String Rslt
+  , substitute     -- ^         Addr -> Addr -> Rslt -> Either String Rslt
   ) where
 
 import           Data.Map (Map)
@@ -27,13 +27,13 @@ replaceRefExpr re oldAddr r0 =
   prefixLeft "replaceRefExpr:" $
   case refExprToAddr r0 re of
     Right newAddr -> do
-      r2 <- substitute newAddr oldAddr r0
+      r2 <- substitute oldAddr newAddr r0
       deleteIfUnused oldAddr r2
     Left _ -> do
       newAddr <- nextAddr r0
       _       <- validRefExpr r0 re
       r1      <- insertAt newAddr re r0
-      r2      <- substitute newAddr oldAddr r1
+      r2      <- substitute oldAddr newAddr r1
       deleteIfUnused oldAddr r2
 
 replaceInRole :: Role -> Addr -> HostAddr -> Rslt -> Either String Rslt
@@ -70,11 +70,11 @@ replaceInRole spot new host r =
                 $ _isIn r
     }
 
--- | `substitute new old r0` substitutes `new` for `old`
+-- | `substitute old new r0` substitutes `new` for `old`
 -- in every host that used to hold `old`.
 substitute :: Addr -> Addr -> Rslt -> Either String Rslt
 -- PITFALL: Mutually recursive with `replaceInRole`.
-substitute new old r0 =
+substitute old new r0 =
   prefixLeft "substitute:" $ do
   (roles :: Set (Role, Addr)) <- isIn r0 old
   let f :: Either String Rslt -> (Role, Addr) -> Either String Rslt

@@ -40,7 +40,7 @@ test_moveRefExpr = TestCase $ do
           , (1, Tplt'$ Tplt (Just 0) [] Nothing)
           , (2, Rel' $ Rel [1] 1) ]
 
-  assertBool "" $ R.moveRefExpr 4 1 r ==
+  assertBool "" $ R.moveRefExpr 1 4 r ==
     Right ( mkRslt $ M.fromList
             [ (0, Phrase' "")
             , (4, Tplt'$ Tplt (Just 0) [] Nothing)
