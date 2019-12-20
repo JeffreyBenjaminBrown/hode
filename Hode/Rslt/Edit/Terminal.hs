@@ -25,12 +25,12 @@ moveRefExpr :: Addr -> Addr -> Rslt -> Either String Rslt
 moveRefExpr new old r =
   prefixLeft "moveRefExpr:" $ let
   go :: Addr -> Addr -> Rslt -> Either String Rslt
-  go new old r0 = do
+  go new old r = do
     -- PITFALL: Assumes `new` is empty.
     re <- addrToRefExpr r old
     r <- insertAt new re r
     r <- substitute new old r
-    delete old r
+    deleteIfUnused old r
 
   in if null $ M.lookup new $ _addrToRefExpr r
      then go new old r
@@ -64,7 +64,7 @@ replaceExpr a0 e0 r0 = prefixLeft "replaceExpr:" $
     -- PITFALL: If the new `Expr` contains the old one, `go` will crash.
     -- That's why `anAbsentPhrase` is used.
     go :: Addr -> Expr -> Rslt -> Either String Rslt
-    go a e r = prefixLeft "replaceExpr:" $ do
+    go a e r = do
       (r1 :: Rslt, aes :: [Aged Addr]) <- exprToAddrInsert r e
       a1 :: Addr <- if length aes > 0
         then Right $ unAged $ head aes

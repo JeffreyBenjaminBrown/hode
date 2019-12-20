@@ -144,7 +144,12 @@ _deleteInternalMentionsOf a r =
 
   _refExprToAddr2 <- do
     e <- addrToRefExpr r a
-    Right $ M.delete e $ _refExprToAddr r
+    Right $ if M.lookup e (_refExprToAddr r) == Just a
+      -- Even though addrToRefExpr maps a to e.
+      -- _refExprToAddr might map e to something other than a.
+      -- (Happens, e.g., when changing something's address.)
+      then M.delete e $ _refExprToAddr r
+      else              _refExprToAddr r
 
   Right $ Rslt {
       _has  = M.delete a $ _has r

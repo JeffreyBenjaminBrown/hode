@@ -27,17 +27,21 @@ Right re = addrToRefExpr tpltInRel old
 Right r1 = insertAt new re tpltInRel
 Right r2 = substitute new old r1
 Right r3 = delete old r2
+  -- if I do this, it works, but if I use
+  -- deleteIfUnused, it doesn't
+r3 == tpltInRel'
+
 
 -- _addrToRefExpr, _refExprToAddr, _variety, _has, _isIn, _tplts
-f = _refExprToAddr
-f tpltInRel	-- good
-f r1		-- good
-f r2		-- good
-f r3		-- bad
+f = _has
+f tpltInRel
+f r1
+f r2
+f r3
+-- the last one is bad
 *** expressions to build in
 transitive
 _ is _ -- in the sense of "x has the quality y"
-** TODO buggy: deletion does not update _tplts
 ** TODO sorting
 *** ? needs a closure algorithm
 **** motivation
@@ -46,17 +50,18 @@ None of them are isolated from the closure of (>),
 but among [a,b,c], c is isolated.
 It should be shown in the unsorted group.
 *** ? compromise: don't consider non-local connections
-*** HARD: How to change order given non-local connections?
+*** HARD: change order interactively, given non-local connections?
+**** motivation
 Consider the numbers 1..5 under the natural ordering.
 Suppose we show [1,3,5], and then reorder them to [1,5,3].
 How should the underlying graph chnage?
-
+**** terrible solution
 If we just add a connection 5 > 3, the relation is no longer transitive.
-
+**** unsatisfying solution
 We could delete the relationship that 5 bears to 4.
 But if we then reordered the data to [1,3,5],
 we would not arrive back at the original graph.
-
+**** best solution
 The most "correct" way would be to prompt the user that there are nonlocal transitive relationships involving 3 and 5,
 and show each such path (in this case there's only one: 3 < 4 < 5),
 and ask them to choose a link to break from the path.
