@@ -30,7 +30,17 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_replaceExpr" test_replaceExpr
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
   , TestLabel "test_replaceInRefExpr" test_replaceInRefExpr
+  , TestLabel "test_moveRefExpr" test_moveRefExpr
   ]
+
+test_moveRefExpr :: Test
+test_moveRefExpr = TestCase $ do
+  let r = mkRslt $ M.fromList
+          [ (0, Phrase' "")
+          , (1, Phrase' "dog")
+          , (2, Tplt'$ Tplt Nothing [3] Nothing)
+          , (3, Rel' $ Rel [1,1] 2) ]
+  assertBool "todo" False
 
 test_replaceInRefExpr :: Test
 test_replaceInRefExpr = TestCase $ do

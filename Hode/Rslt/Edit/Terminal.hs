@@ -9,6 +9,7 @@ module Hode.Rslt.Edit.Terminal (
 
 import           Data.Either
 import qualified Data.Map as M
+import qualified Data.Set as S
 
 import Hode.Rslt.Edit.AndSearch
 import Hode.Rslt.Edit.Initial
@@ -45,13 +46,15 @@ delete a r = prefixLeft "delete:" $ do
   hosts <- isIn r a
   if not $ null hosts
     then Left "Expr to be deleted is a member of other Exprs."
-    else replaceExpr a (Phrase "") r -- TODO ? is this okay?
+    else do
+    r <- replaceExpr a (Phrase "") r -- TODO ? is this okay?
   -- I thought I could prevent `Phrase ""` from changing address
   -- by doing this:
   --   replaceExpr a (Phrase "") r >>=
   --   replaceExpr 0 (Phrase "")
   -- but that's impossible because after the >>=
   -- there is nothing at `Addr 0` to replace.
+    Right $ r { _tplts = S.delete a $ _tplts r }
 
 -- | `replaceExpr a e r` replaces the `Expr` at `a`.
 -- The set of `Addr`s in `r` remains unchanged.
