@@ -1,14 +1,9 @@
--- | PITFALL:
--- `replaceInRole` depends on nothing else in this file,
--- but the other two functions are mutually recursive
--- (and depend on `replaceInRole` too).
-
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Rslt.Edit.Replace (
-    replaceInRole  -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
-  , replaceRefExpr -- ^      RefExpr -> Addr -> Rslt -> Either String Rslt
-  , _substitute    -- ^         Addr -> Addr -> Rslt -> Either String Rslt
+    replaceRefExpr  -- ^      RefExpr -> Addr -> Rslt -> Either String Rslt
+  , replaceInRole  -- ^ Role -> Addr -> Addr -> Rslt -> Either String Rslt
+  , substitute      -- ^         Addr -> Addr -> Rslt -> Either String Rslt
   ) where
 
 import           Data.Map (Map)
@@ -24,7 +19,25 @@ import Hode.Util.Misc
 import Hode.Rslt.Edit.Initial
 
 
+-- | `replaceRefExpr re oldAddr r0` deletes the `Expr` at `oldAddr`,
+-- creates or finds the `RefExpr` to replace it,
+-- and substitutes the new one for the old one everywhere it appeared.
+replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
+replaceRefExpr re oldAddr r0 =
+  prefixLeft "replace:" $
+  case refExprToAddr r0 re of
+    Right newAddr -> do
+      r2 <- substitute newAddr oldAddr r0
+      deleteIfUnused oldAddr r2
+    Left _ -> do
+      newAddr <- nextAddr r0
+      _       <- validRefExpr r0 re
+      r1      <- insertAt newAddr re r0
+      r2      <- substitute newAddr oldAddr r1
+      deleteIfUnused oldAddr r2
+
 replaceInRole :: Role -> Addr -> HostAddr -> Rslt -> Either String Rslt
+-- PITFALL: Mutually recursive with `substitute`.
 replaceInRole spot new host r =
   prefixLeft "replaceInRole:" $ do
   _                          <- addrToRefExpr r new
@@ -57,28 +70,12 @@ replaceInRole spot new host r =
                 $ _isIn r
     }
 
--- | `replaceRefExpr re oldAddr r0` deletes the `Expr` at `oldAddr`,
--- creates or finds the `RefExpr` to replace it,
--- and substitutes the new one for the old one everywhere it appeared.
-replaceRefExpr :: RefExpr -> Addr -> Rslt -> Either String Rslt
-replaceRefExpr re oldAddr r0 =
-  prefixLeft "replace:" $
-  case refExprToAddr r0 re of
-    Right newAddr -> do
-      r2 <- _substitute newAddr oldAddr r0
-      deleteIfUnused oldAddr r2
-    Left _ -> do
-      newAddr <- nextAddr r0
-      _       <- validRefExpr r0 re
-      r1      <- insertAt newAddr re r0
-      r2      <- _substitute newAddr oldAddr r1
-      deleteIfUnused oldAddr r2
-
--- | `_substitute new old r0` substitutes `new` for `old`
+-- | `substitute new old r0` substitutes `new` for `old`
 -- in every host that used to hold `old`.
-_substitute :: Addr -> Addr -> Rslt -> Either String Rslt
-_substitute new old r0 =
-  prefixLeft "_substitute:" $ do
+substitute :: Addr -> Addr -> Rslt -> Either String Rslt
+-- PITFALL: Mutuall recursive with `replaceInRole`.
+substitute new old r0 =
+  prefixLeft "substitute:" $ do
   (roles :: Set (Role, Addr)) <- isIn r0 old
   let f :: Either String Rslt -> (Role, Addr) -> Either String Rslt
       f e@(Left _) _ = e

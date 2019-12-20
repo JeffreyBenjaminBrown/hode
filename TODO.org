@@ -9,20 +9,10 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO Expand the Addr type
-*** goal
-Rather than a synonym for Int,
-give it two constructors: Addr and BuiltIn
-*** why this is important
-I don't want the user to be able to delete BuiltIn Exprs.
-*** steps
-**** change the Addr type
-data Addr = Addr Int    -- ^ for most expressions
-          | BuiltIn Int -- ^ for expressions the user cannot change
-  deriving (Eq, Ord, Show)
-**** expressions to then build in
- transitive
- _ is _ -- in the sense of "x has the quality y"
+** TODO permit moving addresses, then build-in some expressions
+*** expressions to build in
+transitive
+_ is _ -- in the sense of "x has the quality y"
 ** TODO sorting
 *** ? needs a closure algorithm
 **** motivation
