@@ -48,7 +48,7 @@ validExpr :: Rslt -> Expr -> Either String ()
 validExpr r =
   prefixLeft "validExpr:" . para f where
   f :: Base Expr (Expr, Either String ()) -> Either String ()
-  f (AddrF a)   = allAddrsPresent r [a]
+  f (ExprAddrF a) = allAddrsPresent r [a]
   f (PhraseF _) = Right ()
 
   f rel@(ExprRelF (Rel memEis (t,te))) = do

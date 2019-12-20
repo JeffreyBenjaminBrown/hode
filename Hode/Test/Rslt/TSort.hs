@@ -24,23 +24,76 @@ test_module_rslt_sort = TestList [
   TestLabel "test_kahnIterate" test_kahnIterate,
   TestLabel "test_allExprsButTpltsOrRelsUsingThem"
     test_allExprsButTpltsOrRelsUsingThem,
-  TestLabel "test_kahnSort" test_kahnSort
+  TestLabel "test_kahnSort" test_kahnSort,
+  TestLabel "test_partitionIsolated" test_partitionIsolated
   ]
+
+test_partitionIsolated :: Test
+test_partitionIsolated = TestCase $ do
+  let tplt_a :: Rslt -> Addr
+      tplt_a r = either (error "huh?") id $
+                 head . S.toList <$>
+                 nFindAddrs r "/t /_ a /_"
+      stringElt :: Rslt -> String -> Addr
+      stringElt r = either (error "not in graph") id .
+                    exprToAddr r . Phrase
+
+  let Right rLine = nInserts (mkRslt mempty)
+        [ "x"
+        , "0 #a 1", "1 #a 2", "2 #a 3"
+        , "y" ]
+      Right (isol,conn) =
+        partitionIsolated rLine (tplt_a rLine)
+        $ map (stringElt rLine) ["0","1","2","3","x","y"]
+  assertBool "x and y are isolated" $
+    S.fromList isol ==
+    S.fromList (map (stringElt rLine) ["x","y"])
+  assertBool "the numbers are connected" $
+    S.fromList conn ==
+    S.fromList (map (stringElt rLine . show) [0..3::Int])
+
+  let Right rLine' = -- the same graph, built in another order
+        nInserts (mkRslt mempty)
+        [ "1 #a 2"
+        , "0 #a 1", "y", "2 #a 3"
+        , "x" ]
+      Right (isol',conn') =
+        partitionIsolated rLine' (tplt_a rLine')
+        $ map (stringElt rLine') ["0","1","2","3","x","y"]
+  assertBool "x and y are isolated, again" $
+    S.fromList isol' ==
+    S.fromList (map (stringElt rLine') ["x","y"])
+  assertBool "the numbers are connected, again" $
+    S.fromList conn' ==
+    S.fromList (map (stringElt rLine' . show) [0..3::Int])
 
 -- | See also `test_kahnSort'`, a manual test,
 -- which shows what happens with branches.
 test_kahnSort :: Test
 test_kahnSort = TestCase $ do
-  let Right rLine = nInserts (mkRslt mempty)
+  let tplt_a :: Rslt -> Addr
+      tplt_a r = either (error "wut?") id $
+                 head . S.toList <$>
+                 nFindAddrs r "/t /_ a /_"
+      intElt :: Rslt -> Int -> Addr
+      intElt r = either (error "not in graph") id .
+                 exprToAddr r . Phrase . show
+      a1 :: Rslt -> Assertion
+      a1 r = assertBool "sort a line"
+             $ kahnSort r (RightFirst, tplt_a r)
+             (map (intElt r) [0..3])
+             == Right (map (intElt r) [3,2,1,0])
+      a2 r = assertBool "sort a subset of a line"
+             $ kahnSort r (RightFirst, tplt_a r)
+             (map (intElt r) [0,1,3])
+             == Right (map (intElt r) [3,1,0])
+
+  let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3" ]
-      Right tplt_a  = head . S.toList <$>
-                      nFindAddrs rLine "/t /_ a /_"
-      intElt :: Int -> Addr
-      intElt = either (error "not in graph") id .
-            exprToAddr rLine . Phrase . show
-  assertBool "sort a line" $
-    kahnSort rLine (RightFirst,tplt_a) (map intElt [0..3])
-    == Right (map intElt [3,2,1,0])
+    in a1 r >> a2 r
+  let Right r = nInserts (mkRslt mempty)
+        [ "1 #a 2", "2 #a 3", "0 #a 1" ]
+    in a1 r >> a2 r
 
   let Right rTree = nInserts (mkRslt mempty)
                     [ "0 #b 00", -- the prefix relationship

@@ -43,18 +43,18 @@ test_hLookup_hTrans = TestCase $ do
                           , "b1 # b2" ]
 
   assertBool "a0 can only get to a2" $ hExprToAddrs r mempty
-    ( HTrans SearchRightward [SearchRightward] (HExpr $ Addr t)
+    ( HTrans SearchRightward [SearchRightward] (HExpr $ ExprAddr t)
       (hor [a2,b2])
       (hor [a0]) )
     == Right (S.fromList [a2])
   assertBool "only b0 can get to b2" $ hExprToAddrs r mempty
-    ( HTrans SearchRightward [SearchLeftward] (HExpr $ Addr t)
+    ( HTrans SearchRightward [SearchLeftward] (HExpr $ ExprAddr t)
       (hor [b2])
       (hor [a0,b0]) )
     == Right (S.fromList [b0])
   assertBool "a0 cannot reach b2" $ hExprToAddrs r mempty
     ( HTrans SearchRightward [SearchLeftward, SearchRightward]
-      (HExpr $ Addr t)
+      (HExpr $ ExprAddr t)
       (hor [b2])
       (hor [a0]) )
     == Right S.empty
@@ -75,11 +75,11 @@ test_hLookup_hReach = TestCase $ do
 
   assertBool "right from (greater than or equal to) 1" $
     hExprToAddrs r mempty
-      (HReach SearchRightward (HExpr $ Addr t) (HExpr $ Addr n1) )
+      (HReach SearchRightward (HExpr $ ExprAddr t) (HExpr $ ExprAddr n1) )
     == Right (S.fromList [n1,n2,n3])
   assertBool "left from (less than or equal to) 1" $
     hExprToAddrs r mempty
-      (HReach SearchLeftward (HExpr $ Addr t) (HExpr $ Addr n1) )
+      (HReach SearchLeftward (HExpr $ ExprAddr t) (HExpr $ ExprAddr n1) )
     == Right (S.fromList [n1,n0])
 
 

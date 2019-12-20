@@ -50,10 +50,10 @@ parenExprAtDepth maxDepth = g where
   f :: att -> ExprF (Fix (ExprFWith att))
     -> ( (att,(Int,Parens)),
          ExprF (Fix (ExprFWith (att,(Int,Parens)))))
-  f att (AddrF a) = ( (att, (0, Naked) )
-                  , AddrF a)
+  f att (ExprAddrF a) = ( (att, (0, Naked) )
+                        , ExprAddrF a)
   f att (PhraseF p) = ( (att, (0, Naked) )
-                    , PhraseF p)
+                      , PhraseF p)
 
   f att (ExprTpltF js) =
     ( (att,(0,InParens))

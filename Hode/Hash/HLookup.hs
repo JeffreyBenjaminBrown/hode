@@ -182,7 +182,7 @@ hExprToAddrs r s (HInvolves k h) =
       hExprToAddrs r s $ HInvolves (k-1) h
     S.union as <$>
       ( hExprToAddrs r s $ HMember $ HOr $
-        map (HExpr . Addr) $ S.toList as )
+        map (HExpr . ExprAddr) $ S.toList as )
 
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval:" $ do
@@ -338,7 +338,7 @@ immediateNeighbors d r ts as =
   in hExprToAddrs r mempty $
      HEval ( HMap $ M.fromList
              [ ( RoleInRel' $ RoleMember start
-               , HOr $ map (HExpr . Addr) as )
+               , HOr $ map (HExpr . ExprAddr) as )
              , ( RoleInRel' RoleTplt
-               , HOr $ map (HExpr . Addr) ts ) ] )
+               , HOr $ map (HExpr . ExprAddr) ts ) ] )
      [[ RoleMember toward ]]

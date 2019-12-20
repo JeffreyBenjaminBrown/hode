@@ -89,7 +89,7 @@ eParenShowColorInner shortCircuit ef0 =
   g :: (Int, ExprF (Fix (ExprFWith (a,(Int,Parens)))))
     -> Either String ColorString
 
-  g (_, AddrF _) = Left "impossible; given earlier unAddrRec."
+  g (_, ExprAddrF _) = Left "impossible; given earlier unAddrRec."
   g (_, PhraseF p) = Right [(p,TextColor)]
 
   g (_, ExprTpltF t) =

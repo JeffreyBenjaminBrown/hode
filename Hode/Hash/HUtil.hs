@@ -29,7 +29,7 @@ import           Hode.Rslt.RTypes
 -- | = for Hash
 
 hor :: [Addr] -> HExpr
-hor = HOr . map (HExpr . Addr)
+hor = HOr . map (HExpr . ExprAddr)
 
 hVars :: HExpr -> Set Var
 hVars = cata f where

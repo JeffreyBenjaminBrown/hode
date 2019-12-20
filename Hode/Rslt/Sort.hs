@@ -39,17 +39,26 @@ module Hode.Rslt.Sort (
       -- and every member of those `Rel`s
   , allExprsButTpltsOrRelsUsingThem -- ^ Rslt -> [TpltAddr]
                                     -- -> Either String (Set Addr)
-  , isTop -- ^ Rslt -> (BinOrientation, TpltAddr) -> Addr
-          -- -> Either String Bool
-  , allTops -- ^   Rslt
+
+  , allTops -- ^  Rslt
             -- -> (BinOrientation, TpltAddr)
             -- -> [Addr] -- ^ candidates
             -- -> Either String [Addr]
+  , isTop -- ^ Rslt -> (BinOrientation, TpltAddr) -> Addr
+          -- -> Either String Bool
+
+  , partitionIsolated -- ^ Rslt -> TpltAddr
+                      -- -> [Addr] -- ^ candidates
+                      -- -> Either String ([Addr],[Addr])
+  , isIsolated -- ^ Rslt -> TpltAddr -> Addr
+               -- -> Either String Bool
+
   , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
                -- -> Either String (Set Addr)
   , deleteHostsThenDelete -- ^ Addr -> Rslt -> Either String Rslt
   ) where
 
+import qualified Data.List      as L
 import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Set (Set)
@@ -73,7 +82,7 @@ data Kahn = Kahn { kahnRslt   :: Rslt
 
 -- | Depth-first search.
 -- (For BFS, reverse the order of the expression
--- `newTops ++ tops` in `kahnIterate`.
+-- `newTops ++ tops` in `kahnIterate`.)
 kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
          -> Either String [Addr]
 kahnSort r (bo,t) as =
@@ -176,38 +185,10 @@ allExprsButTpltsOrRelsUsingThem r ts =
   tsUsers :: Set Addr <-
     hExprToAddrs r mempty $
     HMap $ M.singleton (RoleInRel' RoleTplt) $
-    HOr $ map (HExpr . Addr) ts
+    HOr $ map (HExpr . ExprAddr) ts
   Right ( S.difference
           ( S.difference as $ S.fromList ts )
           tsUsers )
-
--- | `isTop r (orient,t) a` tests whether,
--- with respect to `t` under the orientation `ort`,
--- no `Expr` in `r` is greater than the one at `a`.
--- For instance, if `ort` is `RightFirst`,
--- and `a` is on the right side of some relationship using
--- `t` as its `Tplt`, then the result is `False`.
-isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
-      -> Either String Bool
-isTop r (ort,t) a =
-  prefixLeft "isTop:" $ do
-  let roleIfLesser = case ort of
-        RightFirst  -> RoleInRel' $ RoleMember 2
-        LeftFirst -> RoleInRel' $ RoleMember 1
-  relsInWhichItIsLesser <- hExprToAddrs r mempty $
-    HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ Addr t),
-                        (roleIfLesser,          HExpr $ Addr a) ]
-  Right $ null relsInWhichItIsLesser
-
-isIsolated :: Rslt -> TpltAddr -> Addr
-           -> Either String Bool
-isIsolated r t a =
-  prefixLeft "isIsolated:" $ do
-  connections :: Set Addr <-
-        hExprToAddrs r mempty $ HAnd
-        [ HMap $ M.singleton (RoleInRel' RoleTplt) (HExpr $ Addr t)
-        , HMember $ HExpr $ Addr a ]
-  Right $ if null connections then True else False
 
 allTops :: Rslt
         -> (BinOrientation, TpltAddr)
@@ -219,14 +200,47 @@ allTops r (bo,t) as =
       withIsTop a = (,a) <$> isTop r (bo,t) a
   map snd . filter fst <$> mapM withIsTop as
 
-allIsolated :: Rslt -> TpltAddr
-            -> [Addr] -- ^ candidates
-            -> Either String [Addr]
-allIsolated r t as =
-  prefixLeft "allIsolated:" $ do
+-- | `isTop r (orient,t) a` tests whether,
+-- with respect to `t` under the orientation `ort`,
+-- no `Expr` in `r` is greater than the one at `a`.
+-- For instance, if `orient` is `RightFirst`,
+-- and `a` is on the right side of some relationship in `r`
+-- using `t` as its `Tplt`, then the result is `False`.
+isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
+      -> Either String Bool
+isTop r (ort,t) a =
+  prefixLeft "isTop:" $ do
+  let roleOfLesser = case ort of
+        RightFirst  -> RoleInRel' $ RoleMember 2
+        LeftFirst   -> RoleInRel' $ RoleMember 1
+  relsInWhichItIsLesser <- hExprToAddrs r mempty $
+    HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ ExprAddr t),
+                        (roleOfLesser,          HExpr $ ExprAddr a) ]
+  Right $ null relsInWhichItIsLesser
+
+partitionIsolated :: Rslt -> TpltAddr
+                  -> [Addr] -- ^ candidates
+                  -> Either String ([Addr],[Addr])
+partitionIsolated r t as =
+  prefixLeft "partitionIsolated:" $ do
   let withIsIsolated :: Addr -> Either String (Bool, Addr)
       withIsIsolated a = (,a) <$> isIsolated r t a
-  map snd . filter fst <$> mapM withIsIsolated as
+  (isolated, connected) <-
+    L.partition fst <$> mapM withIsIsolated as
+  Right $ (map snd isolated, map snd connected)
+
+isIsolated :: Rslt -> TpltAddr -> Addr
+           -> Either String Bool
+isIsolated r t a =
+  -- TODO ? speed: `partitionIsolated` calls this a lot.
+  -- Each time, it has to run `hExprToAddrs` on the `HMap`.
+  -- It could be faster to move that into `partitionIsolated`.
+  prefixLeft "isIsolated:" $ do
+  connections :: Set Addr <-
+        hExprToAddrs r mempty $ HAnd
+        [ HMap $ M.singleton (RoleInRel' RoleTplt) (HExpr $ ExprAddr t)
+        , HMember $ HExpr $ ExprAddr a ]
+  Right $ if null connections then True else False
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
 -- lie just beneath `a`, where the menaing of "beneath"
@@ -239,8 +253,8 @@ justUnders (bo,t) r a = let
       RightFirst ->  (1,2)
       LeftFirst -> (2,1)
     rel = HMap $ M.fromList
-      [ ( RoleInRel' RoleTplt,          HExpr $ Addr t),
-        ( RoleInRel' $ RoleMember bigger, HExpr $ Addr a ) ]
+      [ ( RoleInRel' RoleTplt,          HExpr $ ExprAddr t),
+        ( RoleInRel' $ RoleMember bigger, HExpr $ ExprAddr a ) ]
     in HEval rel [[RoleMember smaller]]
   in prefixLeft "justUnders:" $
      hExprToAddrs r mempty h
@@ -253,5 +267,5 @@ deleteHostsThenDelete a r =
   prefixLeft "deleteHostsThenDelete:" $ do
   hosts :: Set Addr <-
     S.map snd <$> isIn r a
-  r1 <- foldM (flip delete) r hosts
-  delete a r1
+  foldM (flip delete) r hosts >>=
+    delete a

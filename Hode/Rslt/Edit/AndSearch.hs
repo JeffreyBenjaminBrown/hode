@@ -42,7 +42,7 @@ exprToAddrInsert r ei =
 -- but the others still might be.
 exprToAddrInsert_rootNotFound ::
   Rslt -> Expr -> Either String (Rslt, [Aged Addr])
-exprToAddrInsert_rootNotFound _ (Addr a) =
+exprToAddrInsert_rootNotFound _ (ExprAddr a) =
   Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
 
 exprToAddrInsert_rootNotFound r0 (Phrase w) =

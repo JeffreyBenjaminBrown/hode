@@ -55,7 +55,7 @@ variety r a = maybe err Right $ M.lookup a $ _variety r
 -- | Whereas a `Tplt` has a well-defined arity on its own,
 -- the arity of an `Expr` might be unknowable without a `Rslt`.
 arityIn :: Rslt -> Expr -> Either String Arity
-arityIn r (Addr a)  = snd <$> variety r a
+arityIn r (ExprAddr a) = snd <$> variety r a
 arityIn _ (Phrase _) = Right 0
 arityIn r (ExprRel (Rel ms t)) =
   prefixLeft "arityIn:" $ do
@@ -133,21 +133,21 @@ subExpr r a (rl : rls) =
 flatten :: Rslt -> Expr -> Either String [String]
 flatten r = cata f where
   f :: Base Expr (Either String [String]) -> Either String [String]
-  f (AddrF a) = unAddr r (Addr a) >>= flatten r
+  f (ExprAddrF a) = unAddr r (ExprAddr a) >>= flatten r
   f (PhraseF s) = Right [s]
   f (ExprTpltF t) = Left $
     "flatten: not defined for Tplt \"" ++ show t ++ "\"."
   f (ExprRelF (Rel rs _)) = concat <$> ifLefts rs
 
 unAddr :: Rslt -> Expr -> Either String Expr
-unAddr r (Addr a) = addrToExpr r a
+unAddr r (ExprAddr a) = addrToExpr r a
 unAddr _ e        = Right e
 
 -- | a recursive version of `unAddr`
 unAddrRec :: Rslt -> Expr -> Either String Expr
 unAddrRec r = cata f where
   f :: Base Expr (Either String Expr) -> Either String Expr
-  f (AddrF a) = addrToExpr r a
+  f (ExprAddrF a) = addrToExpr r a
   -- TODO ? clarify, simplify
   -- `AddrF` is the only interesting case.
   -- Is there a good way to simplify the following boilerplate?
