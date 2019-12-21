@@ -9,9 +9,31 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO `Tplt`s: record metadata
-transitive templates
-later, a priority ordering on templates
+** TODO UI: cycle-breaking interface
+*** TODO command to populate the set of cycles
+Does not have to validate the input --
+this command is just for testing.
+*** TODO command to show the first cycle
+and switch between that and the buffer's main window.
+*** TODO command to break a link
+*** TODO command to advance to next cycle
+*** thinking, obvious in retrospect
+**** window flow
+ User should be able to change buffers even when one of them is blocked
+ by the need to break a cycle (or cancel).
+ The blocked window should show a banner explaining that it's blocked,
+ and how to go to the cycle-breaking window.
+ The cycle-breaking window should persist even after the cycle has been broken.
+ Between the two sides of the broken link should be inserted a flag,
+ saying "<You have disconnected this link.>"
+ If there's another cycle to break, the cycle-breaking window should say so,
+ and how to get there.
+**** how
+ Show instructions at the bottom, and the cycle.
+ Ask the user to select the first (higher) element of some pair to break.
+ Press Enter to break it, or Esc to abort.
+ Can explore as normal.
+ Can only break a link from the top of the forest.
 ** TODO check for cycles when needed
 Each time a rel is added involving a transitive template.
 *** later, each time a tplt is declared transitive
@@ -74,10 +96,18 @@ One adds highlighted things to the sorted region.
   Their order is otherwise preserved, but they move into the sorted region.
 The other removes them.
   Their order is preserved, but they all fall to below the sorted region.
-*** order the templates, too
- This enables ordering across forks, not just within them.
- Some forks should always be top -- e.g. "pitfalls", "frequent".
- There could be more than one ordering.
+*** order Tplts themselves
+**** how
+Requires modifying the Kahn algorithm.
+Perhaps this: If it's among what's being sorted,
+  then duplicate the Tplt being sorted by,
+  delete all Rels involving the original as both a member and a Tplt,
+  delete the original and add the duplicates to the set of things being sorted,
+  sort as normal, then replace the duplicate with the original in the results.
+**** why
+This enables ordering across forks, not just within them.
+Some forks should always be top -- e.g. "pitfalls", "frequent".
+There could be more than one ordering.
 *** ? in UI, separate sort from search
 **** why
  you might want to sort without having to run the search again

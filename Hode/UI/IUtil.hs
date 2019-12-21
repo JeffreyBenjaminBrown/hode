@@ -57,7 +57,9 @@ emptyBuffer = Buffer
   { _bufferQuery = "(empty buffer)"
   , _bufferRowPorest =
     Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery
-    "If you run a search, what it finds will be shown here." }
+    "If you run a search, what it finds will be shown here."
+  , _bufferCycles = []
+  }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
 buffer_from_bufferRowTree ::
@@ -72,4 +74,5 @@ buffer_from_bufferRowTree ptbr =
   Right $ Buffer
     { _bufferQuery = unColorString $ ve ^. viewExpr_String
     , _bufferRowPorest = P.fromList [ptbr]
+    , _bufferCycles = []
     }
