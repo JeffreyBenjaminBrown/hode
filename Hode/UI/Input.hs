@@ -175,6 +175,12 @@ runParsedCommand                     c0 st0 =
           & itWorked ( "Replaced Expr at "
                        ++ show a ++ "." )
 
+  -- For mocking purpsoses only.
+  g (CommandAddCycle as) st =
+    Right $ B.continue $ st
+      & stSetFocusedBuffer . bufferCycles %~ (as :)
+      & itWorked "Added cycle to buffer."
+
   g (CommandMove old new) st =
     either Left (Right . f)
     $ moveRefExpr old new (st ^. appRslt)
