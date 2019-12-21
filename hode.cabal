@@ -32,6 +32,7 @@ library
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
                 , Hode.Hash.HLookup
+                , Hode.Hash.HLookup.Transitive
                 , Hode.Hash.HParse
                 , Hode.Hash.HTypes
                 , Hode.Hash.HUtil

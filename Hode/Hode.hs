@@ -29,6 +29,8 @@ import Hode.Test.Main as X
 import Hode.Hash.Convert as X
 import Hode.Hash.EitherExpr as X
 import Hode.Hash.HLookup as X
+-- import Hode.Hash.HLookup.Transitive as X
+  -- already re-exported by Hode.Hash.HLookup
 import Hode.Hash.HParse as X
 import Hode.Hash.HTypes as X
 import Hode.Hash.HUtil as X
@@ -44,7 +46,7 @@ import Hode.Rslt.Files as X
 import Hode.Rslt.Index as X
 import Hode.Rslt.RLookup as X
 -- import Hode.Rslt.RLookup.RConvert as X
-  -- redundant since it's all re-exported from Rslt.RLookup
+  -- already reexported from Hode.Rslt.RLookup
 import Hode.Rslt.Binary as X
 import Hode.Rslt.RTypes as X
 import Hode.Rslt.RUtil as X
