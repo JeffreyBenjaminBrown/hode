@@ -9,9 +9,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO algorithm to check for cycles
-cycles :: Rslt -> SearchDir -> TpltAddr -> Addr -> Either String [[Addr]]
-cylces r t a = do
 ** TODO check for cycles when needed
 Each time a rel is added involving a transitive template.
 ** TODO sorting

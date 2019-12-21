@@ -21,6 +21,9 @@ module Hode.Hash.HLookup (
                      -- -> [Addr] -- ^ places to finish
                      -- -> [Addr] -- ^ places to start
                      -- -> Either String [(Addr,Addr)]
+  , cyclesInvolving -- ^ Rslt -> SearchDir -> TpltAddr -> Addr
+                    -- -> Either String [[Addr]]
+
   , reachable -- ^ :: SearchDir
                 -- -> Rslt
                 -- -> [Addr] -- ^ binary `Tplt`s to search along.
@@ -290,6 +293,32 @@ transitiveRels1 d r ts fs s =
   let pair = case d of SearchRightward -> (s,)
                        SearchLeftward  -> (,s)
   Right $ map pair found
+
+-- | `cyclesInvolving r t a0` searches for cycles involving `a0`.
+-- PITFALL: It assumes there are no other cycles.
+-- If it encounters any not involving `a0`, it will crash.
+cyclesInvolving :: Rslt -> SearchDir -> TpltAddr -> Addr
+                -> Either String [[Addr]]
+cyclesInvolving r d t a0 =
+  go [] [[a0]] where
+
+  go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
+  go cycles []             = Right cycles
+  go cycles (as:notCycles) = do
+    (cs,ncs) <- extendPath as
+    go (cs ++ cycles) (ncs ++ notCycles)
+
+  extendPath :: [Addr] -> Either String
+                        ( [[Addr]]   -- cycles
+                        , [[Addr]] ) -- not cycles
+  extendPath [] = error "impossible: paths start nonempty and only grow."
+  extendPath as@(a:_) = do
+    ns :: Set Addr <- immediateNeighbors r d [t] [a]
+    let cycles = case S.member a0 ns of
+          True -> [a0 : as]
+          False -> []
+        notCycles = map (: as) $ S.toList $ S.delete a0 ns
+    Right (cycles, notCycles)
 
 
 -- | = Searching from a fixed set of `Expr`s toward no particular target.
