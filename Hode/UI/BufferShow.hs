@@ -31,7 +31,8 @@ bufferWindow = let
     const False
   in porestToWidget name showColumns showNode getFolded
 
-resultWindow :: ViewOptions -> Buffer -> B.Widget BrickName
+resultWindow :: ViewOptions -> Maybe (Porest BufferRow)
+             -> B.Widget BrickName
 resultWindow vo = let
   name = BrickMainName Results
   showColumns :: BufferRow -> [ColorString] =
@@ -42,4 +43,3 @@ resultWindow vo = let
   getFolded :: BufferRow -> Bool =
     _folded . _otherProps
   in porestToWidget name showColumns showNode getFolded
-     . (^. bufferRowPorest)

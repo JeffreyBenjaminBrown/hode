@@ -74,7 +74,10 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
       SearchBuffers  -> bufferWindow $ st ^. searchBuffers
-      Results        -> resultWindow (st ^. viewOptions) b
+      CycleBreaker   -> resultWindow
+        (st ^. viewOptions) (Just $ st ^. cycleBreaker)
+      Results        -> resultWindow
+        (st ^. viewOptions) (b ^. bufferRowPorest)
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>
@@ -121,6 +124,10 @@ appHandleEvent st (B.VtyEvent ev) = case ev of
   V.EvKey (V.KChar 'R') [V.MMeta] -> B.continue
     $ st & showingInMainWindow .~ Results
          & showingErrorWindow .~ False
+  V.EvKey (V.KChar 'O') [V.MMeta] -> B.continue
+    $ st & showingInMainWindow .~ CycleBreaker
+         & showingErrorWindow .~ False
+
   -- Brick-focus-related stuff. So far unneeded.
     -- PITFALL: The focused `Window` is distinct from
     -- the focused widget within the `mainWindow`.

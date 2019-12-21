@@ -1,5 +1,6 @@
-{-# LANGUAGE ScopedTypeVariables,
-TupleSections #-}
+{-# LANGUAGE ScopedTypeVariables
+, LambdaCase
+, TupleSections #-}
 
 module Hode.UI.Input (
     handleUncaughtInput            -- ^ St -> V.Event ->
@@ -62,6 +63,7 @@ handleKeyboard_atBufferWindow ::
 handleKeyboard_atBufferWindow st ev =
   let go f = B.continue $ f $ st & hideReassurance
   in case ev of
+
   V.EvKey (V.KChar 'e') [V.MMeta] ->
     go $ nudgeFocus_inBufferTree DirPrev
   V.EvKey (V.KChar 'd') [V.MMeta] ->
@@ -89,9 +91,10 @@ handleKeyboard_atBufferWindow st ev =
 handleKeyboard_atResultsWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev =
-  let go  f = B.continue $ f st
+  let go f = B.continue $ f $ st & hideReassurance
       goe f = B.continue $ unEitherSt st $ f st
   in case ev of
+
   V.EvKey (V.KChar 'S') [V.MMeta] -> goe insertSearchResults_atFocus
   V.EvKey (V.KChar 'h') [V.MMeta] -> goe insertHosts_atFocus
   V.EvKey (V.KChar 'm') [V.MMeta] -> goe insertMembers_atFocus
@@ -129,6 +132,9 @@ handleKeyboard_atResultsWindow st ev =
     nudge_viewExprNode DirPrev . hideReassurance
   V.EvKey (V.KChar 'D') [V.MMeta] -> go $
     nudge_viewExprNode DirNext . hideReassurance
+
+  V.EvKey (V.KChar 'o') [V.MMeta] ->
+    goe setCycleBuffer
 
   _ -> handleUncaughtInput st ev
 
