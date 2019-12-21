@@ -295,12 +295,14 @@ transitiveRels1 d r ts fs s =
 -- | = Searching from a fixed set of `Expr`s toward no particular target.
 -- For instance, given set S, find the set T = {t s.t. t > s for some s in S}.
 
--- | `reachable d r s t` finds all the expressions reachable from `s`,
--- via `t`, by moving `d`.
+-- | `reachable d r ts as` finds all the expressions reachable from `as`,
+-- via `ts`, by moving `d`.
+--
+-- PITFALL: If there are cycles, this will crash.
 reachable :: SearchDir
           -> Rslt
-          -> [Addr] -- ^ binary `Tplt`s to search along.
-                    -- To use more than one is weird but legal.
+          -> [TpltAddr] -- ^ binary `Tplt`s to search along.
+                        -- To use more than one is weird but legal.
           -> [Addr] -- ^ starting `Expr`s
           -> Either String [Addr]
 reachable d r ts as = prefixLeft "reachable:" $ do
@@ -309,12 +311,11 @@ reachable d r ts as = prefixLeft "reachable:" $ do
   where
     f :: [Addr] -> [Addr] -> Either String [Addr]
     f explored [] = Right explored
-    f explored (a:morePending) =
-      prefixLeft ("f of " ++ show a) $ do
-        s <- immediateNeighbors d r ts [a]
-        f (a:explored) $ morePending ++ S.toList s
-        -- I believe this gives BFS,
-        -- and flipping the ++ would change it to DFS.
+    f explored (a:morePending) = do
+      s <- immediateNeighbors r d ts [a]
+      f (a:explored) $ morePending ++ S.toList s
+      -- I believe this gives BFS,
+      -- and flipping the ++ would change it to DFS.
 
 
 -- | = Utilities used by the above transitive search utilities
@@ -325,13 +326,13 @@ isBinaryTemplate r t = do
   if v == (TpltCtr,2) then Right () else Left $
     "Expr at address " ++ show t ++ " not a binary template."
 
-immediateNeighbors :: SearchDir
-                   -> Rslt
+immediateNeighbors :: Rslt
+                   -> SearchDir
                    -> [TpltAddr] -- ^ binary `Tplt`s to search along.
                                  -- To use more than one is weird but legal.
                    -> [Addr] -- ^ starting `Expr`s
                    -> Either String (Set Addr)
-immediateNeighbors d r ts as =
+immediateNeighbors r d ts as =
   let (start, toward) = case d of
         SearchRightward -> (1,2)
         SearchLeftward -> (2,1)

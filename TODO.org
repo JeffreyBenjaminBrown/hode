@@ -9,9 +9,11 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO build-in some expressions
-transitive
-_ is _ -- in the sense of "x has the quality y"
+** TODO algorithm to check for cycles
+cycles :: Rslt -> SearchDir -> TpltAddr -> Addr -> Either String [[Addr]]
+cylces r t a = do
+** TODO check for cycles when needed
+Each time a rel is added involving a transitive template.
 ** TODO sorting
 *** ? needs a closure algorithm
 **** motivation
@@ -249,6 +251,9 @@ On Nix it represents newlines the wrong way.
 When a new node is added that matches an extant search,
 the search will find it, but (without further work)
 it will not find the search as a neighbor.
+** TODO ? wart: monodirectionality in `reachable`
+It can accept multiple `Tplt`s to search along,
+but only a single `SearchDir`.
 ** safer open and save
 To write, first run `git status`.
 If anything is modified, ask "are you sure? Your repo has uncommitted changes; saving this data might clobber them."
