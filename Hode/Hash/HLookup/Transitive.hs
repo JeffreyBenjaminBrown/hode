@@ -1,5 +1,8 @@
 -- PITFALL: `hExprToAddrs` might not look like it belongs here,
 -- but it is mutually recursive with the others.
+--
+-- (`HExprToAddrs` could be moved; I would only have to
+-- rewrite `immediateNeighbors` without it.)
 
 {-# LANGUAGE ScopedTypeVariables,
 TupleSections #-}
@@ -188,7 +191,8 @@ transitiveRels :: SearchDir
   -> [Addr] -- ^ places to start
   -> Either String [(Addr,Addr)]
 transitiveRels d r ts fs ss =
-  concat <$> ifLefts (map f ss)
+  prefixLeft "transitiveRels:" $
+    concat <$> ifLefts (map f ss)
   where f = transitiveRels1 d r ts fs
 
 transitiveRels1 :: SearchDir
@@ -199,7 +203,7 @@ transitiveRels1 :: SearchDir
   -> Addr -- ^ the place to start
   -> Either String [(Addr,Addr)]
 transitiveRels1 d r ts fs s =
-  prefixLeft "transitiveRels:" $ do
+  prefixLeft "transitiveRels1:" $ do
   found <- L.intersect fs <$> reachable d r ts [s]
   let pair = case d of SearchRightward -> (s,)
                        SearchLeftward  -> (,s)
@@ -211,7 +215,7 @@ transitiveRels1 d r ts fs s =
 cyclesInvolving :: Rslt -> SearchDir -> TpltAddr -> Addr
                 -> Either String [[Addr]]
 cyclesInvolving r d t a0 =
-  go [] [[a0]] where
+  map reverse <$> go [] [[a0]] where
 
   go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
   go cycles []             = Right cycles

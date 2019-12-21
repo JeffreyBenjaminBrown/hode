@@ -1,8 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module Hode.Test.Hash.TTransitive where
 
---import qualified Data.Map as M
 import qualified Data.Set as S
 import           Test.HUnit
 
@@ -18,12 +18,41 @@ import Hode.NoUI
 
 test_module_hash_hlookup_transitive :: Test
 test_module_hash_hlookup_transitive = TestList [
-  TestLabel "test_hLookup_hTrans" test_hLookup_hTrans,
-  TestLabel "test_hLookup_hReach" test_hLookup_hReach,
-  TestLabel "test_transitiveClsoure" test_transitiveClsoure,
-  TestLabel "test_transitiveRels" test_transitiveRels,
-  TestLabel "test_reachable" test_reachable
+    TestLabel "test_hLookup_hTrans" test_hLookup_hTrans
+  , TestLabel "test_hLookup_hReach" test_hLookup_hReach
+  , TestLabel "test_transitiveClsoure" test_transitiveClsoure
+  , TestLabel "test_transitiveRels" test_transitiveRels
+  , TestLabel "test_reachable" test_reachable
+  , TestLabel "test_cyclesInvolving" test_cyclesInvolving
   ]
+
+test_cyclesInvolving :: Test
+test_cyclesInvolving = TestCase $ do
+  let a i = either (error "absent") id
+            $ exprToAddr r $ Phrase $ show i
+      Right t  = exprToAddr r $ ExprTplt $ Tplt
+                 Nothing [Phrase ""] Nothing
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
+                            [ "-1 # 0"
+                            , "0 # 1"
+                            , "1 # 2"
+                            , "2 # 3"
+                            , "3 # 1"  -- anomalous, makes a cycle
+                            , "3 # 4"
+                            , "4 # 5" ]
+
+  assertBool "1" $ cyclesInvolving r SearchRightward t (a 1)
+    == Right [map a [1,2,3,1]]
+  assertBool "2" $ cyclesInvolving r SearchLeftward t (a 1)
+    == Right [map a [1,3,2,1]]
+  assertBool "3" $ cyclesInvolving r SearchRightward t (a 3)
+    == Right [map a [3,1,2,3]]
+  assertBool "4" $ cyclesInvolving r SearchLeftward t (a 3)
+    == Right [map a [3,2,1,3]]
+  assertBool "5" $ cyclesInvolving r SearchRightward t (a 4)
+    == Right []
+  assertBool "6" $ cyclesInvolving r SearchLeftward t (a 0)
+    == Right []
 
 test_hLookup_hTrans :: Test
 test_hLookup_hTrans = TestCase $ do
