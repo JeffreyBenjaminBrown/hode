@@ -9,8 +9,14 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
+** TODO `Tplt`s: record metadata
+transitive templates
+later, a priority ordering on templates
 ** TODO check for cycles when needed
 Each time a rel is added involving a transitive template.
+*** later, each time a tplt is declared transitive
+Check for cycles non-locally --
+that is, with reference to no particular point in the cycle.
 ** TODO sorting
 *** ? needs a closure algorithm
 **** motivation
@@ -36,9 +42,6 @@ and show each such path (in this case there's only one: 3 < 4 < 5),
 and ask them to choose a link to break from the path.
 ** TODO ordering
 *** in kahn sort algorithm, put unrelated things last
-*** `Tplt`s: record metadata
-transitive templates
-later, a priority ordering on templates
 *** sort by default
 By default, any same-level, view-contiguous sequence of ViewExprs is sorted,
 according to the first transitive relation extant among any of its members.

@@ -2,9 +2,10 @@
 #-}
 
 module Hode.Hash.HLookup (
-    hFind        -- ^ HExpr -> Find Addr Rslt
-  , hMatches     -- ^ Rslt -> HExpr -> Addr       -> Either String Bool
-  , hExprToExpr  -- ^ Rslt -> HExpr               -> Either String Expr
+    hFind              -- ^ HExpr -> Find Addr Rslt
+  , usesTransitiveTplt -- ^ Rslt          -> Addr -> Either String Bool
+  , hMatches           -- ^ Rslt -> HExpr -> Addr -> Either String Bool
+  , hExprToExpr        -- ^ Rslt -> HExpr         -> Either String Expr
   , module X
   ) where
 
@@ -28,11 +29,18 @@ hFind :: HExpr -> Find Addr Rslt
 hFind he = Find f $ hVars he
   where f rslt subst = hExprToAddrs rslt subst he
 
+usesTransitiveTplt :: Rslt -> Addr -> Either String Bool
+usesTransitiveTplt r a =
+  prefixLeft "usesTransitiveTplt:" $
+  hMatches r h a
+  where h = HMap $ M.singleton (RoleInRel' RoleTplt) HTplts
+
 -- | The idea of `hMatches` is to determine whether an `HExpr`
 -- matches the `Expr` at an `Addr`, without having to find everything
 -- else that matches the `HExpr`. It isn't totally implemented.
 hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
-hMatches r h0 a0 = prefixLeft "hMatches:" $ do
+hMatches r h0 a0 =
+  prefixLeft "hMatches:" $ do
   e0 :: Expr <- addrToExpr r a0
   case h0 of
     HExpr e -> unAddr r e >>= Right . (== e0)
