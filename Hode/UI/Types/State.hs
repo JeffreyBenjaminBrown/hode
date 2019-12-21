@@ -41,6 +41,8 @@ data St = St {
     -- ^ So far unused in spirit, but technically used.
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
+  , _cycleBreaker           :: Porest BufferRow
+    -- ^ like a Buffer, but without a title or list of cycles
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName

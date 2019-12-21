@@ -10,11 +10,11 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO UI: cycle-breaking interface
-*** TODO command to populate the set of cycles
-Does not have to validate the input --
-this command is just for testing.
-*** TODO command to show the first cycle
-and switch between that and the buffer's main window.
+*** TODO command to populate the CycleBreaker buffer
+from Input.runParsedCommand:
+    p :: Porest BufferRow <- -- new screen to show
+      (P.focus . pTreeHasFocus .~ True)
+      <$> addrsToBufferRows st mempty as
 *** TODO command to break a link
 *** TODO command to advance to next cycle
 *** thinking, obvious in retrospect
@@ -133,6 +133,8 @@ There could be more than one ordering.
  _viewExpr_Addr :: ViewExpr -> Addr
 ** TODO compress binary groups
 * TODO pressing
+** TODO bug: _searchBuffers can be empty
+in which case switching to the Results view crashes.
 ** TODO reading and navigation are slow
 *** would help: hide in context
 in the context of golf, any phrase ending in "of golf"

@@ -34,6 +34,7 @@ import Hode.Rslt.Sort
 import Hode.Rslt.RTypes
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
+import Hode.UI.CycleBreaker
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

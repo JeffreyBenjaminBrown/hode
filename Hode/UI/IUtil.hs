@@ -39,6 +39,8 @@ emptySt r = St {
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMember $ HVar VarRowNode ]
+  , _cycleBreaker = porestLeaf $ bufferRow_from_viewExprNode $ VQuery
+                    "There is no cycle to show here (yet)."
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
   , _commands    = B.editor (BrickOptionalName Commands)
