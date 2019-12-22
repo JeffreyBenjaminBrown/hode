@@ -9,31 +9,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO UI: cycle-breaking interface
-*** TODO command to populate the CycleBreaker buffer
-from Input.runParsedCommand:
-    p :: Porest BufferRow <- -- new screen to show
-      (P.focus . pTreeHasFocus .~ True)
-      <$> addrsToBufferRows st mempty as
-*** TODO command to break a link
-*** TODO command to advance to next cycle
-*** thinking, obvious in retrospect
-**** window flow
- User should be able to change buffers even when one of them is blocked
- by the need to break a cycle (or cancel).
- The blocked window should show a banner explaining that it's blocked,
- and how to go to the cycle-breaking window.
- The cycle-breaking window should persist even after the cycle has been broken.
- Between the two sides of the broken link should be inserted a flag,
- saying "<You have disconnected this link.>"
- If there's another cycle to break, the cycle-breaking window should say so,
- and how to get there.
-**** how
- Show instructions at the bottom, and the cycle.
- Ask the user to select the first (higher) element of some pair to break.
- Press Enter to break it, or Esc to abort.
- Can explore as normal.
- Can only break a link from the top of the forest.
 ** TODO check for cycles when needed
 Each time a rel is added involving a transitive template.
 *** later, each time a tplt is declared transitive

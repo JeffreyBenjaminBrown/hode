@@ -91,7 +91,7 @@ handleKeyboard_atBufferWindow st ev =
 handleKeyboard_atResultsWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev =
-  let go f = B.continue $ f $ st & hideReassurance
+  let go f = B.continue $ f st
       goe f = B.continue $ unEitherSt st $ f st
   in case ev of
 
@@ -172,15 +172,12 @@ runParsedCommand                     c0 st0 =
   itWorked s = showReassurance s
                . (showingInMainWindow .~ Results)
 
-  g (CommandReplace a e) st =
-    either Left (Right . f)
-    $ replaceExpr a e (st ^. appRslt)
-    where
-    f :: Rslt -> B.EventM BrickName (B.Next St)
-    f r = B.continue $ st
-          & appRslt .~ r
-          & itWorked ( "Replaced Expr at "
-                       ++ show a ++ "." )
+  g (CommandReplace a e) st = do
+    r <- replaceExpr a e (st ^. appRslt)
+    Right $ B.continue $ st
+      & appRslt .~ r
+      & itWorked ( "Replaced Expr at "
+                   ++ show a ++ "." )
 
   -- For mocking purpsoses only.
   g (CommandAddCycle as) st =
@@ -188,32 +185,23 @@ runParsedCommand                     c0 st0 =
       & stSetFocusedBuffer . bufferCycles %~ (as :)
       & itWorked "Added cycle to buffer."
 
-  g (CommandMove old new) st =
-    either Left (Right . f)
-    $ moveRefExpr old new (st ^. appRslt)
-    where
-    f :: Rslt -> B.EventM BrickName (B.Next St)
-    f r = B.continue $ st
-          & appRslt .~ r
-          & itWorked ( "Moved Expr from " ++ show old
-                       ++ " to " ++ show new ++ "." )
+  g (CommandMove old new) st = do
+    r <- moveRefExpr old new (st ^. appRslt)
+    Right $ B.continue $ st
+      & appRslt .~ r
+      & itWorked ( "Moved Expr from " ++ show old
+                   ++ " to " ++ show new ++ "." )
 
-  g (CommandDelete a) st =
-    either Left (Right . f)
-    $ deleteIfUnused a (st ^. appRslt)
-    where
-    f :: Rslt -> B.EventM BrickName (B.Next St)
-    f r = B.continue $ st & appRslt .~ r
-          & itWorked ( "Deleted Expr at "
-                       ++ show a ++ "." )
+  g (CommandDelete a) st = do
+    r <- deleteIfUnused a (st ^. appRslt)
+    Right $ B.continue $ st & appRslt .~ r
+      & itWorked ( "Deleted Expr at "
+                   ++ show a ++ "." )
 
-  g (CommandInsert e) st =
-    either Left (Right . f)
-    $ exprToAddrInsert (st ^. appRslt) e
-    where
-    f :: (Rslt, [Aged Addr]) -> B.EventM BrickName (B.Next St)
-    f (r,as) =
-      B.continue $ st
+  g (CommandInsert e) st = do
+    (r :: Rslt, as :: [Aged Addr]) <-
+      exprToAddrInsert (st ^. appRslt) e
+    Right $ B.continue $ st
       & appRslt .~ r
       & itWorked ( "Expr(s) added at " ++
                    show (catNews as) )
