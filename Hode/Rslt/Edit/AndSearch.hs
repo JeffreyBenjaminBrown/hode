@@ -10,6 +10,7 @@ module Hode.Rslt.Edit.AndSearch (
 
 import qualified Data.List      as L
 
+import Hode.Hash.HLookup.Transitive
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.Rslt.RUtil
@@ -19,8 +20,9 @@ import Hode.Rslt.Edit.Initial
 
 -- | = Edit + search
 
--- | `exprToAddrInsert r ei` returns the `Addr` containing `ei`, if present.
--- If not, it inserts `ei`, and then returns the `Addr` containing it.
+-- | `exprToAddrInsert r ei` returns an `Old` containing `ei`'s `Addr,
+-- if `ei` is already in `r`.
+-- If not, it inserts `ei`, and then returns a `New` containing its `Addr`.
 -- It also returns (the tail of the list) all other `Addr`s it added.
 -- Since it might add to the `Rslt`, it also returns that.
 --
@@ -28,13 +30,13 @@ import Hode.Rslt.Edit.Initial
 -- precedes those of its children.
 exprToAddrInsert :: Rslt -> Expr -> Either String (Rslt, [Aged Addr])
 exprToAddrInsert r ei =
-  prefixLeft ("exprToAddrInsert, called on " ++ show ei ++ ":\n")
-  $ do
-  let (mra :: Maybe Addr) = either (const Nothing) Just
-                            $ exprToAddr r ei
-  case mra of
+  prefixLeft ("exprToAddrInsert, called on " ++ show ei ++ ":\n") $
+  let mra :: Maybe Addr = either (const Nothing) Just
+                          $ exprToAddr r ei
+  in case mra of
     Just a -> Right (r, [Old a])
-    Nothing -> exprToAddrInsert_rootNotFound r ei
+    Nothing -> prefixLeft "exprToAddrInsert_rootNotFound:" $
+               exprToAddrInsert_rootNotFound r ei
 
 
 -- | `exprToAddrInsert_rootNotFound` is like `exprToAddrInsert`, in the case
@@ -45,14 +47,12 @@ exprToAddrInsert_rootNotFound ::
 exprToAddrInsert_rootNotFound _ (ExprAddr a) =
   Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
 
-exprToAddrInsert_rootNotFound r0 (Phrase w) =
-  prefixLeft "exprToAddrInsert_rootNotFound:" $ do
+exprToAddrInsert_rootNotFound r0 (Phrase w) = do
   a <- nextAddr r0
   r1 <- insertAt a (Phrase' w) r0
   Right (r1, [New a])
 
-exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
-  prefixLeft "exprToAddrInsert_rootNotFound:" $ do
+exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) = do
   if null a && null bs && null c
     then  Left "invalid Tplt: must have at least one separator."
     else Right ()
@@ -74,8 +74,7 @@ exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) =
   Right ( r4,
           New a' : concat ( [as1] ++ as2 ++ [as3] ) )
 
-exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) =
-  prefixLeft "exprToAddrInsert_rootNotFound:" $ do
+exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   (r1,tas)  <- exprToAddrInsert r0 t
   ta <- if length tas > 0 then Right $ unAged $ head tas else Left
     "There should be an address for the Tplt. (Not a user error.)"
@@ -97,9 +96,9 @@ exprToAddrInsert_list r0 is =
   prefixLeft "exprToAddrInsert_list:" $ do
   let f :: Either String Rslt -> Expr
         -> (Either String Rslt, [Aged Addr])
-      f (Left s) _ = (Left s, error "exprToAddrInsert_list: irrelevant")
+      f (Left s) _ = (Left s, error "irrelevant")
       f (Right r) ei = case exprToAddrInsert r ei of
-        Left s -> (Left s, error "exprToAddrInsert_list: irrelevant")
+        Left s -> (Left s, error "irrelevant")
         Right (r',as) -> (Right r', as)
       (er, asas) :: (Either String Rslt, [[Aged Addr]]) =
         L.mapAccumL f (Right r0) is
