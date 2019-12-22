@@ -14,6 +14,7 @@ import           Data.Set (Set)
 
 
 type Addr = Int
+type Cycle = [Addr]
 type Arity = Int
 
 class HasArity e where

@@ -15,14 +15,14 @@ module Hode.NoUI (
   , nShowRsltIO -- ^ Rslt -> IO ()
 
   -- | = edit: insert
-  , nInsert        -- ^ Rslt -> String -> Either String (Rslt, Addr)
+  , nInsert        -- ^ Rslt -> String -> Either String (Rslt, Addr, [Cycle])
   , nInsert'       -- ^ Rslt -> String -> Either String Rslt
   , nInserts       -- ^ Foldable f =>
                    --   Rslt -> f String -> Either String Rslt
 
   -- | = edit: other
   , nDelete        -- ^ Rslt -> String         -> Either String Rslt
-  , nReplace       -- ^ Rslt -> Addr -> String -> Either String Rslt
+  , nReplace       -- ^ Rslt -> Addr -> String -> Either String (Rslt, [Cycle])
   , nReplaceInRole -- ^ Rslt -> Role -> Addr -> String ->
                    --   Either String Rslt
 
@@ -86,12 +86,13 @@ nShowRsltIO r = either putStrLn (mapM_ putStrLn) $
 
 -- | = edit: insert
 
-nInsert :: Rslt -> String -> Either String (Rslt, [Aged Addr])
+nInsert :: Rslt -> String -> Either String (Rslt, [Aged Addr], [Cycle])
 nInsert r s = prefixLeft "nInsert:" $
               nExpr r s >>= exprToAddrInsert r
 
 nInsert' :: Rslt -> String -> Either String Rslt
-nInsert' r s = fst <$> nInsert r s
+nInsert' r0 s = fst' <$> nInsert r0 s where
+  fst' (r,_,_) = r
 
 nInserts :: Foldable f
          => Rslt -> f String -> Either String Rslt
@@ -104,7 +105,7 @@ nDelete :: Rslt -> String -> Either String Rslt
 nDelete r s = prefixLeft "nDelete:" $
               nExpr r s >>= exprToAddr r >>= flip deleteIfUnused r
 
-nReplace :: Rslt -> Addr -> String -> Either String Rslt
+nReplace :: Rslt -> Addr -> String -> Either String (Rslt, [Cycle])
 nReplace r a s =
   prefixLeft "nReplace:" $ do e <- nExpr r s
                               replaceExpr a e r

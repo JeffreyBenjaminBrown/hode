@@ -3,7 +3,8 @@
 
 module Hode.Rslt.Edit.Terminal (
     moveRefExpr -- ^ Addr -> Addr -> Rslt -> Either String Rslt
-  , replaceExpr -- ^ Expr -> Addr -> Rslt -> Either String (Rslt, Addr)
+  , replaceExpr -- ^ Expr -> Addr -> Rslt -> Either String (Rslt,[Cycle])
+
   ) where
 
 import           Data.Either
@@ -38,23 +39,25 @@ moveRefExpr old new r =
 
 -- | `replaceExpr a e r` replaces the `Expr` at `a`.
 -- The set of `Addr`s in `r` remains unchanged.
-replaceExpr :: Addr -> Expr -> Rslt -> Either String Rslt
-replaceExpr a0 e0 r0 = prefixLeft "replaceExpr:" $
-                       go a0 anAbsentPhrase r0 >>=
-                       go a0 e0
+replaceExpr :: Addr -> Expr -> Rslt -> Either String (Rslt,[Cycle])
+replaceExpr a0 e0 r0 = prefixLeft "replaceExpr:" $ do
+  (r1,cs1) <- go a0 anAbsentPhrase r0
+  (r2,cs2) <- go a0 e0 r1
+  Right (r2, cs1++cs2)
   where
 
     -- PITFALL: If the new `Expr` contains the old one, `go` will crash.
     -- That's why `anAbsentPhrase` is used.
-    go :: Addr -> Expr -> Rslt -> Either String Rslt
+    go :: Addr -> Expr -> Rslt -> Either String (Rslt, [Cycle])
     go a e r = do
-      (r1 :: Rslt, aes :: [Aged Addr]) <- exprToAddrInsert r e
+      (r1 :: Rslt, aes :: [Aged Addr], cs :: [Cycle]) <-
+        exprToAddrInsert r e
       a1 :: Addr <- if length aes > 0
         then Right $ unAged $ head aes
         else Left "There should be an address for the Tplt. (Not a user error.)"
-      rx1 :: RefExpr             <- addrToRefExpr r1 a1
-      r2 :: Rslt                 <- replaceRefExpr rx1 a r1
-      Right $ renameAddr_unsafe a1 a r2
+      rx1 :: RefExpr <- addrToRefExpr r1 a1
+      r2 :: Rslt     <- replaceRefExpr rx1 a r1
+      Right (renameAddr_unsafe a1 a r2, cs)
 
     anAbsentPhrase :: Expr
     anAbsentPhrase = Phrase $ aap s0 where

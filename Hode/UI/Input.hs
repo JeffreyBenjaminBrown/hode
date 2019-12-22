@@ -173,7 +173,8 @@ runParsedCommand                     c0 st0 =
                . (showingInMainWindow .~ Results)
 
   g (CommandReplace a e) st = do
-    r <- replaceExpr a e (st ^. appRslt)
+    (r :: Rslt, cs :: [Cycle]) <-
+      replaceExpr a e (st ^. appRslt)
     Right $ B.continue $ st
       & appRslt .~ r
       & itWorked ( "Replaced Expr at "
@@ -199,7 +200,7 @@ runParsedCommand                     c0 st0 =
                    ++ show a ++ "." )
 
   g (CommandInsert e) st = do
-    (r :: Rslt, as :: [Aged Addr]) <-
+    (r :: Rslt, as :: [Aged Addr], cs :: [Cycle]) <-
       exprToAddrInsert (st ^. appRslt) e
     Right $ B.continue $ st
       & appRslt .~ r

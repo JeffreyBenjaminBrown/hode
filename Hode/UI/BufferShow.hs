@@ -8,7 +8,6 @@ module Hode.UI.BufferShow (
   ) where
 
 import qualified Data.Map             as M
-import           Lens.Micro
 
 import qualified Brick.Types          as B
 

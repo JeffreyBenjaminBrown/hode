@@ -98,34 +98,39 @@ test_replaceExpr = TestCase $ do
       new_expr    :: Expr     = ExprRel $ fmap ExprAddr newRel
       refExprs    :: M.Map Addr RefExpr =
         D.refExprs & M.insert 5 new_refExpr
-  assertBool "something" $ R.replaceExpr 5 new_expr D.rslt ==
-    Right (mkRslt refExprs)
+  assertBool "something" $ let
+    Right (r,_) = R.replaceExpr 5 new_expr D.rslt
+    in r == mkRslt refExprs
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do
-  assertBool "1" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
-                     Nothing [ExprAddr 3] Nothing )
-    == Right (D.rslt, [Old 4])
+  assertBool "1" $ let
+    Right (r,as,_) = R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
+                     Nothing [ExprAddr 3] Nothing
+    in r == D.rslt
+       && as == [Old 4]
 
-  assertBool "2" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
-                     Nothing [ExprAddr 1] Nothing )
-    == Right ( either error id $
-               R.insertAt 7 (Tplt' $ Tplt Nothing [1] Nothing) D.rslt
-             , [New 7, Old 1] )
+  assertBool "2" $ let
+    Right (r,as,_) = R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
+                     Nothing [ExprAddr 1] Nothing
+    in r == ( either error id $
+              R.insertAt 7 (Tplt' $ Tplt Nothing [1] Nothing) D.rslt )
+       && as == [New 7, Old 1]
 
-  assertBool "3" $ ( R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
+  assertBool "3" $ let
+    Right (r,as,_) = R.exprToAddrInsert D.rslt $ ExprTplt $ Tplt
                      (Just $ Phrase "bar") [Phrase ""]
-                     (Just $ Phrase "foo") )
-    == Right ( either error id
-               $ R.insertAt 9 (Tplt' $ Tplt (Just 7) [0] (Just 8))
-               $ either error id
-               $ R.insertAt 8 (Phrase' "foo")
-               $ either error id
-               $ R.insertAt 7 (Phrase' "bar") D.rslt
-             , [New 9, New 7, Old 0, New 8] )
+                     (Just $ Phrase "foo")
+    in r == ( either error id
+              $ R.insertAt 9 (Tplt' $ Tplt (Just 7) [0] (Just 8))
+              $ either error id
+              $ R.insertAt 8 (Phrase' "foo")
+              $ either error id
+              $ R.insertAt 7 (Phrase' "bar") D.rslt )
+       && as == [New 9, New 7, Old 0, New 8]
 
   assertBool "5" $ let
-    Right (r,as) =
+    Right (r,as,_) =
       R.exprToAddrInsert D.rslt
       ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
                                       , Phrase "empty" ]
@@ -135,7 +140,7 @@ test_exprToAddrInsert = TestCase $ do
         ( ExprTplt $ Tplt
           (Just $ Phrase "That") [Phrase "does"] Nothing ) )
     a = unAged $ head as
-    (n16 :: Expr) =
+    n16 :: Expr =
       either error id $ addrToRefExpr r a >>= refExprToExpr r
     in eShow r n16 == Right "##That space #is empty ##does suck"
 

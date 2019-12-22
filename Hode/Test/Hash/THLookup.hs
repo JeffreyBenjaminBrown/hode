@@ -48,7 +48,8 @@ testFirstAbsent = TestCase $ do
   assertBool "convert" $
     pExprToHExpr (mkRslt mempty) p == Right hGood
 
-  let Right r  = fst <$> nInsert (mkRslt mempty) "# a # b"
+  let Right r  = fst' <$> nInsert (mkRslt mempty) "# a # b"
+        where fst' (x,_,_) = x
       Right t  = nFind r "# /_ # /_"
       Right t2 = nFind r "# /_ # b"
   assertBool "1" $ length t  == 1
