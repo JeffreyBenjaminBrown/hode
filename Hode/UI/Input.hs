@@ -172,13 +172,16 @@ runParsedCommand                     c0 st0 =
   itWorked s = showReassurance s
                . (showingInMainWindow .~ Results)
 
+  -- todo ? duplicative of the clause for CommandInsert
   g (CommandReplace a e) st = do
     (r :: Rslt, cs :: [Cycle]) <-
       replaceExpr a e (st ^. appRslt)
-    Right $ B.continue $ st
-      & appRslt .~ r
-      & itWorked ( "Replaced Expr at "
-                   ++ show a ++ "." )
+    let st1 = st & appRslt .~ r
+    if null cs
+      then Right . B.continue $ st1
+           & itWorked ( "Replaced Expr at "
+                        ++ show a ++ "." )
+      else B.continue <$> setCycleBuffer st1
 
   -- For mocking purpsoses only.
   g (CommandAddCycle as) st =
@@ -199,13 +202,16 @@ runParsedCommand                     c0 st0 =
       & itWorked ( "Deleted Expr at "
                    ++ show a ++ "." )
 
+  -- todo ? duplicative of the clause for CommandReplace
   g (CommandInsert e) st = do
     (r :: Rslt, as :: [Aged Addr], cs :: [Cycle]) <-
       exprToAddrInsert (st ^. appRslt) e
-    Right $ B.continue $ st
-      & appRslt .~ r
-      & itWorked ( "Expr(s) added at " ++
-                   show (catNews as) )
+    let st1 = st & appRslt .~ r
+    if null cs
+      then Right $ B.continue $ st1
+           & itWorked ( "Expr(s) added at " ++
+                        show (catNews as) )
+      else B.continue <$> setCycleBuffer st1
 
   g (CommandLoad f) st = Right $ do
     (bad :: Bool) <-
