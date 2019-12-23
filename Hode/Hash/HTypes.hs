@@ -31,7 +31,6 @@ data HExpr where
         -> [RelPath] -- ^ Then, traverse each match along these paths,
         -- and return whatever each path leads to.
         -- (Using more than one path is weird but legal.)
-        -- The `[Role]` argument to `HTrans` is used similarly.
         -> HExpr
   HVar ::  Var -> HExpr -- ^ To look up the `Var` from a `Subst Addr Rslt`.
   HDiff :: HExpr -> HExpr -> HExpr -- ^ Set difference.
@@ -94,8 +93,10 @@ data PRel -- ^ intermediate type, on the way to parsing an `HExpr`
    = Absent -- ^ The leftmost and rightmost members of an `Open` or
      -- `Closed` might be absent. Interior ones should not be.
    | Closed     [PRel] [Separator] -- ^ First list: members. Second: separators.
-   -- Only the first and last members can be Absent. |separators| = |members| - 1
-   | Open Level [PRel] [Separator] -- ^ Like `Closed`, but more things
+   -- Only the first and last members can be Absent.
+   -- |separators| + 1 = |members|
+   | Open Level [PRel] [Separator] -- ^ Like `Closed`,
+   -- but potentially incompletely parsed -- that is, more things
    -- might be inserted into it.
    | PNonRel PExpr
    deriving (Eq, Show)

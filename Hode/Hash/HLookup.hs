@@ -15,6 +15,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import           Hode.Hash.Convert
 import           Hode.Hash.HTypes
 import           Hode.Hash.HUtil
 import           Hode.Hash.HLookup.Transitive
@@ -31,16 +32,23 @@ hFind he = Find f $ hVars he
 
 usesTransitiveTplt :: Rslt -> Addr -> Either String Bool
 usesTransitiveTplt r a =
-  prefixLeft "usesTransitiveTplt:" $
-  hMatches r h a
-  where h = HMap $ M.singleton (RoleInRel' RoleTplt) HTplts
+  prefixLeft "usesTransitiveTplt:" $ do
+  case addrToRefExpr r a of
+    Right (Rel' (Rel _ t)) -> do
+      isTransitive :: HExpr <-
+        pRelToHExpr r ( Closed [ PNonRel Any
+                              , PNonRel $ PExpr $ Phrase "transitive"]
+                        ["is"] )
+      hMatches r (HEval isTransitive $ [[RoleMember 1]]) t
+    Right _ -> Right False
+    Left s -> Left s
 
 -- | The idea of `hMatches` is to determine whether an `HExpr`
 -- matches the `Expr` at an `Addr`, without having to find everything
 -- else that matches the `HExpr`. It isn't totally implemented.
 hMatches :: Rslt -> HExpr -> Addr -> Either String Bool
 hMatches r h0 a0 =
-  prefixLeft "hMatches:" $ do
+  prefixLeft ("hMatches, called on " ++ show (h0,a0) ++ ":") $ do
   e0 :: Expr <- addrToExpr r a0
   case h0 of
     HExpr e -> unAddr r e >>= Right . (== e0)
@@ -60,7 +68,7 @@ hMatches r h0 a0 =
     -- It finds everything that `h0` matches, and then sees if  `a0`
     -- is in that set. But to search up from a0 instead of down from h0
     --  would still be a tree search, so it's not clear which is better.
-    -- (If a0 is a member of many things, better to search from h0.)
+    -- (If `a0` is a member of many things, better to search from `h0`.)
       hImages :: Set Addr <- hExprToAddrs r mempty h0
       Right $ S.member a0 hImages
 

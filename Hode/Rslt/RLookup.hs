@@ -80,7 +80,7 @@ hasInRole :: Rslt -> Role -> Addr -> Either String Addr
 hasInRole r rl a =
   prefixLeft "hasInRole:" $ do
   x :: Maybe Addr <- M.lookup rl <$> has r a
-  maybe (Left $ show a ++ "not found") Right x
+  maybe (Left $ show a ++ " not found") Right x
 
 
 -- | `isIn r a` finds the `RefExpr` at `a` in `r`, and returns
