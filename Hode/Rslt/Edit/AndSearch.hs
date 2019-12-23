@@ -16,7 +16,7 @@ module Hode.Rslt.Edit.AndSearch (
 
 import qualified Data.List      as L
 
-import Hode.Hash.HLookup.Transitive
+import Hode.Hash.HLookup
 import Hode.Rslt.Binary
 import Hode.Rslt.Edit.Initial
 import Hode.Rslt.RLookup
@@ -89,15 +89,22 @@ exprToAddrInsert_rootNotFound r0 (ExprTplt (Tplt a bs c)) = do
           cs1 ++ cs2 ++ cs3 )
 
 exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
+  -- insert the Rel's template
   (r1,tas,tcs)  <- exprToAddrInsert r0 t
   ta <- if length tas > 0 then Right $ unAged $ head tas else Left
     "There should be an address for the Tplt. (Not a user error.)"
+  transitive :: Bool <- usesTransitiveTplt r1 ta
+
+  -- insert the Rel's members
   (r2 :: Rslt, mas :: [[Aged Addr]], mcs :: [Cycle]) <-
     exprToAddrInsert_list r1 ms
-  a <- nextAddr r2
-  r3 <- let rel = Rel' $ Rel (map (unAged . head) mas) ta
-        in insertAt a rel r2
-  cs <- cyclesInvolving r3 SearchLeftward ta a
+
+  -- insert the Rel itself
+  a  :: Addr <- nextAddr r2
+  r3 :: Rslt <- let rel = Rel' $ Rel (map (unAged . head) mas) ta
+                in insertAt a rel r2
+  cs :: [Cycle] <- if not transitive then Right []
+                   else cyclesInvolving r3 SearchLeftward ta a
   Right (r3, New a : tas ++ concat mas, cs ++ tcs ++ mcs)
 
 -- | `exprToAddrInsert_list r0 is` will insert all of the `is` into `r0`.
