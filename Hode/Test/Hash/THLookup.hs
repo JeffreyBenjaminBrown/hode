@@ -29,8 +29,23 @@ test_module_hash_lookup = TestList [
   , TestLabel "test_hExprToExpr" test_hExprToExpr
   , TestLabel "testHMatches" testHMatches
   , TestLabel "testFirstAbsent" testFirstAbsent
+  , TestLabel "test_usesTransitiveTplt" test_usesTransitiveTplt
   ]
 
+test_usesTransitiveTplt :: Test
+test_usesTransitiveTplt = TestCase $ do
+  let Right (r :: Rslt) = nInserts (mkRslt mempty)
+        [ "0 #a 1"
+        , "0 #b 1"
+        , "(/t /_ a /_) #is transitive" ]
+  assertBool "(0 #a 1) uses a transitive tplt" $ let
+    x = do a <- fst . head <$> nFind r "0 #a 1"
+           usesTransitiveTplt r a
+    in x == Right True
+  assertBool "(0 #b 1) doesn't" $ let
+    x = do a <- fst . head <$> nFind r "0 #b 1"
+           usesTransitiveTplt r a
+    in x == Right False
 
 testFirstAbsent :: Test
 testFirstAbsent = TestCase $ do
