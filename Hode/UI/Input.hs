@@ -134,7 +134,7 @@ handleKeyboard_atResultsWindow st ev =
     nudge_viewExprNode DirNext . hideReassurance
 
   V.EvKey (V.KChar 'o') [V.MMeta] ->
-    goe setCycleBuffer
+    goe updateCycleBuffer
 
   _ -> handleUncaughtInput st ev
 
@@ -181,7 +181,7 @@ runParsedCommand                     c0 st0 =
       then Right . B.continue $ st1
            & itWorked ( "Replaced Expr at "
                         ++ show a ++ "." )
-      else B.continue <$> setCycleBuffer
+      else B.continue <$> updateCycleBuffer
            ( st1 & stSetFocusedBuffer . bufferCycles .~ cs
              & blockedByCycles .~ True )
 
@@ -207,7 +207,7 @@ runParsedCommand                     c0 st0 =
       then Right $ B.continue $ st1
            & itWorked ( "Expr(s) added at " ++
                         show (catNews as) )
-      else B.continue <$> setCycleBuffer
+      else B.continue <$> updateCycleBuffer
            ( st1 & stSetFocusedBuffer . bufferCycles .~ cs
              & blockedByCycles .~ True )
 

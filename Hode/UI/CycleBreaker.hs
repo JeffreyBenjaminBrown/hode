@@ -17,8 +17,10 @@ import Hode.UI.Window
 import Hode.Util.Misc
 
 
-setCycleBuffer :: St -> Either String St
-setCycleBuffer st =
+-- | Updates the cycle buffer to reflect what is now in
+-- the focused buffer's `bufferCycles` field.
+updateCycleBuffer :: St -> Either String St
+updateCycleBuffer st =
   prefixLeft "cycleBuffer:" $ do
   cs :: [Cycle] <-
     case st ^? stGetFocused_Buffer . _Just . bufferCycles
