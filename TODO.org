@@ -11,7 +11,7 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO check for cycles when needed
 Each time a rel is added involving a transitive template.
-*** TODO Rslt.Edit : buggy
+*** TODO the UI
 *** later, each time a tplt is declared transitive
 Check for cycles non-locally --
 that is, with reference to no particular point in the cycle.

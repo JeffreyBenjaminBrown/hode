@@ -115,7 +115,7 @@ test_exprToAddrInsert_withCycles = TestCase $ do
       Right a1 = fst . head <$> nFind r0 "1"
       Right (_,_,cs) = do e <- nExpr r0 "1 #a 0"
                           R.exprToAddrInsert r0 e
-  assertBool "" $ cs == [[a0,a1]]
+  assertBool "" $ cs == [[a1,a0,a1]]
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do

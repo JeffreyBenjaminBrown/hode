@@ -103,9 +103,13 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   r3 :: Rslt <- let rel = Rel' $ Rel (map (unAged . head) mas) ta
                 in insertAt a rel r2
 
+  -- search for cycles
   transitive :: Bool <- usesTransitiveTplt r3 a
-  cs :: [Cycle] <- if not transitive then Right []
-                   else cyclesInvolving r3 SearchLeftward ta a
+  cs :: [Cycle] <- let ma0 = unAged $ head $ head mas
+                         -- if binary, this is the left member
+    in if not transitive then Right []
+       else cyclesInvolving r3 SearchLeftward ta ma0
+
   Right (r3, New a : tas ++ concat mas, cs ++ tcs ++ mcs)
 
 -- | `exprToAddrInsert_list r0 is` will insert all of the `is` into `r0`.
