@@ -8,6 +8,7 @@ import qualified Data.Set       as S
 import           Lens.Micro hiding (has)
 import           Test.HUnit
 
+import           Hode.NoUI
 import           Hode.Rslt.RLookup hiding (exprToAddr)
 import qualified Hode.Rslt.Edit         as R
 import qualified Hode.Rslt.Edit.Initial as R
@@ -27,6 +28,8 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replaceRefExpr" test_replaceRefExpr
   , TestLabel "test_exprToAddrInsert" test_exprToAddrInsert
+  , TestLabel "test_exprToAddrInsert_withCycles"
+               test_exprToAddrInsert_withCycles
   , TestLabel "test_replaceExpr" test_replaceExpr
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
   , TestLabel "test_replaceInRefExpr" test_replaceInRefExpr
@@ -101,6 +104,18 @@ test_replaceExpr = TestCase $ do
   assertBool "something" $ let
     Right (r,_) = R.replaceExpr 5 new_expr D.rslt
     in r == mkRslt refExprs
+
+test_exprToAddrInsert_withCycles :: Test
+test_exprToAddrInsert_withCycles = TestCase $ do
+  let Right (r0 :: Rslt) = nInserts (mkRslt mempty)
+        [ "0 #a 1"
+        , "0 #b 1"
+        , "(/t /_ a /_) #is transitive" ]
+      Right a0 = fst . head <$> nFind r0 "0"
+      Right a1 = fst . head <$> nFind r0 "1"
+      Right (_,_,cs) = do e <- nExpr r0 "1 #a 0"
+                          R.exprToAddrInsert r0 e
+  assertBool "" $ cs == [[a0,a1]]
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do

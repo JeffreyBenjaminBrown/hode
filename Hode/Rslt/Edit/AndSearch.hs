@@ -93,7 +93,6 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   (r1,tas,tcs)  <- exprToAddrInsert r0 t
   ta <- if length tas > 0 then Right $ unAged $ head tas else Left
     "There should be an address for the Tplt. (Not a user error.)"
-  transitive :: Bool <- usesTransitiveTplt r1 ta
 
   -- insert the Rel's members
   (r2 :: Rslt, mas :: [[Aged Addr]], mcs :: [Cycle]) <-
@@ -103,6 +102,8 @@ exprToAddrInsert_rootNotFound r0 (ExprRel (Rel ms t)) = do
   a  :: Addr <- nextAddr r2
   r3 :: Rslt <- let rel = Rel' $ Rel (map (unAged . head) mas) ta
                 in insertAt a rel r2
+
+  transitive :: Bool <- usesTransitiveTplt r3 a
   cs :: [Cycle] <- if not transitive then Right []
                    else cyclesInvolving r3 SearchLeftward ta a
   Right (r3, New a : tas ++ concat mas, cs ++ tcs ++ mcs)
