@@ -1,11 +1,12 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables
+, TupleSections
+#-}
 
 module Hode.Test.Rslt.TEdit where
 
 import           Data.Either
 import qualified Data.Map       as M
 import qualified Data.Set       as S
-import           Lens.Micro hiding (has)
 import           Test.HUnit
 
 import           Hode.NoUI
@@ -96,14 +97,13 @@ test_renameAddr_unsafe = TestCase $ do
 
 test_replaceExpr :: Test
 test_replaceExpr = TestCase $ do
-  let newRel      :: Rel Addr = Rel [1,3] 4
-      new_refExpr :: RefExpr  = Rel' newRel
-      new_expr    :: Expr     = ExprRel $ fmap ExprAddr newRel
-      refExprs    :: M.Map Addr RefExpr =
-        D.refExprs & M.insert 5 new_refExpr
-  assertBool "something" $ let
-    Right (r,_) = R.replaceExpr 5 new_expr D.rslt
-    in r == mkRslt refExprs
+  let Right r = nInserts (mkRslt mempty)
+                [ "0 # 1" ]
+      Right a0 = fst . head <$> nFind r "0"
+  assertBool "" $
+    R.replaceExpr a0 (Phrase "2") r
+    == ( (,[]) <$>
+         nInserts (mkRslt mempty) [ "2 # 1" ] )
 
 test_exprToAddrInsert_withCycles :: Test
 test_exprToAddrInsert_withCycles = TestCase $ do
@@ -146,7 +146,7 @@ test_exprToAddrInsert = TestCase $ do
 
   assertBool "5" $ let
     Right (r,as,_) =
-      R.exprToAddrInsert D.rslt
+      R.exprToAddrInsert (mkRslt mempty)
       ( ExprRel $ Rel [ ExprRel $ Rel [ Phrase "space"
                                       , Phrase "empty" ]
                         ( ExprTplt $ Tplt

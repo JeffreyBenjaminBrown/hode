@@ -40,6 +40,8 @@ rslt :: Rslt
 rslt = mkRslt refExprs
 
 refExprs :: Map Addr RefExpr
+-- | DEPRECATED: Now that "transitive" etc. is built into an `Rslt`,
+-- some newer functions will not work on this data.
 refExprs = M.fromList
   [ (0, Phrase' "")
   , (1, Phrase' "dog")
@@ -60,6 +62,8 @@ badRefExprs = M.union refExprs newData where
 
 -- | Just like `rslt`, but the template has a right cap
 rslt_rightCapped :: Rslt
+-- | DEPRECATED: Now that "transitive" etc. is built into an `Rslt`,
+-- some newer functions will not work on this data.
 rslt_rightCapped = mkRslt $ M.fromList
   [ (0, Phrase' "")
   , (1, Phrase' "dog")
@@ -73,6 +77,8 @@ rslt_rightCapped = mkRslt $ M.fromList
 -- | a big, abstract `Rslt`
 
 big :: Rslt
+-- | DEPRECATED: Now that "transitive" etc. is built into an `Rslt`,
+-- some newer functions will not work on this data.
 big = mkRslt $ M.fromList
   [ (  0, Phrase' "0")
   , (  1, Phrase' "1")
@@ -91,6 +97,8 @@ big = mkRslt $ M.fromList
 -- | = a bigger, concrete `Rslt`
 
 b2 :: Rslt
+-- | DEPRECATED: Now that "transitive" etc. is built into an `Rslt`,
+-- some newer functions will not work on this data.
 b2 = mkRslt $ M.fromList
   [ ( 0, Phrase' "")
   , ( 1, Rel' $ Rel [2,3] 8) -- fish #like water
