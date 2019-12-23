@@ -23,7 +23,6 @@ pCommand r s =
   let (h,t) = splitAfterFirstLexeme s
   in case h of
     "/add"       -> pCommand_insert  r t
-    "/cycle"     -> pCommand_addCycle  t
     "/a"         -> pCommand_insert  r t
     "/find"      -> pCommand_find    r t
     "/f"         -> pCommand_find    r t
@@ -46,13 +45,6 @@ pCommand_insert r s = CommandInsert <$>
   ( mapLeft show (parse _pHashExpr "UI.Input.IParse error 1" s)
     >>= pExprToHExpr r
     >>= hExprToExpr r )
-
-pCommand_addCycle :: String -> Either String Command
-pCommand_addCycle s =
-  CommandAddCycle . map fromIntegral <$>
-  prefixLeft "pCommand_addCycle:"
-  ( mapLeft show $
-    parse (many integer) "UI.Input.IParse error 1.5" s )
 
 pCommand_replace :: Rslt -> String -> Either String Command
 pCommand_replace r s = prefixLeft "pCommand_replace:" $ do

@@ -27,7 +27,6 @@ data MainWindowName = CommandHistory
 
 data Command =
     CommandInsert       Expr
-  | CommandAddCycle [Addr] -- For mocking purpsoses only.
   | CommandReplace Addr Expr
   | CommandMove Addr Addr
   | CommandDelete  Addr

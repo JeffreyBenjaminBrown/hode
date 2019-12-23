@@ -43,6 +43,7 @@ data St = St {
   , _columnHExprs           :: [HExpr]
   , _cycleBreaker           :: Porest BufferRow
     -- ^ like a Buffer, but without a title or list of cycles
+  , _blockedByCycles        :: Bool
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName

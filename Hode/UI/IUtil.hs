@@ -3,6 +3,7 @@
 module Hode.UI.IUtil (
     unEitherSt             -- ^ Either String St -> St -> St
   , emptySt                -- ^ Rslt -> St
+  , emptyCycleBreaker      -- ^ Porest BufferRow
   , emptyBuffer            -- ^ Buffer
   , buffer_from_bufferRowTree -- ^ PTree ViewExprNode
                               -- -> Either String Buffer
@@ -39,8 +40,8 @@ emptySt r = St {
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMember $ HVar VarRowNode ]
-  , _cycleBreaker = porestLeaf $ bufferRow_from_viewExprNode $ VQuery
-                    "There is no cycle to show here (yet)."
+  , _cycleBreaker = emptyCycleBreaker
+  , _blockedByCycles = False
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
   , _commands    = B.editor (BrickOptionalName Commands)
@@ -53,6 +54,11 @@ emptySt r = St {
   , _showingOptionalWindows = M.fromList [ (Commands   , True)
                                          , (Reassurance, True) ]
   }
+
+emptyCycleBreaker :: Porest BufferRow
+emptyCycleBreaker =
+  porestLeaf $ bufferRow_from_viewExprNode $
+  VQuery "There is no cycle to show here (yet)."
 
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
