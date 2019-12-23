@@ -31,7 +31,7 @@ import Hode.PTree.Initial
 data Buffer = Buffer
   { _bufferQuery     :: ViewQuery
   , _bufferRowPorest :: Maybe (Porest BufferRow)
-  , _bufferCycles    :: [[Addr]]
+  , _bufferCycles    :: [Cycle]
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 

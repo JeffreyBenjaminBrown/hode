@@ -113,9 +113,15 @@ test_exprToAddrInsert_withCycles = TestCase $ do
         , "(/t /_ a /_) #is transitive" ]
       Right a0 = fst . head <$> nFind r0 "0"
       Right a1 = fst . head <$> nFind r0 "1"
-      Right (_,_,cs) = do e <- nExpr r0 "1 #a 0"
-                          R.exprToAddrInsert r0 e
-  assertBool "" $ cs == [[a1,a0,a1]]
+      Right ta  = fst . head <$> nFind r0 "/t /_ a /_"
+  assertBool "" $
+    let Right (_,_,cs) = do e <- nExpr r0 "1 #a 0"
+                            R.exprToAddrInsert r0 e
+    in cs == map (ta,) [[a1,a0,a1]]
+  assertBool "" $
+    let Right (_,_,cs) = do e <- nExpr r0 "1 #b 0"
+                            R.exprToAddrInsert r0 e
+    in cs == []
 
 test_exprToAddrInsert :: Test
 test_exprToAddrInsert = TestCase $ do

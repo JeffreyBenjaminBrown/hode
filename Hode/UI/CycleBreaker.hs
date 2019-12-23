@@ -27,10 +27,10 @@ updateCycleBuffer st =
     of Nothing -> Left "Focused buffer not found."
        Just cs -> Right cs
   case cs of
-    (c:_) -> do
+    ((t,c):_) -> do
       p :: Porest BufferRow <-
         (P.focus . pTreeHasFocus .~ True)
-        <$> addrsToBufferRows st mempty c
+        <$> addrsToBufferRows st mempty (t:c)
       Right ( st & cycleBreaker .~ p
               & blockedByCycles .~ True
               & showingInMainWindow .~ CycleBreaker

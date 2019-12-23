@@ -42,13 +42,13 @@ test_cyclesInvolving = TestCase $ do
                             , "4 # 5" ]
 
   assertBool "1" $ cyclesInvolving r SearchRightward t (a 1)
-    == Right [map a [1,2,3,1]]
+    == Right [(t, map a [1,2,3,1])]
   assertBool "2" $ cyclesInvolving r SearchLeftward t (a 1)
-    == Right [map a [1,3,2,1]]
+    == Right [(t, map a [1,3,2,1])]
   assertBool "3" $ cyclesInvolving r SearchRightward t (a 3)
-    == Right [map a [3,1,2,3]]
+    == Right [(t, map a [3,1,2,3])]
   assertBool "4" $ cyclesInvolving r SearchLeftward t (a 3)
-    == Right [map a [3,2,1,3]]
+    == Right [(t,map a [3,2,1,3])]
   assertBool "5" $ cyclesInvolving r SearchRightward t (a 4)
     == Right []
   assertBool "6" $ cyclesInvolving r SearchLeftward t (a 0)

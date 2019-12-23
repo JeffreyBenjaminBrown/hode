@@ -26,7 +26,7 @@ module Hode.Hash.HLookup.Transitive (
                      -- -> Either String [(Addr,Addr)]
 
   , cyclesInvolving -- ^ Rslt -> SearchDir -> TpltAddr -> Addr
-                   -- -> Either String [[Addr]]
+                   -- -> Either String [[Cycle]]
 
   , reachable -- ^ :: SearchDir
                 -- -> Rslt
@@ -213,9 +213,9 @@ transitiveRels1 d r ts fs s =
 -- PITFALL: It assumes there are no other cycles.
 -- If it encounters any not involving `a0`, it will crash.
 cyclesInvolving :: Rslt -> SearchDir -> TpltAddr -> Addr
-                -> Either String [[Addr]]
+                -> Either String [Cycle]
 cyclesInvolving r d t a0 =
-  map reverse <$> go [] [[a0]] where
+  map ((t,) . reverse) <$> go [] [[a0]] where
 
   go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
   go cycles []             = Right cycles
