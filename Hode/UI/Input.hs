@@ -181,7 +181,8 @@ runParsedCommand                     c0 st0 =
       then Right . B.continue $ st1
            & itWorked ( "Replaced Expr at "
                         ++ show a ++ "." )
-      else B.continue <$> setCycleBuffer st1
+      else B.continue <$> setCycleBuffer
+           (st1 & stSetFocusedBuffer . bufferCycles .~ cs)
 
   -- For mocking purpsoses only.
   g (CommandAddCycle as) st =
@@ -211,7 +212,8 @@ runParsedCommand                     c0 st0 =
       then Right $ B.continue $ st1
            & itWorked ( "Expr(s) added at " ++
                         show (catNews as) )
-      else B.continue <$> setCycleBuffer st1
+      else B.continue <$> setCycleBuffer
+           (st1 & stSetFocusedBuffer . bufferCycles .~ cs)
 
   g (CommandLoad f) st = Right $ do
     (bad :: Bool) <-

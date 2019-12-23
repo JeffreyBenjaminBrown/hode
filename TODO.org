@@ -9,9 +9,22 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
+** TODO cycle-blocking, freedoms and messaging in the UI
+*** maintain a "BlockedByCycle" boolean in St
+*** command freedoms
+Usually, you can enter a command from anywhere.
+But if any buffer is blocked by cycles,
+you can't add, move or replace anything.
+*** keyboard freedoms
+If a buffer is blocked, you can't delete that buffer.
+Keyboard commands go to the focused buffer if main window = Ressults,
+  but might go (otherwise unchanged) to the Cycles window.
+*** indicate the blocked buffer in the BufferTree
+*** messages
+If there's a cycle,
+show that at the top of every window except the Error window.
 ** TODO check for cycles when needed
 Each time a rel is added involving a transitive template.
-*** TODO the UI
 *** later, each time a tplt is declared transitive
 Check for cycles non-locally --
 that is, with reference to no particular point in the cycle.
