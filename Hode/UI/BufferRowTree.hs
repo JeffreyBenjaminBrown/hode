@@ -53,12 +53,12 @@ import Hode.Util.Misc
 
 nudgeFocus_inViewExprNodes :: Direction -> St -> St
 nudgeFocus_inViewExprNodes d =
-  stSetFocusedBuffer . bufferRowPorest . _Just
+  stSet_focusedBuffer . bufferRowPorest . _Just
   %~ nudgeFocus_inPorest d
 
 nudge_viewExprNode :: Direction -> St -> St
 nudge_viewExprNode d =
-  stSetFocusedBuffer . bufferRowPorest . _Just
+  stSet_focusedBuffer . bufferRowPorest . _Just
   %~ nudgeInPorest d
 
 closeSubviews_atFocus :: St -> St

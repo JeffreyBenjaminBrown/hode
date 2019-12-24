@@ -182,7 +182,7 @@ runParsedCommand                     c0 st0 =
            & itWorked ( "Replaced Expr at "
                         ++ show a ++ "." )
       else B.continue <$> updateCycleBuffer
-           ( st1 & stSetFocusedBuffer . bufferCycles .~ cs
+           ( st1 & stSet_focusedBuffer . bufferCycles .~ cs
              & blockedByCycles .~ True )
 
   g (CommandMove old new) st = do
@@ -208,7 +208,7 @@ runParsedCommand                     c0 st0 =
            & itWorked ( "Expr(s) added at " ++
                         show (catNews as) )
       else B.continue <$> updateCycleBuffer
-           ( st1 & stSetFocusedBuffer . bufferCycles .~ cs
+           ( st1 & stSet_focusedBuffer . bufferCycles .~ cs
              & blockedByCycles .~ True )
 
   g (CommandLoad f) st = Right $ do
@@ -253,7 +253,7 @@ runParsedCommand                     c0 st0 =
             -- TODO ? Create a new Buffer instead.
             let strip :: String -> String
                 strip = T.unpack . T.strip . T.pack
-            in stSetFocusedBuffer . bufferQuery .~ strip s )
-          . ( stSetFocusedBuffer . bufferRowPorest . _Just
+            in stSet_focusedBuffer . bufferQuery .~ strip s )
+          . ( stSet_focusedBuffer . bufferRowPorest . _Just
               .~ p ) )
       & itWorked "Search successful."

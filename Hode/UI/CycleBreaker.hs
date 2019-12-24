@@ -23,7 +23,7 @@ updateCycleBuffer :: St -> Either String St
 updateCycleBuffer st =
   prefixLeft "cycleBuffer:" $ do
   cs :: [Cycle] <-
-    case st ^? stGetFocused_Buffer . _Just . bufferCycles
+    case st ^? stGet_focusedBuffer . _Just . bufferCycles
     of Nothing -> Left "Focused buffer not found."
        Just cs -> Right cs
   case cs of

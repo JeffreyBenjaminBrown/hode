@@ -75,14 +75,14 @@ bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
 bufferRow_from_viewExprNode' _ n =
   Right $ bufferRow_from_viewExprNode n
 
-stGetFocused_Buffer :: Getter St (Maybe Buffer)
-stGetFocused_Buffer = to go where
+stGet_focusedBuffer :: Getter St (Maybe Buffer)
+stGet_focusedBuffer = to go where
   go :: St -> Maybe Buffer
   go st = st ^? searchBuffers . _Just . P.focus .
           getFocusedSubtree . _Just . pTreeLabel
 
-stSetFocusedBuffer :: Setter' St Buffer
-stSetFocusedBuffer = sets go where
+stSet_focusedBuffer :: Setter' St Buffer
+stSet_focusedBuffer = sets go where
   go :: (Buffer -> Buffer) -> St -> St
   go f = searchBuffers . _Just . P.focus .
          setFocusedSubtree . pTreeLabel %~ f
@@ -91,7 +91,7 @@ stGetFocused_ViewExprNode_Tree ::
   Getter St (Maybe (PTree BufferRow))
 stGetFocused_ViewExprNode_Tree = to go where
   go :: St -> Maybe (PTree BufferRow)
-  go st = st ^? stGetFocused_Buffer . _Just .
+  go st = st ^? stGet_focusedBuffer . _Just .
           bufferRowPorest . _Just .
           P.focus . getFocusedSubtree . _Just
 
@@ -99,7 +99,7 @@ stSetFocused_ViewExprNode_Tree ::
   Setter' St (PTree BufferRow)
 stSetFocused_ViewExprNode_Tree = sets go where
   go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
-  go f = stSetFocusedBuffer .
+  go f = stSet_focusedBuffer .
          bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f
 
