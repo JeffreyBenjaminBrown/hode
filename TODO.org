@@ -10,9 +10,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO cycle-blocking, freedoms and messaging in the UI
-*** TODO cycles can't be associated with any particular buffer
-because they can be created absent any search results.
-*** TODO updateFocusedBufferCycles :: St -> Either String St
 *** command freedoms
 Usually, you can enter a command from anywhere.
 But if any buffer is blocked by cycles,
@@ -22,6 +19,7 @@ If a buffer is blocked, you can't delete that buffer.
 Keyboard commands go to the focused buffer if main window = Ressults,
   but might go (otherwise unchanged) to the Cycles window.
 *** indicate the blocked buffer in the BufferTree
+*** be sure to be able to update cycles ('o') from the cycle view
 *** messages
 If there's a cycle,
 show that at the top of every window except the Error window.

@@ -75,7 +75,7 @@ appDraw st0 = [w] where
       CommandHistory -> commandHistoryWindow
       SearchBuffers  -> bufferWindow $ st ^. searchBuffers
       CycleBreaker   -> resultWindow
-        (st ^. viewOptions) (Just $ st ^. cycleBreaker)
+        (st ^. viewOptions) (Just $ st ^. cycleBuffer)
       Results        -> resultWindow
         (st ^. viewOptions) (b ^. bufferRowPorest)
 

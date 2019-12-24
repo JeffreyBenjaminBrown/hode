@@ -15,6 +15,7 @@ module Hode.UI.Input (
                     -- Either String (B.EventM BrickName (B.Next St))
   ) where
 
+import           Control.Monad ((>=>))
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.List.PointedList as P
 import qualified Data.Set              as S
@@ -134,7 +135,7 @@ handleKeyboard_atResultsWindow st ev =
     nudge_viewExprNode DirNext . hideReassurance
 
   V.EvKey (V.KChar 'o') [V.MMeta] ->
-    goe updateCycleBuffer
+    goe $ updateBlockingCycles >=> updateCycleBuffer
 
   _ -> handleUncaughtInput st ev
 

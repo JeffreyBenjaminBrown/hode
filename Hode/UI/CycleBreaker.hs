@@ -22,9 +22,9 @@ import Hode.Util.Misc
 
 -- | If the focused buffer has cycles recorded in `bufferCycles`,
 -- this recomputes them.
-updateFocusedBufferCycles :: St -> Either String St
+updateBlockingCycles :: St -> Either String St
 -- TODO ? This is inefficient -- it recomputes all cycles each time.
-updateFocusedBufferCycles st =
+updateBlockingCycles st =
   case st ^. blockingCycles of
   Nothing -> Right st
   Just cs0 -> do
@@ -47,11 +47,11 @@ updateCycleBuffer st =
       p :: Porest BufferRow <-
         (P.focus . pTreeHasFocus .~ True)
         <$> addrsToBufferRows st mempty (t:c)
-      Right ( st & cycleBreaker .~ p
+      Right ( st & cycleBuffer .~ p
               & showingInMainWindow .~ CycleBreaker
               & showReassurance "Please break this cycle." )
     _ -> Right -- applies both to Just [] and to Nothing
-      ( st & cycleBreaker .~ emptyCycleBreaker
+      ( st & cycleBuffer .~ emptyCycleBreaker
         & showingInMainWindow .~ Results
         & blockingCycles .~ Nothing
         & showReassurance "No cycles identified." )

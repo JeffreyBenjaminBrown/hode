@@ -40,7 +40,7 @@ emptySt r = St {
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMember $ HVar VarRowNode ]
-  , _cycleBreaker = emptyCycleBreaker
+  , _cycleBuffer = emptyCycleBreaker
   , _blockingCycles = Nothing
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
