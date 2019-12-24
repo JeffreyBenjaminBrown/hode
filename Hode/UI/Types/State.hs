@@ -31,7 +31,6 @@ import Hode.PTree.Initial
 data Buffer = Buffer
   { _bufferQuery     :: ViewQuery
   , _bufferRowPorest :: Maybe (Porest BufferRow)
-  , _bufferCycles    :: [Cycle]
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
@@ -43,7 +42,7 @@ data St = St {
   , _columnHExprs           :: [HExpr]
   , _cycleBreaker           :: Porest BufferRow
     -- ^ like a Buffer, but without a title or list of cycles
-  , _blockedByCycles        :: Bool
+  , _blockingCycles         :: Maybe [Cycle]
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName

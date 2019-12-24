@@ -10,6 +10,8 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO cycle-blocking, freedoms and messaging in the UI
+*** TODO cycles can't be associated with any particular buffer
+because they can be created absent any search results.
 *** TODO updateFocusedBufferCycles :: St -> Either String St
 *** command freedoms
 Usually, you can enter a command from anywhere.

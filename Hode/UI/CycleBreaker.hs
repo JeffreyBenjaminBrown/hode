@@ -24,14 +24,10 @@ import Hode.Util.Misc
 -- this recomputes them.
 updateFocusedBufferCycles :: St -> Either String St
 -- TODO ? This is inefficient -- it recomputes all cycles each time.
-updateFocusedBufferCycles st = do
-  cs0 :: [Cycle] <-
-    case st ^? stGet_focusedBuffer . _Just . bufferCycles
-    of Nothing -> Left "Focused buffer not found."
-       Just cs -> Right cs
-
-  if null cs0 then Right st
-    else do
+updateFocusedBufferCycles st =
+  case st ^. blockingCycles of
+  Nothing -> Right st
+  Just cs0 -> do
     let uniqueKernels :: [(TpltAddr,Addr)] =
           S.toList . S.fromList -- discard duplicates
           $ map (_2 %~ head) cs0
@@ -39,28 +35,23 @@ updateFocusedBufferCycles st = do
           (st ^. appRslt) SearchLeftward tplt start
     cs1 :: [Cycle] <-
       concat <$> mapM ci uniqueKernels
-    Right $ st &
-      stSet_focusedBuffer . bufferCycles .~ cs1
+    Right $ st & blockingCycles .~ Just cs1
 
 -- | Updates the cycle buffer to reflect what is now in
 -- the focused buffer's `bufferCycles` field.
 updateCycleBuffer :: St -> Either String St
 updateCycleBuffer st =
   prefixLeft "cycleBuffer:" $ do
-  cs :: [Cycle] <-
-    case st ^? stGet_focusedBuffer . _Just . bufferCycles
-    of Nothing -> Left "Focused buffer not found."
-       Just cs -> Right cs
-  case cs of
-    ((t,c):_) -> do
+  case st ^. blockingCycles of
+    Just ((t,c):_) -> do
       p :: Porest BufferRow <-
         (P.focus . pTreeHasFocus .~ True)
         <$> addrsToBufferRows st mempty (t:c)
       Right ( st & cycleBreaker .~ p
-              & blockedByCycles .~ True
               & showingInMainWindow .~ CycleBreaker
               & showReassurance "Please break this cycle." )
-    [] -> Right ( st & cycleBreaker .~ emptyCycleBreaker
-                  & blockedByCycles .~ False
-                  & showingInMainWindow .~ Results
-                  & showReassurance "Cycles eliminated." )
+    _ -> Right -- applies both to Just [] and to Nothing
+      ( st & cycleBreaker .~ emptyCycleBreaker
+        & showingInMainWindow .~ Results
+        & blockingCycles .~ Nothing
+        & showReassurance "No cycles identified." )

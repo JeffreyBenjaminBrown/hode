@@ -41,7 +41,7 @@ emptySt r = St {
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMember $ HVar VarRowNode ]
   , _cycleBreaker = emptyCycleBreaker
-  , _blockedByCycles = False
+  , _blockingCycles = Nothing
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
   , _commands    = B.editor (BrickOptionalName Commands)
@@ -66,7 +66,6 @@ emptyBuffer = Buffer
   , _bufferRowPorest =
     Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery
     "If you run a search, what it finds will be shown here."
-  , _bufferCycles = []
   }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
@@ -82,5 +81,4 @@ buffer_from_bufferRowTree ptbr =
   Right $ Buffer
     { _bufferQuery = unColorString $ ve ^. viewExpr_String
     , _bufferRowPorest = P.fromList [ptbr]
-    , _bufferCycles = []
     }

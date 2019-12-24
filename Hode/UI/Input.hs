@@ -182,8 +182,7 @@ runParsedCommand                     c0 st0 =
            & itWorked ( "Replaced Expr at "
                         ++ show a ++ "." )
       else B.continue <$> updateCycleBuffer
-           ( st1 & stSet_focusedBuffer . bufferCycles .~ cs
-             & blockedByCycles .~ True )
+           ( st1 & blockingCycles .~ Just cs )
 
   g (CommandMove old new) st = do
     r <- moveRefExpr old new (st ^. appRslt)
@@ -208,8 +207,7 @@ runParsedCommand                     c0 st0 =
            & itWorked ( "Expr(s) added at " ++
                         show (catNews as) )
       else B.continue <$> updateCycleBuffer
-           ( st1 & stSet_focusedBuffer . bufferCycles .~ cs
-             & blockedByCycles .~ True )
+           ( st1 & blockingCycles .~ Just cs )
 
   g (CommandLoad f) st = Right $ do
     (bad :: Bool) <-
