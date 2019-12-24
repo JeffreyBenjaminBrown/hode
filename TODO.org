@@ -10,21 +10,7 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO cycle-blocking, freedoms and messaging in the UI
-*** TODO keep the template with the cycles
 *** TODO updateFocusedBufferCycles :: St -> Either String St
--- | If the focused buffer has cycles recorded in `bufferCycles`,
--- this recomputes them.
-updateFocusedBufferCycles :: St -> Either String St
-updateFocusedBufferCycles st = do
-  cs :: [Cycle] <-
-    case st ^? stGetFocused_Buffer . _Just . bufferCycles
-    of Nothing -> Left "Focused buffer not found."
-       Just cs -> Right cs
-  if null cs then Right st
-    else do
-    let starts :: [Addr] =
-          S.toList . S.fromList -- discards duplicates
-          $ map head cs
 *** command freedoms
 Usually, you can enter a command from anywhere.
 But if any buffer is blocked by cycles,
