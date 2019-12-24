@@ -31,12 +31,6 @@ data ViewOptions = ViewOptions
     -- (If I was better with Brick, I might not need this.)
 makeLenses ''ViewOptions
 
-defaulViewOptions :: ViewOptions
-defaulViewOptions = ViewOptions
-  { _viewOpt_ShowAddresses = True
-  , _viewOpt_ShowAsAddresses = True
-  , _viewOpt_WrapLength = 60 }
-
 type ColumnProps = Map HExpr Int
 
 data OtherProps = OtherProps {
@@ -80,7 +74,8 @@ type ViewQuery = String
 data ViewExpr = ViewExpr {
     _viewExpr_Addr        :: Addr
   , _viewExpr_showAsAddrs :: Set Addr
-    -- ^ any sub-`Expr` at any of these `Addr`s will be shown
+    -- ^ If the relevant `viewOpt_ShowAsAddresses` is True,
+    -- any sub-`Expr` at any of these `Addr`s will be shown
     -- not as text, but as the `Addr` in question.
     -- Used to eliminate redundancy in views.
   , _viewExpr_String      :: ColorString }
@@ -108,6 +103,8 @@ data TpltHosts = TpltHosts {
   _separatorHostsCenter :: Addr }
   deriving (Eq, Ord)
 
+-- TODO ? this class, and the two *Center fields above, are unused.
+-- See that with `grep -i center -r UI --color`.
 class HasCenterAddr a where
   centerAddr :: a -> Addr
 
@@ -123,10 +120,6 @@ instance HasCenterAddr HostFork where
 
 
 -- | = Functions (inc. TH-generated lenses)
-
-bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
-bufferRow_from_viewExprNode n =
-  BufferRow n mempty $ OtherProps False
 
 -- | Shows the label of the group, not its members.
 instance Show RelHosts where

@@ -1,16 +1,23 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.IUtil (
-    unEitherSt             -- ^ Either String St -> St -> St
-  , emptySt                -- ^ Rslt -> St
-  , emptyCycleBreaker      -- ^ Porest BufferRow
-  , emptyBuffer            -- ^ Buffer
-  , buffer_from_bufferRowTree -- ^ PTree ViewExprNode
-                              -- -> Either String Buffer
+    unEitherSt                   -- ^ Either String St -> St -> St
+  , bufferRow_from_viewExprNode  -- ^       ViewExprNode -> BufferRow
+  , bufferRow_from_viewExprNode' -- ^ St -> ViewExprNode
+                                 --        -> Either String BufferRow
+  , defaulViewOptions            -- ^ ViewOptions
+  , emptySt                      -- ^ Rslt -> St
+  , emptyCycleBreaker            -- ^ Porest BufferRow
+  , emptyBuffer                  -- ^ Buffer
+  , buffer_from_bufferRowTree    -- ^ PTree ViewExprNode
+                                 -- -> Either String Buffer
   ) where
 
 import qualified Data.List.PointedList as P
+import           Data.Map (Map)
 import qualified Data.Map              as M
+import           Data.Set (Set)
+import qualified Data.Set              as S
 import           Lens.Micro
 
 import qualified Brick.Focus           as B
@@ -18,6 +25,7 @@ import qualified Brick.Widgets.Edit    as B
 
 import Hode.Brick
 import Hode.Hash.HTypes
+import Hode.Hash.HLookup
 import Hode.Rslt.RTypes
 import Hode.Qseq.QTypes (Var(..))
 import Hode.UI.Types.Names
@@ -33,6 +41,35 @@ unEitherSt old (Left s) =
   old & showError s
 unEitherSt _ (Right new) =
   new & showingErrorWindow .~ False
+
+defaulViewOptions :: ViewOptions
+defaulViewOptions = ViewOptions
+  { _viewOpt_ShowAddresses = True
+  , _viewOpt_ShowAsAddresses = True
+  , _viewOpt_WrapLength = 60 }
+
+bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
+bufferRow_from_viewExprNode n =
+  BufferRow n mempty $ OtherProps False
+
+bufferRow_from_viewExprNode'
+  :: St -> ViewExprNode -> Either String BufferRow
+bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
+  prefixLeft "bufferRow_from_viewExprNode':" $ do
+  let r = st ^. appRslt
+      hs = st ^. columnHExprs
+      sub :: Map Var Addr =
+        M.singleton VarRowNode a
+  matches :: Map HExpr (Set Addr) <-
+    let f h = (h, hExprToAddrs r sub h)
+    in ifLefts_map $ M.fromList $ map f hs
+  let matchCounts :: Map HExpr Int =
+        M.map S.size matches
+  Right $ BufferRow { _viewExprNode = n
+                    , _columnProps = matchCounts
+                    , _otherProps = OtherProps False }
+bufferRow_from_viewExprNode' _ n =
+  Right $ bufferRow_from_viewExprNode n
 
 emptySt :: Rslt -> St
 emptySt r = St {

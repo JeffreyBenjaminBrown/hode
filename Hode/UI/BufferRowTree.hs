@@ -11,15 +11,12 @@ module Hode.UI.BufferRowTree (
 
   -- | = inserting layers of nodes
   , insertSearchResults_atFocus  -- ^ St -> Either String St
-  , searchResults_at -- ^ Rslt -> Addr -> Either String (Set Addr)
 
   , insertMembers_atFocus -- ^ St ->    Either String St
 
   , insertHosts_atFocus   -- ^ St ->    Either String St
   , groupHostRels_atFocus -- ^ St ->    Either String [(HostFork, [Addr])]
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
-  , hostGroup_to_forkTree -- ^ Rslt -> (HostFork, [Addr]) ->
-                          -- Either String (PTree ViewExprNode)
 
   , addrsToBufferRows
     -- ^ St
@@ -43,6 +40,7 @@ import Hode.NoUI
 import Hode.PTree.Initial
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
+import Hode.UI.IUtil
 import Hode.UI.IUtil.String
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
