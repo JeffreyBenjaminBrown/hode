@@ -24,6 +24,7 @@ import Hode.Rslt.RTypes
 import Hode.UI.BufferShow
 import Hode.UI.IUtil
 import Hode.UI.Input
+import Hode.UI.Input.Maps
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 
@@ -108,33 +109,12 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 
 appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
-appHandleEvent st (B.VtyEvent ev) = case ev of
-  V.EvKey V.KEsc [V.MMeta] -> B.halt st
+appHandleEvent st (B.VtyEvent ev) =
+  case M.lookup ev $ universal_commands st of
 
-  -- command window
-  V.EvKey (V.KChar 'x') [V.MMeta] -> parseAndRunCommand st
+  Just c -> c
 
-  -- switch main window content
-  V.EvKey (V.KChar 'H') [V.MMeta] -> B.continue
-    $ st & showingInMainWindow .~ CommandHistory
-         & showingErrorWindow .~ False
-  V.EvKey (V.KChar 'B') [V.MMeta] -> B.continue
-    $ st & showingInMainWindow .~ SearchBuffers
-         & showingErrorWindow .~ False
-  V.EvKey (V.KChar 'R') [V.MMeta] -> B.continue
-    $ st & showingInMainWindow .~ Results
-         & showingErrorWindow .~ False
-  V.EvKey (V.KChar 'O') [V.MMeta] -> B.continue
-    $ st & showingInMainWindow .~ CycleBreaker
-         & showingErrorWindow .~ False
-
-  -- Brick-focus-related stuff. So far unneeded.
-    -- PITFALL: The focused `Window` is distinct from
-    -- the focused widget within the `mainWindow`.
-    -- V.EvKey (V.KChar '\t') [] -> B.continue $ st & focusRing %~ B.focusNext
-    -- V.EvKey V.KBackTab []     -> B.continue $ st & focusRing %~ B.focusPrev
-
-  _ -> case st ^. showingInMainWindow of
+  Nothing -> case st ^. showingInMainWindow of
     Results       -> handleKeyboard_atResultsWindow st ev
     SearchBuffers -> handleKeyboard_atBufferWindow  st ev
     _             -> handleUncaughtInput            st ev
