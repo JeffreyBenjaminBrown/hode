@@ -26,7 +26,7 @@ If a buffer is blocked, you can't delete that buffer.
 Keyboard commands go to the focused buffer if main window = Ressults,
   but might go (otherwise unchanged) to the Cycles window.
 *** be able to update cycles ('o') from the cycle view
-** TODO If there's a cycle, show that
+** TODO If there's a cycle, announce it everywhere
 at the top of every window except the Error window.
 ** TODO sorting
 *** ? needs a closure algorithm
@@ -123,6 +123,8 @@ There could be more than one ordering.
 ** TODO compress binary groups
 * TODO pressing
 ** TODO tests for the UI
+*** St could be Eq and Ord
+if I made (probably orphan) instances for Brick.Widgets.Edit.Editor
 ** TODO bug: _searchBuffers can be empty
 in which case switching to the Results view crashes.
 ** TODO error window: Why is it treated differently?

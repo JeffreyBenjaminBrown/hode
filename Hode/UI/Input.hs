@@ -96,11 +96,16 @@ handleKeyboard_atResultsWindow st ev =
       goe f = B.continue $ unEitherSt st $ f st
   in case ev of
 
-  V.EvKey (V.KChar 'S') [V.MMeta] -> goe insertSearchResults_atFocus
-  V.EvKey (V.KChar 'h') [V.MMeta] -> goe insertHosts_atFocus
-  V.EvKey (V.KChar 'm') [V.MMeta] -> goe insertMembers_atFocus
-  V.EvKey (V.KChar 'c') [V.MMeta] -> go closeSubviews_atFocus
-  V.EvKey (V.KChar 'F') [V.MMeta] -> go foldSubviews_atFocus
+  V.EvKey (V.KChar 'S') [V.MMeta] ->
+    goe insertSearchResults_atFocus
+  V.EvKey (V.KChar 'h') [V.MMeta] ->
+    goe insertHosts_atFocus
+  V.EvKey (V.KChar 'm') [V.MMeta] ->
+    goe insertMembers_atFocus
+  V.EvKey (V.KChar 'c') [V.MMeta] ->
+    go closeSubviews_atFocus
+  V.EvKey (V.KChar 'F') [V.MMeta] ->
+    go foldSubviews_atFocus
 
   V.EvKey (V.KChar 'a') [V.MMeta] ->
     go $ (viewOptions . viewOpt_ShowAddresses %~ not)
@@ -113,7 +118,8 @@ handleKeyboard_atResultsWindow st ev =
   V.EvKey (V.KChar 'b') [V.MMeta] ->
     goe cons_focusedViewExpr_asChildOfBuffer
 
-  V.EvKey (V.KChar 'r') [V.MMeta] -> go replaceCommand
+  V.EvKey (V.KChar 'r') [V.MMeta] ->
+    go replaceCommand
 
   V.EvKey (V.KChar 'w') [V.MMeta] -> do
     -- TODO : buggy: copies nonexistent empty lines.
@@ -121,18 +127,24 @@ handleKeyboard_atResultsWindow st ev =
     go $ showReassurance "Results window copied to clipboard."
 
   V.EvKey (V.KChar 'e') [V.MMeta] -> go $
-    nudgeFocus_inViewExprNodes DirPrev . hideReassurance
+    nudgeFocus_inViewExprNodes DirPrev
+    . hideReassurance
   V.EvKey (V.KChar 'd') [V.MMeta] -> go $
-    nudgeFocus_inViewExprNodes DirNext . hideReassurance
+    nudgeFocus_inViewExprNodes DirNext
+    . hideReassurance
   V.EvKey (V.KChar 'f') [V.MMeta] -> go $
-    nudgeFocus_inViewExprNodes DirDown . hideReassurance
+    nudgeFocus_inViewExprNodes DirDown
+    . hideReassurance
   V.EvKey (V.KChar 's') [V.MMeta] -> go $
-    nudgeFocus_inViewExprNodes DirUp .   hideReassurance
+    nudgeFocus_inViewExprNodes DirUp
+    .   hideReassurance
 
   V.EvKey (V.KChar 'E') [V.MMeta] -> go $
-    nudge_viewExprNode DirPrev . hideReassurance
+    nudge_viewExprNode DirPrev
+    . hideReassurance
   V.EvKey (V.KChar 'D') [V.MMeta] -> go $
-    nudge_viewExprNode DirNext . hideReassurance
+    nudge_viewExprNode DirNext
+    . hideReassurance
 
   V.EvKey (V.KChar 'o') [V.MMeta] ->
     goe $ updateBlockingCycles >=> updateCycleBuffer
