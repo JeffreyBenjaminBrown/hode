@@ -2,12 +2,12 @@
 
 module Hode.UI.IUtil (
     unEitherSt                   -- ^ Either String St -> St -> St
-  , bufferRow_from_viewExprNode  -- ^       ViewExprNode -> BufferRow
+  , bufferRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
   , bufferRow_from_viewExprNode' -- ^ St -> ViewExprNode
-                                 --        -> Either String BufferRow
+                                 --        -> Either String ExprRow
   , defaulViewOptions            -- ^ ViewOptions
   , emptySt                      -- ^ Rslt -> St
-  , emptyCycleBreaker            -- ^ Porest BufferRow
+  , emptyCycleBreaker            -- ^ Porest ExprRow
   , emptyBuffer                  -- ^ Buffer
   , buffer_from_bufferRowTree    -- ^ PTree ViewExprNode
                                  -- -> Either String Buffer
@@ -48,12 +48,12 @@ defaulViewOptions = ViewOptions
   , _viewOpt_ShowAsAddresses = True
   , _viewOpt_WrapLength = 60 }
 
-bufferRow_from_viewExprNode :: ViewExprNode -> BufferRow
+bufferRow_from_viewExprNode :: ViewExprNode -> ExprRow
 bufferRow_from_viewExprNode n =
-  BufferRow n mempty $ OtherProps False
+  ExprRow n mempty $ OtherProps False
 
 bufferRow_from_viewExprNode'
-  :: St -> ViewExprNode -> Either String BufferRow
+  :: St -> ViewExprNode -> Either String ExprRow
 bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
   prefixLeft "bufferRow_from_viewExprNode':" $ do
   let r = st ^. appRslt
@@ -65,7 +65,7 @@ bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
     in ifLefts_map $ M.fromList $ map f hs
   let matchCounts :: Map HExpr Int =
         M.map S.size matches
-  Right $ BufferRow { _viewExprNode = n
+  Right $ ExprRow { _viewExprNode = n
                     , _columnProps = matchCounts
                     , _otherProps = OtherProps False }
 bufferRow_from_viewExprNode' _ n =
@@ -92,7 +92,7 @@ emptySt r = St {
                                          , (Reassurance, True) ]
   }
 
-emptyCycleBreaker :: Porest BufferRow
+emptyCycleBreaker :: Porest ExprRow
 emptyCycleBreaker =
   porestLeaf $ bufferRow_from_viewExprNode $
   VQuery "There is no cycle to show here (yet)."
@@ -107,10 +107,10 @@ emptyBuffer = Buffer
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
 buffer_from_bufferRowTree ::
-  PTree BufferRow -> Either String Buffer
+  PTree ExprRow -> Either String Buffer
 buffer_from_bufferRowTree ptbr =
   prefixLeft "buffer_from_bufferRowTree:" $ do
-  let (br :: BufferRow) = ptbr ^. pTreeLabel
+  let (br :: ExprRow) = ptbr ^. pTreeLabel
   ve :: ViewExpr <-
     case br ^. viewExprNode of
       VExpr x -> Right x

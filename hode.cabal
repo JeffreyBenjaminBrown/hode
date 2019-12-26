@@ -106,11 +106,11 @@ library
                 , Hode.Test.TUI
                 , Hode.Test.TUtil
 
-                , Hode.UI.BufferRowTree
                 , Hode.UI.BufferShow
                 , Hode.UI.BufferTree
                 , Hode.UI.Clipboard
                 , Hode.UI.CycleBreaker
+                , Hode.UI.ExprTree
                 , Hode.UI.IUtil
                 , Hode.UI.IUtil.String
                 , Hode.UI.Input

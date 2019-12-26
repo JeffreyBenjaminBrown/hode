@@ -32,7 +32,7 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
   prefixLeft "cons_focusedViewExpr_asChild:" $ do
   b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st0 ^. stGet_focusedBuffer
-  (ptbr :: PTree BufferRow) <-
+  ptbr :: PTree ExprRow <-
     maybe
     (Left "bufferRowPorest or focusedSubtree not found.")
     Right $ b ^? ( bufferRowPorest . _Just . P.focus

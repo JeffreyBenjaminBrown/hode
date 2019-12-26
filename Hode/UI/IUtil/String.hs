@@ -24,11 +24,11 @@ focusedBufferStrings :: St -> [String]
 focusedBufferStrings st =
   maybe [] (concatMap $ go 0) p
   where
-  p :: Maybe (Porest BufferRow)
+  p :: Maybe (Porest ExprRow)
   p = st ^? stGet_focusedBuffer . _Just .
       bufferRowPorest . _Just
 
-  go :: Int -> PTree BufferRow -> [String]
+  go :: Int -> PTree ExprRow -> [String]
   go i tbr = indent ( showBrief $
                       tbr ^. pTreeLabel . viewExprNode )
             : concatMap (go $ i+1)
@@ -63,12 +63,12 @@ redraw_viewExpr_Strings
   :: Rslt -> ViewOptions -> Buffer -> Either String Buffer
 redraw_viewExpr_Strings r vo b0 =
   prefixLeft "redraw_viewExpr_Strings:" $ let
-  redrawPorest :: Porest BufferRow -> Either String (Porest BufferRow)
+  redrawPorest :: Porest ExprRow -> Either String (Porest ExprRow)
   redrawPorest = mapM redrawPTree
-  redrawPTree :: PTree BufferRow -> Either String (PTree BufferRow)
+  redrawPTree :: PTree ExprRow -> Either String (PTree ExprRow)
   redrawPTree = mapM redrawSingle
 
-  redrawSingle :: BufferRow -> Either String BufferRow
+  redrawSingle :: ExprRow -> Either String ExprRow
   redrawSingle br = case _viewExprNode br of
     VExpr ve0 -> do
       ve <- mkViewExpr r vo
@@ -80,6 +80,6 @@ redraw_viewExpr_Strings r vo b0 =
   in case _bufferRowPorest b0 of
        Nothing -> Right b0
        Just pbr0 -> do
-         pbr :: Porest BufferRow <-
+         pbr :: Porest ExprRow <-
            redrawPorest pbr0
          Right $ b0 { _bufferRowPorest = Just pbr }

@@ -22,7 +22,7 @@ import Hode.Rslt.Edit
 import Hode.Rslt.Files
 import Hode.Rslt.RTypes
 import Hode.Rslt.Sort
-import Hode.UI.BufferRowTree
+import Hode.UI.ExprTree
 import Hode.UI.CycleBreaker
 import Hode.UI.IUtil
 import Hode.UI.Input.IParse
@@ -137,9 +137,9 @@ runParsedCommand                     c0 st0 =
         ( S.toList <$> hExprToAddrs r mempty h
           >>= kahnSort r (bo,t) )
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
-    p :: Porest BufferRow <- -- new screen to show
+    p :: Porest ExprRow <- -- new screen to show
       (P.focus . pTreeHasFocus .~ True)
-      <$> addrsToBufferRows st mempty as
+      <$> addrsToExprRows st mempty as
 
     Right $ B.continue $ st
       & ( ( -- PITFALL : Replaces the Buffer's old contents.

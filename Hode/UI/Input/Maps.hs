@@ -21,7 +21,7 @@ import qualified Brick.Types           as B
 import qualified Graphics.Vty          as V
 
 import Hode.PTree.Initial
-import Hode.UI.BufferRowTree
+import Hode.UI.ExprTree
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
 import Hode.UI.CycleBreaker
@@ -34,6 +34,7 @@ import Hode.UI.Types.Views
 import Hode.UI.Window
 
 
+-- | These commands are available from any window.
 universal_commands ::
   St -> M.Map V.Event (B.EventM BrickName (B.Next St))
 universal_commands st = M.fromList [

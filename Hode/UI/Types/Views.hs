@@ -37,7 +37,7 @@ data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
   } deriving (Show, Eq, Ord)
 
-data BufferRow = BufferRow {
+data ExprRow = ExprRow {
     _viewExprNode :: ViewExprNode
   , _columnProps  :: ColumnProps
   , _otherProps   :: OtherProps
@@ -165,7 +165,7 @@ instance Show TpltHosts where
 -- PITFALL: These lenses have to be defined *right here*,
 -- after the `Show` instances that `ViewExprNode` depends on,
 -- and before the `Show` instances for `ViewExprNode` itself.
-makeLenses ''BufferRow
+makeLenses ''ExprRow
 makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr

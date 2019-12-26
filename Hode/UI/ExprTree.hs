@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase,
 ScopedTypeVariables #-}
 
-module Hode.UI.BufferRowTree (
+module Hode.UI.ExprTree (
 
   -- | = inserting layers of nodes
     insertSearchResults_atFocus  -- ^ St -> Either String St
@@ -12,12 +12,12 @@ module Hode.UI.BufferRowTree (
   , groupHostRels_atFocus -- ^ St ->    Either String [(HostFork, [Addr])]
   , groupHostRels  -- ^ Rslt -> Addr -> Either String [(HostFork, [Addr])]
 
-  , addrsToBufferRows
+  , addrsToExprRows
     -- ^ St
     -- Set Addr -- ^ show these (can be empty) as `Addr`s,
     --            -- not (complex) `Expr`s
-    -- [Addr] -- ^ each of these becomes a `BufferRow`
-    -- Either String (Porest BufferRow)
+    -- [Addr] -- ^ each of these becomes a `ExprRow`
+    -- Either String (Porest ExprRow)
   ) where
 
 import           Data.Foldable (toList)
@@ -49,11 +49,11 @@ insertSearchResults_atFocus st =
   prefixLeft "insertSearchResults_atFocus:" $ do
   as :: Set Addr <-
     focusAddr st >>= searchResults_at (st ^. appRslt)
-  leaves :: Porest BufferRow <-
+  leaves :: Porest ExprRow <-
     -- The new subtree has depth two. This is the second level.
-    addrsToBufferRows st mempty $ S.toList as
-  let new :: PTree BufferRow =
-        pTreeLeaf ( BufferRow VSearchFork
+    addrsToExprRows st mempty $ S.toList as
+  let new :: PTree ExprRow =
+        pTreeLeaf ( ExprRow VSearchFork
                     mempty $ OtherProps False )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
@@ -70,11 +70,11 @@ insertMembers_atFocus st =
   prefixLeft "insertMembers_atFocus:" $ do
   a            <- focusAddr st
   as :: [Addr] <- M.elems <$> has (st ^. appRslt) a
-  leaves :: Porest BufferRow <-
+  leaves :: Porest ExprRow <-
     -- The new subtree has depth two. This is the second level.
-    addrsToBufferRows st (S.singleton a) as
-  let new :: PTree BufferRow =
-        pTreeLeaf ( BufferRow VMemberFork
+    addrsToExprRows st (S.singleton a) as
+  let new :: PTree ExprRow =
+        pTreeLeaf ( ExprRow VMemberFork
                     mempty $ OtherProps False )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
@@ -85,15 +85,15 @@ insertHosts_atFocus st =
   prefixLeft "insertHosts_atFocus:" $ do
   groups :: [(HostFork, [Addr])] <-
     groupHostRels_atFocus st
-  newTrees :: [PTree BufferRow] <-
+  newTrees :: [PTree ExprRow] <-
     ifLefts $ map (hostGroup_to_forkTree st) groups
-  oldTrees :: Maybe (Porest BufferRow) <-
+  oldTrees :: Maybe (Porest ExprRow) <-
     let errMsg = "focused ViewExprNode not found."
     in maybe (Left errMsg) Right $ st ^?
        stGetFocused_ViewExprNode_Tree . _Just . pMTrees
-  let oldTrees' :: [PTree BufferRow]
+  let oldTrees' :: [PTree ExprRow]
       oldTrees' = maybe [] toList oldTrees
-      insert :: PTree BufferRow -> PTree BufferRow
+      insert :: PTree ExprRow -> PTree ExprRow
       insert foc = foc & pMTrees .~
                    P.fromList (foldr (:) oldTrees' newTrees)
   Right $ st & stSetFocused_ViewExprNode_Tree %~ insert
@@ -175,17 +175,17 @@ groupHostRels r a0 =
 -- `hf` is the root.
 -- The `ViewExpr`s creates from `as` form the other layer.
 hostGroup_to_forkTree :: St -> (HostFork, [Addr])
-                      -> Either String (PTree BufferRow)
+                      -> Either String (PTree ExprRow)
 hostGroup_to_forkTree st (hf, as) =
   prefixLeft "hostGroup_to_forkTree:" $ do
   if null as then Left "There are no host Exprs to show."
              else Right ()
   a <- focusAddr st
 
-  topOfNew :: BufferRow <-
+  topOfNew :: ExprRow <-
     bufferRow_from_viewExprNode' st $ VHostFork hf
-  leaves :: Porest BufferRow <-
-    addrsToBufferRows st (S.singleton a) as
+  leaves :: Porest ExprRow <-
+    addrsToExprRows st (S.singleton a) as
   Right $ PTree {
       _pTreeLabel    = topOfNew
     , _pTreeHasFocus = False
@@ -193,22 +193,22 @@ hostGroup_to_forkTree st (hf, as) =
 
 -- | Creates a flat (depth 1) `Porest`.
 -- For insertion beneath a forking `ViewExprNode`.
-addrsToBufferRows ::
+addrsToExprRows ::
      St
   -> Set Addr -- ^ show these (can be empty) as `Addr`s,
               -- not (complex) `Expr`s
-  -> [Addr] -- ^ each of these becomes a `BufferRow`
-  -> Either String (Porest BufferRow)
-addrsToBufferRows st showAsAddr as =
-  prefixLeft "addrsToBufferRows:" $ do
+  -> [Addr] -- ^ each of these becomes a `ExprRow`
+  -> Either String (Porest ExprRow)
+addrsToExprRows st showAsAddr as =
+  prefixLeft "addrsToExprRows:" $ do
   let r  :: Rslt        = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
   leaves0 :: [ViewExprNode] <-
     let f = mkViewExpr r vo showAsAddr
     in map VExpr <$> ifLefts (map f as)
-  leaves1 :: [BufferRow] <- ifLefts $
+  leaves1 :: [ExprRow] <- ifLefts $
     map (bufferRow_from_viewExprNode' st) leaves0
-  let leaves2 :: [PTree BufferRow] =
+  let leaves2 :: [PTree ExprRow] =
         map pTreeLeaf leaves1
   maybe (Left "Nothing to show.") Right
     $ P.fromList leaves2

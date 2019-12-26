@@ -9,7 +9,7 @@ import           Test.HUnit hiding (Test, test)
 import           Hode.Hash.HTypes
 import           Hode.Rslt.Binary
 import           Hode.Rslt.RTypes
-import           Hode.UI.BufferRowTree
+import           Hode.UI.ExprTree
 import           Hode.UI.Types.Names
 import           Hode.UI.Types.Views
 import           Hode.UI.Input.IParse

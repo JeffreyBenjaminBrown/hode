@@ -11,7 +11,7 @@ import Hode.Hash.HLookup
 import Hode.PTree.Initial
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
-import Hode.UI.BufferRowTree
+import Hode.UI.ExprTree
 import Hode.UI.IUtil
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
@@ -44,9 +44,9 @@ updateCycleBuffer st =
   prefixLeft "cycleBuffer:" $ do
   case st ^. blockingCycles of
     Just ((t,c):_) -> do
-      p :: Porest BufferRow <-
+      p :: Porest ExprRow <-
         (P.focus . pTreeHasFocus .~ True)
-        <$> addrsToBufferRows st mempty (t:c)
+        <$> addrsToExprRows st mempty (t:c)
       Right ( st & cycleBuffer .~ p
               & showingInMainWindow .~ CycleBreaker
               & showReassurance "Please break this cycle." )

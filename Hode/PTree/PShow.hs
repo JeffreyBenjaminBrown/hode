@@ -156,7 +156,7 @@ porestWithPaddedColumns fromString makeColumns p0 = let
 -- | Computes the maximum length of each `t b`.
 -- See test suite for a demo.
 -- PITFALL: Assumes the lists in the input are all of equal length.
--- If some of them are instead empty (as happens with every `BufferRow`
+-- If some of them are instead empty (as happens with every `ExprRow`
 -- with a non-`ViewExpr` payload), they are effectively ignored.
 maxColumnLengths :: forall t b. Foldable t
   -- ^ Here `t d` is probably `String` or `ColorString`.

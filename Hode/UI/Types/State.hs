@@ -24,7 +24,7 @@ import Hode.PTree.Initial
 -- A user will spend most of their time looking at one of these.
 data Buffer = Buffer
   { _bufferQuery     :: ViewQuery
-  , _bufferRowPorest :: Maybe (Porest BufferRow)
+  , _bufferRowPorest :: Maybe (Porest ExprRow)
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
@@ -34,8 +34,8 @@ data St = St {
     -- ^ Technically used, but unused in spirit.
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
-  , _cycleBuffer            :: Porest BufferRow
-    -- ^ Like a Results Buffer, but with no title.
+  , _cycleBuffer            :: Porest ExprRow
+    -- ^ Like a search Buffer, but with no title.
   , _blockingCycles         :: Maybe [Cycle]
   , _uiError                :: String
   , _reassurance            :: String
@@ -62,26 +62,27 @@ stSet_focusedBuffer = sets go where
          setFocusedSubtree . pTreeLabel %~ f
 
 stGetFocused_ViewExprNode_Tree ::
-  Getter St (Maybe (PTree BufferRow))
+  Getter St (Maybe (PTree ExprRow))
 stGetFocused_ViewExprNode_Tree = to go where
-  go :: St -> Maybe (PTree BufferRow)
+  go :: St -> Maybe (PTree ExprRow)
   go st = st ^? stGet_focusedBuffer . _Just .
           bufferRowPorest . _Just .
           P.focus . getFocusedSubtree . _Just
 
 stSetFocused_ViewExprNode_Tree ::
-  Setter' St (PTree BufferRow)
+  Setter' St (PTree ExprRow)
 stSetFocused_ViewExprNode_Tree = sets go where
-  go :: (PTree BufferRow -> PTree BufferRow) -> St -> St
+  go :: (PTree ExprRow -> PTree ExprRow) -> St -> St
   go f = stSet_focusedBuffer .
          bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f
 
 focusAddr :: St -> Either String Addr
 focusAddr st = do
-  foc :: PTree BufferRow <-
+  foc :: PTree ExprRow <-
     maybe (error "Focused ViewExprNode not found.") Right $
     st ^? stGetFocused_ViewExprNode_Tree . _Just
   case foc ^. pTreeLabel . viewExprNode of
     VExpr rv -> Right $ rv ^. viewExpr_Addr
     _        -> Left $ "Can only be called from a VExpr."
+
