@@ -3,14 +3,8 @@ ScopedTypeVariables #-}
 
 module Hode.UI.BufferRowTree (
 
-  -- | = misc. other changes around the focused node
-    nudgeFocus_inViewExprNodes -- ^ Direction -> St -> St
-  , nudge_viewExprNode         -- ^ Direction -> St -> St
-  , closeSubviews_atFocus      -- ^              St -> St
-  , foldSubviews_atFocus       -- ^              St -> St
-
   -- | = inserting layers of nodes
-  , insertSearchResults_atFocus  -- ^ St -> Either String St
+    insertSearchResults_atFocus  -- ^ St -> Either String St
 
   , insertMembers_atFocus -- ^ St ->    Either String St
 
@@ -45,29 +39,6 @@ import Hode.UI.IUtil.String
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.Util.Misc
-
-
--- | = misc. other changes around the focused node
-
-nudgeFocus_inViewExprNodes :: Direction -> St -> St
-nudgeFocus_inViewExprNodes d =
-  stSet_focusedBuffer . bufferRowPorest . _Just
-  %~ nudgeFocus_inPorest d
-
-nudge_viewExprNode :: Direction -> St -> St
-nudge_viewExprNode d =
-  stSet_focusedBuffer . bufferRowPorest . _Just
-  %~ nudgeInPorest d
-
-closeSubviews_atFocus :: St -> St
-closeSubviews_atFocus =
-  stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing
-
-foldSubviews_atFocus :: St -> St
-foldSubviews_atFocus =
-  ( stSetFocused_ViewExprNode_Tree . pTreeLabel
-    . otherProps . folded )
-  %~ not
 
 
 -- | = inserting layers of nodes
@@ -222,8 +193,8 @@ hostGroup_to_forkTree st (hf, as) =
 
 -- | Creates a flat (depth 1) `Porest`.
 -- For insertion beneath a forking `ViewExprNode`.
-addrsToBufferRows
-  :: St
+addrsToBufferRows ::
+     St
   -> Set Addr -- ^ show these (can be empty) as `Addr`s,
               -- not (complex) `Expr`s
   -> [Addr] -- ^ each of these becomes a `BufferRow`

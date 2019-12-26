@@ -14,7 +14,7 @@ module Hode.UI.Input.Maps (
 import           Control.Monad ((>=>))
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Map              as M
-import           Lens.Micro
+import           Lens.Micro hiding (folded)
 
 import qualified Brick.Main            as B
 import qualified Brick.Types           as B
@@ -113,9 +113,11 @@ resultWindow_commands st =
   ( V.EvKey (V.KChar 'm') [V.MMeta],
     goe insertMembers_atFocus ),
   ( V.EvKey (V.KChar 'c') [V.MMeta],
-    go closeSubviews_atFocus ),
+    go $ stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing ),
   ( V.EvKey (V.KChar 'F') [V.MMeta],
-    go foldSubviews_atFocus ),
+    go ( stSetFocused_ViewExprNode_Tree . pTreeLabel
+         . otherProps . folded
+         %~ not ) ),
 
   ( V.EvKey (V.KChar 'a') [V.MMeta],
     go $ (viewOptions . viewOpt_ShowAddresses %~ not)
@@ -137,29 +139,29 @@ resultWindow_commands st =
        go $ showReassurance "Results window copied to clipboard." ),
 
   ( V.EvKey (V.KChar 'e') [V.MMeta],
-    go $
-    nudgeFocus_inViewExprNodes DirPrev
+    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
+           %~ nudgeFocus_inPorest DirPrev )
     . hideReassurance ),
   ( V.EvKey (V.KChar 'd') [V.MMeta],
-    go $
-    nudgeFocus_inViewExprNodes DirNext
+    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
+           %~ nudgeFocus_inPorest DirNext )
     . hideReassurance ),
   ( V.EvKey (V.KChar 'f') [V.MMeta],
-    go $
-    nudgeFocus_inViewExprNodes DirDown
+    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
+           %~ nudgeFocus_inPorest DirDown )
     . hideReassurance ),
   ( V.EvKey (V.KChar 's') [V.MMeta],
-    go $
-    nudgeFocus_inViewExprNodes DirUp
-    .   hideReassurance ),
+    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
+           %~ nudgeFocus_inPorest DirUp )
+    . hideReassurance ),
 
   ( V.EvKey (V.KChar 'E') [V.MMeta],
-    go $
-    nudge_viewExprNode DirPrev
+    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
+           %~ nudgeInPorest DirPrev )
     . hideReassurance ),
   ( V.EvKey (V.KChar 'D') [V.MMeta],
-    go $
-    nudge_viewExprNode DirNext
+    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
+           %~ nudgeInPorest DirNext )
     . hideReassurance ),
 
   ( V.EvKey (V.KChar 'o') [V.MMeta],
