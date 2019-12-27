@@ -103,6 +103,16 @@ stSet_focusedBuffer = sets go where
   go f = searchBuffers . _Just . P.focus .
          setFocusedSubtree . pTreeLabel %~ f
 
+-- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
+stSet_cycleBuffer :: Setter' St Buffer
+stSet_cycleBuffer = sets go where
+  go :: (Buffer -> Buffer) -> St -> St
+  go f st = let g :: Buffer -> Buffer
+                g b = if _bufferQuery b == CycleView
+                      then f b else b
+    in st & searchBuffers . _Just
+          %~ fmap (pTreeLabel %~ g)
+
 stGetFocused_ViewExprNode_Tree ::
   Getter St (Maybe (PTree ExprRow))
 stGetFocused_ViewExprNode_Tree = to go where
