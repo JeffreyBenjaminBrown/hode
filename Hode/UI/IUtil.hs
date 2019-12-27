@@ -7,8 +7,8 @@ module Hode.UI.IUtil (
                                  --        -> Either String ExprRow
   , defaulViewOptions            -- ^ ViewOptions
   , emptySt                      -- ^ Rslt -> St
-  , emptyCycleBreaker            -- ^ Porest ExprRow
   , emptyBuffer                  -- ^ Buffer
+  , emptyCycleBreaker            -- ^ Porest ExprRow
   , buffer_from_bufferRowTree    -- ^ PTree ViewExprNode
                                  -- -> Either String Buffer
   ) where
@@ -24,16 +24,16 @@ import qualified Brick.Focus           as B
 import qualified Brick.Widgets.Edit    as B
 
 import Hode.Brick
-import Hode.Hash.HTypes
 import Hode.Hash.HLookup
-import Hode.Rslt.RTypes
+import Hode.Hash.HTypes
+import Hode.PTree.Initial
 import Hode.Qseq.QTypes (Var(..))
+import Hode.Rslt.RTypes
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.Window
 import Hode.Util.Misc
-import Hode.PTree.Initial
 
 
 unEitherSt :: St -> Either String St -> St
@@ -77,7 +77,6 @@ emptySt r = St {
   , _searchBuffers = Just $ porestLeaf emptyBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMember $ HVar VarRowNode ]
-  , _cycleBuffer = emptyCycleBreaker
   , _blockingCycles = Nothing
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
@@ -92,11 +91,6 @@ emptySt r = St {
                                          , (Reassurance, True) ]
   }
 
-emptyCycleBreaker :: Porest ExprRow
-emptyCycleBreaker =
-  porestLeaf $ bufferRow_from_viewExprNode $
-  VQuery $ QueryView "There is no cycle to show here (yet)."
-
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
   { _bufferQuery = QueryView "(empty buffer)"
@@ -104,6 +98,13 @@ emptyBuffer = Buffer
     Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery $ QueryView
     "If you run a search, what it finds will be shown here."
   }
+
+emptyCycleBreaker :: Buffer
+emptyCycleBreaker = Buffer
+  { _bufferQuery = CycleView
+  , _bufferRowPorest = Just $
+    porestLeaf $ bufferRow_from_viewExprNode $
+    VQuery $ QueryView "There is no cycle to show here (yet)." }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
 buffer_from_bufferRowTree ::

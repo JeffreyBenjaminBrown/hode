@@ -75,10 +75,10 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
       SearchBuffers  -> bufferWindow $ st ^. searchBuffers
-      CycleBreaker   -> resultWindow
-        (st ^. viewOptions) (Just $ st ^. cycleBuffer)
-      Results        -> resultWindow
-        (st ^. viewOptions) (b ^. bufferRowPorest)
+      CycleBreaker   -> resultWindow (st ^. viewOptions)
+        (st ^? stGet_cycleBuffer . _Just . bufferRowPorest . _Just)
+      Results        -> resultWindow (st ^. viewOptions)
+        (b ^. bufferRowPorest)
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>

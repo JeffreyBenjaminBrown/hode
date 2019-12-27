@@ -43,15 +43,21 @@ updateCycleBuffer :: St -> Either String St
 updateCycleBuffer st =
   prefixLeft "cycleBuffer:" $ do
   case st ^. blockingCycles of
-    Just ((t,c):_) -> do
-      p :: Porest ExprRow <-
-        (P.focus . pTreeHasFocus .~ True)
-        <$> addrsToExprRows st mempty (t:c)
-      Right ( st & cycleBuffer .~ p
+    Just (c:_) -> do
+      cb <- cycleBreaker_fromAddrs st c
+      Right ( st & stSet_cycleBuffer .~ cb
               & showingInMainWindow .~ CycleBreaker
               & showReassurance "Please break this cycle." )
     _ -> Right -- applies both to Just [] and to Nothing
-      ( st & cycleBuffer .~ emptyCycleBreaker
+      ( st & stSet_cycleBuffer .~ emptyCycleBreaker
         & showingInMainWindow .~ Results
         & blockingCycles .~ Nothing
         & showReassurance "No cycles identified." )
+
+cycleBreaker_fromAddrs :: St -> Cycle -> Either String Buffer
+cycleBreaker_fromAddrs st (t,c) = do
+  p :: Porest ExprRow <-
+    (P.focus . pTreeHasFocus .~ True)
+    <$> addrsToExprRows st mempty (t:c)
+  Right $ Buffer { _bufferQuery = CycleView
+                 , _bufferRowPorest = Just p }

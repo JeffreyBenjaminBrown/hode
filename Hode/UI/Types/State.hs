@@ -13,7 +13,6 @@ module Hode.UI.Types.State (
   , focusRing              -- ^ B.FocusRing BrickName
   , searchBuffers          -- ^ Maybe (Porest Buffer)
   , columnHExprs           -- ^ [HExpr]
-  , cycleBuffer            -- ^ Porest ExprRow
   , blockingCycles         -- ^ Maybe [Cycle]
   , uiError                -- ^ String
   , reassurance            -- ^ String
@@ -28,6 +27,7 @@ module Hode.UI.Types.State (
   , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
   , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
+  , stSet_cycleBuffer              -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
   , resultWindow_focusAddr         -- ^            St -> Either String Addr
@@ -64,9 +64,6 @@ data St = St {
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
   , _commandHistory         :: [Command]
-
-  , _cycleBuffer            :: Porest ExprRow
-    -- ^ Like a search Buffer, but with no title.
   , _blockingCycles         :: Maybe [Cycle]
 
   , _uiError                :: String

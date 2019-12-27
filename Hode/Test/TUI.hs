@@ -7,6 +7,7 @@ import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
 import           Hode.Hash.HTypes
+import           Hode.Rslt.Index (mkRslt)
 import           Hode.Rslt.Binary
 import           Hode.Rslt.RTypes
 import           Hode.UI.ExprTree
@@ -20,7 +21,12 @@ test_module_ui :: T.Test
 test_module_ui = TestList [
     TestLabel "test_pCommand" test_pCommand
   , TestLabel "test_groupHostRels" test_groupHostRels
+  , TestLabel "test_st_cycleBufferLenses" test_st_cycleBufferLenses
   ]
+
+test_st_cycleBufferLenses :: T.Test
+test_st_cycleBufferLenses = TestCase $ do
+  assertBool "" False
 
 test_groupHostRels :: T.Test
 test_groupHostRels = TestCase $ do
