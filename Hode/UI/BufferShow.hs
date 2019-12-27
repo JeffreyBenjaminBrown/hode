@@ -23,7 +23,7 @@ import Hode.Util.Misc
 
 bufferWindow :: Maybe (Porest Buffer) -> B.Widget BrickName
 bufferWindow = let
-  name = BrickMainName Results
+  name = BrickMainName SearchBuffer
   showColumns :: Buffer -> [ColorString] =
     const []
   showNode :: Buffer -> ColorString =
@@ -35,7 +35,7 @@ bufferWindow = let
 resultWindow :: ViewOptions -> Maybe (Porest ExprRow)
              -> B.Widget BrickName
 resultWindow vo = let
-  name = BrickMainName Results
+  name = BrickMainName SearchBuffer
   showColumns :: ExprRow -> [ColorString] =
     map ((:[]) . (, TextColor) . show)
     . M.elems . _columnProps

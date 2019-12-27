@@ -91,7 +91,7 @@ handleKeyboard_atResults st ev = case ev of
     -- TODO : slightly buggy: conjures, copies some empty lines.
     liftIO ( toClipboard $ unlines $ resultsText st )
     B.continue $ st
-      & showReassurance "Results window copied to clipboard."
+      & showReassurance "SearchBuffer window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
     $ unEitherSt st . moveFocusedViewExprNode DirPrev
@@ -151,7 +151,7 @@ runParsedCommand (CommandFind s h) st = do
               (err :: String -> ViewExpr) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
           in VExpr $ either err id rv
 
-  Right $ B.continue $ st & showingInMainWindow .~ Results
+  Right $ B.continue $ st & showingInMainWindow .~ SearchBuffer
                           & stBuffer st . bufferQuery .~ s
                           & stBuffer st . bufferPath .~ []
                           & stBuffer st . bufferView .~ v
@@ -163,7 +163,7 @@ runParsedCommand (CommandInsert e) st =
     f :: (Rslt, Addr) -> B.EventM BrickName (B.Next St)
     f (r,a) = B.continue $ st & appRslt .~ r
               & showReassurance ("Expr added at Addr " ++ show a)
-              & showingInMainWindow .~ Results
+              & showingInMainWindow .~ SearchBuffer
 
 runParsedCommand (CommandLoad f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
@@ -172,13 +172,13 @@ runParsedCommand (CommandLoad f) st = Right $ do
     else do r <- liftIO $ readRslt f
             B.continue $ st & appRslt .~ r
                             & showReassurance "Rslt loaded."
-                            & showingInMainWindow .~ Results
+                            & showingInMainWindow .~ SearchBuffer
 
 runParsedCommand (CommandSave f) st = Right $ do
   (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
   st' <- if bad
     then return $ st & showError ("Non-existent folder: " ++ f)
     else do liftIO $ writeRslt f $ st ^. appRslt
-            return $ st & showingInMainWindow .~ Results
+            return $ st & showingInMainWindow .~ SearchBuffer
                    & showReassurance "Rslt saved."
   B.continue st'

@@ -61,10 +61,10 @@ appDraw st0 = [w] where
   st :: St = st0
     & ( searchBuffers . _Just . P.focus
         . setFocusedSubtree
-        -- set focus in the SearchBuffers window
+        -- set focus in the BufferBuffer window
         . pTreeHasFocus .~ True )
     & ( stSetFocused_ViewExprNode_Tree
-        -- set focus in the Results window
+        -- set focus in the SearchBuffer window
         . pTreeHasFocus .~ True )
 
   b :: Buffer = maybe
@@ -74,10 +74,10 @@ appDraw st0 = [w] where
   mainWindow :: B.Widget BrickName =
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
-      SearchBuffers  -> bufferWindow $ st ^. searchBuffers
-      CycleBreaker   -> resultWindow (st ^. viewOptions)
+      BufferBuffer  -> bufferWindow $ st ^. searchBuffers
+      CycleBuffer   -> resultWindow (st ^. viewOptions)
         (st ^? stGet_cycleBuffer . _Just . bufferRowPorest . _Just)
-      Results        -> resultWindow (st ^. viewOptions)
+      SearchBuffer        -> resultWindow (st ^. viewOptions)
         (b ^. bufferRowPorest)
 
   optionalWindows :: B.Widget BrickName =
@@ -97,7 +97,7 @@ appDraw st0 = [w] where
 
   errorWindow :: B.Widget BrickName = vBox
     [ strWrap $ st ^. uiError
-    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to Results), M-S-b (SearchBuffers), or M-S-h (command History)." ]
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to SearchBuffer), M-S-b (BufferBuffer), or M-S-h (command History)." ]
 
   reassuranceWindow :: B.Widget BrickName =
     withAttr (B.attrName "white on blue")
@@ -115,8 +115,8 @@ appHandleEvent st (B.VtyEvent ev) =
   Just c -> c
 
   Nothing -> case st ^. showingInMainWindow of
-    Results       -> handleKeyboard_atResultsWindow st ev
-    SearchBuffers -> handleKeyboard_atBufferWindow  st ev
+    SearchBuffer       -> handleKeyboard_atResultsWindow st ev
+    BufferBuffer -> handleKeyboard_atBufferWindow  st ev
     _             -> handleUncaughtInput            st ev
 
 

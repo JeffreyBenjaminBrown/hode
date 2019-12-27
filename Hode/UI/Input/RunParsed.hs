@@ -23,7 +23,7 @@ import Hode.Rslt.Files
 import Hode.Rslt.RTypes
 import Hode.Rslt.Sort
 import Hode.UI.ExprTree
-import Hode.UI.CycleBreaker
+import Hode.UI.CycleBuffer
 import Hode.UI.IUtil
 import Hode.UI.Input.IParse
 import Hode.UI.Types.Names
@@ -65,7 +65,7 @@ runParsedCommand                     c0 st0 =
 
   itWorked :: String -> St -> St
   itWorked s = showReassurance s
-               . (showingInMainWindow .~ Results)
+               . (showingInMainWindow .~ SearchBuffer)
 
   -- todo ? duplicative of the clause for CommandInsert
   g (CommandReplace a e) st = do

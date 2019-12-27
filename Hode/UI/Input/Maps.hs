@@ -24,7 +24,7 @@ import Hode.PTree.Initial
 import Hode.UI.ExprTree
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
-import Hode.UI.CycleBreaker
+import Hode.UI.CycleBuffer
 import Hode.UI.IUtil
 import Hode.UI.IUtil.String
 import Hode.UI.Input.RunParsed
@@ -52,15 +52,15 @@ universal_commands st = M.fromList [
                 & showingErrorWindow .~ False ),
   ( V.EvKey (V.KChar 'B') [V.MMeta],
     B.continue
-           $ st & showingInMainWindow .~ SearchBuffers
+           $ st & showingInMainWindow .~ BufferBuffer
                 & showingErrorWindow .~ False ),
   ( V.EvKey (V.KChar 'R') [V.MMeta],
     B.continue
-           $ st & showingInMainWindow .~ Results
+           $ st & showingInMainWindow .~ SearchBuffer
                 & showingErrorWindow .~ False ),
   ( V.EvKey (V.KChar 'O') [V.MMeta],
     B.continue
-           $ st & showingInMainWindow .~ CycleBreaker
+           $ st & showingInMainWindow .~ CycleBuffer
                 & showingErrorWindow .~ False )
 
   -- Brick-focus-related stuff. So far unneeded.
@@ -137,7 +137,7 @@ resultWindow_commands st =
   ( V.EvKey (V.KChar 'w') [V.MMeta],
     -- TODO : buggy: copies nonexistent empty lines.
     do liftIO ( toClipboard $ unlines $ focusedBufferStrings st )
-       go $ showReassurance "Results window copied to clipboard." ),
+       go $ showReassurance "SearchBuffer window copied to clipboard." ),
 
   ( V.EvKey (V.KChar 'e') [V.MMeta],
     go $ ( stSet_focusedBuffer . bufferRowPorest . _Just

@@ -8,7 +8,7 @@ module Hode.UI.IUtil (
   , defaulViewOptions            -- ^ ViewOptions
   , emptySt                      -- ^ Rslt -> St
   , emptyBuffer                  -- ^ Buffer
-  , emptyCycleBreaker            -- ^ Porest ExprRow
+  , emptyCycleBuffer            -- ^ Porest ExprRow
   , buffer_from_bufferRowTree    -- ^ PTree ViewExprNode
                                  -- -> Either String Buffer
   ) where
@@ -86,7 +86,7 @@ emptySt r = St {
   , _appRslt        = r
   , _viewOptions    = defaulViewOptions
   , _showingErrorWindow  = False
-  , _showingInMainWindow = Results
+  , _showingInMainWindow = SearchBuffer
   , _showingOptionalWindows = M.fromList [ (Commands   , True)
                                          , (Reassurance, True) ]
   }
@@ -99,8 +99,8 @@ emptyBuffer = Buffer
     "If you run a search, what it finds will be shown here."
   }
 
-emptyCycleBreaker :: Buffer
-emptyCycleBreaker = Buffer
+emptyCycleBuffer :: Buffer
+emptyCycleBuffer = Buffer
   { _bufferQuery = CycleView
   , _bufferRowPorest = Just $
     porestLeaf $ bufferRow_from_viewExprNode $

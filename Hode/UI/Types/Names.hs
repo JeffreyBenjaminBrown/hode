@@ -20,9 +20,9 @@ data OptionalWindowName = Commands
   deriving (Ord, Show, Eq)
 
 data MainWindowName = CommandHistory
-                    | CycleBreaker
-                    | Results
-                    | SearchBuffers
+                    | CycleBuffer
+                    | SearchBuffer
+                    | BufferBuffer
   deriving (Ord, Show, Eq)
 
 data Command =

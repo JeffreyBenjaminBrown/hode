@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables
 #-}
 
-module Hode.UI.CycleBreaker where
+module Hode.UI.CycleBuffer where
 
 import           Control.Lens
 import qualified Data.Set as S
@@ -46,11 +46,11 @@ updateCycleBuffer st =
     Just (c:_) -> do
       cb <- cycleBreaker_fromAddrs st c
       Right ( st & stSet_cycleBuffer .~ cb
-              & showingInMainWindow .~ CycleBreaker
+              & showingInMainWindow .~ CycleBuffer
               & showReassurance "Please break this cycle." )
     _ -> Right -- applies both to Just [] and to Nothing
-      ( st & stSet_cycleBuffer .~ emptyCycleBreaker
-        & showingInMainWindow .~ Results
+      ( st & stSet_cycleBuffer .~ emptyCycleBuffer
+        & showingInMainWindow .~ SearchBuffer
         & blockingCycles .~ Nothing
         & showReassurance "No cycles identified." )
 
