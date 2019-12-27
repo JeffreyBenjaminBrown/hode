@@ -35,6 +35,7 @@ module Hode.UI.Types.State (
   ) where
 
 import           Control.Lens
+import           Data.Foldable (toList)
 import           Data.Map (Map)
 import qualified Data.List.PointedList as P
 
@@ -94,7 +95,7 @@ stGet_cycleBuffer = to go where
     Just p ->
       ( \case [] -> Nothing;   a:_ -> Just a )
       . filter ((==) CycleView . _bufferQuery)
-      . pointedList_toList . fmap _pTreeLabel
+      . toList . fmap _pTreeLabel
       $ p
 
 stSet_focusedBuffer :: Setter' St Buffer
