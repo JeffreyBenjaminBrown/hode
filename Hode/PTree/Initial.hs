@@ -16,6 +16,7 @@ module Hode.PTree.Initial (
   , getPList                       -- ^ Getter  (PointedList a) [a]
   , setPList                       -- ^ Setter' (PointedList a) [a]
   , nudgePrev, nudgeNext      -- ^ P.PointedList a -> P.PointedList a
+  , pointedList_toList        -- ^ PTree a -> [a]
 
   -- | *** `PTree`, a tree made of `PointedList`s
   , PTree(..)
@@ -91,6 +92,10 @@ nudgePrev   (P.PointedList (a:as) f bs)     =
 nudgeNext p@(P.PointedList _      _ [])     = p
 nudgeNext   (P.PointedList as     f (b:bs)) =
              P.PointedList (b:as) f bs
+
+pointedList_toList :: PointedList a -> [a]
+pointedList_toList pl =
+  reverse (P._reversedPrefix pl) ++ [P._focus pl] ++ P._suffix pl
 
 
 -- | *** `PTree`, a tree made of `PointedList`s

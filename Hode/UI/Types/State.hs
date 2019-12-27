@@ -26,6 +26,7 @@ module Hode.UI.Types.State (
   , showingOptionalWindows -- ^ Map OptionalWindowName Bool
 
   , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
+  , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
@@ -40,12 +41,11 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
+import Hode.Hash.HTypes
+import Hode.PTree.Initial
+import Hode.Rslt.RTypes
 import Hode.UI.Types.Names
 import Hode.UI.Types.Views
-
-import Hode.Hash.HTypes
-import Hode.Rslt.RTypes
-import Hode.PTree.Initial
 
 
 -- | A `Buffer` displays search results.
@@ -85,6 +85,17 @@ stGet_focusedBuffer = to go where
   go :: St -> Maybe Buffer
   go st = st ^? searchBuffers . _Just . P.focus .
           getFocusedSubtree . _Just . pTreeLabel
+
+stGet_cycleBuffer :: Getter St (Maybe Buffer)
+stGet_cycleBuffer = to go where
+  go :: St -> Maybe Buffer
+  go st = case  _searchBuffers st of
+    Nothing -> Nothing
+    Just p ->
+      ( \case [] -> Nothing;   a:_ -> Just a )
+      . filter ((==) CycleView . _bufferQuery)
+      . pointedList_toList . fmap _pTreeLabel
+      $ p
 
 stSet_focusedBuffer :: Setter' St Buffer
 stSet_focusedBuffer = sets go where
