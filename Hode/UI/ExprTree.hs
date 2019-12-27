@@ -48,7 +48,7 @@ insertSearchResults_atFocus :: St -> Either String St
 insertSearchResults_atFocus st =
   prefixLeft "insertSearchResults_atFocus:" $ do
   as :: Set Addr <-
-    focusAddr st >>= searchResults_at (st ^. appRslt)
+    resultWindow_focusAddr st >>= searchResults_at (st ^. appRslt)
   leaves :: Porest ExprRow <-
     -- The new subtree has depth two. This is the second level.
     addrsToExprRows st mempty $ S.toList as
@@ -68,7 +68,7 @@ searchResults_at r a =
 insertMembers_atFocus :: St -> Either String St
 insertMembers_atFocus st =
   prefixLeft "insertMembers_atFocus:" $ do
-  a            <- focusAddr st
+  a            <- resultWindow_focusAddr st
   as :: [Addr] <- M.elems <$> has (st ^. appRslt) a
   leaves :: Porest ExprRow <-
     -- The new subtree has depth two. This is the second level.
@@ -180,7 +180,7 @@ hostGroup_to_forkTree st (hf, as) =
   prefixLeft "hostGroup_to_forkTree:" $ do
   if null as then Left "There are no host Exprs to show."
              else Right ()
-  a <- focusAddr st
+  a <- resultWindow_focusAddr st
 
   topOfNew :: ExprRow <-
     bufferRow_from_viewExprNode' st $ VHostFork hf

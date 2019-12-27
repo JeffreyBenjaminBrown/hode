@@ -1,9 +1,37 @@
 {-# LANGUAGE
+LambdaCase,
 ScopedTypeVariables,
 TemplateHaskell
 #-}
 
-module Hode.UI.Types.State where
+module Hode.UI.Types.State (
+    Buffer(..)
+  , bufferQuery     -- ^ ViewQuery
+  , bufferRowPorest -- ^ Maybe (Porest ExprRow)
+
+  , St(..)
+  , focusRing              -- ^ B.FocusRing BrickName
+  , searchBuffers          -- ^ Maybe (Porest Buffer)
+  , columnHExprs           -- ^ [HExpr]
+  , cycleBuffer            -- ^ Porest ExprRow
+  , blockingCycles         -- ^ Maybe [Cycle]
+  , uiError                -- ^ String
+  , reassurance            -- ^ String
+  , commands               -- ^ B.Editor String BrickName
+  , commandHistory         -- ^ [Command]
+  , appRslt                -- ^ Rslt
+  , viewOptions            -- ^ ViewOptions
+  , showingErrorWindow     -- ^ Bool -- ^ overrides main window
+  , showingInMainWindow    -- ^ MainWindowName
+  , showingOptionalWindows -- ^ Map OptionalWindowName Bool
+
+  , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
+  , stSet_focusedBuffer            -- ^ Setter' St Buffer
+  , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
+  , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
+  , resultWindow_focusAddr         -- ^            St -> Either String Addr
+  , exprTree_focusAddr             -- ^ PTree ExprRow -> Either String Addr
+  ) where
 
 import           Control.Lens
 import           Data.Map (Map)
@@ -77,12 +105,14 @@ stSetFocused_ViewExprNode_Tree = sets go where
          bufferRowPorest . _Just .
          P.focus . setFocusedSubtree %~ f
 
-focusAddr :: St -> Either String Addr
-focusAddr st = do
-  foc :: PTree ExprRow <-
-    maybe (error "Focused ViewExprNode not found.") Right $
-    st ^? stGetFocused_ViewExprNode_Tree . _Just
-  case foc ^. pTreeLabel . viewExprNode of
-    VExpr rv -> Right $ rv ^. viewExpr_Addr
-    _        -> Left $ "Can only be called from a VExpr."
+resultWindow_focusAddr :: St -> Either String Addr
+resultWindow_focusAddr st =
+  maybe (error "Focused ViewExprNode not found.") Right
+    (st ^? stGetFocused_ViewExprNode_Tree . _Just)
+    >>= exprTree_focusAddr
 
+exprTree_focusAddr :: PTree ExprRow -> Either String Addr
+exprTree_focusAddr =
+  (\case VExpr rv -> Right $ rv ^. viewExpr_Addr
+         _        -> Left $ "Can only be called from a VExpr." )
+  . (^. pTreeLabel . viewExprNode)

@@ -12,7 +12,7 @@ This will load all non-broken modules when some are broken.
 ** TODO cycle-blocking, freedoms and messaging in the UI
 *** modules that will be involved
 UI.Window
-UI.BufferRowTree -- modify to target either cycleBuffer or searchBuffers
+UI.ExprTree -- modify to target either cycleBuffer or searchBuffers
 UI.BufferShow -- maybe move more stuff here
 UI.Cyclebuffer
 UI.Input
