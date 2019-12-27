@@ -37,6 +37,12 @@ data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
   } deriving (Show, Eq, Ord)
 
+-- | What the user searched for.
+data ViewQuery = QueryView String | CycleView
+  deriving (Eq, Ord, Show)
+-- PITFALL: These `Prism`s have to be defined *right here*.
+makePrisms ''ViewQuery
+
 data ExprRow = ExprRow {
     _viewExprNode :: ViewExprNode
   , _columnProps  :: ColumnProps
@@ -67,9 +73,6 @@ data ViewExprNode =
   | VSearchFork -- ^ Announces the relationship between its view-parent
                 -- and the results when that is evaluated as a search.
   deriving (Eq, Ord, Show)
-
--- | What the user searched for.
-type ViewQuery = String
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr        :: Addr
@@ -162,7 +165,7 @@ instance ShowColor ViewOptions RelHosts where
 instance Show TpltHosts where
   show _ = "Tplts using it as a separator"
 
--- PITFALL: These lenses have to be defined *right here*,
+-- PITFALL: These `Lens`es have to be defined *right here*,
 -- after the `Show` instances that `ViewExprNode` depends on,
 -- and before the `Show` instances for `ViewExprNode` itself.
 makeLenses ''ExprRow
@@ -174,7 +177,9 @@ makeLenses ''RelHosts
 -- | Whereas `show` shows everything about the `ViewExprNode`,
 -- `showBrief` hides things the UI already makes clear.
 instance ShowBrief ViewExprNode where
-  showBrief (VQuery vq) = vq
+  showBrief (VQuery (QueryView vq)) = vq
+  showBrief (VQuery CycleView) = "The following cycle exists,"
+    ++ " in what should be transitive relationships."
   showBrief (VExpr x) =
     show (x ^. viewExpr_Addr) ++ ": "
     ++ unColorString (x ^. viewExpr_String)

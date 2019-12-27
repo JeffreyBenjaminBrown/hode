@@ -8,6 +8,9 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO would make the rest easier
+** TODO the Cycle buffer should be ordinary
+** TODO Buffer should hold a PTree and no separate ViewQuery
 * TODO critical
 ** TODO cycle-blocking, freedoms and messaging in the UI
 *** modules that will be involved
@@ -116,8 +119,8 @@ There could be more than one ordering.
     convert the (List a) to a (PList a)
 **** apply to UI
  CommandSort BinOrientation Addr
- _bufferRowPorest :: Buffer -> Maybe (Porest BufferRow)
- _viewExprNode :: BufferRow -> ViewExprNode
+ _bufferRowPorest :: Buffer -> Maybe (Porest ExprRow)
+ _viewExprNode :: ExprRow -> ViewExprNode
  data ViewExprNode = ... | VExpr ViewExpr | ...
  _viewExpr_Addr :: ViewExpr -> Addr
 ** TODO compress binary groups

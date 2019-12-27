@@ -146,7 +146,9 @@ runParsedCommand                     c0 st0 =
             -- TODO ? Create a new Buffer instead.
             let strip :: String -> String
                 strip = T.unpack . T.strip . T.pack
-            in stSet_focusedBuffer . bufferQuery .~ strip s )
+            in stSet_focusedBuffer . bufferQuery
+               .~ QueryView (strip s) )
           . ( stSet_focusedBuffer . bufferRowPorest . _Just
               .~ p ) )
+
       & itWorked "Search successful."

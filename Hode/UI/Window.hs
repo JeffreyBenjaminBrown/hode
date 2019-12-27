@@ -15,6 +15,7 @@ import qualified Brick.Widgets.Edit       as B
 
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
+import Hode.UI.Types.Views
 
 
 hideReassurance :: St -> St
@@ -36,11 +37,14 @@ emptyCommandWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
 
 -- | Replace the command shown in the `Command` window with
--- the last successful search run from this buffer.
+-- the last successful search run from this `Buffer`.
+-- Cannot be called from the `Cycles` `Buffer`,
+-- only from an ordinary search results `Buffer`.
 replaceCommand :: St -> St
 replaceCommand st = maybe st f query where
   query :: Maybe String
-  query = st ^? stGet_focusedBuffer . _Just . bufferQuery
+  query = st ^? ( stGet_focusedBuffer . _Just
+                  . bufferQuery . _QueryView )
 
   f :: String -> St
   f s = st & commands . B.editContentsL

@@ -4,6 +4,7 @@
 
 module Hode.Util.Misc (
     ShowBrief, showBrief
+
   -- | = the `Aged` type
   ,  Aged(..), unAged
   , catNews -- ^ [Aged a] -> [a]

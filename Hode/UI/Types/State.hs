@@ -62,13 +62,16 @@ data St = St {
     -- ^ Technically used, but unused in spirit.
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
+  , _commandHistory         :: [Command]
+
   , _cycleBuffer            :: Porest ExprRow
     -- ^ Like a search Buffer, but with no title.
   , _blockingCycles         :: Maybe [Cycle]
+
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
-  , _commandHistory         :: [Command]
+
   , _appRslt                :: Rslt
   , _viewOptions            :: ViewOptions
   , _showingErrorWindow     :: Bool -- ^ overrides main window

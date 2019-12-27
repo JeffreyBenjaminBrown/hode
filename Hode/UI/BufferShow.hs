@@ -12,11 +12,13 @@ import qualified Data.Map             as M
 import qualified Brick.Types          as B
 
 import Hode.Brick
+import Hode.PTree.Initial
+import Hode.PTree.PShow
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.PTree.PShow
-import Hode.PTree.Initial
+import Hode.UI.Types.Views
+import Hode.Util.Misc
 
 
 bufferWindow :: Maybe (Porest Buffer) -> B.Widget BrickName
@@ -25,7 +27,7 @@ bufferWindow = let
   showColumns :: Buffer -> [ColorString] =
     const []
   showNode :: Buffer -> ColorString =
-    (:[]) . (,TextColor) . _bufferQuery
+    (:[]) . (,TextColor) . showBrief . VQuery . _bufferQuery
   getFolded :: Buffer -> Bool =
     const False
   in porestToWidget name showColumns showNode getFolded

@@ -95,13 +95,13 @@ emptySt r = St {
 emptyCycleBreaker :: Porest ExprRow
 emptyCycleBreaker =
   porestLeaf $ bufferRow_from_viewExprNode $
-  VQuery "There is no cycle to show here (yet)."
+  VQuery $ QueryView "There is no cycle to show here (yet)."
 
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
-  { _bufferQuery = "(empty buffer)"
+  { _bufferQuery = QueryView "(empty buffer)"
   , _bufferRowPorest =
-    Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery
+    Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery $ QueryView
     "If you run a search, what it finds will be shown here."
   }
 
@@ -116,6 +116,7 @@ buffer_from_bufferRowTree ptbr =
       VExpr x -> Right x
       _ -> Left $ "called from a non-VExpr."
   Right $ Buffer
-    { _bufferQuery = unColorString $ ve ^. viewExpr_String
+    { _bufferQuery = QueryView $
+                     unColorString $ ve ^. viewExpr_String
     , _bufferRowPorest = P.fromList [ptbr]
     }
