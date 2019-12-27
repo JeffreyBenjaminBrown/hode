@@ -84,6 +84,7 @@ stGet_focusedBuffer = to go where
   go st = st ^? searchBuffers . _Just . P.focus .
           getFocusedSubtree . _Just . pTreeLabel
 
+-- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
 stGet_cycleBuffer :: Getter St (Maybe Buffer)
 stGet_cycleBuffer = to go where
   go :: St -> Maybe Buffer

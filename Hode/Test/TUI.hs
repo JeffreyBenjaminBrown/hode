@@ -2,18 +2,23 @@
 
 module Hode.Test.TUI where
 
-import qualified Data.Set        as S
-import qualified Test.HUnit      as T
+import           Control.Lens
+import qualified Data.Set              as S
+import qualified Data.List.PointedList as P
+import qualified Test.HUnit            as T
 import           Test.HUnit hiding (Test, test)
 
 import           Hode.Hash.HTypes
-import           Hode.Rslt.Index (mkRslt)
+import           Hode.PTree.Initial
 import           Hode.Rslt.Binary
+import           Hode.Rslt.Index (mkRslt)
 import           Hode.Rslt.RTypes
 import           Hode.UI.ExprTree
-import           Hode.UI.Types.Names
-import           Hode.UI.Types.Views
+import           Hode.UI.IUtil
 import           Hode.UI.Input.IParse
+import           Hode.UI.Types.Names
+import           Hode.UI.Types.State
+import           Hode.UI.Types.Views
 import qualified Hode.Test.Rslt.RData as D
 
 
@@ -26,7 +31,29 @@ test_module_ui = TestList [
 
 test_st_cycleBufferLenses :: T.Test
 test_st_cycleBufferLenses = TestCase $ do
-  assertBool "" False
+  let st = emptySt $ mkRslt mempty
+      p :: Maybe (Porest ExprRow) = P.fromList
+        [ pTreeLeaf $ ExprRow
+          { _viewExprNode = VQuery $ QueryView "something"
+          , _columnProps = mempty
+          , _otherProps = OtherProps False } ]
+      b = Buffer { _bufferQuery = QueryView "meh"
+                 , _bufferRowPorest = Nothing }
+      c_empty = Buffer { _bufferQuery = CycleView
+                       , _bufferRowPorest = Nothing }
+      c_something = Buffer { _bufferQuery = CycleView
+                           , _bufferRowPorest = p }
+
+  assertBool "" $
+    ( ( st { _searchBuffers =
+             P.fromList $ map pTreeLeaf [b,c_empty,b]})
+      ^. stGet_cycleBuffer ) == Just c_empty
+  assertBool "" $
+    _searchBuffers
+    ( ( st { _searchBuffers =
+               P.fromList $ map pTreeLeaf [b,c_empty,b]})
+        & stSet_cycleBuffer .~ c_something )
+    == P.fromList (map pTreeLeaf [b,c_something,b])
 
 test_groupHostRels :: T.Test
 test_groupHostRels = TestCase $ do
