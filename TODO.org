@@ -9,9 +9,14 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO would make the rest easier
-** TODO rename CycleBreaker -> CycleBuffer
 ** TODO Buffer should hold a PTree and no separate ViewQuery
 * TODO critical
+** TODO debugging cycle-detection
+*** steps
+/load cycle
+/a b # a
+*** observations
+_blockingCycles is what it should be.
 ** TODO cycle-blocking, freedoms and messaging in the UI
 *** modules that will be involved
 UI.Window
@@ -19,7 +24,6 @@ UI.ExprTree -- modify to target either cycleBuffer or searchBuffers
 UI.BufferShow -- maybe move more stuff here
 UI.Cyclebuffer
 UI.Input
-*** rename CycleBreaker -> CycleWindow
 *** command freedoms
 Usually, you can enter a command from anywhere.
 But if any buffer is blocked by cycles,

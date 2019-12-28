@@ -44,7 +44,7 @@ updateCycleBuffer st =
   prefixLeft "cycleBuffer:" $ do
   case st ^. blockingCycles of
     Just (c:_) -> do
-      cb <- cycleBreaker_fromAddrs st c
+      cb <- cycleBuffer_fromAddrs st c
       Right ( st & stSet_cycleBuffer .~ cb
               & showingInMainWindow .~ CycleBuffer
               & showReassurance "Please break this cycle." )
@@ -54,8 +54,8 @@ updateCycleBuffer st =
         & blockingCycles .~ Nothing
         & showReassurance "No cycles identified." )
 
-cycleBreaker_fromAddrs :: St -> Cycle -> Either String Buffer
-cycleBreaker_fromAddrs st (t,c) = do
+cycleBuffer_fromAddrs :: St -> Cycle -> Either String Buffer
+cycleBuffer_fromAddrs st (t,c) = do
   p :: Porest ExprRow <-
     (P.focus . pTreeHasFocus .~ True)
     <$> addrsToExprRows st mempty (t:c)
