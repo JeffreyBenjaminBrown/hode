@@ -12,11 +12,15 @@ This will load all non-broken modules when some are broken.
 ** TODO Buffer should hold a PTree and no separate ViewQuery
 * TODO critical
 ** TODO debugging cycle-detection
-*** steps
+*** TODO when stSet_cycleBuffer finds Nothing
+it doesn't create one, but updateCycleBuffer acts like it does.
+*** steps for testing
+st <- ui
 /load cycle
 /a b # a
 *** observations
 _blockingCycles is what it should be.
+_searchBuffers is not -- it has no CycleBuffer.
 ** TODO cycle-blocking, freedoms and messaging in the UI
 *** modules that will be involved
 UI.Window
