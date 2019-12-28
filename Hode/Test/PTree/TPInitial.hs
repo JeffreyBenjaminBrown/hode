@@ -28,11 +28,46 @@ test_module_pTree_initial = TestList [
   , TestLabel "test_nudgeInPTree" test_nudgeInPTree
   , TestLabel "test_delete" test_delete
   , TestLabel "test_filterPList" test_filterPList
+  , TestLabel "test_insertLeft_noFocusChange" test_insertLeft_noFocusChange
   ]
+
+test_insertLeft_noFocusChange :: T.Test
+test_insertLeft_noFocusChange = TestCase $ do
+  assertBool "works on the left side" $
+    (insertLeft_noFocusChange 0 $ P.PointedList [] 1 [2..4])
+    == P.PointedList [0] 1 [2..4]
+  assertBool "works on the right side" $
+    (insertLeft_noFocusChange 1 $ P.PointedList [2..4] 0 [])
+    == P.PointedList [1..4] 0 []
 
 test_filterPList :: T.Test
 test_filterPList = TestCase $ do
-  assertBool "" False
+  let left = P.PointedList [] 3 [4,5]
+      middle = P.PointedList [2] 3 [4]
+      right = P.PointedList [3,2] 4 []
+  assertBool "id left"   $ filterPList (/= 1) left   == Just left
+  assertBool "id middle" $ filterPList (/= 1) middle == Just middle
+  assertBool "id right"  $ filterPList (/= 1) right  == Just right
+
+  assertBool "drop focus at left" $
+    filterPList (/= 1) (P.PointedList [] 1 [4,5])
+    == Just (P.PointedList [] 4 [5])
+  assertBool "drop focus in middle" $
+    filterPList (/= 3) (P.PointedList [2,1] 3 [4,5])
+    == Just (P.PointedList [] 1 [2,4,5])
+  assertBool "drop focus at right" $
+    filterPList (/= 3) (P.PointedList [2,1] 3 [])
+    == Just (P.PointedList [] 1 [2])
+
+  assertBool "drop from right with focus at left" $
+    filterPList (/= 1) (P.PointedList [] 4 [2,1,5])
+    == Just (P.PointedList [] 4 [2,5])
+  assertBool "drop from sides with focus in middle" $
+    filterPList (/= 1) (P.PointedList [2,1] 3 [4,5,1])
+    == Just (P.PointedList [2] 3 [4,5])
+  assertBool "drop from left with focus at right" $
+    filterPList (/= 1) (P.PointedList [1,2,1,3] 4 [])
+    == Just (P.PointedList [2,3] 4 [])
 
 test_delete :: T.Test
 test_delete = TestCase $ do

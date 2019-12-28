@@ -97,10 +97,10 @@ nudgeNext   (PointedList as     f (b:bs)) =
 
 filterPList :: (a -> Bool) -> PointedList a -> Maybe (PointedList a)
 filterPList pred pl0@(PointedList as b cs) = let
-  pl1 = map (False,) as ++ [(True,b)] ++ map (False,) cs
+  pl1 = map (False,) (reverse as) ++ [(True,b)] ++ map (False,) cs
   l = filter (pred . snd) $ toList pl1
-  i = let x = length $ takeWhile (not . fst) l
-      in if x == length pl1 then 0 else x
+  i = if pred b then length $ takeWhile (not . fst) l
+      else 0 -- if the focus disappeared, reset it to start of list
   in case P.fromList $ map snd l of
        Nothing  -> Nothing
        Just pl1 -> P.moveTo i pl1
