@@ -13,11 +13,12 @@ module Hode.PTree.Initial (
 
   -- | *** `PointedList`
   , PointedList(..) -- ^ exports the Ord instance
-  , prevIfPossible, nextIfPossible -- ^ PointedList a -> PointedList a
   , getPList                       -- ^ Getter  (PointedList a) [a]
   , setPList                       -- ^ Setter' (PointedList a) [a]
-  , nudgePrev, nudgeNext       -- ^ PointedList a ->        PointedList a
-  , filterPList -- ^ (a -> Bool) -> PointedList a -> Maybe (PointedList a)
+  , prevIfPossible, nextIfPossible -- ^ PointedList a ->        PointedList a
+  , nudgePrev, nudgeNext           -- ^ PointedList a ->        PointedList a
+  , filterPList     -- ^ (a -> Bool) -> PointedList a -> Maybe (PointedList a)
+  , insertLeft_noFocusChange  -- ^ a -> PointedList a ->        PointedList a
 
   -- | *** `PTree`, a tree made of `PointedList`s
   , PTree(..)
@@ -71,10 +72,6 @@ data Direction = DirPrev | DirNext | DirUp | DirDown
 instance Ord a => Ord (PointedList a) where
   compare pl ql = compare (toList pl) (toList ql)
 
-prevIfPossible, nextIfPossible :: PointedList a -> PointedList a
-prevIfPossible l = maybe l id $ P.previous l
-nextIfPossible l = maybe l id $ P.next     l
-
 getPList :: Getter (PointedList a) [a]
 getPList = to toList
 
@@ -85,6 +82,10 @@ setPList = sets go where
               [] -> pl
               x -> maybe (error msg) id $ P.fromList x
     where msg = "setList: Impossible: x is non-null, so P.fromList works"
+
+prevIfPossible, nextIfPossible :: PointedList a -> PointedList a
+prevIfPossible l = maybe l id $ P.previous l
+nextIfPossible l = maybe l id $ P.next     l
 
 nudgePrev, nudgeNext :: PointedList a -> PointedList a
 nudgePrev p@(PointedList []     _ _)      = p
@@ -103,6 +104,11 @@ filterPList pred pl0@(PointedList as b cs) = let
   in case P.fromList $ map snd l of
        Nothing  -> Nothing
        Just pl1 -> P.moveTo i pl1
+
+insertLeft_noFocusChange :: a -> PointedList a -> PointedList a
+insertLeft_noFocusChange a =
+  P.tryNext . P.insertLeft a
+
 
 -- | *** `PTree`, a tree made of `PointedList`s
 

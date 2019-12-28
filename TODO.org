@@ -10,6 +10,10 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO would make the rest easier
 ** TODO Buffer should hold a PTree and no separate ViewQuery
+** TODO untested
+  + insert_cycleBuffer :: St -> St
+  + filterPList :: (a -> Bool) -> PointedList a
+                -> Maybe         (PointedList a)
 * TODO critical
 ** TODO debugging cycle-detection
 *** TODO when stSet_cycleBuffer finds Nothing

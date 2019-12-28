@@ -27,7 +27,12 @@ test_module_pTree_initial = TestList [
   , TestLabel "test_nudge" test_nudge
   , TestLabel "test_nudgeInPTree" test_nudgeInPTree
   , TestLabel "test_delete" test_delete
+  , TestLabel "test_filterPList" test_filterPList
   ]
+
+test_filterPList :: T.Test
+test_filterPList = TestCase $ do
+  assertBool "" False
 
 test_delete :: T.Test
 test_delete = TestCase $ do

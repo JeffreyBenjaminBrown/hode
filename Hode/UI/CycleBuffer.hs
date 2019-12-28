@@ -65,5 +65,5 @@ cycleBuffer_fromAddrs st (t,c) = do
 insert_cycleBuffer :: St -> St
 insert_cycleBuffer =
   searchBuffers . _Just
-  %~ ( P.insertLeft (pTreeLeaf emptyCycleBuffer)
-     . P.tryNext ) -- restore focus to where it was before inserting
+  %~ insertLeft_noFocusChange (pTreeLeaf emptyCycleBuffer)
+
