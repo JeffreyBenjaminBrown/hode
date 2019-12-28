@@ -1,7 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables
 #-}
 
-module Hode.UI.CycleBuffer where
+module Hode.UI.CycleBuffer (
+    updateBlockingCycles  -- ^ St ->          Either String St
+  , updateCycleBuffer     -- ^ St ->          Either String St
+  , cycleBuffer_fromAddrs -- ^ St -> Cycle -> Either String Buffer
+  , insert_cycleBuffer    -- ^ St ->                        St
+  , delete_cycleBuffer    -- ^ St ->          Either String St
+  ) where
 
 import           Control.Lens
 import qualified Data.Set as S
