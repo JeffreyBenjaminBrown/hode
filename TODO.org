@@ -12,12 +12,6 @@ This will load all non-broken modules when some are broken.
 ** TODO Buffer should hold a PTree and no separate ViewQuery
 * TODO critical
 ** TODO debugging cycle-detection
-*** TODO : in delete_cycleBuffer
-use `P.focus . getFocusedSubtree`
-to see if the new `Porest Buffer` has a focused node.
-If the focused node was deleted,
-arbitrarily restore focus to the top of the `Porest Buffer` via
-`focus . pTreeHasFocus %~ True`
 *** latest found error
 upon M-o, "Exception: Focused Buffer not found."
 ** TODO cycle-blocking, freedoms and messaging in the UI

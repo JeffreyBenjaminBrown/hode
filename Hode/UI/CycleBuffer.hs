@@ -83,7 +83,17 @@ delete_cycleBuffer st =
   prefixLeft "delete_cycleBuffer:" $
   case st ^. searchBuffers of
     Nothing -> Left "searchBuffers is empty. (Not a user error.)"
-    Just (pb :: Porest Buffer) -> do
-      Right $ st & searchBuffers .~ filterPList pred pb
-      where
-        pred = (/=) CycleView . _bufferQuery . _pTreeLabel
+    Just (pb0 :: Porest Buffer) -> do
+      let pred :: PTree Buffer -> Bool =
+            (/=) CycleView . _bufferQuery . _pTreeLabel
+      pb1 :: Porest Buffer <- let
+        err = Left "nothing left after filtering. (Not a user error.)"
+        in maybe err Right $ filterPList pred pb0
+      let pb2 :: Porest Buffer =
+            -- If the focused node is gone after filtering 
+            -- (e.g. because it was a child of the cycle buffer),
+            -- move focus (arbitrarily) to the top of the buffer porest.
+            case pb1 ^. P.focus . getFocusedSubtree of
+              Nothing -> pb1 & P.focus . pTreeHasFocus .~ True
+              _ -> pb1
+      Right $ st & searchBuffers .~ Just pb2
