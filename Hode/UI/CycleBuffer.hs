@@ -46,19 +46,22 @@ updateBlockingCycles st =
 -- | Updates the cycle buffer to reflect what is now in
 -- the focused buffer's `bufferCycles` field.
 updateCycleBuffer :: St -> Either String St
-updateCycleBuffer st =
+updateCycleBuffer st0 =
   prefixLeft "cycleBuffer:" $ do
-  case st ^. blockingCycles of
+  case st0 ^. blockingCycles of
     Just (c:_) -> do
-      cb <- cycleBuffer_fromAddrs st c
-      Right ( st & stSet_cycleBuffer .~ cb
+      cb <- cycleBuffer_fromAddrs st0 c
+      let st1 = case st0 ^. stGet_cycleBuffer of
+                  Nothing -> insert_cycleBuffer st0
+                  _ -> st0
+      Right ( st1 & stSet_cycleBuffer .~ cb
               & showingInMainWindow .~ CycleBuffer
               & showReassurance "Please break this cycle." )
-    _ -> Right -- applies both to Just [] and to Nothing
-      ( st & stSet_cycleBuffer .~ emptyCycleBuffer
-        & showingInMainWindow .~ SearchBuffer
-        & blockingCycles .~ Nothing
-        & showReassurance "No cycles identified." )
+    _ -> -- applies both to Just [] and to Nothing
+        (showingInMainWindow .~ SearchBuffer)
+        . (blockingCycles .~ Nothing)
+        . showReassurance "No cycles identified."
+        <$> delete_cycleBuffer st0
 
 cycleBuffer_fromAddrs :: St -> Cycle -> Either String Buffer
 cycleBuffer_fromAddrs st (t,c) = do
@@ -71,8 +74,8 @@ cycleBuffer_fromAddrs st (t,c) = do
 -- | Inserts an empty cycle buffer before the current focus.
 insert_cycleBuffer :: St -> St
 insert_cycleBuffer =
-  searchBuffers . _Just
-  %~ insertLeft_noFocusChange (pTreeLeaf emptyCycleBuffer)
+  searchBuffers . _Just %~
+  insertLeft_noFocusChange (pTreeLeaf emptyCycleBuffer)
 
 -- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
 delete_cycleBuffer :: St -> Either String St
@@ -80,7 +83,7 @@ delete_cycleBuffer st =
   prefixLeft "delete_cycleBuffer:" $
   case st ^. searchBuffers of
     Nothing -> Left "searchBuffers is empty. (Not a user error.)"
-    Just (pb :: Porest Buffer) ->
+    Just (pb :: Porest Buffer) -> do
       Right $ st & searchBuffers .~ filterPList pred pb
       where
-        pred = (==) CycleView . _bufferQuery . _pTreeLabel
+        pred = (/=) CycleView . _bufferQuery . _pTreeLabel
