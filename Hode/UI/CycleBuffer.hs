@@ -55,8 +55,7 @@ updateCycleBuffer st0 =
                   Nothing -> insert_cycleBuffer st0
                   _ -> st0
       Right ( st1 & stSet_cycleBuffer .~ cb
-              & showingInMainWindow .~ CycleBuffer
-              & showReassurance "Please break this cycle." )
+              & showReassurance "Cycle detected. Adding and moving disabled. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
         (showingInMainWindow .~ SearchBuffer)
         . (blockingCycles .~ Nothing)

@@ -11,27 +11,10 @@ This will load all non-broken modules when some are broken.
 * TODO would make the rest easier
 ** TODO Buffer should hold a PTree and no separate ViewQuery
 * TODO critical
-** TODO debugging cycle-detection
-*** latest found error
-upon M-o, "Exception: Focused Buffer not found."
 ** TODO cycle-blocking, freedoms and messaging in the UI
-*** modules that will be involved
-UI.Window
-UI.ExprTree -- modify to target either cycleBuffer or searchBuffers
-UI.BufferShow -- maybe move more stuff here
-UI.Cyclebuffer
-UI.Input
-*** command freedoms
 Usually, you can enter a command from anywhere.
 But if any buffer is blocked by cycles,
 you can't add, move or replace anything.
-*** keyboard freedoms
-If a buffer is blocked, you can't delete that buffer.
-Keyboard commands go to the focused buffer if main window = Ressults,
-  but might go (otherwise unchanged) to the Cycles window.
-*** be able to update cycles ('o') from the cycle view
-and nowhere else --
-thus sidestepping the problem of building a setter for the Cycle buffer
 ** TODO If there's a cycle, announce it everywhere
 at the top of every window except the Error window.
 ** TODO sorting

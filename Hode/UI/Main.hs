@@ -75,8 +75,6 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
       BufferBuffer  -> bufferWindow $ st ^. searchBuffers
-      CycleBuffer   -> resultWindow (st ^. viewOptions)
-        (st ^? stGet_cycleBuffer . _Just . bufferRowPorest . _Just)
       SearchBuffer        -> resultWindow (st ^. viewOptions)
         (b ^. bufferRowPorest)
 

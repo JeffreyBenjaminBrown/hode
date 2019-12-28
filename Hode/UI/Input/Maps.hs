@@ -57,10 +57,6 @@ universal_commands st = M.fromList [
   ( V.EvKey (V.KChar 'R') [V.MMeta],
     B.continue
            $ st & showingInMainWindow .~ SearchBuffer
-                & showingErrorWindow .~ False ),
-  ( V.EvKey (V.KChar 'O') [V.MMeta],
-    B.continue
-           $ st & showingInMainWindow .~ CycleBuffer
                 & showingErrorWindow .~ False )
 
   -- Brick-focus-related stuff. So far unneeded.

@@ -179,7 +179,7 @@ makeLenses ''RelHosts
 instance ShowBrief ViewExprNode where
   showBrief (VQuery (QueryView vq)) = vq
   showBrief (VQuery CycleView) = "The following cycle exists,"
-    ++ " in what should be transitive relationships."
+    ++ " among what should be transitive relationships."
   showBrief (VExpr x) =
     show (x ^. viewExpr_Addr) ++ ": "
     ++ unColorString (x ^. viewExpr_String)
