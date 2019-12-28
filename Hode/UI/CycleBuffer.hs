@@ -61,3 +61,9 @@ cycleBuffer_fromAddrs st (t,c) = do
     <$> addrsToExprRows st mempty (t:c)
   Right $ Buffer { _bufferQuery = CycleView
                  , _bufferRowPorest = Just p }
+
+insert_cycleBuffer :: St -> St
+insert_cycleBuffer =
+  searchBuffers . _Just
+  %~ ( P.insertLeft (pTreeLeaf emptyCycleBuffer)
+     . P.tryNext ) -- restore focus to where it was before inserting

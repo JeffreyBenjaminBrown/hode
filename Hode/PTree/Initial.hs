@@ -3,6 +3,7 @@
 {-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable
 , ScopedTypeVariables
 , TemplateHaskell
+, TupleSections
 , TypeFamilies
 , ViewPatterns #-}
 
@@ -15,7 +16,8 @@ module Hode.PTree.Initial (
   , prevIfPossible, nextIfPossible -- ^ PointedList a -> PointedList a
   , getPList                       -- ^ Getter  (PointedList a) [a]
   , setPList                       -- ^ Setter' (PointedList a) [a]
-  , nudgePrev, nudgeNext      -- ^ P.PointedList a -> P.PointedList a
+  , nudgePrev, nudgeNext       -- ^ PointedList a ->        PointedList a
+  , filterPList -- ^ (a -> Bool) -> PointedList a -> Maybe (PointedList a)
 
   -- | *** `PTree`, a tree made of `PointedList`s
   , PTree(..)
@@ -25,7 +27,7 @@ module Hode.PTree.Initial (
   , pTreeHasFocus -- ^ PITFALL: permits invalid state.
   , pMTreesF
   , pTreeLabelF
-  , pTreeHasFocusF -- ^ PITFALL: permits invalid state.
+  , pTreeHasFocusF
 
   -- | ** PTree optics
   , getFocusedChild           -- ^ Getter  (PTree a) (Maybe (PTree a))
@@ -54,7 +56,7 @@ module Hode.PTree.Initial (
 import           Control.Arrow ((>>>))
 import           Control.Lens
 import           Data.Foldable (toList)
-import           Data.List.PointedList (PointedList)
+import           Data.List.PointedList (PointedList(..))
 import qualified Data.List.PointedList as P
 import           Data.Maybe
 import           Data.Functor.Foldable.TH
@@ -84,14 +86,23 @@ setPList = sets go where
               x -> maybe (error msg) id $ P.fromList x
     where msg = "setList: Impossible: x is non-null, so P.fromList works"
 
-nudgePrev, nudgeNext :: P.PointedList a -> P.PointedList a
-nudgePrev p@(P.PointedList []     _ _)      = p
-nudgePrev   (P.PointedList (a:as) f bs)     =
-             P.PointedList as     f (a:bs)
-nudgeNext p@(P.PointedList _      _ [])     = p
-nudgeNext   (P.PointedList as     f (b:bs)) =
-             P.PointedList (b:as) f bs
+nudgePrev, nudgeNext :: PointedList a -> PointedList a
+nudgePrev p@(PointedList []     _ _)      = p
+nudgePrev   (PointedList (a:as) f bs)     =
+             PointedList as     f (a:bs)
+nudgeNext p@(PointedList _      _ [])     = p
+nudgeNext   (PointedList as     f (b:bs)) =
+             PointedList (b:as) f bs
 
+filterPList :: (a -> Bool) -> PointedList a -> Maybe (PointedList a)
+filterPList pred pl0@(PointedList as b cs) = let
+  pl1 = map (False,) as ++ [(True,b)] ++ map (False,) cs
+  l = filter (pred . snd) $ toList pl1
+  i = let x = length $ takeWhile (not . fst) l
+      in if x == length pl1 then 0 else x
+  in case P.fromList $ map snd l of
+       Nothing  -> Nothing
+       Just pl1 -> P.moveTo i pl1
 
 -- | *** `PTree`, a tree made of `PointedList`s
 
@@ -250,7 +261,7 @@ nudgeFocus_inPorest d p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ nudgeFocus_inPTree d
      True -> case d of
-       DirUp   -> p -- this is as `DirUp` as it gets
+       DirUp   -> p -- it's already as `DirUp` as it can be
        DirDown -> p & P.focus %~ nudgeFocus_inPTree d
        DirNext -> p & P.focus . pTreeHasFocus .~ False
                      & nextIfPossible
