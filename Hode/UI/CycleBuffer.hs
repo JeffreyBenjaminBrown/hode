@@ -62,8 +62,19 @@ cycleBuffer_fromAddrs st (t,c) = do
   Right $ Buffer { _bufferQuery = CycleView
                  , _bufferRowPorest = Just p }
 
+-- | Inserts an empty cycle buffer before the current focus.
 insert_cycleBuffer :: St -> St
 insert_cycleBuffer =
   searchBuffers . _Just
   %~ insertLeft_noFocusChange (pTreeLeaf emptyCycleBuffer)
 
+-- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
+delete_cycleBuffer :: St -> Either String St
+delete_cycleBuffer st =
+  prefixLeft "delete_cycleBuffer:" $
+  case st ^. searchBuffers of
+    Nothing -> Left "searchBuffers is empty. (Not a user error.)"
+    Just (pb :: Porest Buffer) ->
+      Right $ st & searchBuffers .~ filterPList pred pb
+      where
+        pred = (==) CycleView . _bufferQuery . _pTreeLabel
