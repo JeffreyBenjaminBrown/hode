@@ -60,12 +60,26 @@ runParsedCommand ::
   Command -> St ->
   Either String (B.EventM BrickName (B.Next St))
 runParsedCommand                     c0 st0 =
-  prefixLeft "runParsedCommand:" $ g c0 st0
+  prefixLeft "runParsedCommand:" $ f c0 st0
   where
 
   itWorked :: String -> St -> St
   itWorked s = showReassurance s
                . (showingInMainWindow .~ SearchBuffer)
+
+  f c st =
+    let err = "There is currently at least one cycle in what should be transitive relationships (see the Cycle Buffer). Until all such cycles are eliminated, the following features are disabled:" ++
+              "\n* nmoving an expression to another address" ++
+              "\n* replacing subexpressions" ++
+              "\n* adding to the graph"
+    in case st ^. blockingCycles of
+      Just (_:_) ->
+        case c of
+          CommandInsert _    -> Right $ B.continue $ st & showError err
+          CommandReplace _ _ -> Right $ B.continue $ st & showError err
+          CommandMove _ _    -> Right $ B.continue $ st & showError err
+          _ -> g c st
+      _     -> g c st
 
   -- todo ? duplicative of the clause for CommandInsert
   g (CommandReplace a e) st = do

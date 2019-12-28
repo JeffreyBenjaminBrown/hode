@@ -11,10 +11,6 @@ This will load all non-broken modules when some are broken.
 * TODO would make the rest easier
 ** TODO Buffer should hold a PTree and no separate ViewQuery
 * TODO critical
-** TODO cycle-blocking, freedoms and messaging in the UI
-Usually, you can enter a command from anywhere.
-But if any buffer is blocked by cycles,
-you can't add, move or replace anything.
 ** TODO If there's a cycle, announce it everywhere
 at the top of every window except the Error window.
 ** TODO sorting
