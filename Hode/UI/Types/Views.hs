@@ -29,6 +29,7 @@ data ViewOptions = ViewOptions
     -- ^ How many characters to show before wrapping
     -- around to the left side of the screen.
     -- (If I was better with Brick, I might not need this.)
+  deriving (Show, Eq, Ord)
 makeLenses ''ViewOptions
 
 type ColumnProps = Map HExpr Int

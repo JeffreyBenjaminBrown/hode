@@ -54,6 +54,8 @@ module Hode.PTree.Initial (
   , nudgeInPTree        -- ^ Direction -> PTree a -> PTree a
   ) where
 
+import Prelude hiding (pred)
+
 import           Control.Arrow ((>>>))
 import           Control.Lens
 import           Data.Foldable (toList)
@@ -96,9 +98,9 @@ nudgeNext   (PointedList as     f (b:bs)) =
              PointedList (b:as) f bs
 
 filterPList :: (a -> Bool) -> PointedList a -> Maybe (PointedList a)
-filterPList pred pl0@(PointedList as b cs) = let
-  pl1 = map (False,) (reverse as) ++ [(True,b)] ++ map (False,) cs
-  l = filter (pred . snd) $ toList pl1
+filterPList pred (PointedList as b cs) = let
+  pl0 = map (False,) (reverse as) ++ [(True,b)] ++ map (False,) cs
+  l = filter (pred . snd) $ toList pl0
   i = if pred b then length $ takeWhile (not . fst) l
       else 0 -- if the focus disappeared, reset it to start of list
   in case P.fromList $ map snd l of
