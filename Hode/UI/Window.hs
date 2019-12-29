@@ -17,6 +17,7 @@ import Hode.PTree.Initial
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 
 
 hideReassurance :: St -> St
@@ -44,9 +45,9 @@ emptyCommandWindow = commands . B.editContentsL
 replaceCommand :: St -> St
 replaceCommand st = maybe st f query where
   query :: Maybe String
-  query = st ^?
-    stGet_focusedBuffer . _Just . bufferExprRowTree .
-    pTreeLabel . viewExprNode . _VQuery . _QueryView
+  query = st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree .
+                  pTreeLabel . viewExprNode . _VFork' .
+                  viewForkType' . _VFQuery' . _QueryView )
 
   f :: String -> St
   f s = st & commands . B.editContentsL

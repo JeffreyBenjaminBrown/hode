@@ -32,6 +32,7 @@ import Hode.Rslt.RTypes
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 import Hode.UI.Window
 import Hode.Util.Misc
 
@@ -48,13 +49,15 @@ defaulViewOptions = ViewOptions
   , _viewOpt_ShowAsAddresses = True
   , _viewOpt_WrapLength = 60 }
 
-exprRow_from_viewExprNode :: ViewExprNode -> ExprRow
-exprRow_from_viewExprNode n =
-  ExprRow n mempty $ OtherProps False
+exprRow_from_viewExprNode :: ViewExprNode' -> ExprRow
+exprRow_from_viewExprNode n = ExprRow
+  { _viewExprNode = n
+  , _columnProps = mempty
+  , _otherProps = OtherProps False }
 
 exprRow_from_viewExprNode'
-  :: St -> ViewExprNode -> Either String ExprRow
-exprRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
+  :: St -> ViewExprNode' -> Either String ExprRow
+exprRow_from_viewExprNode' st n@(VExpr' (ViewExpr a _ _)) =
   prefixLeft "exprRow_from_viewExprNode':" $ do
   let r = st ^. appRslt
       hs = st ^. columnHExprs
@@ -94,7 +97,7 @@ emptySt r = St {
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ exprRow_from_viewExprNode $ VQuery $ QueryView
+    pTreeLeaf $ exprRow_from_viewExprNode $ VFQuery' $ QueryView
     "Empty buffer. (If you run a search, the results will be shown here.)"
   }
 
@@ -102,7 +105,7 @@ emptyCycleBuffer :: Buffer
 emptyCycleBuffer = Buffer
   { _bufferExprRowTree =
     pTreeLeaf $ exprRow_from_viewExprNode
-    $ VQuery CycleView
+    $ VFQuery' CycleView
   }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
@@ -113,12 +116,12 @@ buffer_from_exprRowTree ptbr =
   let (br :: ExprRow) = ptbr ^. pTreeLabel
   ve :: ViewExpr <-
     case br ^. viewExprNode of
-      VExpr x -> Right x
+      VExpr' x -> Right x
       _ -> Left $ "called from a non-VExpr."
   Right $ Buffer
     { _bufferExprRowTree = PTree
       { _pTreeLabel =
-        exprRow_from_viewExprNode . VQuery . QueryView .
+        exprRow_from_viewExprNode . VFQuery' . QueryView .
         unColorString $ ve ^. viewExpr_String
       , _pTreeHasFocus = False
       , _pMTrees = P.fromList [ptbr]

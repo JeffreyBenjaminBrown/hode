@@ -91,8 +91,9 @@ stGet_cycleBuffer = to go where
     Nothing -> Nothing
     Just p ->
       ( \case [] -> Nothing;   a:_ -> Just a )
-      . filter ( (== VQuery CycleView) .
-                 (^. bufferExprRowTree . pTreeLabel . viewExprNode))
+      . filter ( (== Just (VFQuery' CycleView) )
+                 . (^? bufferExprRowTree . pTreeLabel . viewExprNode
+                    . _VFork' . viewForkType' ) )
       . toList . fmap _pTreeLabel
       $ p
 
@@ -108,8 +109,9 @@ stSet_cycleBuffer = sets go where
   go :: (Buffer -> Buffer) -> St -> St
   go f st = let
     g :: Buffer -> Buffer
-    g b = if b ^. bufferExprRowTree . pTreeLabel . viewExprNode
-             == VQuery CycleView
+    g b = if b ^? ( bufferExprRowTree . pTreeLabel . viewExprNode
+                    . _VFork' . viewForkType' )
+             == Just (VFQuery' CycleView)
           then f b else b
     in st & searchBuffers . _Just
           %~ fmap (pTreeLabel %~ g)
@@ -138,6 +140,6 @@ resultWindow_focusAddr st =
 
 exprTree_focusAddr :: PTree ExprRow -> Either String Addr
 exprTree_focusAddr =
-  (\case VExpr rv -> Right $ rv ^. viewExpr_Addr
-         _        -> Left $ "Can only be called from a VExpr." )
+  (\case VExpr' rv -> Right $ rv ^. viewExpr_Addr
+         _         -> Left $ "Can only be called from a VExpr." )
   . (^. pTreeLabel . viewExprNode)
