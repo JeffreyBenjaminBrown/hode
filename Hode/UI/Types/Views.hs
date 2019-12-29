@@ -5,9 +5,17 @@ TemplateHaskell,
 ViewPatterns
 #-}
 
-module Hode.UI.Types.Views where
+module Hode.UI.Types.Views (
+    ViewOptions(..), viewOpt_ShowAddresses, viewOpt_ShowAsAddresses
+  , viewOpt_WrapLength
+  , ColumnProps
+  , OtherProps(..), folded
+  , ViewQuery(..), _QueryView, _CycleView
+  , ExprRow(..), viewExprNode, columnProps, otherProps
+  , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String
+  ) where
 
-import Control.Lens
+import Control.Lens hiding (folded)
 import Data.Set (Set)
 import Data.Map (Map)
 

@@ -5,7 +5,13 @@ TemplateHaskell,
 ViewPatterns
 #-}
 
-module Hode.UI.Types.Views2 where
+module Hode.UI.Types.Views2 (
+    RelHosts'(..), memberHostsRole', memberHostsTplt'
+  , ViewForkType'(..), _VFQuery', _VFMembers', _VFTpltHosts'
+    , _VFRelHosts', _VFQuery'
+  , ViewFork'(..), viewForkCenter', viewForkSortTplt', viewForkType'
+  , ViewExprNode'(..), _VExpr', _VFork'
+  ) where
 
 import Control.Lens
 
