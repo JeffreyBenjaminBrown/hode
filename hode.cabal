@@ -119,6 +119,7 @@ library
                 , Hode.UI.Types.Names
                 , Hode.UI.Types.State
                 , Hode.UI.Types.Views
+                , Hode.UI.Types.Views'
                 , Hode.UI.Window
 
                 , Hode.Util.Alternation

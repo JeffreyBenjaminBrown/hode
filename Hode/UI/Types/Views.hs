@@ -37,8 +37,11 @@ data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
   } deriving (Show, Eq, Ord)
 
--- | What the user searched for.
-data ViewQuery = QueryView String | CycleView
+-- | (Usually) what the user searched for.
+-- Should be the top of every PTree of ViewExprs.
+data ViewQuery
+  = QueryView String -- ^ the String is what was searched for
+  | CycleView -- ^ When Hode finds a cycle, it makes one of these.
   deriving (Eq, Ord, Show)
 -- PITFALL: These `Prism`s have to be defined *right here*.
 makePrisms ''ViewQuery

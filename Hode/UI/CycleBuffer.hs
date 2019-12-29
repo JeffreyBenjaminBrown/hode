@@ -9,6 +9,8 @@ module Hode.UI.CycleBuffer (
   , delete_cycleBuffer    -- ^ St ->          Either String St
   ) where
 
+import           Prelude hiding (pred)
+
 import           Control.Lens
 import qualified Data.Set as S
 import qualified Data.List.PointedList as P
