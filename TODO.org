@@ -10,6 +10,37 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO ordering
+*** TODO refactor ViewExprNode
+**** how it stands
+data ViewExprNode =
+  -- Everything but VExpr is a fork that groups VExprs.
+    VQuery      ViewQuery
+  | VExpr       ViewExpr
+  | VMemberFork
+  | VHostFork   HostFork
+  | VSearchFork
+data ViewQuery = QueryView String | CycleView
+data HostFork = RelHostFork  RelHosts
+              | TpltHostFork TpltHosts
+data RelHosts = RelHosts { _kkmemberHostsCenter :: Addr
+                         , _memberHostsRole   :: Role
+                         , _memberHostsTplt   :: Tplt Expr
+data TpltHosts = TpltHosts { _separatorHostsCenter :: Addr }
+**** TODO Seems better
+data ViewExprNode = VExpr ViewExpr | VFork ViewFork
+data ViewFork = ViewFork { _viewForkCenter :: Maybe Addr
+                         , _viewForkSortTplt :: TpltAddr
+                         , _viewForkType :: ViewForkType }
+data ViewForkType = VFMembers
+                  - VFSearch
+                  - VFTpltHosts -- Note: no content; center already specified
+                  - VFQuery    ViewQuery
+                  - VFRelHosts RelHosts
+data ViewQuery (same) = QueryView String | CycleView
+data RelHosts = RelHosts { _memberHostsRole   :: Role
+                         , _memberHostsTplt   :: Tplt Expr }
+**** TODO ? delete the _*Center fields, the HasCenterAddr class
+Would shorten the code, but only in UI/Types/Views.
 *** TODO display
 **** TODO add a view-child sort order to ViewExprNode
 **** TODO add a sort-color field to ViewExprNode
@@ -50,7 +81,6 @@ The checkbox can be moved.
  This enables ordering across forks, not just within them.
  Some forks should always be top -- e.g. "pitfalls", "frequent".
  There could be more than one ordering.
-
 *** ? in UI, separate sort from search
 **** why
  you might want to sort without having to run the search again
@@ -81,8 +111,8 @@ but among [a,b,c], c is isolated.
 It should be shown in the unsorted group.
 *** ? compromise: don't consider non-local connections
 ** TODO the "don't show X in maybe X" problem
-Just add some more indicators to _columnHExprs
-  not, maybe, and pitfall
+Just add some more indicators to _columnHExprs:
+  not, maybe, and warning
 ** TODO compress binary groups
 * TODO pressing
 ** TODO tests for the UI

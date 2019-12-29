@@ -43,6 +43,7 @@ data ViewQuery = QueryView String | CycleView
 -- PITFALL: These `Prism`s have to be defined *right here*.
 makePrisms ''ViewQuery
 
+-- | An `ExprRow` augments a `ViewExprNode` with information needed to draw it.
 data ExprRow = ExprRow {
     _viewExprNode :: ViewExprNode
   , _columnProps  :: ColumnProps
