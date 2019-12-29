@@ -8,12 +8,8 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO would make the rest easier
-** TODO Buffer should hold a PTree and no separate ViewQuery
-Currently I use ViewQuery as a Buffer label,
-but I don't think I use VQuery anywhere.
-With VQuery I could simplify the other types:
-Buffer could just be a tree, not a porest + a ViewQuery.
+* TODO rename bufferRow -> exprRow
+Was done already for the capitalized case.
 * TODO critical
 ** TODO ordering
 *** TODO display
@@ -86,6 +82,9 @@ None of them are isolated from the closure of (>),
 but among [a,b,c], c is isolated.
 It should be shown in the unsorted group.
 *** ? compromise: don't consider non-local connections
+** TODO the "don't show X in maybe X" problem
+Just add some more indicators to _columnHExprs
+  not, maybe, and pitfall
 ** TODO compress binary groups
 * TODO pressing
 ** TODO tests for the UI
@@ -127,6 +126,9 @@ matches up to 3 (4) separate `HExpr`s.
 not just its top level
 ** cannot implement the separator "#:"
 * TODO easy
+** TODO invert colors for highlight
+Rather than rotating blue-green-red,
+invert white with the color.
 ** TODO document
 sorting
 nudging (M-E, M-D)

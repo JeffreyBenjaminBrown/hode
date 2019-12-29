@@ -7,6 +7,7 @@ module Hode.UI.BufferShow (
   , bufferWindow -- ^ Maybe (Porest Buffer) -> B.Widget BrickName
   ) where
 
+import           Control.Lens
 import qualified Data.Map             as M
 
 import qualified Brick.Types          as B
@@ -27,7 +28,8 @@ bufferWindow = let
   showColumns :: Buffer -> [ColorString] =
     const []
   showNode :: Buffer -> ColorString =
-    (:[]) . (,TextColor) . showBrief . VQuery . _bufferQuery
+    (:[]) . (,TextColor) . showBrief .
+    (^. bufferExprRowTree . pTreeLabel . viewExprNode)
   getFolded :: Buffer -> Bool =
     const False
   in porestToWidget name showColumns showNode getFolded

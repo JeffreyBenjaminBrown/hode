@@ -93,18 +93,17 @@ emptySt r = St {
 
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
-  { _bufferQuery = QueryView "(empty buffer)"
-  , _bufferRowPorest =
-    Just $ porestLeaf $ bufferRow_from_viewExprNode $ VQuery $ QueryView
-    "If you run a search, what it finds will be shown here."
+  { _bufferExprRowTree =
+    pTreeLeaf $ bufferRow_from_viewExprNode $ VQuery $ QueryView
+    "Empty buffer. (If you run a search, the results will be shown here.)"
   }
 
 emptyCycleBuffer :: Buffer
 emptyCycleBuffer = Buffer
-  { _bufferQuery = CycleView
-  , _bufferRowPorest = Just $
-    porestLeaf $ bufferRow_from_viewExprNode $
-    VQuery $ QueryView "There is no cycle to show here (yet)." }
+  { _bufferExprRowTree =
+    pTreeLeaf $ bufferRow_from_viewExprNode
+    $ VQuery CycleView
+  }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
 buffer_from_bufferRowTree ::
@@ -117,7 +116,10 @@ buffer_from_bufferRowTree ptbr =
       VExpr x -> Right x
       _ -> Left $ "called from a non-VExpr."
   Right $ Buffer
-    { _bufferQuery = QueryView $
-                     unColorString $ ve ^. viewExpr_String
-    , _bufferRowPorest = P.fromList [ptbr]
-    }
+    { _bufferExprRowTree = PTree
+      { _pTreeLabel =
+        bufferRow_from_viewExprNode . VQuery . QueryView .
+        unColorString $ ve ^. viewExpr_String
+      , _pTreeHasFocus = False
+      , _pMTrees = P.fromList [ptbr]
+      } }

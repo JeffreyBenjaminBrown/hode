@@ -136,29 +136,29 @@ resultWindow_commands st =
        go $ showReassurance "SearchBuffer window copied to clipboard." ),
 
   ( V.EvKey (V.KChar 'e') [V.MMeta],
-    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
-           %~ nudgeFocus_inPorest DirPrev )
+    go $ ( stSet_focusedBuffer . bufferExprRowTree
+           %~ nudgeFocus_inPTree DirPrev )
     . hideReassurance ),
   ( V.EvKey (V.KChar 'd') [V.MMeta],
-    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
-           %~ nudgeFocus_inPorest DirNext )
+    go $ ( stSet_focusedBuffer . bufferExprRowTree
+           %~ nudgeFocus_inPTree DirNext )
     . hideReassurance ),
   ( V.EvKey (V.KChar 'f') [V.MMeta],
-    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
-           %~ nudgeFocus_inPorest DirDown )
+    go $ ( stSet_focusedBuffer . bufferExprRowTree
+           %~ nudgeFocus_inPTree DirDown )
     . hideReassurance ),
   ( V.EvKey (V.KChar 's') [V.MMeta],
-    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
-           %~ nudgeFocus_inPorest DirUp )
+    go $ ( stSet_focusedBuffer . bufferExprRowTree
+           %~ nudgeFocus_inPTree DirUp )
     . hideReassurance ),
 
   ( V.EvKey (V.KChar 'E') [V.MMeta],
-    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
-           %~ nudgeInPorest DirPrev )
+    go $ ( stSet_focusedBuffer . bufferExprRowTree
+           %~ nudgeInPTree DirPrev )
     . hideReassurance ),
   ( V.EvKey (V.KChar 'D') [V.MMeta],
-    go $ ( stSet_focusedBuffer . bufferRowPorest . _Just
-           %~ nudgeInPorest DirNext )
+    go $ ( stSet_focusedBuffer . bufferExprRowTree
+           %~ nudgeInPTree DirNext )
     . hideReassurance ),
 
   ( V.EvKey (V.KChar 'o') [V.MMeta],

@@ -55,7 +55,7 @@ updateCycleBuffer st0 =
                   Nothing -> insert_cycleBuffer st0
                   _ -> st0
       Right ( st1 & stSet_cycleBuffer .~ cb
-              & showReassurance "Cycle detected. Adding and moving disabled. See Cycle Buffer." )
+              & showReassurance "Cycle detected. Add, move and replace are disabled. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
         (showingInMainWindow .~ SearchBuffer)
         . (blockingCycles .~ Nothing)
@@ -67,8 +67,11 @@ cycleBuffer_fromAddrs st (t,c) = do
   p :: Porest ExprRow <-
     (P.focus . pTreeHasFocus .~ True)
     <$> addrsToExprRows st mempty (t:c)
-  Right $ Buffer { _bufferQuery = CycleView
-                 , _bufferRowPorest = Just p }
+  Right $ Buffer
+    { _bufferExprRowTree = PTree
+      { _pTreeLabel = bufferRow_from_viewExprNode $ VQuery CycleView
+      , _pTreeHasFocus = False
+      , _pMTrees = Just p } }
 
 -- | Inserts an empty cycle buffer before the current focus.
 insert_cycleBuffer :: St -> St
@@ -84,7 +87,9 @@ delete_cycleBuffer st =
     Nothing -> Left "searchBuffers is empty. (Not a user error.)"
     Just (pb0 :: Porest Buffer) -> do
       let pred :: PTree Buffer -> Bool =
-            (/=) CycleView . _bufferQuery . _pTreeLabel
+            ( /= VQuery CycleView ) .
+            ( ^. pTreeLabel . bufferExprRowTree .
+              pTreeLabel . viewExprNode )
       pb1 :: Porest Buffer <- let
         err = Left "nothing left after filtering. (Not a user error.)"
         in maybe err Right $ filterPList pred pb0

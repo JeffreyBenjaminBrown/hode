@@ -32,16 +32,16 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
   prefixLeft "cons_focusedViewExpr_asChild:" $ do
   b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st0 ^. stGet_focusedBuffer
-  ptbr :: PTree ExprRow <-
+  pter :: PTree ExprRow <-
     maybe
     (Left "bufferRowPorest or focusedSubtree not found.")
-    Right $ b ^? ( bufferRowPorest . _Just . P.focus
+    Right $ b ^? ( bufferExprRowTree
                    . getFocusedSubtree . _Just )
   b' :: Buffer <- let
     f (VExpr ve) = VExpr $ ve { _viewExpr_showAsAddrs = mempty }
     f x = x -- should not happen
     in buffer_from_bufferRowTree
-       $ ptbr & pTreeLabel . viewExprNode %~ f
+       $ pter & pTreeLabel . viewExprNode %~ f
   redraw_focusedBuffer $
     hideReassurance . consBuffer_asChild b' $ st0
 

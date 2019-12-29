@@ -6,8 +6,7 @@ TemplateHaskell
 
 module Hode.UI.Types.State (
     Buffer(..)
-  , bufferQuery     -- ^ ViewQuery
-  , bufferRowPorest -- ^ Maybe (Porest ExprRow)
+  , bufferExprRowTree     -- ^ PTree ExprRow
 
   , St(..)
   , focusRing              -- ^ B.FocusRing BrickName
@@ -52,8 +51,7 @@ import Hode.UI.Types.Views
 -- | A `Buffer` displays search results.
 -- A user will spend most of their time looking at one of these.
 data Buffer = Buffer
-  { _bufferQuery     :: ViewQuery
-  , _bufferRowPorest :: Maybe (Porest ExprRow)
+  { _bufferExprRowTree :: PTree ExprRow
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
@@ -92,7 +90,8 @@ stGet_cycleBuffer = to go where
     Nothing -> Nothing
     Just p ->
       ( \case [] -> Nothing;   a:_ -> Just a )
-      . filter ((==) CycleView . _bufferQuery)
+      . filter ( (== VQuery CycleView) .
+                 (^. bufferExprRowTree . pTreeLabel . viewExprNode))
       . toList . fmap _pTreeLabel
       $ p
 
@@ -106,9 +105,11 @@ stSet_focusedBuffer = sets go where
 stSet_cycleBuffer :: Setter' St Buffer
 stSet_cycleBuffer = sets go where
   go :: (Buffer -> Buffer) -> St -> St
-  go f st = let g :: Buffer -> Buffer
-                g b = if _bufferQuery b == CycleView
-                      then f b else b
+  go f st = let
+    g :: Buffer -> Buffer
+    g b = if b ^. bufferExprRowTree . pTreeLabel . viewExprNode
+             == VQuery CycleView
+          then f b else b
     in st & searchBuffers . _Just
           %~ fmap (pTreeLabel %~ g)
 
@@ -117,16 +118,16 @@ stGetFocused_ViewExprNode_Tree ::
 stGetFocused_ViewExprNode_Tree = to go where
   go :: St -> Maybe (PTree ExprRow)
   go st = st ^? stGet_focusedBuffer . _Just .
-          bufferRowPorest . _Just .
-          P.focus . getFocusedSubtree . _Just
+          bufferExprRowTree .
+          getFocusedSubtree . _Just
 
 stSetFocused_ViewExprNode_Tree ::
   Setter' St (PTree ExprRow)
 stSetFocused_ViewExprNode_Tree = sets go where
   go :: (PTree ExprRow -> PTree ExprRow) -> St -> St
-  go f = stSet_focusedBuffer .
-         bufferRowPorest . _Just .
-         P.focus . setFocusedSubtree %~ f
+  go f = stSet_focusedBuffer . 
+         bufferExprRowTree .
+         setFocusedSubtree %~ f
 
 resultWindow_focusAddr :: St -> Either String Addr
 resultWindow_focusAddr st =

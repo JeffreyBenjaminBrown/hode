@@ -151,18 +151,18 @@ runParsedCommand                     c0 st0 =
         ( S.toList <$> hExprToAddrs r mempty h
           >>= kahnSort r (bo,t) )
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
-    p :: Porest ExprRow <- -- new screen to show
+    pr :: Porest ExprRow <-
       (P.focus . pTreeHasFocus .~ True)
       <$> addrsToExprRows st mempty as
+    let p :: PTree ExprRow = PTree -- new screen to show
+          { _pTreeLabel = bufferRow_from_viewExprNode $
+                          VQuery . QueryView $
+                          T.unpack . T.strip . T.pack $ s
+          , _pTreeHasFocus = False
+          , _pMTrees = Just pr }
 
     Right $ B.continue $ st
-      & ( ( -- PITFALL : Replaces the Buffer's old contents.
-            -- TODO ? Create a new Buffer instead.
-            let strip :: String -> String
-                strip = T.unpack . T.strip . T.pack
-            in stSet_focusedBuffer . bufferQuery
-               .~ QueryView (strip s) )
-          . ( stSet_focusedBuffer . bufferRowPorest . _Just
-              .~ p ) )
-
+      -- PITFALL : Replaces the Buffer's old contents.
+      -- TODO ? Create a new Buffer instead.
+      & stSet_focusedBuffer . bufferExprRowTree .~ p
       & itWorked "Search successful."

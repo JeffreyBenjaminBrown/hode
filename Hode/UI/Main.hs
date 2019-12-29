@@ -75,8 +75,8 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
       BufferBuffer  -> bufferWindow $ st ^. searchBuffers
-      SearchBuffer        -> resultWindow (st ^. viewOptions)
-        (b ^. bufferRowPorest)
+      SearchBuffer  -> resultWindow (st ^. viewOptions)
+                       (b ^. bufferExprRowTree . pMTrees)
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>

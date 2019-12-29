@@ -26,7 +26,7 @@ focusedBufferStrings st =
   where
   p :: Maybe (Porest ExprRow)
   p = st ^? stGet_focusedBuffer . _Just .
-      bufferRowPorest . _Just
+      bufferExprRowTree . pMTrees . _Just
 
   go :: Int -> PTree ExprRow -> [String]
   go i tbr = indent ( showBrief $
@@ -77,9 +77,9 @@ redraw_viewExpr_Strings r vo b0 =
       Right $ br & viewExprNode .~ VExpr ve
     _ -> Right br
 
-  in case _bufferRowPorest b0 of
+  in case b0 ^. bufferExprRowTree . pMTrees of
        Nothing -> Right b0
        Just pbr0 -> do
          pbr :: Porest ExprRow <-
            redrawPorest pbr0
-         Right $ b0 { _bufferRowPorest = Just pbr }
+         Right $ b0 & bufferExprRowTree . pMTrees .~ Just pbr
