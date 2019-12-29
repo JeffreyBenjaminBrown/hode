@@ -46,6 +46,7 @@ import Hode.PTree.Initial
 import Hode.Rslt.RTypes
 import Hode.UI.Types.Names
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 
 
 -- | A `Buffer` displays search results.

@@ -11,7 +11,6 @@ module Hode.UI.Types.Views (
   , ColumnProps
   , OtherProps(..), folded
   , ViewQuery(..), _QueryView, _CycleView
-  , ExprRow(..), viewExprNode, columnProps, otherProps
   , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String
   ) where
 
@@ -54,14 +53,6 @@ data ViewQuery
   deriving (Eq, Ord, Show)
 -- PITFALL: These `Prism`s have to be defined *right here*.
 makePrisms ''ViewQuery
-
--- | An `ExprRow` augments a `ViewExprNode` with information needed to draw it.
-data ExprRow = ExprRow {
-    _viewExprNode :: ViewExprNode
-  , _columnProps  :: ColumnProps
-  , _otherProps   :: OtherProps
-  } deriving (Show, Eq, Ord)
-
 
 -- | = A `ViewExprNode` is a node in a tree of descendents of search results.
 -- Each search returns a flat list of `ViewExprNode`s.
@@ -181,7 +172,6 @@ instance Show TpltHosts where
 -- PITFALL: These `Lens`es have to be defined *right here*,
 -- after the `Show` instances that `ViewExprNode` depends on,
 -- and before the `Show` instances for `ViewExprNode` itself.
-makeLenses ''ExprRow
 makeLenses ''OtherProps
 makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr

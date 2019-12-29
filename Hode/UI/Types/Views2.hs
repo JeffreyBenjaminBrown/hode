@@ -11,6 +11,7 @@ module Hode.UI.Types.Views2 (
     , _VFRelHosts', _VFQuery'
   , ViewFork'(..), viewForkCenter', viewForkSortTplt', viewForkType'
   , ViewExprNode'(..), _VExpr', _VFork'
+  , ExprRow(..), viewExprNode, columnProps, otherProps
   ) where
 
 import Control.Lens
@@ -83,6 +84,14 @@ data ViewExprNode'  -- ^ the primary objects in a view of search results
   | VFork' ViewFork' -- ^ used to group a set of related VExprs
   deriving (Eq, Ord, Show)
 makePrisms ''ViewExprNode'
+
+-- | augments a `ViewExprNode` with information needed to draw it.
+data ExprRow = ExprRow {
+    _viewExprNode :: ViewExprNode'
+  , _columnProps  :: ColumnProps
+  , _otherProps   :: OtherProps
+  } deriving (Show, Eq, Ord)
+makeLenses ''ExprRow
 
 instance ShowBrief ViewExprNode' where
   showBrief (VExpr' x) =
