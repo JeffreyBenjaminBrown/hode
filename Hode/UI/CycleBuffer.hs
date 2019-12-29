@@ -69,7 +69,7 @@ cycleBuffer_fromAddrs st (t,c) = do
     <$> addrsToExprRows st mempty (t:c)
   Right $ Buffer
     { _bufferExprRowTree = PTree
-      { _pTreeLabel = bufferRow_from_viewExprNode $ VQuery CycleView
+      { _pTreeLabel = exprRow_from_viewExprNode $ VQuery CycleView
       , _pTreeHasFocus = False
       , _pMTrees = Just p } }
 

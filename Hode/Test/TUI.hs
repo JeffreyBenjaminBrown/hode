@@ -38,9 +38,9 @@ test_st_cycleBufferLenses = TestCase $ do
           , _columnProps = mempty
           , _otherProps = OtherProps False } ]
       b = Buffer { _bufferExprRowTree = pTreeLeaf $
-                   bufferRow_from_viewExprNode $ VQuery $ QueryView "meh" }
+                   exprRow_from_viewExprNode $ VQuery $ QueryView "meh" }
       c_empty = Buffer { _bufferExprRowTree = pTreeLeaf $
-                         bufferRow_from_viewExprNode $ VQuery $ CycleView }
+                         exprRow_from_viewExprNode $ VQuery $ CycleView }
       c_something = c_empty & bufferExprRowTree . pMTrees .~ p
 
   assertBool "" $

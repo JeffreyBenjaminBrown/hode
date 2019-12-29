@@ -155,7 +155,7 @@ runParsedCommand                     c0 st0 =
       (P.focus . pTreeHasFocus .~ True)
       <$> addrsToExprRows st mempty as
     let p :: PTree ExprRow = PTree -- new screen to show
-          { _pTreeLabel = bufferRow_from_viewExprNode $
+          { _pTreeLabel = exprRow_from_viewExprNode $
                           VQuery . QueryView $
                           T.unpack . T.strip . T.pack $ s
           , _pTreeHasFocus = False

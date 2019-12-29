@@ -183,7 +183,7 @@ hostGroup_to_forkTree st (hf, as) =
   a <- resultWindow_focusAddr st
 
   topOfNew :: ExprRow <-
-    bufferRow_from_viewExprNode' st $ VHostFork hf
+    exprRow_from_viewExprNode' st $ VHostFork hf
   leaves :: Porest ExprRow <-
     addrsToExprRows st (S.singleton a) as
   Right $ PTree {
@@ -207,7 +207,7 @@ addrsToExprRows st showAsAddr as =
     let f = mkViewExpr r vo showAsAddr
     in map VExpr <$> ifLefts (map f as)
   leaves1 :: [ExprRow] <- ifLefts $
-    map (bufferRow_from_viewExprNode' st) leaves0
+    map (exprRow_from_viewExprNode' st) leaves0
   let leaves2 :: [PTree ExprRow] =
         map pTreeLeaf leaves1
   maybe (Left "Nothing to show.") Right

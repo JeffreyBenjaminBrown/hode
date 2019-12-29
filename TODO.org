@@ -8,8 +8,6 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO rename bufferRow -> exprRow
-Was done already for the capitalized case.
 * TODO critical
 ** TODO ordering
 *** TODO display
@@ -72,7 +70,7 @@ The checkbox can be moved.
     convert the (List a) to a (PList a)
 **** apply to UI
  CommandSort BinOrientation Addr
- _bufferRowPorest :: Buffer -> Maybe (Porest ExprRow)
+ _exprRowPorest :: Buffer -> Maybe (Porest ExprRow)
  _viewExprNode :: ExprRow -> ViewExprNode
  data ViewExprNode = ... | VExpr ViewExpr | ...
  _viewExpr_Addr :: ViewExpr -> Addr

@@ -2,14 +2,14 @@
 
 module Hode.UI.IUtil (
     unEitherSt                   -- ^ Either String St -> St -> St
-  , bufferRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
-  , bufferRow_from_viewExprNode' -- ^ St -> ViewExprNode
+  , exprRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
+  , exprRow_from_viewExprNode' -- ^ St -> ViewExprNode
                                  --        -> Either String ExprRow
   , defaulViewOptions            -- ^ ViewOptions
   , emptySt                      -- ^ Rslt -> St
   , emptyBuffer                  -- ^ Buffer
   , emptyCycleBuffer            -- ^ Porest ExprRow
-  , buffer_from_bufferRowTree    -- ^ PTree ViewExprNode
+  , buffer_from_exprRowTree    -- ^ PTree ViewExprNode
                                  -- -> Either String Buffer
   ) where
 
@@ -48,14 +48,14 @@ defaulViewOptions = ViewOptions
   , _viewOpt_ShowAsAddresses = True
   , _viewOpt_WrapLength = 60 }
 
-bufferRow_from_viewExprNode :: ViewExprNode -> ExprRow
-bufferRow_from_viewExprNode n =
+exprRow_from_viewExprNode :: ViewExprNode -> ExprRow
+exprRow_from_viewExprNode n =
   ExprRow n mempty $ OtherProps False
 
-bufferRow_from_viewExprNode'
+exprRow_from_viewExprNode'
   :: St -> ViewExprNode -> Either String ExprRow
-bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
-  prefixLeft "bufferRow_from_viewExprNode':" $ do
+exprRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
+  prefixLeft "exprRow_from_viewExprNode':" $ do
   let r = st ^. appRslt
       hs = st ^. columnHExprs
       sub :: Map Var Addr =
@@ -68,8 +68,8 @@ bufferRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
   Right $ ExprRow { _viewExprNode = n
                     , _columnProps = matchCounts
                     , _otherProps = OtherProps False }
-bufferRow_from_viewExprNode' _ n =
-  Right $ bufferRow_from_viewExprNode n
+exprRow_from_viewExprNode' _ n =
+  Right $ exprRow_from_viewExprNode n
 
 emptySt :: Rslt -> St
 emptySt r = St {
@@ -94,22 +94,22 @@ emptySt r = St {
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ bufferRow_from_viewExprNode $ VQuery $ QueryView
+    pTreeLeaf $ exprRow_from_viewExprNode $ VQuery $ QueryView
     "Empty buffer. (If you run a search, the results will be shown here.)"
   }
 
 emptyCycleBuffer :: Buffer
 emptyCycleBuffer = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ bufferRow_from_viewExprNode
+    pTreeLeaf $ exprRow_from_viewExprNode
     $ VQuery CycleView
   }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
-buffer_from_bufferRowTree ::
+buffer_from_exprRowTree ::
   PTree ExprRow -> Either String Buffer
-buffer_from_bufferRowTree ptbr =
-  prefixLeft "buffer_from_bufferRowTree:" $ do
+buffer_from_exprRowTree ptbr =
+  prefixLeft "buffer_from_exprRowTree:" $ do
   let (br :: ExprRow) = ptbr ^. pTreeLabel
   ve :: ViewExpr <-
     case br ^. viewExprNode of
@@ -118,7 +118,7 @@ buffer_from_bufferRowTree ptbr =
   Right $ Buffer
     { _bufferExprRowTree = PTree
       { _pTreeLabel =
-        bufferRow_from_viewExprNode . VQuery . QueryView .
+        exprRow_from_viewExprNode . VQuery . QueryView .
         unColorString $ ve ^. viewExpr_String
       , _pTreeHasFocus = False
       , _pMTrees = P.fromList [ptbr]

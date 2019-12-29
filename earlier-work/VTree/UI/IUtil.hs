@@ -2,7 +2,7 @@
 
 module UI.IUtil (
     emptyBuffer            -- ^                                 Buffer
-  , buffer_from_bufferRowTree -- ^ VTree ViewExprNode -> Either String Buffer
+  , buffer_from_exprRowTree -- ^ VTree ViewExprNode -> Either String Buffer
   ) where
 
 import qualified Data.List.PointedList as P
@@ -24,12 +24,12 @@ emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
                      , _bufferView = vTreeLeaf $ VQuery ""
                      , _bufferPath = [] }
 
-buffer_from_bufferRowTree :: VTree ViewExprNode -> Either String Buffer
-buffer_from_bufferRowTree vt = do
+buffer_from_exprRowTree :: VTree ViewExprNode -> Either String Buffer
+buffer_from_exprRowTree vt = do
   let (viewExprNode :: ViewExprNode) = _vTreeLabel vt
   viewResult <- case viewExprNode of
     VExpr x -> Right x
-    _ -> Left $ "buffer_from_bufferRowTree called from a non-VExpr."
+    _ -> Left $ "buffer_from_exprRowTree called from a non-VExpr."
   Right $ Buffer { _bufferQuery = viewResult ^. viewExpr_String
                  , _bufferView = vt
                  , _bufferPath = [] }
