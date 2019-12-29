@@ -8,7 +8,7 @@ ViewPatterns
 module Hode.UI.Types.Views2 (
     RelHosts'(..), memberHostsRole', memberHostsTplt'
   , ViewForkType'(..), _VFQuery', _VFMembers', _VFTpltHosts'
-    , _VFRelHosts', _VFQuery'
+    , _VFRelHosts', _VFSearch'
   , ViewFork'(..), viewForkCenter', viewForkSortTplt', viewForkType'
   , ViewExprNode'(..), _VExpr', _VFork'
   , ExprRow(..), viewExprNode, columnProps, otherProps
@@ -74,7 +74,7 @@ makePrisms ''ViewForkType'
 
 data ViewFork' = ViewFork'
   { _viewForkCenter' :: Maybe Addr -- ^ the address of its view-parent
-  , _viewForkSortTplt' :: TpltAddr -- ^ how to sort its view-children
+  , _viewForkSortTplt' :: Maybe TpltAddr -- ^ how to sort its view-children
   , _viewForkType' :: ViewForkType' }
   deriving (Eq, Ord, Show)
 makeLenses ''ViewFork'
