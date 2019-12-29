@@ -10,46 +10,15 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO would make the rest easier
 ** TODO Buffer should hold a PTree and no separate ViewQuery
-* TODO critical
-** TODO If there's a cycle, announce it everywhere
-at the top of every window except the Error window.
-** TODO sorting
-*** ? needs a closure algorithm
-**** motivation
-Suppose [a,b,c] are to be shown, and a > b, and c > d.
-None of them are isolated from the closure of (>),
-but among [a,b,c], c is isolated.
-It should be shown in the unsorted group.
-*** ? compromise: don't consider non-local connections
-*** HARD: change order interactively, given non-local connections?
-**** motivation
-Consider the numbers 1..5 under the natural ordering.
-Suppose we show [1,3,5], and then reorder them to [1,5,3].
-How should the underlying graph chnage?
-**** terrible solution
-If we just add a connection 5 > 3, the relation is no longer transitive.
-**** unsatisfying solution
-We could delete the relationship that 5 bears to 4.
-But if we then reordered the data to [1,3,5],
-we would not arrive back at the original graph.
-**** best solution
-The most "correct" way would be to prompt the user that there are nonlocal transitive relationships involving 3 and 5,
-and show each such path (in this case there's only one: 3 < 4 < 5),
-and ask them to choose a link to break from the path.
-** TODO ordering
-*** in kahn sort algorithm, put unrelated things last
-*** sort by default
-By default, any same-level, view-contiguous sequence of ViewExprs is sorted,
-according to the first transitive relation extant among any of its members.
-*** highlight range
-*** BIG: sort-aware display
-**** use the VQuery constructor, simplify the Buffer type
 Currently I use ViewQuery as a Buffer label,
 but I don't think I use VQuery anywhere.
 With VQuery I could simplify the other types:
 Buffer could just be a tree, not a porest + a ViewQuery.
-**** add a view-child sort order to ViewExprNode
-**** add a sort-color field to ViewExprNode
+* TODO critical
+** TODO ordering
+*** TODO display
+**** TODO add a view-child sort order to ViewExprNode
+**** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.
 
@@ -60,28 +29,34 @@ Those are in the middle.
 At the top are things related to each other by the TR that orders the list.
 They are white if they are also related by some other TR to anything else.
 Otherwise they are blue.
-**** a "sort program" buffer
+**** TODO in kahn sort algorithm, put unrelated things last
+**** TODO sort by default
+ By default, any same-level, view-contiguous sequence of ViewExprs is sorted,
+ according to the first transitive relation extant among any of its members.
+**** TODO a "sort program" buffer
 Specific to a given VExpr, applied to its children.
 Shows every TR, and a checkbox next to the one curently ordering the list.
 The checkbox can be moved.
-*** interactive sorting
-Two keyboard shortcuts, to sort and to unsort.
-One adds highlighted things to the sorted region.
-  Their order is otherwise preserved, but they move into the sorted region.
-The other removes them.
-  Their order is preserved, but they all fall to below the sorted region.
-*** order Tplts themselves
-**** how
-Requires modifying the Kahn algorithm.
-Perhaps this: If it's among what's being sorted,
-  then duplicate the Tplt being sorted by,
-  delete all Rels involving the original as both a member and a Tplt,
-  delete the original and add the duplicates to the set of things being sorted,
-  sort as normal, then replace the duplicate with the original in the results.
-**** why
-This enables ordering across forks, not just within them.
-Some forks should always be top -- e.g. "pitfalls", "frequent".
-There could be more than one ordering.
+*** TODO WYSIWYG sorting
+**** TODO highlight range
+**** TODO goal: two keyboard shortcuts, "sort" and "unsort"
+ One adds highlighted things to the sorted region.
+   Their order is otherwise preserved, but they move into the sorted region.
+ The other removes them.
+   They all fall to below the sorted region. Their order might change.
+**** TODO order Tplts themselves
+***** how
+ Requires modifying the Kahn algorithm.
+ Perhaps this: If it's among what's being sorted,
+   then duplicate the Tplt being sorted by,
+   delete all Rels involving the original as both a member and a Tplt,
+   delete the original and add the duplicates to the set of things being sorted,
+   sort as normal, then replace the duplicate with the original in the results.
+***** why
+ This enables ordering across forks, not just within them.
+ Some forks should always be top -- e.g. "pitfalls", "frequent".
+ There could be more than one ordering.
+
 *** ? in UI, separate sort from search
 **** why
  you might want to sort without having to run the search again
@@ -105,6 +80,12 @@ There could be more than one ordering.
  _viewExprNode :: ExprRow -> ViewExprNode
  data ViewExprNode = ... | VExpr ViewExpr | ...
  _viewExpr_Addr :: ViewExpr -> Addr
+*** ? needs a closure algorithm
+Suppose [a,b,c] are to be shown, and a > b, and c > d.
+None of them are isolated from the closure of (>),
+but among [a,b,c], c is isolated.
+It should be shown in the unsorted group.
+*** ? compromise: don't consider non-local connections
 ** TODO compress binary groups
 * TODO pressing
 ** TODO tests for the UI
@@ -229,8 +210,9 @@ It would be better if distinct things could share a name.
 **** would help: smsn
 ** types?
 * TODO user-friendliness
+** TODO If there's a cycle, announce it everywhere
+at the top of every window except the Error window.
 ** TODO edit a PTree
-Subtasks marked TODO are blocking ordering.
 *** nudge things up|down
 **** if deleting a PTree is possible from Results
  Introduce a mark for tree nodes of which some but not all children are shown.
