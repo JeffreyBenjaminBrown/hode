@@ -2,15 +2,15 @@
 
 module Hode.UI.IUtil (
     unEitherSt                   -- ^ Either String St -> St -> St
-  , exprRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
-  , exprRow_from_viewExprNode' -- ^ St -> ViewExprNode
-                                 --        -> Either String ExprRow
-  , defaulViewOptions            -- ^ ViewOptions
   , emptySt                      -- ^ Rslt -> St
   , emptyBuffer                  -- ^ Buffer
   , emptyCycleBuffer            -- ^ Porest ExprRow
   , buffer_from_exprRowTree    -- ^ PTree ViewExprNode
                                  -- -> Either String Buffer
+  , exprRow_from_viewExprNode' -- ^ St -> ViewExprNode
+                                 --        -> Either String ExprRow
+  , exprRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
+  , defaulViewOptions            -- ^ ViewOptions
   ) where
 
 import qualified Data.List.PointedList as P
@@ -42,37 +42,6 @@ unEitherSt old (Left s) =
   old & showError s
 unEitherSt _ (Right new) =
   new & showingErrorWindow .~ False
-
-defaulViewOptions :: ViewOptions
-defaulViewOptions = ViewOptions
-  { _viewOpt_ShowAddresses = True
-  , _viewOpt_ShowAsAddresses = True
-  , _viewOpt_WrapLength = 60 }
-
-exprRow_from_viewExprNode :: ViewExprNode' -> ExprRow
-exprRow_from_viewExprNode n = ExprRow
-  { _viewExprNode = n
-  , _columnProps = mempty
-  , _otherProps = OtherProps False }
-
-exprRow_from_viewExprNode'
-  :: St -> ViewExprNode' -> Either String ExprRow
-exprRow_from_viewExprNode' st n@(VExpr' (ViewExpr a _ _)) =
-  prefixLeft "exprRow_from_viewExprNode':" $ do
-  let r = st ^. appRslt
-      hs = st ^. columnHExprs
-      sub :: Map Var Addr =
-        M.singleton VarRowNode a
-  matches :: Map HExpr (Set Addr) <-
-    let f h = (h, hExprToAddrs r sub h)
-    in ifLefts_map $ M.fromList $ map f hs
-  let matchCounts :: Map HExpr Int =
-        M.map S.size matches
-  Right $ ExprRow { _viewExprNode = n
-                    , _columnProps = matchCounts
-                    , _otherProps = OtherProps False }
-exprRow_from_viewExprNode' _ n =
-  Right $ exprRow_from_viewExprNode n
 
 emptySt :: Rslt -> St
 emptySt r = St {
@@ -126,3 +95,34 @@ buffer_from_exprRowTree ptbr =
       , _pTreeHasFocus = False
       , _pMTrees = P.fromList [ptbr]
       } }
+
+exprRow_from_viewExprNode'
+  :: St -> ViewExprNode' -> Either String ExprRow
+exprRow_from_viewExprNode' st n@(VExpr' (ViewExpr a _ _)) =
+  prefixLeft "exprRow_from_viewExprNode':" $ do
+  let r = st ^. appRslt
+      hs = st ^. columnHExprs
+      sub :: Map Var Addr =
+        M.singleton VarRowNode a
+  matches :: Map HExpr (Set Addr) <-
+    let f h = (h, hExprToAddrs r sub h)
+    in ifLefts_map $ M.fromList $ map f hs
+  let matchCounts :: Map HExpr Int =
+        M.map S.size matches
+  Right $ ExprRow { _viewExprNode = n
+                    , _columnProps = matchCounts
+                    , _otherProps = OtherProps False }
+exprRow_from_viewExprNode' _ n =
+  Right $ exprRow_from_viewExprNode n
+
+exprRow_from_viewExprNode :: ViewExprNode' -> ExprRow
+exprRow_from_viewExprNode n = ExprRow
+  { _viewExprNode = n
+  , _columnProps = mempty
+  , _otherProps = OtherProps False }
+
+defaulViewOptions :: ViewOptions
+defaulViewOptions = ViewOptions
+  { _viewOpt_ShowAddresses = True
+  , _viewOpt_ShowAsAddresses = True
+  , _viewOpt_WrapLength = 60 }
