@@ -24,6 +24,7 @@ import Hode.UI.IUtil
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 import Hode.UI.Window
 import Hode.Util.Misc
 
@@ -71,7 +72,11 @@ cycleBuffer_fromAddrs st (t,c) = do
     <$> addrsToExprRows st mempty (t:c)
   Right $ Buffer
     { _bufferExprRowTree = PTree
-      { _pTreeLabel = exprRow_from_viewExprNode $ VQuery CycleView
+      { _pTreeLabel = exprRow_from_viewExprNode $
+        VFork' $ ViewFork'
+          { _viewForkCenter' = Nothing
+          , _viewForkSortTplt' = Nothing
+          , _viewForkType' = VFQuery' CycleView }
       , _pTreeHasFocus = False
       , _pMTrees = Just p } }
 
@@ -89,9 +94,10 @@ delete_cycleBuffer st =
     Nothing -> Left "searchBuffers is empty. (Not a user error.)"
     Just (pb0 :: Porest Buffer) -> do
       let pred :: PTree Buffer -> Bool =
-            ( /= VQuery CycleView ) .
-            ( ^. pTreeLabel . bufferExprRowTree .
-              pTreeLabel . viewExprNode )
+            ( /= (Just CycleView) ) .
+            ( ^? pTreeLabel . bufferExprRowTree .
+              pTreeLabel . viewExprNode .
+              _VFork' . viewForkType' . _VFQuery' )
       pb1 :: Porest Buffer <- let
         err = Left "nothing left after filtering. (Not a user error.)"
         in maybe err Right $ filterPList pred pb0

@@ -1,16 +1,17 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.IUtil (
-    unEitherSt                   -- ^ Either String St -> St -> St
-  , emptySt                      -- ^ Rslt -> St
-  , emptyBuffer                  -- ^ Buffer
+    unEitherSt                  -- ^ Either String St -> St -> St
+  , emptySt                     -- ^ Rslt -> St
+  , emptyBuffer                 -- ^ Buffer
   , emptyCycleBuffer            -- ^ Porest ExprRow
-  , buffer_from_exprRowTree    -- ^ PTree ViewExprNode
-                                 -- -> Either String Buffer
-  , exprRow_from_viewExprNode' -- ^ St -> ViewExprNode
-                                 --        -> Either String ExprRow
-  , exprRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
-  , defaulViewOptions            -- ^ ViewOptions
+  , buffer_from_exprRowTree     -- ^ PTree ViewExprNode
+                                -- -> Either String Buffer
+  , viewFork'_fromViewForkType' -- ^ ViewForkType' -> ViewFork'
+  , exprRow_from_viewExprNode'  -- ^ St -> ViewExprNode
+                                --        -> Either String ExprRow
+  , exprRow_from_viewExprNode   -- ^       ViewExprNode -> ExprRow
+  , defaulViewOptions           -- ^ ViewOptions
   ) where
 
 import qualified Data.List.PointedList as P
@@ -66,7 +67,9 @@ emptySt r = St {
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ exprRow_from_viewExprNode $ VFQuery' $ QueryView
+    pTreeLeaf $ exprRow_from_viewExprNode $
+    VFork' . viewFork'_fromViewForkType' $
+    VFQuery' $ QueryView
     "Empty buffer. (If you run a search, the results will be shown here.)"
   }
 
@@ -74,6 +77,7 @@ emptyCycleBuffer :: Buffer
 emptyCycleBuffer = Buffer
   { _bufferExprRowTree =
     pTreeLeaf $ exprRow_from_viewExprNode
+    $ VFork' . viewFork'_fromViewForkType'
     $ VFQuery' CycleView
   }
 
@@ -90,11 +94,19 @@ buffer_from_exprRowTree ptbr =
   Right $ Buffer
     { _bufferExprRowTree = PTree
       { _pTreeLabel =
-        exprRow_from_viewExprNode . VFQuery' . QueryView .
+        exprRow_from_viewExprNode .
+        VFork' . viewFork'_fromViewForkType' .
+        VFQuery' . QueryView .
         unColorString $ ve ^. viewExpr_String
       , _pTreeHasFocus = False
       , _pMTrees = P.fromList [ptbr]
       } }
+
+viewFork'_fromViewForkType' :: ViewForkType' -> ViewFork'
+viewFork'_fromViewForkType' vft = ViewFork'
+  { _viewForkCenter' = Nothing
+  , _viewForkSortTplt' = Nothing
+  , _viewForkType' = vft }
 
 exprRow_from_viewExprNode'
   :: St -> ViewExprNode' -> Either String ExprRow

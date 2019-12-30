@@ -20,6 +20,7 @@ import           Lens.Micro hiding (has)
 
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 import Hode.UI.IUtil
 import Hode.UI.IUtil.String
 import Hode.UI.Window
@@ -38,7 +39,7 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
     Right $ b ^? ( bufferExprRowTree
                    . getFocusedSubtree . _Just )
   b' :: Buffer <- let
-    f (VExpr ve) = VExpr $ ve { _viewExpr_showAsAddrs = mempty }
+    f (VExpr' ve) = VExpr' $ ve { _viewExpr_showAsAddrs = mempty }
     f x = x -- should not happen
     in buffer_from_exprRowTree
        $ pter & pTreeLabel . viewExprNode %~ f

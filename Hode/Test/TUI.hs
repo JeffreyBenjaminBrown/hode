@@ -19,6 +19,7 @@ import           Hode.UI.Input.IParse
 import           Hode.UI.Types.Names
 import           Hode.UI.Types.State
 import           Hode.UI.Types.Views
+import           Hode.UI.Types.Views2
 import qualified Hode.Test.Rslt.RData as D
 
 
@@ -34,13 +35,20 @@ test_st_cycleBufferLenses = TestCase $ do
   let st = emptySt $ mkRslt mempty
       p :: Maybe (Porest ExprRow) = P.fromList
         [ pTreeLeaf $ ExprRow
-          { _viewExprNode = VQuery $ QueryView "something"
+          { _viewExprNode = VFork' $ ViewFork'
+            { _viewForkCenter' = Nothing
+            , _viewForkSortTplt' = Nothing
+            , _viewForkType' = VFQuery' $ QueryView "something" }
           , _columnProps = mempty
           , _otherProps = OtherProps False } ]
       b = Buffer { _bufferExprRowTree = pTreeLeaf $
-                   exprRow_from_viewExprNode $ VQuery $ QueryView "meh" }
+                   exprRow_from_viewExprNode $
+                   VFork' . viewFork'_fromViewForkType' $
+                   VFQuery' $ QueryView "meh" }
       c_empty = Buffer { _bufferExprRowTree = pTreeLeaf $
-                         exprRow_from_viewExprNode $ VQuery $ CycleView }
+                         exprRow_from_viewExprNode $
+                         VFork' . viewFork'_fromViewForkType' $
+                         VFQuery' CycleView }
       c_something = c_empty & bufferExprRowTree . pMTrees .~ p
 
   assertBool "" $
@@ -58,16 +66,21 @@ test_groupHostRels :: T.Test
 test_groupHostRels = TestCase $ do
   assertBool "1" $ (S.fromList <$> groupHostRels D.big 2) == Right
     ( S.fromList
-      [ ( RelHostFork RelHosts
-          { _memberHostsCenter = 2
-          , _memberHostsRole = RoleInRel' $ RoleMember 1
-          , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
+      [ ( ViewFork'
+          { _viewForkCenter' = Just 2
+          , _viewForkSortTplt' = Nothing
+          , _viewForkType' = VFRelHosts' $ RelHosts'
+            { _memberHostsRole' = RoleInRel' $ RoleMember 1
+            , _memberHostsTplt' = Tplt Nothing [Phrase "0"] Nothing } }
         ,[9] )
-      , ( RelHostFork RelHosts
-          { _memberHostsCenter = 2
-          , _memberHostsRole = RoleInRel' $ RoleMember 2
-          , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing }
+      , ( ViewFork'
+          { _viewForkCenter' = Just 2
+          , _viewForkSortTplt' = Nothing
+          , _viewForkType' = VFRelHosts' $ RelHosts'
+            { _memberHostsRole' = RoleInRel' $ RoleMember 2
+            , _memberHostsTplt' = Tplt Nothing [Phrase "0"] Nothing } }
         ,[7] ) ] )
+
 
 test_pCommand :: T.Test
 test_pCommand = TestCase $ do

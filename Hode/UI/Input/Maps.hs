@@ -31,6 +31,7 @@ import Hode.UI.Input.RunParsed
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 import Hode.UI.Window
 
 

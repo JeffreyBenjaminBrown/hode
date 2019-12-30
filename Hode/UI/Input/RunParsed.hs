@@ -29,6 +29,7 @@ import Hode.UI.Input.IParse
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Types.Views2
 import Hode.UI.Window
 import Hode.Util.Misc
 
@@ -155,9 +156,12 @@ runParsedCommand                     c0 st0 =
       (P.focus . pTreeHasFocus .~ True)
       <$> addrsToExprRows st mempty as
     let p :: PTree ExprRow = PTree -- new screen to show
-          { _pTreeLabel = exprRow_from_viewExprNode $
-                          VQuery . QueryView $
-                          T.unpack . T.strip . T.pack $ s
+          { _pTreeLabel =
+            exprRow_from_viewExprNode . VFork' $
+            ViewFork' { _viewForkCenter' = Nothing
+                      , _viewForkSortTplt' = Nothing
+                      , _viewForkType' = VFQuery' . QueryView $
+                        T.unpack . T.strip . T.pack $ s }
           , _pTreeHasFocus = False
           , _pMTrees = Just pr }
 
