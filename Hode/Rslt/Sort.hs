@@ -93,6 +93,7 @@ data Kahn = Kahn
 -- Note: this is depth-first search.
 -- (For BFS, reverse the order of the expression
 -- `newTops ++ tops` in `kahnIterate`.)
+
 kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
          -> Either String ([Addr],[Addr])
 kahnSort r (bo,t) as =
@@ -104,6 +105,7 @@ kahnSort r (bo,t) as =
     S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
   (nodes1,isolated) <-
     partitionRelated r1 t nodes0
+
   tops :: [Addr] <- allTops r1 (bo,t) nodes1
   Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
   case null $ S.intersection rels $

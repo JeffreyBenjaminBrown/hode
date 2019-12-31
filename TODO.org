@@ -11,10 +11,14 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO Kahn sort
-**** TODO do not delete the template during iteration
+**** TODO mystery: simply deleting the template doesn't work
+See new failing test.
+**** TODO ? do not delete the template during iteration
 Provide the template as an argument to "delete hosts then delete".
-**** TODO delete the template before checking for cyclicality
+**** TODO ? delete the template before checking for cyclicality
 ***** TODO ? What if there's a cycle involving the template?
+I don't think this matters, because cycles are checked for every time
+someone adds a relationship to the graph.
 *** TODO display
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.

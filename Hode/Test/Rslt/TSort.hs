@@ -1,3 +1,5 @@
+-- | PITFALL: Some of these tests are manual.
+
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Test.Rslt.TSort where
@@ -25,6 +27,7 @@ test_module_rslt_sort = TestList [
   TestLabel "test_allExprsButTpltsOrRelsUsingThem"
     test_allExprsButTpltsOrRelsUsingThem,
   TestLabel "test_kahnSort" test_kahnSort,
+  TestLabel "test_kahnSort_tpltInNodes" test_kahnSort_tpltInNodes,
   TestLabel "test_partitionRelated" test_partitionRelated
   ]
 
@@ -66,9 +69,27 @@ test_partitionRelated = TestCase $ do
   assertBool "the numbers are connected, again" $
     S.fromList conn' ==
     S.fromList (map (stringElt rLine' . show) [0..3::Int])
+ts = "(/t /_ \"\" /_)" -- template string
+Right r = nInserts (mkRslt mempty)
+          [ "12 # 11"
+          , "11 # " ++ ts
+          , ts ++ " # 9"
+          , "8 # 9" ]
+t :: Addr = either (error "wut?") id $
+    head . S.toList <$>
+    nFindAddrs r ts
+i :: Int -> Addr
+i = either (error "not in graph") id .
+    exprToAddr r . Phrase . show
 
--- | See also `test_kahnSort'`, a manual test,
--- which shows what happens with branches.
+-- | Can I sort a set of nodes when the `Tplt`
+-- being sorted by is among them?
+test_kahnSort_tpltInNodes :: Test
+test_kahnSort_tpltInNodes = TestCase $ do
+  assertBool "" $
+    kahnSort r (LeftFirst,t) [t, i 9, i 11]
+    == Right ([i 11, t, i 9], [])
+
 test_kahnSort :: Test
 test_kahnSort = TestCase $ do
   let tplt_a :: Rslt -> Addr
