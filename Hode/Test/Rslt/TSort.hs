@@ -25,11 +25,11 @@ test_module_rslt_sort = TestList [
   TestLabel "test_allExprsButTpltsOrRelsUsingThem"
     test_allExprsButTpltsOrRelsUsingThem,
   TestLabel "test_kahnSort" test_kahnSort,
-  TestLabel "test_partitionIsolated" test_partitionIsolated
+  TestLabel "test_partitionRelated" test_partitionRelated
   ]
 
-test_partitionIsolated :: Test
-test_partitionIsolated = TestCase $ do
+test_partitionRelated :: Test
+test_partitionRelated = TestCase $ do
   let tplt_a :: Rslt -> Addr
       tplt_a r = either (error "huh?") id $
                  head . S.toList <$>
@@ -43,9 +43,9 @@ test_partitionIsolated = TestCase $ do
         , "0 #a 1", "1 #a 2", "2 #a 3"
         , "y" ]
       Right (isol,conn) =
-        partitionIsolated rLine (tplt_a rLine)
+        partitionRelated rLine (tplt_a rLine)
         $ map (stringElt rLine) ["0","1","2","3","x","y"]
-  assertBool "x and y are isolated" $
+  assertBool "x and y are related" $
     S.fromList isol ==
     S.fromList (map (stringElt rLine) ["x","y"])
   assertBool "the numbers are connected" $
@@ -58,9 +58,9 @@ test_partitionIsolated = TestCase $ do
         , "0 #a 1", "y", "2 #a 3"
         , "x" ]
       Right (isol',conn') =
-        partitionIsolated rLine' (tplt_a rLine')
+        partitionRelated rLine' (tplt_a rLine')
         $ map (stringElt rLine') ["0","1","2","3","x","y"]
-  assertBool "x and y are isolated, again" $
+  assertBool "x and y are related, again" $
     S.fromList isol' ==
     S.fromList (map (stringElt rLine') ["x","y"])
   assertBool "the numbers are connected, again" $

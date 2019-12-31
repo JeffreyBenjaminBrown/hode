@@ -47,10 +47,10 @@ module Hode.Rslt.Sort (
   , isTop -- ^ Rslt -> (BinOrientation, TpltAddr) -> Addr
           -- -> Either String Bool
 
-  , partitionIsolated -- ^ Rslt -> TpltAddr
+  , partitionRelated -- ^ Rslt -> TpltAddr
                       -- -> [Addr] -- ^ candidates
                       -- -> Either String ([Addr],[Addr])
-  , isIsolated -- ^ Rslt -> TpltAddr -> Addr
+  , isRelated -- ^ Rslt -> TpltAddr -> Addr
                -- -> Either String Bool
 
   , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
@@ -224,24 +224,24 @@ isTop r (ort,t) a =
       (roleOfLesser,        HExpr $ ExprAddr a) ]
   Right $ null relsInWhichItIsLesser
 
-partitionIsolated :: Rslt -> TpltAddr
+partitionRelated :: Rslt -> TpltAddr
                   -> [Addr] -- ^ candidates
                   -> Either String ([Addr],[Addr])
-partitionIsolated r t as =
-  prefixLeft "partitionIsolated:" $ do
-  let withIsIsolated :: Addr -> Either String (Bool, Addr)
-      withIsIsolated a = (,a) <$> isIsolated r t a
-  (areIsolated, areConnected) <-
-    L.partition fst <$> mapM withIsIsolated as
-  Right $ (map snd areIsolated, map snd areConnected)
+partitionRelated r t as =
+  prefixLeft "partitionRelated:" $ do
+  let withIsRelated :: Addr -> Either String (Bool, Addr)
+      withIsRelated a = (,a) <$> isRelated r t a
+  (areRelated, areConnected) <-
+    L.partition fst <$> mapM withIsRelated as
+  Right $ (map snd areRelated, map snd areConnected)
 
-isIsolated :: Rslt -> TpltAddr -> Addr
+isRelated :: Rslt -> TpltAddr -> Addr
            -> Either String Bool
-isIsolated r t a =
-  -- TODO ? speed: `partitionIsolated` calls this a lot.
+isRelated r t a =
+  -- TODO ? speed: `partitionRelated` calls this a lot.
   -- Each time, it has to run `hExprToAddrs` on the `HMap`.
-  -- It could be faster to move that into `partitionIsolated`.
-  prefixLeft "isIsolated:" $ do
+  -- It could be faster to move that into `partitionRelated`.
+  prefixLeft "isRelated:" $ do
   connections :: Set Addr <- --`t`-relationships involving `a`
     hExprToAddrs r mempty $ HAnd
     [ HMap $ M.singleton (RoleInRel' RoleTplt)
