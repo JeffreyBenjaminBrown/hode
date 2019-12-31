@@ -4,6 +4,7 @@
 
 module Hode.Test.Rslt.TSort where
 
+import           Data.Either
 import qualified Data.Set as S
 import qualified Data.Map as M
 import           Test.HUnit
@@ -69,6 +70,7 @@ test_partitionRelated = TestCase $ do
   assertBool "the numbers are connected, again" $
     S.fromList conn' ==
     S.fromList (map (stringElt rLine' . show) [0..3::Int])
+
 ts = "(/t /_ \"\" /_)" -- template string
 Right r = nInserts (mkRslt mempty)
           [ "12 # 11"
@@ -86,7 +88,9 @@ i = either (error "not in graph") id .
 -- being sorted by is among them?
 test_kahnSort_tpltInNodes :: Test
 test_kahnSort_tpltInNodes = TestCase $ do
-  assertBool "" $
+  assertBool "is Right" $ isRight $
+    kahnSort r (LeftFirst,t) [t, i 9, i 11]
+  assertBool "is what it should be" $
     kahnSort r (LeftFirst,t) [t, i 9, i 11]
     == Right ([i 11, t, i 9], [])
 
