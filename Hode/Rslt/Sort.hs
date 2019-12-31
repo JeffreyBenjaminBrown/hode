@@ -7,7 +7,7 @@
 --   (4) none of the `Expr`s the user wants to sort
 --       is a `Rel` with `e` as its `Tplt`
 --
--- PITFALL: Some of these functions are written
+-- PITFALL: Some of these functions were written
 -- to handle multiple `Tplt`s, but then I lost interest.
 
 {-# LANGUAGE
@@ -25,10 +25,6 @@ module Hode.Rslt.Sort (
   , kahnIterate -- ^  (BinOrientation, TpltAddr) -> Kahn
                 -- -> Either String Kahn
 
-  , allRelsInvolvingTplts -- ^  Rslt -> [TpltAddr]
-                          -- -> Either String (Set RelAddr)
-  , allNormalMembers      -- ^  Rslt -> [RelAddr]
-                          -- -> Either String [RelAddr]
   , restrictRsltForSort
     -- ^  [Addr]             -- ^ the `Expr`s to sort
     -- -> [TpltAddr]         -- ^ how to sort
@@ -37,6 +33,10 @@ module Hode.Rslt.Sort (
       -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder,
       -- every `Rel` involving those `Tplt`s,
       -- and every member of those `Rel`s
+  , allRelsInvolvingTplts -- ^  Rslt -> [TpltAddr]
+                          -- -> Either String (Set RelAddr)
+  , allNormalMembers      -- ^  Rslt -> [RelAddr]
+                          -- -> Either String [RelAddr]
   , allExprsButTpltsOrRelsUsingThem -- ^ Rslt -> [TpltAddr]
                                     -- -> Either String (Set Addr)
 
@@ -75,9 +75,12 @@ import Hode.Rslt.RTypes
 import Hode.Util.Misc
 
 
-data Kahn = Kahn { kahnRslt   :: Rslt
-                 , kahnTops   :: [Addr]
-                 , kahnSorted :: [Addr] }
+data Kahn = Kahn
+  { kahnRslt   :: Rslt -- ^ A subset of the original `Rslt`.
+    -- It shrinks (via `deleteHostsThenDelete`)
+    -- as the algorithm progresses (see `kahnIterate`).
+  , kahnTops   :: [Addr]
+  , kahnSorted :: [Addr] }
   deriving (Eq,Ord,Show)
 
 -- | Depth-first search.
@@ -90,7 +93,6 @@ kahnSort r (bo,t) as =
   prefixLeft "kahnSort:" $ do
   rels :: Set Addr <- allRelsInvolvingTplts r [t]
   r1 :: Rslt <- restrictRsltForSort as [t] r
-    -- restrict to "nodes", "edges", and the "edge label" at `t`
   nodes :: [Addr] <-
     S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
   tops :: [Addr] <- allTops r1 (bo,t) nodes
@@ -126,6 +128,23 @@ kahnIterate (bo,t) (Kahn r (top:tops) acc) =
                        S.toList jus
   Right $ Kahn r1 (newTops ++ tops) (top : acc)
 
+restrictRsltForSort ::
+     [Addr]     -- ^ the `Expr`s to sort
+  -> [TpltAddr] -- ^ how to sort
+  -> Rslt       -- ^ the original `Rslt`
+  -> Either String Rslt -- ^ the `Expr`s to sort, the `Tplt`s to sort by,
+  -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
+restrictRsltForSort es ts r =
+  prefixLeft "restrictRsltForSort:" $ do
+  rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
+  mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
+  let refExprs = M.restrictKeys (_addrToRefExpr r) $
+                 S.unions [ S.fromList es,
+                            S.fromList ts,
+                            S.fromList mems,
+                            rels ]
+  Right $ mkRslt refExprs
+
 -- | `allRelsInvolvingTplts r ts` finds every `Rel`
 -- that uses a member of `ts` as a `Tplt`.
 allRelsInvolvingTplts ::
@@ -149,23 +168,8 @@ allNormalMembers r rels =
     ifLefts $ map (has r) rels
   Right $ concatMap
     ( M.elems . ( flip M.withoutKeys
-                  (S.singleton $ RoleInRel' RoleTplt) ) )
+                  $ S.singleton $ RoleInRel' RoleTplt) )
     members
-
-restrictRsltForSort ::
-     [Addr]     -- ^ the `Expr`s to sort
-  -> [TpltAddr] -- ^ how to sort
-  -> Rslt       -- ^ the original `Rslt`
-  -> Either String Rslt -- ^ the `Expr`s, every `Tplt` in the `BinTpltOrder`,
-  -- every `Rel` involving those `Tplt`s, and every member of those `Rel`s
-restrictRsltForSort es ts r =
-  prefixLeft "restrictRsltForSort:" $ do
-  rels :: Set RelAddr  <- allRelsInvolvingTplts r ts
-  mems :: [MemberAddr] <- allNormalMembers r $ S.toList rels
-  let refExprs = M.restrictKeys (_addrToRefExpr r) $
-                 S.unions [ S.fromList $ es ++ ts ++ mems,
-                            rels ]
-  Right $ mkRslt refExprs
 
 -- | `allExprsButTpltsOrRelsUsingThem r ts` returns the "nodes"
 -- of the sub-`Rslt` (which must be of a specific form --
@@ -187,6 +191,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
     HMap $ M.singleton (RoleInRel' RoleTplt) $
     HOr $ map (HExpr . ExprAddr) ts
   Right ( S.difference
+        -- faster than `S.difference as (S.union ts tsUsers)`
           ( S.difference as $ S.fromList ts )
           tsUsers )
 
@@ -195,12 +200,12 @@ allTops :: Rslt
         -> [Addr] -- ^ candidates
         -> Either String [Addr]
 allTops r (bo,t) as =
-  prefixLeft "allTops:" $ do
+  prefixLeft "allTops:" $
   let withIsTop :: Addr -> Either String (Bool, Addr)
       withIsTop a = (,a) <$> isTop r (bo,t) a
-  map snd . filter fst <$> mapM withIsTop as
+  in map snd . filter fst <$> mapM withIsTop as
 
--- | `isTop r (orient,t) a` tests whether,
+-- | `isTop r (ort,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
 -- no `Expr` in `r` is greater than the one at `a`.
 -- For instance, if `orient` is `RightFirst`,
@@ -210,12 +215,13 @@ isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
       -> Either String Bool
 isTop r (ort,t) a =
   prefixLeft "isTop:" $ do
-  let roleOfLesser = case ort of
-        RightFirst  -> RoleInRel' $ RoleMember 2
-        LeftFirst   -> RoleInRel' $ RoleMember 1
-  relsInWhichItIsLesser <- hExprToAddrs r mempty $
-    HMap $ M.fromList [ (RoleInRel' $ RoleTplt, HExpr $ ExprAddr t),
-                        (roleOfLesser,          HExpr $ ExprAddr a) ]
+  let roleOfLesser = RoleInRel' $ RoleMember $
+        case ort of RightFirst  -> 2
+                    LeftFirst   -> 1
+  relsInWhichItIsLesser <-
+    hExprToAddrs r mempty $ HMap $ M.fromList
+    [ (RoleInRel' RoleTplt, HExpr $ ExprAddr t),
+      (roleOfLesser,        HExpr $ ExprAddr a) ]
   Right $ null relsInWhichItIsLesser
 
 partitionIsolated :: Rslt -> TpltAddr
@@ -225,9 +231,9 @@ partitionIsolated r t as =
   prefixLeft "partitionIsolated:" $ do
   let withIsIsolated :: Addr -> Either String (Bool, Addr)
       withIsIsolated a = (,a) <$> isIsolated r t a
-  (isolated, connected) <-
+  (areIsolated, areConnected) <-
     L.partition fst <$> mapM withIsIsolated as
-  Right $ (map snd isolated, map snd connected)
+  Right $ (map snd areIsolated, map snd areConnected)
 
 isIsolated :: Rslt -> TpltAddr -> Addr
            -> Either String Bool
@@ -236,10 +242,11 @@ isIsolated r t a =
   -- Each time, it has to run `hExprToAddrs` on the `HMap`.
   -- It could be faster to move that into `partitionIsolated`.
   prefixLeft "isIsolated:" $ do
-  connections :: Set Addr <-
-        hExprToAddrs r mempty $ HAnd
-        [ HMap $ M.singleton (RoleInRel' RoleTplt) (HExpr $ ExprAddr t)
-        , HMember $ HExpr $ ExprAddr a ]
+  connections :: Set Addr <- --`t`-relationships involving `a`
+    hExprToAddrs r mempty $ HAnd
+    [ HMap $ M.singleton (RoleInRel' RoleTplt)
+      (HExpr $ ExprAddr t)
+    , HMember $ HExpr $ ExprAddr a ]
   Right $ if null connections then True else False
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
@@ -250,10 +257,11 @@ justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
 justUnders (bo,t) r a = let
   h :: HExpr = let
     (bigger, smaller) = case bo of
-      RightFirst ->  (1,2)
-      LeftFirst -> (2,1)
+      RightFirst -> (1,2)
+      LeftFirst  -> (2,1)
     rel = HMap $ M.fromList
-      [ ( RoleInRel' RoleTplt,          HExpr $ ExprAddr t),
+      -- `t`-relationships in which `a` is the bigger
+      [ ( RoleInRel' RoleTplt,            HExpr $ ExprAddr t),
         ( RoleInRel' $ RoleMember bigger, HExpr $ ExprAddr a ) ]
     in HEval rel [[RoleMember smaller]]
   in prefixLeft "justUnders:" $
@@ -261,6 +269,7 @@ justUnders (bo,t) r a = let
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
 -- rel in which `a` is a member, and then removes `a`.
+-- TODO ? PITFALL: Nothing guarantees `a` appears only in binary `Rel`s.
 deleteHostsThenDelete ::
   Addr -> Rslt -> Either String Rslt
 deleteHostsThenDelete a r =

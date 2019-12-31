@@ -11,8 +11,7 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO display
-**** TODO UI types: improve comments
-**** TODO add a view-child sort order to ViewExprNode
+**** TODO in kahn sort algorithm, put unrelated things last
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.
@@ -24,7 +23,6 @@ Those are in the middle.
 At the top are things related to each other by the TR that orders the list.
 They are white if they are also related by some other TR to anything else.
 Otherwise they are blue.
-**** TODO in kahn sort algorithm, put unrelated things last
 **** TODO sort by default
  By default, any same-level, view-contiguous sequence of ViewExprs is sorted,
  according to the first transitive relation extant among any of its members.
@@ -80,9 +78,11 @@ None of them are isolated from the closure of (>),
 but among [a,b,c], c is isolated.
 It should be shown in the unsorted group.
 *** ? compromise: don't consider non-local connections
-** TODO the "don't show X in maybe X" problem
+** TODO the obstructive subexpression problem
+*** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:
   not, maybe, and warning
+*** after using the app more, maybe consider the more general problem
 ** TODO compress binary groups
 * TODO pressing
 ** TODO tests for the UI
@@ -124,6 +124,9 @@ matches up to 3 (4) separate `HExpr`s.
 not just its top level
 ** cannot implement the separator "#:"
 * TODO easy
+** TODO folding indicator
+Visually indicate whether a node with descendents is folded.
+Or at least, upon inserting contents, unfold.
 ** TODO invert colors for highlight
 Rather than rotating blue-green-red,
 invert white with the color.
@@ -135,10 +138,6 @@ moving address
 ** TODO check for cycles when a tplt is declared transitive
 Check for cycles non-locally --
 that is, with reference to no particular point in the cycle.
-** TODO rename data types
-Buffers should have types.
-Most Buffers are of type RsltView.
-One of them is of type BufferView.
 ** TODO shortcut to empty the command window
 was implemented already once
 ** TODO merge two nodes
@@ -232,9 +231,6 @@ For instance, the display of this (at address 153 in jbb/)
 includes a 121-character-long line.
 *** todo ? distance to wrap should shrink with columns, indentation
 *** todo ? temp fix: allow user to change wrap length
-** TODO folding indicator
-Visually indicate whether a node with descendents is folded.
-Or at least, upon inserting contents, unfold.
 ** TODO ? multi-line expressions
 ** TODO ? offer to delete orphaned nodes
 If a member of something deleted is not remember of anything else, ask whether to delete it, too -- and recurse.
@@ -269,9 +265,6 @@ Once it is implemented, Paths needs to not be integers lists;
 they will have to be lists of (Integer | Wildcard),
 where a Wildcard stands for "any number could go here".
 * PIFALLs | warts
-** TODO Hode.Rslt.Edit.delete is ugly
-It can cause the address of (Phrase "") to change.
-It assumes you want "" in your graph.
 ** TODO searching for a Tplt with empty-string separators
 One needs to represent the empty separator as \"\", as in this:
    Right r = nInserts (mkRslt mempty) [ "0 # 1", "1 # 2" ]
@@ -435,6 +428,8 @@ Otherwise there is no record of the names used by the input and the output for v
  The solution is to change the varName in the Test. This puts, however,
  an annoying burden on the user.
 * TODO re. Rslt
+** TODO relationship equivalence
+** TODO symmetric relationships (includes isomorphisms)
 ** TODO ? multi-Tplt topological sort
 tags: order, transitive
 *** if I could identify a set of tied w/r/t tplt-1 tops
@@ -720,8 +715,7 @@ You can tell from reading a Program's [ (VarFunc, Query) ] argument which elemen
  21.rslt p "extension"
 * far off
 ** synthetic templates
-_ is a member of _" is a "synthetic" template. There might be others.
-** relationship equivalence
+"_ is a member of _" is a "synthetic" template. There might be others.
 ** programmatic edits ("do _ to everything that satisfies _")
 ** show a recursive statement without exploding
 ** hard : text-to-hexpr|expr correspondence
