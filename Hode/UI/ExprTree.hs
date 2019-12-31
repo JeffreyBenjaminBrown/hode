@@ -54,10 +54,10 @@ insertSearchResults_atFocus st =
     -- The new subtree has depth two. This is the second level.
     addrsToExprRows st mempty $ S.toList as
   let new :: PTree ExprRow =
-        pTreeLeaf ( exprRow_from_viewExprNode $ VFork' $ ViewFork'
-                    { _viewForkCenter' = Just a
-                    , _viewForkSortTplt' = Nothing
-                    , _viewForkType' = VFSearch' } )
+        pTreeLeaf ( exprRow_from_viewExprNode $ VFork $ ViewFork
+                    { _viewForkCenter = Just a
+                    , _viewForkSortTplt = Nothing
+                    , _viewForkType = VFSearch } )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
                  %~ consUnder_andFocus new )
@@ -78,10 +78,10 @@ insertMembers_atFocus st =
     addrsToExprRows st (S.singleton a) as
   let new :: PTree ExprRow =
         pTreeLeaf ( ExprRow
-                    { _viewExprNode = VFork' $ ViewFork'
-                      { _viewForkCenter' = Just a
-                      , _viewForkSortTplt' = Nothing
-                      , _viewForkType' = VFMembers' }
+                    { _viewExprNode = VFork $ ViewFork
+                      { _viewForkCenter = Just a
+                      , _viewForkSortTplt = Nothing
+                      , _viewForkType = VFMembers }
                     , _columnProps = mempty
                     , _otherProps = OtherProps False } )
         & pMTrees .~ Just leaves
@@ -91,7 +91,7 @@ insertMembers_atFocus st =
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st =
   prefixLeft "insertHosts_atFocus:" $ do
-  groups :: [(ViewFork', [Addr])] <-
+  groups :: [(ViewFork, [Addr])] <-
     groupHostRels_atFocus st
   newTrees :: [PTree ExprRow] <-
     ifLefts $ map (hostGroup_to_forkTree st) groups
@@ -107,17 +107,17 @@ insertHosts_atFocus st =
   Right $ st & stSetFocused_ViewExprNode_Tree %~ insert
 
 groupHostRels_atFocus ::
-  St -> Either String [(ViewFork', [Addr])]
+  St -> Either String [(ViewFork, [Addr])]
 groupHostRels_atFocus st =
   prefixLeft "groupHostRels_atFocus:" $ do
   a :: Addr <- maybe
     (Left "Buffer or focused ViewExprNode not found.")
     Right $ st ^? stGetFocused_ViewExprNode_Tree . _Just .
-      pTreeLabel . viewExprNode . _VExpr' . viewExpr_Addr
+      pTreeLabel . viewExprNode . _VExpr . viewExpr_Addr
   groupHostRels (st ^. appRslt) a
 
 groupHostRels ::
-  Rslt -> Addr -> Either String [(ViewFork', [Addr])]
+  Rslt -> Addr -> Either String [(ViewFork, [Addr])]
 groupHostRels r a0 =
   prefixLeft "groupHostRels:" $ do
   ras :: [(Role, HostAddr)] <-
@@ -135,14 +135,14 @@ groupHostRels r a0 =
           isTplt :: ((Role,HostAddr),ExprCtr) -> Bool
           isTplt = (\case TpltCtr -> True; _ -> False) . snd
 
-      maybeConsTpltHosts :: [(ViewFork', [Addr])]
-                         -> [(ViewFork', [Addr])]
+      maybeConsTpltHosts :: [(ViewFork, [Addr])]
+                         -> [(ViewFork, [Addr])]
         -- There is at most one `TpltHostFork`.
         = if null tplt_ras then id
-          else (:) ( ViewFork'
-                     { _viewForkCenter' = Just a0
-                     , _viewForkSortTplt' = Nothing
-                     , _viewForkType' = VFTpltHosts' }
+          else (:) ( ViewFork
+                     { _viewForkCenter = Just a0
+                     , _viewForkSortTplt = Nothing
+                     , _viewForkType = VFTpltHosts }
                    , map snd tplt_ras )
 
   rel_tplts :: [TpltAddr] <-
@@ -167,16 +167,16 @@ groupHostRels r a0 =
             M.insertWith (++) (role,t) [a] m
 
       mkRelFork :: ((Role, TpltAddr),[RelAddr])
-                -> (ViewFork', [RelAddr])
+                -> (ViewFork, [RelAddr])
       mkRelFork ((role,t),as) =
         (relHosts, as)
         where
-          relHosts = ViewFork'
-            { _viewForkCenter' = Just a0
-            , _viewForkSortTplt' = Nothing
-            , _viewForkType' = VFRelHosts' $ RelHosts'
-              { _memberHostsRole' = role
-              , _memberHostsTplt' = tplt t } }
+          relHosts = ViewFork
+            { _viewForkCenter = Just a0
+            , _viewForkSortTplt = Nothing
+            , _viewForkType = VFRelHosts $ RelHosts
+              { _memberHostsRole = role
+              , _memberHostsTplt = tplt t } }
             where tplt :: Addr -> Tplt Expr
                   tplt a = es
                     where Right (ExprTplt es) = addrToExpr r a
@@ -188,7 +188,7 @@ groupHostRels r a0 =
 -- | `hostGroup_to_forkTree st (hf, as)` makes 2-layer tree.
 -- `hf` is the root.
 -- The `ViewExpr`s creates from `as` form the other layer.
-hostGroup_to_forkTree :: St -> (ViewFork', [Addr])
+hostGroup_to_forkTree :: St -> (ViewFork, [Addr])
                       -> Either String (PTree ExprRow)
 hostGroup_to_forkTree st (hf, as) =
   prefixLeft "hostGroup_to_forkTree:" $ do
@@ -198,7 +198,7 @@ hostGroup_to_forkTree st (hf, as) =
 
   topOfNew :: ExprRow <-
     exprRow_from_viewExprNode' st $
-    VFork' hf
+    VFork hf
   leaves :: Porest ExprRow <-
     addrsToExprRows st (S.singleton a) as
   Right $ PTree {
@@ -218,9 +218,9 @@ addrsToExprRows st showAsAddr as =
   prefixLeft "addrsToExprRows:" $ do
   let r  :: Rslt        = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
-  leaves0 :: [ViewExprNode'] <-
+  leaves0 :: [ViewExprNode] <-
     let f = mkViewExpr r vo showAsAddr
-    in map VExpr' <$> ifLefts (map f as)
+    in map VExpr <$> ifLefts (map f as)
   leaves1 :: [ExprRow] <- ifLefts $
     map (exprRow_from_viewExprNode' st) leaves0
   let leaves2 :: [PTree ExprRow] =

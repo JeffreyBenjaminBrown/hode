@@ -39,7 +39,7 @@ makeLenses ''ViewOptions
 type ColumnProps = Map HExpr Int
 
 data OtherProps = OtherProps {
-  _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
+  _folded :: Bool -- ^ whether the ViewExprNodes children are hidden
   } deriving (Show, Eq, Ord)
 makeLenses ''OtherProps
 

@@ -59,14 +59,14 @@ data Buffer = Buffer
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
--- | I want to say this has type `Prism' Buffer ViewForkType'`,
+-- | I want to say this has type `Prism' Buffer ViewForkType`,
 -- but that appears not to be true.
 getBuffer_viewForkType :: Applicative f
-                       => (ViewForkType' -> f ViewForkType')
+                       => (ViewForkType -> f ViewForkType)
                        -> Buffer -> f Buffer
 getBuffer_viewForkType =
   bufferExprRowTree . pTreeLabel .
-  viewExprNode . _VFork' . viewForkType'
+  viewExprNode . _VFork . viewForkType
 
 -- | The entire state of the app.
 data St = St {
@@ -103,7 +103,7 @@ stGet_cycleBuffer = to go where
     Nothing -> Nothing
     Just p ->
       ( \case [] -> Nothing;   a:_ -> Just a )
-      . filter (   (== Just (VFQuery' CycleView) )
+      . filter (   (== Just (VFQuery CycleView) )
                  . (^? getBuffer_viewForkType ) )
       . toList . fmap _pTreeLabel
       $ p
@@ -121,7 +121,7 @@ stSet_cycleBuffer = sets go where
   go f st = let
     g :: Buffer -> Buffer
     g b = if b ^? getBuffer_viewForkType
-             == Just (VFQuery' CycleView)
+             == Just (VFQuery CycleView)
           then f b else b
     in st & searchBuffers . _Just
           %~ fmap (pTreeLabel %~ g)
@@ -150,6 +150,6 @@ resultWindow_focusAddr st =
 
 exprTree_focusAddr :: PTree ExprRow -> Either String Addr
 exprTree_focusAddr =
-  (\case VExpr' rv -> Right $ rv ^. viewExpr_Addr
+  (\case VExpr rv -> Right $ rv ^. viewExpr_Addr
          _         -> Left $ "Can only be called from a VExpr." )
   . (^. pTreeLabel . viewExprNode)

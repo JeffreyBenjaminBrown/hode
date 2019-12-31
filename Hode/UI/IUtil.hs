@@ -7,7 +7,7 @@ module Hode.UI.IUtil (
   , emptyCycleBuffer            -- ^ Porest ExprRow
   , buffer_from_exprRowTree     -- ^ PTree ViewExprNode
                                 -- -> Either String Buffer
-  , viewFork'_fromViewForkType' -- ^ ViewForkType' -> ViewFork'
+  , viewFork_fromViewForkType -- ^ ViewForkType -> ViewFork
   , exprRow_fromQuery           -- ^  ViewQuery -> ExprRow
   , exprRow_from_viewExprNode'  -- ^ St -> ViewExprNode
                                 --        -> Either String ExprRow
@@ -86,7 +86,7 @@ buffer_from_exprRowTree ptbr =
   let (br :: ExprRow) = ptbr ^. pTreeLabel
   ve :: ViewExpr <-
     case br ^. viewExprNode of
-      VExpr' x -> Right x
+      VExpr x -> Right x
       _ -> Left $ "called from a non-VExpr."
   Right $ Buffer
     { _bufferExprRowTree = PTree
@@ -97,20 +97,20 @@ buffer_from_exprRowTree ptbr =
       , _pMTrees = P.fromList [ptbr]
       } }
 
-viewFork'_fromViewForkType' :: ViewForkType' -> ViewFork'
-viewFork'_fromViewForkType' vft = ViewFork'
-  { _viewForkCenter' = Nothing
-  , _viewForkSortTplt' = Nothing
-  , _viewForkType' = vft }
+viewFork_fromViewForkType :: ViewForkType -> ViewFork
+viewFork_fromViewForkType vft = ViewFork
+  { _viewForkCenter = Nothing
+  , _viewForkSortTplt = Nothing
+  , _viewForkType = vft }
 
 exprRow_fromQuery :: ViewQuery -> ExprRow
 exprRow_fromQuery =
-  exprRow_from_viewExprNode . VFork' .
-  viewFork'_fromViewForkType' . VFQuery'
+  exprRow_from_viewExprNode . VFork .
+  viewFork_fromViewForkType . VFQuery
 
 exprRow_from_viewExprNode'
-  :: St -> ViewExprNode' -> Either String ExprRow
-exprRow_from_viewExprNode' st n@(VExpr' (ViewExpr a _ _)) =
+  :: St -> ViewExprNode -> Either String ExprRow
+exprRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
   prefixLeft "exprRow_from_viewExprNode':" $ do
   let r = st ^. appRslt
       hs = st ^. columnHExprs
@@ -127,7 +127,7 @@ exprRow_from_viewExprNode' st n@(VExpr' (ViewExpr a _ _)) =
 exprRow_from_viewExprNode' _ n =
   Right $ exprRow_from_viewExprNode n
 
-exprRow_from_viewExprNode :: ViewExprNode' -> ExprRow
+exprRow_from_viewExprNode :: ViewExprNode -> ExprRow
 exprRow_from_viewExprNode n = ExprRow
   { _viewExprNode = n
   , _columnProps = mempty

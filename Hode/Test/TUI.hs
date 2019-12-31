@@ -35,20 +35,20 @@ test_st_cycleBufferLenses = TestCase $ do
   let st = emptySt $ mkRslt mempty
       p :: Maybe (Porest ExprRow) = P.fromList
         [ pTreeLeaf $ ExprRow
-          { _viewExprNode = VFork' $ ViewFork'
-            { _viewForkCenter' = Nothing
-            , _viewForkSortTplt' = Nothing
-            , _viewForkType' = VFQuery' $ QueryView "something" }
+          { _viewExprNode = VFork $ ViewFork
+            { _viewForkCenter = Nothing
+            , _viewForkSortTplt = Nothing
+            , _viewForkType = VFQuery $ QueryView "something" }
           , _columnProps = mempty
           , _otherProps = OtherProps False } ]
       b = Buffer { _bufferExprRowTree = pTreeLeaf $
                    exprRow_from_viewExprNode $
-                   VFork' . viewFork'_fromViewForkType' $
-                   VFQuery' $ QueryView "meh" }
+                   VFork . viewFork_fromViewForkType $
+                   VFQuery $ QueryView "meh" }
       c_empty = Buffer { _bufferExprRowTree = pTreeLeaf $
                          exprRow_from_viewExprNode $
-                         VFork' . viewFork'_fromViewForkType' $
-                         VFQuery' CycleView }
+                         VFork . viewFork_fromViewForkType $
+                         VFQuery CycleView }
       c_something = c_empty & bufferExprRowTree . pMTrees .~ p
 
   assertBool "" $
@@ -66,19 +66,19 @@ test_groupHostRels :: T.Test
 test_groupHostRels = TestCase $ do
   assertBool "1" $ (S.fromList <$> groupHostRels D.big 2) == Right
     ( S.fromList
-      [ ( ViewFork'
-          { _viewForkCenter' = Just 2
-          , _viewForkSortTplt' = Nothing
-          , _viewForkType' = VFRelHosts' $ RelHosts'
-            { _memberHostsRole' = RoleInRel' $ RoleMember 1
-            , _memberHostsTplt' = Tplt Nothing [Phrase "0"] Nothing } }
+      [ ( ViewFork
+          { _viewForkCenter = Just 2
+          , _viewForkSortTplt = Nothing
+          , _viewForkType = VFRelHosts $ RelHosts
+            { _memberHostsRole = RoleInRel' $ RoleMember 1
+            , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing } }
         ,[9] )
-      , ( ViewFork'
-          { _viewForkCenter' = Just 2
-          , _viewForkSortTplt' = Nothing
-          , _viewForkType' = VFRelHosts' $ RelHosts'
-            { _memberHostsRole' = RoleInRel' $ RoleMember 2
-            , _memberHostsTplt' = Tplt Nothing [Phrase "0"] Nothing } }
+      , ( ViewFork
+          { _viewForkCenter = Just 2
+          , _viewForkSortTplt = Nothing
+          , _viewForkType = VFRelHosts $ RelHosts
+            { _memberHostsRole = RoleInRel' $ RoleMember 2
+            , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing } }
         ,[7] ) ] )
 
 

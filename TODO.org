@@ -10,7 +10,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO ordering
-*** TODO delete old types, delete apostrophes from new ones
 *** TODO move exprTree_focusAddr from State to Views2
 *** TODO subsume emptyCycleBuffer into emptyBuffer
 Provide it a Query argument.

@@ -39,7 +39,7 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
     Right $ b ^? ( bufferExprRowTree
                    . getFocusedSubtree . _Just )
   b' :: Buffer <- let
-    f (VExpr' ve) = VExpr' $ ve { _viewExpr_showAsAddrs = mempty }
+    f (VExpr ve) = VExpr $ ve { _viewExpr_showAsAddrs = mempty }
     f x = x -- should not happen
     in buffer_from_exprRowTree
        $ pter & pTreeLabel . viewExprNode %~ f
