@@ -35,7 +35,7 @@ test_st_cycleBufferLenses = TestCase $ do
   let st = emptySt $ mkRslt mempty
       p :: Maybe (Porest ExprRow) = P.fromList
         [ pTreeLeaf $ ExprRow
-          { _viewExprNode = VFork $ ViewFork
+          { _viewExprNode = VenFork $ ViewFork
             { _viewForkCenter = Nothing
             , _viewForkSortTplt = Nothing
             , _viewForkType = VFQuery $ QueryView "something" }
@@ -43,11 +43,11 @@ test_st_cycleBufferLenses = TestCase $ do
           , _otherProps = OtherProps False } ]
       b = Buffer { _bufferExprRowTree = pTreeLeaf $
                    exprRow_from_viewExprNode $
-                   VFork . viewFork_fromViewForkType $
+                   VenFork . viewFork_fromViewForkType $
                    VFQuery $ QueryView "meh" }
       c_empty = Buffer { _bufferExprRowTree = pTreeLeaf $
                          exprRow_from_viewExprNode $
-                         VFork . viewFork_fromViewForkType $
+                         VenFork . viewFork_fromViewForkType $
                          VFQuery CycleView }
       c_something = c_empty & bufferExprRowTree . pMTrees .~ p
 
@@ -69,14 +69,14 @@ test_groupHostRels = TestCase $ do
       [ ( ViewFork
           { _viewForkCenter = Just 2
           , _viewForkSortTplt = Nothing
-          , _viewForkType = VFRelHosts $ RelHosts
+          , _viewForkType = VFRelHosts $ RelHostGroup
             { _memberHostsRole = RoleInRel' $ RoleMember 1
             , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing } }
         ,[9] )
       , ( ViewFork
           { _viewForkCenter = Just 2
           , _viewForkSortTplt = Nothing
-          , _viewForkType = VFRelHosts $ RelHosts
+          , _viewForkType = VFRelHosts $ RelHostGroup
             { _memberHostsRole = RoleInRel' $ RoleMember 2
             , _memberHostsTplt = Tplt Nothing [Phrase "0"] Nothing } }
         ,[7] ) ] )

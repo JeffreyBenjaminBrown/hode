@@ -62,8 +62,8 @@ makePrisms ''ViewQuery
 --
 -- PITFALL: `PTree ViewExprNode` permits invalid state.
 -- A `VQuery` should be nowhere but the top of the tree.
--- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
--- The subviews of a `VExpr` should be `VMemberFork`s or `VHostFork`s.
+-- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VenExpr`s.
+-- The subviews of a `VenExpr` should be `VMemberFork`s or `VHostFork`s.
 
 data ViewExpr = ViewExpr {
     _viewExpr_Addr        :: Addr

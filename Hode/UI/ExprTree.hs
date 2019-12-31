@@ -54,7 +54,7 @@ insertSearchResults_atFocus st =
     -- The new subtree has depth two. This is the second level.
     addrsToExprRows st mempty $ S.toList as
   let new :: PTree ExprRow =
-        pTreeLeaf ( exprRow_from_viewExprNode $ VFork $ ViewFork
+        pTreeLeaf ( exprRow_from_viewExprNode $ VenFork $ ViewFork
                     { _viewForkCenter = Just a
                     , _viewForkSortTplt = Nothing
                     , _viewForkType = VFSearch } )
@@ -78,7 +78,7 @@ insertMembers_atFocus st =
     addrsToExprRows st (S.singleton a) as
   let new :: PTree ExprRow =
         pTreeLeaf ( ExprRow
-                    { _viewExprNode = VFork $ ViewFork
+                    { _viewExprNode = VenFork $ ViewFork
                       { _viewForkCenter = Just a
                       , _viewForkSortTplt = Nothing
                       , _viewForkType = VFMembers }
@@ -113,7 +113,7 @@ groupHostRels_atFocus st =
   a :: Addr <- maybe
     (Left "Buffer or focused ViewExprNode not found.")
     Right $ st ^? stGetFocused_ViewExprNode_Tree . _Just .
-      pTreeLabel . viewExprNode . _VExpr . viewExpr_Addr
+      pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr
   groupHostRels (st ^. appRslt) a
 
 groupHostRels ::
@@ -174,7 +174,7 @@ groupHostRels r a0 =
           relHosts = ViewFork
             { _viewForkCenter = Just a0
             , _viewForkSortTplt = Nothing
-            , _viewForkType = VFRelHosts $ RelHosts
+            , _viewForkType = VFRelHosts $ RelHostGroup
               { _memberHostsRole = role
               , _memberHostsTplt = tplt t } }
             where tplt :: Addr -> Tplt Expr
@@ -198,7 +198,7 @@ hostGroup_to_forkTree st (hf, as) =
 
   topOfNew :: ExprRow <-
     exprRow_from_viewExprNode' st $
-    VFork hf
+    VenFork hf
   leaves :: Porest ExprRow <-
     addrsToExprRows st (S.singleton a) as
   Right $ PTree {
@@ -220,7 +220,7 @@ addrsToExprRows st showAsAddr as =
       vo :: ViewOptions = st ^. viewOptions
   leaves0 :: [ViewExprNode] <-
     let f = mkViewExpr r vo showAsAddr
-    in map VExpr <$> ifLefts (map f as)
+    in map VenExpr <$> ifLefts (map f as)
   leaves1 :: [ExprRow] <- ifLefts $
     map (exprRow_from_viewExprNode' st) leaves0
   let leaves2 :: [PTree ExprRow] =

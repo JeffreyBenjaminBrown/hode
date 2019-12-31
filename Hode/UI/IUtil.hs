@@ -84,8 +84,8 @@ buffer_from_exprRowTree ptbr =
   let (br :: ExprRow) = ptbr ^. pTreeLabel
   ve :: ViewExpr <-
     case br ^. viewExprNode of
-      VExpr x -> Right x
-      _ -> Left $ "called from a non-VExpr."
+      VenExpr x -> Right x
+      _ -> Left $ "called from a non-VenExpr."
   Right $ Buffer
     { _bufferExprRowTree = PTree
       { _pTreeLabel =
@@ -103,12 +103,12 @@ viewFork_fromViewForkType vft = ViewFork
 
 exprRow_fromQuery :: ViewQuery -> ExprRow
 exprRow_fromQuery =
-  exprRow_from_viewExprNode . VFork .
+  exprRow_from_viewExprNode . VenFork .
   viewFork_fromViewForkType . VFQuery
 
 exprRow_from_viewExprNode'
   :: St -> ViewExprNode -> Either String ExprRow
-exprRow_from_viewExprNode' st n@(VExpr (ViewExpr a _ _)) =
+exprRow_from_viewExprNode' st n@(VenExpr (ViewExpr a _ _)) =
   prefixLeft "exprRow_from_viewExprNode':" $ do
   let r = st ^. appRslt
       hs = st ^. columnHExprs

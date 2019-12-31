@@ -149,7 +149,7 @@ runParsedCommand (CommandFind s h) st = do
         v_qr a = vTreeLeaf $ let
               (rv :: Either String ViewExpr) = resultView r a
               (err :: String -> ViewExpr) = \se -> error ("runParsedCommand (Find): should be impossible: `a` should be present, as it was just found by `hExprToAddrs`, but here's the original error: " ++ se)
-          in VExpr $ either err id rv
+          in VenExpr $ either err id rv
 
   Right $ B.continue $ st & showingInMainWindow .~ SearchBuffer
                           & stBuffer st . bufferQuery .~ s

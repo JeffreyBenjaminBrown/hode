@@ -71,11 +71,11 @@ redraw_viewExpr_Strings r vo b0 =
 
   redrawSingle :: ExprRow -> Either String ExprRow
   redrawSingle br = case _viewExprNode br of
-    VExpr ve0 -> do
+    VenExpr ve0 -> do
       ve <- mkViewExpr r vo
             (_viewExpr_showAsAddrs ve0)
             (_viewExpr_Addr ve0)
-      Right $ br & viewExprNode .~ VExpr ve
+      Right $ br & viewExprNode .~ VenExpr ve
     _ -> Right br
 
   in case b0 ^. bufferExprRowTree . pMTrees of

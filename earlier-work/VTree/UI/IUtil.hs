@@ -28,8 +28,8 @@ buffer_from_exprRowTree :: VTree ViewExprNode -> Either String Buffer
 buffer_from_exprRowTree vt = do
   let (viewExprNode :: ViewExprNode) = _vTreeLabel vt
   viewResult <- case viewExprNode of
-    VExpr x -> Right x
-    _ -> Left $ "buffer_from_exprRowTree called from a non-VExpr."
+    VenExpr x -> Right x
+    _ -> Left $ "buffer_from_exprRowTree called from a non-VenExpr."
   Right $ Buffer { _bufferQuery = viewResult ^. viewExpr_String
                  , _bufferView = vt
                  , _bufferPath = [] }

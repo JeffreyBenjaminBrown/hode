@@ -8,11 +8,11 @@ ViewPatterns
 
 module Hode.UI.Types.Views2 (
   -- * types and optics
-    RelHosts(..), memberHostsRole, memberHostsTplt
+    RelHostGroup(..), memberHostsRole, memberHostsTplt
   , ViewForkType(..), _VFQuery, _VFMembers, _VFTpltHosts
     , _VFRelHosts, _VFSearch
   , ViewFork(..), viewForkCenter, viewForkSortTplt, viewForkType
-  , ViewExprNode(..), _VExpr, _VFork
+  , ViewExprNode(..), _VenExpr, _VenFork
   , ExprRow(..), viewExprNode, columnProps, otherProps
 
   -- * misc
@@ -30,19 +30,19 @@ import Hode.UI.Types.Views
 import Hode.Util.Misc
 
 
-data RelHosts = RelHosts { _memberHostsRole   :: Role
+data RelHostGroup = RelHostGroup { _memberHostsRole   :: Role
                            , _memberHostsTplt   :: Tplt Expr }
                deriving (Eq, Ord)
-makeLenses ''RelHosts
+makeLenses ''RelHostGroup
 
 -- | Shows the label of the group, not its members.
-instance Show RelHosts where
+instance Show RelHostGroup where
   -- PITFALL: Egregious duplication; see `ShowColor` instance.
   show rhg = let
     tplt :: Tplt Expr = _memberHostsTplt rhg
-    noLeft     = error "show RelHosts: impossible"
-    noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: Did I miscount?"
+    noLeft     = error "show RelHostGroup: impossible"
+    noRslt     = error "show RelHostGroup: Rslt irrelevant"
+    noMiscount = error "show RelHostGroup: Did I miscount?"
     RoleInRel' (RoleMember (n :: Int)) =
       _memberHostsRole rhg
     mbrs = either (const noMiscount) id
@@ -53,13 +53,13 @@ instance Show RelHosts where
        Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.
-instance ShowColor ViewOptions RelHosts where
+instance ShowColor ViewOptions RelHostGroup where
   -- PITFALL: Egregious duplication; see `Show` instance.
   showColor _ rhg = let
     tplt :: Tplt Expr = _memberHostsTplt rhg
-    noLeft     = error "show RelHosts: impossible"
-    noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: Did I miscount?"
+    noLeft     = error "show RelHostGroup: impossible"
+    noRslt     = error "show RelHostGroup: Rslt irrelevant"
+    noMiscount = error "show RelHostGroup: Did I miscount?"
     RoleInRel' (RoleMember (n :: Int)) =
       _memberHostsRole rhg
     mbrs = either (const noMiscount) id
@@ -69,11 +69,11 @@ instance ShowColor ViewOptions RelHosts where
        eParenShowColorExpr 3 noRslt $ ExprRel $
        Rel mbrs $ ExprTplt tplt
 
-data ViewForkType  -- ^ used to group a set of related VExprs
+data ViewForkType  -- ^ used to group a set of related VenExprs
   = VFQuery ViewQuery -- ^ groups the results of searching for the ViewQuery
   | VFMembers -- ^ groups the members of a Rel
   | VFTpltHosts -- ^ groups the Tplts that use an Expr
-  | VFRelHosts RelHosts -- ^ groups the Rels in which an Expr appears
+  | VFRelHosts RelHostGroup -- ^ groups the Rels in which an Expr appears
   | VFSearch -- ^ groups the results of running an Expr as a search
   deriving (Eq, Ord, Show)
 makePrisms ''ViewForkType
@@ -86,8 +86,8 @@ data ViewFork = ViewFork
 makeLenses ''ViewFork
 
 data ViewExprNode  -- ^ the primary objects in a view of search results
-  = VExpr ViewExpr -- ^ represents a member of the Rslt
-  | VFork ViewFork -- ^ used to group a set of related VExprs
+  = VenExpr ViewExpr -- ^ represents a member of the Rslt
+  | VenFork ViewFork -- ^ used to group a set of related VenExprs
   deriving (Eq, Ord, Show)
 makePrisms ''ViewExprNode
 
@@ -100,10 +100,10 @@ data ExprRow = ExprRow {
 makeLenses ''ExprRow
 
 instance ShowBrief ViewExprNode where
-  showBrief (VExpr x) =
+  showBrief (VenExpr x) =
     show (x ^. viewExpr_Addr) ++ ": "
     ++ unColorString (x ^. viewExpr_String)
-  showBrief (VFork vf) = case _viewForkType vf of
+  showBrief (VenFork vf) = case _viewForkType vf of
     VFQuery (QueryView s) -> show s
     VFQuery CycleView -> "Cycle detected! Please break it somewhere."
     VFMembers -> "its members"
@@ -112,17 +112,17 @@ instance ShowBrief ViewExprNode where
     VFSearch -> "search results"
 
 instance ShowColor ViewOptions ViewExprNode where
-  showColor vo (VExpr ve) =
+  showColor vo (VenExpr ve) =
     ( if _viewOpt_ShowAddresses vo
       then [(show (_viewExpr_Addr ve) ++ " ", AddrColor)]
       else [] )
     ++ _viewExpr_String ve
-  showColor vo f@(VFork vf) = case _viewForkType vf of
+  showColor vo f@(VenFork vf) = case _viewForkType vf of
     VFRelHosts r -> showColor vo r
     _ -> [(showBrief f, TextColor)]
 
 exprTree_focusAddr :: PTree ExprRow -> Either String Addr
 exprTree_focusAddr =
-  (\case VExpr rv -> Right $ rv ^. viewExpr_Addr
-         _         -> Left $ "Can only be called from a VExpr." )
+  (\case VenExpr rv -> Right $ rv ^. viewExpr_Addr
+         _         -> Left $ "Can only be called from a VenExpr." )
   . (^. pTreeLabel . viewExprNode)

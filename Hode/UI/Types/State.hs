@@ -66,7 +66,7 @@ getBuffer_viewForkType :: Applicative f
                        -> Buffer -> f Buffer
 getBuffer_viewForkType =
   bufferExprRowTree . pTreeLabel .
-  viewExprNode . _VFork . viewForkType
+  viewExprNode . _VenFork . viewForkType
 
 -- | The entire state of the app.
 data St = St {
