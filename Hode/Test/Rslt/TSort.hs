@@ -42,7 +42,7 @@ test_partitionRelated = TestCase $ do
         [ "x"
         , "0 #a 1", "1 #a 2", "2 #a 3"
         , "y" ]
-      Right (isol,conn) =
+      Right (conn,isol) =
         partitionRelated rLine (tplt_a rLine)
         $ map (stringElt rLine) ["0","1","2","3","x","y"]
   assertBool "x and y are related" $
@@ -57,7 +57,7 @@ test_partitionRelated = TestCase $ do
         [ "1 #a 2"
         , "0 #a 1", "y", "2 #a 3"
         , "x" ]
-      Right (isol',conn') =
+      Right (conn',isol') =
         partitionRelated rLine' (tplt_a rLine')
         $ map (stringElt rLine') ["0","1","2","3","x","y"]
   assertBool "x and y are related, again" $

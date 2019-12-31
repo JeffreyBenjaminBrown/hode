@@ -48,10 +48,10 @@ module Hode.Rslt.Sort (
           -- -> Either String Bool
 
   , partitionRelated -- ^ Rslt -> TpltAddr
-                      -- -> [Addr] -- ^ candidates
-                      -- -> Either String ([Addr],[Addr])
+                     -- -> [Addr] -- ^ candidates
+                     -- -> Either String ([Addr],[Addr])
   , isRelated -- ^ Rslt -> TpltAddr -> Addr
-               -- -> Either String Bool
+              -- -> Either String Bool
 
   , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
                -- -> Either String (Set Addr)
@@ -224,19 +224,25 @@ isTop r (ort,t) a =
       (roleOfLesser,        HExpr $ ExprAddr a) ]
   Right $ null relsInWhichItIsLesser
 
+-- | If `partitionRelated r t as == (reld,isol)`,
+-- then each member of `reld` is in at least one `t`-relationship,
+-- while no member of `isol` is.
+-- PITFALL: `reld` might not be connected set.
 partitionRelated :: Rslt -> TpltAddr
-                  -> [Addr] -- ^ candidates
-                  -> Either String ([Addr],[Addr])
+                 -> [Addr] -- ^ candidates
+                 -> Either String ([Addr],[Addr])
 partitionRelated r t as =
   prefixLeft "partitionRelated:" $ do
   let withIsRelated :: Addr -> Either String (Bool, Addr)
       withIsRelated a = (,a) <$> isRelated r t a
-  (areRelated, areConnected) <-
+  (areRelated, notConnected) <-
     L.partition fst <$> mapM withIsRelated as
-  Right $ (map snd areRelated, map snd areConnected)
+  Right (map snd areRelated, map snd notConnected)
 
+-- | `isRelated r t a` is `True` if and only if
+-- `a` is in at least one `t`-relationship.
 isRelated :: Rslt -> TpltAddr -> Addr
-           -> Either String Bool
+          -> Either String Bool
 isRelated r t a =
   -- TODO ? speed: `partitionRelated` calls this a lot.
   -- Each time, it has to run `hExprToAddrs` on the `HMap`.
@@ -247,7 +253,7 @@ isRelated r t a =
     [ HMap $ M.singleton (RoleInRel' RoleTplt)
       (HExpr $ ExprAddr t)
     , HMember $ HExpr $ ExprAddr a ]
-  Right $ if null connections then True else False
+  Right $ if null connections then False else True
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
 -- lie just beneath `a`, where the menaing of "beneath"
