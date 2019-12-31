@@ -91,9 +91,7 @@ buffer_from_exprRowTree ptbr =
   Right $ Buffer
     { _bufferExprRowTree = PTree
       { _pTreeLabel =
-        exprRow_from_viewExprNode .
-        VFork' . viewFork'_fromViewForkType' .
-        VFQuery' . QueryView .
+        exprRow_fromQuery . QueryView $
         unColorString $ ve ^. viewExpr_String
       , _pTreeHasFocus = False
       , _pMTrees = P.fromList [ptbr]
