@@ -93,9 +93,7 @@ delete_cycleBuffer st =
     Just (pb0 :: Porest Buffer) -> do
       let pred :: PTree Buffer -> Bool =
             ( /= (Just CycleView) ) .
-            ( ^? pTreeLabel . bufferExprRowTree .
-              pTreeLabel . viewExprNode .
-              _VFork' . viewForkType' . _VFQuery' )
+            ( ^? pTreeLabel . getBuffer_viewForkType . _VFQuery' )
       pb1 :: Porest Buffer <- let
         err = Left "nothing left after filtering. (Not a user error.)"
         in maybe err Right $ filterPList pred pb0

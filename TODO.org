@@ -12,6 +12,10 @@ This will load all non-broken modules when some are broken.
 ** TODO ordering
 *** TODO extract functions from common verbose passages in recent commits
 *** TODO delete old types, delete apostrophes from new ones
+*** TODO move exprTree_focusAddr from State to Views2
+*** TODO subsume emptyCycleBuffer into emptyBuffer
+Provide it a Query argument.
+This makes it clearer what each does.
 *** TODO display
 **** TODO add a view-child sort order to ViewExprNode
 **** TODO add a sort-color field to ViewExprNode

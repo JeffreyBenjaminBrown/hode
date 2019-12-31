@@ -7,6 +7,8 @@ TemplateHaskell
 module Hode.UI.Types.State (
     Buffer(..)
   , bufferExprRowTree     -- ^ PTree ExprRow
+  , getBuffer_viewForkType -- ^ NOT this type, but close:
+                           -- Prism' Buffer ViewForkType
 
   , St(..)
   , focusRing              -- ^ B.FocusRing BrickName
@@ -30,6 +32,7 @@ module Hode.UI.Types.State (
   , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
   , resultWindow_focusAddr         -- ^            St -> Either String Addr
+
   , exprTree_focusAddr             -- ^ PTree ExprRow -> Either String Addr
   ) where
 
@@ -55,6 +58,15 @@ data Buffer = Buffer
   { _bufferExprRowTree :: PTree ExprRow
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
+
+-- | I want to say this has type `Prism' Buffer ViewForkType'`,
+-- but that appears not to be true.
+getBuffer_viewForkType :: Applicative f
+                       => (ViewForkType' -> f ViewForkType')
+                       -> Buffer -> f Buffer
+getBuffer_viewForkType =
+  bufferExprRowTree . pTreeLabel .
+  viewExprNode . _VFork' . viewForkType'
 
 -- | The entire state of the app.
 data St = St {
@@ -91,9 +103,8 @@ stGet_cycleBuffer = to go where
     Nothing -> Nothing
     Just p ->
       ( \case [] -> Nothing;   a:_ -> Just a )
-      . filter ( (== Just (VFQuery' CycleView) )
-                 . (^? bufferExprRowTree . pTreeLabel . viewExprNode
-                    . _VFork' . viewForkType' ) )
+      . filter (   (== Just (VFQuery' CycleView) )
+                 . (^? getBuffer_viewForkType ) )
       . toList . fmap _pTreeLabel
       $ p
 
@@ -109,8 +120,7 @@ stSet_cycleBuffer = sets go where
   go :: (Buffer -> Buffer) -> St -> St
   go f st = let
     g :: Buffer -> Buffer
-    g b = if b ^? ( bufferExprRowTree . pTreeLabel . viewExprNode
-                    . _VFork' . viewForkType' )
+    g b = if b ^? getBuffer_viewForkType
              == Just (VFQuery' CycleView)
           then f b else b
     in st & searchBuffers . _Just
@@ -128,7 +138,7 @@ stSetFocused_ViewExprNode_Tree ::
   Setter' St (PTree ExprRow)
 stSetFocused_ViewExprNode_Tree = sets go where
   go :: (PTree ExprRow -> PTree ExprRow) -> St -> St
-  go f = stSet_focusedBuffer . 
+  go f = stSet_focusedBuffer .
          bufferExprRowTree .
          setFocusedSubtree %~ f
 
