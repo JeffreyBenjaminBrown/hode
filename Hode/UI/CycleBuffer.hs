@@ -80,7 +80,8 @@ cycleBuffer_fromAddrs st (t,c) = do
 insert_cycleBuffer :: St -> St
 insert_cycleBuffer =
   searchBuffers . _Just %~
-  insertLeft_noFocusChange (pTreeLeaf emptyCycleBuffer)
+  insertLeft_noFocusChange
+  ( pTreeLeaf $ bufferFrom_viewQuery $ CycleView )
 
 -- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
 delete_cycleBuffer :: St -> Either String St

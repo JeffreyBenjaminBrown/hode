@@ -1,18 +1,18 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.UI.IUtil (
-    unEitherSt                  -- ^ Either String St -> St -> St
-  , emptySt                     -- ^ Rslt -> St
-  , emptyBuffer                 -- ^ Buffer
-  , emptyCycleBuffer            -- ^ Porest ExprRow
-  , buffer_from_exprRowTree     -- ^ PTree ViewExprNode
-                                -- -> Either String Buffer
-  , viewFork_fromViewForkType -- ^ ViewForkType -> ViewFork
-  , exprRow_fromQuery           -- ^  ViewQuery -> ExprRow
-  , exprRow_from_viewExprNode'  -- ^ St -> ViewExprNode
-                                --        -> Either String ExprRow
-  , exprRow_from_viewExprNode   -- ^       ViewExprNode -> ExprRow
-  , defaulViewOptions           -- ^ ViewOptions
+    unEitherSt                 -- ^ Either String St -> St -> St
+  , emptySt                    -- ^ Rslt -> St
+  , emptySearchBuffer          -- ^ Buffer
+  , bufferFrom_viewQuery       -- ^ ViewQuery -> Buffer
+  , buffer_from_exprRowTree    -- ^ PTree ViewExprNode
+                               -- -> Either String Buffer
+  , viewFork_fromViewForkType  -- ^ ViewForkType -> ViewFork
+  , exprRow_fromQuery          -- ^ ViewQuery -> ExprRow
+  , exprRow_from_viewExprNode' -- ^ St -> ViewExprNode
+                               --        -> Either String ExprRow
+  , exprRow_from_viewExprNode  -- ^       ViewExprNode -> ExprRow
+  , defaulViewOptions          -- ^ ViewOptions
   ) where
 
 import qualified Data.List.PointedList as P
@@ -48,7 +48,7 @@ unEitherSt _ (Right new) =
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _searchBuffers = Just $ porestLeaf emptyBuffer
+  , _searchBuffers = Just $ porestLeaf emptySearchBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMember $ HVar VarRowNode ]
   , _blockingCycles = Nothing
@@ -65,17 +65,15 @@ emptySt r = St {
                                          , (Reassurance, True) ]
   }
 
-emptyBuffer :: Buffer
-emptyBuffer = Buffer
-  { _bufferExprRowTree =
-    pTreeLeaf $ exprRow_fromQuery $ QueryView
-    "Empty buffer. (If you run a search, the results will be shown here.)"
-  }
+emptySearchBuffer :: Buffer
+emptySearchBuffer =
+  bufferFrom_viewQuery $ QueryView $ "Empty search buffer. "
+  ++ "(If you run a search, the results will be shown here.)"
 
-emptyCycleBuffer :: Buffer
-emptyCycleBuffer = Buffer
+bufferFrom_viewQuery :: ViewQuery -> Buffer
+bufferFrom_viewQuery vq = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ exprRow_fromQuery $ CycleView
+    pTreeLeaf $ exprRow_fromQuery vq
   }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.

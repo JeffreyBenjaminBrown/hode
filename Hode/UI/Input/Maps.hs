@@ -89,9 +89,9 @@ bufferWindow_commands st =
       go $ nudgeFocused_buffer DirNext ),
 
     ( V.EvKey (V.KChar 'c') [V.MMeta],
-      go $ consBuffer_asChild emptyBuffer ),
+      go $ consBuffer_asChild emptySearchBuffer ),
     ( V.EvKey (V.KChar 't') [V.MMeta],
-      go $ consBuffer_topNext emptyBuffer ),
+      go $ consBuffer_topNext emptySearchBuffer ),
 
     ( V.EvKey (V.KChar 'w') [V.MMeta],
       go   deleteFocused_buffer )

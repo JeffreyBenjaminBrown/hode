@@ -67,10 +67,10 @@ handleKeyboard_atBufferWindow st ev = case ev of
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
-    $ unEitherSt st . consBuffer_asChild emptyBuffer
+    $ unEitherSt st . consBuffer_asChild emptySearchBuffer
     $ st & hideReassurance
   B.EvKey (B.KChar 't') [B.MMeta] -> B.continue
-    $                 consBufferAtTop emptyBuffer
+    $                 consBufferAtTop emptySearchBuffer
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev

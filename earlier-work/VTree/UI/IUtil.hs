@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module UI.IUtil (
-    emptyBuffer            -- ^                                 Buffer
+    emptySearchBuffer            -- ^                                 Buffer
   , buffer_from_exprRowTree -- ^ VTree ViewExprNode -> Either String Buffer
   ) where
 
@@ -19,8 +19,8 @@ import Util.PTree
 import Util.VTree
 
 
-emptyBuffer :: Buffer
-emptyBuffer = Buffer { _bufferQuery = "(empty buffer)"
+emptySearchBuffer :: Buffer
+emptySearchBuffer = Buffer { _bufferQuery = "(empty buffer)"
                      , _bufferView = vTreeLeaf $ VQuery ""
                      , _bufferPath = [] }
 
