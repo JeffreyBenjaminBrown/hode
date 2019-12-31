@@ -56,11 +56,13 @@ module Hode.Rslt.Sort (
   , justUnders -- ^ (BinOrientation, TpltAddr) -> Rslt -> Addr
                -- -> Either String (Set Addr)
   , deleteHostsThenDelete -- ^ Addr -> Rslt -> Either String Rslt
+  , uses_as_tplt -- ^ TpltAddr -> Addr -> Bool
   ) where
 
 import qualified Data.List      as L
 import           Data.Map (Map)
 import qualified Data.Map       as M
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Control.Monad (mapM,foldM)
@@ -230,10 +232,10 @@ isTop r (ort,t) a =
   let roleOfLesser = RoleInRel' $ RoleMember $
         case ort of RightFirst  -> 2
                     LeftFirst   -> 1
-  relsInWhichItIsLesser <-
-    hExprToAddrs r mempty $ HMap $ M.fromList
-    [ (RoleInRel' RoleTplt, HExpr $ ExprAddr t),
-      (roleOfLesser,        HExpr $ ExprAddr a) ]
+  relsInWhichItIsLesser :: Set Addr <-
+    S.filter (uses_as_tplt r t) <$>
+    hExprToAddrs r mempty
+    ( HMap $ M.singleton roleOfLesser $  HExpr $ ExprAddr a )
   Right $ null relsInWhichItIsLesser
 
 -- | If `partitionRelated r t as == (reld,isol)`,
@@ -272,18 +274,26 @@ isRelated r t a =
 -- depends on `bo` and `t`.
 justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
            -> Either String (Set Addr)
-justUnders (bo,t) r a = let
-  h :: HExpr = let
-    (bigger, smaller) = case bo of
-      RightFirst -> (1,2)
-      LeftFirst  -> (2,1)
-    rel = HMap $ M.fromList
-      -- `t`-relationships in which `a` is the bigger
-      [ ( RoleInRel' RoleTplt,            HExpr $ ExprAddr t),
-        ( RoleInRel' $ RoleMember bigger, HExpr $ ExprAddr a ) ]
-    in HEval rel [[RoleMember smaller]]
-  in prefixLeft "justUnders:" $
-     hExprToAddrs r mempty h
+justUnders (bo,t) r a0 =
+  prefixLeft "justUnders:" $ do
+  let (bigger, smaller) = -- TODO ? isn't this backwards?
+        case bo of  RightFirst -> (1,2)
+                    LeftFirst  -> (2,1)
+      smallerMember :: Addr -> Maybe Addr
+      smallerMember a =
+        case M.lookup a $ _addrToRefExpr r of
+          Just (Rel' (Rel [left,right] _)) ->
+            case smaller of 1 -> Just left
+                            2 -> Just right
+          _ -> Nothing
+  relsUsing_t_inWhich_a0_IsBigger :: Set Addr <-
+    S.filter (uses_as_tplt r t) <$>
+    ( hExprToAddrs r mempty $ HMap $ M.singleton
+      ( RoleInRel' $ RoleMember bigger)
+      $ HExpr $ ExprAddr a0 )
+  Right $ S.map (maybe (error "impossible") id) $
+    S.filter isJust $
+    S.map smallerMember relsUsing_t_inWhich_a0_IsBigger
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
 -- rel in which `a` is a member, and then removes `a`.
@@ -296,11 +306,18 @@ deleteHostsThenDelete ::
 deleteHostsThenDelete a t r =
   prefixLeft "deleteHostsThenDelete:" $ do
   hosts :: Set Addr <-
-    hExprToAddrs r mempty $
-    HAnd [ HMap ( M.singleton (RoleInRel' RoleTplt)
-                  $ HExpr $ ExprAddr t )
-         , ( -- No need to check which member it is --
-             -- the template is binary, and the node is top.)
-             HMember $ HExpr $ ExprAddr a ) ]
+    S.filter (uses_as_tplt r t) <$>
+    hExprToAddrs r mempty
+    ( -- No need to check which member it is --
+      -- the template is binary, and the node is top.)
+      HMember $ HExpr $ ExprAddr a )
   foldM (flip deleteIfUnused) r hosts >>=
     _deleteInternalMentionsOf_unsafe a
+
+-- | PITFALL: Cannot use an HExpr for this, because `t` may  have been
+-- deleted from `r` (because  it was among the things being sorted).
+uses_as_tplt :: Rslt -> TpltAddr -> Addr -> Bool
+uses_as_tplt r t0 a =
+  case M.lookup a $ _addrToRefExpr r of
+    Just (Rel' (Rel _ t)) -> t == t0
+    _                     -> False
