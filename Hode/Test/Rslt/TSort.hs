@@ -79,18 +79,26 @@ test_kahnSort = TestCase $ do
       intElt r = either (error "not in graph") id .
                  exprToAddr r . Phrase . show
 
-      ag :: Rslt -> BinOrientation -> [Addr] -> [Addr] -> [Addr]
-         -> Bool
+      ag :: Rslt -> BinOrientation -> [Addr] -> [Addr] -> [Addr] -> Bool
       ag r bo nodes sorted isol =
-        kahnSort r (bo, tplt_a r)
-        (map (intElt r) nodes)
-        == Right ( map (intElt r) sorted
-                 , map (intElt r) isol )
+        let Right (s,i) = kahnSort r (bo, tplt_a r)
+                          (map (intElt r) nodes)
+        in s == map (intElt r) sorted &&
+           S.fromList i == S.fromList (map (intElt r) isol)
 
   let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3" ]
     in assertBool "meh" ( ag r RightFirst [0..3]  [3,2,1,0] [] ) >>
        assertBool "meh" ( ag r RightFirst [0,1,3] [3,1,0]   [] )
+
+  let Right r = nInserts (mkRslt mempty)
+        [ "0 #a 1", "1 #a 2", "2 #a 3", "1000 #meh 1001" ]
+      a_isol = [1000,1001]
+        -- 1000 and 1001 are not `a`-related to any other expression
+    in ( assertBool "meh" $ ag r RightFirst
+         (a_isol ++ [0..3]) [3,2,1,0] a_isol ) >>
+       ( assertBool "meh" $ ag r RightFirst
+         (a_isol ++ [3,2,0]) [3,2,0] a_isol )
 
   let Right rTree = nInserts (mkRslt mempty)
                     [ "0 #b 00", -- the prefix relationship
