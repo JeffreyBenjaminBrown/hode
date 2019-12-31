@@ -8,6 +8,7 @@ module Hode.UI.IUtil (
   , buffer_from_exprRowTree     -- ^ PTree ViewExprNode
                                 -- -> Either String Buffer
   , viewFork'_fromViewForkType' -- ^ ViewForkType' -> ViewFork'
+  , exprRow_fromQuery           -- ^  ViewQuery -> ExprRow
   , exprRow_from_viewExprNode'  -- ^ St -> ViewExprNode
                                 --        -> Either String ExprRow
   , exprRow_from_viewExprNode   -- ^       ViewExprNode -> ExprRow
@@ -67,18 +68,14 @@ emptySt r = St {
 emptyBuffer :: Buffer
 emptyBuffer = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ exprRow_from_viewExprNode $
-    VFork' . viewFork'_fromViewForkType' $
-    VFQuery' $ QueryView
+    pTreeLeaf $ exprRow_fromQuery $ QueryView
     "Empty buffer. (If you run a search, the results will be shown here.)"
   }
 
 emptyCycleBuffer :: Buffer
 emptyCycleBuffer = Buffer
   { _bufferExprRowTree =
-    pTreeLeaf $ exprRow_from_viewExprNode
-    $ VFork' . viewFork'_fromViewForkType'
-    $ VFQuery' CycleView
+    pTreeLeaf $ exprRow_fromQuery $ CycleView
   }
 
 -- | TODO : handle `VMember`s and `VCenterRole`s too.
@@ -107,6 +104,11 @@ viewFork'_fromViewForkType' vft = ViewFork'
   { _viewForkCenter' = Nothing
   , _viewForkSortTplt' = Nothing
   , _viewForkType' = vft }
+
+exprRow_fromQuery :: ViewQuery -> ExprRow
+exprRow_fromQuery =
+  exprRow_from_viewExprNode . VFork' .
+  viewFork'_fromViewForkType' . VFQuery'
 
 exprRow_from_viewExprNode'
   :: St -> ViewExprNode' -> Either String ExprRow

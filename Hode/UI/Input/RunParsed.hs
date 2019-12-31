@@ -157,8 +157,7 @@ runParsedCommand                     c0 st0 =
       <$> addrsToExprRows st mempty as
     let p :: PTree ExprRow = PTree -- new screen to show
           { _pTreeLabel =
-            exprRow_from_viewExprNode . VFork' $
-            viewFork'_fromViewForkType' $ VFQuery' . QueryView $
+            exprRow_fromQuery $ QueryView $
             T.unpack . T.strip . T.pack $ s
           , _pTreeHasFocus = False
           , _pMTrees = Just pr }
