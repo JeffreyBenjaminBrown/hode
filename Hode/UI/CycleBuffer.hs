@@ -24,7 +24,6 @@ import Hode.UI.IUtil
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.Types.Views2
 import Hode.UI.Window
 import Hode.Util.Misc
 

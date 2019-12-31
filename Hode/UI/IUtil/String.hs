@@ -15,7 +15,6 @@ import Hode.Rslt.RTypes
 import Hode.Rslt.ShowColor
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.Types.Views2
 import Hode.Util.Misc
 import Hode.PTree.Initial
 

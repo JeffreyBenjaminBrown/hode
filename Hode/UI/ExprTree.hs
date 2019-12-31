@@ -38,7 +38,6 @@ import Hode.UI.IUtil
 import Hode.UI.IUtil.String
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.Types.Views2
 import Hode.Util.Misc
 
 

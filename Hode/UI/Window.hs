@@ -16,7 +16,6 @@ import qualified Brick.Widgets.Edit       as B
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.Types.Views2
 
 
 hideReassurance :: St -> St
