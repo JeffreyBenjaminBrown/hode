@@ -158,10 +158,8 @@ runParsedCommand                     c0 st0 =
     let p :: PTree ExprRow = PTree -- new screen to show
           { _pTreeLabel =
             exprRow_from_viewExprNode . VFork' $
-            ViewFork' { _viewForkCenter' = Nothing
-                      , _viewForkSortTplt' = Nothing
-                      , _viewForkType' = VFQuery' . QueryView $
-                        T.unpack . T.strip . T.pack $ s }
+            viewFork'_fromViewForkType' $ VFQuery' . QueryView $
+            T.unpack . T.strip . T.pack $ s
           , _pTreeHasFocus = False
           , _pMTrees = Just pr }
 

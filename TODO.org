@@ -10,37 +10,8 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO ordering
-*** TODO refactor ViewExprNode
-**** how it stands
-data ViewExprNode =
-  -- Everything but VExpr is a fork that groups VExprs.
-    VQuery      ViewQuery
-  | VExpr       ViewExpr
-  | VMemberFork
-  | VHostFork   HostFork
-  | VSearchFork
-data ViewQuery = QueryView String | CycleView
-data HostFork = RelHostFork  RelHosts
-              | TpltHostFork TpltHosts
-data RelHosts = RelHosts { _kkmemberHostsCenter :: Addr
-                         , _memberHostsRole   :: Role
-                         , _memberHostsTplt   :: Tplt Expr
-data TpltHosts = TpltHosts { _separatorHostsCenter :: Addr }
-**** TODO Seems better
-data ViewExprNode = VExpr ViewExpr | VFork ViewFork
-data ViewFork = ViewFork { _viewForkCenter :: Maybe Addr
-                         , _viewForkSortTplt :: TpltAddr
-                         , _viewForkType :: ViewForkType }
-data ViewForkType = VFMembers
-                  - VFSearch
-                  - VFTpltHosts -- Note: no content; center already specified
-                  - VFQuery    ViewQuery
-                  - VFRelHosts RelHosts
-data ViewQuery (same) = QueryView String | CycleView
-data RelHosts = RelHosts { _memberHostsRole   :: Role
-                         , _memberHostsTplt   :: Tplt Expr }
-**** TODO ? delete the _*Center fields, the HasCenterAddr class
-Would shorten the code, but only in UI/Types/Views.
+*** TODO extract functions from common verbose passages in recent commits
+*** TODO delete old types, delete apostrophes from new ones
 *** TODO display
 **** TODO add a view-child sort order to ViewExprNode
 **** TODO add a sort-color field to ViewExprNode

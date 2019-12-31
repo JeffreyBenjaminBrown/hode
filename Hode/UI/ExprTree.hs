@@ -54,13 +54,10 @@ insertSearchResults_atFocus st =
     -- The new subtree has depth two. This is the second level.
     addrsToExprRows st mempty $ S.toList as
   let new :: PTree ExprRow =
-        pTreeLeaf ( ExprRow
-                    { _viewExprNode = VFork' $ ViewFork'
-                      { _viewForkCenter' = Just a
-                      , _viewForkSortTplt' = Nothing
-                      , _viewForkType' = VFSearch' }
-                    , _columnProps = mempty
-                    , _otherProps = OtherProps False } )
+        pTreeLeaf ( exprRow_from_viewExprNode $ VFork' $ ViewFork'
+                    { _viewForkCenter' = Just a
+                    , _viewForkSortTplt' = Nothing
+                    , _viewForkType' = VFSearch' } )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
                  %~ consUnder_andFocus new )
