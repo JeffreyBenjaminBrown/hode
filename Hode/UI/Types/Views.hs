@@ -21,9 +21,6 @@ import Data.Map (Map)
 import Hode.Brick
 import Hode.Hash.HTypes
 import Hode.Rslt.RTypes
-import Hode.Rslt.Show
-import Hode.Rslt.ShowColor
-import Hode.Util.Misc
 
 
 data ViewOptions = ViewOptions
@@ -44,6 +41,7 @@ type ColumnProps = Map HExpr Int
 data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether the ViewExprNode's children are hidden
   } deriving (Show, Eq, Ord)
+makeLenses ''OtherProps
 
 -- | (Usually) what the user searched for.
 -- Should be the top of every PTree of ViewExprs.
@@ -67,17 +65,6 @@ makePrisms ''ViewQuery
 -- Subviews of `VQuery`, `VMember`, and `VCenterRole` should be `VExpr`s.
 -- The subviews of a `VExpr` should be `VMemberFork`s or `VHostFork`s.
 
-data ViewExprNode =
-    VQuery      ViewQuery -- ^ The top of every view tree is this.
-  | VExpr       ViewExpr -- ^ Corresponds to some `Expr`.
-  | VMemberFork -- ^ Announces the relationship between its
-                -- parent in the view tree and its children.
-  | VHostFork   HostFork -- ^ Announces the relationship between its
-                         -- parent in the view tree and its children.
-  | VSearchFork -- ^ Announces the relationship between its view-parent
-                -- and the results when that is evaluated as a search.
-  deriving (Eq, Ord, Show)
-
 data ViewExpr = ViewExpr {
     _viewExpr_Addr        :: Addr
   , _viewExpr_showAsAddrs :: Set Addr
@@ -87,117 +74,4 @@ data ViewExpr = ViewExpr {
     -- Used to eliminate redundancy in views.
   , _viewExpr_String      :: ColorString }
   deriving (Show, Eq, Ord)
-
--- | Announces some `Expr`s in which the "center" `Expr`
--- is involved.
-data HostFork =
-    RelHostFork  RelHosts   -- ^ `Rel`s  that the center is a member of
-  | TpltHostFork TpltHosts  -- ^ `Tplt`s that the center is a separator in
-  deriving (Eq, Ord, Show)
-
-data RelHosts = RelHosts {
-    _memberHostsCenter :: Addr      -- ^ the `RelHosts`
-      -- describes some `Rel`s involving the `Expr` here
-  , _memberHostsRole   :: Role      -- ^ that `Expr` plays
-      -- this `Role` in each of those `Rel`s
-  , _memberHostsTplt   :: Tplt Expr -- ^ and each of those
-     -- `Rel`s has this `Tplt`
-  } deriving (Eq, Ord)
-
--- | `TpltHosts` is used to group `Tplt`s to which the
--- `Expr` at `separatorHostsCenter` belongs.
-data TpltHosts = TpltHosts {
-  _separatorHostsCenter :: Addr }
-  deriving (Eq, Ord)
-
--- TODO ? this class, and the two *Center fields above, are unused.
--- See that with `grep -i center -r UI --color`.
-class HasCenterAddr a where
-  centerAddr :: a -> Addr
-
-instance HasCenterAddr TpltHosts where
-  centerAddr = _separatorHostsCenter
-
-instance HasCenterAddr RelHosts where
-  centerAddr = _memberHostsCenter
-
-instance HasCenterAddr HostFork where
-  centerAddr (RelHostFork f) = centerAddr f
-  centerAddr (TpltHostFork f) = centerAddr f
-
-
--- | = Functions (inc. TH-generated lenses)
-
--- | Shows the label of the group, not its members.
-instance Show RelHosts where
-  -- PITFALL: Egregious duplication; see `ShowColor` instance.
-  show (_memberHostsRole -> RoleInRel' RoleTplt) =
-    "Rels using it as a Tplt"
-  show relHosts = let
-    tplt :: Tplt Expr = _memberHostsTplt relHosts
-    noLeft     = error "show RelHosts: impossible"
-    noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: Did I miscount?"
-    RoleInRel' (RoleMember (n :: Int)) =
-      _memberHostsRole relHosts
-    mbrs = either (const noMiscount) id
-           $ replaceNth (Phrase $ "it") n
-           $ replicate (arity tplt) $ Phrase "_"
-    in either (const noLeft) id $
-       eParenShowExpr 3 noRslt $ ExprRel $
-       Rel mbrs $ ExprTplt tplt
-
-instance ShowColor ViewOptions RelHosts where
-  -- PITFALL: Egregious duplication; see `Show` instance.
-  showColor _ (_memberHostsRole -> RoleInRel' RoleTplt) =
-    [("Rels using it as a Tplt",TextColor)]
-  showColor _ relHosts = let
-    tplt :: Tplt Expr = _memberHostsTplt relHosts
-    noLeft     = error "show RelHosts: impossible"
-    noRslt     = error "show RelHosts: Rslt irrelevant"
-    noMiscount = error "show RelHosts: Did I miscount?"
-    RoleInRel' (RoleMember (n :: Int)) =
-      _memberHostsRole relHosts
-    mbrs = either (const noMiscount) id
-           $ replaceNth (Phrase $ "it") n
-           $ replicate (arity tplt) $ Phrase "_"
-    in either (const noLeft) id $
-       eParenShowColorExpr 3 noRslt $ ExprRel $
-       Rel mbrs $ ExprTplt tplt
-
--- | Shows the label of the group, not its members.
-instance Show TpltHosts where
-  show _ = "Tplts using it as a separator"
-
--- PITFALL: These `Lens`es have to be defined *right here*,
--- after the `Show` instances that `ViewExprNode` depends on,
--- and before the `Show` instances for `ViewExprNode` itself.
-makeLenses ''OtherProps
-makePrisms ''ViewExprNode -- prisms
 makeLenses ''ViewExpr
-makeLenses ''RelHosts
-
--- | Whereas `show` shows everything about the `ViewExprNode`,
--- `showBrief` hides things the UI already makes clear.
-instance ShowBrief ViewExprNode where
-  showBrief (VQuery (QueryView vq)) = vq
-  showBrief (VQuery CycleView) = "The following cycle exists,"
-    ++ " among what should be transitive relationships."
-  showBrief (VExpr x) =
-    show (x ^. viewExpr_Addr) ++ ": "
-    ++ unColorString (x ^. viewExpr_String)
-  showBrief VMemberFork = "its members"
-  showBrief (VHostFork (RelHostFork  x)) = show x
-  showBrief (VHostFork (TpltHostFork x)) = show x
-  showBrief VSearchFork = "its search results"
-
-instance ShowColor ViewOptions ViewExprNode where
-  showColor vo (VExpr ve) =
-    ( if _viewOpt_ShowAddresses vo
-      then [(show (_viewExpr_Addr ve) ++ " ", AddrColor)]
-      else [] )
-    ++ _viewExpr_String ve
-  showColor vo (VHostFork (RelHostFork r)) =
-    showColor vo r
-  showColor _ x =
-    [(showBrief x, TextColor)]
