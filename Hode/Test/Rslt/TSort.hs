@@ -78,24 +78,19 @@ test_kahnSort = TestCase $ do
       intElt :: Rslt -> Int -> Addr
       intElt r = either (error "not in graph") id .
                  exprToAddr r . Phrase . show
-      a1 :: Rslt -> Assertion
-      a1 r = assertBool "sort a line"
-             $ kahnSort r (RightFirst, tplt_a r)
-             (map (intElt r) [0..3])
-             == Right ( map (intElt r) [3,2,1,0]
-                      , [] )
-      a2 r = assertBool "sort a subset of a line"
-             $ kahnSort r (RightFirst, tplt_a r)
-             (map (intElt r) [0,1,3])
-             == Right ( map (intElt r) [3,1,0]
-                      , [] )
+
+      ag :: Rslt -> BinOrientation -> [Addr] -> [Addr] -> [Addr]
+         -> Bool
+      ag r bo nodes sorted isol =
+        kahnSort r (bo, tplt_a r)
+        (map (intElt r) nodes)
+        == Right ( map (intElt r) sorted
+                 , map (intElt r) isol )
 
   let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3" ]
-    in a1 r >> a2 r
-  let Right r = nInserts (mkRslt mempty)
-        [ "1 #a 2", "2 #a 3", "0 #a 1" ]
-    in a1 r >> a2 r
+    in assertBool "meh" ( ag r RightFirst [0..3]  [3,2,1,0] [] ) >>
+       assertBool "meh" ( ag r RightFirst [0,1,3] [3,1,0]   [] )
 
   let Right rTree = nInserts (mkRslt mempty)
                     [ "0 #b 00", -- the prefix relationship
