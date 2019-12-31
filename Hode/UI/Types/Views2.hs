@@ -1,22 +1,28 @@
 {-# LANGUAGE
 ScopedTypeVariables,
+LambdaCase,
 MultiParamTypeClasses,
 TemplateHaskell,
 ViewPatterns
 #-}
 
 module Hode.UI.Types.Views2 (
+  -- * types and optics
     RelHosts(..), memberHostsRole, memberHostsTplt
   , ViewForkType(..), _VFQuery, _VFMembers, _VFTpltHosts
     , _VFRelHosts, _VFSearch
   , ViewFork(..), viewForkCenter, viewForkSortTplt, viewForkType
   , ViewExprNode(..), _VExpr, _VFork
   , ExprRow(..), viewExprNode, columnProps, otherProps
+
+  -- * misc
+  , exprTree_focusAddr -- ^ PTree ExprRow -> Either String Addr
   ) where
 
 import Control.Lens
 
 import Hode.Brick
+import Hode.PTree.Initial
 import Hode.Rslt.RTypes
 import Hode.Rslt.Show
 import Hode.Rslt.ShowColor
@@ -114,3 +120,9 @@ instance ShowColor ViewOptions ViewExprNode where
   showColor vo f@(VFork vf) = case _viewForkType vf of
     VFRelHosts r -> showColor vo r
     _ -> [(showBrief f, TextColor)]
+
+exprTree_focusAddr :: PTree ExprRow -> Either String Addr
+exprTree_focusAddr =
+  (\case VExpr rv -> Right $ rv ^. viewExpr_Addr
+         _         -> Left $ "Can only be called from a VExpr." )
+  . (^. pTreeLabel . viewExprNode)

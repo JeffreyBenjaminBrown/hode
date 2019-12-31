@@ -5,6 +5,7 @@ TemplateHaskell
 #-}
 
 module Hode.UI.Types.State (
+  -- * types and optics
     Buffer(..)
   , bufferExprRowTree     -- ^ PTree ExprRow
   , getBuffer_viewForkType -- ^ NOT this type, but close:
@@ -25,6 +26,7 @@ module Hode.UI.Types.State (
   , showingInMainWindow    -- ^ MainWindowName
   , showingOptionalWindows -- ^ Map OptionalWindowName Bool
 
+  -- * misc
   , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
   , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
@@ -32,8 +34,6 @@ module Hode.UI.Types.State (
   , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
   , resultWindow_focusAddr         -- ^            St -> Either String Addr
-
-  , exprTree_focusAddr             -- ^ PTree ExprRow -> Either String Addr
   ) where
 
 import           Control.Lens
@@ -147,9 +147,3 @@ resultWindow_focusAddr st =
   maybe (error "Focused ViewExprNode not found.") Right
     (st ^? stGetFocused_ViewExprNode_Tree . _Just)
     >>= exprTree_focusAddr
-
-exprTree_focusAddr :: PTree ExprRow -> Either String Addr
-exprTree_focusAddr =
-  (\case VExpr rv -> Right $ rv ^. viewExpr_Addr
-         _         -> Left $ "Can only be called from a VExpr." )
-  . (^. pTreeLabel . viewExprNode)
