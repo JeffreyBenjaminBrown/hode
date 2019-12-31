@@ -84,10 +84,10 @@ hExprToAddrs r s (HMap m) =
 
 hExprToAddrs r s (HMember h) =
   prefixLeft "hExprToAddrs, called on HMember:" $ do
-  members :: Set Addr <- hExprToAddrs r s h
+  as :: Set Addr <- hExprToAddrs r s h
   hosts :: Set Addr <-
     (S.map snd) . S.unions <$>
-    ifLefts_set (S.map (isIn r) members)
+    ifLefts_set (S.map (isIn r) as)
   Right hosts
 
 hExprToAddrs r s (HInvolves 1 h) =

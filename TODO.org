@@ -10,10 +10,12 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO ordering
+*** TODO Kahn sort
+**** TODO do not delete the template during iteration
+Provide the template as an argument to "delete hosts then delete".
+**** TODO delete the template before checking for cyclicality
+***** TODO ? What if there's a cycle involving the template?
 *** TODO display
-**** TODO in kahn sort algorithm, put unrelated things last
-***** TODO test the new stuff
-diff the previous commit to see likely places
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.

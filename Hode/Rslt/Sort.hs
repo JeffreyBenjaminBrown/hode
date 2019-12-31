@@ -68,6 +68,7 @@ import           Control.Monad (mapM,foldM)
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes
 import Hode.Rslt.Edit (deleteIfUnused)
+import Hode.Rslt.Edit.Initial (_deleteInternalMentionsOf_unsafe)
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup
 import Hode.Rslt.Binary
@@ -132,7 +133,7 @@ kahnIterate _ k@(Kahn _ [] _) =
 kahnIterate (bo,t) (Kahn r (top:tops) acc) =
   prefixLeft "kahnIterate:" $ do
   jus :: Set Addr <- justUnders (bo,t) r top
-  r1 :: Rslt <- deleteHostsThenDelete top r
+  r1 :: Rslt <- deleteHostsThenDelete top t r
   newTops :: [Addr] <- allTops r1 (bo,t) $
                        S.toList jus
   Right $ Kahn r1 (newTops ++ tops) (top : acc)
@@ -284,12 +285,20 @@ justUnders (bo,t) r a = let
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
 -- rel in which `a` is a member, and then removes `a`.
--- TODO ? PITFALL: Nothing guarantees `a` appears only in binary `Rel`s.
+-- PITFALL: Could put `r` into an invalid state
+-- (see `_deleteInternalMentionsOf_unsafe`),
+-- such that the deleted `Expr` is a member of `Expr` still present.
+-- I believe that's okay if we're merely using `r` to sort.
 deleteHostsThenDelete ::
-  Addr -> Rslt -> Either String Rslt
-deleteHostsThenDelete a r =
+  Addr -> TpltAddr -> Rslt -> Either String Rslt
+deleteHostsThenDelete a t r =
   prefixLeft "deleteHostsThenDelete:" $ do
   hosts :: Set Addr <-
-    S.map snd <$> isIn r a
+    hExprToAddrs r mempty $
+    HAnd [ HMap ( M.singleton (RoleInRel' RoleTplt)
+                  $ HExpr $ ExprAddr t )
+         , ( -- No need to check which member it is --
+             -- the template is binary, and the node is top.)
+             HMember $ HExpr $ ExprAddr a ) ]
   foldM (flip deleteIfUnused) r hosts >>=
-    deleteIfUnused a
+    _deleteInternalMentionsOf_unsafe a

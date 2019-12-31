@@ -203,10 +203,11 @@ test_deleteHostsThenDelete i = do
                                            "1 #b 2",
                                            "3 #b 3",
                                            "3" ]
+      Right tplt_a = head . S.toList <$> nFindAddrs r "/t /_ a /_"
       n :: Int -> Addr
       n k = either (const $ error "not in the Rslt") id $
             head . S.toList <$> nFindAddrs r (show k)
-  case deleteHostsThenDelete (n i) r of
+  case deleteHostsThenDelete (n i) tplt_a r of
     Left s -> putStrLn s
     Right res -> mapM_ (putStrLn . show) $
                  M.toList $ _addrToRefExpr res

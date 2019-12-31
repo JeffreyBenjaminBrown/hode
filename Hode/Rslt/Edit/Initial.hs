@@ -11,6 +11,7 @@ module Hode.Rslt.Edit.Initial (
   , insert         -- ^ RefExpr ->              Rslt -> Either String Rslt
   , insertAt       -- ^ Addr -> RefExpr ->      Rslt -> Either String Rslt
   , deleteIfUnused -- ^ Addr ->                 Rslt -> Either String Rslt
+  , _deleteInternalMentionsOf_unsafe -- ^ Addr -> Rslt -> Either String Rslt
   ) where
 
 import           Control.Lens hiding (has, re)
@@ -122,7 +123,7 @@ deleteIfUnused a r =
   prefixLeft "deleteIfUnused:" $ do
   users <- isIn r a
   if null users
-    then _deleteInternalMentionsOf a r
+    then _deleteInternalMentionsOf_unsafe a r
     else Left $ "deleteIfUnused: Addr " ++ show a
          ++ " is used in other RefExprs.\n"
 
@@ -132,8 +133,8 @@ deleteIfUnused a r =
 -- That's because it only deletes mentions in which `a` is the container
 -- (hence "internal" mentions) or "the thing" (as in `_variety`).
 -- It does *not* delete mentions in which `a` is the contained.
-_deleteInternalMentionsOf :: Addr -> Rslt -> Either String Rslt
-_deleteInternalMentionsOf a r =
+_deleteInternalMentionsOf_unsafe :: Addr -> Rslt -> Either String Rslt
+_deleteInternalMentionsOf_unsafe a r =
   prefixLeft "_deleteInternalMentionsOf:" $ do
   aHas       ::           Map Role Addr <- has r a
   let _isIn2 :: Map Addr (Set (Role, Addr)) =
