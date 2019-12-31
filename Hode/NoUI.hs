@@ -126,12 +126,16 @@ nFind r s = do as <- S.toList <$> nFindAddrs r s
                Right $ zip as es
 
 nFindSort :: Rslt -> (BinOrientation, TpltAddr)
-          -> String -> Either String [(Addr, Expr)]
+          -> String -> Either String ( [(Addr, Expr)]
+                                     , [(Addr, Expr)] )
 nFindSort r bt s = do
-  as :: [Addr] <- S.toList <$> nFindAddrs r s
-                  >>= kahnSort r bt
-  es :: [Expr] <- ifLefts $ map (addrToExpr r) as
-  Right $ zip as es
+  (sorted,isol) :: ([Addr], [Addr]) <-
+    S.toList <$> nFindAddrs r s
+    >>= kahnSort r bt
+  sortedEs :: [Expr] <- ifLefts $ map (addrToExpr r) sorted
+  isolEs   :: [Expr] <- ifLefts $ map (addrToExpr r) isol
+  Right ( zip sorted sortedEs
+        , zip isol   isolEs )
 
 nFindStrings :: Rslt -> String -> Either String [(Addr, String)]
 nFindStrings r s = do
@@ -140,11 +144,16 @@ nFindStrings r s = do
   Right $ zip as ss
 
 nFindSortStrings :: Rslt -> (BinOrientation, TpltAddr)
-                 -> String -> Either String [(Addr, String)]
+  -> String -> Either String ( [(Addr, String)]
+                             , [(Addr, String)] )
 nFindSortStrings r bt s = do
-  (as,es) :: ([Addr],[Expr]) <- unzip <$> nFindSort r bt s
+  (sorted,isol) <- nFindSort r bt s
+  let (as,es) = unzip sorted
+      (as',es') = unzip isol
   ss <- ifLefts $ map (eShow r) es
-  Right $ zip as ss
+  ss' <- ifLefts $ map (eShow r) es'
+  Right ( zip as ss
+        , zip as' ss' )
 
 nFindIO :: Rslt -> String -> IO ()
 nFindIO r q =
@@ -157,6 +166,10 @@ nFindSortIO :: Rslt -> (BinOrientation,TpltAddr) -> String -> IO ()
 nFindSortIO r bt q =
   case nFindSortStrings r bt q
   of Left err -> putStrLn err
-     Right ss -> let f (a,s) = show a ++ ": " ++ s
-                 in mapM_ putStrLn $ map f ss
+     Right (sorted,isol) ->
+       let f (a,s) = show a ++ ": " ++ s
+       in do putStrLn "<<< sorted >>>"
+             mapM_ putStrLn $ map f sorted
+             putStrLn "<<< isolated >>>"
+             mapM_ putStrLn $ map f isol
 

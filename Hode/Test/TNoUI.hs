@@ -2,6 +2,7 @@
 
 module Hode.Test.TNoUI where
 
+import           Control.Lens
 import qualified Data.Map as M
 import qualified Data.Set as S
 import Test.HUnit
@@ -30,28 +31,32 @@ test_nFindSort = TestCase $ do
                       nFindAddrs rLine "/t /_ lt /_"
 
   assertBool "" $
-    ( map snd <$> nFindSort rLine
+    ( (both %~ map snd) <$> nFindSort rLine
       (LeftFirst,tplt_a)
       "/eval /it #lt /_" )
-    == Right (map (Phrase . show) [0,1,2::Int])
+    == Right ( map (Phrase . show) [0,1,2::Int]
+             , [] )
 
   assertBool "" $
-    ( map snd <$> nFindSort rLine
+    ( (both %~ map snd) <$> nFindSort rLine
       (LeftFirst,tplt_a)
       "/eval /_ #lt /it" )
-    == Right (map (Phrase . show) [1,2,3::Int])
+    == Right ( map (Phrase . show) [1,2,3::Int]
+             , [] )
 
   assertBool "" $
-    ( map snd <$> nFindSort rLine
+    ( (both %~ map snd) <$> nFindSort rLine
       (RightFirst,tplt_a)
       "/eval /it #lt /_" )
-    == Right (map (Phrase . show) [2,1,0::Int])
+    == Right ( map (Phrase . show) [2,1,0::Int]
+             , [] )
 
   assertBool "" $
-    ( map snd <$> nFindSort rLine
+    ( (both %~ map snd) <$> nFindSort rLine
       (RightFirst,tplt_a)
       "/eval /_ #lt /it" )
-    == Right (map (Phrase . show) [3,2,1::Int])
+    == Right ( map (Phrase . show) [3,2,1::Int]
+             , [] )
 
 test_insert :: Test
 test_insert = TestCase $ do

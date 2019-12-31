@@ -146,10 +146,11 @@ runParsedCommand                     c0 st0 =
       CommandFind     s h      ->
         (s,) <$>
         ( S.toList <$> hExprToAddrs r mempty h )
-      CommandFindSort s h bo t ->
-        (s,) <$>
-        ( S.toList <$> hExprToAddrs r mempty h
-          >>= kahnSort r (bo,t) )
+      CommandFindSort s h bo t -> do
+        (sorted,isol) <- S.toList
+                         <$> hExprToAddrs r mempty h
+                         >>= kahnSort r (bo,t)
+        Right ( s, sorted ++ isol )
       _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
     pr :: Porest ExprRow <-
       (P.focus . pTreeHasFocus .~ True)

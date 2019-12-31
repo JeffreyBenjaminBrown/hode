@@ -82,11 +82,13 @@ test_kahnSort = TestCase $ do
       a1 r = assertBool "sort a line"
              $ kahnSort r (RightFirst, tplt_a r)
              (map (intElt r) [0..3])
-             == Right (map (intElt r) [3,2,1,0])
+             == Right ( map (intElt r) [3,2,1,0]
+                      , [] )
       a2 r = assertBool "sort a subset of a line"
              $ kahnSort r (RightFirst, tplt_a r)
              (map (intElt r) [0,1,3])
-             == Right (map (intElt r) [3,1,0])
+             == Right ( map (intElt r) [3,1,0]
+                      , [] )
 
   let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3" ]
@@ -109,13 +111,14 @@ test_kahnSort = TestCase $ do
                      nFindAddrs rTree "/t /_ b /_"
 
   assertBool "sort a tree" $ let
-    Right (sorted :: [Addr]) =
+    Right (sorted :: [Addr], isol :: [Addr]) =
       kahnSort rTree (RightFirst,tplt_b) $
       map elt ["0","00","01","000","001","010","011"]
     Right (shown :: [Expr]) =
       mapM (addrToExpr rTree) sorted
     in shown == map Phrase ["011","010","01",
                             "001","000","00","0"]
+       && isol == []
 
 -- | Without graph isomorphism, this test is too brittle to automate.
 test_restrictRsltForSort :: IO () -- manual test

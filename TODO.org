@@ -12,6 +12,8 @@ This will load all non-broken modules when some are broken.
 ** TODO ordering
 *** TODO display
 **** TODO in kahn sort algorithm, put unrelated things last
+***** TODO test the new stuff
+diff the previous commit to see likely places
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.

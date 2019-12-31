@@ -83,23 +83,32 @@ data Kahn = Kahn
   , kahnSorted :: [Addr] }
   deriving (Eq,Ord,Show)
 
--- | Depth-first search.
+-- | If `kahnSort r (bo,t) as == (sorted,isol)`,
+-- then `sorted` are sorted w/r/t `(bo,t)`,
+-- and nothing in `isol` is in a `t`-relationship.
+--
+-- PITFALL: `sorted` might not be a connected (via `t`) set.
+--
+-- Note: this is depth-first search.
 -- (For BFS, reverse the order of the expression
 -- `newTops ++ tops` in `kahnIterate`.)
 kahnSort :: Rslt -> (BinOrientation, TpltAddr) -> [Addr]
-         -> Either String [Addr]
+         -> Either String ([Addr],[Addr])
 kahnSort r (bo,t) as =
 -- TODO speed: this calls `restrictRsltForSort` and `allRelsInvolvingTplts`, but `restrictRsltForSort` also calls `allRelsInvolvingTplts`, with the same arguments. I don't know whether GHC will optimize that away.
   prefixLeft "kahnSort:" $ do
   rels :: Set Addr <- allRelsInvolvingTplts r [t]
   r1 :: Rslt <- restrictRsltForSort as [t] r
-  nodes :: [Addr] <-
+  nodes0 :: [Addr] <-
     S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
-  tops :: [Addr] <- allTops r1 (bo,t) nodes
+  (nodes1,isolated) <-
+    partitionRelated r1 t nodes0
+  tops :: [Addr] <- allTops r1 (bo,t) nodes1
   Kahn r2 _ res <- kahnRecurse (bo,t) $ Kahn r1 tops []
   case null $ S.intersection rels $
        S.fromList $ M.keys $ _addrToRefExpr r2 of
-    True -> Right $ filter (flip elem $ S.fromList as) res
+    True -> Right ( filter (flip elem $ S.fromList as) res
+                  , isolated )
     False -> Left "data has at least one cycle."
 
 
@@ -235,9 +244,9 @@ partitionRelated r t as =
   prefixLeft "partitionRelated:" $ do
   let withIsRelated :: Addr -> Either String (Bool, Addr)
       withIsRelated a = (,a) <$> isRelated r t a
-  (areRelated, notConnected) <-
+  (areRelated, isolated) <-
     L.partition fst <$> mapM withIsRelated as
-  Right (map snd areRelated, map snd notConnected)
+  Right (map snd areRelated, map snd isolated)
 
 -- | `isRelated r t a` is `True` if and only if
 -- `a` is in at least one `t`-relationship.
