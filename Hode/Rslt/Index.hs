@@ -25,16 +25,12 @@ emptyRslt :: Rslt
 emptyRslt = mkRslt mempty
 
 mkRslt :: Map Addr RefExpr -> Rslt
-mkRslt es = go es' where
+mkRslt es0 = r where
   -- TODO ? speed: build ts at the same time as the map,
   -- to avoid looping over the addresses twice.
-  ts :: Set Addr =
-    M.keysSet $ M.filter f es where
-    f = \case (Tplt' _) -> True
-              _ -> False
 
-  es' :: Map Addr RefExpr =
-    if M.null es
+  es :: Map Addr RefExpr =
+    if M.null es0
     then M.fromList [ (0, Phrase' "")
                     , (1, Phrase' "transitive")
                     , (2, Phrase' "is")
@@ -43,21 +39,21 @@ mkRslt es = go es' where
                     , (5, Phrase' "before")
                     , (6, Tplt' $ Tplt (Just 4) [] Nothing)
                     , (7, Tplt' $ Tplt (Just 4) [5] Nothing) ]
-    else es
+    else es0
 
-  go :: Map Addr RefExpr -> Rslt
-  go m = let
-    hasMap :: Map Addr (Map Role Addr) =
+  hasMap :: Map Addr (Map Role Addr) =
       M.filter (not . M.null) $
-      M.map (M.fromList . refExprPositions) m
-    in Rslt {
-      _addrToRefExpr = m
-    , _refExprToAddr = imgDb m
-    , _variety = M.map refExprVariety m
+      M.map (M.fromList . refExprPositions) es
+  r = Rslt {
+      _addrToRefExpr = es
+    , _refExprToAddr = imgDb es
+    , _variety = M.map refExprVariety es
     , _has = hasMap
     , _isIn = foldl invertAndAddPositions M.empty
               $ M.toList $ M.map M.toList hasMap
-    , _tplts = ts
+    , _tplts = let f = \case (Tplt' _) -> True
+                             _         -> False
+               in M.keysSet $ M.filter f es
     }
 
 
