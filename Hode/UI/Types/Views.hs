@@ -88,8 +88,8 @@ makeLenses ''ViewExpr
 -- | Example: If `x :: Expr` is in some relationships of the form
 -- `x #is _`, that group of relationships will have a `Role` of
 -- "member 1" and a `Tplt` of "_ is _".
-data RelHostGroup = RelHostGroup { _memberHostsRole   :: Role
-                                 , _memberHostsTplt   :: Tplt Expr }
+data RelHostGroup = RelHostGroup { _memberHostsRole :: Role
+                                 , _memberHostsTplt :: Tplt Expr }
                   deriving (Eq, Ord)
 makeLenses ''RelHostGroup
 
@@ -101,14 +101,16 @@ instance Show RelHostGroup where
     noLeft     = error "show RelHostGroup: impossible"
     noRslt     = error "show RelHostGroup: Rslt irrelevant"
     noMiscount = error "show RelHostGroup: Did I miscount?"
-    RoleInRel' (RoleMember (n :: Int)) =
-      _memberHostsRole rhg
-    mbrs = either (const noMiscount) id
-           $ replaceNth (Phrase $ "it") n
-           $ replicate (arity tplt) $ Phrase "_"
-    in either (const noLeft) id $
-       eParenShowExpr 3 noRslt $ ExprRel $
-       Rel mbrs $ ExprTplt tplt
+    in case _memberHostsRole rhg of
+         RoleInRel' RoleTplt ->
+           "Rels in which it is the Tplt"
+         RoleInRel' (RoleMember (n :: Int)) ->
+           let mbrs = either (const noMiscount) id
+                      $ replaceNth (Phrase $ "it") n
+                      $ replicate (arity tplt) $ Phrase "_"
+           in either (const noLeft) id $
+              eParenShowExpr 3 noRslt $ ExprRel $
+              Rel mbrs $ ExprTplt tplt
 
 -- | Shows the label of the group, not its members.
 instance ShowColor ViewOptions RelHostGroup where
@@ -118,14 +120,16 @@ instance ShowColor ViewOptions RelHostGroup where
     noLeft     = error "show RelHostGroup: impossible"
     noRslt     = error "show RelHostGroup: Rslt irrelevant"
     noMiscount = error "show RelHostGroup: Did I miscount?"
-    RoleInRel' (RoleMember (n :: Int)) =
-      _memberHostsRole rhg
-    mbrs = either (const noMiscount) id
-           $ replaceNth (Phrase $ "it") n
-           $ replicate (arity tplt) $ Phrase "_"
-    in either (const noLeft) id $
-       eParenShowColorExpr 3 noRslt $ ExprRel $
-       Rel mbrs $ ExprTplt tplt
+    in case _memberHostsRole rhg of
+         RoleInRel' RoleTplt ->
+           [ ("Rels in which it is the Tplt", TextColor) ]
+         RoleInRel' (RoleMember (n :: Int)) ->
+           let mbrs = either (const noMiscount) id
+                 $ replaceNth (Phrase $ "it") n
+                 $ replicate (arity tplt) $ Phrase "_"
+           in either (const noLeft) id $
+              eParenShowColorExpr 3 noRslt $ ExprRel $
+              Rel mbrs $ ExprTplt tplt
 
 data ViewForkType  -- ^ used to group a set of related VenExprs
   = VFQuery ViewQuery -- ^ groups the results of searching for the ViewQuery
