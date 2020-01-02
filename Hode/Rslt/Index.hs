@@ -38,7 +38,11 @@ mkRslt es = go es' where
     then M.fromList [ (0, Phrase' "")
                     , (1, Phrase' "transitive")
                     , (2, Phrase' "is")
-                    , (3, Tplt' $ Tplt Nothing [2] Nothing) ]
+                    , (3, Tplt' $ Tplt Nothing [2] Nothing)
+                    , (4, Phrase' "sort by")
+                    , (5, Phrase' "before")
+                    , (6, Tplt' $ Tplt (Just 4) [] Nothing)
+                    , (7, Tplt' $ Tplt (Just 4) [5] Nothing) ]
     else es
 
   go :: Map Addr RefExpr -> Rslt
