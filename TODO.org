@@ -13,8 +13,15 @@ This will load all non-broken modules when some are broken.
 *** TODO display
 **** TODO sort by default
 use the tplts "sort by _" and  "sort by _ before _"
+***** 2.5 - add tests for Rslt.Sort.Default
 ***** 3 - sort by the first applicable sort criterion
-in each group of search results -- top-level or otherwise
+in each group of search results -- top-level or otherwise.
+**** TODO a way to change the sort on a group
+***** maybe just a text command
+***** maybe a "sort program" buffer
+Specific to a given VExpr, applied to its children.
+Shows every TR, and a checkbox next to the one curently ordering the list.
+The checkbox can be moved.
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.
@@ -26,12 +33,6 @@ Those are in the middle.
 At the top are things related to each other by the TR that orders the list.
 They are white if they are also related by some other TR to anything else.
 Otherwise they are blue.
-**** TODO a way to change the sort on a group
-***** maybe just a text command
-***** maybe a "sort program" buffer
-Specific to a given VExpr, applied to its children.
-Shows every TR, and a checkbox next to the one curently ordering the list.
-The checkbox can be moved.
 **** TODO indicate the sort applied to each group
 *** TODO WYSIWYG sorting
 **** TODO highlight range
