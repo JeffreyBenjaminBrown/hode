@@ -12,9 +12,10 @@ This will load all non-broken modules when some are broken.
 ** TODO ordering
 *** TODO display
 **** TODO sort by default
-***** use the tplts "sort by _" and  "sort by _ before _"
-In each group of search results -- top-level or otherwise --
-sort by the first applicable sort criterion.
+use the tplts "sort by _" and  "sort by _ before _"
+***** 2 - find the first template that applies to a set of Exprs
+***** 3 - sort by the first applicable sort criterion
+in each group of search results -- top-level or otherwise
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.

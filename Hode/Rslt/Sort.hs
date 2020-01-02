@@ -86,6 +86,32 @@ data Kahn = Kahn
   , kahnSorted :: [Addr] }
   deriving (Eq,Ord,Show)
 
+-- | The user can use the built-in `Tplt`s "sort by _" (unary)
+-- and "sort by _ before _" (binary) to state which `Tplt`s
+-- should be used by default to order the data on-screen.
+
+-- TODO ? speed: This currently is run every time sorting is needed.
+-- If either "sort by _" or "sort by _ before _" becomes large
+-- (which seems dubious), it will be desirable to store the result.
+
+sortTpltsForSorting :: Rslt -> Either String [Addr]
+sortTpltsForSorting r = do
+  sb    ::     Addr <- head . S.toList <$> -- safe b/c it's in every `Rslt`
+    ( hExprToAddrs r mempty $ HExpr $ ExprTplt $ Tplt
+      (Just $ Phrase "sort by") []                Nothing)
+  sb_b4 ::     Addr <- head . S.toList <$> -- safe b/c it's in every `Rslt`
+    ( hExprToAddrs r mempty $ HExpr $ ExprTplt $ Tplt
+      (Just $ Phrase "sort by") [Phrase "before"] Nothing)
+  ts    :: Set Addr <-
+    hExprToAddrs r mempty $ HAnd
+    [ HTplts -- templates
+    , HEval  -- things to sort by
+      (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb)
+      [[RoleMember 1]] ]
+  (sorted, isol) <-
+    kahnSort r (LeftFirst, sb_b4) $ S.toList ts
+  Right $ sorted ++ isol
+
 -- | If `kahnSort r (bo,t) as == (sorted,isol)`,
 -- then `sorted` are sorted w/r/t `(bo,t)`,
 -- and nothing in `isol` is in a `t`-relationship.
