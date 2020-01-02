@@ -25,7 +25,7 @@ class HasArity e where
 type RelAddr    = Addr
 type MemberAddr = Addr
 type TpltAddr   = Addr
-type HostAddr   = Addr -- ^ could be a `Rel` or a `Tplt`
+type HostAddr   = Addr -- ^ something that hosts -- a `Rel` or a `Tplt`
 
 -- | = Every relationship has a "Tplt" and some "members".
 -- For instance, the relationship "dogs #like beef" has members "dogs"

@@ -13,7 +13,6 @@ This will load all non-broken modules when some are broken.
 *** TODO display
 **** TODO sort by default
 use the tplts "sort by _" and  "sort by _ before _"
-***** 2 - find the first template that applies to a set of Exprs
 ***** 3 - sort by the first applicable sort criterion
 in each group of search results -- top-level or otherwise
 **** TODO add a sort-color field to ViewExprNode
