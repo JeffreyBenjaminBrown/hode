@@ -70,6 +70,7 @@ library
                 , Hode.Rslt.ShowColor
                 , Hode.Rslt.Show.Util
                 , Hode.Rslt.Sort
+                , Hode.Rslt.Sort.Default
 
                 , Hode.Test.Hash.Main
                 , Hode.Test.Hash.TConvert
