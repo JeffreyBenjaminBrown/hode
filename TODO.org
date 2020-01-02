@@ -12,8 +12,11 @@ This will load all non-broken modules when some are broken.
 ** TODO ordering
 *** TODO display
 **** TODO sort by default
-use the tplts "sort by _" and  "sort by _ before _"
-***** 2.5 - add tests for Rslt.Sort.Default
+use the tplts "sort by _" and "sort by _ before _"
+***** TODO 2.5 - add tests for Rslt.Sort.Default
+Reduce the complexity of test_sortTpltsForSorting
+before manually stepping through it.
+What if it only used the two binary built-in tplts, (_ is _) and (sort by _ before _)?
 ***** 3 - sort by the first applicable sort criterion
 in each group of search results -- top-level or otherwise.
 **** TODO a way to change the sort on a group

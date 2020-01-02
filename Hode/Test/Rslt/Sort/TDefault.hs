@@ -4,7 +4,6 @@
 
 module Hode.Test.Rslt.Sort.TDefault where
 
-import           Data.Either
 import qualified Data.Set as S
 import           Test.HUnit
 
@@ -27,32 +26,44 @@ test_firstApplicableTplt :: Test
 test_firstApplicableTplt = TestCase $ do
   assertBool "first fix the other stuff" False
 
+-- TODO : these should only be top-level while debugging.
+-- Then drop the _db suffixes.
+tplt_db :: String -> String
+tplt_db s = "(/t /_ " ++ s ++ " /_)"
+sb_b4 :: String
+sb_b4 = "(/t sort by /_ before /_)"
+r_db :: Rslt
+Right r_db = nInserts (mkRslt mempty)
+  ["#(sort by) (/t /_ is /_) #before (/t sort by /_ before /_)"]
+addr :: Rslt -> String -> Addr
+addr r s = either (error "huh?") id $
+           head . S.toList <$>
+           nFindAddrs r s
+
 test_sortTpltsForSorting :: Test
 test_sortTpltsForSorting = TestCase $ do
-  let tplt :: String -> String
-      tplt s = "(/t /_ " ++ s ++ " /_)"
-      sb_b4 :: String = "(/t sort by /_ before /_)"
-      precedes :: String -> String -> String
+  assertBool "kahnSort believes this data has a cycle." $
+    sortTpltsForSorting r_db
+    == Right (map (addr r_db) [ "/t /_ is /_"
+                              , "/t sort by /_ before /_" ] )
+
+  let precedes :: String -> String -> String
       precedes x y = "#(sort by) " ++ x ++ " #before " ++ y
-      Right (r :: Rslt) = nInserts (mkRslt mempty)
-        [ precedes (tplt "a") (tplt "b")
-        , precedes            (tplt "b") sb_b4
-        , "#(sort by) " ++ tplt "disconnected"
-        , precedes                       sb_b4 (tplt "c")
+      Right (r1 :: Rslt) = nInserts (mkRslt mempty)
+        [ precedes (tplt_db "a") (tplt_db "b")
+        , precedes               (tplt_db "b") sb_b4
+        , "#(sort by) " ++ tplt_db "disconnected"
+        , precedes                             sb_b4 (tplt_db "c")
         ]
-      tpltAddr :: String -> Addr
-      tpltAddr s = either (error "huh?") id $
-                   head . S.toList <$>
-                   nFindAddrs r s
   assertBool ( "This is almost working, but the tplt (_ a _) is missing.\n"
                ++ "It is present among `ts`, the `Tplt`s being sorted.\n"
                ++ "So the problem appears to be in kahnSort." )
-    $ sortTpltsForSorting r
-    == Right (map tpltAddr [ tplt "a"
-                           , tplt "b"
-                           , sb_b4
-                           , tplt "c"
-                           , tplt "disconnected" ] )
+    $ sortTpltsForSorting r1
+    == Right (map (addr r1) [ tplt_db "a"
+                            , tplt_db "b"
+                            , sb_b4
+                            , tplt_db "c"
+                            , tplt_db "disconnected" ] )
 
 test_isIn_usingTplt :: Test
 test_isIn_usingTplt = TestCase $ do

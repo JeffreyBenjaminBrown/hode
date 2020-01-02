@@ -55,18 +55,18 @@ sortTpltsForSorting r = do
   ts    :: Set Addr <-
     hExprToAddrs r mempty $ HAnd
     [ HTplts -- templates
-    , HOr [
-        HEval  -- things to sort by
-            (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb)
-            [[RoleMember 1]]
-          , HEval  -- things to sort by before or after other things
-            (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb_b4)
-            [[RoleMember 1],[RoleMember 2]] ]]
+    , HOr
+      [ HEval  -- things to sort by
+        (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb)
+        [[RoleMember 1]]
+      , HEval  -- things to sort by before or after other things
+        (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb_b4)
+        [[RoleMember 1],[RoleMember 2]] ]]
   (sorted, isol) <-
     kahnSort r (LeftFirst, sb_b4) $ S.toList ts
-  Left ( -- for debugging
-    "ts: " ++ show ts ++ "\nsorted: " ++ show sorted
-      ++ "\nisol: " ++ show isol )
+--  Left ( -- for debugging
+--    "ts: " ++ show ts ++ "\nsorted: " ++ show sorted
+--      ++ "\nisol: " ++ show isol )
   Right $ sorted ++ isol
 
 -- | `isIn_usingTplt r t a` determines whether `a` is in a "`t`-`Rel`":
