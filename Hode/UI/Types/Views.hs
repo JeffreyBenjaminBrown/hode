@@ -111,6 +111,7 @@ instance Show RelHostGroup where
            in either (const noLeft) id $
               eParenShowExpr 3 noRslt $ ExprRel $
               Rel mbrs $ ExprTplt tplt
+         _ -> error "-- TODO ? why does this never seem to happen?"
 
 -- | Shows the label of the group, not its members.
 instance ShowColor ViewOptions RelHostGroup where
@@ -130,6 +131,7 @@ instance ShowColor ViewOptions RelHostGroup where
            in either (const noLeft) id $
               eParenShowColorExpr 3 noRslt $ ExprRel $
               Rel mbrs $ ExprTplt tplt
+         _ -> error "-- TODO ? why does this never seem to happen?"
 
 data ViewForkType  -- ^ used to group a set of related VenExprs
   = VFQuery ViewQuery -- ^ groups the results of searching for the ViewQuery

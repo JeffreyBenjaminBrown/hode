@@ -40,25 +40,6 @@ firstApplicableTplt r as =
     case or bs of True -> Right $ Just t
                   False -> go ts
 
--- | `isIn_usingTplt r t a` determines whether `a` is in a "`t`-`Rel`":
--- a `Rel` in which `t` is the `Tplt`.
--- This is faster than the `HExpr` method,
--- and needfully so, since `Tplt`s can have high order.
-isIn_usingTplt :: Rslt -> TpltAddr -> Addr -> Either String Bool
-isIn_usingTplt r t a =
-  and . S.map (usesTplt r t . snd)
-  <$> isIn r a
-
--- | `usesTplt r t0 a` determines whether `a` is a "`t`-`Rel`":
--- a `Rel` in which `t` is the `Tplt`.
--- This is faster than the `HExpr` method,
--- and needfully so, since `Tplt`s can have high order.
-usesTplt :: Rslt -> TpltAddr -> Addr -> Bool
-usesTplt r t0 a =
-  case M.lookup a $ _addrToRefExpr r of
-    Just (Rel' (Rel _ t)) -> t == t0
-    _                     -> False
-
 -- TODO ? speed: This currently is run every time sorting is needed.
 -- If either "sort by _" or "sort by _ before _" becomes large
 -- (which seems dubious), it will be desirable to store the result.
@@ -87,3 +68,22 @@ sortTpltsForSorting r = do
     "ts: " ++ show ts ++ "\nsorted: " ++ show sorted
       ++ "\nisol: " ++ show isol )
   Right $ sorted ++ isol
+
+-- | `isIn_usingTplt r t a` determines whether `a` is in a "`t`-`Rel`":
+-- a `Rel` in which `t` is the `Tplt`.
+-- This is faster than the `HExpr` method,
+-- and needfully so, since `Tplt`s can have high order.
+isIn_usingTplt :: Rslt -> TpltAddr -> Addr -> Either String Bool
+isIn_usingTplt r t a =
+  and . S.map (usesTplt r t . snd)
+  <$> isIn r a
+
+-- | `usesTplt r t0 a` determines whether `a` is a "`t`-`Rel`":
+-- a `Rel` in which `t` is the `Tplt`.
+-- This is faster than the `HExpr` method,
+-- and needfully so, since `Tplt`s can have high order.
+usesTplt :: Rslt -> TpltAddr -> Addr -> Bool
+usesTplt r t0 a =
+  case M.lookup a $ _addrToRefExpr r of
+    Just (Rel' (Rel _ t)) -> t == t0
+    _                     -> False
