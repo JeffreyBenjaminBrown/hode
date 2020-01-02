@@ -75,7 +75,7 @@ sortTpltsForSorting r = do
 -- and needfully so, since `Tplt`s can have high order.
 isIn_usingTplt :: Rslt -> TpltAddr -> Addr -> Either String Bool
 isIn_usingTplt r t a =
-  and . S.map (usesTplt r t . snd)
+  or . S.map (usesTplt r t . snd)
   <$> isIn r a
 
 -- | `usesTplt r t0 a` determines whether `a` is a "`t`-`Rel`":

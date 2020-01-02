@@ -17,10 +17,15 @@ import Hode.Rslt.Sort.Default
 
 test_module_rslt_sort_default :: Test
 test_module_rslt_sort_default = TestList [
-  TestLabel "test_usesTplt" test_usesTplt,
-  TestLabel "test_isIn_usingTplt" test_isIn_usingTplt,
-  TestLabel "test_sortTpltsForSorting" test_sortTpltsForSorting
+    TestLabel "test_usesTplt" test_usesTplt
+  , TestLabel "test_isIn_usingTplt" test_isIn_usingTplt
+  , TestLabel "test_sortTpltsForSorting" test_sortTpltsForSorting
+  , TestLabel "test_firstApplicableTplt" test_firstApplicableTplt
   ]
+
+test_firstApplicableTplt :: Test
+test_firstApplicableTplt = TestCase $ do
+  assertBool "first fix the other stuff" False
 
 test_sortTpltsForSorting :: Test
 test_sortTpltsForSorting = TestCase $ do
