@@ -74,9 +74,16 @@ sortTpltsForSorting r = do
   ts    :: Set Addr <-
     hExprToAddrs r mempty $ HAnd
     [ HTplts -- templates
-    , HEval  -- things to sort by
-      (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb)
-      [[RoleMember 1]] ]
+    , HOr [
+        HEval  -- things to sort by
+            (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb)
+            [[RoleMember 1]]
+          , HEval  -- things to sort by before or after other things
+            (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb_b4)
+            [[RoleMember 1],[RoleMember 2]] ]]
   (sorted, isol) <-
     kahnSort r (LeftFirst, sb_b4) $ S.toList ts
+  Left ( -- for debugging
+    "ts: " ++ show ts ++ "\nsorted: " ++ show sorted
+      ++ "\nisol: " ++ show isol )
   Right $ sorted ++ isol

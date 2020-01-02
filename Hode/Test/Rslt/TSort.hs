@@ -16,9 +16,12 @@ import Hode.Rslt.Binary
 import Hode.Rslt.Sort
 import Hode.NoUI
 
+import Hode.Test.Rslt.Sort.TDefault
+
 
 test_module_rslt_sort :: Test
 test_module_rslt_sort = TestList [
+  test_module_rslt_sort_default,
   TestLabel "test_nothingIsGreater" test_nothingIsGreater,
   TestLabel "test_allRelsInvolvingTplts" test_allRelsInvolvingTplts,
   TestLabel "test_allNormalMembers" test_allNormalMembers,

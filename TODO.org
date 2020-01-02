@@ -11,6 +11,10 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO display
+**** TODO bug
+> uiFromRslt r
+{{ Then try to show the relationships that "sort by _ before _" is in. }}
+  *** Exception: /home/jeff/code/rslt/hode/Hode/UI/Types/Views.hs:(121,5)-(122,26): Non-exhaustive patterns in RoleInRel' (RoleMember (n :: Int))
 **** TODO sort by default
 use the tplts "sort by _" and  "sort by _ before _"
 ***** 2.5 - add tests for Rslt.Sort.Default

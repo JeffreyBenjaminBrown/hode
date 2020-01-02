@@ -99,6 +99,7 @@ library
                 , Hode.Test.Rslt.TRUtil
                 , Hode.Test.Rslt.TShow
                 , Hode.Test.Rslt.TSort
+                , Hode.Test.Rslt.Sort.TDefault
                 , Hode.Test.Rslt.TValid
 
                 , Hode.Test.TBrick
