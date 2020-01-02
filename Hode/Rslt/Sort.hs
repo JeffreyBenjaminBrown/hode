@@ -16,6 +16,8 @@ TupleSections #-}
 
 module Hode.Rslt.Sort (
     Kahn(..)
+
+  , sortTpltsForSorting -- ^  Rslt -> Either String [Addr]
   , kahnSort -- ^  Rslt -> (BinOrientation, TpltAddr) -> [Addr]
              -- -> Either String [Addr]
 
@@ -302,7 +304,8 @@ justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
            -> Either String (Set Addr)
 justUnders (bo,t) r a0 =
   prefixLeft "justUnders:" $ do
-  let (bigger, smaller) = -- TODO ? isn't this backwards?
+  let (bigger :: Int, smaller :: Int) =
+        -- TODO ? isn't this backwards?
         case bo of  RightFirst -> (1,2)
                     LeftFirst  -> (2,1)
       smallerMember :: Addr -> Maybe Addr
@@ -311,6 +314,7 @@ justUnders (bo,t) r a0 =
           Just (Rel' (Rel [left,right] _)) ->
             case smaller of 1 -> Just left
                             2 -> Just right
+                            _ -> error "impossible"
           _ -> Nothing
   relsUsing_t_inWhich_a0_IsBigger :: Set Addr <-
     S.filter (uses_as_tplt r t) <$>

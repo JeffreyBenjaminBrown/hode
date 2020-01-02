@@ -71,23 +71,22 @@ test_partitionRelated = TestCase $ do
     S.fromList conn' ==
     S.fromList (map (stringElt rLine' . show) [0..3::Int])
 
-ts = "(/t /_ \"\" /_)" -- template string
-Right r = nInserts (mkRslt mempty)
-          [ "12 # 11"
-          , "11 # " ++ ts
-          , ts ++ " # 9"
-          , "8 # 9" ]
-t :: Addr = either (error "wut?") id $
-    head . S.toList <$>
-    nFindAddrs r ts
-i :: Int -> Addr
-i = either (error "not in graph") id .
-    exprToAddr r . Phrase . show
-
 -- | Can I sort a set of nodes when the `Tplt`
 -- being sorted by is among them?
 test_kahnSort_tpltInNodes :: Test
 test_kahnSort_tpltInNodes = TestCase $ do
+  let ts = "(/t /_ \"\" /_)" -- template string
+      Right r = nInserts (mkRslt mempty)
+                [ "12 # 11"
+                , "11 # " ++ ts
+                , ts ++ " # 9"
+                , "8 # 9" ]
+      t :: Addr = either (error "wut?") id $
+          head . S.toList <$>
+          nFindAddrs r ts
+      i :: Int -> Addr
+      i = either (error "not in graph") id .
+          exprToAddr r . Phrase . show
   assertBool "is Right" $ isRight $
     kahnSort r (LeftFirst,t) [t, i 9, i 11]
   assertBool "is what it should be" $
