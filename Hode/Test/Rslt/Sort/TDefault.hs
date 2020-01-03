@@ -4,6 +4,7 @@
 
 module Hode.Test.Rslt.Sort.TDefault where
 
+import qualified Data.Map as M
 import qualified Data.Set as S
 import           Test.HUnit
 
@@ -24,16 +25,55 @@ test_module_rslt_sort_default = TestList [
 
 test_firstApplicableTplt :: Test
 test_firstApplicableTplt = TestCase $ do
-  assertBool "first fix the other stuff" False
+  let r0 :: Rslt
+      Right r0 = nInserts (mkRslt mempty)
+        ["#(sort by) (/t /_ is /_) #before (/t sort by /_ before /_)"]
+      sb_b4 :: String
+      sb_b4 = "(/t sort by /_ before /_)"
+      addr :: Rslt -> String -> Addr
+      addr r s = either (error "huh?") id $
+                 head . S.toList <$>
+                 nFindAddrs r s
+      addrs :: Rslt -> [Addr]
+      addrs = M.keys . _addrToRefExpr
+
+  assertBool "where (sort by _ before _) precedes (_ is _), on all nodes" $
+    firstApplicableTplt r0 (addrs r0)
+    == Right (Just $ addr r0 sb_b4)
+  assertBool "given nothing to sort, no template applies" $
+    firstApplicableTplt r0 []
+    == Right Nothing
+
+  let Right r1 = nInserts (mkRslt mempty)
+        [ "#(sort by) (/t /_ is /_)             #before (/t /_ a /_)"
+        , "#(sort by) (/t /_ a /_)              #before (/t sort by /_ before /_)"
+        , "#(sort by) (/t sort by /_ before /_) #before (/t /_ b /_)"
+        , "a0 #a a1"
+        , "b0 #b b1"
+        , "c0 #c c1"
+        , "ab0 #a ab1"
+        , "ab0 #b ab1" ]
+  assertBool "a0 and a1 are a-related" $
+    firstApplicableTplt r1 (map (addr r1) ["a0","a1"])
+    == Right (Just $ addr r1 "/t /_ a /_")
+  assertBool "b0 and b1 are b-related" $
+    firstApplicableTplt r1 (map (addr r1) ["b0","b1"])
+    == Right (Just $ addr r1 "/t /_ b /_")
+  assertBool "c0 and c1 are related by no template that is sorted by" $
+    firstApplicableTplt r1 (map (addr r1) ["c0","c1"])
+    == Right Nothing
+  assertBool "ab0 and ab1 are a- and b-related, and a-relation comes first" $
+    firstApplicableTplt r1 (map (addr r1) ["ab0","ab1"])
+    == Right (Just $ addr r1 "/t /_ a /_")
 
 test_sortTpltsForSorting :: Test
 test_sortTpltsForSorting = TestCase $ do
-  let tplt_db :: String -> String
-      tplt_db s = "(/t /_ " ++ s ++ " /_)"
+  let tplt :: String -> String
+      tplt s = "(/t /_ " ++ s ++ " /_)"
       sb_b4 :: String
       sb_b4 = "(/t sort by /_ before /_)"
-      r_db :: Rslt
-      Right r_db = nInserts (mkRslt mempty)
+      r0 :: Rslt
+      Right r0 = nInserts (mkRslt mempty)
         ["#(sort by) (/t /_ is /_) #before (/t sort by /_ before /_)"]
       addr :: Rslt -> String -> Addr
       addr r s = either (error "huh?") id $
@@ -41,27 +81,27 @@ test_sortTpltsForSorting = TestCase $ do
                  nFindAddrs r s
 
   assertBool "kahnSort believes this data has a cycle." $
-    sortTpltsForSorting r_db
-    == Right (map (addr r_db) [ "/t /_ is /_"
-                              , "/t sort by /_ before /_" ] )
+    sortTpltsForSorting r0
+    == Right (map (addr r0) [ "/t /_ is /_"
+                            , "/t sort by /_ before /_" ] )
 
   let precedes :: String -> String -> String
       precedes x y = "#(sort by) " ++ x ++ " #before " ++ y
       Right (r1 :: Rslt) = nInserts (mkRslt mempty)
-        [ precedes (tplt_db "a") (tplt_db "b")
-        , precedes               (tplt_db "b") sb_b4
-        , "#(sort by) " ++ tplt_db "disconnected"
-        , precedes                             sb_b4 (tplt_db "c")
+        [ precedes (tplt "a") (tplt "b")
+        , precedes            (tplt "b") sb_b4
+        , "#(sort by) " ++ tplt "disconnected"
+        , precedes                       sb_b4 (tplt "c")
         ]
   assertBool ( "This is almost working, but the tplt (_ a _) is missing.\n"
                ++ "It is present among `ts`, the `Tplt`s being sorted.\n"
                ++ "So the problem appears to be in kahnSort." )
     $ sortTpltsForSorting r1
-    == Right (map (addr r1) [ tplt_db "a"
-                            , tplt_db "b"
+    == Right (map (addr r1) [ tplt "a"
+                            , tplt "b"
                             , sb_b4
-                            , tplt_db "c"
-                            , tplt_db "disconnected" ] )
+                            , tplt "c"
+                            , tplt "disconnected" ] )
 
 test_isIn_usingTplt :: Test
 test_isIn_usingTplt = TestCase $ do
