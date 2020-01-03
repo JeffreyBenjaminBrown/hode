@@ -239,7 +239,7 @@ isRelated r t a =
   prefixLeft "isRelated:" $ do
   connections :: Set Addr <- --`t`-relationships involving `a`
     S.filter (uses_as_tplt r t) <$>
-    ( hExprToAddrs r mempty $ HMember $ HExpr $ ExprAddr a )
+    ( hExprToAddrs r mempty $ HMemberHosts $ HExpr $ ExprAddr a )
   Right $ if null connections then False else True
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
@@ -285,7 +285,7 @@ deleteHostsThenDelete a t r =
     hExprToAddrs r mempty
     ( -- No need to check which member it is --
       -- the template is binary, and the node is top.)
-      HMember $ HExpr $ ExprAddr a )
+      HMemberHosts $ HExpr $ ExprAddr a )
   foldM (flip deleteIfUnused) r hosts >>=
     _deleteInternalMentionsOf_unsafe a
 

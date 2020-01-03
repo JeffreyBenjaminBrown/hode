@@ -92,8 +92,8 @@ hMatches r h0 a0 =
 
     HReach _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HReach"
     HTrans _ _ _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HTrans"
-    HMember _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMember"
-    HInvolves _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HInvolves."
+    HMemberHosts _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMemberHosts"
+    HMemberHostsRec _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMemberHostsRec."
 
 -- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
 hExprToExpr :: Rslt -> HExpr -> Either String Expr

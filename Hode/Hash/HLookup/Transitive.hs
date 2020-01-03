@@ -82,8 +82,8 @@ hExprToAddrs r s (HMap m) =
     True  -> Right S.empty
     False -> Right $ foldl1 S.intersection $ M.elems hcs
 
-hExprToAddrs r s (HMember h) =
-  prefixLeft "hExprToAddrs, called on HMember:" $ do
+hExprToAddrs r s (HMemberHosts h) =
+  prefixLeft "hExprToAddrs, called on HMemberHosts:" $ do
   as :: Set Addr <- hExprToAddrs r s h
   hosts :: Set Addr <-
     let isMemberRel :: Role -> Bool
@@ -95,17 +95,17 @@ hExprToAddrs r s (HMember h) =
        ifLefts_set (S.map (isIn r) as)
   Right hosts
 
-hExprToAddrs r s (HInvolves 1 h) =
-  hExprToAddrs r s $ HMember h
+hExprToAddrs r s (HMemberHostsRec 1 h) =
+  hExprToAddrs r s $ HMemberHosts h
 
-hExprToAddrs r s (HInvolves k h) =
+hExprToAddrs r s (HMemberHostsRec k h) =
   case k < 1 of
-  True -> Left $ "First argument of HInvolves must be an integer > 0."
+  True -> Left $ "First argument of HMemberHostsRec must be an integer > 0."
   False -> do
     as :: Set Addr <-
-      hExprToAddrs r s $ HInvolves (k-1) h
+      hExprToAddrs r s $ HMemberHostsRec (k-1) h
     S.union as <$>
-      ( hExprToAddrs r s $ HMember $ HOr $
+      ( hExprToAddrs r s $ HMemberHosts $ HOr $
         map (HExpr . ExprAddr) $ S.toList as )
 
 hExprToAddrs r s (HEval hm paths) =

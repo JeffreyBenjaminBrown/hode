@@ -100,8 +100,8 @@ pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
 
   PExpr s -> Right $ HExpr s
   PMap m        -> HMap        <$> pMapToHMap r m
-  PMember m     -> HMember     <$> pExprToHExpr r m
-  PInvolves k m -> HInvolves k <$> pExprToHExpr r m
+  PMember m     -> HMemberHosts      <$> pExprToHExpr r m
+  PInvolves k m -> HMemberHostsRec k <$> pExprToHExpr r m
   PEval pnr -> do (x :: HExpr) <- pExprToHExpr r pnr
                   ps <- pathsToIts_pExpr pnr
                   Right $ HEval x ps

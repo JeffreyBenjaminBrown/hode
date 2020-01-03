@@ -34,18 +34,18 @@ hor = HOr . map (HExpr . ExprAddr)
 hVars :: HExpr -> Set Var
 hVars = cata f where
   f :: Base HExpr (Set Var) -> Set Var
-  f (HMapF m)           = S.unions $ M.elems m
-  f (HMemberF m)        = m
-  f (HInvolvesF _ m)    = m
-  f (HEvalF m _)        = m
-  f (HVarF v)           = S.singleton v
-  f (HExprF _)          = S.empty
-  f (HDiffF h i)        = S.union h i
-  f (HAndF hs)          = S.unions hs
-  f (HOrF hs)           = S.unions hs
-  f (HReachF _ t s)     = S.unions $ [t,s]
-  f (HTransF _ _ t e s) = S.unions $ [t,e,s]
-  f HTpltsF             = S.empty
+  f (HMapF m)              = S.unions $ M.elems m
+  f (HMemberHostsF m)      = m
+  f (HMemberHostsRecF _ m) = m
+  f (HEvalF m _)           = m
+  f (HVarF v)              = S.singleton v
+  f (HExprF _)             = S.empty
+  f (HDiffF h i)           = S.union h i
+  f (HAndF hs)             = S.unions hs
+  f (HOrF hs)              = S.unions hs
+  f (HReachF _ t s)        = S.unions $ [t,s]
+  f (HTransF _ _ t e s)    = S.unions $ [t,e,s]
+  f HTpltsF                = S.empty
 
 -- | Substitute something(s) for the variable(s) in an `HExpr`.
 hSub :: M.Map Var HExpr -> HExpr -> HExpr

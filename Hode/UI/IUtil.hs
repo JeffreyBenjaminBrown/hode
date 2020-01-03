@@ -49,7 +49,7 @@ emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
   , _searchBuffers = Just $ porestLeaf emptySearchBuffer
                           & P.focus . pTreeHasFocus .~ True
-  , _columnHExprs = [ HMember $ HVar VarRowNode ]
+  , _columnHExprs = [ HMemberHosts $ HVar VarRowNode ]
   , _blockingCycles = Nothing
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."

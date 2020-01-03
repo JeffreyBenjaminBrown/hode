@@ -25,8 +25,8 @@ data HExpr where
   -- ^ When you want exactly one `Expr`, and know which.
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
   HMap :: HMap -> HExpr -- ^ The search workhorse.
-  HMember :: HExpr -> HExpr
-  HInvolves :: Int -> HExpr -> HExpr
+  HMemberHosts :: HExpr -> HExpr -- ^ Things it is a member of.
+  HMemberHostsRec :: Int -> HExpr -> HExpr
   HEval :: HExpr      -- ^ First, find matches to this.
         -> [RelPath] -- ^ Then, traverse each match along these paths,
         -- and return whatever each path leads to.
