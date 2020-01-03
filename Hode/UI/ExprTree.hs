@@ -31,7 +31,7 @@ import qualified Data.Set              as S
 import           Lens.Micro hiding (has, folded)
 
 import Hode.NoUI
-import Hode.PTree.Initial
+import Hode.PTree
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
 import Hode.UI.IUtil

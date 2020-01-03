@@ -12,8 +12,8 @@ This will load all non-broken modules when some are broken.
 ** TODO ordering
 *** TODO display
 **** TODO sort by default
-use the tplts "sort by _" and "sort by _ before _"
-***** 3 - sort by the first applicable sort criterion
+***** TODO re-sort a Porest to match a list
+***** TODO sort by the first applicable sort criterion
 in each group of search results -- top-level or otherwise.
 **** TODO a way to change the sort on a group
 ***** maybe just a text command

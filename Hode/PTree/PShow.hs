@@ -54,6 +54,7 @@ import Hode.Brick
 import Hode.Brick.Wrap
 import Hode.Hash.HTypes (Level)
 import Hode.PTree.Initial
+import Hode.PTree.Modify
 
 
 porestToWidget :: (Ord n, Show n)

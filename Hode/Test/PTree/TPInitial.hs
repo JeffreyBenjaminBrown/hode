@@ -11,6 +11,7 @@ import           Lens.Micro
 import qualified Data.List.PointedList as P
 
 import Hode.PTree.Initial
+import Hode.PTree.Modify
 
 
 test_module_pTree_initial :: T.Test

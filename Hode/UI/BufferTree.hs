@@ -24,7 +24,7 @@ import Hode.UI.IUtil
 import Hode.UI.IUtil.String
 import Hode.UI.Window
 import Hode.Util.Misc
-import Hode.PTree.Initial
+import Hode.PTree
 
 
 cons_focusedViewExpr_asChildOfBuffer :: St -> Either String St

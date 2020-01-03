@@ -20,7 +20,7 @@ import qualified Brick.Main            as B
 import qualified Brick.Types           as B
 import qualified Graphics.Vty          as V
 
-import Hode.PTree.Initial
+import Hode.PTree
 import Hode.UI.ExprTree
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard

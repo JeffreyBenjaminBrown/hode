@@ -16,7 +16,7 @@ import qualified Data.Set as S
 import qualified Data.List.PointedList as P
 
 import Hode.Hash.HLookup
-import Hode.PTree.Initial
+import Hode.PTree
 import Hode.Rslt.Binary
 import Hode.Rslt.RTypes
 import Hode.UI.ExprTree

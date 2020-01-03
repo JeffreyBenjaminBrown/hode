@@ -41,7 +41,9 @@ library
                 , Hode.NoUI
                 , Hode.NoUI.Internal
 
+                , Hode.PTree
                 , Hode.PTree.Initial
+                , Hode.PTree.Modify
                 , Hode.PTree.PShow
 
                 , Hode.Qseq.MkLeaf
