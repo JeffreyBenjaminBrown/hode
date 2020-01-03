@@ -14,7 +14,7 @@ This will load all non-broken modules when some are broken.
 **** TODO bughunts
 ***** KahnSort: change terms
 ****** DONE LeftFirst, RightFirst -> RightEarlier, LeftEarlier
-****** top -> earliest
+****** DONE add a note explaining what "top" means
 ****** lesser -> later
 ****** greater -> earlier
 ***** in kahnSort, drop allExprsButTpltsOrRelsUsingThem

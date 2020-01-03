@@ -209,6 +209,7 @@ allExprsButTpltsOrRelsUsingThem r ts =
           ( S.difference as $ S.fromList ts )
           tsUsers )
 
+-- | Everything that satisfies `isTop`.
 allTops :: Rslt
         -> (BinOrientation, TpltAddr)
         -> [Addr] -- ^ candidates
@@ -221,7 +222,7 @@ allTops r (bo,t) as =
 
 -- | `isTop r (ort,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
--- no `Expr` in `r` is greater than the one at `a`.
+-- no `Expr` in `r` precedes (should be earlier than) one at `a`.
 -- For instance, if `orient` is `LeftEarlier`,
 -- and `a` is on the right side of some relationship in `r`
 -- using `t` as its `Tplt`, then the result is `False`.
