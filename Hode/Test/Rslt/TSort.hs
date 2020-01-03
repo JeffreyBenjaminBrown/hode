@@ -91,9 +91,9 @@ test_kahnSort_tpltInNodes = TestCase $ do
       i = either (error "not in graph") id .
           exprToAddr r . Phrase . show
   assertBool "is Right" $ isRight $
-    kahnSort r (LeftFirst,t) [t, i 9, i 11]
+    kahnSort r (RightEarlier,t) [t, i 9, i 11]
   assertBool "is what it should be" $
-    kahnSort r (LeftFirst,t) [t, i 9, i 11]
+    kahnSort r (RightEarlier,t) [t, i 9, i 11]
     == Right ([i 11, t, i 9], [])
 
 test_kahnSort :: Test
@@ -115,16 +115,16 @@ test_kahnSort = TestCase $ do
 
   let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3" ]
-    in assertBool "meh" ( ag r RightFirst [0..3]  [3,2,1,0] [] ) >>
-       assertBool "meh" ( ag r RightFirst [0,1,3] [3,1,0]   [] )
+    in assertBool "meh" ( ag r LeftEarlier [0..3]  [3,2,1,0] [] ) >>
+       assertBool "meh" ( ag r LeftEarlier [0,1,3] [3,1,0]   [] )
 
   let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3", "1000 #meh 1001" ]
       a_isol = [1000,1001]
         -- 1000 and 1001 are not `a`-related to any other expression
-    in ( assertBool "meh" $ ag r RightFirst
+    in ( assertBool "meh" $ ag r LeftEarlier
          (a_isol ++ [0..3]) [3,2,1,0] a_isol ) >>
-       ( assertBool "meh" $ ag r RightFirst
+       ( assertBool "meh" $ ag r LeftEarlier
          (a_isol ++ [3,2,0]) [3,2,0] a_isol )
 
   let Right rTree = nInserts (mkRslt mempty)
@@ -142,7 +142,7 @@ test_kahnSort = TestCase $ do
 
   assertBool "sort a tree" $ let
     Right (sorted :: [Addr], isol :: [Addr]) =
-      kahnSort rTree (RightFirst,tplt_b) $
+      kahnSort rTree (LeftEarlier,tplt_b) $
       map elt ["0","00","01","000","001","010","011"]
     Right (shown :: [Expr]) =
       mapM (addrToExpr rTree) sorted
@@ -195,7 +195,7 @@ test_kahnIterate = TestCase $ do
         $ head . S.toList <$> nFindAddrs r (show k)
       Right tplt_a = head . S.toList <$> nFindAddrs r "/t /_ a /_"
   assertBool "" $ let
-    ek = kahnIterate (RightFirst,tplt_a) $
+    ek = kahnIterate (LeftEarlier,tplt_a) $
          Kahn r [expr 0] []
     in case ek of
          Left s                -> error s
@@ -218,7 +218,7 @@ test_kahnIterate' =
       expr k = either
         (const $ error $ show k ++ " not in the Rslt") id
         $ head . S.toList <$> nFindAddrs r (show k)
-  in kahnIterate (RightFirst,tplt_a) $
+  in kahnIterate (LeftEarlier,tplt_a) $
      Kahn r [expr 0] []
 
 -- | Without graph isomorphisms, must test by hand.
@@ -254,18 +254,18 @@ test_justUnders = TestCase $ do
       Right n3  = head . S.toList <$> nFindAddrs r "3"
 
   assertBool "just under 0 are 1 and 2, for (bigger #a smaller)"
-    $ justUnders (RightFirst, tplt_a) r n0
+    $ justUnders (LeftEarlier, tplt_a) r n0
     == Right (S.fromList $ [n1,n2])
 
   assertBool "nothing is under 0, for (smaller #a bigger)"
-    $ justUnders (LeftFirst, tplt_a) r n0
+    $ justUnders (RightEarlier, tplt_a) r n0
     == Right mempty
 
   assertBool "nothing is under 3, in any sense"
-    $ [ justUnders (RightFirst, tplt_a) r n3,
-        justUnders (LeftFirst,tplt_a) r n3,
-        justUnders (RightFirst, tplt_b) r n3,
-        justUnders (LeftFirst,tplt_b) r n3 ]
+    $ [ justUnders (LeftEarlier, tplt_a) r n3,
+        justUnders (RightEarlier,tplt_a) r n3,
+        justUnders (LeftEarlier, tplt_b) r n3,
+        justUnders (RightEarlier,tplt_b) r n3 ]
     == replicate 4 (Right mempty)
 
 test_withIsTop :: Test
@@ -283,17 +283,17 @@ test_withIsTop = TestCase $ do
 
   assertBool "0 and 3 are top w/r/t _ #a _ if left is bigger"
     $ ( S.fromList <$>
-        allTops r (RightFirst,tplt_a) [n0,n1,n2,n3] )
+        allTops r (LeftEarlier,tplt_a) [n0,n1,n2,n3] )
     == Right (S.fromList [n0,n3])
 
   assertBool "2 and 3 are top w/r/t _ #a _ if right is bigger"
     $ ( S.fromList <$>
-        allTops r (LeftFirst,tplt_a) [n0,n1,n2,n3] )
+        allTops r (RightEarlier,tplt_a) [n0,n1,n2,n3] )
     == Right (S.fromList [n2,n3])
 
   assertBool "0, 1 and 3 are top w/r/t _ #b _ if left is bigger"
     $ ( S.fromList <$>
-        allTops r (RightFirst,tplt_b) [n0,n1,n2,n3] )
+        allTops r (LeftEarlier,tplt_b) [n0,n1,n2,n3] )
     == Right (S.fromList [n0,n1,n3])
 
 test_allNormalMembers :: Test
@@ -340,16 +340,16 @@ test_nothingIsGreater = TestCase $ do
       Right number_2 = head . S.toList <$> nFindAddrs r "2"
 
   assertBool "If left is bigger, 0 is top." $ Right True ==
-    isTop r (RightFirst, t) number_0
+    isTop r (LeftEarlier, t) number_0
   assertBool "If right is bigger, it's not." $ Right False ==
-    isTop r (LeftFirst, t) number_0
+    isTop r (RightEarlier, t) number_0
 
   assertBool "If left is bigger, 2 is not top." $ Right False ==
-    isTop r (RightFirst, t) number_2
+    isTop r (LeftEarlier, t) number_2
   assertBool "If right is bigger, then it is." $ Right True ==
-    isTop r (LeftFirst, t) number_2
+    isTop r (RightEarlier, t) number_2
 
   assertBool "1 is not top under either orientation." $ Right False ==
-    isTop r (RightFirst, t) number_1
+    isTop r (LeftEarlier, t) number_1
   assertBool "Ditto." $ Right False ==
-    isTop r (LeftFirst, t) number_1
+    isTop r (RightEarlier, t) number_1

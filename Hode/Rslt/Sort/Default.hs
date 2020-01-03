@@ -63,7 +63,7 @@ sortTpltsForSorting r = do
         (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb_b4)
         [[RoleMember 1],[RoleMember 2]] ]]
   (sorted, isol) <-
-    kahnSort r (LeftFirst, sb_b4) $ S.toList ts
+    kahnSort r (RightEarlier, sb_b4) $ S.toList ts
 --  Left ( -- for debugging
 --    "ts: " ++ show ts ++ "\nsorted: " ++ show sorted
 --      ++ "\nisol: " ++ show isol )

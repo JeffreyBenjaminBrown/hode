@@ -102,13 +102,13 @@ test_pCommand = TestCase $ do
   assertBool "sort" $ pCommand D.rslt
     "/sortLeft (/t /_ needs /_) bottles"
     == Right ( CommandFindSort
-               "sort LeftFirst: (/t /_ needs /_) bottles"
+               "sort RightEarlier: (/t /_ needs /_) bottles"
                (HExpr $ Phrase "bottles")
-               LeftFirst 4 )
+               RightEarlier 4 )
 
   assertBool "sort" $ pCommand D.rslt
     "/sr /@ 4 bottles"
     == Right ( CommandFindSort
-               "sort RightFirst: /@ 4 bottles"
+               "sort LeftEarlier: /@ 4 bottles"
                (HExpr $ Phrase "bottles")
-               RightFirst 4 )
+               LeftEarlier 4 )

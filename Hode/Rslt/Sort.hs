@@ -222,7 +222,7 @@ allTops r (bo,t) as =
 -- | `isTop r (ort,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
 -- no `Expr` in `r` is greater than the one at `a`.
--- For instance, if `orient` is `RightFirst`,
+-- For instance, if `orient` is `LeftEarlier`,
 -- and `a` is on the right side of some relationship in `r`
 -- using `t` as its `Tplt`, then the result is `False`.
 isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
@@ -230,8 +230,8 @@ isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
 isTop r (ort,t) a =
   prefixLeft "isTop:" $ do
   let roleOfLesser = RoleInRel' $ RoleMember $
-        case ort of RightFirst  -> 2
-                    LeftFirst   -> 1
+        case ort of LeftEarlier  -> 2
+                    RightEarlier   -> 1
   relsInWhichItIsLesser :: Set Addr <-
     S.filter (uses_as_tplt r t) <$>
     hExprToAddrs r mempty
@@ -278,8 +278,8 @@ justUnders (bo,t) r a0 =
   prefixLeft "justUnders:" $ do
   let (bigger :: Int, smaller :: Int) =
         -- TODO ? isn't this backwards?
-        case bo of  RightFirst -> (1,2)
-                    LeftFirst  -> (2,1)
+        case bo of  LeftEarlier -> (1,2)
+                    RightEarlier  -> (2,1)
       smallerMember :: Addr -> Maybe Addr
       smallerMember a =
         case M.lookup a $ _addrToRefExpr r of
