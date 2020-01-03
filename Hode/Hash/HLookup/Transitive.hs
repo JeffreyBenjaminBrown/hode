@@ -86,8 +86,13 @@ hExprToAddrs r s (HMember h) =
   prefixLeft "hExprToAddrs, called on HMember:" $ do
   as :: Set Addr <- hExprToAddrs r s h
   hosts :: Set Addr <-
-    (S.map snd) . S.unions <$>
-    ifLefts_set (S.map (isIn r) as)
+    let isMemberRel :: Role -> Bool
+        isMemberRel (RoleInRel' (RoleMember _)) = True
+        isMemberRel _ = False
+    in S.map snd .
+       (S.filter $ isMemberRel . fst) .
+       S.unions <$>
+       ifLefts_set (S.map (isIn r) as)
   Right hosts
 
 hExprToAddrs r s (HInvolves 1 h) =
