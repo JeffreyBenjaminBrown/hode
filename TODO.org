@@ -16,13 +16,6 @@ This will load all non-broken modules when some are broken.
 -  nodes0 :: [Addr] <-
 -    S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
 +  let nodes0 = M.keys $ _addrToRefExpr r1
-***** isRelated: don't use HExpr for tplt
--    hExprToAddrs r mempty $ HAnd
--    [ HMap $ M.singleton (RoleInRel' RoleTplt)
--      (HExpr $ ExprAddr t)
--    , HMember $ HExpr $ ExprAddr a ]
-+    S.filter (uses_as_tplt r t) <$>
-+    ( hExprToAddrs r mempty $ HMember $ HExpr $ ExprAddr a )
 ***** then try debugging kahnSort from r_db in TDefault
 **** TODO sort by default
 use the tplts "sort by _" and "sort by _ before _"

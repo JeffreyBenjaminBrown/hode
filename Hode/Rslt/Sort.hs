@@ -265,10 +265,8 @@ isRelated r t a =
   -- It could be faster to move that into `partitionRelated`.
   prefixLeft "isRelated:" $ do
   connections :: Set Addr <- --`t`-relationships involving `a`
-    hExprToAddrs r mempty $ HAnd
-    [ HMap $ M.singleton (RoleInRel' RoleTplt)
-      (HExpr $ ExprAddr t)
-    , HMember $ HExpr $ ExprAddr a ]
+    S.filter (uses_as_tplt r t) <$>
+    ( hExprToAddrs r mempty $ HMember $ HExpr $ ExprAddr a )
   Right $ if null connections then False else True
 
 -- | `justUnders (bo,t) r a` returns the `Addr`s that
