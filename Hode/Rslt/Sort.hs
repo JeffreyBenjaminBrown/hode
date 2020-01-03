@@ -220,9 +220,10 @@ allTops r (bo,t) as =
       withIsTop a = (,a) <$> isTop r (bo,t) a
   in map snd . filter fst <$> mapM withIsTop as
 
--- | `isTop r (ort,t) a` tests whether,
+-- | "Top" means "earliest".
+-- `isTop r (ort,t) a` tests whether,
 -- with respect to `t` under the orientation `ort`,
--- no `Expr` in `r` precedes (should be earlier than) one at `a`.
+-- no `Expr` in `r` should precede the one at `a`.
 -- For instance, if `orient` is `LeftEarlier`,
 -- and `a` is on the right side of some relationship in `r`
 -- using `t` as its `Tplt`, then the result is `False`.
@@ -230,14 +231,14 @@ isTop :: Rslt -> (BinOrientation, TpltAddr) -> Addr
       -> Either String Bool
 isTop r (ort,t) a =
   prefixLeft "isTop:" $ do
-  let roleOfLesser = RoleInRel' $ RoleMember $
+  let roleOfLater = RoleInRel' $ RoleMember $
         case ort of LeftEarlier  -> 2
-                    RightEarlier   -> 1
-  relsInWhichItIsLesser :: Set Addr <-
+                    RightEarlier -> 1
+  relsInWhichItIsLater :: Set Addr <-
     S.filter (uses_as_tplt r t) <$>
     hExprToAddrs r mempty
-    ( HMap $ M.singleton roleOfLesser $  HExpr $ ExprAddr a )
-  Right $ null relsInWhichItIsLesser
+    ( HMap $ M.singleton roleOfLater $  HExpr $ ExprAddr a )
+  Right $ null relsInWhichItIsLater
 
 -- | If `partitionRelated r t as == (reld,isol)`,
 -- then each member of `reld` is in at least one `t`-relationship,
@@ -277,26 +278,26 @@ justUnders :: (BinOrientation, TpltAddr) -> Rslt -> Addr
            -> Either String (Set Addr)
 justUnders (bo,t) r a0 =
   prefixLeft "justUnders:" $ do
-  let (bigger :: Int, smaller :: Int) =
+  let (earlier :: Int, later :: Int) =
         -- TODO ? isn't this backwards?
         case bo of  LeftEarlier -> (1,2)
                     RightEarlier  -> (2,1)
-      smallerMember :: Addr -> Maybe Addr
-      smallerMember a =
+      laterMember :: Addr -> Maybe Addr
+      laterMember a =
         case M.lookup a $ _addrToRefExpr r of
           Just (Rel' (Rel [left,right] _)) ->
-            case smaller of 1 -> Just left
-                            2 -> Just right
-                            _ -> error "impossible"
+            case later of 1 -> Just left
+                          2 -> Just right
+                          _ -> error "impossible"
           _ -> Nothing
-  relsUsing_t_inWhich_a0_IsBigger :: Set Addr <-
+  relsUsing_t_inWhich_a0_IsEarlier :: Set Addr <-
     S.filter (uses_as_tplt r t) <$>
     ( hExprToAddrs r mempty $ HMap $ M.singleton
-      ( RoleInRel' $ RoleMember bigger)
+      ( RoleInRel' $ RoleMember earlier)
       $ HExpr $ ExprAddr a0 )
   Right $ S.map (maybe (error "impossible") id) $
     S.filter isJust $
-    S.map smallerMember relsUsing_t_inWhich_a0_IsBigger
+    S.map laterMember relsUsing_t_inWhich_a0_IsEarlier
 
 -- | `deleteHostsThenDelete t a r` removes from `r` every
 -- rel in which `a` is a member, and then removes `a`.

@@ -12,11 +12,6 @@ This will load all non-broken modules when some are broken.
 ** TODO ordering
 *** TODO display
 **** TODO bughunts
-***** KahnSort: change terms
-****** DONE LeftFirst, RightFirst -> RightEarlier, LeftEarlier
-****** DONE add a note explaining what "top" means
-****** lesser -> later
-****** greater -> earlier
 ***** in kahnSort, drop allExprsButTpltsOrRelsUsingThem
 -  nodes0 :: [Addr] <-
 -    S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
