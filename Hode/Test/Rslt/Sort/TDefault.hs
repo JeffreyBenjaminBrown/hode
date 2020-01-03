@@ -26,22 +26,20 @@ test_firstApplicableTplt :: Test
 test_firstApplicableTplt = TestCase $ do
   assertBool "first fix the other stuff" False
 
--- TODO : these should only be top-level while debugging.
--- Then drop the _db suffixes.
-tplt_db :: String -> String
-tplt_db s = "(/t /_ " ++ s ++ " /_)"
-sb_b4 :: String
-sb_b4 = "(/t sort by /_ before /_)"
-r_db :: Rslt
-Right r_db = nInserts (mkRslt mempty)
-  ["#(sort by) (/t /_ is /_) #before (/t sort by /_ before /_)"]
-addr :: Rslt -> String -> Addr
-addr r s = either (error "huh?") id $
-           head . S.toList <$>
-           nFindAddrs r s
-
 test_sortTpltsForSorting :: Test
 test_sortTpltsForSorting = TestCase $ do
+  let tplt_db :: String -> String
+      tplt_db s = "(/t /_ " ++ s ++ " /_)"
+      sb_b4 :: String
+      sb_b4 = "(/t sort by /_ before /_)"
+      r_db :: Rslt
+      Right r_db = nInserts (mkRslt mempty)
+        ["#(sort by) (/t /_ is /_) #before (/t sort by /_ before /_)"]
+      addr :: Rslt -> String -> Addr
+      addr r s = either (error "huh?") id $
+                 head . S.toList <$>
+                 nFindAddrs r s
+
   assertBool "kahnSort believes this data has a cycle." $
     sortTpltsForSorting r_db
     == Right (map (addr r_db) [ "/t /_ is /_"

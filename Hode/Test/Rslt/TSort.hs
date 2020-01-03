@@ -105,16 +105,14 @@ test_kahnSort = TestCase $ do
       intElt :: Rslt -> Int -> Addr
       intElt r = either (error "not in graph") id .
                  exprToAddr r . Phrase . show
-
       ag :: Rslt -> BinOrientation -> [Addr] -> [Addr] -> [Addr] -> Bool
       ag r bo nodes sorted isol =
         let Right (s,i) = kahnSort r (bo, tplt_a r)
                           (map (intElt r) nodes)
         in s == map (intElt r) sorted &&
            S.fromList i == S.fromList (map (intElt r) isol)
-
   let Right r = nInserts (mkRslt mempty)
-        [ "0 #a 1", "1 #a 2", "2 #a 3" ]
+                [ "0 #a 1", "1 #a 2", "2 #a 3" ]
     in assertBool "meh" ( ag r LeftEarlier [0..3]  [3,2,1,0] [] ) >>
        assertBool "meh" ( ag r LeftEarlier [0,1,3] [3,1,0]   [] )
 
