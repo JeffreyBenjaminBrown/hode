@@ -93,7 +93,7 @@ test_kahnSort_tpltInNodes = TestCase $ do
   assertBool "is Right" $ isRight $
     kahnSort r (RightEarlier,t) [t, i 9, i 11]
   assertBool "is what it should be" $
-    kahnSort r (RightEarlier,t) [t, i 9, i 11]
+    kahnSort r (LeftEarlier,t) [t, i 9, i 11]
     == Right ([i 11, t, i 9], [])
 
 test_kahnSort :: Test
@@ -113,39 +113,50 @@ test_kahnSort = TestCase $ do
            S.fromList i == S.fromList (map (intElt r) isol)
   let Right r = nInserts (mkRslt mempty)
                 [ "0 #a 1", "1 #a 2", "2 #a 3" ]
-    in assertBool "meh" ( ag r LeftEarlier [0..3]  [3,2,1,0] [] ) >>
-       assertBool "meh" ( ag r LeftEarlier [0,1,3] [3,1,0]   [] )
+    in assertBool "1" ( ag r LeftEarlier  [0..3]  [0..3]    [] ) >>
+       assertBool "2" ( ag r LeftEarlier  [0,1,3] [0,1,3]   [] ) >>
+       assertBool "3" ( ag r RightEarlier [0..3]  [3,2,1,0] [] ) >>
+       assertBool "4" ( ag r RightEarlier [0,1,3] [3,1,0]   [] )
 
   let Right r = nInserts (mkRslt mempty)
         [ "0 #a 1", "1 #a 2", "2 #a 3", "1000 #meh 1001" ]
       a_isol = [1000,1001]
         -- 1000 and 1001 are not `a`-related to any other expression
-    in ( assertBool "meh" $ ag r LeftEarlier
+    in ( assertBool "meh" $ ag r RightEarlier
          (a_isol ++ [0..3]) [3,2,1,0] a_isol ) >>
-       ( assertBool "meh" $ ag r LeftEarlier
+       ( assertBool "meh" $ ag r RightEarlier
          (a_isol ++ [3,2,0]) [3,2,0] a_isol )
 
-  let Right rTree = nInserts (mkRslt mempty)
-                    [ "0 #b 00", -- the prefix relationship
-                      "0 #b 01",
-                      "01 #b 010",
-                      "01 #b 011",
-                      "00 #b 000",
-                      "00 #b 001" ]
+  let Right rTree =
+        -- PITFALL: Any length-n numbers that share the first n-1 digits,
+        -- e.g. 000 and 001, have no relative ordering in this tree.
+        nInserts (mkRslt mempty)
+        [ "0 #b 00", -- the prefix relationship
+          "0 #b 01",
+          "01 #b 010",
+          "01 #b 011",
+          "00 #b 000",
+          "00 #b 001" ]
       elt :: String -> Addr
       elt = either (error "not in graph") id .
             exprToAddr rTree . Phrase
+      elts = map elt ["0","00","01","000","001","010","011"]
       Right tplt_b = head . S.toList <$>
                      nFindAddrs rTree "/t /_ b /_"
 
-  assertBool "sort a tree" $ let
+  assertBool "sort a tree, top first" $ let
     Right (sorted :: [Addr], isol :: [Addr]) =
-      kahnSort rTree (LeftEarlier,tplt_b) $
-      map elt ["0","00","01","000","001","010","011"]
+      kahnSort rTree (LeftEarlier,tplt_b) elts
     Right (shown :: [Expr]) =
       mapM (addrToExpr rTree) sorted
-    in shown == map Phrase ["011","010","01",
-                            "001","000","00","0"]
+    in shown == map Phrase ["0","00","000","001","01","010","011"]
+       && isol == []
+  assertBool "sort a tree, top last" $ let
+    Right (sorted :: [Addr], isol :: [Addr]) =
+      kahnSort rTree (RightEarlier,tplt_b) elts
+    Right (shown :: [Expr]) =
+      mapM (addrToExpr rTree) sorted
+    in shown == map Phrase ["010","011","01","000","001","00","0"]
        && isol == []
 
 -- | Without graph isomorphism, this test is too brittle to automate.
