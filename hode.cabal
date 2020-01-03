@@ -83,6 +83,7 @@ library
                 , Hode.Test.Main
 
                 , Hode.Test.PTree.TPInitial
+                , Hode.Test.PTree.TPModify
                 , Hode.Test.PTree.TPShow
 
                 , Hode.Test.Qseq.Main
