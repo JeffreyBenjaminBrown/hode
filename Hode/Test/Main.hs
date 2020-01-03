@@ -21,10 +21,10 @@ tests = runTestTT $ TestList
   [ test_modules_hode_hash
   , test_modules_hode_rslt
   , test_modules_hode_qseq
+  , test_modules_ptree
 
   , test_module_ui
   , test_module_NoUI
-  , test_module_pTree
   , test_module_util
   , test_module_graph
   , test_module_hode_brick
