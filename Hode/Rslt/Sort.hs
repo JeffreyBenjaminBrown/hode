@@ -37,8 +37,6 @@ module Hode.Rslt.Sort (
                           -- -> Either String (Set RelAddr)
   , allNormalMembers      -- ^  Rslt -> [RelAddr]
                           -- -> Either String [RelAddr]
-  , allExprsButTpltsOrRelsUsingThem -- ^ Rslt -> [TpltAddr]
-                                    -- -> Either String (Set Addr)
 
   , allTops -- ^  Rslt
             -- -> (BinOrientation, TpltAddr)
@@ -103,8 +101,7 @@ kahnSort r (bo,t) as =
   prefixLeft "kahnSort:" $ do
   rels :: Set Addr <- allRelsInvolvingTplts r [t]
   r1 :: Rslt <- restrictRsltForSort as [t] r
-  nodes0 :: [Addr] <-
-    S.toList <$> allExprsButTpltsOrRelsUsingThem r1 [t]
+  let nodes0 = M.keys $ _addrToRefExpr r1
   (nodes1,isolated) <-
     partitionRelated r1 t nodes0
 
@@ -184,30 +181,6 @@ allNormalMembers r rels =
     ( M.elems . ( flip M.withoutKeys
                   $ S.singleton $ RoleInRel' RoleTplt) )
     members
-
--- | `allExprsButTpltsOrRelsUsingThem r ts` returns the "nodes"
--- of the sub-`Rslt` (which must be of a specific form --
--- see header comment.) Specifically, it removes
--- from the `Set Addr` in `r` every `Tplt` in `ts`,
--- and every `Rel` in which some `t` in `ts` is the `Tplt`.
---
--- PITFALL: Call `restrictRsltForSort` on the `Rslt`
--- before calling this on it. Otherwise garbage like the
--- words used by the `Tplt` will be part of the sort results.
-allExprsButTpltsOrRelsUsingThem ::
-  Rslt -> [TpltAddr] -> Either String (Set Addr)
-allExprsButTpltsOrRelsUsingThem r ts =
-  prefixLeft "allExprsButTpltsOrRelsUsingThem:" $ do
-  let as :: Set Addr =
-        S.fromList $ M.keys $ _addrToRefExpr r
-  tsUsers :: Set Addr <-
-    hExprToAddrs r mempty $
-    HMap $ M.singleton (RoleInRel' RoleTplt) $
-    HOr $ map (HExpr . ExprAddr) ts
-  Right ( S.difference
-        -- faster than `S.difference as (S.union ts tsUsers)`
-          ( S.difference as $ S.fromList ts )
-          tsUsers )
 
 -- | Everything that satisfies `isTop`.
 allTops :: Rslt

@@ -28,8 +28,6 @@ test_module_rslt_sort = TestList [
   TestLabel "test_withIsTop" test_withIsTop,
   TestLabel "test_justUnders" test_justUnders,
   TestLabel "test_kahnIterate" test_kahnIterate,
-  TestLabel "test_allExprsButTpltsOrRelsUsingThem"
-    test_allExprsButTpltsOrRelsUsingThem,
   TestLabel "test_kahnSort" test_kahnSort,
   TestLabel "test_kahnSort_tpltInNodes" test_kahnSort_tpltInNodes,
   TestLabel "test_partitionRelated" test_partitionRelated
@@ -173,23 +171,6 @@ test_restrictRsltForSort = do
     Left s   -> putStrLn s
     Right r1 -> mapM_ (putStrLn . show) $
                 M.toList $ _addrToRefExpr r1
-
-test_allExprsButTpltsOrRelsUsingThem :: Test
-test_allExprsButTpltsOrRelsUsingThem = TestCase $ do
-  let Right r = nInserts (mkRslt mempty) [ "0 #a  1",
-                                           "1 #a  2",
-                                           "2 #aa 3" ]
-      expr :: Int -> Addr
-      expr k = either
-        (const $ error $ show k ++ " not in the Rslt") id
-        $ head . S.toList <$> nFindAddrs r (show k)
-      Right tplt_a  = head . S.toList <$> nFindAddrs r "/t /_ a /_"
-      Right tplt_aa = head . S.toList <$> nFindAddrs r "/t /_ aa /_"
-      ts = [tplt_a,tplt_aa]
-      Right r1 = restrictRsltForSort [] ts r
-  assertBool "" $
-    allExprsButTpltsOrRelsUsingThem r1 ts ==
-    Right (S.fromList $ map expr [0..3])
 
 -- | For testing what it does to the `Rslt`
 -- (as opposed to the tops) see `test_kahnIterate'`, immediately below.

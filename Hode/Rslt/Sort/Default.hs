@@ -63,10 +63,7 @@ sortTpltsForSorting r = do
         (HMap $ M.singleton (RoleInRel' RoleTplt) $ HExpr $ ExprAddr sb_b4)
         [[RoleMember 1],[RoleMember 2]] ]]
   (sorted, isol) <-
-    kahnSort r (RightEarlier, sb_b4) $ S.toList ts
---  Left ( -- for debugging
---    "ts: " ++ show ts ++ "\nsorted: " ++ show sorted
---      ++ "\nisol: " ++ show isol )
+    kahnSort r (LeftEarlier, sb_b4) $ S.toList ts
   Right $ sorted ++ isol
 
 -- | `isIn_usingTplt r t a` determines whether `a` is in a "`t`-`Rel`":

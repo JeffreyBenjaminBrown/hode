@@ -56,6 +56,7 @@ import Hode.Rslt.RValid as X
 import Hode.Rslt.Show as X
 import Hode.Rslt.ShowColor as X
 import Hode.Rslt.Sort as X
+import Hode.Rslt.Sort.Default as X
 import Hode.UI.ExprTree as X
 import Hode.UI.BufferTree as X
 import Hode.UI.Clipboard as X
