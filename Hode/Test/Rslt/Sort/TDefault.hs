@@ -9,6 +9,7 @@ import qualified Data.Set as S
 import           Test.HUnit
 
 import Hode.NoUI
+import Hode.Rslt.Binary
 import Hode.Rslt.Index
 import Hode.Rslt.RLookup.RConvert
 import Hode.Rslt.RTypes
@@ -21,7 +22,22 @@ test_module_rslt_sort_default = TestList [
   , TestLabel "test_isIn_usingTplt" test_isIn_usingTplt
   , TestLabel "test_sortTpltsForSorting" test_sortTpltsForSorting
   , TestLabel "test_firstApplicableTplt" test_firstApplicableTplt
+  , TestLabel "test_binOrientation" test_binOrientation
   ]
+
+test_binOrientation :: Test
+test_binOrientation = TestCase $ do
+  let Right (r0 :: Rslt) =
+        nInserts (mkRslt mempty)
+        [ "meh #a meh"
+        , "meh #b meh"
+        , "#(sort by) (/t /_ b /_) #(right first)" ]
+  assertBool "" $
+    binOrientation r0 (nFind_1_addr r0 "/t /_ a /_")
+    == Right LeftEarlier
+  assertBool "" $
+    binOrientation r0 (nFind_1_addr r0 "/t /_ b /_")
+    == Right RightEarlier
 
 test_firstApplicableTplt :: Test
 test_firstApplicableTplt = TestCase $ do

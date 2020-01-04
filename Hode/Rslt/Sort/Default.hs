@@ -26,6 +26,8 @@ import Hode.Rslt.Sort
 import Hode.Util.Misc
 
 
+-- | For use in conjunction with `firstApplicableTplt`.
+-- Once that finds a `Tplt`, this finds its orientation for sorting.
 binOrientation :: Rslt -> TpltAddr -> Either String BinOrientation
 binOrientation r t = do
   let rightFirst :: Expr =
@@ -36,7 +38,7 @@ binOrientation r t = do
         [ (RoleInRel' RoleTplt, HExpr rightFirst)
         , (RoleInRel' $ RoleMember 1, HExpr $ ExprAddr t) ]
   as :: Set Addr <- hExprToAddrs r mempty h
-  Right $ if null as then RightEarlier else LeftEarlier
+  Right $ if null as then LeftEarlier else RightEarlier
 
 firstApplicableTplt :: Rslt -> [Addr] -> Either String (Maybe TpltAddr)
 -- TODO ? It would be better if this stopped after finding two `Addr`s,

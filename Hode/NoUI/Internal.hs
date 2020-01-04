@@ -6,6 +6,7 @@ module Hode.NoUI.Internal (
   , nExpr'         -- ^         String -> Either String Expr
 
   , nFindAddrs     -- ^ Rslt -> String -> Either String (Set Addr)
+  , nFind_1_addr   -- ^ Rslt -> String -> Addr
   , nFindExprs     -- ^ Rslt -> String -> Either String (Set Expr)
   ) where
 
@@ -47,6 +48,12 @@ nFindAddrs :: Rslt -> String -> Either String (Set Addr)
 nFindAddrs r s = prefixLeft "nFindAddrs:" $
                  nHExpr r s >>=
                  hExprToAddrs r (mempty :: Subst Addr)
+
+nFind_1_addr :: Rslt -> String -> Addr
+nFind_1_addr r s =
+  either (error "nFind_1_addr: not found?") id $
+  head . S.toList <$>
+  nFindAddrs r s
 
 nFindExprs :: Rslt -> String -> Either String (Set Expr)
 nFindExprs r s = prefixLeft "nFind:" $
