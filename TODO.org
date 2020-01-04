@@ -11,7 +11,8 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO display
-**** TODO add "sort /_ right first" to the default Rslt
+**** TODO test binOrientation
+:: Rslt -> TpltAddr -> Either String BinOrientation
 **** TODO factor out the common find-then-sort code
 currently in RunParsed.runParsedCommand
 will be   in ExprTree.insertSearchResults_atFocus too

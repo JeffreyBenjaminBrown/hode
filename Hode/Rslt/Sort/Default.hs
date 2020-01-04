@@ -6,7 +6,8 @@
 #-}
 
 module Hode.Rslt.Sort.Default (
-    firstApplicableTplt -- ^ Rslt -> [Addr] -> Either String (Maybe TpltAddr)
+    binOrientation -- ^ Rslt -> TpltAddr -> Either String BinOrientation
+  , firstApplicableTplt -- ^ Rslt -> [Addr] -> Either String (Maybe TpltAddr)
   , isIn_usingTplt      -- ^ Rslt -> TpltAddr -> Addr -> Either String Bool
   , usesTplt            -- ^ Rslt -> TpltAddr -> Addr -> Bool
   , sortTpltsForSorting -- ^ Rslt -> Either String [TpltAddr]
@@ -24,6 +25,18 @@ import Hode.Rslt.RTypes
 import Hode.Rslt.Sort
 import Hode.Util.Misc
 
+
+binOrientation :: Rslt -> TpltAddr -> Either String BinOrientation
+binOrientation r t = do
+  let rightFirst :: Expr =
+        ExprTplt $ Tplt (Just $ Phrase "sort by") []
+                       $ Just $ Phrase "right first"
+      h :: HExpr =
+        HMap $ M.fromList
+        [ (RoleInRel' RoleTplt, HExpr rightFirst)
+        , (RoleInRel' $ RoleMember 1, HExpr $ ExprAddr t) ]
+  as :: Set Addr <- hExprToAddrs r mempty h
+  Right $ if null as then RightEarlier else LeftEarlier
 
 firstApplicableTplt :: Rslt -> [Addr] -> Either String (Maybe TpltAddr)
 -- TODO ? It would be better if this stopped after finding two `Addr`s,
