@@ -32,8 +32,11 @@ test_sortPList_asList = TestCase $ do
         P.fromList $ fmap ("meh",) [0..6]
       bs :: [Int] = [4,2,6,0]
   assertBool "" $
-    Just (sortPList_asList snd bs as)
-    == P.fromList ( fmap ("meh",) ( bs ++ [1,3,5] ) )
+    sortPList_asList snd bs as
+    == fmap ("meh",) ( P.PointedList
+                       [6,2,4] -- pitfall: reversed
+                       0 [1,3,5] )
+
 
 test_insertLeft_noFocusChange :: T.Test
 test_insertLeft_noFocusChange = TestCase $ do

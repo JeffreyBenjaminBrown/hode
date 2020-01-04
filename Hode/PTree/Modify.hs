@@ -65,17 +65,27 @@ insertLeft_noFocusChange :: a -> PointedList a -> PointedList a
 insertLeft_noFocusChange a =
   P.tryNext . P.insertLeft a
 
+-- | PITFALL: ASSUMES both `bs` and `fmap f as` are duplicate-free.
+--
+-- `sortPList_asList f bs as` is a `PointedList a`
+-- in which `as` has the same order as `bs`.
+-- Anything in `as` and not in `bs` will be at the end,
+-- in the same order as before.
+-- The order of duplicates (under `f`) in `as` is also unchanged.
 sortPList_asList :: forall a b. Ord b
   => (a -> b) -> [b] -> PointedList a -> PointedList a
 sortPList_asList f bs as = let
   ranks :: Map b Int =
     M.fromList $ zip bs [0..]
   g :: a -> Either Int Int =
-    maybe (Right 0) Left .  -- not found => last, in the same order
-    flip M.lookup ranks . f -- (Left < Right always)
-  nope = error "empty list should not be possible."
-  in maybe nope id
-     $ P.fromList $ L.sortOn g $ toList as
+    maybe (Right 0) Left . -- Left < Right, so it comes first
+    flip M.lookup ranks . f
+  sorted :: [a] =
+    L.sortOn g $ toList as
+  foc_b :: b =
+    f $ as ^. P.focus
+  (prefix, focus : suffix) = L.span ((/=) foc_b . f) sorted
+  in P.PointedList (reverse prefix) focus suffix
 
 
 -- | *** `PTree` and `Porest`
