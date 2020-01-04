@@ -8,8 +8,10 @@ module Hode.PTree.Modify (
   , nudgePrev, nudgeNext           -- ^ PointedList a ->        PointedList a
   , filterPList     -- ^ (a -> Bool) -> PointedList a -> Maybe (PointedList a)
   , insertLeft_noFocusChange  -- ^ a -> PointedList a ->        PointedList a
+  , sortPList_asList -- ^  (a -> b) -> [b]
+                     --              -> PointedList a ->        PointedList a
 
-  -- | *** `PTree`, a tree made of `PointedList`s
+  -- | *** `PTree` and `Porest`
   , writeLevels         -- ^ PTree a -> PTree (Int,a)
   , cons_topNext        -- ^       a -> Porest a -> Porest a
   , consUnder_andFocus  -- ^ PTree a -> PTree a -> PTree a
@@ -26,6 +28,9 @@ import Prelude hiding (pred)
 import           Control.Arrow ((>>>))
 import           Control.Lens
 import           Data.Foldable (toList)
+import qualified Data.List             as L
+import           Data.Map (Map)
+import qualified Data.Map              as M
 import           Data.List.PointedList (PointedList(..))
 import qualified Data.List.PointedList as P
 
@@ -60,8 +65,20 @@ insertLeft_noFocusChange :: a -> PointedList a -> PointedList a
 insertLeft_noFocusChange a =
   P.tryNext . P.insertLeft a
 
+sortPList_asList :: forall a b. Ord b
+  => (a -> b) -> [b] -> PointedList a -> PointedList a
+sortPList_asList f bs as = let
+  ranks :: Map b Int =
+    M.fromList $ zip bs [0..]
+  g :: a -> Either Int Int =
+    maybe (Right 0) Left .  -- not found => last, in the same order
+    flip M.lookup ranks . f -- (Left < Right always)
+  nope = error "empty list should not be possible."
+  in maybe nope id
+     $ P.fromList $ L.sortOn g $ toList as
 
--- | *** `PTree`
+
+-- | *** `PTree` and `Porest`
 
 -- | The root has level 0, its children level 1, etc.
 writeLevels :: PTree a -> PTree (Int,a)

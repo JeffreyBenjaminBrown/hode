@@ -31,25 +31,23 @@ import Hode.Test.Main as X
 import Hode.Hash.Convert as X
 import Hode.Hash.EitherExpr as X
 import Hode.Hash.HLookup as X
--- import Hode.Hash.HLookup.Transitive as X
-  -- already re-exported by Hode.Hash.HLookup
 import Hode.Hash.HParse as X
 import Hode.Hash.HTypes as X
 import Hode.Hash.HUtil as X
 import Hode.Hash.Hash as X
+import Hode.NoUI as X
+import Hode.PTree as X
 import Hode.Qseq.MkLeaf as X
 import Hode.Qseq.QTypes as X
 import Hode.Qseq.QValid as X
 import Hode.Qseq.Query as X
 import Hode.Qseq.RunLeaf as X
 import Hode.Qseq.Subst as X
+import Hode.Rslt.Binary as X
 import Hode.Rslt.Edit as X
 import Hode.Rslt.Files as X
 import Hode.Rslt.Index as X
 import Hode.Rslt.RLookup as X
--- import Hode.Rslt.RLookup.RConvert as X
-  -- already reexported from Hode.Rslt.RLookup
-import Hode.Rslt.Binary as X
 import Hode.Rslt.RTypes as X
 import Hode.Rslt.RUtil as X
 import Hode.Rslt.RValid as X
@@ -57,21 +55,23 @@ import Hode.Rslt.Show as X
 import Hode.Rslt.ShowColor as X
 import Hode.Rslt.Sort as X
 import Hode.Rslt.Sort.Default as X
-import Hode.UI.ExprTree as X
 import Hode.UI.BufferTree as X
 import Hode.UI.Clipboard as X
-import Hode.UI.Types.Names as X
-import Hode.UI.Types.State as X
-import Hode.UI.Types.Views as X
+import Hode.UI.ExprTree as X
 import Hode.UI.IUtil as X
+import Hode.UI.IUtil.String as X
 import Hode.UI.Input as X
 import Hode.UI.Input.IParse as X
 import Hode.UI.Main as X
-import Hode.NoUI as X
-import Hode.PTree.PShow as X
-import Hode.UI.IUtil.String as X
+import Hode.UI.Types.Names as X
+import Hode.UI.Types.State as X
+import Hode.UI.Types.Views as X
 import Hode.UI.Window as X
 import Hode.Util.Misc as X
-import Hode.PTree.Initial as X
 import Hode.Util.UParse as X
 
+-- import Hode.Hash.HLookup.Transitive as X
+  -- already re-exported by Hode.Hash.HLookup
+
+-- import Hode.Rslt.RLookup.RConvert as X
+  -- already reexported from Hode.Rslt.RLookup
