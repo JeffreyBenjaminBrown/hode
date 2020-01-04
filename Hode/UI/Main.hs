@@ -109,15 +109,11 @@ appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) =
   case M.lookup ev $ universal_commands st of
-
   Just c -> c
-
   Nothing -> case st ^. showingInMainWindow of
-    SearchBuffer       -> handleKeyboard_atResultsWindow st ev
+    SearchBuffer -> handleKeyboard_atResultsWindow st ev
     BufferBuffer -> handleKeyboard_atBufferWindow  st ev
-    _             -> handleUncaughtInput            st ev
-
-
+    _            -> handleUncaughtInput            st ev
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap

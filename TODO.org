@@ -11,15 +11,22 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO display
-**** TODO sort by default
-***** TODO sort by the first applicable sort criterion
+**** TODO add "sort /_ right first" to the default Rslt
+**** TODO factor out the common find-then-sort code
+currently in RunParsed.runParsedCommand
+will be   in ExprTree.insertSearchResults_atFocus too
+**** TODO by default, sort by the first applicable sort criterion
 in each group of search results -- top-level or otherwise.
-**** TODO a way to change the sort on a group
-***** maybe just a text command
-***** maybe a "sort program" buffer
+Change ExprTree.insertSearchResults_atFocus
+  based on RunParsed.runParsedCommand
+**** TODO a keyboard command to change the sort on a group
+***** later, a "sort program" buffer
 Specific to a given VExpr, applied to its children.
 Shows every TR, and a checkbox next to the one curently ordering the list.
 The checkbox can be moved.
+**** TODO replace CommandFindSort with CommandSort
+It doesn't save any keystrokes to keep them together,
+and it's less flexible.
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.

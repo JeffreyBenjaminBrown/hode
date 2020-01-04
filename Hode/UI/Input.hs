@@ -49,4 +49,3 @@ handleKeyboard_atResultsWindow st ev =
   case M.lookup ev $ resultWindow_commands st of
   Just c -> c
   _ -> handleUncaughtInput st ev
-
