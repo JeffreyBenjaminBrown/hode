@@ -86,7 +86,7 @@ makeExprParser :: MonadPlus m
 makeExprParser = foldl addPrecLevel
 {-# INLINEABLE makeExprParser #-}
 
-eMakeExprParser :: (Show e, MonadPlus m)
+eMakeExprParser :: (Show e, MonadPlus m, MonadFail m)
   => m a                 -- ^ Term parser
   -> [[EOperator m e a]] -- ^ Operator table, see 'Operator'
   -> m a                 -- ^ Resulting expression parser
@@ -106,7 +106,7 @@ addPrecLevel term ops =
     nas'  = pInfixN (choice nas) term'
 {-# INLINEABLE addPrecLevel #-}
 
-eAddPrecLevel :: (Show e, MonadPlus m)
+eAddPrecLevel :: (Show e, MonadPlus m, MonadFail m)
   => m a -> [EOperator m e a] -> m a
 eAddPrecLevel term ops =
   term' >>= \x -> choice [ras' x, las' x, nas' x, return x]
@@ -129,7 +129,7 @@ pTerm prefix term postfix = do
   return . post . pre $ x
 {-# INLINE pTerm #-}
 
-ePTerm :: (Show e, MonadPlus m)
+ePTerm :: (Show e, MonadPlus m, MonadFail m)
   => m (a -> Either e a)
   -> m a
   -> m (a -> Either e a)
@@ -153,7 +153,7 @@ pInfixN op p x = do
   return $ f x y
 {-# INLINE pInfixN #-}
 
-ePInfixN :: (Show e, MonadPlus m)
+ePInfixN :: (Show e, MonadPlus m, MonadFail m)
   => m (a -> a -> Either e a) -> m a -> a -> m a
 ePInfixN op p x = do
   f <- op
@@ -172,7 +172,7 @@ pInfixL op p x = do
   pInfixL op p r <|> return r
 {-# INLINE pInfixL #-}
 
-ePInfixL :: (Show e, MonadPlus m)
+ePInfixL :: (Show e, MonadPlus m, MonadFail m)
   => m (a -> a -> Either e a) -> m a -> a -> m a
 ePInfixL op p x = do
   f <- op
@@ -191,7 +191,7 @@ pInfixR op p x = do
   return $ f x y
 {-# INLINE pInfixR #-}
 
-ePInfixR :: (Show e, MonadPlus m)
+ePInfixR :: (Show e, MonadPlus m, MonadFail m)
   => m (a -> a -> Either e a) -> m a -> a -> m a
 ePInfixR op p x = do
   f <- op
