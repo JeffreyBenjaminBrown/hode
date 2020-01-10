@@ -155,6 +155,8 @@ library
               , zippers
                 , text-zipper
   default-language: Haskell2010
+  ghc-options: -Wall
+  default-extensions: ScopedTypeVariables
 
 executable hode-exe
   main-is: Main.hs

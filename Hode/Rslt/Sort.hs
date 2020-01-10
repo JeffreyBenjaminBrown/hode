@@ -63,7 +63,7 @@ import qualified Data.Map       as M
 import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set       as S
-import           Control.Monad (mapM,foldM)
+import           Control.Monad (foldM)
 
 import Hode.Hash.HLookup
 import Hode.Hash.HTypes

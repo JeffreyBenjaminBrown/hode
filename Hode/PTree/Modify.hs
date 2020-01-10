@@ -31,7 +31,6 @@ import           Data.Foldable (toList)
 import qualified Data.List             as L
 import           Data.Map (Map)
 import qualified Data.Map              as M
-import           Data.List.PointedList (PointedList(..))
 import qualified Data.List.PointedList as P
 
 import Hode.PTree.Initial

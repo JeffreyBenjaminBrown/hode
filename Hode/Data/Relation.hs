@@ -79,7 +79,6 @@ where
 import           Prelude           hiding (null,filter)
 import           Control.Arrow     (first, second)
 import           Control.Monad     (MonadPlus, guard)
-import           Data.Functor      (Functor((<$)))
 import qualified Data.List    as L
 import qualified Data.Map     as M
 import qualified Data.Set     as S
