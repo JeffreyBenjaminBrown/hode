@@ -8,6 +8,10 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
+* TODO establish an informal schema
+** AMR might be useful
+https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
+(in my Downloads/ folder)
 * TODO critical
 ** TODO ordering
 *** TODO display
