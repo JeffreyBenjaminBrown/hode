@@ -147,6 +147,7 @@ library
               , parser-combinators
                 , megaparsec
               , pointedlist
+              , pretty-simple
               , process
               , recursion-schemes
               , text
