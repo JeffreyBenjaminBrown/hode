@@ -277,6 +277,32 @@ Here's an incomplete refresher:
 `/find bob #likes /_ || bob #dislikes /_`
   -- Every #likes and every #dislikes statement with bob on the left.
 
+## Sort the peers of the currently focused node
+
+You can sort by any transitive relationship.
+Therefore, in a graph with the following data:
+```
+frogs #eat bugs
+bugs #outrun frogs
+(/t /_ eat /_) #is transitive
+```
+we can sort by the "eat" relationship.
+
+Let's get frogs and bugs on the screen by running `/f frogs | bugs`.
+If we now move the cursor over one of them
+(see "move focus" under "keyboard commands" for how to do that),
+we can now run `/sortLeft (/t /_ eat /_)` to sort by the "eat" relationship,
+with things on the left side of the relationship shown earlier in the results.
+Since `frogs #eat bugs`, frogs are left of bugs in the eat relationship,
+so frogs will precede bugs in the list.
+
+If trees was also in our list of results,
+and trees was not in an eat relationship with either frogs or bugs,
+trees would come last in the sort.
+
+`sl` is a synonym for `sortLeft`,
+and `sr` is a synonym for `sortRight`.
+
 # Keyboard commands
 
 ## Keyboard commands that work from multiple places
@@ -336,13 +362,8 @@ The previous results buffer continues to exist,
 and in the buffer buffer,
 the new results buffer is a child of the old one.
 
-### `M-w`: Copy the results buffer to clipboard
-
-This copies everything in the currently-displayed results buffer,
-even if it does not all fit on the screen.
-
-### `M-r`: Replace the command window with this buffer's last successful search
 ### `M-S`: Insert results of evaluating focus as a search
+
 #### The idea
 
 Suppose you often find yourself running
@@ -400,6 +421,13 @@ Suppose node X encodes a search that finds nodes Y and Z.
 If you evaluate X, you will find Y and Z.
 But if you visit Y or Z,
 you will receive no information about its relationship to X.
+
+### `M-w`: Copy the results buffer to clipboard
+
+This copies everything in the currently-displayed results buffer,
+even if it does not all fit on the screen.
+
+### `M-r`: Replace the command window with this buffer's last successful search
 
 ## Keyboard commands that work from the Buffers buffer
 

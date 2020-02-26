@@ -35,7 +35,7 @@ pCommand r s =
     "/save"      -> pCommand_save      t
     "/sortRight" -> pCommand_sort RightEarlier  r t
     "/sr"        -> pCommand_sort RightEarlier  r t
-    "/sortLeft " -> pCommand_sort LeftEarlier r t
+    "/sortLeft"  -> pCommand_sort LeftEarlier r t
     "/sl"        -> pCommand_sort LeftEarlier r t
     _            -> Left $ "Unrecognized start of command."
 

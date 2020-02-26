@@ -17,35 +17,12 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
+* TODO BUG : node 9 is recursive
 * TODO critical
 ** TODO ordering
 *** TODO display
-**** TODO document sort
-**** TODO test CommandSort
-Tested live, it works. Do this:
-/a 0 #a 1
-/a 1 #b 0
-/a (/t /_ a /_) #is transitive
-/a (/t /_ b /_) #is transitive
-/sl (/t /_ b /_)
-**** TODO replace CommandFindSort with CommandSort
-It doesn't save any keystrokes to keep them together,
-and it's less flexible.
-***** ? in UI, separate sort from search
-****** DONE sort a PList to match a list
-PTree.Modify.sortPList_asList
-  :: (a -> b) -> List b -> PList a -> PList a
-****** apply to UI
-   CommandSort BinOrientation Addr
-   _bufferExprRowTree :: Buffer -> Maybe (Porest ExprRow)
-   _viewExprNode :: ExprRow -> ViewExprNode
-   data ViewExprNode = VenExpr ViewExpr
-                     | VenFork ViewFork
-   _viewExpr_Addr :: ViewExpr -> Addr
-***** TODO will that make this obsolete?
-((out: JAceCXVRD5QJSxwu))
 **** TODO factor out the common find-then-sort code
-((in: JAceCXVRD5QJSxwux))
+This might be obsolete, now that CommandSort does not also Find.
 currently in RunParsed.runParsedCommand
 will be   in ExprTree.insertSearchResults_atFocus too
 **** TODO by default, sort by the first applicable sort criterion
