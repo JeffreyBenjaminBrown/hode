@@ -27,8 +27,7 @@ Tested live, it works. Do this:
 /a 1 #b 0
 /a (/t /_ a /_) #is transitive
 /a (/t /_ b /_) #is transitive
-/sl (/t /_ b /_) meh -- Once I remove the HExpr argument to CommandSort,
-  --  I won't need the meh
+/sl (/t /_ b /_)
 **** TODO replace CommandFindSort with CommandSort
 It doesn't save any keystrokes to keep them together,
 and it's less flexible.

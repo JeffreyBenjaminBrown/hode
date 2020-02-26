@@ -100,15 +100,13 @@ test_pCommand = TestCase $ do
     == Right ( CommandSave "somewhere/over/the/rainbow.exe" )
 
   assertBool "sort" $ pCommand D.rslt
-    "/sortRight (/t /_ needs /_) bottles"
+    "/sortRight (/t /_ needs /_)"
     == Right ( CommandSort
-               "sort RightEarlier: (/t /_ needs /_) bottles"
-               (HExpr $ Phrase "bottles")
+               "sort RightEarlier: (/t /_ needs /_)"
                RightEarlier 4 )
 
   assertBool "sort" $ pCommand D.rslt
-    "/sl /@ 4 bottles"
+    "/sl /@ 4"
     == Right ( CommandSort
-               "sort LeftEarlier: /@ 4 bottles"
-               (HExpr $ Phrase "bottles")
+               "sort LeftEarlier: /@ 4"
                LeftEarlier 4 )

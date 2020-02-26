@@ -30,7 +30,7 @@ data Command =
   | CommandMove     Addr Addr
   | CommandDelete   Addr
   | CommandFind     String HExpr
-  | CommandSort String HExpr BinOrientation TpltAddr
+  | CommandSort     String BinOrientation TpltAddr
   | CommandLoad     Folder
   | CommandSave     Folder
   deriving (Show, Eq, Ord)

@@ -161,7 +161,7 @@ runParsedCommand                      c0 st0 =
                 , _pMTrees = Just pr } )
       & itWorked "Search successful."
 
-  g (CommandSort _ _ bo t) st =
+  g (CommandSort _ bo t) st =
     prefixLeft "called to sort:" $ do
     let r :: Rslt = st ^. appRslt
         mPeers :: Maybe (Porest ExprRow) = -- focused node is among these

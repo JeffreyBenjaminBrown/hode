@@ -90,18 +90,13 @@ pCommand_sort :: BinOrientation -> Rslt -> String
 
 pCommand_sort bo r s =
   prefixLeft "pCommand_sort:" $ do
-  let p :: Parser (PExpr,PExpr)
-      p = do tplt   <- _pHashExpr
-             search <- _pHashExpr
-             return (tplt,search)
-  (tplt,search) :: (PExpr,PExpr) <-
-    mapLeft show $ parse p "UI.Input.IParse error 5" s
+  tplt :: PExpr <- mapLeft show $
+    parse _pHashExpr "UI.Input.IParse error 5" s
   ts :: Set TpltAddr <- pExprToHExpr r tplt >>=
                         hExprToAddrs r mempty
-  h :: HExpr <- pExprToHExpr r search
   case S.toList ts of
     [t] -> Right $ CommandSort
-           ("sort " ++ show bo ++ ": " ++ s) h bo t
+           ("sort " ++ show bo ++ ": " ++ s) bo t
     _ -> Left $ "Can only sort by exactly one Tplt, but "
          ++ " these Tplts were found: " ++ show ts ++ "."
 
