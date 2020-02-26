@@ -100,7 +100,7 @@ pCommand_sort bo r s =
                         hExprToAddrs r mempty
   h :: HExpr <- pExprToHExpr r search
   case S.toList ts of
-    [t] -> Right $ CommandFindSort
+    [t] -> Right $ CommandSort
            ("sort " ++ show bo ++ ": " ++ s) h bo t
     _ -> Left $ "Can only sort by exactly one Tplt, but "
          ++ " these Tplts were found: " ++ show ts ++ "."

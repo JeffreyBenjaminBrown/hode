@@ -146,7 +146,7 @@ runParsedCommand                     c0 st0 =
       CommandFind     s h      ->
         (s,) <$>
         ( S.toList <$> hExprToAddrs r mempty h )
-      CommandFindSort s h bo t -> do
+      CommandSort s h bo t -> do
         (sorted,isol) <- S.toList
                          <$> hExprToAddrs r mempty h
                          >>= kahnSort r (bo,t)

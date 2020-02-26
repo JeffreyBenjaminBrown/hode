@@ -25,14 +25,14 @@ data MainWindowName = CommandHistory
   deriving (Ord, Show, Eq)
 
 data Command =
-    CommandInsert       Expr
-  | CommandReplace Addr Expr
-  | CommandMove Addr Addr
-  | CommandDelete  Addr
+    CommandInsert        Expr
+  | CommandReplace  Addr Expr
+  | CommandMove     Addr Addr
+  | CommandDelete   Addr
   | CommandFind     String HExpr
-  | CommandFindSort String HExpr BinOrientation TpltAddr
-  | CommandLoad Folder
-  | CommandSave Folder
+  | CommandSort String HExpr BinOrientation TpltAddr
+  | CommandLoad     Folder
+  | CommandSave     Folder
   deriving (Show, Eq, Ord)
 
 type Folder = String
