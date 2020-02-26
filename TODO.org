@@ -17,7 +17,6 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
-* TODO BUG : node 9 is recursive
 * TODO critical
 ** TODO ordering
 *** TODO display

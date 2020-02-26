@@ -3,8 +3,10 @@ ScopedTypeVariables #-}
 
 module Hode.UI.ExprTree (
 
-  -- | = inserting layers of nodes
-    insertSearchResults_atFocus  -- ^ St -> Either String St
+  sortFocusAndPeers -- ^ (BinOrientation, TpltAddr) -> St -> Either String St
+
+  -- | * inserting layers of nodes
+  , insertSearchResults_atFocus  -- ^ St -> Either String St
 
   , insertMembers_atFocus -- ^ St ->    Either String St
 
@@ -32,8 +34,10 @@ import           Lens.Micro hiding (has, folded)
 
 import Hode.NoUI
 import Hode.PTree
+import Hode.Rslt.Binary
 import Hode.Rslt.RLookup
 import Hode.Rslt.RTypes
+import Hode.Rslt.Sort
 import Hode.UI.IUtil
 import Hode.UI.IUtil.String
 import Hode.UI.Types.State
@@ -41,7 +45,39 @@ import Hode.UI.Types.Views
 import Hode.Util.Misc
 
 
--- | = inserting layers of nodes
+-- | `sortFocusAndPeers (bo, t) st` finds the focused expr `e`
+-- in the focused buffer of `st`, and its `peers` in the view.
+-- and sorts them all according to `(bo,t)`.
+sortFocusAndPeers :: (BinOrientation, TpltAddr) -> St -> Either String St
+sortFocusAndPeers (bo, t) st =
+  prefixLeft "sortFocusAndPeers: " $ do
+  let r :: Rslt = st ^. appRslt
+      mPeers :: Maybe (Porest ExprRow) = -- focused Expr is among these
+        st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
+                . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
+  peers :: Porest ExprRow <-
+    case mPeers of
+      Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
+      Just x -> Right x
+  let pTreeExprRow_toAddr =
+        (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
+      mas :: [Maybe Addr] = map pTreeExprRow_toAddr $ toList peers
+  as :: [Addr] <-
+    let f :: Maybe Addr -> Either String Addr
+        f Nothing = Left $ "Sort failed. Probably because the focused node is a view-gropuiing node, as opposed to an expression in the graph. Try moving the cursor and re-executing that command."
+        f (Just a) = Right a
+    in mapM f mas
+  (sorted, isol) <- kahnSort r (bo,t) as
+  let order :: [Addr] = sorted ++ isol
+      peers' :: Porest ExprRow = sortPList_asList
+        (maybe (error "impossible") id . pTreeExprRow_toAddr)
+        order peers
+  Right $ st & ( stSet_focusedBuffer . bufferExprRowTree
+                 . setParentOfFocusedSubtree . pMTrees . _Just
+                 .~ peers' )
+
+
+-- | * inserting layers of nodes
 
 -- TODO : much in common with `insertMembers_atFocus`
 insertSearchResults_atFocus :: St -> Either String St

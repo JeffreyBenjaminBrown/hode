@@ -8,7 +8,6 @@ module Hode.UI.Input.RunParsed (
   ) where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Data.Foldable
 import qualified Data.List.PointedList as P
 import qualified Data.Set              as S
 import qualified Data.Text             as T
@@ -21,11 +20,9 @@ import qualified Brick.Widgets.Edit    as B
 
 import Hode.Hash.HLookup
 import Hode.PTree.Initial
-import Hode.PTree.Modify
 import Hode.Rslt.Edit
 import Hode.Rslt.Files
 import Hode.Rslt.RTypes
-import Hode.Rslt.Sort
 import Hode.UI.ExprTree
 import Hode.UI.CycleBuffer
 import Hode.UI.IUtil
@@ -134,7 +131,7 @@ runParsedCommand                      c0 st0 =
         & itWorked "Rslt loaded."
 
   g (CommandSave f) st = Right $ do
-    (bad :: Bool) <- liftIO $ not <$> doesDirectoryExist f
+    bad :: Bool <- liftIO $ not <$> doesDirectoryExist f
     st' <- if bad
       then return $ st & showError
            ("Non-existent folder: " ++ f)
@@ -142,6 +139,7 @@ runParsedCommand                      c0 st0 =
       liftIO $ writeRslt f $ st ^. appRslt
       return $ st & itWorked "Rslt saved."
     B.continue st'
+
   g (CommandFind s h) st =
     prefixLeft "called to find: " $ do
     let r :: Rslt = st ^. appRslt
@@ -163,29 +161,6 @@ runParsedCommand                      c0 st0 =
 
   g (CommandSort _ bo t) st =
     prefixLeft "called to sort:" $ do
-    let r :: Rslt = st ^. appRslt
-        mPeers :: Maybe (Porest ExprRow) = -- focused node is among these
-          st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
-                  . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
-    peers :: Porest ExprRow <-
-      case mPeers of
-        Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
-        Just x -> Right x
-    let pTreeExprRow_toAddr =
-          (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
-        mas :: [Maybe Addr] = map pTreeExprRow_toAddr $ toList peers
-    as :: [Addr] <-
-      let f :: Maybe Addr -> Either String Addr
-          f Nothing = Left $ "Sort failed. Probably because the focused node is a view-gropuiing node, as opposed to an expression in the graph. Try moving the cursor and re-executing that command."
-          f (Just a) = Right a
-      in mapM f mas
-    (sorted, isol) <- kahnSort r (bo,t) as
-    let order :: [Addr] = sorted ++ isol
-        peers' :: Porest ExprRow = sortPList_asList
-          (maybe (error "impossible") id . pTreeExprRow_toAddr)
-          order peers
-    Right $ B.continue $ st
-      & ( stSet_focusedBuffer . bufferExprRowTree
-          . setParentOfFocusedSubtree . pMTrees . _Just
-          .~ peers' )
-      & itWorked "Search successful."
+    st' <- sortFocusAndPeers (bo,t) st
+    Right $ B.continue $ st'
+      & itWorked "Sort successful."
