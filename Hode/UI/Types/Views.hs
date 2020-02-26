@@ -160,7 +160,7 @@ makeLenses ''ViewFork
 -- between its parent in the view tree and its children.
 --
 -- PITFALL: `PTree ViewExprNode` permits invalid state.
--- A `VenFork` containing a `VQuery` should be top of the tree, nowhere else.
+-- A `VenFork` containing a `VQuery` should be top of buffer, nowhere else.
 -- A `VenFork`'s children should only be `VenExpr`s, and vice-versa.
 
 data ViewExprNode  -- ^ the primary objects in a view of search results

@@ -12,9 +12,23 @@ This will load all non-broken modules when some are broken.
 ** AMR might be useful
 https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
 (in my Downloads/ folder)
+* TODO is PTree focus buggy?
+When I run `st <- ui`, look through a small view-tree,
+and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
+is `True`. This seems to contradict a comment in PTree.Initial, that
+"If it has focus, none of its children should."
 * TODO critical
 ** TODO ordering
 *** TODO display
+**** TODO document sort
+**** TODO test CommandSort
+Tested live, it works. Do this:
+/a 0 #a 1
+/a 1 #b 0
+/a (/t /_ a /_) #is transitive
+/a (/t /_ b /_) #is transitive
+/sl (/t /_ b /_) meh -- Once I remove the HExpr argument to CommandSort,
+  --  I won't need the meh
 **** TODO replace CommandFindSort with CommandSort
 It doesn't save any keystrokes to keep them together,
 and it's less flexible.

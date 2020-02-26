@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Hode.UI.Input.RunParsed (
     parseAndRunCommand -- ^            St ->
                        -- B.EventM BrickName (B.Next St)
@@ -6,6 +8,7 @@ module Hode.UI.Input.RunParsed (
   ) where
 
 import           Control.Monad.IO.Class (liftIO)
+import           Data.Foldable
 import qualified Data.List.PointedList as P
 import qualified Data.Set              as S
 import qualified Data.Text             as T
@@ -18,6 +21,7 @@ import qualified Brick.Widgets.Edit    as B
 
 import Hode.Hash.HLookup
 import Hode.PTree.Initial
+import Hode.PTree.Modify
 import Hode.Rslt.Edit
 import Hode.Rslt.Files
 import Hode.Rslt.RTypes
@@ -59,7 +63,7 @@ parseAndRunCommand st =
 runParsedCommand ::
   Command -> St ->
   Either String (B.EventM BrickName (B.Next St))
-runParsedCommand                     c0 st0 =
+runParsedCommand                      c0 st0 =
   prefixLeft "runParsedCommand:" $ g' c0 st0
   where
 
@@ -138,32 +142,50 @@ runParsedCommand                     c0 st0 =
       liftIO $ writeRslt f $ st ^. appRslt
       return $ st & itWorked "Rslt saved."
     B.continue st'
-
-  g cmd st =
-    prefixLeft "called to find and maybe sort:" $ do
+  g (CommandFind s h) st =
+    prefixLeft "called to find: " $ do
     let r :: Rslt = st ^. appRslt
-    (s :: String, as :: [Addr]) <- case cmd of
-      CommandFind     s h      ->
-        (s,) <$>
-        ( S.toList <$> hExprToAddrs r mempty h )
-      CommandSort s h bo t -> do
-        (sorted,isol) <- S.toList
-                         <$> hExprToAddrs r mempty h
-                         >>= kahnSort r (bo,t)
-        Right ( s, sorted ++ isol )
-      _ -> Left "This should be impossible -- the other Commands have already been handled by earlier clauses defining `g`."
+    as :: [Addr] <-
+      S.toList <$> hExprToAddrs r mempty h
     pr :: Porest ExprRow <-
       (P.focus . pTreeHasFocus .~ True)
       <$> addrsToExprRows st mempty as
-    let p :: PTree ExprRow = PTree -- new screen to show
-          { _pTreeLabel =
-            exprRow_fromQuery $ QueryView $
-            T.unpack . T.strip . T.pack $ s
-          , _pTreeHasFocus = False
-          , _pMTrees = Just pr }
-
     Right $ B.continue $ st
       -- PITFALL : Replaces the Buffer's old contents.
       -- TODO ? Create a new Buffer instead.
-      & stSet_focusedBuffer . bufferExprRowTree .~ p
+      & ( stSet_focusedBuffer . bufferExprRowTree .~
+          PTree { _pTreeLabel =
+                  exprRow_fromQuery $ QueryView $
+                  T.unpack . T.strip . T.pack $ s
+                , _pTreeHasFocus = False
+                , _pMTrees = Just pr } )
+      & itWorked "Search successful."
+
+  g (CommandSort _ _ bo t) st =
+    prefixLeft "called to sort:" $ do
+    let r :: Rslt = st ^. appRslt
+        mPeers :: Maybe (Porest ExprRow) = -- focused node is among these
+          st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
+                  . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
+    peers :: Porest ExprRow <-
+      case mPeers of
+        Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
+        Just x -> Right x
+    let pTreeExprRow_toAddr =
+          (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
+        mas :: [Maybe Addr] = map pTreeExprRow_toAddr $ toList peers
+    as :: [Addr] <-
+      let f :: Maybe Addr -> Either String Addr
+          f Nothing = Left $ "Sort failed. Probably because the focused node is a view-gropuiing node, as opposed to an expression in the graph. Try moving the cursor and re-executing that command."
+          f (Just a) = Right a
+      in mapM f mas
+    (sorted, isol) <- kahnSort r (bo,t) as
+    let order :: [Addr] = sorted ++ isol
+        peers' :: Porest ExprRow = sortPList_asList
+          (maybe (error "impossible") id . pTreeExprRow_toAddr)
+          order peers
+    Right $ B.continue $ st
+      & ( stSet_focusedBuffer . bufferExprRowTree
+          . setParentOfFocusedSubtree . pMTrees . _Just
+          .~ peers' )
       & itWorked "Search successful."
