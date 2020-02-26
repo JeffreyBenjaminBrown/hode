@@ -40,7 +40,7 @@ mkRslt es0 = r where
                     , (6, Tplt' $ Tplt (Just 4) [] Nothing)
                     , (7, Tplt' $ Tplt (Just 4) [5] Nothing)
                     , (8, Phrase' "right first")
-                    , (9, Tplt' $ Tplt (Just 4) [] $ Just 9) ]
+                    , (9, Tplt' $ Tplt (Just 4) [] $ Just 8) ]
     else es0
 
   hasMap :: Map Addr (Map Role Addr) =
