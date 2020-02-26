@@ -15,7 +15,36 @@ https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
 * TODO critical
 ** TODO ordering
 *** TODO display
+**** TODO replace CommandFindSort with CommandSort
+It doesn't save any keystrokes to keep them together,
+and it's less flexible.
+***** ? in UI, separate sort from search
+****** why
+   you might want to sort without having to run the search again
+****** sort a PList to match a list
+    type Porest a = PointedList (PTree a)
+    data PTree a = PTree {
+	_pTreeLabel :: a
+      , _pTreeHasFocus :: Bool
+      , _pMTrees :: Maybe (Porest a) }
+
+    sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
+    steps
+      create a (Map b a) from the PList
+	-- PITFALL: assume each b maps to a unique a in the PList
+      create a (List a) from the (List b)
+	using the Map
+      convert the (List a) to a (PList a)
+****** apply to UI
+   CommandSort BinOrientation Addr
+   _exprRowPorest :: Buffer -> Maybe (Porest ExprRow)
+   _viewExprNode :: ExprRow -> ViewExprNode
+   data ViewExprNode = ... | VExpr ViewExpr | ...
+   _viewExpr_Addr :: ViewExpr -> Addr
+***** TODO will that make this obsolete?
+((out: JAceCXVRD5QJSxwu))
 **** TODO factor out the common find-then-sort code
+((in: JAceCXVRD5QJSxwux))
 currently in RunParsed.runParsedCommand
 will be   in ExprTree.insertSearchResults_atFocus too
 **** TODO by default, sort by the first applicable sort criterion
@@ -27,9 +56,6 @@ Change ExprTree.insertSearchResults_atFocus
 Specific to a given VExpr, applied to its children.
 Shows every TR, and a checkbox next to the one curently ordering the list.
 The checkbox can be moved.
-**** TODO replace CommandFindSort with CommandSort
-It doesn't save any keystrokes to keep them together,
-and it's less flexible.
 **** TODO add a sort-color field to ViewExprNode
 It's black for things with no transitive relation (TR) to the others.
 Those are last.
@@ -41,7 +67,7 @@ Those are in the middle.
 At the top are things related to each other by the TR that orders the list.
 They are white if they are also related by some other TR to anything else.
 Otherwise they are blue.
-**** TODO indicate the sort applied to each group
+**** TODO indicate the sort applied to each view-fork
 *** TODO WYSIWYG sorting
 **** TODO highlight range
 **** TODO goal: two keyboard shortcuts, "sort" and "unsort"
@@ -49,41 +75,6 @@ Otherwise they are blue.
    Their order is otherwise preserved, but they move into the sorted region.
  The other removes them.
    They all fall to below the sorted region. Their order might change.
-**** TODO order Tplts themselves
-***** how
- Requires modifying the Kahn algorithm.
- Perhaps this: If it's among what's being sorted,
-   then duplicate the Tplt being sorted by,
-   delete all Rels involving the original as both a member and a Tplt,
-   delete the original and add the duplicates to the set of things being sorted,
-   sort as normal, then replace the duplicate with the original in the results.
-***** why
- This enables ordering across forks, not just within them.
- Some forks should always be top -- e.g. "pitfalls", "frequent".
- There could be more than one ordering.
-*** ? in UI, separate sort from search
-**** why
- you might want to sort without having to run the search again
-**** sort a PList to match a list
-  type Porest a = PointedList (PTree a)
-  data PTree a = PTree {
-      _pTreeLabel :: a
-    , _pTreeHasFocus :: Bool
-    , _pMTrees :: Maybe (Porest a) }
-
-  sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
-  steps
-    create a (Map b a) from the PList
-      -- PITFALL: assume each b maps to a unique a in the PList
-    create a (List a) from the (List b)
-      using the Map
-    convert the (List a) to a (PList a)
-**** apply to UI
- CommandSort BinOrientation Addr
- _exprRowPorest :: Buffer -> Maybe (Porest ExprRow)
- _viewExprNode :: ExprRow -> ViewExprNode
- data ViewExprNode = ... | VExpr ViewExpr | ...
- _viewExpr_Addr :: ViewExpr -> Addr
 *** ? needs a closure algorithm
 Suppose [a,b,c] are to be shown, and a > b, and c > d.
 None of them are isolated from the closure of (>),
@@ -136,6 +127,8 @@ matches up to 3 (4) separate `HExpr`s.
 not just its top level
 ** cannot implement the separator "#:"
 * TODO easy
+** TODO new in GHC 8.10: :instances
+Given a type, shows what classes.
 ** TODO folding indicator
 Visually indicate whether a node with descendents is folded.
 Or at least, upon inserting contents, unfold.

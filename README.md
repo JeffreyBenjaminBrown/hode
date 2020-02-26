@@ -25,16 +25,16 @@ They are -- and this is probably the order in which you should read about them:
 
 ## The Rslt
 
-The `Rslt` is the most general data structure I am aware of.
-It is a generalization of the graph.
-(It is isomorphic to what some programmers call a "hypergraph"
--- but mathematicians claimed that term first,
-and in math it means something completely different.)
+A `Rslt` is a data structure that generalizes the graph.
+It can easily represent any natural language expression.
+(The `Rslt` is isomorphic to what some programmers call a "hypergraph" --
+but mathematicians claimed that term first,
+and in math it means something much less general.)
 
-A `Rslt`is a collection of `Expr`s (expressions),
-each of which is either a phrase,
-or a relationship between phrases,
-or a "template" that describes the structure that a set of relationships have in common.
+A `Rslt`is a collection of expressions,
+each of which is either a phrase (like "cats"),
+or a relationship (like "cats have noses")
+or a template (like "_ have _") that relationships share.
 
 What distinguishes a `Rslt` from the a `graph`
 is that the relationships can involve any (positive) number of members,
