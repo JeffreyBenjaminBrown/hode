@@ -27,16 +27,15 @@ test_module_pTree_modify = TestList [
 
 test_sortPList_asList :: T.Test
 test_sortPList_asList = TestCase $ do
-  let as :: P.PointedList (String,Int) =
-        maybe (error "impossible") id $
-        P.fromList $ fmap ("meh",) [0..6]
+  let as :: P.PointedList ((),Int) =
+        maybe (error "impossible") id $ P.fromList
+        $ fmap ((),) [0..6]
       bs :: [Int] = [4,2,6,0]
   assertBool "" $
     sortPList_asList snd bs as
-    == fmap ("meh",) ( P.PointedList
-                       [6,2,4] -- pitfall: reversed
-                       0 [1,3,5] )
-
+    == fmap ((),) ( P.PointedList
+                    [6,2,4] -- pitfall: reversed
+                    0 [1,3,5] )
 
 test_insertLeft_noFocusChange :: T.Test
 test_insertLeft_noFocusChange = TestCase $ do

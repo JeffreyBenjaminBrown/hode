@@ -33,10 +33,10 @@ pCommand r s =
     "/d"         -> pCommand_delete    t
     "/load"      -> pCommand_load      t
     "/save"      -> pCommand_save      t
-    "/sortLeft"  -> pCommand_sort RightEarlier  r t
-    "/sl"        -> pCommand_sort RightEarlier  r t
-    "/sortRight" -> pCommand_sort LeftEarlier r t
-    "/sr"        -> pCommand_sort LeftEarlier r t
+    "/sortRight" -> pCommand_sort RightEarlier  r t
+    "/sr"        -> pCommand_sort RightEarlier  r t
+    "/sortLeft " -> pCommand_sort LeftEarlier r t
+    "/sl"        -> pCommand_sort LeftEarlier r t
     _            -> Left $ "Unrecognized start of command."
 
 pCommand_insert :: Rslt -> String -> Either String Command

@@ -19,27 +19,15 @@ https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
 It doesn't save any keystrokes to keep them together,
 and it's less flexible.
 ***** ? in UI, separate sort from search
-****** why
-   you might want to sort without having to run the search again
-****** sort a PList to match a list
-    type Porest a = PointedList (PTree a)
-    data PTree a = PTree {
-	_pTreeLabel :: a
-      , _pTreeHasFocus :: Bool
-      , _pMTrees :: Maybe (Porest a) }
-
-    sortPList_asList :: (a -> b) -> List b -> PList a -> PList a
-    steps
-      create a (Map b a) from the PList
-	-- PITFALL: assume each b maps to a unique a in the PList
-      create a (List a) from the (List b)
-	using the Map
-      convert the (List a) to a (PList a)
+****** DONE sort a PList to match a list
+PTree.Modify.sortPList_asList
+  :: (a -> b) -> List b -> PList a -> PList a
 ****** apply to UI
    CommandSort BinOrientation Addr
-   _exprRowPorest :: Buffer -> Maybe (Porest ExprRow)
+   _bufferExprRowTree :: Buffer -> Maybe (Porest ExprRow)
    _viewExprNode :: ExprRow -> ViewExprNode
-   data ViewExprNode = ... | VExpr ViewExpr | ...
+   data ViewExprNode = VenExpr ViewExpr
+                     | VenFork ViewFork
    _viewExpr_Addr :: ViewExpr -> Addr
 ***** TODO will that make this obsolete?
 ((out: JAceCXVRD5QJSxwu))
