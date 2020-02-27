@@ -17,8 +17,14 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
-* TODO bug: now view-forks are misaligned
-
+* TODO to hunt the bug that view-forks are misaligned
+** make this data
+st <- ui
+/a a # b
+/f a
+<expand that to show some children>
+** try running showPorest on the root Expr and its view-fork child
+porestToWidget is not testable outside of Brick, but showPorest is.
 * TODO critical
 ** TODO ordering
 *** TODO display

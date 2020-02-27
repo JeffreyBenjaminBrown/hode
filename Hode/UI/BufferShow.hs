@@ -25,7 +25,7 @@ bufferWindow :: Maybe (Porest Buffer) -> B.Widget BrickName
 bufferWindow = let
   name = BrickMainName SearchBuffer
   showColumns :: Buffer -> [ColorString] =
-    const []
+    const [] -- there are columns in a results window, not the buffer buffer
   showNode :: Buffer -> ColorString =
     (:[]) . (,TextColor) . showBrief .
     (^. bufferExprRowTree . pTreeLabel . viewExprNode)
@@ -37,9 +37,14 @@ resultWindow :: ViewOptions -> Maybe (Porest ExprRow)
              -> B.Widget BrickName
 resultWindow vo = let
   name = BrickMainName SearchBuffer
-  showColumns :: ExprRow -> [ColorString] =
-    map ((:[]) . (, TextColor) . show)
-    . M.elems . _numColumnProps
+  showColumns :: ExprRow -> [ColorString]
+  showColumns er = let
+    (inSort, selected) = _sortAndSelectColumnProps er
+    in [ ( if selected then "" else "x"
+         , if inSort then TextColor else SepColor ) ] :
+       ( map ((:[]) . (, TextColor) . show)
+           . M.elems . _numColumnProps
+           $ er )
   showNode :: ExprRow -> ColorString =
     showColor vo . _viewExprNode
   getFolded :: ExprRow -> Bool =
