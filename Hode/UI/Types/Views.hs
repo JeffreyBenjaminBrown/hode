@@ -13,7 +13,7 @@ module Hode.UI.Types.Views (
   -- * types and optics
     ViewOptions(..), viewOpt_ShowAddresses, viewOpt_ShowAsAddresses
   , viewOpt_WrapLength
-  , ColumnNumProps
+  , NumColumnProps
   , OtherProps(..), folded
   , ViewQuery(..), _QueryView, _CycleView
   , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String
@@ -22,7 +22,7 @@ module Hode.UI.Types.Views (
     , _VFRelHosts, _VFSearch
   , ViewFork(..), viewForkCenter, viewForkSortTplt, viewForkType
   , ViewExprNode(..), _VenExpr, _VenFork
-  , ExprRow(..), viewExprNode, columnProps, otherProps
+  , ExprRow(..), viewExprNode, numColumnProps, otherProps
 
   -- * misc
   , exprTree_focusAddr -- ^ PTree ExprRow -> Either String Addr
@@ -57,7 +57,7 @@ makeLenses ''ViewOptions
 -- | Each `Expr` in the graph is shown on a separate row (or rows).
 -- At their left appear a set of columns of numbers.
 -- Each column corresponds to a particular `HExpr`.
-type ColumnNumProps = Map HExpr Int
+type NumColumnProps = Map HExpr Int
 
 data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether a `ViewExprNode`'s children are hidden
@@ -172,7 +172,7 @@ makePrisms ''ViewExprNode
 -- | augments a `ViewExprNode` with information needed to draw it.
 data ExprRow = ExprRow {
     _viewExprNode :: ViewExprNode
-  , _columnProps  :: ColumnNumProps
+  , _numColumnProps  :: NumColumnProps
   , _otherProps   :: OtherProps
   } deriving (Show, Eq, Ord)
 makeLenses ''ExprRow

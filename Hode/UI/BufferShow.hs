@@ -39,7 +39,7 @@ resultWindow vo = let
   name = BrickMainName SearchBuffer
   showColumns :: ExprRow -> [ColorString] =
     map ((:[]) . (, TextColor) . show)
-    . M.elems . _columnProps
+    . M.elems . _numColumnProps
   showNode :: ExprRow -> ColorString =
     showColor vo . _viewExprNode
   getFolded :: ExprRow -> Bool =

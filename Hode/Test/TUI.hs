@@ -38,7 +38,7 @@ test_st_cycleBufferLenses = TestCase $ do
             { _viewForkCenter = Nothing
             , _viewForkSortTplt = Nothing
             , _viewForkType = VFQuery $ QueryView "something" }
-          , _columnProps = mempty
+          , _numColumnProps = mempty
           , _otherProps = OtherProps False } ]
       b = Buffer { _bufferExprRowTree = pTreeLeaf $
                    exprRow_from_viewExprNode $
