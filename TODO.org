@@ -20,20 +20,17 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 * TODO critical
 ** TODO ordering
 *** TODO display
-**** TODO factor out the common find-then-sort code
-This might be obsolete, now that CommandSort does not also Find.
-currently in RunParsed.runParsedCommand
-will be   in ExprTree.insertSearchResults_atFocus too
-**** TODO by default, sort by the first applicable sort criterion
-in each group of search results -- top-level or otherwise.
-Change ExprTree.insertSearchResults_atFocus
-  based on RunParsed.runParsedCommand
-**** TODO a keyboard command to change the sort on a group
-***** later, a "sort program" buffer
-Specific to a given VExpr, applied to its children.
-Shows every TR, and a checkbox next to the one curently ordering the list.
-The checkbox can be moved.
 **** TODO add a sort-color field to ViewExprNode
+***** TODO sub-methods
+****** TODO add a sort-info field to view-exprs
+ViewExprs need another field: the Highlight column. Value is (Color,Highlighted), where Highlighted = Bool.
+  Change the name of the first column field one to NumColumns.
+Test it by setting the color of all host-groups.
+****** change the sort-info field of a view-expr
+Part of the column info.
+Might want to make a map of the view-peers, manip that,
+then turn it back into a pointedlist.
+***** goal
 It's black for things with no transitive relation (TR) to the others.
 Those are last.
 
@@ -44,10 +41,24 @@ Those are in the middle.
 At the top are things related to each other by the TR that orders the list.
 They are white if they are also related by some other TR to anything else.
 Otherwise they are blue.
-**** TODO indicate the sort applied to each view-fork
+**** can wait
+***** by default, sort by the first applicable sort criterion
+  in each group of search results -- top-level or otherwise.
+  Change ExprTree.insertSearchResults_atFocus
+    based on RunParsed.runParsedCommand
+***** indicate the sort applied to each view-fork
+***** a keyboard command to change the sort on a group
+****** later, a "sort program" buffer
+ Specific to a given VExpr, applied to its children.
+ Shows every TR, and a checkbox next to the one curently ordering the list.
+ The checkbox can be moved.
 *** TODO WYSIWYG sorting
-**** TODO highlight range
-**** TODO goal: two keyboard shortcuts, "sort" and "unsort"
+**** TODO sorting should modify the parent group to know the sort order
+**** TODO selector column and select shortcut
+This is like highlighting a range, but more general.
+An x appears in the (new) "select|sort-order" column.
+  A unicode checkmark (✓) seems to brick my parser.
+**** TODO two keyboard shortcuts, "add to sort" and "remove from sort"
  One adds highlighted things to the sorted region.
    Their order is otherwise preserved, but they move into the sorted region.
  The other removes them.
@@ -104,6 +115,7 @@ matches up to 3 (4) separate `HExpr`s.
 not just its top level
 ** cannot implement the separator "#:"
 * TODO easy
+** TODO the color "white text on black background"
 ** TODO new in GHC 8.10: :instances
 Given a type, shows what classes.
 ** TODO folding indicator
