@@ -21,12 +21,11 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 ** TODO ordering
 *** TODO display
 **** TODO add a sort-color field to ViewExprNode
-***** TODO sub-methods
+***** steps
 ****** TODO add a sort-info field to view-exprs
 ViewExprs need another field: the Highlight column. Value is (Color,Highlighted), where Highlighted = Bool.
-  Change the name of the first column field one to NumColumns.
 Test it by setting the color of all host-groups.
-****** change the sort-info field of a view-expr
+****** function to change the sort-info field of a view-expr
 Part of the column info.
 Might want to make a map of the view-peers, manip that,
 then turn it back into a pointedlist.
