@@ -119,8 +119,9 @@ exprRow_from_viewExprNode' st n@(VenExpr (ViewExpr a _ _)) =
   let matchCounts :: Map HExpr Int =
         M.map S.size matches
   Right $ ExprRow { _viewExprNode = n
-                    , _numColumnProps = matchCounts
-                    , _otherProps = OtherProps False }
+                  , _numColumnProps = matchCounts
+                  , _sortAndSelectColumnProps = (False,False)
+                  , _otherProps = OtherProps False }
 exprRow_from_viewExprNode' _ n =
   Right $ exprRow_from_viewExprNode n
 
@@ -128,6 +129,7 @@ exprRow_from_viewExprNode :: ViewExprNode -> ExprRow
 exprRow_from_viewExprNode n = ExprRow
   { _viewExprNode = n
   , _numColumnProps = mempty
+  , _sortAndSelectColumnProps = (False,False)
   , _otherProps = OtherProps False }
 
 defaulViewOptions :: ViewOptions

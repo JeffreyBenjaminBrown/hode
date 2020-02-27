@@ -13,8 +13,11 @@ module Hode.UI.Types.Views (
   -- * types and optics
     ViewOptions(..), viewOpt_ShowAddresses, viewOpt_ShowAsAddresses
   , viewOpt_WrapLength
+
   , NumColumnProps
+  , SortAndSelectColumnProps, InSortGroup, Selected
   , OtherProps(..), folded
+
   , ViewQuery(..), _QueryView, _CycleView
   , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String
   , RelHostGroup(..), memberHostsRole, memberHostsTplt
@@ -58,6 +61,14 @@ makeLenses ''ViewOptions
 -- At their left appear a set of columns of numbers.
 -- Each column corresponds to a particular `HExpr`.
 type NumColumnProps = Map HExpr Int
+
+-- | The "sort and select column" displays an X next to each `Expr`
+-- the user has selected, and appears in a different color for `Expr`s
+-- in a view-fork that are related to each other by the template
+-- that was last used to sort them.
+type SortAndSelectColumnProps = (InSortGroup, Selected)
+type InSortGroup = Bool
+type Selected = Bool
 
 data OtherProps = OtherProps {
   _folded :: Bool -- ^ whether a `ViewExprNode`'s children are hidden
@@ -173,6 +184,7 @@ makePrisms ''ViewExprNode
 data ExprRow = ExprRow {
     _viewExprNode :: ViewExprNode
   , _numColumnProps  :: NumColumnProps
+  , _sortAndSelectColumnProps :: SortAndSelectColumnProps
   , _otherProps   :: OtherProps
   } deriving (Show, Eq, Ord)
 makeLenses ''ExprRow
@@ -181,7 +193,8 @@ instance ShowBrief ViewExprNode where
   showBrief (VenExpr x) =
     show (x ^. viewExpr_Addr) ++ ": "
     ++ unColorString (x ^. viewExpr_String)
-  showBrief (VenFork vf) = case _viewForkType vf of
+  showBrief (VenFork vf) =
+    case _viewForkType vf of
     VFQuery (QueryView s) -> show s
     VFQuery CycleView -> "Cycle detected! Please break it somewhere."
     VFMembers -> "its members"

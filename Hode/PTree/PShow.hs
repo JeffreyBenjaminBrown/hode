@@ -61,7 +61,7 @@ porestToWidget :: (Ord n, Show n)
   => n                    -- ^ Brick name for the window
   -> (a -> [ColorString]) -- ^ to show the columns next to each payload
   -> (a -> ColorString)   -- ^ to show each payload
-  -> (a -> Bool)          -- ^ is a node is hiding its children
+  -> (a -> Bool)          -- ^ whether a node is hiding its children
   -> Maybe (Porest a)
   -> B.Widget n
 porestToWidget name showColumns showNode getFolded p =

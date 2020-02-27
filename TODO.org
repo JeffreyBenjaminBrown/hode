@@ -17,6 +17,8 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
+* TODO bug: now view-forks are misaligned
+
 * TODO critical
 ** TODO ordering
 *** TODO display
@@ -40,6 +42,9 @@ Those are in the middle.
 At the top are things related to each other by the TR that orders the list.
 They are white if they are also related by some other TR to anything else.
 Otherwise they are blue.
+**** TODO make the tree easier to read with black space
+The dead space between columns and the indented text should be black.
+The tree would be easier to see that way.
 **** can wait
 ***** by default, sort by the first applicable sort criterion
   in each group of search results -- top-level or otherwise.
