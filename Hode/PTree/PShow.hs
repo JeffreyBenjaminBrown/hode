@@ -39,7 +39,6 @@ module Hode.PTree.PShow (
   -- => Porest [t b] -> [Int]
 
   , porestWith -- ^ (a -> [b]) -> Porest a -> Porest (a, [b])
-
 ) where
 
 import           Control.Arrow (second)
@@ -69,7 +68,7 @@ porestToWidget name showColumns showNode getFolded p =
   then str "There are no buffers to show. Add one with M-S-t."
   else let
   rows :: [(Bool, ColorString, ColorString)] =
-    showPorest toColorString showColumns showNode getFolded
+    showPorest colorStringLength toColorString showColumns showNode getFolded
     $ maybe err id p
     where
       err = error "impossible: null case handled earlier."
@@ -91,7 +90,8 @@ oneRowWidget (isFocused,cols,node) =
 showPorest :: forall a t d.
   (Foldable t, Monoid (t d))
   -- ^ Here `t d` is probably `String` or `ColorString`.
-  => (String -> t d) -- ^ for inserting whitespace, for indentation
+  => (t d -> Int) -- ^ how to compute the length of a `t d`
+  -> (String -> t d) -- ^ for inserting whitespace, for indentation
   -> (a -> [t d])    -- ^ Display a node's column information.
                      --   This info will be left-justified.
   -> (a -> t d)      -- ^ Display a node's payload.
@@ -102,12 +102,12 @@ showPorest :: forall a t d.
         t d ,        -- ^ the columns
         t d )]       -- ^ the payload
 
-showPorest fromString showColumns showPayload isFolded p0 =
+showPorest len fromString showColumns showPayload isFolded p0 =
   fShow plc where
 
   plc :: Porest (Level, (a, [t d])) =
     fmap writeLevels $
-    porestWithPaddedColumns fromString showColumns p0
+    porestWithPaddedColumns len fromString showColumns p0
 
   fShow :: Porest (Level, (a, [t d])) -> [(Bool,t d, t d)]
   fShow = concatMap recursive . toList
@@ -135,16 +135,17 @@ showPorest fromString showColumns showPayload isFolded p0 =
 porestWithPaddedColumns :: forall a t d.
   -- ^ Here `t d` is probably `String` or `ColorString`.
   (Foldable t, Monoid (t d))
-  => (String -> t d) -- ^ will be used to inject whitespace
+  => (t d -> Int) -- ^ how to compute the length of a `t d`
+  -> (String -> t d) -- ^ will be used to inject whitespace
   -> (a -> [t d]) -- ^ how to draw the column cells at a row
   -> Porest a
   -> Porest (a, [t d])
 
-porestWithPaddedColumns fromString makeColumns p0 = let
+porestWithPaddedColumns len fromString makeColumns p0 = let
   p1 :: Porest (a, [t d]) = porestWith makeColumns p0
-  lengths :: [Int] = maxColumnLengths $ fmap (fmap snd) p1
+  lengths :: [Int] = maxColumnLengths len $ fmap (fmap snd) p1
   leftPad :: Int -> t d -> t d
-  leftPad k s = fromString (replicate (k - length s) ' ') <> s
+  leftPad k s = fromString (replicate (k - len s) ' ') <> s
   -- `emptyColumns` is needed because non-`ViewExpr` payloads
   -- (which are used to group `ViewExpr`s) have empty column data.
   emptyColumns :: [t d] -> [t d]
@@ -161,10 +162,10 @@ porestWithPaddedColumns fromString makeColumns p0 = let
 -- with a non-`ViewExpr` payload), they are effectively ignored.
 maxColumnLengths :: forall t b. Foldable t
   -- ^ Here `t d` is probably `String` or `ColorString`.
-  => Porest [t b] -> [Int]
-maxColumnLengths p0 = let
+  => (t b -> Int) -> Porest [t b] -> [Int]
+maxColumnLengths len p0 = let
   p1 :: Porest [Int] =
-    fmap (fmap $ map length) p0
+    fmap (fmap $ map len) p0
   zeros :: [Int] =
     map (const 0)
     $ foldr1 const -- takes the first element (efficiently, I think)

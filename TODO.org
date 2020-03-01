@@ -18,6 +18,8 @@ and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
 * TODO to hunt the bug that view-forks are misaligned
+** WHY DID THIS NOT WORK ? Pass porestWithPaddedColumns a length-computing function
+Hode.Brick.colorStringLength :: ColorString -> Int
 ** FOUND IT: porestWithPaddedColumns computes length wrong
 Even ignoring ViewFork nodes.
 If an expr has 10 neighbors, its neighbors column will be 2 digits wide,
@@ -28,8 +30,14 @@ _numColumnProps finds an empty nap for ViewForks
 Rather than change that, I should find the max length of all columns,
 and pad the rest accordingly.
 Such padding *already happens*, so the question is why it misses the new column.
+** the UI call chain
+BufferShow.resultWindow calls
+PShow.porestToWidget calls
+PShow.showPorest calls
+PShow.porestWithPaddedColumns
 ** how to use the testing code written so far
 *** make this data
+**** make the St values
  st_grp <- ui --focus on the grouper
  /a a # b
  /f a
@@ -38,11 +46,19 @@ Such padding *already happens*, so the question is why it misses the new column.
 
  st_gc <- uiFromSt st_grp --focus on the smallest subtree
  go to the grandchild
-*** narrowing the problem
-er_gc = maybe (error "meh") id $ st_gc ^? stGetFocused_ViewExprNode_Tree . _Just . pTreeLabel
-er_grp = maybe (error "meh") id $ st_grp ^? stGetFocused_ViewExprNode_Tree . _Just . pTreeLabel
+**** DONE make ExprRow values
+  er_gc = maybe (error "meh") id $ st_gc ^? stGetFocused_ViewExprNode_Tree . _Just . pTreeLabel
+  er_grp = maybe (error "meh") id $ st_grp ^? stGetFocused_ViewExprNode_Tree . _Just . pTreeLabel
+**** make PTree ExprRow values
+  fmb = maybe (error "nope") id
+  pter_gc = fmb $ P.fromList [ fmb $ st_gc ^? stGetFocused_ViewExprNode_Tree . _Just ]
+  pter_grp = fmb $ P.fromList [ fmb $ st_grp ^? stGetFocused_ViewExprNode_Tree . _Just ]
+*** DONE showColumns gives unequal results, but it's supposed to
 showColumns er_gc
 showColumns er_grp
+*** porestWithPaddedColumns calls showColumns. It's buggy.
+pPrint $ padCols pter_gc
+pPrint $ padCols pter_grp
 *** stale?
 **** write focused subtrees to files
   f filename st = LT.writeFile filename $ pShowNoColor $ st ^. stGetFocused_ViewExprNode_Tree

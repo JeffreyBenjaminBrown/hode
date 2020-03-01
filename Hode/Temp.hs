@@ -29,8 +29,14 @@ showNode = showColor defaulViewOptions . _viewExprNode
 getFolded :: ExprRow -> Bool
 getFolded = _folded . _otherProps
 
+padCols :: Porest ExprRow -> Porest (ExprRow, [[(String, Color)]])
+padCols = porestWithPaddedColumns colorStringLength toColorString showColumns 
+
+
+-- * Stale? The problem happens upstream of showPorest, in porestWithPaddedColumns
+
 sp :: St -> [(Bool, ColorString, ColorString)]
 sp st = let
   Just (x :: PTree ExprRow) = st ^? stGetFocused_ViewExprNode_Tree . _Just
   Just (xt :: Porest ExprRow) = P.fromList [x]
-  in showPorest toColorString showColumns showNode getFolded xt
+  in showPorest colorStringLength toColorString showColumns showNode getFolded xt

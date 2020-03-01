@@ -24,7 +24,7 @@ test_showPorest :: T.Test
 test_showPorest = TestCase $ do
   assertBool "" $
     ( fmap
-      ( showPorest id (map show) show
+      ( showPorest length id (map show) show
         ((==0) . head ) ) -- if list starts with 0, no subtree
 
       ( P.fromList
@@ -45,7 +45,7 @@ test_porestWithPaddedColumns :: T.Test
 test_porestWithPaddedColumns = TestCase $ do
   assertBool "" $ fmap
     ( fmap (fmap snd) .
-      porestWithPaddedColumns id (map show) )
+      porestWithPaddedColumns length id (map show) )
     ( P.fromList
       [ PTree [1,1] True $
         P.fromList [ PTree [1,12]  True Nothing,
@@ -57,13 +57,14 @@ test_porestWithPaddedColumns = TestCase $ do
            P.fromList [ PTree ["  1","12"]  True Nothing,
                         PTree ["123"," 0"]  True Nothing ]
          , PTree ["  0"," 1"] True Nothing ] )
-    
+
 test_maxColumnLengths :: T.Test
 test_maxColumnLengths = TestCase $ do
-  assertBool "" $ fmap maxColumnLengths
-    ( P.fromList [ PTree ["1","1"] True $
-                   P.fromList [ PTree ["1","12"]  True Nothing,
-                                PTree ["12345",""]  True Nothing ]
-                 , PTree ["12","1"] True Nothing ]
+  assertBool "" $ fmap (maxColumnLengths length)
+    ( P.fromList [
+        PTree              ["1",    "333","1"] True $
+        P.fromList [ PTree ["1",    "",   "4444"]  True Nothing,
+                     PTree ["55555","",   ""]  True Nothing ]
+      , PTree              ["22",   "1",  "1"] True Nothing ]
       :: Maybe (Porest [String]) )
-    == Just [5, 2]
+    == Just [5, 3, 4]
