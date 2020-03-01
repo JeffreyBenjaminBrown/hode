@@ -38,6 +38,7 @@ module Hode.PTree.PShow (
   -- -- ^ Here `t d` is probably `String` or `ColorString`.
   -- => Porest [t b] -> [Int]
 
+  , transpose -- ^ [[a]] -> [[a]]
   , porestWith -- ^ (a -> [b]) -> Porest a -> Porest (a, [b])
 ) where
 
@@ -140,43 +141,47 @@ porestWithPaddedColumns :: forall a t d.
   -> (a -> [t d]) -- ^ how to draw the column cells at a row
   -> Porest a
   -> Porest (a, [t d])
-
 porestWithPaddedColumns len fromString makeColumns p0 = let
   p1 :: Porest (a, [t d]) = porestWith makeColumns p0
   lengths :: [Int] = maxColumnLengths len $ fmap (fmap snd) p1
+
+  -- `leftPad` is called on each individual column
   leftPad :: Int -> t d -> t d
   leftPad k s = fromString (replicate (k - len s) ' ') <> s
-  -- `emptyColumns` is needed because non-`ViewExpr` payloads
-  -- (which are used to group `ViewExpr`s) have empty column data.
-  emptyColumns :: [t d] -> [t d]
-  emptyColumns [] = [fromString $ replicate (sum lengths) ' ']
-  emptyColumns a = a
+  -- `rightPad` is called on the columns as a whole,
+  -- because some rows don't have the same number of columnns
+  rightPad :: [t d] -> [t d]
+  rightPad ltd = let netLength = sum $ map len ltd
+                     missing = sum lengths - netLength
+    in case missing of
+         0 -> ltd
+         _ -> ltd ++ [fromString (replicate missing ' ')]
   in fmap ( fmap $ second $
-            emptyColumns . (zipWith ($) $ map leftPad lengths)
+            rightPad .
+            (zipWith ($) $ map leftPad lengths)
           ) p1
 
--- | Computes the maximum length of each `t b`.
--- See test suite for a demo.
--- PITFALL: Assumes the lists in the input are all of equal length.
--- If some of them are instead empty (as happens with every `ExprRow`
--- with a non-`ViewExpr` payload), they are effectively ignored.
+-- | If `p` is a `Porest [t b]` in which the longest `[t b]`
+-- has length `k`, then `maxColumnLengths len p` will return a `[Int]`
+-- of length `k`. The first `Int` is the length of the longest `t b`
+-- that is first in any of the `[t b]`s; the second is the longest
+-- in the second position; etc. The test suite illustrates.
 maxColumnLengths :: forall t b. Foldable t
   -- ^ Here `t d` is probably `String` or `ColorString`.
   => (t b -> Int) -> Porest [t b] -> [Int]
 maxColumnLengths len p0 = let
   p1 :: Porest [Int] =
     fmap (fmap $ map len) p0
-  zeros :: [Int] =
-    map (const 0)
-    $ foldr1 const -- takes the first element (efficiently, I think)
-    $ ( p0 ^. P.focus :: PTree [t b] )
-  update :: [Int] -> [Int] -> [Int]
-  update acc [] = acc
-  update [] _ = [] -- this case is redundant, but GHC doesn't know that
-  update (a:acc) (b:new) = max a b : update acc new
-  maxima :: Foldable f => f [Int] -> [Int]
-  maxima = foldr update zeros
-  in maxima $ fmap maxima p1
+  ls :: [[Int]] =
+    concat $ toList $ ( fmap (foldr (:) []) p1
+                        :: P.PointedList [[Int]] )
+  in map maximum $ transpose ls
+
+transpose :: forall a. [[a]] -> [[a]]
+transpose [] = []
+transpose ass = let
+  in map head ass :
+     transpose (filter (not . null) $ map tail ass)
 
 porestWith :: (a -> [b]) -> Porest a -> Porest (a, [b])
 porestWith makeColumns =

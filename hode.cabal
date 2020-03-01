@@ -27,7 +27,7 @@ library
                 , Hode.Brick.Wrap
                 , Hode.Data.Graph
                 , Hode.Data.Map
-                , Hode.Data.Relation
+--                , Hode.Data.Relation
 
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
