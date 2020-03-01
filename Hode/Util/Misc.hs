@@ -109,9 +109,11 @@ eitherIntoLens l f st = do b' <- f $ st ^. l
 
 transpose :: forall a. [[a]] -> [[a]]
 transpose [] = []
-transpose ass = let
-  in map head ass :
-     transpose (filter (not . null) $ map tail ass)
+transpose lla0 = let
+  lla1 = filter (not . null) lla0
+  in if null lla1 then []
+     else map head lla1 :
+          transpose (map tail lla1)
 
 -- | PITFALL: In math, the intersection of the empty set is the entire
 -- universe, just like `and [] == True`. But that's impractical.

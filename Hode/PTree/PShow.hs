@@ -1,4 +1,5 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables
+, LambdaCase #-}
 
 module Hode.PTree.PShow (
 
@@ -176,7 +177,7 @@ maxColumnLengths len p0 = let
   ls :: [[Int]] =
     concat $ toList $ ( fmap (foldr (:) []) p1
                         :: P.PointedList [[Int]] )
-  in map maximum $ transpose ls
+  in map (\case [] -> 0; x -> maximum x) $ transpose ls
 
 porestWith :: (a -> [b]) -> Porest a -> Porest (a, [b])
 porestWith makeColumns =

@@ -19,6 +19,7 @@ test_module_util = TestList [
 test_transpose :: Test
 test_transpose = TestCase $ do
   assertBool "null" $ transpose [] == ([] :: [[Int]])
+  assertBool "[[]]" $ transpose [[]] == ([] :: [[Int]])
   assertBool "trivial" $ transpose [[1]] == [[1]]
   assertBool "three cells" $ transpose [[1,2], [1]]
     == [[1,1], [2]]
