@@ -17,97 +17,17 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
-* TODO to hunt the bug that view-forks are misaligned
-** NEW HUNCH: a short [ColorString] confuses maxColumnLengths
-If I call it from a PTree (specifically pter_grp) 
-the top element of which has only one column,
-even though the elements lower down have multiple columns,
-then (lengths :: [Int]) computed by porestWithPaddedColumns has length 1,
-whereas it should be longer.
-** how to use the testing code written so far
-*** make this data
-**** make the St values
- st_grp <- ui --focus on the grouper
- /a a # b
-   /f a
-   expand that to show some children
-   go to the grouper node
-
- st_gc <- uiFromSt st_grp --focus on the smallest subtree
-   go to the grandchild
-**** make PTree ExprRow values
-  fmb = maybe (error "nope") id
-  pter_gc = fmb $ P.fromList [ fmb $ st_gc ^? stGetFocused_ViewExprNode_Tree . _Just ]
-  pter_grp = fmb $ P.fromList [ fmb $ st_grp ^? stGetFocused_ViewExprNode_Tree . _Just ]
-*** porestWithPaddedColumns calls showColumns. It's buggy.
-pPrint $ padCols pter_gc
-pPrint $ padCols pter_grp
-
-len = colorStringLength
-fromString = toColorString
-p0 = pter_grp
-p1 = porestWith showColumns p0
-lengths = maxColumnLengths len $ fmap (fmap snd) p1
-leftPad k s =  fromString (replicate (k - colorStringLength s) ' ') <> s
-emptyColumns [] = [fromString $ replicate (sum lengths) ' ']
-
-*** stale?
-**** write focused subtrees to files
-  f filename st = LT.writeFile filename $ pShowNoColor $ st ^. stGetFocused_ViewExprNode_Tree
-  f "group" st_grp
-  f "gc" st_gc
-
-  g filename st = LT.writeFile filename $ pShowNoColor $ map (^. _2) $ sp st
-    -- using Hode.Temp.sp
-  g "group_colorString" st_grp
-  g "gc_colorString" st_gc
-**** make ExprRow values
-  er_gc = maybe (error "meh") id $ st_gc ^? stGetFocused_ViewExprNode_Tree . _Just . pTreeLabel
-  er_grp = maybe (error "meh") id $ st_grp ^? stGetFocused_ViewExprNode_Tree . _Just . pTreeLabel
-**** showColumns gives unequal results, but it's supposed to
- showColumns er_gc
- showColumns er_grp
-** internalized or stale
-*** the UI call chain
- BufferShow.resultWindow calls
- PShow.porestToWidget calls
- PShow.showPorest calls
- PShow.porestWithPaddedColumns
-*** WHY DID THIS NOT WORK ? Pass porestWithPaddedColumns a length-computing function
- Hode.Brick.colorStringLength :: ColorString -> Int
-*** narrowing it down: porestWithPaddedColumns computes length wrong
- Even ignoring ViewFork nodes.
- If an expr has 10 neighbors, its neighbors column will be 2 digits wide,
- and won't line up with the others.
-*** use data/bug
-*** discoveries
- _numColumnProps finds an empty nap for ViewForks
- Rather than change that, I should find the max length of all columns,
- and pad the rest accordingly.
- Such padding *already happens*, so the question is why it misses the new column.
 * TODO critical
 ** TODO ordering
 *** TODO display
-**** TODO add a sort-color field to ViewExprNode
-***** steps
-****** TODO add a sort-info field to view-exprs
-ViewExprs need another field: the Highlight column. Value is (Color,Highlighted), where Highlighted = Bool.
-Test it by setting the color of all host-groups.
-****** function to change the sort-info field of a view-expr
-Part of the column info.
-Might want to make a map of the view-peers, manip that,
-then turn it back into a pointedlist.
-***** goal
-It's black for things with no transitive relation (TR) to the others.
-Those are last.
-
-It's blue for things with some TR to the others,
-but not related to any of the others by the TR that currently orders the list.
-Those are in the middle.
-
-At the top are things related to each other by the TR that orders the list.
-They are white if they are also related by some other TR to anything else.
-Otherwise they are blue.
+**** later: more expressive sort-colors
+There are four categories.
+***** with no transitive relation (TR) to the others
+black, last
+***** with some TR to the others, but not *this* TR
+that is, not related to anything else in the list by the TR that currently orders the list
+***** related to others in the list by the TR ordering the list
+***** related to others *not* in the list by the TR ordering the list
 **** TODO make the tree easier to read with black space
 The dead space between columns and the indented text should be black.
 The tree would be easier to see that way.

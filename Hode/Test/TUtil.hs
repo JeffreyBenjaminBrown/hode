@@ -1,17 +1,34 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hode.Test.TUtil where
 
 import Test.HUnit
 
+import Hode.Util.Misc
 import Hode.Rslt.RTypes
 import Hode.Util.Alternation
 
 
 test_module_util :: Test
 test_module_util = TestList [
-  TestLabel "test_tpltFromEithers" test_tpltFromEithers
+    TestLabel "test_tpltFromEithers" test_tpltFromEithers
+  , TestLabel "test_transpose" test_transpose
   ]
+
+test_transpose :: Test
+test_transpose = TestCase $ do
+  assertBool "null" $ transpose [] == ([] :: [[Int]])
+  assertBool "trivial" $ transpose [[1]] == [[1]]
+  assertBool "three cells" $ transpose [[1,2], [1]]
+    == [[1,1], [2]]
+  assertBool "big" $
+    transpose [ [1,2,3]
+              , [1    ]
+              , [1,2  ] ]
+    ==        [ [1,1,1]
+              , [2,2]
+              , [3] ]
 
 test_tpltFromEithers :: Test
 test_tpltFromEithers = TestCase $ do

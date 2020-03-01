@@ -55,6 +55,7 @@ import Hode.Brick.Wrap
 import Hode.Hash.HTypes (Level)
 import Hode.PTree.Initial
 import Hode.PTree.Modify
+import Hode.Util.Misc
 
 
 porestToWidget :: (Ord n, Show n)
@@ -176,12 +177,6 @@ maxColumnLengths len p0 = let
     concat $ toList $ ( fmap (foldr (:) []) p1
                         :: P.PointedList [[Int]] )
   in map maximum $ transpose ls
-
-transpose :: forall a. [[a]] -> [[a]]
-transpose [] = []
-transpose ass = let
-  in map head ass :
-     transpose (filter (not . null) $ map tail ass)
 
 porestWith :: (a -> [b]) -> Porest a -> Porest (a, [b])
 porestWith makeColumns =

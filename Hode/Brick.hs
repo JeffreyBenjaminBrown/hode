@@ -35,17 +35,19 @@ import qualified Brick.AttrMap as B
 type ColorString = [(String, Color)]
 
 toColorString :: String -> ColorString
-toColorString s = [(s, TextColor)]
+toColorString s = [(s, NoColor)]
 
 colorToAttrName :: Bool -> Color -> B.AttrName
 colorToAttrName False TextColor = B.attrName "white on green"
 colorToAttrName False SepColor  = B.attrName "white on red"
 colorToAttrName False AddrColor = B.attrName "white on blue"
+colorToAttrName False NoColor   = B.attrName "white on black"
 colorToAttrName True  TextColor = B.attrName "white on blue"
 colorToAttrName True  SepColor  = B.attrName "white on green"
 colorToAttrName True  AddrColor = B.attrName "white on red"
+colorToAttrName True  NoColor   = B.attrName "black on white"
 
-data Color = TextColor | SepColor | AddrColor
+data Color = TextColor | SepColor | AddrColor | NoColor
   deriving (Show,Eq,Ord,Enum)
 
 class ShowColor options a where

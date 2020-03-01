@@ -25,7 +25,7 @@ module Hode.UI.Types.Views (
     , _VFRelHosts, _VFSearch
   , ViewFork(..), viewForkCenter, viewForkSortTplt, viewForkType
   , ViewExprNode(..), _VenExpr, _VenFork
-  , ExprRow(..), viewExprNode, numColumnProps, otherProps
+  , ExprRow(..), viewExprNode, numColumnProps, otherProps, sortAndSelectColumnProps
 
   -- * misc
   , exprTree_focusAddr -- ^ PTree ExprRow -> Either String Addr

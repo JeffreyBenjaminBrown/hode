@@ -30,6 +30,7 @@ module Hode.Util.Misc (
   , inBounds'          -- ^ Vector a -> Int -> Bool
   , modifyAt           -- ^ Int -> (a -> a) -> Vector a
                        --   -> Maybe (Vector a)
+  , transpose          -- ^ [[a]] -> [[a]]
 
   -- | = errors
   , keyErr          -- ^ String -> k -> Map k a -> String
@@ -105,6 +106,12 @@ eitherIntoLens l f st = do b' <- f $ st ^. l
 
 
 -- | = Collections
+
+transpose :: forall a. [[a]] -> [[a]]
+transpose [] = []
+transpose ass = let
+  in map head ass :
+     transpose (filter (not . null) $ map tail ass)
 
 -- | PITFALL: In math, the intersection of the empty set is the entire
 -- universe, just like `and [] == True`. But that's impractical.

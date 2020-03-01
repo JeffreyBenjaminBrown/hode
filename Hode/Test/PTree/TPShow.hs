@@ -18,22 +18,7 @@ test_module_pTree_show = TestList [
     TestLabel "test_maxColumnLengths" test_maxColumnLengths
   , TestLabel "test_porestWithPaddedColumns" test_porestWithPaddedColumns
   , TestLabel "test_showPorest" test_showPorest
-  , TestLabel "test_transpose" test_transpose
   ]
-
-test_transpose :: T.Test
-test_transpose = TestCase $ do
-  assertBool "null" $ transpose [] == ([] :: [[Int]])
-  assertBool "trivial" $ transpose [[1]] == [[1]]
-  assertBool "three cells" $ transpose [[1,2], [1]]
-    == [[1,1], [2]]
-  assertBool "big" $
-    transpose [ [1,2,3]
-              , [1    ]
-              , [1,2  ] ]
-    ==        [ [1,1,1]
-              , [2,2]
-              , [3] ]
 
 test_showPorest :: T.Test
 test_showPorest = TestCase $ do
@@ -56,7 +41,9 @@ test_showPorest = TestCase $ do
             , (False, "123 0", "  [123,0]" )
             , (False, "  0 1", "[0,1]"     ) ]
 
-x = fmap
+test_porestWithPaddedColumns :: T.Test
+test_porestWithPaddedColumns = TestCase $ do
+  assertBool "" $ fmap
     ( fmap (fmap snd) .
       porestWithPaddedColumns length id (map show) )
     ( P.fromList
@@ -65,10 +52,6 @@ x = fmap
                      PTree [123,0]  True Nothing ]
       , PTree [0,1] True Nothing ]
       :: Maybe (Porest [Int]) )
-
-test_porestWithPaddedColumns :: T.Test
-test_porestWithPaddedColumns = TestCase $ do
-  assertBool "" $ x
     == ( P.fromList
          [ PTree ["  1"," 1"] True $
            P.fromList [ PTree ["  1","12"]  True Nothing,
