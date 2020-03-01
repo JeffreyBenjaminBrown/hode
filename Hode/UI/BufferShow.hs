@@ -42,9 +42,9 @@ resultWindow vo = let
     (inSort, selected) = _sortAndSelectColumnProps er
     in [ ( if selected then "" else "x"
          , if inSort then TextColor else SepColor ) ] :
-       ( map ((:[]) . (, TextColor) . show)
-           . M.elems . _numColumnProps
-           $ er )
+       ( map ((:[]) . (, TextColor)  . show)
+         . M.elems . _numColumnProps
+         $ er )
   showNode :: ExprRow -> ColorString =
     showColor vo . _viewExprNode
   getFolded :: ExprRow -> Bool =

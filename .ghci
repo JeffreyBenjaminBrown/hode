@@ -14,7 +14,9 @@ import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
 import qualified Data.List.PointedList as P
+import           Data.Text (pack, unpack)
+import qualified Data.Text.Lazy.IO as LT -- writeFile
 
-import Text.Pretty.Simple (pPrint)
+import Text.Pretty.Simple
 
 import qualified Hode.Test.Rslt.RData as D
