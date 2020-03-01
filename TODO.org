@@ -19,8 +19,20 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
 * TODO critical
 ** TODO ordering
-*** TODO display
-**** later: more expressive sort-colors
+*** TODO WYSIWYG sorting
+**** TODO sorting should modify the parent group to know the sort order
+**** TODO selector column and select shortcut
+This is like highlighting a range, but more general.
+An x appears in the (new) "select|sort-order" column.
+  A unicode checkmark (✓) seems to brick my parser.
+**** TODO "add to sort" and "remove from sort"
+ One adds highlighted things to the sorted region.
+   Their order is otherwise preserved, but they move into the sorted region.
+ The other removes them.
+   They all fall to below the sorted region. Their order might change.
+**** TODO bump in sort
+*** later: display
+**** more expressive sort-colors
 There are four categories.
 ***** with no transitive relation (TR) to the others
 black, last
@@ -28,31 +40,16 @@ black, last
 that is, not related to anything else in the list by the TR that currently orders the list
 ***** related to others in the list by the TR ordering the list
 ***** related to others *not* in the list by the TR ordering the list
-**** TODO make the tree easier to read with black space
-The dead space between columns and the indented text should be black.
-The tree would be easier to see that way.
-**** can wait
-***** by default, sort by the first applicable sort criterion
-  in each group of search results -- top-level or otherwise.
-  Change ExprTree.insertSearchResults_atFocus
-    based on RunParsed.runParsedCommand
-***** indicate the sort applied to each view-fork
-***** a keyboard command to change the sort on a group
-****** later, a "sort program" buffer
- Specific to a given VExpr, applied to its children.
- Shows every TR, and a checkbox next to the one curently ordering the list.
- The checkbox can be moved.
-*** TODO WYSIWYG sorting
-**** TODO sorting should modify the parent group to know the sort order
-**** TODO selector column and select shortcut
-This is like highlighting a range, but more general.
-An x appears in the (new) "select|sort-order" column.
-  A unicode checkmark (✓) seems to brick my parser.
-**** TODO two keyboard shortcuts, "add to sort" and "remove from sort"
- One adds highlighted things to the sorted region.
-   Their order is otherwise preserved, but they move into the sorted region.
- The other removes them.
-   They all fall to below the sorted region. Their order might change.
+**** by default, sort by the first applicable sort criterion
+ in each group of search results -- top-level or otherwise.
+ Change ExprTree.insertSearchResults_atFocus
+   based on RunParsed.runParsedCommand
+**** indicate the sort applied to each view-fork
+**** a keyboard command to change the sort on a group
+***** later, a "sort program" buffer
+Specific to a given VExpr, applied to its children.
+Shows every TR, and a checkbox next to the one curently ordering the list.
+The checkbox can be moved.
 *** ? needs a closure algorithm
 Suppose [a,b,c] are to be shown, and a > b, and c > d.
 None of them are isolated from the closure of (>),
