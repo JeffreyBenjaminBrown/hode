@@ -40,7 +40,7 @@ resultWindow vo = let
   showColumns :: ExprRow -> [ColorString]
   showColumns er = let
     (inSort, selected) = _sortAndSelectColumnProps er
-    in [ ( if selected then "x" else ""
+    in [ ( if selected then "x" else " "
          , if inSort then TextColor else SepColor ) ] :
        ( map ((:[]) . (, TextColor)  . show)
          . M.elems . _numColumnProps

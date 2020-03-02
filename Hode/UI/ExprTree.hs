@@ -55,11 +55,12 @@ sortFocusAndPeers (bo, t) st =
       mPeers :: Maybe (Porest ExprRow) = -- focused Expr is among these
         st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
                 . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
+
   peers :: Porest ExprRow <-
     case mPeers of
       Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
       Just x -> Right x
-  let pTreeExprRow_toAddr =
+  let pTreeExprRow_toAddr :: PTree ExprRow -> Maybe Addr =
         (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
       mas :: [Maybe Addr] = map pTreeExprRow_toAddr $ toList peers
   as :: [Addr] <-
@@ -67,14 +68,26 @@ sortFocusAndPeers (bo, t) st =
         f Nothing = Left $ "Sort failed. Probably because the focused node is a view-gropuiing node, as opposed to an expression in the graph. Try moving the cursor and re-executing that command."
         f (Just a) = Right a
     in mapM f mas
-  (sorted, isol) <- kahnSort r (bo,t) as
-  let order :: [Addr] = sorted ++ isol
-      peers' :: Porest ExprRow = sortPList_asList
+
+  (sorted :: [Addr], isol :: [Addr]) <-
+    kahnSort r (bo,t) as
+  let sortedSet :: Set Addr = S.fromList sorted
+      order :: [Addr]       = sorted ++ isol
+      peers1 :: Porest ExprRow = -- sort
+        sortPList_asList
         (maybe (error "impossible") id . pTreeExprRow_toAddr)
         order peers
+  peers2 :: Porest ExprRow <- let -- modify _sortAndSelectColumnProps
+    f :: PTree ExprRow -> Either String (PTree ExprRow)
+    f er = do
+      a :: Addr <- maybe (Left "peers2: something has no Addr.") Right
+        $ er ^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr
+      Right $ er & ( pTreeLabel . sortAndSelectColumnProps . _1
+                     .~ elem a sortedSet )
+    in mapM f peers1
   Right $ st & ( stSet_focusedBuffer . bufferExprRowTree
                  . setParentOfFocusedSubtree . pMTrees . _Just
-                 .~ peers' )
+                 .~ peers2 )
 
 
 -- | * inserting layers of nodes

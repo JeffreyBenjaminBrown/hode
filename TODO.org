@@ -33,13 +33,16 @@ An x appears in the (new) "select|sort-order" column.
 **** TODO bump in sort
 *** later: display
 **** more expressive sort-colors
-There are four categories.
-***** with no transitive relation (TR) to the others
-black, last
-***** with some TR to the others, but not *this* TR
-that is, not related to anything else in the list by the TR that currently orders the list
-***** related to others in the list by the TR ordering the list
-***** related to others *not* in the list by the TR ordering the list
+***** there are currently these two categories
+Involved in the relationship -- even if its partner is not in this list.
+Not involved in the relationship.
+***** There should be these four categories.
+****** with no transitive relation (TR) to the others
+ black, last
+****** with some TR to the others, but not *this* TR
+ that is, not related to anything else in the list by the TR that currently orders the list
+****** related to others in the list by the TR ordering the list
+****** related to others *not* in the list by the TR ordering the list
 **** by default, sort by the first applicable sort criterion
  in each group of search results -- top-level or otherwise.
  Change ExprTree.insertSearchResults_atFocus
