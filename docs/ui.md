@@ -279,29 +279,7 @@ Here's an incomplete refresher:
 
 ## Sort the peers of the currently focused node
 
-You can sort by any transitive relationship.
-Therefore, in a graph with the following data:
-```
-frogs #eat bugs
-bugs #outrun frogs
-(/t /_ eat /_) #is transitive
-```
-we can sort by the "eat" relationship.
-
-Let's get frogs and bugs on the screen by running `/f frogs | bugs`.
-If we now move the cursor over one of them
-(see "move focus" under "keyboard commands" for how to do that),
-we can now run `/sortLeft (/t /_ eat /_)` to sort by the "eat" relationship,
-with things on the left side of the relationship shown earlier in the results.
-Since `frogs #eat bugs`, frogs are left of bugs in the eat relationship,
-so frogs will precede bugs in the list.
-
-If trees was also in our list of results,
-and trees was not in an eat relationship with either frogs or bugs,
-trees would come last in the sort.
-
-`sl` is a synonym for `sortLeft`,
-and `sr` is a synonym for `sortRight`.
+See the [documentation on transitivity](ui/transitivity.md).
 
 # Keyboard commands
 

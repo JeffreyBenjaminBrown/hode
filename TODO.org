@@ -32,6 +32,7 @@ An x appears in the (new) "select|sort-order" column.
    They all fall to below the sorted region. Their order might change.
 **** TODO bump in sort
 *** later: display
+**** the highlight should not affect the columns, only the payload
 **** more expressive sort-colors
 ***** there are currently these two categories
 Involved in the relationship -- even if its partner is not in this list.
