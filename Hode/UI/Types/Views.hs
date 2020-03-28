@@ -15,7 +15,7 @@ module Hode.UI.Types.Views (
   , viewOpt_WrapLength
 
   , NumColumnProps
-  , SortAndSelectColumnProps, InSortGroup, Selected
+  , SortAndSelectColumnProps(..), inSortGroup, selected
   , OtherProps(..), folded, childSort
 
   , ViewQuery(..), _QueryView, _CycleView
@@ -67,9 +67,11 @@ type NumColumnProps = Map HExpr Int
 -- the user has selected, and appears in a different color for `Expr`s
 -- in a view-fork that are related to each other by the template
 -- that was last used to sort them.
-type SortAndSelectColumnProps = (InSortGroup, Selected)
-type InSortGroup = Bool
-type Selected = Bool
+data SortAndSelectColumnProps = SortAndSelectColumnProps
+  { _inSortGroup :: Bool
+  , _selected :: Bool }
+  deriving (Show, Eq, Ord)
+makeLenses ''SortAndSelectColumnProps
 
 data OtherProps = OtherProps {
     _folded :: Bool -- ^ whether a `ViewExprNode`'s children are hidden

@@ -84,7 +84,7 @@ sortFocusAndPeers (bo, t) st =
     f er = do
       a :: Addr <- maybe (Left "peers2: something has no Addr.") Right
         $ er ^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr
-      Right $ er & ( pTreeLabel . sortAndSelectColumnProps . _1
+      Right $ er & ( pTreeLabel . sortAndSelectColumnProps . inSortGroup
                      .~ elem a sortedSet )
     in mapM f peers1
 
@@ -136,7 +136,9 @@ insertMembers_atFocus st =
                       , _viewForkSortTplt = Nothing
                       , _viewForkType = VFMembers }
                     , _numColumnProps = mempty
-                    , _sortAndSelectColumnProps = (False,False)
+                    , _sortAndSelectColumnProps = SortAndSelectColumnProps
+                      { _inSortGroup = False
+                      , _selected = False }
                     , _otherProps = OtherProps { _folded = False
                                                , _childSort = Nothing } } )
         & pMTrees .~ Just leaves

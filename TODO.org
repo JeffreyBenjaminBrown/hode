@@ -23,7 +23,7 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
-**** TODO sorting should modify the parent group to know the sort order
+**** DONE sorting should modify the parent group to know the sort order
 including the BinOrientation
 **** TODO selector column and select shortcut
 This is like highlighting a range, but more general.

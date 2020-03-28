@@ -39,9 +39,9 @@ resultWindow vo = let
   name = BrickMainName SearchBuffer
   showColumns :: ExprRow -> [ColorString]
   showColumns er = let
-    (inSort, selected) = _sortAndSelectColumnProps er
-    in [ ( if selected then "x" else " "
-         , if inSort then TextColor else SepColor ) ] :
+    bps = _sortAndSelectColumnProps er
+    in [ ( if _selected    bps then "x" else " "
+         , if _inSortGroup bps then TextColor else SepColor ) ] :
        ( map ((:[]) . (, TextColor)  . show)
          . M.elems . _numColumnProps
          $ er )

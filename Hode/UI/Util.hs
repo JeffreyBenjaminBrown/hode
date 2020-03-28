@@ -120,7 +120,9 @@ exprRow_from_viewExprNode' st n@(VenExpr (ViewExpr a _ _)) =
         M.map S.size matches
   Right $ ExprRow { _viewExprNode = n
                   , _numColumnProps = matchCounts
-                  , _sortAndSelectColumnProps = (False,False)
+                  , _sortAndSelectColumnProps = SortAndSelectColumnProps
+                    { _inSortGroup = False
+                    , _selected = False }
                   , _otherProps = OtherProps { _folded = False
                                              , _childSort = Nothing } }
 exprRow_from_viewExprNode' _ n =
@@ -130,7 +132,9 @@ exprRow_from_viewExprNode :: ViewExprNode -> ExprRow
 exprRow_from_viewExprNode n = ExprRow
   { _viewExprNode = n
   , _numColumnProps = mempty
-  , _sortAndSelectColumnProps = (False,False)
+  , _sortAndSelectColumnProps = SortAndSelectColumnProps
+      { _inSortGroup = False
+      , _selected = False }
   , _otherProps = OtherProps { _folded = False
                              , _childSort = Nothing } }
 
