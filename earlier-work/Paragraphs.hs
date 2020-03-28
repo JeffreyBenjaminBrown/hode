@@ -1,4 +1,4 @@
--- | Rslt.RTypes
+-- | Rslt.Types
 
 data Par a = Par [(String, a)] String
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
@@ -19,7 +19,7 @@ data RefExpr =
 data ExprCtr = PhraseCtr | RelCtr | TpltCtr | ParCtr
 
 
--- | Hash.HTypes
+-- | Hash.Types
 data PExpr = -- ^ intermediate type, on the way to parsing a `Rel`
     PExpr Expr
   | PMap PMap
@@ -35,7 +35,7 @@ data PExpr = -- ^ intermediate type, on the way to parsing a `Rel`
    deriving (Eq, Show)
 
 
--- | Rslt.RUtil
+-- | Rslt.Util
 ifLefts_par :: String -> Par (Either String a) -> Either String (Par a)
 ifLefts_par errMsg (Par pairs s) = let
   lefts = filter isLeft $ map snd pairs
@@ -45,7 +45,7 @@ ifLefts_par errMsg (Par pairs s) = let
        False -> Left $ errMsg ++ ": "
                 ++ concat (map (fromLeft impossible) lefts)
 
--- | Rslt.RLookup.RConvert
+-- | Rslt.Lookup.Convert
 
 refExprToExpr r (Par' (Par sas s)) = do
   let ((ss, as) :: ([String],[Addr])) = unzip sas

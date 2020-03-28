@@ -48,8 +48,8 @@ import qualified Data.Set as S
 import Hode.NoUI.Internal
 import Hode.Rslt.Binary
 import Hode.Rslt.Edit
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
 import Hode.Rslt.Show
 import Hode.Rslt.Sort
 import Hode.Util.Misc

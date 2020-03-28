@@ -26,11 +26,11 @@ import qualified Brick.Focus           as B
 import qualified Brick.Widgets.Edit    as B
 
 import Hode.Brick
-import Hode.Hash.HLookup
-import Hode.Hash.HTypes
+import Hode.Hash.Lookup
+import Hode.Hash.Types
 import Hode.PTree.Initial
 import Hode.Qseq.QTypes (Var(..))
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

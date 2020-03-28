@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.RUtil (
+module Hode.Rslt.Util (
   -- | = Rel
     LeftStrings(..)
   , replaceInTplt   -- ^ a -> RoleInTplt -> Tplt a -> Either String (Tplt a)
@@ -28,7 +28,7 @@ import           Data.Maybe
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Util.Misc
 
 

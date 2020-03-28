@@ -24,9 +24,9 @@ import           Data.Set (Set)
 import qualified Data.Set as S
 import qualified Data.Text as T
 
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
+import Hode.Rslt.Util
 import Hode.Rslt.Show.Util
 import Hode.Util.Alternation
 import Hode.Util.Misc

@@ -17,11 +17,11 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Hode.Hash.HLookup
-import Hode.Hash.HTypes
+import Hode.Hash.Lookup
+import Hode.Hash.Types
 import Hode.Rslt.Binary
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
 import Hode.Rslt.Sort
 import Hode.Util.Misc
 

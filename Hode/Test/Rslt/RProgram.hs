@@ -7,11 +7,11 @@ import qualified Data.Set       as S
 import qualified Test.HUnit as T
 import           Test.HUnit hiding (Test, test)
 
-import           Hode.Hash.HLookup
-import           Hode.Hash.HTypes
-import qualified Hode.Rslt.RLookup  as R
-import           Hode.Rslt.RLookup hiding (exprToAddr)
-import           Hode.Rslt.RTypes
+import           Hode.Hash.Lookup
+import           Hode.Hash.Types
+import qualified Hode.Rslt.Lookup  as R
+import           Hode.Rslt.Lookup hiding (exprToAddr)
+import           Hode.Rslt.Types
 import           Hode.Qseq.QTypes
 import           Hode.Qseq.Query
 import           Hode.Qseq.MkLeaf

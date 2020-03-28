@@ -12,7 +12,7 @@ import           Lens.Micro
 import qualified Brick.Focus           as B
 import qualified Brick.Widgets.Edit    as B
 
-import Rslt.RTypes
+import Rslt.Types
 import UI.ITypes
 import UI.Window
 import Util.PTree

@@ -11,7 +11,7 @@ module Hode.Rslt.Show.JustInCase (
 
 import Data.Functor.Foldable
 
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 
 
 -- | This isn't used, but it might be helpful

@@ -6,7 +6,7 @@ module Hode.Test.TUtil where
 import Test.HUnit
 
 import Hode.Util.Misc
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Util.Alternation
 
 

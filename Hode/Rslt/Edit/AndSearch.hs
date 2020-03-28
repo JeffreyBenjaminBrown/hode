@@ -16,12 +16,12 @@ module Hode.Rslt.Edit.AndSearch (
 
 import qualified Data.List      as L
 
-import Hode.Hash.HLookup
+import Hode.Hash.Lookup
 import Hode.Rslt.Binary
 import Hode.Rslt.Edit.Initial
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
+import Hode.Rslt.Util
 import Hode.Util.Misc
 
 

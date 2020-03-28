@@ -16,12 +16,12 @@ import qualified Data.Set as S
 import           Text.Megaparsec
 
 import Hode.Hash.Convert
-import Hode.Hash.HLookup
-import Hode.Hash.HParse
-import Hode.Hash.HTypes
+import Hode.Hash.Lookup
+import Hode.Hash.Parse
+import Hode.Hash.Types
 import Hode.Qseq.QTypes
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
 import Hode.Rslt.Index
 import Hode.Util.Misc
 

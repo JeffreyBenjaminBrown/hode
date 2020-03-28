@@ -2,7 +2,7 @@ module Test.Rslt.RData where
 
 import qualified Data.Map as M
 
-import Space.Rslt.RTypes
+import Space.Rslt.Types
 import Space.Rslt.Index
 
 

@@ -18,15 +18,15 @@ import qualified Brick.Main            as B
 import qualified Brick.Types           as B
 import qualified Brick.Widgets.Edit    as B
 
-import Hode.Hash.HLookup
+import Hode.Hash.Lookup
 import Hode.PTree.Initial
 import Hode.Rslt.Edit
 import Hode.Rslt.Files
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.UI.ExprTree
 import Hode.UI.CycleBuffer
 import Hode.UI.IUtil
-import Hode.UI.Input.IParse
+import Hode.UI.Input.Parse
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

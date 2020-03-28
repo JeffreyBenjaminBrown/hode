@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.RLookup (
+module Hode.Rslt.Lookup (
   -- | = primary lookup functions
     variety -- ^ Rslt -> Addr -> Either String (ExprCtr, Arity)
   , arityIn   -- ^ Rslt -> Expr -> Either String Arity
@@ -12,7 +12,7 @@ module Hode.Rslt.RLookup (
   -- | = convert bewteen `Addr`, `Expr`, `RefExpr`
   --
   -- These make up the entirety of the module
-  -- Hode.Rslt.RLookup.RConvert
+  -- Hode.Rslt.Lookup.Convert
   , C.refExprToExpr -- ^ Rslt -> RefExpr -> Either String Expr
   , C.exprToAddr    -- ^ Rslt -> Expr    -> Either String Addr
   , C.addrToRefExpr -- ^ Rslt -> Addr    -> Either String RefExpr
@@ -39,10 +39,10 @@ import qualified Data.Set       as S
 
 import Hode.Qseq.MkLeaf
 import Hode.Qseq.QTypes
-import Hode.Rslt.RLookup.RConvert
-import qualified Hode.Rslt.RLookup.RConvert as C
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
+import Hode.Rslt.Lookup.Convert
+import qualified Hode.Rslt.Lookup.Convert as C
+import Hode.Rslt.Types
+import Hode.Rslt.Util
 import Hode.Util.Misc
 
 

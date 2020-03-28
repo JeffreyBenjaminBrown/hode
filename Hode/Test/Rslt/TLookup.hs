@@ -7,11 +7,11 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import           Hode.Rslt.RLookup hiding (exprToAddr)
+import           Hode.Rslt.Lookup hiding (exprToAddr)
 import qualified Hode.Rslt.Edit.Initial as R
 import           Hode.Rslt.Index (mkRslt)
-import qualified Hode.Rslt.RLookup      as R
-import           Hode.Rslt.RTypes
+import qualified Hode.Rslt.Lookup      as R
+import           Hode.Rslt.Types
 import qualified Hode.Test.Rslt.RData   as D
 
 

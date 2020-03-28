@@ -1,8 +1,8 @@
--- Currently, this is entirely exported from Hode.Rslt.RLookup.
+-- Currently, this is entirely exported from Hode.Rslt.Lookup.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.RLookup.RConvert (
+module Hode.Rslt.Lookup.Convert (
     refExprToExpr -- ^ Rslt -> RefExpr -> Either String Expr
   , addrToExpr    -- ^ Rslt -> Addr    -> Either String Expr
   , exprToAddr    -- ^ Rslt -> Expr    -> Either String Addr
@@ -12,8 +12,8 @@ module Hode.Rslt.RLookup.RConvert (
 
 import qualified Data.Map       as M
 
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
+import Hode.Rslt.Types
+import Hode.Rslt.Util
 import Hode.Util.Misc
 
 

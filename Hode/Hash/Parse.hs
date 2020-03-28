@@ -2,7 +2,7 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Hash.HParse (
+module Hode.Hash.Parse (
     pRel  -- ^ Parser PRel
   , _pRel -- ^ Parser PRel
   , pTerm -- ^ Parser PRel
@@ -40,12 +40,12 @@ import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (decimal)
 
 import Hode.Hash.EitherExpr
-import Hode.Hash.HTypes
-import Hode.Hash.HUtil
+import Hode.Hash.Types
+import Hode.Hash.Util
 import Hode.Hash.Hash
 import Hode.Qseq.QTypes (Var(..))
 import Hode.Rslt.Binary
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Util.Alternation
 import Hode.Util.UParse
 

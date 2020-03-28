@@ -7,7 +7,7 @@ module Hode.Util.Alternation (
   ) where
 
 import Data.Either
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 
 
 -- | Like zip. If the first list has one more element than the second,

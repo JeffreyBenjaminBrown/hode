@@ -28,17 +28,17 @@ import qualified Brick.Widgets.Edit    as B
 import qualified Brick.Focus           as B
 import qualified Graphics.Vty          as B
 
-import Hash.HLookup
+import Hash.Lookup
 import Qseq.QTypes
 import Rslt.Edit
 import Rslt.Files
-import Rslt.RTypes
+import Rslt.Types
 import UI.BufferTree
 import UI.Clipboard
 import UI.Input
 import UI.ITypes
 import UI.IUtil
-import UI.Input.IParse
+import UI.Input.Parse
 import UI.String
 import UI.ViewExprNodeTree
 import UI.VTree.String

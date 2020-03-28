@@ -2,7 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable, DeriveGeneric #-}
 
-module Hode.Rslt.RTypes where
+module Hode.Rslt.Types where
 
 import Data.Bifunctor.TH
 import Data.Functor.Foldable.TH

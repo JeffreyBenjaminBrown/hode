@@ -36,9 +36,9 @@ import Data.Set (Set)
 import Data.Map (Map)
 
 import Hode.Brick
-import Hode.Hash.HTypes
+import Hode.Hash.Types
 import Hode.PTree.Initial
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Rslt.Show
 import Hode.Rslt.ShowColor
 import Hode.Util.Misc

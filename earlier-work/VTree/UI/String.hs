@@ -8,8 +8,8 @@ import           Data.Foldable (toList)
 import qualified Data.Vector           as V
 import           Lens.Micro
 
-import Rslt.RLookup
-import Rslt.RTypes
+import Rslt.Lookup
+import Rslt.Types
 import Rslt.Show
 import UI.ITypes
 import Util.Misc

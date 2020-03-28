@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables
 , LambdaCase #-}
 
-module Hode.PTree.PShow (
+module Hode.PTree.Show (
 
   porestToWidget -- ^ (Ord n, Show n)
   -- => n                    -- ^ Brick name for the window
@@ -53,7 +53,7 @@ import           Brick.Widgets.Core
 
 import Hode.Brick
 import Hode.Brick.Wrap
-import Hode.Hash.HTypes (Level)
+import Hode.Hash.Types (Level)
 import Hode.PTree.Initial
 import Hode.PTree.Modify
 import Hode.Util.Misc

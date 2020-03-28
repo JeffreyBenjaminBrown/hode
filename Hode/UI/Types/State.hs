@@ -44,9 +44,9 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
-import Hode.Hash.HTypes
+import Hode.Hash.Types
 import Hode.PTree.Initial
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.UI.Types.Names
 import Hode.UI.Types.Views
 

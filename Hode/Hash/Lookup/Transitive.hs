@@ -7,7 +7,7 @@
 {-# LANGUAGE ScopedTypeVariables,
 TupleSections #-}
 
-module Hode.Hash.HLookup.Transitive (
+module Hode.Hash.Lookup.Transitive (
     hExprToAddrs -- ^ Rslt -> Subst Addr -> HExpr -> Either String (Set Addr)
 
   , transitiveClosure -- ^ :: SearchDir
@@ -43,11 +43,11 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Hode.Hash.HTypes
+import Hode.Hash.Types
 import Hode.Qseq.QTypes
 import Hode.Rslt.Binary
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
 import Hode.Util.Misc
 
 

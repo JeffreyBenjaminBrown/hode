@@ -4,4 +4,4 @@ module Hode.PTree (
 
 import Hode.PTree.Initial as X
 import Hode.PTree.Modify as X
-import Hode.PTree.PShow as X
+import Hode.PTree.Show as X

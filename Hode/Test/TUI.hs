@@ -8,14 +8,14 @@ import qualified Data.List.PointedList as P
 import qualified Test.HUnit            as T
 import           Test.HUnit hiding (Test, test)
 
-import           Hode.Hash.HTypes
+import           Hode.Hash.Types
 import           Hode.PTree.Initial
 import           Hode.Rslt.Binary
 import           Hode.Rslt.Index (mkRslt)
-import           Hode.Rslt.RTypes
+import           Hode.Rslt.Types
 import           Hode.UI.ExprTree
 import           Hode.UI.IUtil
-import           Hode.UI.Input.IParse
+import           Hode.UI.Input.Parse
 import           Hode.UI.Types.Names
 import           Hode.UI.Types.State
 import           Hode.UI.Types.Views

@@ -28,8 +28,8 @@ import qualified Data.Vector as V
 
 import           Lens.Micro hiding (has)
 
-import Rslt.RLookup
-import Rslt.RTypes
+import Rslt.Lookup
+import Rslt.Types
 import UI.ITypes
 import UI.ViewExprNodeTree
 import UI.String

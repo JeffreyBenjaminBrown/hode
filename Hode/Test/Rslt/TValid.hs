@@ -3,8 +3,8 @@ module Hode.Test.Rslt.TValid where
 import           Data.Either
 import           Test.HUnit
 
-import           Hode.Rslt.RTypes
-import           Hode.Rslt.RValid
+import           Hode.Rslt.Types
+import           Hode.Rslt.Valid
 import qualified Hode.Test.Rslt.RData as D
 
 

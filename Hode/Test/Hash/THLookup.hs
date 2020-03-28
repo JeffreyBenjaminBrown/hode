@@ -8,13 +8,13 @@ import qualified Data.Set       as S
 import           Test.HUnit
 
 import Hode.Hash.Convert
-import Hode.Hash.HLookup
-import Hode.Hash.HTypes
+import Hode.Hash.Lookup
+import Hode.Hash.Types
 import Hode.Qseq.QTypes (Var(..))
 import Hode.Rslt.Edit.Initial (insertAt)
 import Hode.Rslt.Index
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
 import Hode.NoUI
 import qualified Hode.Test.Rslt.RData as D
 

@@ -4,7 +4,7 @@
 
 module Hode.Hash.Hash where
 
-import Hode.Hash.HTypes
+import Hode.Hash.Types
 
 
 -- | The `hash` operator joins `Expr`s into `Rels`s. Each hash operation

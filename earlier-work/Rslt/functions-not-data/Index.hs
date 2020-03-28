@@ -6,7 +6,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Data.Rslt.RTypes
+import Data.Rslt.Types
 import Data.Rslt.Index.Positions
 import Data.Rslt.Index.ImgLookup
 

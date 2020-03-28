@@ -4,7 +4,7 @@
 , ScopedTypeVariables
 #-}
 
-module Hode.Hash.HUtil (
+module Hode.Hash.Util (
     hor             -- ^ [Addr] -> HExpr
   , hVars           -- ^ HExpr  -> Set Var
   , hSub            -- ^ M.Map Var HExpr -> HExpr -> HExpr
@@ -21,9 +21,9 @@ import qualified Data.Map  as M
 import           Data.Set (Set)
 import qualified Data.Set  as S
 
-import           Hode.Hash.HTypes
+import           Hode.Hash.Types
 import           Hode.Qseq.QTypes (Var)
-import           Hode.Rslt.RTypes
+import           Hode.Rslt.Types
 
 
 -- | = for Hash

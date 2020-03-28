@@ -2,7 +2,7 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Rslt.RValid (
+module Hode.Rslt.Valid (
   -- | = validate individual expressions
   verifyVariety -- ^ Rslt -> Addr -> (Maybe ExprCtr, Maybe Arity)
                 -- -> Either String ()
@@ -25,9 +25,9 @@ import           Data.Map (Map)
 import qualified Data.Map       as M
 import           Data.Functor (void)
 
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
+import Hode.Rslt.Util
 import Hode.Util.Misc
 
 

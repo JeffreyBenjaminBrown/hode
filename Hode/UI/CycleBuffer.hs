@@ -15,10 +15,10 @@ import           Control.Lens
 import qualified Data.Set as S
 import qualified Data.List.PointedList as P
 
-import Hode.Hash.HLookup
+import Hode.Hash.Lookup
 import Hode.PTree
 import Hode.Rslt.Binary
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.UI.ExprTree
 import Hode.UI.IUtil
 import Hode.UI.Types.Names

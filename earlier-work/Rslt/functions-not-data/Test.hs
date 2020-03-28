@@ -9,7 +9,7 @@ import qualified Data.Set       as S
 import           Test.HUnit hiding (Test)
 
 import           Data.Rslt
-import           Data.Rslt.RTypes
+import           Data.Rslt.Types
 import           Data.Rslt.Index
 import           Data.Rslt.Index.Positions
 import           Data.Rslt.Index.ImgLookup

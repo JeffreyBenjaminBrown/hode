@@ -4,9 +4,9 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import           Hode.Rslt.RTypes
+import           Hode.Rslt.Types
 import           Hode.Rslt.Index
-import           Hode.Rslt.RValid
+import           Hode.Rslt.Valid
 import qualified Hode.Test.Rslt.RData as D
 
 

@@ -13,7 +13,7 @@ module Hode.Rslt.Show.Util (
 import Data.Functor.Foldable
 import Data.Text (strip, pack, unpack)
 
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 
 
 trimString :: String -> String

@@ -11,8 +11,8 @@ import           Test.HUnit
 import Hode.NoUI
 import Hode.Rslt.Binary
 import Hode.Rslt.Index
-import Hode.Rslt.RLookup.RConvert
-import Hode.Rslt.RTypes
+import Hode.Rslt.Lookup.Convert
+import Hode.Rslt.Types
 import Hode.Rslt.Sort.Default
 
 

@@ -13,8 +13,8 @@ import qualified Data.Map as M
 import           Test.HUnit
 
 import Hode.Rslt.Index
-import Hode.Rslt.RTypes
-import Hode.Rslt.RValid
+import Hode.Rslt.Types
+import Hode.Rslt.Valid
 
 
 -- | local shorthand

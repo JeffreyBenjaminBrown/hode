@@ -9,9 +9,9 @@ import qualified Data.Set as S
 import qualified Data.Map as M
 import           Test.HUnit
 
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Rslt.Index
-import Hode.Rslt.RLookup.RConvert
+import Hode.Rslt.Lookup.Convert
 import Hode.Rslt.Binary
 import Hode.Rslt.Sort
 import Hode.NoUI

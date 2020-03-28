@@ -31,11 +31,11 @@ library
 
                 , Hode.Hash.Convert
                 , Hode.Hash.EitherExpr
-                , Hode.Hash.HLookup
-                , Hode.Hash.HLookup.Transitive
-                , Hode.Hash.HParse
-                , Hode.Hash.HTypes
-                , Hode.Hash.HUtil
+                , Hode.Hash.Lookup
+                , Hode.Hash.Lookup.Transitive
+                , Hode.Hash.Parse
+                , Hode.Hash.Types
+                , Hode.Hash.Util
                 , Hode.Hash.Hash
 
                 , Hode.NoUI
@@ -44,7 +44,7 @@ library
                 , Hode.PTree
                 , Hode.PTree.Initial
                 , Hode.PTree.Modify
-                , Hode.PTree.PShow
+                , Hode.PTree.Show
 
                 , Hode.Qseq.MkLeaf
                 , Hode.Qseq.QTypes
@@ -63,11 +63,11 @@ library
                 , Hode.Rslt.Binary
                 , Hode.Rslt.Files
                 , Hode.Rslt.Index
-                , Hode.Rslt.RLookup
-                , Hode.Rslt.RLookup.RConvert
-                , Hode.Rslt.RTypes
-                , Hode.Rslt.RUtil
-                , Hode.Rslt.RValid
+                , Hode.Rslt.Lookup
+                , Hode.Rslt.Lookup.Convert
+                , Hode.Rslt.Types
+                , Hode.Rslt.Util
+                , Hode.Rslt.Valid
                 , Hode.Rslt.Show
                 , Hode.Rslt.ShowColor
                 , Hode.Rslt.Show.Util
@@ -119,7 +119,7 @@ library
                 , Hode.UI.IUtil
                 , Hode.UI.IUtil.String
                 , Hode.UI.Input
-                , Hode.UI.Input.IParse
+                , Hode.UI.Input.Parse
                 , Hode.UI.Main
                 , Hode.UI.Types.Names
                 , Hode.UI.Types.State

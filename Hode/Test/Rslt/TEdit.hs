@@ -10,13 +10,13 @@ import qualified Data.Set       as S
 import           Test.HUnit
 
 import           Hode.NoUI
-import           Hode.Rslt.RLookup hiding (exprToAddr)
+import           Hode.Rslt.Lookup hiding (exprToAddr)
 import qualified Hode.Rslt.Edit         as R
 import qualified Hode.Rslt.Edit.Initial as R
 import qualified Hode.Rslt.Edit.Replace as R
 import           Hode.Rslt.Index
-import           Hode.Rslt.RTypes
-import           Hode.Rslt.RValid
+import           Hode.Rslt.Types
+import           Hode.Rslt.Valid
 import           Hode.Rslt.Show
 import qualified Hode.Test.Rslt.RData as D
 import           Hode.Util.Misc

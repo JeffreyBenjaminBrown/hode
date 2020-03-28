@@ -13,9 +13,9 @@ import qualified Data.Map as M
 import Hode.Rslt.Edit.AndSearch
 import Hode.Rslt.Edit.Initial
 import Hode.Rslt.Edit.Replace
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil (nextAddr)
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
+import Hode.Rslt.Util (nextAddr)
 import Hode.Util.Misc
 
 

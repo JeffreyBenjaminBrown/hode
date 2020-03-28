@@ -13,7 +13,7 @@ import           Test.HUnit hiding (Test)
 import           Program
 import           Query.MkLeaf
 import           Space.Rslt
-import           Space.Rslt.RTypes
+import           Space.Rslt.Types
 import qualified Test.Rslt.RData as D
 import           Types
 

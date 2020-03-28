@@ -5,13 +5,13 @@
 , DeriveFunctor, DeriveFoldable, DeriveTraversable
 #-}
 
-module Hode.Hash.HTypes where
+module Hode.Hash.Types where
 
 import Data.Functor.Foldable.TH
 import Data.Map (Map)
 
 import Hode.Qseq.QTypes
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Rslt.Binary
 
 

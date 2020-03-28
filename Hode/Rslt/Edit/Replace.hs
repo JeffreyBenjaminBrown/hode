@@ -11,10 +11,10 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Hode.Rslt.RLookup
-import Hode.Rslt.RTypes
-import Hode.Rslt.RUtil
-import Hode.Rslt.RValid
+import Hode.Rslt.Lookup
+import Hode.Rslt.Types
+import Hode.Rslt.Util
+import Hode.Rslt.Valid
 import Hode.Util.Misc
 import Hode.Rslt.Edit.Initial
 

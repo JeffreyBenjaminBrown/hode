@@ -65,14 +65,14 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Control.Monad (foldM)
 
-import Hode.Hash.HLookup
-import Hode.Hash.HTypes
+import Hode.Hash.Lookup
+import Hode.Hash.Types
 import Hode.Rslt.Edit (deleteIfUnused)
 import Hode.Rslt.Edit.Initial (_deleteInternalMentionsOf_unsafe)
 import Hode.Rslt.Index
-import Hode.Rslt.RLookup
+import Hode.Rslt.Lookup
 import Hode.Rslt.Binary
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Util.Misc
 
 

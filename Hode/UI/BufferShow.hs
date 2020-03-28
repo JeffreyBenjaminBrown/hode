@@ -14,7 +14,7 @@ import qualified Brick.Types          as B
 
 import Hode.Brick
 import Hode.PTree.Initial
-import Hode.PTree.PShow
+import Hode.PTree.Show
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

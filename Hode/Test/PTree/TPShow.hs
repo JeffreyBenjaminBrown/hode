@@ -10,7 +10,7 @@ import           Test.HUnit hiding (Test, test)
 import qualified Data.List.PointedList as P
 
 import Hode.PTree.Initial
-import Hode.PTree.PShow
+import Hode.PTree.Show
 
 
 test_module_pTree_show :: T.Test

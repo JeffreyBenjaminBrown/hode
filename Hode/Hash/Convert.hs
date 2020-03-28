@@ -21,10 +21,10 @@ import           Data.Functor.Foldable
 import           Data.Map (Map)
 import qualified Data.Map as M
 
-import Hode.Hash.HTypes
-import Hode.Hash.HUtil
+import Hode.Hash.Types
+import Hode.Hash.Util
 import Hode.Rslt.Binary
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Util.Misc
 
 

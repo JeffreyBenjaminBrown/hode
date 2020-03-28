@@ -10,12 +10,12 @@ import           Test.HUnit
 import           Text.Megaparsec (parse)
 
 import Hode.Hash.Convert
-import Hode.Hash.HParse
-import Hode.Hash.HTypes
-import Hode.Hash.HUtil
+import Hode.Hash.Parse
+import Hode.Hash.Types
+import Hode.Hash.Util
 import Hode.Rslt.Index
 import Hode.Rslt.Binary
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.NoUI
 
 

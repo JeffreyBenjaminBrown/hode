@@ -20,7 +20,7 @@ import qualified Graphics.Vty         as V
 
 import Hode.PTree.Initial
 import Hode.Rslt.Index (mkRslt)
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.UI.BufferShow
 import Hode.UI.IUtil
 import Hode.UI.Input

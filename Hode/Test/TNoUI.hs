@@ -10,7 +10,7 @@ import Test.HUnit
 import Hode.NoUI
 import Hode.Rslt.Binary
 import Hode.Rslt.Index
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 
 
 test_module_NoUI :: Test

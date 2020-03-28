@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables
 #-}
 
-module Hode.Hash.HLookup (
+module Hode.Hash.Lookup (
     hFind              -- ^ HExpr -> Find Addr Rslt
   , usesTransitiveTplt -- ^ Rslt          -> Addr -> Either String Bool
   , hMatches           -- ^ Rslt -> HExpr -> Addr -> Either String Bool
@@ -16,13 +16,13 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import           Hode.Hash.Convert
-import           Hode.Hash.HTypes
-import           Hode.Hash.HUtil
-import           Hode.Hash.HLookup.Transitive
-import qualified Hode.Hash.HLookup.Transitive as X
+import           Hode.Hash.Types
+import           Hode.Hash.Util
+import           Hode.Hash.Lookup.Transitive
+import qualified Hode.Hash.Lookup.Transitive as X
 import           Hode.Qseq.QTypes
-import           Hode.Rslt.RTypes
-import           Hode.Rslt.RLookup
+import           Hode.Rslt.Types
+import           Hode.Rslt.Lookup
 import           Hode.Util.Misc
 
 
@@ -90,10 +90,10 @@ hMatches r h0 a0 =
       ExprTplt _ -> True
       _          -> False
 
-    HReach _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HReach"
-    HTrans _ _ _ _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HTrans"
-    HMemberHosts _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMemberHosts"
-    HMemberHostsRec _ _ -> error "not implemented: Hash.HLookup.hMatches, called on an HMemberHostsRec."
+    HReach _ _ _ -> error "not implemented: Hash.Lookup.hMatches, called on an HReach"
+    HTrans _ _ _ _ _ -> error "not implemented: Hash.Lookup.hMatches, called on an HTrans"
+    HMemberHosts _ -> error "not implemented: Hash.Lookup.hMatches, called on an HMemberHosts"
+    HMemberHostsRec _ _ -> error "not implemented: Hash.Lookup.hMatches, called on an HMemberHostsRec."
 
 -- | `hExprToExpr` is useful for parsing a not-yet-extant `Expr`.
 hExprToExpr :: Rslt -> HExpr -> Either String Expr

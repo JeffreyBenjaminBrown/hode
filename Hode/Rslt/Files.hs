@@ -7,7 +7,7 @@ import           Text.Regex
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
 
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 import Hode.Rslt.Index
 
 

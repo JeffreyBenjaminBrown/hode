@@ -1,8 +1,8 @@
 module Hode.UI.Types.Names where
 
-import Hode.Hash.HTypes
+import Hode.Hash.Types
 import Hode.Rslt.Binary
-import Hode.Rslt.RTypes
+import Hode.Rslt.Types
 
 
 -- | = Tiny types: names for windows, commands, folders
