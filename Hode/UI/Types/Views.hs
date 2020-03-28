@@ -16,7 +16,7 @@ module Hode.UI.Types.Views (
 
   , NumColumnProps
   , SortAndSelectColumnProps, InSortGroup, Selected
-  , OtherProps(..), folded
+  , OtherProps(..), folded, childSort
 
   , ViewQuery(..), _QueryView, _CycleView
   , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String

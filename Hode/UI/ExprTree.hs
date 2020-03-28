@@ -48,6 +48,7 @@ import Hode.Util.Misc
 -- | `sortFocusAndPeers (bo, t) st` finds the focused expr `e`
 -- in the focused buffer of `st`, and its `peers` in the view.
 -- and sorts them all according to `(bo,t)`.
+-- It also sets the childSort field of their parents to `Just (bo,t)`
 sortFocusAndPeers ::
   (BinOrientation, TpltAddr) -> St -> Either String St
 sortFocusAndPeers (bo, t) st =
@@ -86,9 +87,12 @@ sortFocusAndPeers (bo, t) st =
       Right $ er & ( pTreeLabel . sortAndSelectColumnProps . _1
                      .~ elem a sortedSet )
     in mapM f peers1
-  Right $ st & ( stSet_focusedBuffer . bufferExprRowTree
-                 . setParentOfFocusedSubtree . pMTrees . _Just
-                 .~ peers2 )
+
+  Right $ st &
+    ( stSet_focusedBuffer . bufferExprRowTree . setParentOfFocusedSubtree
+      . pMTrees . _Just                     .~ peers2 ) &
+    ( stSet_focusedBuffer . bufferExprRowTree . setParentOfFocusedSubtree
+      . pTreeLabel . otherProps . childSort .~ Just (bo,t) )
 
 
 -- | * inserting layers of nodes

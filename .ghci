@@ -22,7 +22,7 @@ import qualified Data.List.PointedList as P
 import           Data.Text (pack, unpack)
 import qualified Data.Text.Lazy.IO as LT -- writeFile
 
-import Text.Pretty.Simple
+import qualified Text.Pretty.Simple as Pr
 
 import qualified Hode.Test.Rslt.RData as D
 
