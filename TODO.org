@@ -24,6 +24,7 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 ** TODO ordering
 *** TODO WYSIWYG sorting
 **** TODO sorting should modify the parent group to know the sort order
+including the orientation
 **** TODO selector column and select shortcut
 This is like highlighting a range, but more general.
 An x appears in the (new) "select|sort-order" column.
@@ -33,7 +34,7 @@ An x appears in the (new) "select|sort-order" column.
 Connect them all to each other.
 Connect the first among them to the last that was already sorted.
 ***** remove them
-****** Delete all "visible" connections.
+****** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
 ****** Delete any remaining connections interactively
 ala CycleBreaker

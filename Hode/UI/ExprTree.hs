@@ -48,7 +48,8 @@ import Hode.Util.Misc
 -- | `sortFocusAndPeers (bo, t) st` finds the focused expr `e`
 -- in the focused buffer of `st`, and its `peers` in the view.
 -- and sorts them all according to `(bo,t)`.
-sortFocusAndPeers :: (BinOrientation, TpltAddr) -> St -> Either String St
+sortFocusAndPeers ::
+  (BinOrientation, TpltAddr) -> St -> Either String St
 sortFocusAndPeers (bo, t) st =
   prefixLeft "sortFocusAndPeers: " $ do
   let r :: Rslt = st ^. appRslt
