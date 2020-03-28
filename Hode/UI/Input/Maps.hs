@@ -25,8 +25,8 @@ import Hode.UI.ExprTree
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
 import Hode.UI.CycleBuffer
-import Hode.UI.IUtil
-import Hode.UI.IUtil.String
+import Hode.UI.Util
+import Hode.UI.Util.String
 import Hode.UI.Input.RunParsed
 import Hode.UI.Types.Names
 import Hode.UI.Types.State

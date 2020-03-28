@@ -47,8 +47,8 @@ library
                 , Hode.PTree.Show
 
                 , Hode.Qseq.MkLeaf
-                , Hode.Qseq.QTypes
-                , Hode.Qseq.QValid
+                , Hode.Qseq.Types
+                , Hode.Qseq.Valid
                 , Hode.Qseq.Query
                 , Hode.Qseq.RunLeaf
                 , Hode.Qseq.Subst
@@ -116,8 +116,8 @@ library
                 , Hode.UI.Clipboard
                 , Hode.UI.CycleBreaker
                 , Hode.UI.ExprTree
-                , Hode.UI.IUtil
-                , Hode.UI.IUtil.String
+                , Hode.UI.Util
+                , Hode.UI.Util.String
                 , Hode.UI.Input
                 , Hode.UI.Input.Parse
                 , Hode.UI.Main
@@ -128,7 +128,7 @@ library
 
                 , Hode.Util.Alternation
                 , Hode.Util.Misc
-                , Hode.Util.UParse
+                , Hode.Util.Parse
   other-modules:
   build-depends:
                 base

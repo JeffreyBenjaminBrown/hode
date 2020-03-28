@@ -43,11 +43,11 @@ import Hode.Hash.EitherExpr
 import Hode.Hash.Types
 import Hode.Hash.Util
 import Hode.Hash.Hash
-import Hode.Qseq.QTypes (Var(..))
+import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
 import Hode.Util.Alternation
-import Hode.Util.UParse
+import Hode.Util.Parse
 
 
 pRel :: Parser PRel

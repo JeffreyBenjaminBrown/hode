@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module UI.IUtil (
+module UI.Util (
     emptySearchBuffer            -- ^                                 Buffer
   , buffer_from_exprRowTree -- ^ VTree ViewExprNode -> Either String Buffer
   ) where

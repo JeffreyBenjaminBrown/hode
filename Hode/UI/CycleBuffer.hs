@@ -20,7 +20,7 @@ import Hode.PTree
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
 import Hode.UI.ExprTree
-import Hode.UI.IUtil
+import Hode.UI.Util
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

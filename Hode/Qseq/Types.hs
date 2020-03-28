@@ -1,4 +1,4 @@
-module Hode.Qseq.QTypes where
+module Hode.Qseq.Types where
 
 import           Data.Map (Map)
 import           Data.Set (Set)

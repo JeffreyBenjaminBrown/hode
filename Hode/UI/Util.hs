@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.IUtil (
+module Hode.UI.Util (
     unEitherSt                 -- ^ Either String St -> St -> St
   , emptySt                    -- ^ Rslt -> St
   , emptySearchBuffer          -- ^ Buffer
@@ -29,7 +29,7 @@ import Hode.Brick
 import Hode.Hash.Lookup
 import Hode.Hash.Types
 import Hode.PTree.Initial
-import Hode.Qseq.QTypes (Var(..))
+import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Types
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
@@ -136,6 +136,6 @@ exprRow_from_viewExprNode n = ExprRow
 
 defaulViewOptions :: ViewOptions
 defaulViewOptions = ViewOptions
-  { _viewOpt_ShowAddresses = True
-  , _viewOpt_ShowAsAddresses = True
+  { _viewOpt_ShowAddresses = False
+  , _viewOpt_ShowAsAddresses = False
   , _viewOpt_WrapLength = 60 }

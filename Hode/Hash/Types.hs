@@ -10,7 +10,7 @@ module Hode.Hash.Types where
 import Data.Functor.Foldable.TH
 import Data.Map (Map)
 
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 import Hode.Rslt.Types
 import Hode.Rslt.Binary
 

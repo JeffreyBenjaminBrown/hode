@@ -22,7 +22,7 @@ import           Data.Set (Set)
 import qualified Data.Set  as S
 
 import           Hode.Hash.Types
-import           Hode.Qseq.QTypes (Var)
+import           Hode.Qseq.Types (Var)
 import           Hode.Rslt.Types
 
 

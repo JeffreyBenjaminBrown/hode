@@ -9,7 +9,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 import Hode.Util.Misc
 
 

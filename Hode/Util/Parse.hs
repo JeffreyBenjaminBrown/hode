@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.Util.UParse where
+module Hode.Util.Parse where
 
 import           Data.Char
 import qualified Data.List as L

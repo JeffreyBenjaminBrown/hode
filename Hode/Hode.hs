@@ -38,8 +38,8 @@ import Hode.Hash.Hash as X
 import Hode.NoUI as X
 import Hode.PTree as X
 import Hode.Qseq.MkLeaf as X
-import Hode.Qseq.QTypes as X
-import Hode.Qseq.QValid as X
+import Hode.Qseq.Types as X
+import Hode.Qseq.Valid as X
 import Hode.Qseq.Query as X
 import Hode.Qseq.RunLeaf as X
 import Hode.Qseq.Subst as X
@@ -58,8 +58,8 @@ import Hode.Rslt.Sort.Default as X
 import Hode.UI.BufferTree as X
 import Hode.UI.Clipboard as X
 import Hode.UI.ExprTree as X
-import Hode.UI.IUtil as X
-import Hode.UI.IUtil.String as X
+import Hode.UI.Util as X
+import Hode.UI.Util.String as X
 import Hode.UI.Input as X
 import Hode.UI.Input.Parse as X
 import Hode.UI.Main as X
@@ -68,7 +68,7 @@ import Hode.UI.Types.State as X
 import Hode.UI.Types.Views as X
 import Hode.UI.Window as X
 import Hode.Util.Misc as X
-import Hode.Util.UParse as X
+import Hode.Util.Parse as X
 
 -- import Hode.Hash.Lookup.Transitive as X
   -- already re-exported by Hode.Hash.Lookup

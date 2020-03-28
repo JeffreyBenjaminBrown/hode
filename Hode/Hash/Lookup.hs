@@ -20,7 +20,7 @@ import           Hode.Hash.Types
 import           Hode.Hash.Util
 import           Hode.Hash.Lookup.Transitive
 import qualified Hode.Hash.Lookup.Transitive as X
-import           Hode.Qseq.QTypes
+import           Hode.Qseq.Types
 import           Hode.Rslt.Types
 import           Hode.Rslt.Lookup
 import           Hode.Util.Misc

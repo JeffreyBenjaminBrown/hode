@@ -11,7 +11,7 @@ import Hode.Hash.Convert
 import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Hash.Util
-import Hode.Qseq.QTypes (Var(..))
+import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Index
 import Hode.Rslt.Types
 

@@ -29,7 +29,7 @@ import qualified Brick.Focus           as B
 import qualified Graphics.Vty          as B
 
 import Hash.Lookup
-import Qseq.QTypes
+import Qseq.Types
 import Rslt.Edit
 import Rslt.Files
 import Rslt.Types
@@ -37,7 +37,7 @@ import UI.BufferTree
 import UI.Clipboard
 import UI.Input
 import UI.ITypes
-import UI.IUtil
+import UI.Util
 import UI.Input.Parse
 import UI.String
 import UI.ViewExprNodeTree

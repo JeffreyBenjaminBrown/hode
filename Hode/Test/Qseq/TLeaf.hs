@@ -10,7 +10,7 @@ import           Test.HUnit hiding (Test, test)
 import Hode.Qseq.MkLeaf
 import Hode.Qseq.RunLeaf
 import Hode.Data.Graph
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 
 
 vs :: String -> Var

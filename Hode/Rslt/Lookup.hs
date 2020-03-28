@@ -38,7 +38,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Hode.Qseq.MkLeaf
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 import Hode.Rslt.Lookup.Convert
 import qualified Hode.Rslt.Lookup.Convert as C
 import Hode.Rslt.Types

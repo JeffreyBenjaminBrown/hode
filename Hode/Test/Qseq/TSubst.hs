@@ -10,7 +10,7 @@ import qualified Test.HUnit     as T
 import           Test.HUnit hiding (Test)
 
 import Hode.Qseq.Subst
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 
 
 vs :: String -> Var

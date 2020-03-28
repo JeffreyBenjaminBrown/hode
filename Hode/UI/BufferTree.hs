@@ -20,8 +20,8 @@ import           Lens.Micro hiding (has)
 
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
-import Hode.UI.IUtil
-import Hode.UI.IUtil.String
+import Hode.UI.Util
+import Hode.UI.Util.String
 import Hode.UI.Window
 import Hode.Util.Misc
 import Hode.PTree

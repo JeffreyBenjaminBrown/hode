@@ -12,7 +12,7 @@ import           Hode.Hash.Types
 import qualified Hode.Rslt.Lookup  as R
 import           Hode.Rslt.Lookup hiding (exprToAddr)
 import           Hode.Rslt.Types
-import           Hode.Qseq.QTypes
+import           Hode.Qseq.Types
 import           Hode.Qseq.Query
 import           Hode.Qseq.MkLeaf
 import qualified Hode.Test.Rslt.RData as D

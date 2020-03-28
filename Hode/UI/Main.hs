@@ -22,7 +22,7 @@ import Hode.PTree.Initial
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.Types
 import Hode.UI.BufferShow
-import Hode.UI.IUtil
+import Hode.UI.Util
 import Hode.UI.Input
 import Hode.UI.Input.Maps
 import Hode.UI.Types.Names

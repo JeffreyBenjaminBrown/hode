@@ -1,12 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ViewPatterns #-}
-module Hode.Qseq.QValid where
+module Hode.Qseq.Valid where
 
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 import Hode.Util.Misc
 
 

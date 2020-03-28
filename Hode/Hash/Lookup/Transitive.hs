@@ -44,7 +44,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Hode.Hash.Types
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 import Hode.Rslt.Binary
 import Hode.Rslt.Lookup
 import Hode.Rslt.Types

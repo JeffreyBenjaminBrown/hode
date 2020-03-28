@@ -7,9 +7,9 @@ import qualified Test.HUnit as T
 import           Test.HUnit hiding (Test)
 
 import Hode.Data.Graph
-import Hode.Qseq.QValid
+import Hode.Qseq.Valid
 import Hode.Qseq.MkLeaf
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 
 
 type QIGI = Query Int (Graph Int)

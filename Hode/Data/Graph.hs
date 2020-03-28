@@ -20,7 +20,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 
 import Hode.Qseq.MkLeaf
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 
 
 data Graph e = Graph {

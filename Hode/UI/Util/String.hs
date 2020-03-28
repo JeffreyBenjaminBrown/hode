@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.IUtil.String (
+module Hode.UI.Util.String (
     focusedBufferStrings  -- ^ St -> [String]
   , mkViewExpr   -- ^ Rslt -> Addr -> Either String ViewExpr
   , redraw_focusedBuffer -- ^ St -> Either String St

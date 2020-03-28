@@ -19,7 +19,7 @@ import Hode.Hash.Convert
 import Hode.Hash.Lookup
 import Hode.Hash.Parse
 import Hode.Hash.Types
-import Hode.Qseq.QTypes
+import Hode.Qseq.Types
 import Hode.Rslt.Lookup
 import Hode.Rslt.Types
 import Hode.Rslt.Index

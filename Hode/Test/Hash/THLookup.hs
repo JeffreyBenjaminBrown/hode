@@ -10,7 +10,7 @@ import           Test.HUnit
 import Hode.Hash.Convert
 import Hode.Hash.Lookup
 import Hode.Hash.Types
-import Hode.Qseq.QTypes (Var(..))
+import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Edit.Initial (insertAt)
 import Hode.Rslt.Index
 import Hode.Rslt.Lookup

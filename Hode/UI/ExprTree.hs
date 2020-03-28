@@ -38,8 +38,8 @@ import Hode.Rslt.Binary
 import Hode.Rslt.Lookup
 import Hode.Rslt.Types
 import Hode.Rslt.Sort
-import Hode.UI.IUtil
-import Hode.UI.IUtil.String
+import Hode.UI.Util
+import Hode.UI.Util.String
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.Util.Misc

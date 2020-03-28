@@ -15,7 +15,7 @@ import Hode.Rslt.Binary
 import Hode.Rslt.Types
 import Hode.UI.Types.Names
 import Hode.Util.Misc
-import Hode.Util.UParse
+import Hode.Util.Parse
 
 
 pCommand :: Rslt -> String -> Either String Command
