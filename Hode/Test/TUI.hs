@@ -39,7 +39,7 @@ test_st_cycleBufferLenses = TestCase $ do
             , _viewForkSortTplt = Nothing
             , _viewForkType = VFQuery $ QueryView "something" }
           , _numColumnProps = mempty
-          , _sortAndSelectColumnProps = SortAndSelectColumnProps
+          , _boolProps = BoolProps
             { _inSortGroup = False
             , _selected = False }
           , _otherProps = OtherProps { _folded = False

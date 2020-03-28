@@ -79,12 +79,12 @@ sortFocusAndPeers (bo, t) st =
         sortPList_asList
         (maybe (error "impossible") id . pTreeExprRow_toAddr)
         order peers
-  peers2 :: Porest ExprRow <- let -- modify _sortAndSelectColumnProps
+  peers2 :: Porest ExprRow <- let -- modify _boolProps
     f :: PTree ExprRow -> Either String (PTree ExprRow)
     f er = do
       a :: Addr <- maybe (Left "peers2: something has no Addr.") Right
         $ er ^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr
-      Right $ er & ( pTreeLabel . sortAndSelectColumnProps . inSortGroup
+      Right $ er & ( pTreeLabel . boolProps . inSortGroup
                      .~ elem a sortedSet )
     in mapM f peers1
 
@@ -136,7 +136,7 @@ insertMembers_atFocus st =
                       , _viewForkSortTplt = Nothing
                       , _viewForkType = VFMembers }
                     , _numColumnProps = mempty
-                    , _sortAndSelectColumnProps = SortAndSelectColumnProps
+                    , _boolProps = BoolProps
                       { _inSortGroup = False
                       , _selected = False }
                     , _otherProps = OtherProps { _folded = False

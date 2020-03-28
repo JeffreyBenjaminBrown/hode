@@ -15,7 +15,7 @@ module Hode.UI.Types.Views (
   , viewOpt_WrapLength
 
   , NumColumnProps
-  , SortAndSelectColumnProps(..), inSortGroup, selected
+  , BoolProps(..), inSortGroup, selected
   , OtherProps(..), folded, childSort
 
   , ViewQuery(..), _QueryView, _CycleView
@@ -25,7 +25,7 @@ module Hode.UI.Types.Views (
     , _VFRelHosts, _VFSearch
   , ViewFork(..), viewForkCenter, viewForkSortTplt, viewForkType
   , ViewExprNode(..), _VenExpr, _VenFork
-  , ExprRow(..), viewExprNode, numColumnProps, otherProps, sortAndSelectColumnProps
+  , ExprRow(..), viewExprNode, numColumnProps, otherProps, boolProps
 
   -- * misc
   , exprTree_focusAddr -- ^ PTree ExprRow -> Either String Addr
@@ -67,11 +67,11 @@ type NumColumnProps = Map HExpr Int
 -- the user has selected, and appears in a different color for `Expr`s
 -- in a view-fork that are related to each other by the template
 -- that was last used to sort them.
-data SortAndSelectColumnProps = SortAndSelectColumnProps
+data BoolProps = BoolProps
   { _inSortGroup :: Bool
   , _selected :: Bool }
   deriving (Show, Eq, Ord)
-makeLenses ''SortAndSelectColumnProps
+makeLenses ''BoolProps
 
 data OtherProps = OtherProps {
     _folded :: Bool -- ^ whether a `ViewExprNode`'s children are hidden
@@ -188,7 +188,7 @@ makePrisms ''ViewExprNode
 data ExprRow = ExprRow {
     _viewExprNode :: ViewExprNode
   , _numColumnProps  :: NumColumnProps
-  , _sortAndSelectColumnProps :: SortAndSelectColumnProps
+  , _boolProps :: BoolProps
   , _otherProps   :: OtherProps
   } deriving (Show, Eq, Ord)
 makeLenses ''ExprRow
