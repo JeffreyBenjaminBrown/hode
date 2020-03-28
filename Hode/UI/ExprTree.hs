@@ -133,7 +133,8 @@ insertMembers_atFocus st =
                       , _viewForkType = VFMembers }
                     , _numColumnProps = mempty
                     , _sortAndSelectColumnProps = (False,False)
-                    , _otherProps = OtherProps False } )
+                    , _otherProps = OtherProps { _folded = False
+                                               , _childSort = Nothing } } )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
                  %~ consUnder_andFocus new )

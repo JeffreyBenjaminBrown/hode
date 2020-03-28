@@ -38,6 +38,7 @@ import Data.Map (Map)
 import Hode.Brick
 import Hode.Hash.Types
 import Hode.PTree.Initial
+import Hode.Rslt.Binary (BinOrientation)
 import Hode.Rslt.Types
 import Hode.Rslt.Show
 import Hode.Rslt.ShowColor
@@ -71,7 +72,8 @@ type InSortGroup = Bool
 type Selected = Bool
 
 data OtherProps = OtherProps {
-  _folded :: Bool -- ^ whether a `ViewExprNode`'s children are hidden
+    _folded :: Bool -- ^ whether a `ViewExprNode`'s children are hidden
+  , _childSort :: Maybe (BinOrientation, TpltAddr)
   } deriving (Show, Eq, Ord)
 makeLenses ''OtherProps
 

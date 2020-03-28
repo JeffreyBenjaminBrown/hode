@@ -121,7 +121,8 @@ exprRow_from_viewExprNode' st n@(VenExpr (ViewExpr a _ _)) =
   Right $ ExprRow { _viewExprNode = n
                   , _numColumnProps = matchCounts
                   , _sortAndSelectColumnProps = (False,False)
-                  , _otherProps = OtherProps False }
+                  , _otherProps = OtherProps { _folded = False
+                                             , _childSort = Nothing } }
 exprRow_from_viewExprNode' _ n =
   Right $ exprRow_from_viewExprNode n
 
@@ -130,7 +131,8 @@ exprRow_from_viewExprNode n = ExprRow
   { _viewExprNode = n
   , _numColumnProps = mempty
   , _sortAndSelectColumnProps = (False,False)
-  , _otherProps = OtherProps False }
+  , _otherProps = OtherProps { _folded = False
+                             , _childSort = Nothing } }
 
 defaulViewOptions :: ViewOptions
 defaulViewOptions = ViewOptions

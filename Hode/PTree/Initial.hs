@@ -74,7 +74,7 @@ data PTree a = PTree {
     _pTreeLabel :: a
   , _pTreeHasFocus :: Bool -- ^ PITFALL: permits invalid state.
     -- There should be exactly one focused node in any complete* tree
-    -- (* subtrees can reasonably have zero focused nodes).
+    -- (* though its subtrees can reasonably have zero focused nodes).
     -- PITFALL: The entire path to the focus is marked,
     -- not via this field, but via the focus of each Porest.
   , _pMTrees :: Maybe (Porest a) }

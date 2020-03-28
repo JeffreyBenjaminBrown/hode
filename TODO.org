@@ -24,7 +24,7 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 ** TODO ordering
 *** TODO WYSIWYG sorting
 **** TODO sorting should modify the parent group to know the sort order
-including the orientation
+including the BinOrientation
 **** TODO selector column and select shortcut
 This is like highlighting a range, but more general.
 An x appears in the (new) "select|sort-order" column.
