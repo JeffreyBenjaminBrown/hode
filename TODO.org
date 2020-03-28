@@ -12,6 +12,9 @@ This will load all non-broken modules when some are broken.
 ** AMR might be useful
 https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
 (in my Downloads/ folder)
+* TODO optic ideas
+Tree has an Ix class.
+I could write one for the Rslt, which might make following paths easier.
 * TODO is PTree focus buggy?
 When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
@@ -26,11 +29,31 @@ This is like highlighting a range, but more general.
 An x appears in the (new) "select|sort-order" column.
   A unicode checkmark (✓) seems to brick my parser.
 **** TODO "add to sort" and "remove from sort"
- One adds highlighted things to the sorted region.
-   Their order is otherwise preserved, but they move into the sorted region.
- The other removes them.
-   They all fall to below the sorted region. Their order might change.
-**** TODO bump in sort
+***** add highlighted things to the sorted region.
+Connect them all to each other.
+Connect the first among them to the last that was already sorted.
+***** remove them
+****** Delete all "visible" connections.
+Delete all connections from nodes-to-remove to nodes-to-remain.
+****** Delete any remaining connections interactively
+ala CycleBreaker
+****** PITFALL: This can change the order of the remaining nodes.
+If A < B < C, and B is removed, A is no longer related via (<) to C
+**** TODO bump (highlighted group?) in sort
+***** bump single node
+Example: Nodes are 1..4, and we move 3 backward, to get [1,3,2,4].
+First disconnect 3 from 2, if (directly) connected.
+Then connect 3 to 1 and 2 (in the new order).
+  If 1 is already connected to 3 that way, no problem.
+Look for cycles (involving 2 and 3).
+  If present, prompt to break as normal.
+***** bump group
+Examples: Nodes are 1...5, and we move [3,4] backward, to get [1,3,4,2,5].
+Connect 3 to 4.
+Disconnect 2 from 3 and 4.
+Connect, in the new order, 1 to 3 and 4 to 2.
+Last, look for cycles (involving 4 and 2).
+  If present, prompt to break as normal.
 *** later: display
 **** the highlight should not affect the columns, only the payload
 **** more expressive sort-colors
@@ -49,7 +72,9 @@ Not involved in the relationship.
  Change ExprTree.insertSearchResults_atFocus
    based on RunParsed.runParsedCommand
 **** indicate the sort applied to each view-fork
-**** a keyboard command to change the sort on a group
+e.g. in parens, following the name of the fork
+or with a typed-in command that shows it in the reassurance window.
+**** DONE , right? keyboard command to change the sort on a group
 ***** later, a "sort program" buffer
 Specific to a given VExpr, applied to its children.
 Shows every TR, and a checkbox next to the one curently ordering the list.
@@ -92,7 +117,6 @@ can be omitted
 *** might help ? better columns
 Some as counts, some otherwise.
 *** might help ? distinguish "of interest" expressions
-
 ** TODO templates for sets of arbitrary size
 ** count more stuff in the left column(s)
 *** ? use hMatches
@@ -102,13 +126,13 @@ Some as counts, some otherwise.
 *** indicate matches ala chmod
 A single decimal (hex) digit can indicate whether an `Expr`
 matches up to 3 (4) separate `HExpr`s.
-** filters, throughout the view-Porest
+** TODO filters, throughout the view-Porest
 not just its top level
 ** cannot implement the separator "#:"
 * TODO easy
 ** TODO the color "white text on black background"
 ** TODO new in GHC 8.10: :instances
-Given a type, shows what classes.
+Given a type, shows its classes.
 ** TODO folding indicator
 Visually indicate whether a node with descendents is folded.
 Or at least, upon inserting contents, unfold.
@@ -182,7 +206,7 @@ https://news.ycombinator.com/item?id=21812786
  document the use case under the "todo" item.
 ** representing things
 *** unordered "set tplts" of variable size
-As in "A + B = C", or "A & B & ... => X"
+As in "A + B + ... = C", or "A & B & ... => X"
 *** anticipate whether a sub-expression will be "needed"
 where "needed" can be
   searched for
@@ -194,6 +218,7 @@ It would be better if distinct things could share a name.
 **** would help: smsn
 ** types?
 * TODO user-friendliness
+** TODO a regex index
 ** TODO If there's a cycle, announce it everywhere
 at the top of every window except the Error window.
 ** TODO edit a PTree
@@ -222,7 +247,6 @@ If a member of something deleted is not remember of anything else, ask whether t
 ** TODO copy to clipboard: buggy on Nix
 On Nix it represents newlines the wrong way.
 ** TODO shortcut: copy address
-** TODO if a group has only one member, omit the group
 ** TODO ? back-references for searches encoded as Exprs
 When a new node is added that matches an extant search,
 the search will find it, but (without further work)

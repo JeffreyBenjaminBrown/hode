@@ -1,4 +1,9 @@
 :set prompt "> "
+
+-- for multi-line input
+:set +m
+:set prompt-cont "| "
+
 :set -XScopedTypeVariables
 :set -XTupleSections
 
@@ -20,3 +25,4 @@ import qualified Data.Text.Lazy.IO as LT -- writeFile
 import Text.Pretty.Simple
 
 import qualified Hode.Test.Rslt.RData as D
+
