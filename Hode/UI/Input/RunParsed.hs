@@ -24,6 +24,7 @@ import Hode.Rslt.Edit
 import Hode.Rslt.Files
 import Hode.Rslt.Types
 import Hode.UI.ExprTree
+import Hode.UI.ExprTree.Sort
 import Hode.UI.CycleBuffer
 import Hode.UI.Util
 import Hode.UI.Input.Parse

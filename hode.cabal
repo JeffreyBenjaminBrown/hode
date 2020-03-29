@@ -116,6 +116,7 @@ library
                 , Hode.UI.Clipboard
                 , Hode.UI.CycleBreaker
                 , Hode.UI.ExprTree
+                , Hode.UI.ExprTree.Sort
                 , Hode.UI.Util
                 , Hode.UI.Util.String
                 , Hode.UI.Input

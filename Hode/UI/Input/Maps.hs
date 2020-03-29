@@ -116,6 +116,10 @@ resultWindow_commands st =
          . otherProps . folded
          %~ not ) ),
 
+  ( V.EvKey (V.KChar 'X') [V.MMeta],
+    go ( stSetFocused_ViewExprNode_Tree . pTreeLabel
+         . boolProps . selected %~ not ) ),
+
   ( V.EvKey (V.KChar 'a') [V.MMeta],
     go $ (viewOptions . viewOpt_ShowAddresses %~ not)
      . showReassurance "Toggled: show addresses to left of expressions." ),

@@ -23,16 +23,27 @@ is `True`. This seems to contradict a comment in PTree.Initial, that
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
-**** DONE sorting should modify the parent group to know the sort order
+**** DONE
+***** sorting should modify the parent group to know the sort order
 including the BinOrientation
-**** TODO selector column and select shortcut
+***** selector column and select shortcut
 This is like highlighting a range, but more general.
 An x appears in the (new) "select|sort-order" column.
   A unicode checkmark (✓) seems to brick my parser.
+**** TODO Hode.UI.ExprTree.Sort
 **** TODO "add to sort" and "remove from sort"
 ***** add highlighted things to the sorted region.
-Connect them all to each other.
-Connect the first among them to the last that was already sorted.
+****** strategy
+Data.List.partition the sorted nodes from the unsorted ones.
+Among the unsorted, partition the selected peers of the focused node
+  (which might include it) from the other peers.
+Connect the selected unsorted peers to each other,
+  and the first among them to the last sorted node.
+  Set their _inSort values to True.
+Reorder them manually: old sorted, then new sorted, then still-unsorted.
+  Use PTree.Modify.sortPList_asList for this.
+  (Could also recompute the sort, but that might be expensive.)
+****** TODO test it
 ***** remove them
 ****** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
@@ -141,7 +152,7 @@ Or at least, upon inserting contents, unfold.
 Rather than rotating blue-green-red,
 invert white with the color.
 ** TODO document
-sorting
+select ViewExpr (M-X)
 nudging (M-E, M-D)
 deleting buffers
 moving address
