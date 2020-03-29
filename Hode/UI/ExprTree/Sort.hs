@@ -27,13 +27,9 @@ sortFocusAndPeers ::
   (BinOrientation, TpltAddr) -> St -> Either String St
 sortFocusAndPeers (bo, t) st =
   prefixLeft "sortFocusAndPeers: " $ do
+  peers :: Porest ExprRow <- stFocusPeers st
   let r :: Rslt = st ^. appRslt
-
-  peers :: Porest ExprRow <-
-    case stFocusPeers st of
-      Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
-      Just x -> Right x
-  let pTreeExprRow_toAddr :: PTree ExprRow -> Maybe Addr =
+      pTreeExprRow_toAddr :: PTree ExprRow -> Maybe Addr =
         (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
       mas :: [Maybe Addr] = map pTreeExprRow_toAddr $ toList peers
   as :: [Addr] <-
