@@ -12,19 +12,19 @@ module Hode.UI.Types.State (
                            -- Prism' Buffer ViewForkType
 
   , St(..)
-  , focusRing              -- ^ B.FocusRing BrickName
-  , searchBuffers          -- ^ Maybe (Porest Buffer)
-  , columnHExprs           -- ^ [HExpr]
-  , blockingCycles         -- ^ Maybe [Cycle]
-  , uiError                -- ^ String
-  , reassurance            -- ^ String
-  , commands               -- ^ B.Editor String BrickName
-  , commandHistory         -- ^ [Command]
-  , appRslt                -- ^ Rslt
-  , viewOptions            -- ^ ViewOptions
-  , showingErrorWindow     -- ^ Bool -- ^ overrides main window
-  , showingInMainWindow    -- ^ MainWindowName
-  , showingOptionalWindows -- ^ Map OptionalWindowName Bool
+  , focusRing              -- ^ fetch a B.FocusRing BrickName
+  , searchBuffers          -- ^ fetch a Maybe (Porest Buffer)
+  , columnHExprs           -- ^ fetch a [HExpr]
+  , blockingCycles         -- ^ fetch a Maybe [Cycle]
+  , uiError                -- ^ fetch a String
+  , reassurance            -- ^ fetch a String
+  , commands               -- ^ fetch a B.Editor String BrickName
+  , commandHistory         -- ^ fetch a [Command]
+  , appRslt                -- ^ fetch a Rslt
+  , viewOptions            -- ^ fetch a ViewOptions
+  , showingErrorWindow     -- ^ fetch a Bool -- overrides main window
+  , showingInMainWindow    -- ^ fetch a MainWindowName
+  , showingOptionalWindows -- ^ fetch a Map OptionalWindowName Bool
 
   -- * misc
   , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
@@ -33,7 +33,8 @@ module Hode.UI.Types.State (
   , stSet_cycleBuffer              -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
-  , resultWindow_focusAddr         -- ^            St -> Either String Addr
+  , resultWindow_focusAddr -- ^ St -> Either String Addr
+  , stFocusPeers           -- ^ St -> Maybe (Porest ExprRow)
   ) where
 
 import           Control.Lens
@@ -60,9 +61,7 @@ makeLenses ''Buffer
 
 -- | I want to say this has type `Prism' Buffer ViewForkType`,
 -- but that appears not to be true.
-getBuffer_viewForkType :: Applicative f
-                       => (ViewForkType -> f ViewForkType)
-                       -> Buffer -> f Buffer
+getBuffer_viewForkType :: Traversal' Buffer ViewForkType
 getBuffer_viewForkType =
   bufferExprRowTree . pTreeLabel .
   viewExprNode . _VenFork . viewForkType
@@ -146,3 +145,8 @@ resultWindow_focusAddr st =
   maybe (error "Focused ViewExprNode not found.") Right
     (st ^? stGetFocused_ViewExprNode_Tree . _Just)
     >>= exprTree_focusAddr
+
+stFocusPeers :: St -> Maybe (Porest ExprRow)
+stFocusPeers st =
+  st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
+          . getParentOfFocusedSubtree . _Just . pMTrees . _Just )

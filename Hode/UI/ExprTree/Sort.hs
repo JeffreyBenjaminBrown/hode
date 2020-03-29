@@ -28,12 +28,9 @@ sortFocusAndPeers ::
 sortFocusAndPeers (bo, t) st =
   prefixLeft "sortFocusAndPeers: " $ do
   let r :: Rslt = st ^. appRslt
-      mPeers :: Maybe (Porest ExprRow) = -- focused Expr is among these
-        st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
-                . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
 
   peers :: Porest ExprRow <-
-    case mPeers of
+    case stFocusPeers st of
       Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
       Just x -> Right x
   let pTreeExprRow_toAddr :: PTree ExprRow -> Maybe Addr =
