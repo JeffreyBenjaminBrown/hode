@@ -59,6 +59,8 @@ instance Ord a => Ord (PointedList a) where
 getPList :: Getter (PointedList a) [a]
 getPList = to toList
 
+-- | TODO : This resets the focus to the first element.
+-- But I don't actually use this optic anywhere, so that can wait.
 setPList :: Setter' (PointedList a) [a]
 setPList = sets go where
   go :: ([a] -> [a]) -> PointedList a -> PointedList a
@@ -116,7 +118,6 @@ getFocusedSubtree = to go where
     Nothing -> Nothing
     Just ts -> go $ ts ^. P.focus
 
--- | Change something about the focused subtree.
 setFocusedSubtree :: Setter' (PTree a) (PTree a)
 setFocusedSubtree = sets go where
   go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a

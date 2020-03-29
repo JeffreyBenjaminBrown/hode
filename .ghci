@@ -10,6 +10,7 @@
 import Control.Arrow
 import Control.Lens
 import Control.Monad
+import Data.Foldable
 import Data.Functor.Foldable
 
 import           Data.Either
