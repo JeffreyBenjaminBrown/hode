@@ -20,6 +20,7 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
+* TODO are there other getters I should rewrite as folds?
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
@@ -33,9 +34,11 @@ An x appears in the (new) "select|sort-order" column.
 **** TODO "add to sort" and "remove from sort"
 ***** add highlighted things to the sorted region.
 ****** TODO implement
-Data.List.partition the sorted nodes from the unsorted ones.
-Among the unsorted, partition the selected peers of the focused node
-  (which might include it) from the other peers.
+restore the following from the diff
+  Data.List.partition the sorted nodes from the unsorted ones.
+  Among the unsorted, partition the selected peers of the focused node
+    (which might include it) from the other peers.
+
 Connect the selected unsorted peers to each other,
   and the first among them to the last sorted node.
   Set their _inSort values to True.

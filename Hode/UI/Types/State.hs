@@ -26,11 +26,11 @@ module Hode.UI.Types.State (
   , showingOptionalWindows -- ^ fetch a Map OptionalWindowName Bool
 
   -- * misc
-  , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
+  , stGet_focusedBuffer            -- ^ Fold St Buffer
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
   , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
   , stSet_cycleBuffer              -- ^ Setter' St Buffer
-  , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
+  , stGetFocused_ViewExprNode_Tree -- ^ Fold St (PTree ExprRow)
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
   , resultWindow_focusAddr -- ^ St -> Either String Addr
   , stFocusPeers           -- ^ St -> Maybe (Porest ExprRow)
