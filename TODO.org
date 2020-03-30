@@ -39,10 +39,9 @@ Done
   Data.List.partition the sorted nodes from the unsorted ones.
   Among the unsorted, partition the selected peers of the focused node
     (which might include it) from the other peers.
-
-Connect the selected unsorted peers to each other,
-  and the first among them to the last sorted node.
-  Set their _inSort values to True.
+  Connect the selected unsorted peers to each other,
+    and the first among them to the last sorted node.
+    Set their _inSort values to True.
 Reorder them manually: old sorted, then new sorted, then still-unsorted.
   Use PTree.Modify.sortPList_asList for this.
   (Could also recompute the sort, but that might be expensive.)

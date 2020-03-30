@@ -7,13 +7,16 @@ module Hode.UI.ExprTree.Sort (
 import           Control.Lens hiding (has, folded)
 import           Data.Foldable (toList)
 import qualified Data.List             as L
+import           Data.List.Lens
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set              as S
 
 import Hode.PTree
 import Hode.Rslt.Binary
-import Hode.Rslt.Types
+import Hode.Rslt.Edit
 import Hode.Rslt.Sort
+import Hode.Rslt.Types
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.Util.Misc
@@ -60,3 +63,41 @@ sortFocusAndPeers (bo, t) st =
       . pMTrees . _Just                     .~ peers2 ) &
     ( stSet_focusedBuffer . bufferExprRowTree . setParentOfFocusedSubtree
       . pTreeLabel . otherProps . childSort .~ Just (bo,t) )
+
+addSelections_toSortedRegion :: St -> Either String St
+addSelections_toSortedRegion st =
+  prefixLeft "addSelections_toSortedRegion: " $ do
+  peers :: Porest ExprRow <- stFocusPeers st
+  (bo,t) :: (BinOrientation, TpltAddr) <-
+    let errMsg = "Focused node and its peers have not been sorted."
+    in maybe (Left errMsg) Right
+       $ st ^? ( stGet_focusedBuffer . bufferExprRowTree .
+                 pTreeLabel . otherProps . childSort . _Just )
+  let peerErs :: [ExprRow] =
+        map (^. pTreeLabel) $ toList peers
+      (inSort :: [ExprRow], outSort :: [ExprRow]) =
+        L.partition (^. boolProps . inSortGroup) peerErs
+      (seld :: [ExprRow], unseld :: [ExprRow]) =
+        L.partition (^. boolProps . selected) outSort
+  if not $ null seld then Right ()
+    else Left "Nothing has been selected."
+  seld <- Right $
+    seld & traversed . boolProps . inSortGroup .~ True
+  let seldAs :: [Addr] = seld
+        ^.. traversed . viewExprNode . _VenExpr . viewExpr_Addr
+      lastSorted :: Maybe Addr = lastOf traversed inSort
+        ^?  traversed . viewExprNode . _VenExpr . viewExpr_Addr
+  r :: Rslt <- insertChain (bo,t) seldAs $ st ^. appRslt
+  r :: Rslt <- case lastSorted of
+    Nothing -> Right r
+    Just a -> -- connect (last of old sorted) to (first of new sorted)
+      let re :: RefExpr = case bo of
+            LeftEarlier  -> Rel' $ Rel [a,head seldAs] t
+            RightEarlier -> Rel' $ Rel [head seldAs,a] t
+      in insert re r
+  error ""
+
+-- peerErs :: [ExprRow] <-
+--    let (nulls,justs) = L.partition isNothing peerMAddrs
+--    in if null nulls then Right justs
+--       else Left "peer `ExprRow`s should all contain `VenExpr`s, but don't."
