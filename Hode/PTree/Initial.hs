@@ -155,9 +155,9 @@ setParentOfFocusedSubtree = sets go where
 -- For instance, I can't replace the second line of the following with it:
 --   st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
 --           . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
-getPeersOfFocusedSubtree :: Getter (PTree a) (Maybe (Porest a))
-getPeersOfFocusedSubtree = to go where
-  go = (^? getParentOfFocusedSubtree . _Just . pMTrees . _Just)
+getPeersOfFocusedSubtree :: Fold (PTree a) (Porest a)
+getPeersOfFocusedSubtree =
+  getParentOfFocusedSubtree . _Just . pMTrees . _Just
 
 setPeersOfFocusedSubtree :: Setter' (PTree a) (Maybe (Porest a))
 setPeersOfFocusedSubtree = sets go where

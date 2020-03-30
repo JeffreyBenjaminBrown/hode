@@ -149,6 +149,6 @@ resultWindow_focusAddr st =
 stFocusPeers :: St -> Either String (Porest ExprRow)
 stFocusPeers st =
   case st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
-               . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
+               . getPeersOfFocusedSubtree )
   of Just x  -> Right x
      Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
