@@ -13,14 +13,15 @@ This will load all non-broken modules when some are broken.
 https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
 (in my Downloads/ folder)
 * TODO optic ideas
-Tree has an Ix class.
+** Tree has an Ix class.
 I could write one for the Rslt, which might make following paths easier.
+** TODO are there other getters I should rewrite as folds?
+
 * TODO is PTree focus buggy?
 When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
-* TODO are there other getters I should rewrite as folds?
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
@@ -34,7 +35,7 @@ An x appears in the (new) "select|sort-order" column.
 **** TODO "add to sort" and "remove from sort"
 ***** add highlighted things to the sorted region.
 ****** TODO implement
-restore the following from the diff
+Done
   Data.List.partition the sorted nodes from the unsorted ones.
   Among the unsorted, partition the selected peers of the focused node
     (which might include it) from the other peers.

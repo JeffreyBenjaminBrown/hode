@@ -8,6 +8,8 @@ module Hode.Rslt.Edit.Initial (
     renameAddr_unsafe  -- ^ Addr -> Addr -> Rslt -> Rslt
   , _replaceInRefExpr  -- ^ Rslt -> Role -> Addr -> RefExpr
                       -- -> Either String RefExpr
+  , insertChain -- ^ (BinOrientation, TpltAddr) -> [Addr] -> Rslt
+                -- -> Either String Rslt
   , insert         -- ^ RefExpr ->              Rslt -> Either String Rslt
   , insertAt       -- ^ Addr -> RefExpr ->      Rslt -> Either String Rslt
   , deleteIfUnused -- ^ Addr ->                 Rslt -> Either String Rslt
@@ -21,6 +23,7 @@ import qualified Data.Map       as M
 import           Data.Set (Set)
 import qualified Data.Set       as S
 
+import Hode.Rslt.Binary
 import Hode.Rslt.Index
 import Hode.Rslt.Lookup
 import Hode.Rslt.Types
@@ -83,6 +86,16 @@ _replaceInRefExpr r spot new host = let
   prefixLeft "_replaceInRefExpr:" $ do
   void $ addrToRefExpr r new
   f spot host
+
+insertChain :: (BinOrientation, TpltAddr) -> [Addr] -> Rslt
+            -> Either String Rslt
+insertChain (bo,t) (a:a':as) r = do
+  let re :: RefExpr = case bo of
+        LeftEarlier  -> Rel' $ Rel [a,a'] t
+        RightEarlier -> Rel' $ Rel [a',a] t
+  r <- insert re r -- intentional masking
+  insertChain (bo,t) (a':as) r
+insertChain _ _ r = Right r
 
 -- TODO ? unused
 insert :: RefExpr -> Rslt -> Either String Rslt

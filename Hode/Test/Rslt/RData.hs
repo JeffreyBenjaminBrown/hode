@@ -84,7 +84,7 @@ big = mkRslt $ M.fromList
   , (  1, Phrase' "1")
   , (  2, Phrase' "2")
   , (  3, Phrase' "3")
-  , (  4, Tplt' $ Tplt n [] n)   -- the unary rel
+  , (  4, Tplt' $ Tplt n [] n)  -- the unary rel
   , (  5, Tplt' $ Tplt n [0] n) -- the binary rel
   , (  6, Rel' $ Rel [1]   4)
   , (  7, Rel' $ Rel [1,2] 5)

@@ -11,6 +11,7 @@ import           Test.HUnit
 
 import           Hode.NoUI
 import           Hode.Rslt.Lookup hiding (exprToAddr)
+import           Hode.Rslt.Binary
 import qualified Hode.Rslt.Edit         as R
 import qualified Hode.Rslt.Edit.Initial as R
 import qualified Hode.Rslt.Edit.Replace as R
@@ -25,6 +26,7 @@ import           Hode.Util.Misc
 test_module_rslt_edit :: Test
 test_module_rslt_edit = TestList [
     TestLabel "test_insert" test_insert
+  , TestLabel "test_insertChain" test_insertChain
   , TestLabel "test_deleteIfUnused" test_deleteIfUnused
   , TestLabel "test_replaceInRole" test_replaceInRole
   , TestLabel "test_replaceRefExpr" test_replaceRefExpr
@@ -272,6 +274,22 @@ test_deleteIfUnused = TestCase $ do
                                    , (RoleInRel' $ RoleMember 2, 6) ] )
   assertBool "isIn $ another former member of missing" $
     isIn r 2 == Right S.empty
+
+test_insertChain :: Test
+test_insertChain = TestCase $ do
+  let tString = "/t /_ x /_"
+      Right r = nInserts emptyRslt $ tString : map show [0..2]
+      t :: TpltAddr
+      t = either (error "wut")  (fst . head) $ nFind r tString
+      a :: Int -> Addr -- the `Addr` of 0,1,2 or 3
+      a = either (error errMsg) (fst . head) . nFind r . show
+        where errMsg = "Only nodes 0,1 and 2 are present."
+  assertBool "" $
+    R.insertChain (LeftEarlier,t) (map a [0..2]) r
+    == nInserts r ["0 #x 1","1 #x 2"]
+  assertBool "" $
+    R.insertChain (RightEarlier,t) (map a [0..2]) r
+    == nInserts r ["1 #x 0","2 #x 1"]
 
 test_insert :: Test
 test_insert = TestCase $ do
