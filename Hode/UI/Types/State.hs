@@ -7,13 +7,12 @@ TemplateHaskell
 module Hode.UI.Types.State (
   -- * types and optics
     Buffer(..)
-  , bufferExprRowTree     -- ^ PTree ExprRow
-  , getBuffer_viewForkType -- ^ NOT this type, but close:
-                           -- Prism' Buffer ViewForkType
+  , bufferExprRowTree      -- ^ PTree ExprRow
+  , getBuffer_viewForkType -- ^ Traversal' Buffer ViewForkType
 
   , St(..)
   , focusRing              -- ^ fetch a B.FocusRing BrickName
-  , searchBuffers          -- ^ fetch a Maybe (Porest Buffer)
+  , vsearchBuffers          -- ^ fetch a Maybe (Porest Buffer)
   , columnHExprs           -- ^ fetch a [HExpr]
   , blockingCycles         -- ^ fetch a Maybe [Cycle]
   , uiError                -- ^ fetch a String
@@ -28,8 +27,8 @@ module Hode.UI.Types.State (
 
   -- * misc
   , stGet_focusedBuffer            -- ^ Getter  St (Maybe Buffer)
-  , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
+  , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
   , stSet_cycleBuffer              -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Getter  St (Maybe (PTree ExprRow))
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
@@ -59,8 +58,6 @@ data Buffer = Buffer
   } deriving (Eq, Show, Ord)
 makeLenses ''Buffer
 
--- | I want to say this has type `Prism' Buffer ViewForkType`,
--- but that appears not to be true.
 getBuffer_viewForkType :: Traversal' Buffer ViewForkType
 getBuffer_viewForkType =
   bufferExprRowTree . pTreeLabel .
@@ -93,6 +90,12 @@ stGet_focusedBuffer = to go where
   go st = st ^? searchBuffers . _Just . P.focus .
           getFocusedSubtree . _Just . pTreeLabel
 
+stSet_focusedBuffer :: Setter' St Buffer
+stSet_focusedBuffer = sets go where
+  go :: (Buffer -> Buffer) -> St -> St
+  go f = searchBuffers . _Just . P.focus .
+         setFocusedSubtree . pTreeLabel %~ f
+
 -- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
 stGet_cycleBuffer :: Getter St (Maybe Buffer)
 stGet_cycleBuffer = to go where
@@ -105,12 +108,6 @@ stGet_cycleBuffer = to go where
                  . (^? getBuffer_viewForkType ) )
       . toList . fmap _pTreeLabel
       $ p
-
-stSet_focusedBuffer :: Setter' St Buffer
-stSet_focusedBuffer = sets go where
-  go :: (Buffer -> Buffer) -> St -> St
-  go f = searchBuffers . _Just . P.focus .
-         setFocusedSubtree . pTreeLabel %~ f
 
 -- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
 stSet_cycleBuffer :: Setter' St Buffer
