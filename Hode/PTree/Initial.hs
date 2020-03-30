@@ -31,6 +31,8 @@ module Hode.PTree.Initial (
   , setFocusedSubtree         -- ^ Setter' (PTree a) (PTree a)
   , getParentOfFocusedSubtree -- ^ Getter  (PTree a) (Maybe (PTree a))
   , setParentOfFocusedSubtree -- ^ Setter' (PTree a) (PTree a)
+  , getPeersOfFocusedSubtree  -- ^ Getter (PTree a) (Maybe (Porest a))
+  , setPeersOfFocusedSubtree  -- ^ Setter' (PTree a) (Maybe (Porest a))
   , pTrees                    -- ^ Traversal' (PTree a) (Porest a)
 
   -- | ** PTree creators
@@ -143,6 +145,23 @@ setParentOfFocusedSubtree = sets go where
     case t ^. pMTrees of
       Nothing -> t
       Just _ -> t & pMTrees . _Just . P.focus %~ go f
+
+-- ^ PITFALL: Given the two `_Just`s in the code below,
+-- a `Nothing` return value might look ambiguous, but it's not.
+-- This only fails if the focus has no parent, because it's root.
+-- Otherwise, its set of peers always includes at least itself.
+--
+-- PITFALL | TODO ? This optic doesn't compose well with others.
+-- For instance, I can't replace the second line of the following with it:
+--   st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
+--           . getParentOfFocusedSubtree . _Just . pMTrees . _Just )
+getPeersOfFocusedSubtree :: Getter (PTree a) (Maybe (Porest a))
+getPeersOfFocusedSubtree = to go where
+  go = (^? getParentOfFocusedSubtree . _Just . pMTrees . _Just)
+
+setPeersOfFocusedSubtree :: Setter' (PTree a) (Maybe (Porest a))
+setPeersOfFocusedSubtree = sets go where
+  go f = setParentOfFocusedSubtree . pMTrees %~ f
 
 pTrees :: Traversal' (PTree a) (Porest a)
 pTrees = pMTrees . _Just

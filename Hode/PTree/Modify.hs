@@ -127,12 +127,10 @@ deleteInPorest p =
 
 deleteInPTree :: forall a. PTree a -> PTree a
 deleteInPTree t =
-  case t ^? ( getParentOfFocusedSubtree . _Just
-               . pMTrees . _Just )
+  case t ^. getPeersOfFocusedSubtree
   of Nothing              -> t -- you can't delete the root
      Just (p :: Porest a) -> t &
-       ( setParentOfFocusedSubtree . pMTrees
-         .~ deleteInPorest p )
+       setPeersOfFocusedSubtree .~ deleteInPorest p
 
 nudgeFocus_inPTree :: Direction -> PTree a -> PTree a
 nudgeFocus_inPTree DirUp t =
@@ -151,7 +149,7 @@ nudgeFocus_inPTree DirDown t =
                      & setFocusedSubtree . pTreeHasFocus .~ False
 
 nudgeFocus_inPTree DirPrev t =
-  case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
+  case t ^. getPeersOfFocusedSubtree
   of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
                              & prevIfPossible
@@ -159,7 +157,7 @@ nudgeFocus_inPTree DirPrev t =
        in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
 
 nudgeFocus_inPTree DirNext t =
-  case t ^? getParentOfFocusedSubtree . _Just . pMTrees . _Just
+  case t ^. getPeersOfFocusedSubtree
   of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
                              & nextIfPossible
@@ -193,5 +191,5 @@ nudgeInPorest dir p =
 
 nudgeInPTree :: forall a. Direction -> PTree a -> PTree a
 nudgeInPTree dir =
-  setParentOfFocusedSubtree . pMTrees . _Just
+  setPeersOfFocusedSubtree . _Just
   %~ nudgeInPorest dir

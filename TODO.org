@@ -33,9 +33,6 @@ An x appears in the (new) "select|sort-order" column.
 **** TODO "add to sort" and "remove from sort"
 ***** add highlighted things to the sorted region.
 ****** TODO implement
-addSelections_toSortedRegion :: St -> Either String St
-addSelections_toSortedRegion st = do ...
-
 Data.List.partition the sorted nodes from the unsorted ones.
 Among the unsorted, partition the selected peers of the focused node
   (which might include it) from the other peers.
