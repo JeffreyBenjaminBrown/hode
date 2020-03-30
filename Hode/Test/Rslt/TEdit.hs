@@ -278,7 +278,7 @@ test_deleteIfUnused = TestCase $ do
 test_insertChain :: Test
 test_insertChain = TestCase $ do
   let tString = "/t /_ x /_"
-      Right r = nInserts emptyRslt $ tString : map show [0..2]
+      Right r = nInserts emptyRslt $ tString : map show [0 .. 2::Int]
       t :: TpltAddr
       t = either (error "wut")  (fst . head) $ nFind r tString
       a :: Int -> Addr -- the `Addr` of 0,1,2 or 3
