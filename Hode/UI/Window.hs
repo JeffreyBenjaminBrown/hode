@@ -43,7 +43,7 @@ emptyCommandWindow = commands . B.editContentsL
 replaceCommand :: St -> St
 replaceCommand st = maybe st f query where
   query :: Maybe String
-  query = st ^? ( stGet_focusedBuffer . _Just . getBuffer_viewForkType
+  query = st ^? ( stGet_focusedBuffer . getBuffer_viewForkType
                   . _VFQuery . _QueryView )
 
   f :: String -> St

@@ -69,7 +69,7 @@ appDraw st0 = [w] where
 
   b :: Buffer = maybe
     (error "Focused Buffer not found.") id
-    $ st0 ^? stGet_focusedBuffer . _Just
+    $ st0 ^? stGet_focusedBuffer
 
   mainWindow :: B.Widget BrickName =
     case st ^. showingInMainWindow of

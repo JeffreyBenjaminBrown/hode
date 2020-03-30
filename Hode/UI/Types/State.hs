@@ -12,7 +12,7 @@ module Hode.UI.Types.State (
 
   , St(..)
   , focusRing              -- ^ fetch a B.FocusRing BrickName
-  , vsearchBuffers          -- ^ fetch a Maybe (Porest Buffer)
+  , searchBuffers          -- ^ fetch a Maybe (Porest Buffer)
   , columnHExprs           -- ^ fetch a [HExpr]
   , blockingCycles         -- ^ fetch a Maybe [Cycle]
   , uiError                -- ^ fetch a String
@@ -84,11 +84,10 @@ data St = St {
   }
 makeLenses ''St
 
-stGet_focusedBuffer :: Getter St (Maybe Buffer)
-stGet_focusedBuffer = to go where
-  go :: St -> Maybe Buffer
-  go st = st ^? searchBuffers . _Just . P.focus .
-          getFocusedSubtree . _Just . pTreeLabel
+stGet_focusedBuffer :: Fold St Buffer
+stGet_focusedBuffer =
+  searchBuffers . _Just . P.focus .
+  getFocusedSubtree . _Just . pTreeLabel
 
 stSet_focusedBuffer :: Setter' St Buffer
 stSet_focusedBuffer = sets go where
@@ -122,12 +121,10 @@ stSet_cycleBuffer = sets go where
           %~ fmap (pTreeLabel %~ g)
 
 stGetFocused_ViewExprNode_Tree ::
-  Getter St (Maybe (PTree ExprRow))
-stGetFocused_ViewExprNode_Tree = to go where
-  go :: St -> Maybe (PTree ExprRow)
-  go st = st ^? stGet_focusedBuffer . _Just .
-          bufferExprRowTree .
-          getFocusedSubtree . _Just
+  Fold St (PTree ExprRow)
+stGetFocused_ViewExprNode_Tree =
+  stGet_focusedBuffer . bufferExprRowTree
+  . getFocusedSubtree . _Just
 
 stSetFocused_ViewExprNode_Tree ::
   Setter' St (PTree ExprRow)
@@ -140,12 +137,12 @@ stSetFocused_ViewExprNode_Tree = sets go where
 resultWindow_focusAddr :: St -> Either String Addr
 resultWindow_focusAddr st =
   maybe (error "Focused ViewExprNode not found.") Right
-    (st ^? stGetFocused_ViewExprNode_Tree . _Just)
+    (st ^? stGetFocused_ViewExprNode_Tree)
     >>= exprTree_focusAddr
 
 stFocusPeers :: St -> Either String (Porest ExprRow)
 stFocusPeers st =
-  case st ^? ( stGet_focusedBuffer . _Just . bufferExprRowTree
-               . getPeersOfFocusedSubtree )
+  case st ^?
+    stGet_focusedBuffer . bufferExprRowTree . getPeersOfFocusedSubtree
   of Just x  -> Right x
      Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."

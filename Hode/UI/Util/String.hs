@@ -25,7 +25,7 @@ focusedBufferStrings st =
   maybe [] (concatMap $ go 0) p
   where
   p :: Maybe (Porest ExprRow)
-  p = st ^? stGet_focusedBuffer . _Just .
+  p = st ^? stGet_focusedBuffer .
       bufferExprRowTree . pMTrees . _Just
 
   go :: Int -> PTree ExprRow -> [String]
@@ -53,7 +53,7 @@ redraw_focusedBuffer st =
   prefixLeft "redraw_focusedBuffer:" $ do
   let r :: Rslt = st ^. appRslt
       vo :: ViewOptions = st ^. viewOptions
-  case st ^. stGet_focusedBuffer of
+  case st ^? stGet_focusedBuffer of
     Nothing -> Left "Focused buffer not found."
     Just b0 -> do
       b :: Buffer <- redraw_viewExpr_Strings r vo b0
