@@ -89,12 +89,12 @@ _replaceInRefExpr r spot new host = let
 
 insertChain :: (BinOrientation, TpltAddr) -> [Addr] -> Rslt
             -> Either String Rslt
-insertChain (bo,t) (a:a':as) r = do
+insertChain (bo,t) (a:a':as) _r = do
   let re :: RefExpr = case bo of
         LeftEarlier  -> Rel' $ Rel [a,a'] t
         RightEarlier -> Rel' $ Rel [a',a] t
-  r <- insert re r -- intentional masking
-  insertChain (bo,t) (a':as) r
+  _r <- insert re _r
+  insertChain (bo,t) (a':as) _r
 insertChain _ _ r = Right r
 
 -- TODO ? unused
