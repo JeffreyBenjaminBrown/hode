@@ -34,20 +34,17 @@ An x appears in the (new) "select|sort-order" column.
   A unicode checkmark (✓) seems to brick my parser.
 **** TODO "add to sort" and "remove from sort"
 ***** add highlighted things to the sorted region.
-****** TODO implement
-Done
-  Data.List.partition the sorted nodes from the unsorted ones.
-  Among the unsorted, partition the selected peers of the focused node
-    (which might include it) from the other peers.
-  Connect the selected unsorted peers to each other,
-    and the first among them to the last sorted node.
+****** DONE implement
+Data.List.partition the sorted nodes from the unsorted ones.
+Among the unsorted, partition the selected peers of the focused node
+  (which might include it) from the other peers.
+Connect the selected unsorted peers to each other,
+  and the first among them to the last sorted node.
 Reorder them manually: old sorted, then new sorted, then still-unsorted.
   Use PTree.Modify.sortPList_asList for this.
   (Could also recompute the sort, but that might be expensive.)
 Set their _inSort values to True.
   -- this won't work but the optic is correct
-  seld <- Right $
-    seld & traversed . boolProps . inSortGroup .~ True
 ****** TODO test
 ***** remove them
 ****** Delete all relevant "visible" connections.

@@ -2,12 +2,13 @@
 
 module Hode.UI.ExprTree.Sort (
   sortFocusAndPeers -- ^ (BinOrientation, TpltAddr) -> St -> Either String St
+  , addSelections_toSortedRegion -- ^                  St -> Either String St
   ) where
 
-import           Control.Lens hiding (has, folded)
+import           Control.Lens hiding (re)
 import           Data.Foldable (toList)
 import qualified Data.List             as L
-import           Data.Maybe
+import qualified Data.List.PointedList as P
 import           Data.Set (Set)
 import qualified Data.Set              as S
 
@@ -64,39 +65,49 @@ sortFocusAndPeers (bo, t) st =
       . pTreeLabel . otherProps . childSort .~ Just (bo,t) )
 
 addSelections_toSortedRegion :: St -> Either String St
-addSelections_toSortedRegion st =
+addSelections_toSortedRegion _st =
   prefixLeft "addSelections_toSortedRegion: " $ do
-  peers :: Porest ExprRow <- stFocusPeers st
+
+  -- fetch stuff
+  peers :: Porest ExprRow <- stFocusPeers _st
   (bo,t) :: (BinOrientation, TpltAddr) <-
     let errMsg = "Focused node and its peers have not been sorted."
     in maybe (Left errMsg) Right
-       $ st ^? ( stGet_focusedBuffer . bufferExprRowTree .
-                 pTreeLabel . otherProps . childSort . _Just )
-  let peerErs :: [ExprRow] =
-        map (^. pTreeLabel) $ toList peers
-      (inSort :: [ExprRow], outSort :: [ExprRow]) =
-        L.partition (^. boolProps . inSortGroup) peerErs
-      (seld :: [ExprRow], unseld :: [ExprRow]) =
-        L.partition (^. boolProps . selected) outSort
-  if not $ null seld then Right ()
+       $ _st ^? ( stGet_focusedBuffer . bufferExprRowTree
+                  . pTreeLabel . otherProps . childSort . _Just )
+  let peerErs :: [PTree ExprRow] = toList peers
+
+  -- partition the list into (1) rows already in the sort,
+  -- (2) selected things to be added to the sort, and (3) the rest.
+  let inSort, outSort, _seld, unseld :: [PTree ExprRow]
+      (inSort, outSort) =
+        L.partition (^. pTreeLabel . boolProps . inSortGroup) peerErs
+      (_seld,   unseld)  =
+        L.partition (^. pTreeLabel . boolProps . selected) outSort
+
+  if not $ null _seld then Right ()
     else Left "Nothing has been selected."
-  let inSortAs :: [Addr] = inSort ^.. traversed . exprRow_addr
-      seldAs   :: [Addr] = seld   ^.. traversed . exprRow_addr
-      unseldAs :: [Addr] = unseld ^.. traversed . exprRow_addr
-      as       :: [Addr] = inSortAs ++ seldAs ++ unseldAs
-  st <- Right $ st &
-    stSet_focusedBuffer . bufferExprRowTree . setPeersOfFocusedSubtree . _Just
-    %~ ( sortPList_asList
-         (maybe (error "impossible") id . (^? pTreeLabel . exprRow_addr))
-         as )
-      
-  r :: Rslt <- insertChain (bo,t) seldAs $ st ^. appRslt
-  r :: Rslt <- case lastOf traversed inSortAs of
-    Nothing -> Right r
+  _seld <- Right $
+    _seld & traversed . pTreeLabel . boolProps . inSortGroup .~ True
+
+  -- reorder the relevant `ExprRow`s
+  _st :: St <- Right $  _st & stSet_focusedBuffer . bufferExprRowTree
+    . setPeersOfFocusedSubtree . _Just
+    .~ ( maybe (error "impossible") id
+         $ P.fromList $ inSort ++ _seld ++ unseld )
+
+  -- add new relationships to the `Rslt`
+  let inSortAs :: [Addr] = inSort ^.. traversed . pTreeLabel . exprRow_addr
+      seldAs   :: [Addr] = _seld   ^.. traversed . pTreeLabel . exprRow_addr
+      _r :: Rslt = _st ^. appRslt
+  _r :: Rslt <- insertChain (bo,t) seldAs _r
+  _r :: Rslt <- case lastOf traversed inSortAs of
+    Nothing -> Right _r
     Just (a :: Addr) ->
       -- connect (last of old sorted) to (first of new sorted)
       let re :: RefExpr = case bo of
             LeftEarlier  -> Rel' $ Rel [a,head seldAs] t
             RightEarlier -> Rel' $ Rel [head seldAs,a] t
-      in insert re r
-  error ""
+      in insert re _r
+
+  Right $ _st & appRslt .~ _r
