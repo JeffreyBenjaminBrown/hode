@@ -64,6 +64,16 @@ sortFocusAndPeers (bo, t) st =
     ( stSet_focusedBuffer . bufferExprRowTree . setParentOfFocusedSubtree
       . pTreeLabel . otherProps . childSort .~ Just (bo,t) )
 
+-- PITFALL: Only tested by hand. Here's how:
+--   r = nInserts (mkRslt mempty) ["a # b","c","d","e","f","(/t /_ x /_) #is transitive"]
+--   st <- uiFromRslt r
+--   Then run these commands
+--     /f a | b | c | d | e | f
+--     /sl (/t /_ x /_)
+--   Then select (`M-X`) the expressions d and e.
+--   Then include them in the sort (`M-i`).
+--   The display should now read "a,b,d,e,c,f", and a-d should be
+--      colored differently from c and f in the how-it's-sorted column.
 addSelections_toSortedRegion :: St -> Either String St
 addSelections_toSortedRegion _st =
   prefixLeft "addSelections_toSortedRegion: " $ do

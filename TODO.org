@@ -32,9 +32,8 @@ including the BinOrientation
 This is like highlighting a range, but more general.
 An x appears in the (new) "select|sort-order" column.
   A unicode checkmark (✓) seems to brick my parser.
-**** TODO "add to sort" and "remove from sort"
-***** add highlighted things to the sorted region.
-****** DONE implement
+**** TODO add highlighted things to the sorted region.
+***** DONE implement
 Data.List.partition the sorted nodes from the unsorted ones.
 Among the unsorted, partition the selected peers of the focused node
   (which might include it) from the other peers.
@@ -45,13 +44,13 @@ Reorder them manually: old sorted, then new sorted, then still-unsorted.
   (Could also recompute the sort, but that might be expensive.)
 Set their _inSort values to True.
   -- this won't work but the optic is correct
-****** TODO test
-***** remove them
-****** Delete all relevant "visible" connections.
+***** DONE test
+**** TODO remove highlighted things from the sorted region
+***** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
-****** Delete any remaining connections interactively
+***** Delete any remaining connections interactively
 ala CycleBreaker
-****** PITFALL: This can change the order of the remaining nodes.
+***** PITFALL: This can change the order of the remaining nodes.
 If A < B < C, and B is removed, A is no longer related via (<) to C
 **** TODO bump (highlighted group?) in sort
 ***** bump single node
