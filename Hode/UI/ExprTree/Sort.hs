@@ -32,9 +32,8 @@ sortFocusAndPeers (bo, t) st =
   prefixLeft "sortFocusAndPeers: " $ do
   peers :: Porest ExprRow <- stFocusPeers st
   let r :: Rslt = st ^. appRslt
-      pTreeExprRow_toAddr :: PTree ExprRow -> Maybe Addr =
-        (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
-      mas :: [Maybe Addr] = map pTreeExprRow_toAddr $ toList peers
+      mas :: [Maybe Addr] =
+        map (^? pTreeExprRow_addr) $ toList peers
   as :: [Addr] <-
     let f :: Maybe Addr -> Either String Addr
         f Nothing = Left $ "Sort failed. Probably because the focused node is a view-gropuiing node, as opposed to an expression in the graph. Try moving the cursor and re-executing that command."
@@ -47,7 +46,7 @@ sortFocusAndPeers (bo, t) st =
       order :: [Addr]       = sorted ++ isol
       peers1 :: Porest ExprRow = -- sort
         sortPList_asList
-        (maybe (error "impossible") id . pTreeExprRow_toAddr)
+        (maybe (error "impossible") id . (^? pTreeExprRow_addr))
         order peers
   peers2 :: Porest ExprRow <- let -- modify _boolProps
     f :: PTree ExprRow -> Either String (PTree ExprRow)

@@ -29,6 +29,7 @@ module Hode.UI.Types.Views (
 
   -- * misc
   , exprTree_focusAddr -- ^ PTree ExprRow -> Either String Addr
+  , pTreeExprRow_addr  -- ^ Traversal' (PTree ExprRow) Addr
   ) where
 
 import Control.Lens hiding (folded)
@@ -218,6 +219,11 @@ instance ShowColor ViewOptions ViewExprNode where
 
 exprTree_focusAddr :: PTree ExprRow -> Either String Addr
 exprTree_focusAddr =
+  prefixLeft "exprTree_focusAddr: " .
   (\case VenExpr rv -> Right $ rv ^. viewExpr_Addr
          _         -> Left $ "Can only be called from a VenExpr." )
   . (^. pTreeLabel . viewExprNode)
+
+pTreeExprRow_addr :: Traversal' (PTree ExprRow) Addr
+pTreeExprRow_addr =
+  pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr
