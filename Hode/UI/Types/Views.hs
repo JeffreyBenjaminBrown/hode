@@ -29,7 +29,7 @@ module Hode.UI.Types.Views (
 
   -- * misc
   , exprTree_focusAddr -- ^ PTree ExprRow -> Either String Addr
-  , exprRow_addr      -- ^ Traversal' (PTree ExprRow) Addr
+  , exprRow_addr       -- ^ Traversal' (PTree ExprRow) Addr
   ) where
 
 import Control.Lens hiding (folded)

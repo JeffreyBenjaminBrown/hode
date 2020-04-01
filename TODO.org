@@ -48,7 +48,7 @@ Set their _inSort values to True.
   -- this won't work but the optic is correct
   seld <- Right $
     seld & traversed . boolProps . inSortGroup .~ True
-** TODO test
+****** TODO test
 ***** remove them
 ****** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.

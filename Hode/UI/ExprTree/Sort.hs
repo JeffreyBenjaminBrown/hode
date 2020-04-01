@@ -84,6 +84,11 @@ addSelections_toSortedRegion st =
       seldAs   :: [Addr] = seld   ^.. traversed . exprRow_addr
       unseldAs :: [Addr] = unseld ^.. traversed . exprRow_addr
       as       :: [Addr] = inSortAs ++ seldAs ++ unseldAs
+  st <- Right $ st &
+    stSet_focusedBuffer . bufferExprRowTree . setPeersOfFocusedSubtree . _Just
+    %~ ( sortPList_asList
+         (maybe (error "impossible") id . (^? pTreeLabel . exprRow_addr))
+         as )
       
   r :: Rslt <- insertChain (bo,t) seldAs $ st ^. appRslt
   r :: Rslt <- case lastOf traversed inSortAs of
@@ -95,12 +100,3 @@ addSelections_toSortedRegion st =
             RightEarlier -> Rel' $ Rel [head seldAs,a] t
       in insert re r
   error ""
-
--- peerErs :: [ExprRow] <-
---    let (nulls,justs) = L.partition isNothing peerMAddrs
---    in if null nulls then Right justs
---       else Left "peer `ExprRow`s should all contain `VenExpr`s, but don't."
-
--- sortPList_asList
---   (maybe (error "impossible") id . (^? pTreeLabel . xprRow_addr))
---   order peers
