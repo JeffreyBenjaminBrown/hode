@@ -7,7 +7,6 @@ module Hode.UI.ExprTree.Sort (
 import           Control.Lens hiding (has, folded)
 import           Data.Foldable (toList)
 import qualified Data.List             as L
-import           Data.List.Lens
 import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set              as S
@@ -33,7 +32,7 @@ sortFocusAndPeers (bo, t) st =
   peers :: Porest ExprRow <- stFocusPeers st
   let r :: Rslt = st ^. appRslt
       mas :: [Maybe Addr] =
-        map (^? pTreeExprRow_addr) $ toList peers
+        map (^? pTreeLabel . exprRow_addr) $ toList peers
   as :: [Addr] <-
     let f :: Maybe Addr -> Either String Addr
         f Nothing = Left $ "Sort failed. Probably because the focused node is a view-gropuiing node, as opposed to an expression in the graph. Try moving the cursor and re-executing that command."
@@ -46,7 +45,8 @@ sortFocusAndPeers (bo, t) st =
       order :: [Addr]       = sorted ++ isol
       peers1 :: Porest ExprRow = -- sort
         sortPList_asList
-        (maybe (error "impossible") id . (^? pTreeExprRow_addr))
+        ( maybe (error "impossible") id
+          . (^? pTreeLabel . exprRow_addr))
         order peers
   peers2 :: Porest ExprRow <- let -- modify _boolProps
     f :: PTree ExprRow -> Either String (PTree ExprRow)
@@ -80,16 +80,16 @@ addSelections_toSortedRegion st =
         L.partition (^. boolProps . selected) outSort
   if not $ null seld then Right ()
     else Left "Nothing has been selected."
-  seld <- Right $
-    seld & traversed . boolProps . inSortGroup .~ True
-  let seldAs :: [Addr] = seld
-        ^.. traversed . viewExprNode . _VenExpr . viewExpr_Addr
-      lastSorted :: Maybe Addr = lastOf traversed inSort
-        ^?  traversed . viewExprNode . _VenExpr . viewExpr_Addr
+  let inSortAs :: [Addr] = inSort ^.. traversed . exprRow_addr
+      seldAs   :: [Addr] = seld   ^.. traversed . exprRow_addr
+      unseldAs :: [Addr] = unseld ^.. traversed . exprRow_addr
+      as       :: [Addr] = inSortAs ++ seldAs ++ unseldAs
+      
   r :: Rslt <- insertChain (bo,t) seldAs $ st ^. appRslt
-  r :: Rslt <- case lastSorted of
+  r :: Rslt <- case lastOf traversed inSortAs of
     Nothing -> Right r
-    Just a -> -- connect (last of old sorted) to (first of new sorted)
+    Just (a :: Addr) ->
+      -- connect (last of old sorted) to (first of new sorted)
       let re :: RefExpr = case bo of
             LeftEarlier  -> Rel' $ Rel [a,head seldAs] t
             RightEarlier -> Rel' $ Rel [head seldAs,a] t
@@ -100,3 +100,7 @@ addSelections_toSortedRegion st =
 --    let (nulls,justs) = L.partition isNothing peerMAddrs
 --    in if null nulls then Right justs
 --       else Left "peer `ExprRow`s should all contain `VenExpr`s, but don't."
+
+-- sortPList_asList
+--   (maybe (error "impossible") id . (^? pTreeLabel . xprRow_addr))
+--   order peers

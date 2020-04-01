@@ -41,11 +41,14 @@ Done
     (which might include it) from the other peers.
   Connect the selected unsorted peers to each other,
     and the first among them to the last sorted node.
-    Set their _inSort values to True.
 Reorder them manually: old sorted, then new sorted, then still-unsorted.
   Use PTree.Modify.sortPList_asList for this.
   (Could also recompute the sort, but that might be expensive.)
-****** TODO test
+Set their _inSort values to True.
+  -- this won't work but the optic is correct
+  seld <- Right $
+    seld & traversed . boolProps . inSortGroup .~ True
+** TODO test
 ***** remove them
 ****** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
