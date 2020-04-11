@@ -74,26 +74,30 @@ cycleBuffer_fromAddrs st (t,c) = do
       , _pTreeHasFocus = False
       , _pMTrees = Just p } }
 
--- | Inserts an empty cycle buffer before the current focus.
+-- | Insert an empty cycle buffer before the current focus.
 insert_cycleBuffer :: St -> St
 insert_cycleBuffer =
   searchBuffers . _Just %~
   insertLeft_noFocusChange
   ( pTreeLeaf $ bufferFrom_viewQuery $ CycleView )
 
--- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
+-- | PITFALL: Assumes the Cycle Buffer is top-level and unique,
+-- and that it has no child buffers.
+-- (Any child buffers would be deleted too.)
 delete_cycleBuffer :: St -> Either String St
 delete_cycleBuffer st =
   prefixLeft "delete_cycleBuffer:" $
   case st ^. searchBuffers of
   Nothing -> Left "searchBuffers is empty."
   Just (_pb :: Porest Buffer) -> do
-    let pred :: PTree Buffer -> Bool =
+    let topIsCycleBuffer :: PTree Buffer -> Bool =
+          -- If it is in fact the cycle buffer, the top buffer
+          -- should be the only buffer in this tree.
           ( /= (Just CycleView) ) .
           ( ^? pTreeLabel . getBuffer_viewForkType . _VFQuery )
     _pb :: Porest Buffer <- let
-      err = Left "nothing left after filtering. (Not a user error.)"
-      in maybe err Right $ filterPList pred _pb
+      err = Left "No cycle buffer found."
+      in maybe err Right $ filterPList topIsCycleBuffer _pb
     _pb :: Porest Buffer <- return $
       -- If the focused node is gone after filtering 
       -- (e.g. because it was a child of the cycle buffer),
