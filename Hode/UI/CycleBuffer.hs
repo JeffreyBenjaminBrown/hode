@@ -4,7 +4,7 @@
 module Hode.UI.CycleBuffer (
     updateBlockingCycles  -- ^ St ->          Either String St
   , updateCycleBuffer     -- ^ St ->          Either String St
-  , cycleBuffer_fromAddrs -- ^ St -> Cycle -> Either String Buffer
+  , cycleBuffer_fromCycle -- ^ St -> Cycle -> Either String Buffer
   , insert_cycleBuffer    -- ^ St ->                        St
   , delete_cycleBuffer    -- ^ St ->          Either String St
   ) where
@@ -51,7 +51,7 @@ updateCycleBuffer _st =
   prefixLeft "cycleBuffer:" $ do
   case _st ^. blockingCycles of
     Just (c:_) -> do
-      cb <- cycleBuffer_fromAddrs _st c
+      cb <- cycleBuffer_fromCycle _st c
       _st <- return $ case _st ^. stGet_cycleBuffer of
         Nothing -> insert_cycleBuffer _st
         _       ->                    _st
@@ -63,8 +63,8 @@ updateCycleBuffer _st =
         . showReassurance "No cycles identified."
         <$> delete_cycleBuffer _st
 
-cycleBuffer_fromAddrs :: St -> Cycle -> Either String Buffer
-cycleBuffer_fromAddrs st (t,c) = do
+cycleBuffer_fromCycle :: St -> Cycle -> Either String Buffer
+cycleBuffer_fromCycle st (t,c) = do
   p :: Porest ExprRow <-
     (P.focus . pTreeHasFocus .~ True)
     <$> addrsToExprRows st mempty (t:c)
