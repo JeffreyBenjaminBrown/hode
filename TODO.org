@@ -32,7 +32,7 @@ including the BinOrientation
 This is like highlighting a range, but more general.
 An x appears in the (new) "select|sort-order" column.
   A unicode checkmark (✓) seems to brick my parser.
-**** TODO add highlighted things to the sorted region.
+**** DONE add highlighted things to the sorted region.
 ***** DONE implement
 Data.List.partition the sorted nodes from the unsorted ones.
 Among the unsorted, partition the selected peers of the focused node

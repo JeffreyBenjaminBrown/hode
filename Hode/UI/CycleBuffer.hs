@@ -28,11 +28,10 @@ import Hode.UI.Window
 import Hode.Util.Misc
 
 
--- | If the focused buffer has cycles recorded in `bufferCycles`,
--- this recomputes them.
 updateBlockingCycles :: St -> Either String St
 -- TODO ? This is inefficient -- it recomputes all cycles each time.
 updateBlockingCycles st =
+  prefixLeft "updateBlockingCycles" $
   case st ^. blockingCycles of
   Nothing -> Right st
   Just cs0 -> do
@@ -48,21 +47,21 @@ updateBlockingCycles st =
 -- | Updates the cycle buffer to reflect what is now in
 -- the focused buffer's `bufferCycles` field.
 updateCycleBuffer :: St -> Either String St
-updateCycleBuffer st0 =
+updateCycleBuffer _st =
   prefixLeft "cycleBuffer:" $ do
-  case st0 ^. blockingCycles of
+  case _st ^. blockingCycles of
     Just (c:_) -> do
-      cb <- cycleBuffer_fromAddrs st0 c
-      let st1 = case st0 ^. stGet_cycleBuffer of
-                  Nothing -> insert_cycleBuffer st0
-                  _ -> st0
-      Right ( st1 & stSet_cycleBuffer .~ cb
+      cb <- cycleBuffer_fromAddrs _st c
+      _st <- return $ case _st ^. stGet_cycleBuffer of
+        Nothing -> insert_cycleBuffer _st
+        _       ->                    _st
+      Right ( _st & stSet_cycleBuffer .~ cb
               & showReassurance "Cycle detected. Add, move and replace are disabled. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
         (showingInMainWindow .~ SearchBuffer)
         . (blockingCycles .~ Nothing)
         . showReassurance "No cycles identified."
-        <$> delete_cycleBuffer st0
+        <$> delete_cycleBuffer _st
 
 cycleBuffer_fromAddrs :: St -> Cycle -> Either String Buffer
 cycleBuffer_fromAddrs st (t,c) = do
@@ -87,19 +86,19 @@ delete_cycleBuffer :: St -> Either String St
 delete_cycleBuffer st =
   prefixLeft "delete_cycleBuffer:" $
   case st ^. searchBuffers of
-    Nothing -> Left "searchBuffers is empty. (Not a user error.)"
-    Just (pb0 :: Porest Buffer) -> do
-      let pred :: PTree Buffer -> Bool =
-            ( /= (Just CycleView) ) .
-            ( ^? pTreeLabel . getBuffer_viewForkType . _VFQuery )
-      pb1 :: Porest Buffer <- let
-        err = Left "nothing left after filtering. (Not a user error.)"
-        in maybe err Right $ filterPList pred pb0
-      let pb2 :: Porest Buffer =
-            -- If the focused node is gone after filtering 
-            -- (e.g. because it was a child of the cycle buffer),
-            -- move focus (arbitrarily) to the top of the buffer porest.
-            case pb1 ^. P.focus . getFocusedSubtree of
-              Nothing -> pb1 & P.focus . pTreeHasFocus .~ True
-              _ -> pb1
-      Right $ st & searchBuffers .~ Just pb2
+  Nothing -> Left "searchBuffers is empty."
+  Just (_pb :: Porest Buffer) -> do
+    let pred :: PTree Buffer -> Bool =
+          ( /= (Just CycleView) ) .
+          ( ^? pTreeLabel . getBuffer_viewForkType . _VFQuery )
+    _pb :: Porest Buffer <- let
+      err = Left "nothing left after filtering. (Not a user error.)"
+      in maybe err Right $ filterPList pred _pb
+    _pb :: Porest Buffer <- return $
+      -- If the focused node is gone after filtering 
+      -- (e.g. because it was a child of the cycle buffer),
+      -- move focus (arbitrarily) to the top of the buffer porest.
+      case _pb ^. P.focus . getFocusedSubtree of
+        Nothing -> _pb & P.focus . pTreeHasFocus .~ True
+        _ -> _pb
+    Right $ st & searchBuffers .~ Just _pb
