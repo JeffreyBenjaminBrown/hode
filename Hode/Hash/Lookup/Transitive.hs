@@ -214,9 +214,9 @@ transitiveRels1 d r ts fs s =
                        SearchLeftward  -> (,s)
   Right $ map pair found
 
--- | `cyclesInvolving r t a0` searches for cycles involving `a0`.
--- PITFALL: It assumes there are no other cycles.
--- If it encounters any not involving `a0`, it will crash.
+-- | `cyclesInvolving r t a0` finds all cycles involving `a0`.
+-- PITFALL: It assumes there are no others.
+-- If it encounters cycles not involving `a0`, it will crash.
 cyclesInvolving :: Rslt -> SearchDir -> TpltAddr -> Addr
                 -> Either String [Cycle]
 cyclesInvolving r d t a0 =
@@ -224,22 +224,25 @@ cyclesInvolving r d t a0 =
 
   go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
   go cycles []             = Right cycles
-  go cycles (as:notCycles) = do
-    (cs,ncs) <- extendPath as
-    go (maybe cycles (: cycles) cs ++ cycles) (ncs ++ notCycles)
+  go cycles (path:paths) = do
+    -- Pop path, make all its extensions, see if any form cycles, store
+    -- cycles, and repeat process on extensions that aren't whole* cycles.
+    -- (*Upon further extension, they might turn out to be subsets of cycles.)
+    extensions <- extendPath r d t path
+    let ( cyc :: [[Addr]], -- cyc will have length at most 1
+          nonCycExtensions :: [[Addr]]) =
+          L.partition ((==) a0 . head) extensions
+    go (cyc ++ cycles) (nonCycExtensions ++ paths)
 
-  extendPath :: [Addr] -> Either String
-    (  Maybe [Addr] -- If the extended input forms a cycle,
-                    -- this is the non-extended input.
-    , [[Addr]] )    -- Paths attainable by extending the input.
-  extendPath [] =
-    error "impossible: paths start nonempty and only grow."
-  extendPath as@(a:_) = do
-    ns :: Set Addr <- immediateNeighbors r d [t] [a]
-    Right ( case S.member a0 ns of
-              True -> Just $ a0 : as
-              False -> Nothing
-          , map (: as) $ S.toList $ S.delete a0 ns )
+extendPath :: Rslt -> SearchDir -> TpltAddr -> [Addr] ->
+  Either String [[Addr]] -- ^ Paths attainable by extending the input.
+extendPath r d t path =
+  prefixLeft "extendPath: " $
+  case path of
+    [] -> Left "The empty path cannot be extended."
+    (a:_) -> do
+      ns :: Set Addr <- immediateNeighbors r d [t] [a]
+      Right $ map (: path) $ S.toList ns
 
 
 -- | `reachable d r ts as` finds all expressions reachable from `as`,
