@@ -226,25 +226,23 @@ cyclesInvolving r d t a0 =
   go cycles []             = Right cycles
   go cycles (as:notCycles) = do
     (cs,ncs) <- extendPath as
-    go (cs ++ cycles) (ncs ++ notCycles)
+    go (maybe cycles (: cycles) cs ++ cycles) (ncs ++ notCycles)
 
   extendPath :: [Addr] -> Either String
-                        ( [[Addr]]   -- cycles
-                        , [[Addr]] ) -- not cycles
-  extendPath [] = error "impossible: paths start nonempty and only grow."
+    (  Maybe [Addr] -- If the extended input forms a cycle,
+                    -- this is the non-extended input.
+    , [[Addr]] )    -- Paths attainable by extending the input.
+  extendPath [] =
+    error "impossible: paths start nonempty and only grow."
   extendPath as@(a:_) = do
     ns :: Set Addr <- immediateNeighbors r d [t] [a]
-    let cycles = case S.member a0 ns of
-          True -> [a0 : as]
-          False -> []
-        notCycles = map (: as) $ S.toList $ S.delete a0 ns
-    Right (cycles, notCycles)
+    Right ( case S.member a0 ns of
+              True -> Just $ a0 : as
+              False -> Nothing
+          , map (: as) $ S.toList $ S.delete a0 ns )
 
 
--- | = Searching from a fixed set of `Expr`s toward no particular target.
--- For instance, given set S, find the set T = {t s.t. t > s for some s in S}.
-
--- | `reachable d r ts as` finds all the expressions reachable from `as`,
+-- | `reachable d r ts as` finds all expressions reachable from `as`,
 -- via `ts`, by moving `d`.
 --
 -- PITFALL: If there are cycles, this will crash.
