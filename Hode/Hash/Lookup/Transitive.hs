@@ -26,7 +26,11 @@ module Hode.Hash.Lookup.Transitive (
                      -- -> Either String [(Addr,Addr)]
 
   , cyclesInvolving -- ^ Rslt -> SearchDir -> TpltAddr -> Addr
-                   -- -> Either String [[Cycle]]
+                    -- -> Either String [[Cycle]]
+  , connections     -- ^ Rslt -> SearchDir -> TpltAddr -> [Addr] -> Set Addr
+                    -- -> Either String [Cycle]
+  , extendPath      -- ^ Rslt -> SearchDir -> TpltAddr -> [Addr]
+                    -- -> Either String [[Addr]]
 
   , reachable -- ^ :: SearchDir
                 -- -> Rslt
@@ -52,7 +56,8 @@ import Hode.Util.Misc
 
 
 -- | `hExprToAddrs` is the Hash search workhorse.
-
+-- The `HExpr` argument describes something(s) to find,
+-- and `hExprToAddrs` finds every `Addr` matching the description.
 hExprToAddrs :: Rslt -> Subst Addr -> HExpr ->
                 Either String (Set Addr)
 
@@ -174,7 +179,10 @@ hExprToAddrs r _ HTplts =
   Right $ _tplts r
 
 
--- | PITFALL: Assumes (at least one) relationship it is given is reflexive.
+-- | `transitiveClosure d r ts as` finds all transitive relationships
+-- involving `as`. For instance, if `as` contains a and c, and a < b < c,
+-- then (a,c) would be among the results.
+-- PITFALL: Assumes (at least one) relationship it is given is reflexive.
 transitiveClosure :: SearchDir
   -> Rslt
   -> [Addr] -- ^ binary `Tplt`s to search along.
@@ -184,10 +192,9 @@ transitiveClosure :: SearchDir
 transitiveClosure d r ts as =
   transitiveRels d r ts as as
 
--- | = Searching from a fixed set toward a fixed target.
--- For instance, given sets S and T, find the set {(s,t) | s in S, t in T,
--- and there exists a chain s < n1 < n2 < n3 < ... < t of length 2 or more}.
-
+-- | = Given fixed sets S and T, this finds the set
+-- {(s,t) | s in S, t in T,
+--          and there exists a chain s < n1 < n2 < n3 < ... < t}
 transitiveRels :: SearchDir
   -> Rslt
   -> [Addr] -- ^ binary `Tplt`s to search along.
@@ -214,28 +221,46 @@ transitiveRels1 d r ts fs s =
                        SearchLeftward  -> (,s)
   Right $ map pair found
 
--- | `cyclesInvolving r t a0` finds all cycles involving `a0`.
+-- | `cyclesInvolving r d t a0` finds all cycles involving `a0`.
 -- PITFALL: It assumes there are no others.
 -- If it encounters cycles not involving `a0`, it will crash.
+-- The argument `d` isn't strictly necessary,
+-- but could be used to optimize speed.
 cyclesInvolving :: Rslt -> SearchDir -> TpltAddr -> Addr
                 -> Either String [Cycle]
 cyclesInvolving r d t a0 =
-  map ((t,) . reverse) <$> go [] [[a0]] where
+  connections r d t [a0] (S.singleton a0)
+
+-- | `connections r d t from to` finds all paths from `from` to `to`
+-- in the direction `(d,t)`.
+-- Once a path reaches `to`, it is explored no further.
+--
+-- PITFALL: Cycles can cause `connections` to crash.
+-- Specifically, if any path along `(d,t)` from `from` leads to a cycle,
+-- unless that cycle is formed immediately upon reaching `from`,
+-- it will loop forever.
+-- TODO ? This might be avoidable by deleting nodes from `r`
+-- after they are explored. Would have to be sure not to remove `t`.
+-- This problem is dealt with in `Rslt.Sort`.
+connections :: Rslt -> SearchDir -> TpltAddr -> [Addr] -> Set Addr
+            -> Either String [Cycle]
+connections r d t from to =
+  map ((t,) . reverse) <$> go [] (map (:[]) from) where
 
   go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
-  go cycles []             = Right cycles
-  go cycles (path:paths) = do
-    -- Pop path, make all its extensions, see if any form cycles, store
-    -- cycles, and repeat process on extensions that aren't whole* cycles.
-    -- (*Upon further extension, they might turn out to be subsets of cycles.)
+  go connectingPaths []           = Right connectingPaths
+  go connectingPaths (path:paths) = do
+    -- Pop `path`, make all its extensions,
+    -- store any that connect the two `[Addr]`s.
+    -- Repeat the process on any that did not connect.
     extensions <- extendPath r d t path
-    let ( cyc :: [[Addr]], -- cyc will have length at most 1
-          nonCycExtensions :: [[Addr]]) =
-          L.partition ((==) a0 . head) extensions
-    go (cyc ++ cycles) (nonCycExtensions ++ paths)
+    let ( connecting :: [[Addr]],
+          notConnecting :: [[Addr]]) =
+          L.partition (flip S.member to . head) extensions
+    go (connecting ++ connectingPaths) (notConnecting ++ paths)
 
-extendPath :: Rslt -> SearchDir -> TpltAddr -> [Addr] ->
-  Either String [[Addr]] -- ^ Paths attainable by extending the input.
+extendPath :: Rslt -> SearchDir -> TpltAddr -> [Addr]
+           -> Either String [[Addr]]
 extendPath r d t path =
   prefixLeft "extendPath: " $
   case path of

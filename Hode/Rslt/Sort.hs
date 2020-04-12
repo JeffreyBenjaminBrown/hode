@@ -65,7 +65,7 @@ import           Data.Set (Set)
 import qualified Data.Set       as S
 import           Control.Monad (foldM)
 
-import Hode.Hash.Lookup
+import Hode.Hash.Lookup hiding (connections)
 import Hode.Hash.Types
 import Hode.Rslt.Edit (deleteIfUnused)
 import Hode.Rslt.Edit.Initial (_deleteInternalMentionsOf_unsafe)
