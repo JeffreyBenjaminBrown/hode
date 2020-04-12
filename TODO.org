@@ -8,26 +8,6 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo
-* TODO establish an informal schema
-** AMR might be useful
-https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
-(in my Downloads/ folder)
-* TODO optic ideas
-** Tree has an Ix class.
-I could write one for the Rslt, which might make following paths easier.
-** TODO are there other getters I should rewrite as folds?
-
-* TODO is PTree focus buggy?
-When I run `st <- ui`, look through a small view-tree,
-and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
-is `True`. This seems to contradict a comment in PTree.Initial, that
-"If it has focus, none of its children should."
-* TODO unify cyclesInvolving, connections, and things yet to write
-something yet to write: like connections or cyclesInvolving, but it only returns the first thing it finds, rather than all of them.
-
-cyclesInvolving returns a set of cycles (whole paths), which is inefficient in its only current use context, the CycleBuffer. It should only return one.
-
-reachable gives everything reachable from a set of origins; the target set is unrestricted. It doesn't give the path, just the destination.
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
@@ -124,6 +104,27 @@ Just add some more indicators to _columnHExprs:
   not, maybe, and warning
 *** after using the app more, maybe consider the more general problem
 ** TODO compress binary groups
+* TODO unsorted
+** TODO establish an informal schema
+*** AMR might be useful
+ https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
+ (in my Downloads/ folder)
+** TODO optic ideas
+*** Tree has an Ix class.
+ I could write one for the Rslt, which might make following paths easier.
+*** TODO are there other getters I should rewrite as folds?
+
+** TODO is PTree focus buggy?
+ When I run `st <- ui`, look through a small view-tree,
+ and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
+ is `True`. This seems to contradict a comment in PTree.Initial, that
+ "If it has focus, none of its children should."
+** TODO unify cyclesInvolving, connections, and things yet to write
+ something yet to write: like connections or cyclesInvolving, but it only returns the first thing it finds, rather than all of them.
+
+ cyclesInvolving returns a set of cycles (whole paths), which is inefficient in its only current use context, the CycleBuffer. It should only return one.
+
+ reachable gives everything reachable from a set of origins; the target set is unrestricted. It doesn't give the path, just the destination.
 * TODO pressing
 ** TODO tests for the UI
 *** St could be Eq and Ord
