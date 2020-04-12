@@ -32,9 +32,9 @@ module Hode.UI.Types.State (
   , stSet_cycleBuffer              -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Fold St (PTree ExprRow)
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
-  , resultWindow_focusAddr -- ^ St -> Either String Addr
-  , stFocusPeers           -- ^ St -> Maybe (Porest ExprRow)
-  , stGetOrder_ofFocusGroup -- ^ Fold St (BinOrientation, TpltAddr)
+  , resultWindow_focusAddr  -- ^ St -> Either String Addr
+  , stFocusPeers            -- ^ Fold St (Porest ExprRow)
+  , stFocusGroupOrder -- ^ Fold St (BinOrientation, TpltAddr)
   ) where
 
 import           Control.Lens
@@ -142,15 +142,14 @@ resultWindow_focusAddr st =
     (st ^? stGetFocused_ViewExprNode_Tree)
     >>= exprTree_focusAddr
 
-stFocusPeers :: St -> Either String (Porest ExprRow)
-stFocusPeers st =
-  case st ^?
-    stGet_focusedBuffer . bufferExprRowTree . getPeersOfFocusedSubtree
-  of Just x  -> Right x
-     Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
+stFocusPeers :: Fold St (Porest ExprRow)
+stFocusPeers =
+  stGet_focusedBuffer . bufferExprRowTree . getPeersOfFocusedSubtree
 
-stGetOrder_ofFocusGroup :: Fold St (BinOrientation, TpltAddr)
-stGetOrder_ofFocusGroup =
+-- | The focused `ExprRow`s parent's children might be sorted.
+-- If so, this returns the order on them.
+stFocusGroupOrder :: Fold St (BinOrientation, TpltAddr)
+stFocusGroupOrder =
   stGet_focusedBuffer . bufferExprRowTree
   . getParentOfFocusedSubtree . _Just
   . pTreeLabel . otherProps . childSort . _Just

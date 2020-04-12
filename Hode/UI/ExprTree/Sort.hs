@@ -31,7 +31,9 @@ sortFocusAndPeers ::
   (BinOrientation, TpltAddr) -> St -> Either String St
 sortFocusAndPeers (bo, t) st =
   prefixLeft "sortFocusAndPeers: " $ do
-  peers :: Porest ExprRow <- stFocusPeers st
+  peers :: Porest ExprRow <-
+    case st ^? stFocusPeers of Just x  -> Right x
+                               Nothing -> Left $ "Focused expr has no peers -- probably because it's the root of the view."
   let r :: Rslt = st ^. appRslt
       mas :: [Maybe Addr] =
         map (^? pTreeLabel . exprRow_addr) $ toList peers
@@ -87,11 +89,13 @@ addSelections_toSortedRegion _st =
   prefixLeft "addSelections_toSortedRegion: " $ do
 
   -- fetch stuff
-  peers :: Porest ExprRow <- stFocusPeers _st
+  peers :: Porest ExprRow <-
+    case _st ^? stFocusPeers of Just x  -> Right x
+                                Nothing -> Left $ "Focused expr has no peers -- probably because it's the root of the view."
   (bo,t) :: (BinOrientation, TpltAddr) <-
     let errMsg = "Focused node and its peers have not been sorted."
     in maybe (Left errMsg) Right
-       $ _st ^? stGetOrder_ofFocusGroup
+       $ _st ^? stFocusGroupOrder
   let peerErs :: [PTree ExprRow] = toList peers
 
   -- partition the list into (1) rows already in the sort,
@@ -128,4 +132,4 @@ addSelections_toSortedRegion _st =
       in insert re _r
 
   Right $ _st & appRslt .~ _r
-    & showReassurance "Selections have been added to the order currently ordering the focused expression and its peers."
+    & showReassurance "Selections have been added to the order that currently orders the focused expression and its peers."
