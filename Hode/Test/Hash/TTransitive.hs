@@ -24,7 +24,40 @@ test_module_hash_hlookup_transitive = TestList [
   , TestLabel "test_transitiveRels" test_transitiveRels
   , TestLabel "test_reachable" test_reachable
   , TestLabel "test_cyclesInvolving" test_cyclesInvolving
+  , TestLabel "test_connections" test_connections
   ]
+
+a i = either (error "absent") id
+      $ exprToAddr r $ Phrase $ show i
+Right ta  = exprToAddr r $ ExprTplt $ Tplt
+            Nothing [Phrase "a"] Nothing
+Right tb  = exprToAddr r $ ExprTplt $ Tplt
+            Nothing [Phrase "b"] Nothing
+Right (r :: Rslt) = nInserts (mkRslt mempty)
+  [ "1  #a 2"
+  , "2  #a 3"
+  , "1  #b 10"
+  , "10 #b 11"
+  , "1  #b 20"
+  , "20 #b 21" ]
+
+test_connections :: Test
+test_connections = TestCase $ do
+  assertBool "" $ Right [] ==
+    connections r SearchRightward ta [a 2]
+    (S.fromList $ map a [1,10,11])
+  assertBool "" $ Right [ map a [1,2,3] ] ==
+    connections r SearchRightward ta [a 1]
+    (S.singleton $ a 3)
+  assertBool "" $ Right [map a [1,10]] ==
+    connections r SearchRightward tb [a 1]
+    (S.fromList $ map a [10,11])
+  assertBool "" $
+    ( S.fromList <$> Right (map (map a) $
+                            [ [1,10]
+                            , [1,20,21] ] ) ) ==
+    ( S.fromList <$> connections r SearchRightward tb
+      [a 1] (S.fromList $ map a [10,11,21]) )
 
 test_cyclesInvolving :: Test
 test_cyclesInvolving = TestCase $ do

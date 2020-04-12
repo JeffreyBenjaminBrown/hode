@@ -229,7 +229,7 @@ transitiveRels1 d r ts fs s =
 cyclesInvolving :: Rslt -> SearchDir -> TpltAddr -> Addr
                 -> Either String [Cycle]
 cyclesInvolving r d t a0 =
-  connections r d t [a0] (S.singleton a0)
+  map (t,) <$> connections r d t [a0] (S.singleton a0)
 
 -- | `connections r d t from to` finds all paths from `from` to `to`
 -- in the direction `(d,t)`.
@@ -243,9 +243,9 @@ cyclesInvolving r d t a0 =
 -- after they are explored. Would have to be sure not to remove `t`.
 -- This problem is dealt with in `Rslt.Sort`.
 connections :: Rslt -> SearchDir -> TpltAddr -> [Addr] -> Set Addr
-            -> Either String [Cycle]
+            -> Either String [[Addr]]
 connections r d t from to =
-  map ((t,) . reverse) <$> go [] (map (:[]) from) where
+  map reverse <$> go [] (map (:[]) from) where
 
   go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
   go connectingPaths []           = Right connectingPaths
