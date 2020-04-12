@@ -34,6 +34,7 @@ module Hode.UI.Types.State (
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
   , resultWindow_focusAddr -- ^ St -> Either String Addr
   , stFocusPeers           -- ^ St -> Maybe (Porest ExprRow)
+  , stGetOrder_ofFocusGroup -- ^ Fold St (BinOrientation, TpltAddr)
   ) where
 
 import           Control.Lens
@@ -46,6 +47,7 @@ import qualified Brick.Focus as B
 
 import Hode.Hash.Types
 import Hode.PTree.Initial
+import Hode.Rslt.Binary (BinOrientation)
 import Hode.Rslt.Types
 import Hode.UI.Types.Names
 import Hode.UI.Types.Views
@@ -146,3 +148,9 @@ stFocusPeers st =
     stGet_focusedBuffer . bufferExprRowTree . getPeersOfFocusedSubtree
   of Just x  -> Right x
      Nothing -> Left $ "Sort failed. Probably because the focused node is the root of the view, so it has no peers to sort."
+
+stGetOrder_ofFocusGroup :: Fold St (BinOrientation, TpltAddr)
+stGetOrder_ofFocusGroup =
+  stGet_focusedBuffer . bufferExprRowTree
+  . getParentOfFocusedSubtree . _Just
+  . pTreeLabel . otherProps . childSort . _Just

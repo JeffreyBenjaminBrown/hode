@@ -19,6 +19,7 @@ import Hode.Rslt.Sort
 import Hode.Rslt.Types
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
+import Hode.UI.Window (showReassurance)
 import Hode.Util.Misc
 
 
@@ -90,9 +91,7 @@ addSelections_toSortedRegion _st =
   (bo,t) :: (BinOrientation, TpltAddr) <-
     let errMsg = "Focused node and its peers have not been sorted."
     in maybe (Left errMsg) Right
-       $ _st ^? ( stGet_focusedBuffer . bufferExprRowTree
-                  . getParentOfFocusedSubtree . _Just
-                  . pTreeLabel . otherProps . childSort . _Just )
+       $ _st ^? stGetOrder_ofFocusGroup
   let peerErs :: [PTree ExprRow] = toList peers
 
   -- partition the list into (1) rows already in the sort,
@@ -129,3 +128,4 @@ addSelections_toSortedRegion _st =
       in insert re _r
 
   Right $ _st & appRslt .~ _r
+    & showReassurance "Selections have been added to the order currently ordering the focused expression and its peers."
