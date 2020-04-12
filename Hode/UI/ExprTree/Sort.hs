@@ -64,11 +64,12 @@ sortFocusAndPeers (bo, t) st =
     ( stSet_focusedBuffer . bufferExprRowTree . setParentOfFocusedSubtree
       . pTreeLabel . otherProps . childSort .~ Just (bo,t) )
 
--- ^ `addSelections_toSortedRegion st` returns a modified version of `st`.
--- It adds all the selected peers of the currently focused node
--- to the set of peers that are sorted. It adds relationships
+-- ^ `addSelections_toSortedRegion st`
+-- adds all the selected peers of the currently focused node
+-- to the set of its peers that are sorted. It adds relationships
 -- to the graph, such that the new nodes end up at the bottom of the sorted
 -- region, in the same order (relative to each other) as they had before.
+-- It also reorders the appearance of those expressions in the buffer.
 --
 -- PITFALL: Only tested by hand. Here's how:
 --   r = nInserts (mkRslt mempty) ["a # b","c","d","e","f","(/t /_ x /_) #is transitive"]
@@ -90,6 +91,7 @@ addSelections_toSortedRegion _st =
     let errMsg = "Focused node and its peers have not been sorted."
     in maybe (Left errMsg) Right
        $ _st ^? ( stGet_focusedBuffer . bufferExprRowTree
+                  . getParentOfFocusedSubtree . _Just
                   . pTreeLabel . otherProps . childSort . _Just )
   let peerErs :: [PTree ExprRow] = toList peers
 
