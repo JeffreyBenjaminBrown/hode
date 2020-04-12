@@ -22,17 +22,15 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
-* TODO can cyclesInvolving, reachable, and firstPathTo be unified?
-pathsTo isn't written yet, but given a set of origins and destinations,
-it returns a Maybe Path from one set to the other.
+* TODO unify cyclesInvolving, connections, and things yet to write
+something yet to write: like connections or cyclesInvolving, but it only returns the first thing it finds, rather than all of them.
+
 cyclesInvolving returns a set of cycles (whole paths), which is inefficient in its only current use context, the CycleBuffer. It should only return one.
+
 reachable gives everything reachable from a set of origins; the target set is unrestricted. It doesn't give the path, just the destination.
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
-**** TODO find (only one) first path from a node to a set of nodes
-Hash.Lookup.Transitive.cyclesInvolving comes close to doing what's needed here.
-We only need one because each time we find one, we make an "unwanted connection" window containing that path, and ask the user to handle it, and once they break it they might have broken others in the process.
 **** DONE
 ***** sorting should modify the parent group to know the sort order
 including the BinOrientation
@@ -54,6 +52,16 @@ Set their _inSort values to True.
   -- this won't work but the optic is correct
 ***** DONE test
 **** TODO remove highlighted things from the sorted region
+mimic this stuff
+  UI.ExprTree.Sort.addSelections_toSortedRegion
+    In `st`, this changes `appRslt` and `stSet_focusedBuffer`.
+  to discover connections of length > 1
+    use connections instead of cyclesInvolving
+  UI.CycleBuffer.updateBlockingCycles
+    this changes `st ^. blockingCycles`.
+    I'll need a new field in `st`, to track what the nodes user is trying to ad to what sorted group, and which cannot be added yet because of connections of length > 1.
+  UI.CycleBuffer.updateCycleBuffer
+    this only makes sense after running `updateBlockingCycles`.
 ***** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
 ***** TODO Delete any remaining connections interactively

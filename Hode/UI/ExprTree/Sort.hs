@@ -64,6 +64,12 @@ sortFocusAndPeers (bo, t) st =
     ( stSet_focusedBuffer . bufferExprRowTree . setParentOfFocusedSubtree
       . pTreeLabel . otherProps . childSort .~ Just (bo,t) )
 
+-- ^ `addSelections_toSortedRegion st` returns a modified version of `st`.
+-- It adds all the selected peers of the currently focused node
+-- to the set of peers that are sorted. It adds relationships
+-- to the graph, such that the new nodes end up at the bottom of the sorted
+-- region, in the same order (relative to each other) as they had before.
+--
 -- PITFALL: Only tested by hand. Here's how:
 --   r = nInserts (mkRslt mempty) ["a # b","c","d","e","f","(/t /_ x /_) #is transitive"]
 --   st <- uiFromRslt r
@@ -95,8 +101,8 @@ addSelections_toSortedRegion _st =
       (_seld,   unseld)  =
         L.partition (^. pTreeLabel . boolProps . selected) outSort
 
-  if not $ null _seld then Right ()
-    else Left "Nothing has been selected."
+  if null _seld then Left "Nothing is selected here."
+    else Right ()
   _seld <- Right $
     _seld & traversed . pTreeLabel . boolProps . inSortGroup .~ True
 
@@ -108,7 +114,7 @@ addSelections_toSortedRegion _st =
 
   -- add new relationships to the `Rslt`
   let inSortAs :: [Addr] = inSort ^.. traversed . pTreeLabel . exprRow_addr
-      seldAs   :: [Addr] = _seld   ^.. traversed . pTreeLabel . exprRow_addr
+      seldAs   :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
       _r :: Rslt = _st ^. appRslt
   _r :: Rslt <- insertChain (bo,t) seldAs _r
   _r :: Rslt <- case lastOf traversed inSortAs of
