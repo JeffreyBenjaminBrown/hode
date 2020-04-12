@@ -27,22 +27,21 @@ test_module_hash_hlookup_transitive = TestList [
   , TestLabel "test_connections" test_connections
   ]
 
-a i = either (error "absent") id
-      $ exprToAddr r $ Phrase $ show i
-Right ta  = exprToAddr r $ ExprTplt $ Tplt
-            Nothing [Phrase "a"] Nothing
-Right tb  = exprToAddr r $ ExprTplt $ Tplt
-            Nothing [Phrase "b"] Nothing
-Right (r :: Rslt) = nInserts (mkRslt mempty)
-  [ "1  #a 2"
-  , "2  #a 3"
-  , "1  #b 10"
-  , "10 #b 11"
-  , "1  #b 20"
-  , "20 #b 21" ]
-
 test_connections :: Test
 test_connections = TestCase $ do
+  let a i = either (error "absent") id
+            $ exprToAddr r $ Phrase $ show i
+      Right ta  = exprToAddr r $ ExprTplt $ Tplt
+                  Nothing [Phrase "a"] Nothing
+      Right tb  = exprToAddr r $ ExprTplt $ Tplt
+                  Nothing [Phrase "b"] Nothing
+      Right (r :: Rslt) = nInserts (mkRslt mempty)
+        [ "1  #a 2"
+        , "2  #a 3"
+        , "1  #b 10"
+        , "10 #b 11"
+        , "1  #b 20"
+        , "20 #b 21" ]
   assertBool "" $ Right [] ==
     connections r SearchRightward ta [a 2]
     (S.fromList $ map a [1,10,11])
