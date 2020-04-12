@@ -31,7 +31,7 @@ import Hode.Util.Misc
 updateBlockingCycles :: St -> Either String St
 -- TODO ? This is inefficient -- it recomputes all cycles each time.
 updateBlockingCycles st =
-  prefixLeft "updateBlockingCycles" $
+  prefixLeft "updateBlockingCycles: " $
   case st ^. blockingCycles of
   Nothing -> Right st
   Just cs0 -> do
@@ -44,19 +44,20 @@ updateBlockingCycles st =
       concat <$> mapM ci uniqueKernels
     Right $ st & blockingCycles .~ Just cs1
 
--- | Updates the cycle buffer to reflect what is now in
--- the focused buffer's `bufferCycles` field.
+-- | `updateCycleBuffer st` updates the cycle buffer to reflect
+-- what is now in `st ^. blockingCycles`. If there are no blocking cycles,
+-- the cycle buffer is removed.
 updateCycleBuffer :: St -> Either String St
 updateCycleBuffer _st =
-  prefixLeft "cycleBuffer:" $ do
+  prefixLeft "cycleBuffer: " $ do
   case _st ^. blockingCycles of
     Just (c:_) -> do
-      cb <- cycleBuffer_fromCycle _st c
-      _st <- return $ case _st ^. stGet_cycleBuffer of
+      cb :: Buffer <- cycleBuffer_fromCycle _st c
+      _st :: St <- return $ case _st ^. stGet_cycleBuffer of
         Nothing -> insert_cycleBuffer _st
         _       ->                    _st
       Right ( _st & stSet_cycleBuffer .~ cb
-              & showReassurance "Cycle detected. Add, move and replace are disabled. See Cycle Buffer." )
+              & showReassurance "Cycle detected. Add, move, and replace will be disabled until it is broken. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
         (showingInMainWindow .~ SearchBuffer)
         . (blockingCycles .~ Nothing)
@@ -64,9 +65,12 @@ updateCycleBuffer _st =
         <$> delete_cycleBuffer _st
 
 cycleBuffer_fromCycle :: St -> Cycle -> Either String Buffer
-cycleBuffer_fromCycle st (t,c) = do
+cycleBuffer_fromCycle st (t,c) =
+  prefixLeft "cycleBuffer_fromCycle: " $ do
   p :: Porest ExprRow <-
-    (P.focus . pTreeHasFocus .~ True)
+    ( -- Focus on the first child (the template),
+      -- rather than on the root of the porest.
+      P.focus . pTreeHasFocus .~ True )
     <$> addrsToExprRows st mempty (t:c)
   Right $ Buffer
     { _bufferExprRowTree = PTree
@@ -86,7 +90,7 @@ insert_cycleBuffer =
 -- (Any child buffers would be deleted too.)
 delete_cycleBuffer :: St -> Either String St
 delete_cycleBuffer st =
-  prefixLeft "delete_cycleBuffer:" $
+  prefixLeft "delete_cycleBuffer: " $
   case st ^. searchBuffers of
   Nothing -> Left "searchBuffers is empty."
   Just (_pb :: Porest Buffer) -> do

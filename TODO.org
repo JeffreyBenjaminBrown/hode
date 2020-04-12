@@ -22,9 +22,17 @@ When I run `st <- ui`, look through a small view-tree,
 and then exit and study `st`, I find many nodes for which `pTreeHasFocus`
 is `True`. This seems to contradict a comment in PTree.Initial, that
 "If it has focus, none of its children should."
+* TODO can cyclesInvolving, reachable, and firstPathTo be unified?
+pathsTo isn't written yet, but given a set of origins and destinations,
+it returns a Maybe Path from one set to the other.
+cyclesInvolving returns a set of cycles (whole paths), which is inefficient in its only current use context, the CycleBuffer. It should only return one.
+reachable gives everything reachable from a set of origins; the target set is unrestricted. It doesn't give the path, just the destination.
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
+**** TODO find (only one) first path from a node to a set of nodes
+Hash.Lookup.Transitive.cyclesInvolving comes close to doing what's needed here.
+We only need one because each time we find one, we make an "unwanted connection" window containing that path, and ask the user to handle it, and once they break it they might have broken others in the process.
 **** DONE
 ***** sorting should modify the parent group to know the sort order
 including the BinOrientation
@@ -48,8 +56,12 @@ Set their _inSort values to True.
 **** TODO remove highlighted things from the sorted region
 ***** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
-***** Delete any remaining connections interactively
+***** TODO Delete any remaining connections interactively
 ala CycleBreaker
+For each removed thing, see if it can reach any of the others,
+including the others that we want to remove -- and for any such reachable others, find the path leading to it.
+HReach seems unsuited to this, as it returns the set of all things reachable,
+but not the path.
 ***** PITFALL: This can change the order of the remaining nodes.
 If A < B < C, and B is removed, A is no longer related via (<) to C
 **** TODO bump (highlighted group?) in sort
