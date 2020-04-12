@@ -18,7 +18,7 @@ module Hode.UI.Types.Views (
   , BoolProps(..), inSortGroup, selected
   , OtherProps(..), folded, childSort
 
-  , ViewQuery(..), _QueryView, _CycleView
+  , ViewQuery(..), _QueryView, _CycleView, _OffscreenConnectionView
   , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String
   , RelHostGroup(..), memberHostsRole, memberHostsTplt
   , ViewForkType(..), _VFQuery, _VFMembers, _VFTpltHosts
@@ -83,7 +83,10 @@ makeLenses ''OtherProps
 -- | Should be at the top of every PTree of ViewExprs.
 data ViewQuery
   = QueryView String -- ^ the String is what was searched for
-  | CycleView -- ^ When Hode finds a cycle, it makes one of these.
+  | CycleView -- ^ When Hode finds a cycle in a transitive relaitonship,
+  -- it makes one of these, and asks the user to break the cycle.
+  | OffscreenConnectionView -- ^ When the user tries to remove a set R
+  -- of expressions from an ordered set O, Hode might discover a path of length > 1 connecting R to O. In that case it will ask the user to disconnect that path somewhere, or else to give up.
   deriving (Eq, Ord, Show)
 makePrisms ''ViewQuery
 
@@ -202,6 +205,7 @@ instance ShowBrief ViewExprNode where
     case _viewForkType vf of
     VFQuery (QueryView s) -> show s
     VFQuery CycleView -> "Cycle detected! Please break it somewhere."
+    VFQuery OffscreenConnectionView -> "You told Hode to remove a set of expressions from an order, but there exists a path of length > 1 connecting them. Please break that path somewhere, or press M-S-c to abort the disconnection."
     VFMembers -> "its members"
     VFTpltHosts -> "Tplts using it as a separator"
     VFRelHosts r -> show r
