@@ -10,12 +10,12 @@ import qualified Data.Set       as S
 import           Test.HUnit
 
 import           Hode.NoUI
-import           Hode.Rslt.Lookup hiding (exprToAddr)
 import           Hode.Rslt.Binary
 import qualified Hode.Rslt.Edit         as R
 import qualified Hode.Rslt.Edit.Initial as R
 import qualified Hode.Rslt.Edit.Replace as R
 import           Hode.Rslt.Index
+import           Hode.Rslt.Lookup
 import           Hode.Rslt.Types
 import           Hode.Rslt.Valid
 import           Hode.Rslt.Show
@@ -37,7 +37,41 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
   , TestLabel "test_replaceInRefExpr" test_replaceInRefExpr
   , TestLabel "test_moveRefExpr" test_moveRefExpr
+  , TestLabel "test_separate" test_separate
   ]
+
+test_separate :: Test
+test_separate = TestCase $ do
+  let Right (r :: Rslt) = nInserts (mkRslt mempty)
+        [ "1  #a 10"
+        , "2  #a 10"
+        , "1  #a 11"
+        , "10 #a 2" -- connections in either direction will be removed
+        , "1  #a 11"
+        , "1  #b 11" ]
+      ai :: Int -> Addr
+      ai i = either (error "absent int") id -- address of an int
+             $ exprToAddr r $ Phrase $ show i
+      as s = -- address of a string
+        either (error "absent string") (fst . head) $ nFind r s
+      t j = -- address of a template
+        either (error $ "absent template: " ++ j) id
+        $ exprToAddr r $ ExprTplt
+        $ Tplt Nothing [Phrase j] Nothing
+      low  :: [Addr] = map ai [1,2]
+      high :: [Addr] = map ai [10,11]
+
+      Right (rDivided :: Rslt) = R.separate (t "a") low high r
+      shouldRemain :: [Addr] = as "1 #b 11" : as "a" : as "b" :
+                               t "a" : t "b" : low ++ high
+      Just (highestBuiltinKey :: Addr) =
+        fst <$> M.lookupMax (_addrToRefExpr $ mkRslt mempty)
+      doRemain :: [Addr] =
+        filter (> highestBuiltinKey) $
+        M.keys $ _addrToRefExpr rDivided
+
+  assertBool "after disconnecting low from high on the template (_ #a _), the only non-builtin relationship left is (1 #b 11)" $
+      S.fromList doRemain == S.fromList shouldRemain
 
 test_moveRefExpr :: Test
 test_moveRefExpr = TestCase $ do

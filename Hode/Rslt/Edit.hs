@@ -15,9 +15,36 @@ module Hode.Rslt.Edit (
                   --  -> Rslt-> Either String (Rslt, Addr)
   , replaceInRole -- ^ Role -> Addr -> Addr
                   -- -> Rslt -> Either String Rslt
+  , separate -- ^ TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
   ) where
 
-import Hode.Rslt.Edit.Terminal as X
-import Hode.Rslt.Edit.AndSearch as X
-import Hode.Rslt.Edit.Replace as X
-import Hode.Rslt.Edit.Initial as X
+import           Control.Monad
+import qualified Data.Map as M
+import           Data.Set (Set)
+
+import Hode.Hash.Lookup
+import Hode.Hash.Types
+import Hode.Rslt.Types
+import Hode.Util.Misc
+
+import Hode.Rslt.Edit.Terminal  -- only to re-export some definitions
+import Hode.Rslt.Edit.AndSearch -- only to re-export some definitions
+import Hode.Rslt.Edit.Replace   -- only to re-export some definitions
+import Hode.Rslt.Edit.Initial   -- only to re-export some definitions
+
+
+-- | `separate t as bs r` deletes all immediate (chains of length 1)
+-- connections between `as` and `bs`.
+separate :: TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
+separate    t           as        bs        _r =
+  prefixLeft "separate: " $ do
+  let rt  :: Role            = RoleInRel' RoleTplt
+      rm  :: Int -> Role     = RoleInRel' . RoleMember
+      ht  :: HExpr           = HExpr $ ExprAddr t
+      hor :: [Addr] -> HExpr = HOr . map (HExpr . ExprAddr)
+      hTo  = HMap $ M.fromList [ (rt, ht), (rm 1, hor as), (rm 2, hor bs) ]
+      hFro = HMap $ M.fromList [ (rt, ht), (rm 1, hor bs), (rm 2, hor as) ]
+  toRels  :: Set Addr <- hExprToAddrs _r mempty hTo
+  froRels :: Set Addr <- hExprToAddrs _r mempty hFro
+  _r <- foldM (flip deleteIfUnused) _r  toRels
+  id $  foldM (flip deleteIfUnused) _r froRels
