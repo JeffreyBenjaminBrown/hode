@@ -97,9 +97,13 @@ addSelections_toSortedRegion _st =
     in maybe (Left errMsg) Right
        $ _st ^? stFocusGroupOrder
   let peerErs :: [PTree ExprRow] = toList peers
+      _r :: Rslt = _st ^. appRslt
 
-  -- partition the list into (1) rows already in the sort,
-  -- (2) selected things to be added to the sort, and (3) the rest.
+  -- Partition the list into:
+  -- `unseld` : rows not in the sort, to stay out of it
+  -- `seld` : rows to be added to the sort
+  -- `inSort` : rows already in the sort
+  -- (`outSort` is only used to create `unseld` and `seld`.)
   let inSort, outSort, _seld, unseld :: [PTree ExprRow]
       (inSort, outSort) =
         L.partition (^. pTreeLabel . boolProps . inSortGroup) peerErs
@@ -108,19 +112,12 @@ addSelections_toSortedRegion _st =
 
   if null _seld then Left "Nothing is selected here."
     else Right ()
-  _seld <- Right $
-    _seld & traversed . pTreeLabel . boolProps . inSortGroup .~ True
-
-  -- reorder the relevant `ExprRow`s
-  _st :: St <- Right $  _st & stSet_focusedBuffer . bufferExprRowTree
-    . setPeersOfFocusedSubtree . _Just
-    .~ ( maybe (error "impossible") id
-         $ P.fromList $ inSort ++ _seld ++ unseld )
+  _seld <- Right $ _seld &
+    traversed . pTreeLabel . boolProps . inSortGroup .~ True
 
   -- add new relationships to the `Rslt`
   let inSortAs :: [Addr] = inSort ^.. traversed . pTreeLabel . exprRow_addr
       seldAs   :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
-      _r :: Rslt = _st ^. appRslt
   _r :: Rslt <- insertChain (bo,t) seldAs _r
   _r :: Rslt <- case lastOf traversed inSortAs of
     Nothing -> Right _r
@@ -131,5 +128,11 @@ addSelections_toSortedRegion _st =
             RightEarlier -> Rel' $ Rel [head seldAs,a] t
       in insert re _r
 
-  Right $ _st & appRslt .~ _r
+  Right $ _st
+    & appRslt .~ _r
+    & ( -- reorder the `ExprRow`s
+        stSet_focusedBuffer . bufferExprRowTree
+        . setPeersOfFocusedSubtree . _Just
+        .~ ( maybe (error "impossible") id
+             $ P.fromList $ inSort ++ _seld ++ unseld ) )
     & showReassurance "Selections have been added to the order that currently orders the focused expression and its peers."

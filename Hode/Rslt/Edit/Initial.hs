@@ -137,8 +137,8 @@ deleteIfUnused a r =
   users <- isIn r a
   if null users
     then _deleteInternalMentionsOf_unsafe a r
-    else Left $ "deleteIfUnused: Addr " ++ show a
-         ++ " is used in other RefExprs.\n"
+    else Left $ "deleteIfUnused: Expr at Addr " ++ show a
+         ++ " is used in other Exprs.\n"
 
 -- | PITFALL: `_deleteInternalMentionsOf a`
 -- could put the `Rslt` into an invalid state,
