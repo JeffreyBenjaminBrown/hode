@@ -4,8 +4,9 @@
 module Hode.UI.CycleBuffer (
     updateBlockingCycles  -- ^ St ->          Either String St
   , updateCycleBuffer     -- ^ St ->          Either String St
-  , cycleBuffer_fromCycle -- ^ St -> Cycle -> Either String Buffer
-  , insert_cycleBuffer    -- ^ St ->                        St
+  , bufferFromPath        -- ^ St -> ViewQuery -> (TpltAddr,[Addr])
+                          -- -> Either String Buffer
+  , insertBuffer_byQuery  -- ^ ViewQuery -> St -> St
   , delete_cycleBuffer    -- ^ St ->          Either String St
   ) where
 
@@ -52,11 +53,11 @@ updateCycleBuffer _st =
   prefixLeft "cycleBuffer: " $ do
   case _st ^. blockingCycles of
     Just (c:_) -> do
-      cb :: Buffer <- cycleBuffer_fromCycle _st c
+      cb :: Buffer <- bufferFromPath _st CycleView c
       _st :: St <- return $
         case _st ^. stGetTopLevelBuffer_byQuery CycleView of
-        Nothing -> insert_cycleBuffer _st
-        _       ->                    _st
+          Nothing -> insertBuffer_byQuery CycleView _st
+          _       ->                                _st
       Right ( _st & stSetTopLevelBuffer_byQuery CycleView .~ cb
               & showReassurance "Cycle detected. Add, move, and replace will be disabled until it is broken. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
@@ -65,9 +66,10 @@ updateCycleBuffer _st =
         . showReassurance "No cycles identified."
         <$> delete_cycleBuffer _st
 
-cycleBuffer_fromCycle :: St -> Cycle -> Either String Buffer
-cycleBuffer_fromCycle st (t,c) =
-  prefixLeft "cycleBuffer_fromCycle: " $ do
+bufferFromPath :: St -> ViewQuery -> (TpltAddr,[Addr])
+               -> Either String Buffer
+bufferFromPath st vq (t,c) =
+  prefixLeft "bufferFromPath: " $ do
   p :: Porest ExprRow <-
     ( -- Focus on the first child (the template),
       -- rather than on the root of the porest.
@@ -75,16 +77,16 @@ cycleBuffer_fromCycle st (t,c) =
     <$> addrsToExprRows st mempty (t:c)
   Right $ Buffer
     { _bufferExprRowTree = PTree
-      { _pTreeLabel = exprRow_fromQuery $ CycleView
+      { _pTreeLabel = exprRow_fromQuery vq
       , _pTreeHasFocus = False
       , _pMTrees = Just p } }
 
 -- | Insert an empty cycle buffer before the current focus.
-insert_cycleBuffer :: St -> St
-insert_cycleBuffer =
+insertBuffer_byQuery :: ViewQuery -> St -> St
+insertBuffer_byQuery vq =
   searchBuffers . _Just %~
   insertLeft_noFocusChange
-  ( pTreeLeaf $ bufferFrom_viewQuery $ CycleView )
+  ( pTreeLeaf $ bufferFrom_viewQuery vq )
 
 -- | PITFALL: Assumes the Cycle Buffer is top-level and unique,
 -- and that it has no child buffers.
@@ -104,7 +106,7 @@ delete_cycleBuffer st =
       err = Left "No cycle buffer found."
       in maybe err Right $ filterPList topIsCycleBuffer _pb
     _pb :: Porest Buffer <- return $
-      -- If the focused node is gone after filtering 
+      -- If the focused node is gone after filtering
       -- (e.g. because it was a child of the cycle buffer),
       -- move focus (arbitrarily) to the top of the buffer porest.
       case _pb ^. P.focus . getFocusedSubtree of

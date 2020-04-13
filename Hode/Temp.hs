@@ -5,31 +5,26 @@ module Hode.Temp where
 
 --import qualified Data.List.PointedList as P
 --import           Control.Lens
-import qualified Data.Map as M
 --import           Data.Set (Set)
 --import qualified Data.Set as S
 --import Hode.Hode
 
 import           Control.Lens hiding (re)
-import           Control.Monad
 import           Data.Foldable (toList)
 import qualified Data.List             as L
 import qualified Data.List.PointedList as P
-import           Data.Set (Set)
 import qualified Data.Set              as S
 
 import Hode.PTree
 import Hode.Rslt.Binary
 import Hode.Rslt.Edit
-import Hode.Rslt.Sort
 import Hode.Rslt.Types
+import Hode.UI.CycleBuffer
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.Window (showReassurance)
 import Hode.Util.Misc
 
-import Hode.UI.ExprTree.Sort
-import Hode.Hash.Types
 import Hode.Hash.Lookup
 
 
@@ -43,9 +38,9 @@ removeSelections_fromSortedRegion _st =
   peers :: Porest ExprRow <-
     case _st ^? stFocusPeers of Just x  -> Right x
                                 Nothing -> Left $ "Focused expr has no peers -- probably because it's the root of the view."
-  (bo,t) :: (BinOrientation, TpltAddr) <-
+  t :: TpltAddr <-
     let errMsg = "Focused node and its peers have not been sorted."
-    in maybe (Left errMsg) Right
+    in maybe (Left errMsg) (Right . snd)
        $ _st ^? stFocusGroupOrder
   let peerErs :: [PTree ExprRow] = toList peers
       _r :: Rslt = _st ^. appRslt
@@ -69,16 +64,36 @@ removeSelections_fromSortedRegion _st =
   let unseldAs :: [Addr] = unseld ^.. traversed . pTreeLabel . exprRow_addr
       seldAs   :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
 
-  -- separate `seldAs` and `unseldAs` via `separateSimply ::
-  --   TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt`
-  -- Test(should be a separate function) whether they are still connected.
-  -- If they are, then abort this (don't change the Rslt),
-  --   and (this should be a separate function) do something like
-  --     updateCycleBuffer :: St -> Either String St
-  --   to make a `OffscreenConnectionView`.
-  -- If they're not, then finish as in `addSelections_toSortedRegion`,
-  --   changing hhe Rslt,
-  --   reordering the ExprRows, and
-  --   giving appropriate reassurance.
+  _r <- separateSimply t unseldAs seldAs _r
+  _conns :: [[Addr]] <-
+    connections _r SearchLeftward  t seldAs (S.fromList unseldAs)
+  _conns :: [[Addr]] <- (_conns ++) <$>
+    connections _r SearchRightward t seldAs (S.fromList unseldAs)
 
-  error ""
+    -- TODO : If there are any connections, this is inefficient --
+    --   it finds them all, present the user with one of them,
+    --   and discards the rest. Once the user breaks one and tries again,
+    --   Hode will search for all remaining connections again.
+    --   (`removeSelections_fromSortedRegion` repeats some other tasks too,
+    --   but they are not likely to be expensive.)
+
+  if null _conns
+    then Right $ _st
+         & appRslt .~ _r
+         & ( -- reorder the `ExprRow`s
+             stSet_focusedBuffer . bufferExprRowTree
+             . setPeersOfFocusedSubtree . _Just
+             .~ ( maybe (error "impossible") id
+                  $ P.fromList $ unseld ++ _seld ++ outSort ) )
+         & showReassurance "Selections have been removed from the order that currently orders the focused expression and its peers."
+
+    else do
+      b :: Buffer <-
+        bufferFromPath _st OffscreenConnectionView (t, head _conns)
+      _st :: St <- return $
+        case _st ^. stGetTopLevelBuffer_byQuery OffscreenConnectionView
+        of Nothing -> _st & insertBuffer_byQuery OffscreenConnectionView
+           _       -> _st
+      Right $ _st
+        & stSetTopLevelBuffer_byQuery OffscreenConnectionView .~ b
+        & showReassurance "You asked Hode to remove the selected expressions from the ordering that currently orders the focused expression and its peers, but a chain of length > 1 connects them. You can find it in the ProblematicChain buffer. Please break that chain and try again."

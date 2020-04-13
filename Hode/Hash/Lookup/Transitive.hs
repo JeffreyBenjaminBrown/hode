@@ -28,7 +28,7 @@ module Hode.Hash.Lookup.Transitive (
   , cyclesInvolving -- ^ Rslt -> SearchDir -> TpltAddr -> Addr
                     -- -> Either String [[Cycle]]
   , connections     -- ^ Rslt -> SearchDir -> TpltAddr -> [Addr] -> Set Addr
-                    -- -> Either String [Cycle]
+                    -- -> Either String [[Addr]]
   , extendPath      -- ^ Rslt -> SearchDir -> TpltAddr -> [Addr]
                     -- -> Either String [[Addr]]
 
@@ -242,9 +242,11 @@ cyclesInvolving r d t a0 =
 -- TODO ? This might be avoidable by deleting nodes from `r`
 -- after they are explored. Would have to be sure not to remove `t`.
 -- This problem is dealt with in `Rslt.Sort`.
+
 connections :: Rslt -> SearchDir -> TpltAddr -> [Addr] -> Set Addr
             -> Either String [[Addr]]
 connections r d t from to =
+  prefixLeft "connections: " $
   map reverse <$> go [] (map (:[]) from) where
 
   go :: [[Addr]] -> [[Addr]] -> Either String [[Addr]]
