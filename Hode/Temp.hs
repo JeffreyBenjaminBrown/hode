@@ -69,4 +69,16 @@ removeSelections_fromSortedRegion _st =
   let unseldAs :: [Addr] = unseld ^.. traversed . pTreeLabel . exprRow_addr
       seldAs   :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
 
+  -- separate `seldAs` and `unseldAs` via `separateSimply ::
+  --   TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt`
+  -- Test(should be a separate function) whether they are still connected.
+  -- If they are, then abort this (don't change the Rslt),
+  --   and (this should be a separate function) do something like
+  --     updateCycleBuffer :: St -> Either String St
+  --   to make a `OffscreenConnectionView`.
+  -- If they're not, then finish as in `addSelections_toSortedRegion`,
+  --   changing hhe Rslt,
+  --   reordering the ExprRows, and
+  --   giving appropriate reassurance.
+
   error ""

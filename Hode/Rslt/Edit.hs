@@ -15,7 +15,7 @@ module Hode.Rslt.Edit (
                   --  -> Rslt-> Either String (Rslt, Addr)
   , replaceInRole -- ^ Role -> Addr -> Addr
                   -- -> Rslt -> Either String Rslt
-  , separate -- ^ TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
+  , separateSimply -- ^ TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
   ) where
 
 import           Control.Monad
@@ -33,11 +33,11 @@ import Hode.Rslt.Edit.Replace   -- only to re-export some definitions
 import Hode.Rslt.Edit.Initial   -- only to re-export some definitions
 
 
--- | `separate t as bs r` deletes all immediate (chains of length 1)
--- connections between `as` and `bs`.
-separate :: TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
-separate    t           as        bs        _r =
-  prefixLeft "separate: " $ do
+-- | `separateSimply t as bs r` deletes all `t`-relationships
+-- connecting `as` and `bs` (in either diirection).
+separateSimply :: TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
+separateSimply    t           as        bs        _r =
+  prefixLeft "separateSimply: " $ do
   let rt  :: Role            = RoleInRel' RoleTplt
       rm  :: Int -> Role     = RoleInRel' . RoleMember
       ht  :: HExpr           = HExpr $ ExprAddr t

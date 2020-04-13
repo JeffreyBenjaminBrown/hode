@@ -37,11 +37,11 @@ test_module_rslt_edit = TestList [
   , TestLabel "test_renameAddr_unsafe" test_renameAddr_unsafe
   , TestLabel "test_replaceInRefExpr" test_replaceInRefExpr
   , TestLabel "test_moveRefExpr" test_moveRefExpr
-  , TestLabel "test_separate" test_separate
+  , TestLabel "test_separateSimply" test_separateSimply
   ]
 
-test_separate :: Test
-test_separate = TestCase $ do
+test_separateSimply :: Test
+test_separateSimply = TestCase $ do
   let Right (r :: Rslt) = nInserts (mkRslt mempty)
         [ "1  #a 10"
         , "2  #a 10"
@@ -61,7 +61,7 @@ test_separate = TestCase $ do
       low  :: [Addr] = map ai [1,2]
       high :: [Addr] = map ai [10,11]
 
-      Right (rDivided :: Rslt) = R.separate (t "a") low high r
+      Right (rDivided :: Rslt) = R.separateSimply (t "a") low high r
       shouldRemain :: [Addr] = as "1 #b 11" : as "a" : as "b" :
                                t "a" : t "b" : low ++ high
       Just (highestBuiltinKey :: Addr) =
