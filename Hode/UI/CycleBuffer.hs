@@ -53,10 +53,11 @@ updateCycleBuffer _st =
   case _st ^. blockingCycles of
     Just (c:_) -> do
       cb :: Buffer <- cycleBuffer_fromCycle _st c
-      _st :: St <- return $ case _st ^. stGet_cycleBuffer of
+      _st :: St <- return $
+        case _st ^. stGetTopLevelBuffer_byQuery CycleView of
         Nothing -> insert_cycleBuffer _st
         _       ->                    _st
-      Right ( _st & stSet_cycleBuffer .~ cb
+      Right ( _st & stSetTopLevelBuffer_byQuery CycleView .~ cb
               & showReassurance "Cycle detected. Add, move, and replace will be disabled until it is broken. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
         (showingInMainWindow .~ SearchBuffer)

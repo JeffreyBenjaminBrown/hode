@@ -57,12 +57,12 @@ test_st_cycleBufferLenses = TestCase $ do
   assertBool "" $
     ( ( st { _searchBuffers =
              P.fromList $ map pTreeLeaf [b,c_empty,b]})
-      ^. stGet_cycleBuffer ) == Just c_empty
+      ^. stGetTopLevelBuffer_byQuery CycleView ) == Just c_empty
   assertBool "" $
     _searchBuffers
     ( ( st { _searchBuffers =
                P.fromList $ map pTreeLeaf [b,c_empty,b]})
-        & stSet_cycleBuffer .~ c_something )
+        & stSetTopLevelBuffer_byQuery CycleView .~ c_something )
     == P.fromList (map pTreeLeaf [b,c_something,b])
 
 test_groupHostRels :: T.Test

@@ -1,5 +1,6 @@
 {-# LANGUAGE
 LambdaCase,
+RankNTypes,
 ScopedTypeVariables,
 TemplateHaskell
 #-}
@@ -28,8 +29,8 @@ module Hode.UI.Types.State (
   -- * misc
   , stGet_focusedBuffer            -- ^ Fold St Buffer
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
-  , stGet_cycleBuffer              -- ^ Getter  St (Maybe Buffer)
-  , stSet_cycleBuffer              -- ^ Setter' St Buffer
+  , stGetTopLevelBuffer_byQuery    -- ^ Getter  St (Maybe Buffer)
+  , stSetTopLevelBuffer_byQuery    -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Fold St (PTree ExprRow)
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
   , resultWindow_focusAddr  -- ^ St -> Either String Addr
@@ -97,27 +98,29 @@ stSet_focusedBuffer = sets go where
   go f = searchBuffers . _Just . P.focus .
          setFocusedSubtree . pTreeLabel %~ f
 
--- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
-stGet_cycleBuffer :: Getter St (Maybe Buffer)
-stGet_cycleBuffer = to go where
+-- | PITFALL: Assumes the target buffer is top-level and unique.
+-- TODO : This would be more natural as a Fold that returns a Buffer
+-- (i.e. without using Maybe).
+stGetTopLevelBuffer_byQuery :: ViewQuery -> Getter St (Maybe Buffer)
+stGetTopLevelBuffer_byQuery vq = to go where
   go :: St -> Maybe Buffer
   go st = case  _searchBuffers st of
     Nothing -> Nothing
     Just p ->
       ( \case [] -> Nothing;   a:_ -> Just a )
-      . filter (   (== Just (VFQuery CycleView) )
+      . filter (   (== Just (VFQuery vq) )
                  . (^? getBuffer_viewForkType ) )
       . toList . fmap _pTreeLabel
       $ p
 
 -- | PITFALL: Assumes the Cycle Buffer is top-level and unique.
-stSet_cycleBuffer :: Setter' St Buffer
-stSet_cycleBuffer = sets go where
+stSetTopLevelBuffer_byQuery :: ViewQuery -> Setter' St Buffer
+stSetTopLevelBuffer_byQuery vq = sets go where
   go :: (Buffer -> Buffer) -> St -> St
   go f st = let
     g :: Buffer -> Buffer
     g b = if b ^? getBuffer_viewForkType
-             == Just (VFQuery CycleView)
+             == Just (VFQuery vq)
           then f b else b
     in st & searchBuffers . _Just
           %~ fmap (pTreeLabel %~ g)
