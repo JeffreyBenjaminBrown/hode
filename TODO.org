@@ -112,6 +112,19 @@ Just add some more indicators to _columnHExprs:
 *** after using the app more, maybe consider the more general problem
 ** TODO compress binary groups
 * TODO unsorted
+** TODO rewrite the PTree class
+*** the new type
+It can be like Data.Tree.Zipper, but using PointedLists (Plists).
+The focus and its peers are represented as a PList of PTrees.
+The ancestors are represented like in Data.Tree.Zipper:
+each is a (reversed [PTree a]) a [PTree a].
+Moving sideways is just a PList op.
+Moving up or down requires converting one level between the PList and ancestor representations.
+*** TODO first survey how I use it
+It's only used in Hode.UI.
+Potentially tricky: 
+  building a tree from the top while knowing where the focus is.
+  Optics (refer to the PointedList implementation).
 ** TODO establish an informal schema
 *** AMR might be useful
  https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
