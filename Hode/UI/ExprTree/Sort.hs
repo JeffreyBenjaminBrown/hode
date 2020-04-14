@@ -6,7 +6,7 @@ module Hode.UI.ExprTree.Sort (
   , removeSelections_fromSortedRegion -- ^             St -> Either String St
   ) where
 
-import           Control.Lens hiding (re)
+import           Control.Lens hiding (re, below)
 import           Data.Foldable (toList)
 import qualified Data.List             as L
 import qualified Data.List.PointedList as P
@@ -87,19 +87,23 @@ sortFocusAndPeers (bo, t) st =
 --   Then include them in the sort (`M-i`).
 --   The display should now read "a,b,d,e,c,f", and a-d should be
 --      colored differently from c and f in the how-it's-sorted column.
+
 addSelections_toSortedRegion :: St -> Either String St
 addSelections_toSortedRegion _st =
   prefixLeft "addSelections_toSortedRegion: " $ do
 
   -- fetch stuff
-  peers :: Porest ExprRow <-
+  _peers :: Porest ExprRow <-
     case _st ^? stFocusPeers of Just x  -> Right x
                                 Nothing -> Left $ "Focused expr has no peers -- probably because it's the root of the view."
-  (bo,t) :: (BinOrientation, TpltAddr) <-
+  case _peers ^. P.focus . pTreeLabel . viewExprNode of
+    VenExpr _ -> Right ()
+    _ -> Left $ "Focused node is not an Expr in the graph. (Instead it's probably a grouping node.)"
+  (bo :: BinOrientation, t :: TpltAddr) <-
     let errMsg = "Focused node and its peers have not been sorted."
     in maybe (Left errMsg) Right
        $ _st ^? stFocusGroupOrder
-  let peerErs :: [PTree ExprRow] = toList peers
+  let peerErs :: [PTree ExprRow] = toList _peers
       _r :: Rslt = _st ^. appRslt
 
   -- Partition the list into:
@@ -131,13 +135,25 @@ addSelections_toSortedRegion _st =
             RightEarlier -> Rel' $ Rel [head seldAs,a] t
       in insert re _r
 
+  -- Reorder _peers, preserving focus.
+  -- TODO : extract this as a function.
+  -- It will be used in `removeSelections_fromSortedRegion` too.
+  let erAddr :: PTree ExprRow -> Addr =
+        maybe (error "impossible ? The focus is a VenExpr, so everything else should be, too.") id
+        . (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
+      foca :: Addr =
+        _peers ^. P.focus & erAddr
+      (above :: [PTree ExprRow], focus : below :: [PTree ExprRow]) =
+        span ((/= foca) . erAddr) $ inSort ++ _seld ++ unseld
+      _peers :: Porest ExprRow =
+        P.PointedList (reverse above) focus below
+
   Right $ _st
     & appRslt .~ _r
     & ( -- reorder the `ExprRow`s
         stSet_focusedBuffer . bufferExprRowTree
         . setPeersOfFocusedSubtree . _Just
-        .~ ( maybe (error "impossible") id
-             $ P.fromList $ inSort ++ _seld ++ unseld ) )
+        .~ _peers )
     & showReassurance "Selections have been added to the order that currently orders the focused expression and its peers."
 
 removeSelections_fromSortedRegion :: St -> Either String St

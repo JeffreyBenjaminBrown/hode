@@ -11,8 +11,10 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
-**** TODO BUG: adding something to an order moves focus to the parent
-worse, without changing the look of the node that used to have focus
+**** TODO BUG: removing from an order moves focus to the parent
+This was already solved for `addSelections_toSortedRegion`;
+just do something similar for `removeSelections_fromSortedRegion`,
+extracting a function along the way.
 **** DONE
 ***** sorting should modify the parent group to know the sort order
 including the BinOrientation
