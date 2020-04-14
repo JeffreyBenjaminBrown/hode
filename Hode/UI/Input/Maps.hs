@@ -168,6 +168,8 @@ resultWindow_commands st =
 
   ( V.EvKey (V.KChar 'i') [V.MMeta],
     goe $ addSelections_toSortedRegion ),
+  ( V.EvKey (V.KChar 'y') [V.MMeta], -- 'y' is for "yank"
+    goe $ removeSelections_fromSortedRegion ),
   ( V.EvKey (V.KChar 'o') [V.MMeta],
     goe $ updateBlockingCycles >=> updateCycleBuffer )
   ]
