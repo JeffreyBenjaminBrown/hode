@@ -4,6 +4,8 @@ module Hode.UI.ExprTree.Sort (
   sortFocusAndPeers -- ^ (BinOrientation, TpltAddr) -> St -> Either String St
   , addSelections_toSortedRegion -- ^                  St -> Either String St
   , removeSelections_fromSortedRegion -- ^             St -> Either String St
+  , pointedListOf_exprRowPTrees_withSameFocus
+    -- ^ Porest ExprRow -> [PTree ExprRow] -> Either String (Porest ExprRow)
   ) where
 
 import           Control.Lens hiding (re, below)
@@ -135,23 +137,12 @@ addSelections_toSortedRegion _st =
             RightEarlier -> Rel' $ Rel [head seldAs,a] t
       in insert re _r
 
-  -- Reorder _peers, preserving focus.
-  -- TODO : extract this as a function.
-  -- It will be used in `removeSelections_fromSortedRegion` too.
-  let erAddr :: PTree ExprRow -> Addr =
-        maybe (error "impossible ? The focus is a VenExpr, so everything else should be, too.") id
-        . (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
-      foca :: Addr =
-        _peers ^. P.focus & erAddr
-      (above :: [PTree ExprRow], focus : below :: [PTree ExprRow]) =
-        span ((/= foca) . erAddr) $ inSort ++ _seld ++ unseld
-      _peers :: Porest ExprRow =
-        P.PointedList (reverse above) focus below
-
+  _peers <- -- reorder the ExprRows
+    pointedListOf_exprRowPTrees_withSameFocus
+    _peers $ inSort ++ _seld ++ unseld
   Right $ _st
     & appRslt .~ _r
-    & ( -- reorder the `ExprRow`s
-        stSet_focusedBuffer . bufferExprRowTree
+    & ( stSet_focusedBuffer . bufferExprRowTree
         . setPeersOfFocusedSubtree . _Just
         .~ _peers )
     & showReassurance "Selections have been added to the order that currently orders the focused expression and its peers."
@@ -161,14 +152,17 @@ removeSelections_fromSortedRegion _st =
   prefixLeft "removeSelections_fromSortedRegion: " $ do
 
   -- fetch stuff
-  peers :: Porest ExprRow <-
+  _peers :: Porest ExprRow <-
     case _st ^? stFocusPeers of Just x  -> Right x
                                 Nothing -> Left $ "Focused expr has no peers -- probably because it's the root of the view."
+  case _peers ^. P.focus . pTreeLabel . viewExprNode of
+    VenExpr _ -> Right ()
+    _ -> Left $ "Focused node is not an Expr in the graph. (Instead it's probably a grouping node.)"
   t :: TpltAddr <-
     let errMsg = "Focused node and its peers have not been sorted."
     in maybe (Left errMsg) (Right . snd)
        $ _st ^? stFocusGroupOrder
-  let peerErs :: [PTree ExprRow] = toList peers
+  let peerErs :: [PTree ExprRow] = toList _peers
       _r :: Rslt = _st ^. appRslt
 
   -- Partition the list into:
@@ -190,6 +184,7 @@ removeSelections_fromSortedRegion _st =
   let unseldAs :: [Addr] = unseld ^.. traversed . pTreeLabel . exprRow_addr
       seldAs   :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
 
+  -- Delete relationships from the `Rslt`
   _r <- separateSimply t unseldAs seldAs _r
   _conns :: [[Addr]] <-
     connections _r SearchLeftward  t seldAs (S.fromList unseldAs)
@@ -204,14 +199,16 @@ removeSelections_fromSortedRegion _st =
     --   but they are not likely to be expensive.)
 
   if null _conns
-    then Right $ _st
-         & appRslt .~ _r
-         & ( -- reorder the `ExprRow`s
-             stSet_focusedBuffer . bufferExprRowTree
-             . setPeersOfFocusedSubtree . _Just
-             .~ ( maybe (error "impossible") id
-                  $ P.fromList $ unseld ++ _seld ++ outSort ) )
-         & showReassurance "Selections have been removed from the order that currently orders the focused expression and its peers."
+    then do
+      _peers <- -- reorder the ExprRows
+        pointedListOf_exprRowPTrees_withSameFocus
+        _peers $ unseld ++ _seld ++ outSort
+      Right $ _st
+        & appRslt .~ _r
+        & ( stSet_focusedBuffer . bufferExprRowTree
+            . setPeersOfFocusedSubtree . _Just
+            .~ _peers )
+        & showReassurance "Selections have been removed from the order that currently orders the focused expression and its peers."
 
     else do
       b :: Buffer <-
@@ -223,3 +220,26 @@ removeSelections_fromSortedRegion _st =
       Right $ _st
         & stSetTopLevelBuffer_byQuery OffscreenConnectionView .~ b
         & showReassurance "You asked Hode to remove the selected expressions from the ordering that currently orders the focused expression and its peers, but a chain of length > 1 connects them. You can find it in the ProblematicChain buffer. Please break that chain and try again."
+
+-- | `pointedListOf_exprRowPTrees_withSameFocus focusModel pters`
+-- returns `pters` in the form of a `Porest`,
+-- focused on the element with the same address `focusModel`'s focus.
+--
+-- todo ? untested
+
+pointedListOf_exprRowPTrees_withSameFocus
+  :: Porest ExprRow -> [PTree ExprRow] -> Either String (Porest ExprRow)
+pointedListOf_exprRowPTrees_withSameFocus focusModel pters =
+  prefixLeft "pointedListOf_exprRowPTrees_withSameFocus: " $ do
+  let pterAddr :: PTree ExprRow -> Either String Addr =
+        maybe (Left "ExprRow should have an address. It's probably a grouping node (a VenFork), whereas it should be an expression from the graph (a VenExpr).") Right
+        . (^? pTreeLabel . viewExprNode . _VenExpr . viewExpr_Addr)
+  foc :: Addr <-
+    focusModel ^. P.focus & pterAddr
+  let (above :: [PTree ExprRow], rest :: [PTree ExprRow]) =
+        span ((/= Right foc) . pterAddr) pters
+  case rest of
+    [] ->
+      Left "No ExprRow in `pters` has the same address as the focus of `focusModel`."
+    focus : below ->
+      Right $ P.PointedList (reverse above) focus below

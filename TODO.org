@@ -11,10 +11,9 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
-**** TODO BUG: removing from an order moves focus to the parent
-This was already solved for `addSelections_toSortedRegion`;
-just do something similar for `removeSelections_fromSortedRegion`,
-extracting a function along the way.
+**** TODO BUG (easy fix): removing from an order does not disconnect enough
+It should not just disconnect the to-be-removed from the still sorted,
+but also mutually disconnect everything in the to-be-removed.
 **** DONE
 ***** sorting should modify the parent group to know the sort order
 including the BinOrientation
@@ -112,6 +111,19 @@ Just add some more indicators to _columnHExprs:
 *** after using the app more, maybe consider the more general problem
 ** TODO compress binary groups
 * TODO unsorted
+** TODO BUG in sort
+*** a way to trigger it
+/a a # b # c # d
+/f a # b # c # d
+<view members>
+/a (a # c) # (c # b)
+/sr (/t /_ "" /_)
+*** the problem
+kahnSort deletes expressions from a copy of the graph.
+Deletion something that's a member of other things is not permitted.
+*** the solution, I think
+is to create and use an "unsafeDelete" which does not check for membership in superexpressions.
+I think this works because in the course of sorting we never need to find anything's subexpressions.
 ** TODO rewrite the PTree class
 *** the new type
 It can be like Data.Tree.Zipper, but using PointedLists (Plists).
