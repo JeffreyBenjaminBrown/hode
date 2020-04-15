@@ -186,6 +186,7 @@ removeSelections_fromSortedRegion _st =
 
   -- Delete relationships from the `Rslt`
   _r <- separateSimply t unseldAs seldAs _r
+  _r <- separateSimplyMutually t seldAs _r
   _conns :: [[Addr]] <-
     connections _r SearchLeftward  t seldAs (S.fromList unseldAs)
   _conns :: [[Addr]] <-

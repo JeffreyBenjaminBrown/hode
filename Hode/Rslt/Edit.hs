@@ -15,7 +15,9 @@ module Hode.Rslt.Edit (
                   --  -> Rslt-> Either String (Rslt, Addr)
   , replaceInRole -- ^ Role -> Addr -> Addr
                   -- -> Rslt -> Either String Rslt
-  , separateSimply -- ^ TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
+
+  , separateSimply         -- ^ TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
+  , separateSimplyMutually -- ^ TpltAddr -> [Addr]           -> Rslt -> Either String Rslt
   ) where
 
 import           Control.Monad
@@ -38,13 +40,31 @@ import Hode.Rslt.Edit.Initial   -- only to re-export some definitions
 separateSimply :: TpltAddr -> [Addr] -> [Addr] -> Rslt -> Either String Rslt
 separateSimply    t           as        bs        _r =
   prefixLeft "separateSimply: " $ do
-  let rt  :: Role            = RoleInRel' RoleTplt
-      rm  :: Int -> Role     = RoleInRel' . RoleMember
-      ht  :: HExpr           = HExpr $ ExprAddr t
-      hor :: [Addr] -> HExpr = HOr . map (HExpr . ExprAddr)
-      hTo  = HMap $ M.fromList [ (rt, ht), (rm 1, hor as), (rm 2, hor bs) ]
-      hFro = HMap $ M.fromList [ (rt, ht), (rm 1, hor bs), (rm 2, hor as) ]
+  let (hTo, hFrom) =
+        ( HMap $ M.fromList [ (rt, ht), (rm 1, hor as), (rm 2, hor bs) ]
+        , HMap $ M.fromList [ (rt, ht), (rm 1, hor bs), (rm 2, hor as) ] )
+        where
+          rt  :: Role            = RoleInRel' RoleTplt
+          rm  :: Int -> Role     = RoleInRel' . RoleMember
+          ht  :: HExpr           =           (HExpr . ExprAddr) t
+          hor :: [Addr] -> HExpr = HOr . map (HExpr . ExprAddr)
   toRels  :: Set Addr <- hExprToAddrs _r mempty hTo
   froRels :: Set Addr <- hExprToAddrs _r mempty hFro
   _r <- foldM (flip deleteIfUnused) _r  toRels
   id $  foldM (flip deleteIfUnused) _r froRels
+
+-- | `separateSimplyMutually t as r` deletes all `t`-relationships
+-- connecting the `as`.
+separateSimplyMutually :: TpltAddr -> [Addr] -> Rslt -> Either String Rslt
+separateSimplyMutually    t           as        _r =
+  prefixLeft "separateSimply: " $ do
+  let h = HMap $ M.fromList [ (rt, ht)
+                            , (rm 1, hor as)
+                            , (rm 2, hor as) ]
+        where
+          rt  :: Role            = RoleInRel' RoleTplt
+          rm  :: Int -> Role     = RoleInRel' . RoleMember
+          ht  :: HExpr           =           (HExpr . ExprAddr) t
+          hor :: [Addr] -> HExpr = HOr . map (HExpr . ExprAddr)
+  rels  :: Set Addr <- hExprToAddrs _r mempty h
+  foldM (flip deleteIfUnused) _r rels

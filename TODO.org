@@ -11,9 +11,10 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ordering
 *** TODO WYSIWYG sorting
-**** TODO BUG (easy fix): removing from an order does not disconnect enough
-It should not just disconnect the to-be-removed from the still sorted,
-but also mutually disconnect everything in the to-be-removed.
+**** TODO ? BUG): when removing from an order, connect any gaps created
+(The relevant function is removeSelections_fromSortedRegion.)
+So far it disconnects the to-be-removed from the still sorted,
+and mutually disconnects everything in the to-be-removed.
 **** DONE
 ***** sorting should modify the parent group to know the sort order
 including the BinOrientation
