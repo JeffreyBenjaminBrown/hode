@@ -69,6 +69,7 @@ If A < B < C, and B is removed, A is no longer related via (<) to C
 **** TODO bump (highlighted group?) in sort
 ***** first use uniqueContiguousSublist
 to verify that there's only one contiguous group of checked expressions among the focused node's peers.
+If it's Left, change the error message to something clearer.
 ***** then move something across the group
 ****** idea and terms
 Suppose S is the sorted group, and B is the group to bump.

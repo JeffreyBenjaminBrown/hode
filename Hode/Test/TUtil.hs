@@ -15,17 +15,17 @@ test_module_util :: Test
 test_module_util = TestList [
     TestLabel "test_tpltFromEithers" test_tpltFromEithers
   , TestLabel "test_transpose" test_transpose
-  , TestLabel "test_uniqueContiguousSublist" test_uniqueContiguousSublist
+  , TestLabel "test_beforeDuringAfter" test_beforeDuringAfter
   ]
 
-test_uniqueContiguousSublist :: Test
-test_uniqueContiguousSublist = TestCase $ do
-  assertBool "" $ Right [9,9] ==
-    uniqueContiguousSublist (> 5) [1,1,9,9,1,1]
-  assertBool "" $ Right [9,9] ==
-    uniqueContiguousSublist (> 5) [9,9,1,1]
+test_beforeDuringAfter :: Test
+test_beforeDuringAfter = TestCase $ do
+  assertBool "" $ Right ([1,1],[9,9],[2,2]) ==
+    beforeDuringAfter (> 5) [1,1,9,9,2,2]
+  assertBool "" $ Right ([],[9,9],[2,2]) ==
+    beforeDuringAfter (> 5) [9,9,2,2]
   assertBool "" $ isLeft $
-    uniqueContiguousSublist (> 5) [1,1,9,9,1,1,9,9]
+    beforeDuringAfter (> 5) [1,1,9,9,2,2,9,9]
 
 test_transpose :: Test
 test_transpose = TestCase $ do

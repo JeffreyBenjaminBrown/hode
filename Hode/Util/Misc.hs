@@ -31,7 +31,7 @@ module Hode.Util.Misc (
   , modifyAt           -- ^ Int -> (a -> a) -> Vector a
                        --   -> Maybe (Vector a)
   , transpose          -- ^ [[a]] -> [[a]]
-  , uniqueContiguousSublist -- ^ (a -> Bool) -> [a] -> Either String [a]
+  , beforeDuringAfter  -- ^ (a -> Bool) -> [a] -> Either String ([a],[a],[a])
 
   -- | = errors
   , keyErr          -- ^ String -> k -> Map k a -> String
@@ -161,15 +161,14 @@ modifyAt i f v
           after = V.reverse $ V.take remaining $ V.reverse v
             where remaining = (V.length v - 1) - i
 
-uniqueContiguousSublist :: (a -> Bool) -> [a] -> Either String [a]
-uniqueContiguousSublist predi as =
-  prefixLeft "uniqueContiguousSublist: " $ let
-  (_before, duringAndAfter) = L.span (not . predi) as
-  (during, after) = L.span predi duringAndAfter
-  (_noMore, evenMore) = L.span (not . predi) after
-  in if null evenMore
-     then Right during
-     else Left $ "More than one contiguous sublist satisfies the predicate."
+beforeDuringAfter :: (a -> Bool) -> [a] -> Either String ([a],[a],[a])
+beforeDuringAfter predi as =
+  prefixLeft "beforeDuringAfter: " $ let
+  (before, duringAndAfter) = L.span (not . predi) as
+  (during, after)          = L.span        predi  duringAndAfter
+  in if null $ filter predi after
+     then Right (before, during, after)
+     else Left $ "More than one contiguous sublist satisfies predicate."
 
 
 -- | = errors
