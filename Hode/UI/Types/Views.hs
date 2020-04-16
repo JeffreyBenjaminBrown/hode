@@ -18,7 +18,7 @@ module Hode.UI.Types.Views (
   , BoolProps(..), inSortGroup, selected
   , OtherProps(..), folded, childSort
 
-  , ViewQuery(..), _QueryView, _CycleView, _OffscreenConnectionView
+  , ViewQuery(..), _QueryView, _CycleView, _ProblematicChain
   , ViewExpr(..), viewExpr_Addr, viewExpr_showAsAddrs, viewExpr_String
   , RelHostGroup(..), memberHostsRole, memberHostsTplt
   , ViewForkType(..), _VFQuery, _VFMembers, _VFTpltHosts
@@ -85,7 +85,7 @@ data ViewQuery
   = QueryView String -- ^ the String is what was searched for
   | CycleView -- ^ When Hode finds a cycle in a transitive relaitonship,
   -- it makes one of these, and asks the user to break the cycle.
-  | OffscreenConnectionView -- ^ When the user tries to remove a set R
+  | ProblematicChain -- ^ When the user tries to remove a set R
   -- of expressions from an ordered set O, Hode might discover a path of length > 1 connecting R to O. In that case it will ask the user to disconnect that path somewhere, or else to give up.
   deriving (Eq, Ord, Show)
 makePrisms ''ViewQuery
@@ -204,8 +204,8 @@ instance ShowBrief ViewExprNode where
   showBrief (VenFork vf) =
     case _viewForkType vf of
     VFQuery (QueryView s) -> show s
-    VFQuery CycleView -> "Cycle detected! Please break it somewhere."
-    VFQuery OffscreenConnectionView -> "You told Hode to remove a set of expressions from an order, but there exists a path of length > 1 connecting them. Please break that path somewhere, or press M-S-c to abort the disconnection."
+    VFQuery CycleView -> "Cycle View: A cycle was detected in a transitive relationship! It's shown in this buffer. Please break it."
+    VFQuery ProblematicChain -> "Problematic Chain: You asked Hode to remove a set of expressions from an order, but there exists a path of length > 1 connecting them. This buffer shows that chain. Once you have broken it, please retry whatever you tried that led here."
     VFMembers -> "its members"
     VFTpltHosts -> "Tplts using it as a separator"
     VFRelHosts r -> show r

@@ -213,13 +213,13 @@ removeSelections_fromSortedRegion _st =
 
     else do
       b :: Buffer <-
-        bufferFromPath _st OffscreenConnectionView (t, head _conns)
+        bufferFromPath _st ProblematicChain (t, head _conns)
       _st :: St <- return $
-        case _st ^. stGetTopLevelBuffer_byQuery OffscreenConnectionView
-        of Nothing -> _st & insertBuffer_byQuery OffscreenConnectionView
+        case _st ^. stGetTopLevelBuffer_byQuery ProblematicChain
+        of Nothing -> _st & insertBuffer_byQuery ProblematicChain
            _       -> _st
       Right $ _st
-        & stSetTopLevelBuffer_byQuery OffscreenConnectionView .~ b
+        & stSetTopLevelBuffer_byQuery ProblematicChain .~ b
         & showReassurance "You asked Hode to remove the selected expressions from the ordering that currently orders the focused expression and its peers, but a chain of length > 1 connects them. You can find it in the ProblematicChain buffer. Please break that chain and try again."
 
 -- | `pointedListOf_exprRowPTrees_withSameFocus focusModel pters`

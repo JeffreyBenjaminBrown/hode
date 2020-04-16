@@ -15,6 +15,13 @@ This will load all non-broken modules when some are broken.
 (The relevant function is removeSelections_fromSortedRegion.)
 So far it disconnects the to-be-removed from the still sorted,
 and mutually disconnects everything in the to-be-removed.
+**** TODO ? a function to "iron" an order into place
+A graph can in general have multiple ways to be topologically sorted.
+Therefore, when the user sees a set of ordered expressions,
+and A > B on screen,
+it could be that A is not truly > B. (It can't, however, be that A < B.)
+To "iron" a subset of an order would be to create a chain through them all,
+such that the order in which they appear on screen is indeed the only reasonable order among them.
 **** DONE
 ***** sorting should modify the parent group to know the sort order
 including the BinOrientation
@@ -60,20 +67,18 @@ but not the path.
 ***** PITFALL: This can change the order of the remaining nodes.
 If A < B < C, and B is removed, A is no longer related via (<) to C
 **** TODO bump (highlighted group?) in sort
-***** bump single node
-Example: Nodes are 1..4, and we move 3 backward, to get [1,3,2,4].
-First disconnect 3 from 2, if (directly) connected.
-Then connect 3 to 1 and 2 (in the new order).
-  If 1 is already connected to 3 that way, no problem.
-Look for cycles (involving 2 and 3).
-  If present, prompt to break as normal.
-***** bump group
-Examples: Nodes are 1...5, and we move [3,4] backward, to get [1,3,4,2,5].
-Connect 3 to 4.
-Disconnect 2 from 3 and 4.
-Connect, in the new order, 1 to 3 and 4 to 2.
-Last, look for cycles (involving 4 and 2).
-  If present, prompt to break as normal.
+***** first use uniqueContiguousSublist
+to verify that there's only one contiguous group of checked expressions among the focused node's peers.
+***** then move something across the group
+****** idea and terms
+Suppose S is the sorted group, and B is the group to bump.
+For concreteness suppose we're bumping it up the list.
+Let C be the single element that B has to cross -- B will go from one side of B to the other, and nothing else will change.
+****** procedure
+Simply disconnect C from B.
+Check whether C is still ordered above B.
+  If so, abort, throw to a ProblematicChain buffer.
+  If not, connect C below the last member of B.
 *** later: display
 **** the highlight should not affect the columns, only the payload
 **** more expressive sort-colors
