@@ -31,6 +31,7 @@ module Hode.Util.Misc (
   , modifyAt           -- ^ Int -> (a -> a) -> Vector a
                        --   -> Maybe (Vector a)
   , transpose          -- ^ [[a]] -> [[a]]
+  , uniqueContiguousSublist -- ^ (a -> Bool) -> [a] -> Either String [a]
 
   -- | = errors
   , keyErr          -- ^ String -> k -> Map k a -> String
@@ -48,6 +49,7 @@ import           Data.Either hiding (lefts)
 import           Data.Bifunctor
 import           Data.Functor.Foldable
 import           Data.Maybe
+import qualified Data.List   as L
 import           Data.Map    (Map)
 import qualified Data.Map    as M
 import           Data.Set    (Set)
@@ -158,6 +160,16 @@ modifyAt i f v
     where before = V.take i v
           after = V.reverse $ V.take remaining $ V.reverse v
             where remaining = (V.length v - 1) - i
+
+uniqueContiguousSublist :: (a -> Bool) -> [a] -> Either String [a]
+uniqueContiguousSublist predi as =
+  prefixLeft "uniqueContiguousSublist: " $ let
+  (_before, duringAndAfter) = L.span (not . predi) as
+  (during, after) = L.span predi duringAndAfter
+  (_noMore, evenMore) = L.span (not . predi) after
+  in if null evenMore
+     then Right during
+     else Left $ "More than one contiguous sublist satisfies the predicate."
 
 
 -- | = errors

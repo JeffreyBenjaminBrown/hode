@@ -35,10 +35,10 @@ Reorder them manually: old sorted, then new sorted, then still-unsorted.
 Set their _inSort values to True.
   -- this won't work but the optic is correct
 ***** DONE test
-**** TODO remove highlighted things from the sorted region
-***** TODO add shortcut, test: removeSelections_fromSortedRegion
+**** DONE remove highlighted things from the sorted region
+***** add shortcut, test: removeSelections_fromSortedRegion
 inc. for two regions that are connected by a chain of length > 1
-***** DONE
+*****
 mimic this stuff
   UI.ExprTree.Sort.addSelections_toSortedRegion
     In `st`, this changes `appRslt` and `stSet_focusedBuffer`.
@@ -49,9 +49,9 @@ mimic this stuff
     I'll need a new field in `st`, to track what the nodes user is trying to ad to what sorted group, and which cannot be added yet because of connections of length > 1.
   UI.CycleBuffer.updateCycleBuffer
     this only makes sense after running `updateBlockingCycles`.
-***** DONE Delete all relevant "visible" connections.
+***** Delete all relevant "visible" connections.
 Delete all connections from nodes-to-remove to nodes-to-remain.
-***** DONE Delete any remaining connections interactively
+***** Delete any remaining connections interactively
 ala CycleBreaker
 For each removed thing, see if it can reach any of the others,
 including the others that we want to remove -- and for any such reachable others, find the path leading to it.
@@ -135,7 +135,7 @@ Moving sideways is just a PList op.
 Moving up or down requires converting one level between the PList and ancestor representations.
 *** TODO first survey how I use it
 It's only used in Hode.UI.
-Potentially tricky: 
+Potentially tricky:
   building a tree from the top while knowing where the focus is.
   Optics (refer to the PointedList implementation).
 ** TODO establish an informal schema

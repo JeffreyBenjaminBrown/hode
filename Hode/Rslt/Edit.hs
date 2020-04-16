@@ -49,7 +49,7 @@ separateSimply    t           as        bs        _r =
           ht  :: HExpr           =           (HExpr . ExprAddr) t
           hor :: [Addr] -> HExpr = HOr . map (HExpr . ExprAddr)
   toRels  :: Set Addr <- hExprToAddrs _r mempty hTo
-  froRels :: Set Addr <- hExprToAddrs _r mempty hFro
+  froRels :: Set Addr <- hExprToAddrs _r mempty hFrom
   _r <- foldM (flip deleteIfUnused) _r  toRels
   id $  foldM (flip deleteIfUnused) _r froRels
 

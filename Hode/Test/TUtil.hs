@@ -4,6 +4,7 @@
 module Hode.Test.TUtil where
 
 import Test.HUnit
+import Data.Either
 
 import Hode.Util.Misc
 import Hode.Rslt.Types
@@ -14,7 +15,17 @@ test_module_util :: Test
 test_module_util = TestList [
     TestLabel "test_tpltFromEithers" test_tpltFromEithers
   , TestLabel "test_transpose" test_transpose
+  , TestLabel "test_uniqueContiguousSublist" test_uniqueContiguousSublist
   ]
+
+test_uniqueContiguousSublist :: Test
+test_uniqueContiguousSublist = TestCase $ do
+  assertBool "" $ Right [9,9] ==
+    uniqueContiguousSublist (> 5) [1,1,9,9,1,1]
+  assertBool "" $ Right [9,9] ==
+    uniqueContiguousSublist (> 5) [9,9,1,1]
+  assertBool "" $ isLeft $
+    uniqueContiguousSublist (> 5) [1,1,9,9,1,1,9,9]
 
 test_transpose :: Test
 test_transpose = TestCase $ do
