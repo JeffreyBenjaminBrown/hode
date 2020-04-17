@@ -6,6 +6,7 @@ module Hode.UI.ExprTree.Sort (
   , addSelections_toSortedRegion      -- ^ St -> Either String St
   , removeSelections_fromSortedRegion -- ^ St -> Either String St
   , raiseSelection_inSortedRegion     -- ^ St -> Either String St
+  , lowerSelection_inSortedRegion     -- ^ St -> Either String St
   , pointedListOf_exprRowPTrees_withSameFocus
     -- ^ Porest ExprRow -> [PTree ExprRow] -> Either String (Porest ExprRow)
   ) where
@@ -232,7 +233,7 @@ removeSelections_fromSortedRegion _st =
 -- then the selected expressions C and D will rise by one space in the list.
 -- That is, B will be disconnected from C and D
 -- (if they are connected, which they might not be),
--- and then connected on the other side of D.
+-- and then connected on the other side of (that is, below) D.
 -- PITFALL: B will end up connected to D alone, not to both C and D.
 
 raiseSelection_inSortedRegion :: St -> Either String St
@@ -261,8 +262,8 @@ raiseSelection_inSortedRegion _st =
       (inSort, outSort) =
         L.partition (^. pTreeLabel . boolProps . inSortGroup) peerErs
   ( _above :: [PTree ExprRow],
-    _seld :: [PTree ExprRow],
-    below :: [PTree ExprRow]) <-
+    _seld  :: [PTree ExprRow],
+    below  :: [PTree ExprRow]) <-
     case beforeDuringAfter (^. pTreeLabel . boolProps .selected ) inSort
     of Right x -> Right x
        Left _ -> Left "Among the focused expression's peers, than one contiguous subset are selected. Please deselect something; at most one contiguous subset at a time can be shifted up in the order."
@@ -273,17 +274,20 @@ raiseSelection_inSortedRegion _st =
       if null _seld then Left "Nothing is selected here."
         else Right ()
 
-      ( _above :: [PTree ExprRow], -- extract last elt "crosser" from _above
-        crosser :: PTree ExprRow) <- -- will move to the other side of _seld
-        (_2 %~ head) <$> -- safe because _above is not null
+      -- `crosser`, the last element of `_above`, will be moved
+      -- to the other side of (i.e. above) the selected expressions.
+      ( _above :: [PTree ExprRow],
+        crosser :: PTree ExprRow) <-
+        (_2 %~ head) <$> -- Safe because _above is not null.
         Right (splitAt (length _above - 1) _above)
-
       let crosserA :: Addr =
             maybe (error "impossible: we checked that the focused node is an Expr, so the crosser should be one too.") id $
             crosser                  ^?              pTreeLabel . exprRow_addr
           seldAs  :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
-      _r <- separateSimply t [crosserA] seldAs _r
 
+      -- Hopefully, after deleting all direct connections from crosser
+      -- to seld, they will be disconnected.
+      _r <- separateSimply t [crosserA] seldAs _r
       _conns :: [[Addr]] <-
         let sd :: SearchDir = case bo of
               LeftEarlier  -> SearchRightward
@@ -317,6 +321,104 @@ raiseSelection_inSortedRegion _st =
           Right $ _st
             & stSetTopLevelBuffer_byQuery ProblematicChain .~ b
             & showReassurance "You asked Hode to move the selected expressions up in the order that currently orders the focused expression and its peers, but a chain of length > 1 currently makes that impossible. You can find it in the ProblematicChain buffer. Please break that chain and try again."
+
+
+-- | Consider a buffer in which the focused node's peers appear,
+-- reading from top to bottom, as A, B, C, D, E, F.
+-- They have been sorted, and A through E are in the sort,
+-- while F is not. B and C are selected.
+-- If the user runs `lowerSelection_inSortedRegion`,
+-- then the selected expressions B and C will fall by one space in the list.
+-- That is, D will be disconnected from B and C
+-- (if they are connected, which they might not be),
+-- and then connected on the other side of (that is, above) B.
+-- PITFALL: D will end up connected to B alone, not to both B and C.
+
+lowerSelection_inSortedRegion :: St -> Either String St
+lowerSelection_inSortedRegion _st =
+  prefixLeft "removeSelections_fromSortedRegion: " $ do
+  -- fetch stuff
+  _peers :: Porest ExprRow <-
+    case _st ^? stFocusPeers of Just x  -> Right x
+                                Nothing -> Left $ "Focused expr has no peers -- probably because it's the root of the view."
+  case _peers ^. P.focus . pTreeLabel . viewExprNode of
+    VenExpr _ -> Right ()
+    _ -> Left $ "Focused node is not an Expr in the graph. (Instead it's probably a grouping node.)"
+  (bo :: BinOrientation, t :: TpltAddr) <-
+    let errMsg = "Focused node and its peers have not been sorted."
+    in maybe (Left errMsg) Right
+       $ _st ^? stFocusGroupOrder
+  let peerErs :: [PTree ExprRow] = toList _peers
+      _r :: Rslt = _st ^. appRslt
+
+  -- Partition the list into:
+  -- `unseld` : rows in the sort, to stay there
+  -- `seld` : rows to be removed from the sort
+  -- `outSort` : rows already not part of the sort
+  -- (`inSort` is only used to create `unseld` and `seld`.)
+  let inSort, outSort :: [PTree ExprRow]
+      (inSort, outSort) =
+        L.partition (^. pTreeLabel . boolProps . inSortGroup) peerErs
+  ( above  :: [PTree ExprRow],
+    _seld  :: [PTree ExprRow],
+    _below :: [PTree ExprRow]) <-
+    case beforeDuringAfter (^. pTreeLabel . boolProps .selected ) inSort
+    of Right x -> Right x
+       Left _ -> Left "Among the focused expression's peers, than one contiguous subset are selected. Please deselect something; at most one contiguous subset at a time can be shifted down in the order."
+
+  case null _below of
+    True -> Right _st -- can't get any lower
+    False -> do
+      if null _seld then Left "Nothing is selected here."
+        else Right ()
+
+      -- `crosser`, the first element of `_below`, will be moved
+      -- to the other side of (i.e. above) the selected expressions.
+      ( crosser ::  PTree ExprRow,
+        _below  :: [PTree ExprRow] ) <-
+        (_1 %~ head) <$> -- Safe because _above is not null.
+        Right (splitAt 1 _below)
+      let crosserA :: Addr =
+            maybe (error "impossible: we checked that the focused node is an Expr, so the crosser should be one too.") id $
+            crosser                  ^?              pTreeLabel . exprRow_addr
+          seldAs  :: [Addr] = _seld  ^.. traversed . pTreeLabel . exprRow_addr
+
+      -- Hopefully, after deleting all direct connections from crosser
+      -- to seld, they will be disconnected.
+      _r <- separateSimply t [crosserA] seldAs _r
+      _conns :: [[Addr]] <-
+        let sd :: SearchDir = case bo of
+              LeftEarlier  -> SearchLeftward
+              RightEarlier -> SearchRightward
+        in connections _r sd  t [crosserA] (S.fromList seldAs)
+      if null _conns
+
+        then do
+          _peers <- -- reorder the ExprRows
+            pointedListOf_exprRowPTrees_withSameFocus
+            _peers $ above ++ (crosser : _seld) ++ _below ++ outSort
+          _r :: Rslt <- let
+            re :: RefExpr = case bo of
+              LeftEarlier  -> Rel' $ Rel [crosserA, last seldAs] t
+              RightEarlier -> Rel' $ Rel [last seldAs, crosserA] t
+            in insert re _r
+          Right $ _st
+            & appRslt .~ _r
+            & ( stSet_focusedBuffer . bufferExprRowTree
+                . setPeersOfFocusedSubtree . _Just
+                .~ _peers )
+            & showReassurance "Selected expressions have been bumped down in the order currently ordering the focused expression."
+
+        else do
+          b :: Buffer <-
+            bufferFromPath _st ProblematicChain (t, head _conns)
+          _st :: St <- return $
+            case _st ^. stGetTopLevelBuffer_byQuery ProblematicChain
+            of Nothing -> _st & insertBuffer_byQuery ProblematicChain
+               _       -> _st
+          Right $ _st
+            & stSetTopLevelBuffer_byQuery ProblematicChain .~ b
+            & showReassurance "You asked Hode to move the selected expressions down in the order that currently orders the focused expression and its peers, but a chain of length > 1 currently makes that impossible. You can find it in the ProblematicChain buffer. Please break that chain and try again."
 
 
 -- | `pointedListOf_exprRowPTrees_withSameFocus focusModel pters`

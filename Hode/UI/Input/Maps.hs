@@ -1,3 +1,6 @@
+-- | PITFALL: Vty's `Meta` modifier, at least on my system,
+-- cannot be used in conjunction with certain characters, such as ';'.
+
 module Hode.UI.Input.Maps (
     universal_commands    -- ^ St -> M.Map V.Event
                           -- (B.EventM BrickName (B.Next St))
@@ -170,8 +173,11 @@ resultWindow_commands st =
     goe $ addSelections_toSortedRegion ),
   ( V.EvKey (V.KChar 'y') [V.MMeta], -- 'y' is for "yank"
     goe $ removeSelections_fromSortedRegion ),
-  ( V.EvKey (V.KChar ';') [V.MMeta], -- next to 'l' for 'lower'
+  ( V.EvKey (V.KChar 'k') [V.MMeta], -- next to 'l' for 'lower'
     goe $ raiseSelection_inSortedRegion ),
+  ( V.EvKey (V.KChar 'l') [V.MMeta],
+    goe $ lowerSelection_inSortedRegion ),
+
   ( V.EvKey (V.KChar 'o') [V.MMeta],
     goe $ updateBlockingCycles >=> updateCycleBuffer )
   ]
