@@ -45,6 +45,10 @@ universal_commands st = M.fromList [
   ( V.EvKey V.KEsc [V.MMeta],
     B.halt st ),
 
+  -- For testing whether a key combination will be recognized.
+  ( V.EvKey (V.KChar '?') [V.MMeta],
+    B.continue $ st & showReassurance "Vty saw that!" ),
+
   -- command window
   ( V.EvKey (V.KChar 'x') [V.MMeta],
     parseAndRunCommand st ),
@@ -160,6 +164,8 @@ resultWindow_commands st =
            %~ nudgeFocus_inPTree DirUp )
     . hideReassurance ),
 
+  -- THese look like they change the data but they don't.
+  -- Maybe they are too confusing to be worth inclusion.
   ( V.EvKey (V.KChar 'E') [V.MMeta],
     go $ ( stSet_focusedBuffer . bufferExprRowTree
            %~ nudgeInPTree DirPrev )

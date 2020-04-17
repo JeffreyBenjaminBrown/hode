@@ -11,8 +11,81 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO ordering
-*** TODO WYSIWYG sorting
+** modes and keymap
+*** use this to test whether key commands are recognized
+(It's already part of Maps.hs.)
+
+  -- For testing whether a key combination will be recognized.
+  ( V.EvKey (V.KChar '?') [V.MMeta],
+    B.continue $ st & showReassurance "Vty saw that!" ),
+*** rename SearchBuffer -> GraphBuffer
+*** interactive help
+**** At top, a message: "Press up (or e), down (or d), left (or s), right (or f), and Tab to move around this help. Press Esc to quit this help."
+**** Three interactive windows
+***** The main window shows a list of commands -- the shortcut, and an explanation.
+***** Near bottom, a one-row window lists available modes.
+***** At bottom appears a one-window row of submodes.
+**** When the user enters, the mode and submode shown correspond to what they currently have.
+*** commands
+**** M-w : what (window) to show
+q - B.halt st ),
+h - showingInMainWindow .~ CommandHistory
+b - showingInMainWindow .~ BufferBuffer
+g - showingInMainWindow .~ SearchBuffer
+s - goe cons_focusedViewExpr_asChildOfBuffer ) -- for "subtree"
+  -- should only work from the subgraph window
+e - <new> Show error "buffer". (Why is this not a proper buffer?)
+r - <new> Toggle reassurance window.
+? - Show interactive help.
+
+C   - <new> command window : like c and M-c both
+c   - <new> command window : toggle directing keyboard input to
+          (and if it's not shown, show it).
+M-c - <new> command window : toggle showing
+**** command window
+M-x : parseAndRunCommand st )
+M-r : replaceCommand )
+<new> Send keystrokes to command window.
+**** bufferWindow
+e - nudgeFocus_inBufferTree DirPrev ),
+d - nudgeFocus_inBufferTree DirNext ),
+f - nudgeFocus_inBufferTree DirDown ),
+a - nudgeFocus_inBufferTree DirUp ),
+
+E - nudgeFocused_buffer DirPrev ),
+D - nudgeFocused_buffer DirNext ),
+
+c - consBuffer_asChild emptySearchBuffer ),
+t - consBuffer_topNext emptySearchBuffer ),
+d - deleteFocused_buffer )
+**** results window
+***** common to all submodes: move, select, copy, change view options
+e - nudgeFocus_inPTree DirPrev )
+d - nudgeFocus_inPTree DirNext )
+f - nudgeFocus_inPTree DirDown )
+s - nudgeFocus_inPTree DirUp )
+x - boolProps . selected %~ not ) ),
+X - <new> unselect all in tree
+c - toClipboard $ unlines $ focusedBufferStrings st )
+a - viewOptions . viewOpt_ShowAddresses %~ not)
+A - viewOptions . viewOpt_ShowAsAddresses %~ not) ),
+***** build
+S - goe insertSearchResults_atFocus ),
+h - goe insertHosts_atFocus ),
+m - goe insertMembers_atFocus ),
+k - close subtree
+F - stSetFocused_ViewExprNode_Tree . pTreeLabel
+     . otherProps . folded
+E - nudgeInPTree DirPrev ) -- move the row, not the focus
+D - nudgeInPTree DirNext ) -- move the row, not the focus
+***** sort
+A - addSelections_toSortedRegion ),
+R - removeSelections_fromSortedRegion ),
+E - raiseSelection_inSortedRegion ),
+D - lowerSelection_inSortedRegion ),
+U - updateBlockingCycles >=> updateCycleBuffer )
+** ordering
+*** WYSIWYG sorting
 **** TODO ? BUG): when removing from an order, connect any gaps created
 (The relevant function is removeSelections_fromSortedRegion.)
 So far it disconnects the to-be-removed from the still sorted,
@@ -24,64 +97,6 @@ and A > B on screen,
 it could be that A is not truly > B. (It can't, however, be that A < B.)
 To "iron" a subset of an order would be to create a chain through them all,
 such that the order in which they appear on screen is indeed the only reasonable order among them.
-**** DONE
-***** sorting should modify the parent group to know the sort order
-including the BinOrientation
-***** selector column and select shortcut
-This is like highlighting a range, but more general.
-An x appears in the (new) "select|sort-order" column.
-  A unicode checkmark (✓) seems to brick my parser.
-**** DONE add highlighted things to the sorted region.
-***** DONE implement
-Data.List.partition the sorted nodes from the unsorted ones.
-Among the unsorted, partition the selected peers of the focused node
-  (which might include it) from the other peers.
-Connect the selected unsorted peers to each other,
-  and the first among them to the last sorted node.
-Reorder them manually: old sorted, then new sorted, then still-unsorted.
-  Use PTree.Modify.sortPList_asList for this.
-  (Could also recompute the sort, but that might be expensive.)
-Set their _inSort values to True.
-  -- this won't work but the optic is correct
-***** DONE test
-**** DONE remove highlighted things from the sorted region
-***** add shortcut, test: removeSelections_fromSortedRegion
-inc. for two regions that are connected by a chain of length > 1
-*****
-mimic this stuff
-  UI.ExprTree.Sort.addSelections_toSortedRegion
-    In `st`, this changes `appRslt` and `stSet_focusedBuffer`.
-  to discover connections of length > 1
-    use connections instead of cyclesInvolving
-  UI.CycleBuffer.updateBlockingCycles
-    this changes `st ^. blockingCycles`.
-    I'll need a new field in `st`, to track what the nodes user is trying to ad to what sorted group, and which cannot be added yet because of connections of length > 1.
-  UI.CycleBuffer.updateCycleBuffer
-    this only makes sense after running `updateBlockingCycles`.
-***** Delete all relevant "visible" connections.
-Delete all connections from nodes-to-remove to nodes-to-remain.
-***** Delete any remaining connections interactively
-ala CycleBreaker
-For each removed thing, see if it can reach any of the others,
-including the others that we want to remove -- and for any such reachable others, find the path leading to it.
-HReach seems unsuited to this, as it returns the set of all things reachable,
-but not the path.
-***** PITFALL: This can change the order of the remaining nodes.
-If A < B < C, and B is removed, A is no longer related via (<) to C
-**** TODO bump (highlighted group?) in sort
-***** first use uniqueContiguousSublist
-to verify that there's only one contiguous group of checked expressions among the focused node's peers.
-If it's Left, change the error message to something clearer.
-***** then move something across the group
-****** idea and terms
-Suppose S is the sorted group, and B is the group to bump.
-For concreteness suppose we're bumping it up the list.
-Let C be the single element that B has to cross -- B will go from one side of B to the other, and nothing else will change.
-****** procedure
-Simply disconnect C from B.
-Check whether C is still ordered above B.
-  If so, abort, throw to a ProblematicChain buffer.
-  If not, connect C below the last member of B.
 *** later: display
 **** the highlight should not affect the columns, only the payload
 **** more expressive sort-colors
@@ -113,12 +128,28 @@ None of them are isolated from the closure of (>),
 but among [a,b,c], c is isolated.
 It should be shown in the unsorted group.
 *** ? compromise: don't consider non-local connections
+** TODO document
+select ViewExpr (M-X)
+nudging (M-E, M-D)
+deleting buffers
+moving address
+*** TODO documentation: order of topics
+ How to add.
+ How to move focus, add neighbors.
+ *Then* what the Rslt is and how to query.
+
+** TODO manual update
+** TODO change: can insertHosts_atFocus when they're already there
+** TODO folding indicator
+Visually indicate whether a node with descendents is folded.
+Or at least, upon inserting contents, unfold.
 ** TODO the obstructive subexpression problem
 *** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:
   not, maybe, and warning
 *** after using the app more, maybe consider the more general problem
 ** TODO compress binary groups
+** TODO ? multi-line expressions
 * TODO unsorted
 ** TODO BUG in sort
 *** a way to trigger it
@@ -205,20 +236,18 @@ matches up to 3 (4) separate `HExpr`s.
 not just its top level
 ** cannot implement the separator "#:"
 * TODO easy
+** TODO insertion list
+*** plan
+**** data St = ...
++  , _insertionBuffer :: Buffer
+**** initially, just add the final result of insertions
+**** then refactor insertion so it returns the full history of added things
+*** complications
+(1) inserting a compound expression inserts subexpressions
+(2) don't record insertion if it already existedx
 ** TODO the color "white text on black background"
 ** TODO new in GHC 8.10: :instances
 Given a type, shows its classes.
-** TODO folding indicator
-Visually indicate whether a node with descendents is folded.
-Or at least, upon inserting contents, unfold.
-** TODO invert colors for highlight
-Rather than rotating blue-green-red,
-invert white with the color.
-** TODO document
-select ViewExpr (M-X)
-nudging (M-E, M-D)
-deleting buffers
-moving address
 ** TODO check for cycles when a tplt is declared transitive
 Check for cycles non-locally --
 that is, with reference to no particular point in the cycle.
@@ -238,16 +267,7 @@ They can be templates, if they have the same arity.
 ** TODO upon save, delete unused phrases and templates
 unless maybe it's a long phrase
 PITFALL: But don't delete the empty string.
-** TODO change: can insertHosts_atFocus when they're already there
-** TODO insertion list
-*** plan
-**** data St = ...
-+  , _insertionBuffer :: Buffer
-**** initially, just add the final result of insertions
-**** then refactor insertion so it returns the full history of added things
-*** complications
-(1) inserting a compound expression inserts subexpressions
-(2) don't record insertion if it already existedx
+         Or maybe the need for the empty string is obsolete?
 * TODO big-think
 ** soft
 *** who cares?
@@ -293,22 +313,19 @@ It would be better if distinct things could share a name.
 **** would help: smsn
 ** types?
 * TODO user-friendliness
+** TODO crawling within an Expr
+up|down to enclosing keyword (/hash, etc)
+up|down to nearest higher binop (#, |, etc)
+up|down, multipurpose
+  this kind goes to either of the two previous kinds of things
+left|right in same level
 ** TODO a regex index
 ** TODO If there's a cycle, announce it everywhere
 at the top of every window except the Error window.
 ** TODO edit a PTree
-*** nudge things up|down
-**** if deleting a PTree is possible from Results
- Introduce a mark for tree nodes of which some but not all children are shown.
-**** in SearchBuffers, add a shortcut for it
- and move the shortcut for "create child buffer"
 *** Annotate things.
 *** delete parent from any PTree
 and move children up to where it was
-** TODO documentation: order of topics
-How to add.
-How to move focus, add neighbors.
-*Then* what the Rslt is and how to query.
 ** TODO wrapping is buggy
 *** example
 For instance, the display of this (at address 153 in jbb/)
@@ -316,7 +333,6 @@ For instance, the display of this (at address 153 in jbb/)
 includes a 121-character-long line.
 *** todo ? distance to wrap should shrink with columns, indentation
 *** todo ? temp fix: allow user to change wrap length
-** TODO ? multi-line expressions
 ** TODO ? offer to delete orphaned nodes
 If a member of something deleted is not remember of anything else, ask whether to delete it, too -- and recurse.
 ** TODO copy to clipboard: buggy on Nix
@@ -441,13 +457,11 @@ Begin with some auto-generated nicknames (numbers? letters?).
 Toggle a checkbox window at the side of the main window.
 Add (_isChecked :: Bool) to OtherProps.
 Introduce an /each keyword for expression-insertion purposes.
-** TODO update
-*** manual update
-*** automatic update
-**** goal
+** automatic update
+*** goal
 Each time an Expr `a` is added,
 test each search for whether it would include *only* `a`.
-**** method
+*** method
 Call each layer in each ViewTree a "spot".
 Each is associated with some kind of Hash expression `h`.
 Decompose `h` into its constituents, and save those at the spot.
@@ -475,12 +489,6 @@ Instead cross from its children to its parent, or vice-versa.
 all members, submembers, etc -- probably nested
 ** maybe "its rels*" (with a star)
 "maybe" because for certain Exprs that could explode
-* crawling within an Expr
-up|down to enclosing keyword (/hash, etc)
-up|down to nearest higher binop (#, |, etc)
-up|down, multipurpose
-  this kind goes to either of the two previous kinds of things
-left|right in same level
 * Hash & maybe
 ** TODO ? _ #? _
 _ #? _ means it could be any kind of binary relationship template.
