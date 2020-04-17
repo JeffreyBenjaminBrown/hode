@@ -230,13 +230,14 @@ removeSelections_fromSortedRegion _st =
 -- while F is not. C and D are selected.
 -- If the user runs `raiseSelection_inSortedRegion`,
 -- then the selected expressions C and D will rise by one space in the list.
--- That is, B will be disconnected from C and D them (if they are connected),
+-- That is, B will be disconnected from C and D
+-- (if they are connected, which they might not be),
 -- and then connected on the other side of D.
 -- PITFALL: B will end up connected to D alone, not to both C and D.
+
 raiseSelection_inSortedRegion :: St -> Either String St
 raiseSelection_inSortedRegion _st =
   prefixLeft "removeSelections_fromSortedRegion: " $ do
-
   -- fetch stuff
   _peers :: Porest ExprRow <-
     case _st ^? stFocusPeers of Just x  -> Right x
@@ -262,7 +263,10 @@ raiseSelection_inSortedRegion _st =
   ( _above :: [PTree ExprRow],
     _seld :: [PTree ExprRow],
     below :: [PTree ExprRow]) <-
-    beforeDuringAfter (^. pTreeLabel . boolProps .selected ) inSort
+    case beforeDuringAfter (^. pTreeLabel . boolProps .selected ) inSort
+    of Right x -> Right x
+       Left _ -> Left "Among the focused expression's peers, than one contiguous subset are selected. Please deselect something; at most one contiguous subset at a time can be shifted up in the order."
+
   case null _above of
     True -> Right _st -- can't get any higher
     False -> do

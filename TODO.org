@@ -1,3 +1,5 @@
+* TODO use HasCallStack to mark partial functions.
+https://www.tweag.io/posts/2020-04-16-exceptions-in-haskell.html
 * DISCLAIMER: This document is
 not really intended to be understood by anybody but myself.
 For documentation, please see the README.md file.

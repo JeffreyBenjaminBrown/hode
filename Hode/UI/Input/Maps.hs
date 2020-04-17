@@ -170,6 +170,8 @@ resultWindow_commands st =
     goe $ addSelections_toSortedRegion ),
   ( V.EvKey (V.KChar 'y') [V.MMeta], -- 'y' is for "yank"
     goe $ removeSelections_fromSortedRegion ),
+  ( V.EvKey (V.KChar ';') [V.MMeta], -- next to 'l' for 'lower'
+    goe $ raiseSelection_inSortedRegion ),
   ( V.EvKey (V.KChar 'o') [V.MMeta],
     goe $ updateBlockingCycles >=> updateCycleBuffer )
   ]
