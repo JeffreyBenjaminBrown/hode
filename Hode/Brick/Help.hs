@@ -18,7 +18,8 @@ import qualified Brick.Widgets.Core   as B
 
 
 type Focused = Bool
-type BaseMenu = P.PointedList (String, String)
+type Choice3Plist = P.PointedList (String, String)
+type Choice2Plist = P.PointedList (String, Choice3Plist)
 
 -- | Choice 1 determines what is available inn Choice 2,
 -- and Choice 2 determines what is available in Choice 3.
@@ -29,7 +30,7 @@ makeLenses ''WindowName
 allWindowNammes = maybe (error "impossible") id $
                   P.fromList [ Choice1, Choice2, Choice3, Content ]
 
-data St = St { _choices :: P.PointedList (String, BaseMenu)
+data St = St { _choices :: Choice2Plist
              , _windows :: P.PointedList WindowName }
   deriving (Show, Eq)
 makeLenses ''St
@@ -37,7 +38,12 @@ makeLenses ''St
 isFocusedWindow :: St -> WindowName -> Bool
 isFocusedWindow st = (==) (st ^. windows . P.focus)
 
-animals :: P.PointedList (String, String)
+windowFont :: St -> WindowName -> B.AttrName
+windowFont st wn = if wn == st ^. windows . P.focus
+                   then "focus"
+                   else "no focus"
+
+animals :: Choice3Plist
 animals =
   maybe (error "impopssible") id $
   P.fromList [ ("Apple", "Introduced evil to the world. Tasty.")
@@ -45,7 +51,7 @@ animals =
              , ( "Marsupial", "Two womby phases!" )
              , ( "Snail","Slimy, fries up real nice." ) ]
 
-balls :: P.PointedList (String, String)
+balls :: Choice3Plist
 balls =
   maybe (error "impopssible") id $
   P.fromList [ ("Basketball","Very bouncy.")
@@ -53,13 +59,27 @@ balls =
              , ( "Softball","Lies! What the hell?" )
              , ( "Tennis ball", "Somehow extra awesome." ) ]
 
-chemicals :: P.PointedList (String, String)
+chemicals :: Choice3Plist
 chemicals =
   maybe (error "impopssible") id $
   P.fromList [ ("sugar", "long carbohydrate polymers")
              , ( "DMT", "illegal. Naturally manufactured by the brain." )
              , ( "capsaicin", "Intense. Probably misspelled." )
              , ( "DNA", "Hardest language ever." ) ]
+
+furniture :: Choice3Plist
+furniture =
+  maybe (error "impopssible") id $
+  P.fromList [ ("chair","Four legs and a butt.")
+             , ("Ottoman","A roomy stool.")
+             , ("table", "An arrangement of cells into columns and rows.") ]
+
+animals_and_balls = maybe (error "impossible") id $
+                    P.fromList [ ("animals",   animals)
+                               , ("balls",     balls) ]
+chemicals_and_furniture = maybe (error "impossible") id $
+                          P.fromList [ ("chemicals", chemicals)
+                                     , ("furniture", furniture) ]
 
 initState :: St
 initState = St
@@ -68,6 +88,8 @@ initState = St
                P.fromList [ ("animals",   animals)
                           , ("balls",     balls)
                           , ("chemicals", chemicals) ] }
+--    P.fromList [ ("animals_and_balls",       animals_and_balls)
+--               , ("chemicals_and_furniture", chemicals_and_furniture ) ]
 
 pListToList_withFocus :: (a -> b) -> (a -> b) -> P.PointedList a -> [b]
 pListToList_withFocus normal focus as =
@@ -77,23 +99,20 @@ pListToList_withFocus normal focus as =
 
 ui :: St -> B.Widget n
 ui st = let
-  cs :: P.PointedList (String, BaseMenu) = st ^. choices
-  (c :: String, b :: BaseMenu) = cs ^. P.focus
+  cs :: P.PointedList (String, Choice3Plist) = st ^. choices
+  (c :: String, b :: Choice3Plist) = cs ^. P.focus
   normal    stylePrefix = B.padLeftRight 1 . B.withAttr style . B.str
     where style = stylePrefix
   highlight stylePrefix = B.padLeftRight 1 . B.withAttr style . B.str
     where style = stylePrefix <> "highlight"
   in
-  B.hBox ( let sp = case st ^. windows . P.focus of
-                      Choice3 -> "focus"
-                      _       -> "no focus"
-           in [ B.vBox $ pListToList_withFocus
+  B.hBox ( [ let sp = windowFont st Choice3
+             in B.vBox $ pListToList_withFocus
                 (normal sp) (highlight sp) $ fmap fst b
-              , B.vBorder
-              , normal sp $ b ^. P.focus . _2 ] )
-  B.<=> ( let sp = case st ^. windows . P.focus of
-                      Choice2 -> "focus"
-                      _       -> "no focus"
+           , B.vBorder
+           , let sp = windowFont st Content
+             in normal sp $ b ^. P.focus . _2 ] )
+  B.<=> ( let sp = windowFont st Choice2
           in B.vLimit 1 $ B.hBox $ L.intersperse B.vBorder $
              pListToList_withFocus (normal sp) (highlight sp) $
              fmap fst cs )
