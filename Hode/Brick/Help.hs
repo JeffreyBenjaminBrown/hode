@@ -1,20 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Lens
-import Data.List.PointedList          as P
-import Data.List.PointedList.Circular as C
-import qualified Graphics.Vty         as V
+import           Data.Foldable (toList)
+import qualified Data.Map                       as M
+import qualified Data.List.PointedList          as P
+import qualified Data.List.PointedList.Circular as C
+import qualified Graphics.Vty                   as V
 
-import qualified Brick.AttrMap      as B
-import qualified Brick.Main         as B
-import qualified Brick.Types        as B
-import qualified Brick.Util         as B
-import qualified Brick.Widgets.Core as B
+import qualified Brick.Widgets.Border as B
+import qualified Brick.AttrMap        as B
+import qualified Brick.Main           as B
+import qualified Brick.Types          as B
+import qualified Brick.Util           as B
+import qualified Brick.Widgets.Core   as B
 
 
 type Name = ()
 type Focused = Bool
-type St = P.PointedList (String, String)
+type St = P.PointedList (String, BaseMenu)
+type BaseMenu = P.PointedList (String, String)
 
 animals :: P.PointedList (String, String)
 animals =
@@ -24,15 +28,43 @@ animals =
              , ( "Marsupial", "Two womby phases!" )
              , ( "Snail","Slimy, fries up real nice." ) ]
 
+balls :: P.PointedList (String, String)
+balls =
+  maybe (error "impopssible") id $
+  P.fromList [ ("Basketball","Very bouncy.")
+             , ( "Softball","Lies! What the hell?" )
+             , ( "Tennis ball", "Somehow extra awesome." )
+             , ( "Mercury","Usually not in the form of a ball." ) ]
+
+chemicals :: P.PointedList (String, String)
+chemicals =
+  maybe (error "impopssible") id $
+  P.fromList [ ("sugar", "long carbohydrate polymers")
+             , ( "DMT", "illegal. Naturally manufactured by the brain." )
+             , ( "capsaicin", "Intense. Probably misspelled." )
+             , ( "DNA", "Hardest language ever." ) ]
+
+menus :: St
+menus = maybe (error "impossible") id $
+  P.fromList [ ("animals",   animals)
+             , ("balls",     balls)
+             , ("chemicals", chemicals) ]
+
 ui :: St -> B.Widget n
 ui st =
-  B.vBox ( map normal (st ^.. reversedPrefix . reversed . folded . _1)   ++
-           [highlight (st ^.  focus .                              _1) ] ++
-           map normal (st ^.. suffix .                    folded . _1) )
-  B.<+> normal (st ^. focus . _2)
-  where 
-  normal    = B.withAttr "option"                  . B.str
-  highlight = B.withAttr ("option" <> "highlight") . B.str
+  let (c :: String, b :: BaseMenu) = st ^. P.focus
+      normal    = B.withAttr "option"                  . B.str
+      highlight = B.withAttr ("option" <> "highlight") . B.str
+  in
+  ( B.vBox ( map normal (b^.. P.reversedPrefix . reversed . folded . _1)   ++
+             [highlight (b^.  P.focus .                              _1) ] ++
+             map normal (b^.. P.suffix .                    folded . _1) )
+    B.<+> B.vBorder
+    B.<+> (normal $ b^. P.focus . _2) )
+  B.<=> ( B.hBox $
+          map normal (st ^.. P.reversedPrefix . reversed . folded . _1)   ++
+          [highlight (st ^.  P.focus .                              _1) ] ++
+          map normal (st ^.. P.suffix .                    folded . _1) )
 
 theMap :: B.AttrMap
 theMap = B.attrMap
@@ -45,8 +77,12 @@ respond st (B.VtyEvent ev) =
     case ev of
         V.EvKey V.KEsc [] -> B.halt st
         V.EvKey (V.KChar 'e') [] ->
-          B.continue $ st & C.previous
+          B.continue $ st & P.focus . _2 %~ C.previous
         V.EvKey (V.KChar 'd') [] ->
+          B.continue $ st & P.focus . _2 %~ C.next
+        V.EvKey (V.KChar 's') [] ->
+          B.continue $ st & C.previous
+        V.EvKey (V.KChar 'f') [] ->
           B.continue $ st & C.next
         _ -> B.continue st
 respond st _ = B.continue st
@@ -61,4 +97,4 @@ app = B.App
       }
 
 main :: IO St
-main = B.defaultMain app animals
+main = B.defaultMain app menus
