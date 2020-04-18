@@ -50,21 +50,22 @@ menus = maybe (error "impossible") id $
              , ("balls",     balls)
              , ("chemicals", chemicals) ]
 
+pListToList_withFocus :: (a -> b) -> (a -> b) -> P.PointedList a -> [b]
+pListToList_withFocus normal focus as =
+  map normal (as ^. P.reversedPrefix . reversed) ++
+  [focus     (as ^. P.focus)] ++
+  map normal (as ^. P.suffix)
+
 ui :: St -> B.Widget n
-ui st =
-  let (c :: String, b :: BaseMenu) = st ^. P.focus
-      normal    = B.withAttr "option"                  . B.str
-      highlight = B.withAttr ("option" <> "highlight") . B.str
+ui st = let
+  (c :: String, b :: BaseMenu) = st ^. P.focus
+  normal    = B.withAttr "option"                  . B.str
+  highlight = B.withAttr ("option" <> "highlight") . B.str
   in
-  ( B.vBox ( map normal (b^.. P.reversedPrefix . reversed . folded . _1)   ++
-             [highlight (b^.  P.focus .                              _1) ] ++
-             map normal (b^.. P.suffix .                    folded . _1) )
+  ( (B.vBox $ pListToList_withFocus normal highlight $ fmap fst b)
     B.<+> B.vBorder
     B.<+> (normal $ b^. P.focus . _2) )
-  B.<=> ( B.hBox $
-          map normal (st ^.. P.reversedPrefix . reversed . folded . _1)   ++
-          [highlight (st ^.  P.focus .                              _1) ] ++
-          map normal (st ^.. P.suffix .                    folded . _1) )
+  B.<=> B.hBox (pListToList_withFocus normal highlight $ fmap fst st)
 
 theMap :: B.AttrMap
 theMap = B.attrMap
