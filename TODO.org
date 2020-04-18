@@ -11,42 +11,63 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** modes and keymap
+** TODO modes and keymap
 *** use this to test whether key commands are recognized
 (It's already part of Maps.hs.)
 
   -- For testing whether a key combination will be recognized.
   ( V.EvKey (V.KChar '?') [V.MMeta],
     B.continue $ st & showReassurance "Vty saw that!" ),
-*** rename SearchBuffer -> GraphBuffer
+*** TODO brick experiment
+**** model code
+***** for moving highlight across some options in a window
+:l ~/code/haskell-libs/brick-stale/brick/programs/thoroughly-read/DialogDemo.hs
+***** for switching focus across windows
+:l ~/code/haskell-libs/brick-stale/brick/programs/thoroughly-read/EditDemo.hs 
+**** what it should do
+***** windows
+Two rows on the bottom, to select mode and submode.
+Above them, a window split in two.
+  On the left, a list of commands. Maybe the first is called "Intro."
+  On the right, a description of the selected command.
+At the top, a description:
+  "Press up (or e), down (or d), left (or s), right (or f), and Tab to move around this help. Press Esc to quit this help."
+***** commands
+Tab switches focus between the four user-modifiable windows.
+Arrows move the highlight within a window, unless it's the description.
+For the description window, arrows just scroll the text.
+*** TODO rename SearchBuffer -> GraphBuffer
 *** interactive help
-**** At top, a message: "Press up (or e), down (or d), left (or s), right (or f), and Tab to move around this help. Press Esc to quit this help."
 **** Three interactive windows
 ***** The main window shows a list of commands -- the shortcut, and an explanation.
 ***** Near bottom, a one-row window lists available modes.
 ***** At bottom appears a one-window row of submodes.
 **** When the user enters, the mode and submode shown correspond to what they currently have.
 *** commands
-**** M-w : what (window) to show
-q - B.halt st ),
-h - showingInMainWindow .~ CommandHistory
-b - showingInMainWindow .~ BufferBuffer
-g - showingInMainWindow .~ SearchBuffer
-s - goe cons_focusedViewExpr_asChildOfBuffer ) -- for "subtree"
-  -- should only work from the subgraph window
-e - <new> Show error "buffer". (Why is this not a proper buffer?)
-r - <new> Toggle reassurance window.
-? - Show interactive help.
-
-C   - <new> command window : like c and M-c both
-c   - <new> command window : toggle directing keyboard input to
+**** M-w : what window to show (and maybe what mode to be in)
+If changing windows causes a mode change, announce new mode and submode.
+M-w h - showingInMainWindow .~ CommandHistory
+          explain that this is undocumented
+M-w b - showingInMainWindow .~ BufferBuffer
+          => buffer buffer mode
+M-w g - showingInMainWindow .~ SearchBuffer
+          => subgraph buffer mode
+M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
+M-w r - <new> Toggle reassurance window.
+M-?   - Show interactive help.
+          => do not announce it, but now in "help mode"
+???   - Toggle the "press Alt-? for help" window.
+M-w q - B.halt st
+M-w c - <new> command window : toggle directing keyboard input to
           (and if it's not shown, show it).
-M-c - <new> command window : toggle showing
+M-w C - <new> command window : toggle showing it
+**** M-m : what submode to be in
+Not every mode has submodes.
 **** command window
 M-x : parseAndRunCommand st )
 M-r : replaceCommand )
 <new> Send keystrokes to command window.
-**** bufferWindow
+**** buffer  window
 e - nudgeFocus_inBufferTree DirPrev ),
 d - nudgeFocus_inBufferTree DirNext ),
 f - nudgeFocus_inBufferTree DirDown ),
@@ -58,8 +79,8 @@ D - nudgeFocused_buffer DirNext ),
 c - consBuffer_asChild emptySearchBuffer ),
 t - consBuffer_topNext emptySearchBuffer ),
 d - deleteFocused_buffer )
-**** results window
-***** common to all submodes: move, select, copy, change view options
+**** subgraph window
+***** common to all submodes: move, select, copy
 e - nudgeFocus_inPTree DirPrev )
 d - nudgeFocus_inPTree DirNext )
 f - nudgeFocus_inPTree DirDown )
@@ -67,9 +88,12 @@ s - nudgeFocus_inPTree DirUp )
 x - boolProps . selected %~ not ) ),
 X - <new> unselect all in tree
 c - toClipboard $ unlines $ focusedBufferStrings st )
+***** M-m v : view
 a - viewOptions . viewOpt_ShowAddresses %~ not)
 A - viewOptions . viewOpt_ShowAsAddresses %~ not) ),
-***** build
+s - goe cons_focusedViewExpr_asChildOfBuffer ) -- for "subtree"
+  -- should only work from the subgraph window
+***** M-m b : build
 S - goe insertSearchResults_atFocus ),
 h - goe insertHosts_atFocus ),
 m - goe insertMembers_atFocus ),
@@ -78,26 +102,61 @@ F - stSetFocused_ViewExprNode_Tree . pTreeLabel
      . otherProps . folded
 E - nudgeInPTree DirPrev ) -- move the row, not the focus
 D - nudgeInPTree DirNext ) -- move the row, not the focus
-***** sort
+***** M-m s : sort
 A - addSelections_toSortedRegion ),
 R - removeSelections_fromSortedRegion ),
 E - raiseSelection_inSortedRegion ),
 D - lowerSelection_inSortedRegion ),
 U - updateBlockingCycles >=> updateCycleBuffer )
+** TODO document
+*** these features
+select ViewExpr (M-X)
+nudging (M-E, M-D)
+deleting buffers
+moving address
+*** TODO documentation: order of topics
+ How to add.
+ How to move focus, add neighbors.
+ *Then* what the Rslt is and how to query.
+** TODO the obstructive subexpression problem
+*** EASY: the "don't show X in maybe X" problem
+Just add some more indicators to _columnHExprs:
+  not, maybe, and warning
+*** after using the app more, maybe consider the more general problem
+** TODO ? multi-line expressions
+** TODO folding indicator
+Visually indicate whether a node with descendents is folded.
+Or at least, upon inserting contents, unfold.
+** TODO change: can insertHosts_atFocus when they're already there
+** TODO ? compress binary groups
+** manual update
+* TODO unsorted
 ** ordering
-*** WYSIWYG sorting
-**** TODO ? BUG): when removing from an order, connect any gaps created
+*** TODO ? BUG : when removing from an order, connect any gaps created
 (The relevant function is removeSelections_fromSortedRegion.)
 So far it disconnects the to-be-removed from the still sorted,
 and mutually disconnects everything in the to-be-removed.
-**** TODO ? a function to "iron" an order into place
+*** TODO BUG in sort
+**** a way to trigger it
+ /a a # b # c # d
+ /f a # b # c # d
+ <view members>
+ /a (a # c) # (c # b)
+ /sr (/t /_ "" /_)
+**** the problem
+ kahnSort deletes expressions from a copy of the graph.
+ Deletion something that's a member of other things is not permitted.
+**** the solution, I think
+ is to create and use an "unsafeDelete" which does not check for membership in superexpressions.
+ I think this works because in the course of sorting we never need to find anything's subexpressions.
+*** TODO ? a function to "iron" an order into place
 A graph can in general have multiple ways to be topologically sorted.
 Therefore, when the user sees a set of ordered expressions,
 and A > B on screen,
 it could be that A is not truly > B. (It can't, however, be that A < B.)
 To "iron" a subset of an order would be to create a chain through them all,
 such that the order in which they appear on screen is indeed the only reasonable order among them.
-*** later: display
+*** display
 **** the highlight should not affect the columns, only the payload
 **** more expressive sort-colors
 ***** there are currently these two categories
@@ -128,42 +187,6 @@ None of them are isolated from the closure of (>),
 but among [a,b,c], c is isolated.
 It should be shown in the unsorted group.
 *** ? compromise: don't consider non-local connections
-** TODO document
-select ViewExpr (M-X)
-nudging (M-E, M-D)
-deleting buffers
-moving address
-*** TODO documentation: order of topics
- How to add.
- How to move focus, add neighbors.
- *Then* what the Rslt is and how to query.
-
-** TODO manual update
-** TODO change: can insertHosts_atFocus when they're already there
-** TODO folding indicator
-Visually indicate whether a node with descendents is folded.
-Or at least, upon inserting contents, unfold.
-** TODO the obstructive subexpression problem
-*** EASY: the "don't show X in maybe X" problem
-Just add some more indicators to _columnHExprs:
-  not, maybe, and warning
-*** after using the app more, maybe consider the more general problem
-** TODO compress binary groups
-** TODO ? multi-line expressions
-* TODO unsorted
-** TODO BUG in sort
-*** a way to trigger it
-/a a # b # c # d
-/f a # b # c # d
-<view members>
-/a (a # c) # (c # b)
-/sr (/t /_ "" /_)
-*** the problem
-kahnSort deletes expressions from a copy of the graph.
-Deletion something that's a member of other things is not permitted.
-*** the solution, I think
-is to create and use an "unsafeDelete" which does not check for membership in superexpressions.
-I think this works because in the course of sorting we never need to find anything's subexpressions.
 ** TODO rewrite the PTree class
 *** the new type
 It can be like Data.Tree.Zipper, but using PointedLists (Plists).
