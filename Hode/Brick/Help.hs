@@ -2,6 +2,7 @@
 
 import Control.Lens
 import           Data.Foldable (toList)
+import qualified Data.List                      as L
 import qualified Data.Map                       as M
 import qualified Data.List.PointedList          as P
 import qualified Data.List.PointedList.Circular as C
@@ -59,13 +60,15 @@ pListToList_withFocus normal focus as =
 ui :: St -> B.Widget n
 ui st = let
   (c :: String, b :: BaseMenu) = st ^. P.focus
-  normal    = B.withAttr "option"                  . B.str
-  highlight = B.withAttr ("option" <> "highlight") . B.str
+  normal    = B.padLeftRight 1 . B.withAttr "option"                  . B.str
+  highlight = B.padLeftRight 1 . B.withAttr ("option" <> "highlight") . B.str
   in
-  ( (B.vBox $ pListToList_withFocus normal highlight $ fmap fst b)
-    B.<+> B.vBorder
-    B.<+> (normal $ b^. P.focus . _2) )
-  B.<=> B.hBox (pListToList_withFocus normal highlight $ fmap fst st)
+  B.hBox [ B.vBox $ pListToList_withFocus normal highlight $ fmap fst b
+         , B.vBorder
+         , normal $ b^. P.focus . _2 ]
+  B.<=> ( B.vLimit 1 $ B.hBox $
+          L.intersperse B.vBorder $
+          pListToList_withFocus normal highlight $ fmap fst st )
 
 theMap :: B.AttrMap
 theMap = B.attrMap
