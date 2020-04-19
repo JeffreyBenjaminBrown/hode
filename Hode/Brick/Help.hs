@@ -41,8 +41,8 @@ pListToList_withFocus normal focus as =
   [focus     (as ^. P.focus)] ++
   map normal (as ^. P.suffix)
 
-ui :: Help -> B.Widget WindowName
-ui st = let
+helpUi :: Help -> B.Widget WindowName
+helpUi st = let
   padding = 1
   normal, highlight :: B.AttrName -> String -> B.Widget n
   normal    stylePrefix s =
@@ -137,7 +137,7 @@ respond st _ = B.continue st
 
 app :: B.App Help e WindowName
 app = B.App
-      { B.appDraw = (:[]) . ui
+      { B.appDraw = (:[]) . helpUi
       , B.appHandleEvent = respond
       , B.appStartEvent = return
       , B.appAttrMap = const theMap
