@@ -3,8 +3,8 @@
 module Hode.UI.Window (
     hideReassurance                         -- ^ St -> St
   , showError, showReassurance    -- ^ String -> St -> St
-  , emptyCommandWindow                      -- ^ St -> St
-  , replaceCommand                          -- ^ St -> St
+  , emptyLangCmdWindow                      -- ^ St -> St
+  , replaceLangCmd                          -- ^ St -> St
   ) where
 
 import qualified Data.Map                 as M
@@ -32,16 +32,16 @@ showReassurance msg =
   . (showingErrorWindow .~ False)
   . (reassurance .~ msg)
 
-emptyCommandWindow :: St -> St
-emptyCommandWindow = commands . B.editContentsL
+emptyLangCmdWindow :: St -> St
+emptyLangCmdWindow = commands . B.editContentsL
                      .~ TxZ.textZipper [] Nothing
 
--- | Replace the command shown in the `Command` window with
+-- | Replace the command shown in the `LangCmd` window with
 -- the last successful search run from this `Buffer`.
 -- Cannot be called from the `Cycles` `Buffer`,
 -- only from an ordinary search results `Buffer`.
-replaceCommand :: St -> St
-replaceCommand st = maybe st f query where
+replaceLangCmd :: St -> St
+replaceLangCmd st = maybe st f query where
   query :: Maybe String
   query = st ^? ( stGet_focusedBuffer . getBuffer_viewForkType
                   . _VFQuery . _QueryView )

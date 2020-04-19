@@ -15,24 +15,24 @@ data BrickName = BrickOptionalName OptionalWindowName
                | BrickMainName MainWindowName
   deriving (Ord, Show, Eq)
 
-data OptionalWindowName = Commands
+data OptionalWindowName = LangCmds
                         | Reassurance
   deriving (Ord, Show, Eq)
 
-data MainWindowName = CommandHistory
+data MainWindowName = LangCmdHistory
                     | SubgraphBuffer
                     | BufferBuffer
   deriving (Ord, Show, Eq)
 
-data Command =
-    CommandInsert        Expr
-  | CommandReplace  Addr Expr
-  | CommandMove     Addr Addr
-  | CommandDelete   Addr
-  | CommandFind     String HExpr
-  | CommandSort     String BinOrientation TpltAddr
-  | CommandLoad     Folder
-  | CommandSave     Folder
+data LangCmd =
+    LangCmdInsert        Expr
+  | LangCmdReplace  Addr Expr
+  | LangCmdMove     Addr Addr
+  | LangCmdDelete   Addr
+  | LangCmdFind     String HExpr
+  | LangCmdSort     String BinOrientation TpltAddr
+  | LangCmdLoad     Folder
+  | LangCmdSave     Folder
   deriving (Show, Eq, Ord)
 
 type Folder = String

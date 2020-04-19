@@ -19,7 +19,7 @@ module Hode.UI.Types.State (
   , uiError                -- ^ fetch a String
   , reassurance            -- ^ fetch a String
   , commands               -- ^ fetch a B.Editor String BrickName
-  , commandHistory         -- ^ fetch a [Command]
+  , commandHistory         -- ^ fetch a [LangCmd]
   , appRslt                -- ^ fetch a Rslt
   , viewOptions            -- ^ fetch a ViewOptions
   , showingErrorWindow     -- ^ fetch a Bool -- overrides main window
@@ -72,7 +72,7 @@ data St = St {
     -- ^ Technically used, but unused in spirit.
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
-  , _commandHistory         :: [Command]
+  , _commandHistory         :: [LangCmd]
   , _blockingCycles         :: Maybe [Cycle]
 
   , _uiError                :: String

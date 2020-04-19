@@ -8,9 +8,9 @@ module Hode.UI.Input.Maps (
                           -- (B.EventM n         (B.Next St))
   , resultWindow_commands -- ^ St -> M.Map V.Event
                           -- (B.EventM n         (B.Next St))
-  , parseAndRunCommand -- ^            St ->
+  , parseAndRunLangCmd -- ^            St ->
                            -- B.EventM BrickName (B.Next St)
-  , runParsedCommand   -- ^ Command -> St -> Either String
+  , runParsedLangCmd   -- ^ LangCmd -> St -> Either String
                           -- (B.EventM BrickName (B.Next St))
   ) where
 
@@ -54,12 +54,12 @@ universal_commands st = M.fromList [
 
   -- command window
   ( V.EvKey (V.KChar 'x') [V.MMeta],
-    parseAndRunCommand st ),
+    parseAndRunLangCmd st ),
 
   -- switch main window content
   ( V.EvKey (V.KChar 'H') [V.MMeta],
     B.continue
-           $ st & showingInMainWindow .~ CommandHistory
+           $ st & showingInMainWindow .~ LangCmdHistory
                 & showingErrorWindow .~ False ),
   ( V.EvKey (V.KChar 'B') [V.MMeta],
     B.continue
@@ -143,7 +143,7 @@ resultWindow_commands st =
     goe cons_focusedViewExpr_asChildOfBuffer ),
 
   ( V.EvKey (V.KChar 'r') [V.MMeta],
-    go replaceCommand ),
+    go replaceLangCmd ),
 
   ( V.EvKey (V.KChar 'w') [V.MMeta],
     -- TODO : buggy: copies nonexistent empty lines.

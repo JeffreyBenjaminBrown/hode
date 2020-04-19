@@ -46,21 +46,21 @@ unEitherSt _ (Right new) =
 
 emptySt :: Rslt -> St
 emptySt r = St {
-    _focusRing = B.focusRing [BrickOptionalName Commands]
+    _focusRing = B.focusRing [BrickOptionalName LangCmds]
   , _searchBuffers = Just $ porestLeaf emptySubgraphBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMemberHosts $ HVar VarRowNode ]
   , _blockingCycles = Nothing
   , _uiError     = ""
   , _reassurance = "This window provides reassurance. It's all good."
-  , _commands    = B.editor (BrickOptionalName Commands)
+  , _commands    = B.editor (BrickOptionalName LangCmds)
                    Nothing ""
   , _commandHistory = []
   , _appRslt        = r
   , _viewOptions    = defaulViewOptions
   , _showingErrorWindow  = False
   , _showingInMainWindow = SubgraphBuffer
-  , _showingOptionalWindows = M.fromList [ (Commands   , True)
+  , _showingOptionalWindows = M.fromList [ (LangCmds   , True)
                                          , (Reassurance, True) ]
   }
 

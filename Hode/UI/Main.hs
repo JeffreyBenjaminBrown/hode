@@ -73,14 +73,14 @@ appDraw st0 = [w] where
 
   mainWindow :: B.Widget BrickName =
     case st ^. showingInMainWindow of
-      CommandHistory -> commandHistoryWindow
+      LangCmdHistory -> commandHistoryWindow
       BufferBuffer  -> bufferWindow $ st ^. searchBuffers
       SubgraphBuffer  -> resultWindow (st ^. viewOptions)
                        (b ^. bufferExprRowTree . pMTrees)
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>
-    mShow Commands commandWindow
+    mShow LangCmds commandWindow
     where mShow wName window =
             if (st ^. showingOptionalWindows) M.! wName
             then window else emptyWidget

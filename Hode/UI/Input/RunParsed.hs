@@ -1,9 +1,9 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Hode.UI.Input.RunParsed (
-    parseAndRunCommand -- ^            St ->
+    parseAndRunLangCmd -- ^            St ->
                        -- B.EventM BrickName (B.Next St)
-  , runParsedCommand   -- ^ Command -> St ->
+  , runParsedLangCmd   -- ^ LangCmd -> St ->
                        -- Either String (B.EventM BrickName (B.Next St))
   ) where
 
@@ -35,16 +35,16 @@ import Hode.UI.Window
 import Hode.Util.Misc
 
 
-parseAndRunCommand ::
+parseAndRunLangCmd ::
   St -> B.EventM BrickName (B.Next St)
-parseAndRunCommand st =
+parseAndRunLangCmd st =
   let cmd :: String = unlines $ B.getEditContents
                       $ st ^. commands
-  in case pCommand (st ^. appRslt) cmd of
+  in case pLangCmd (st ^. appRslt) cmd of
     Left parseErr ->
       B.continue $ unEitherSt st $ Left parseErr
-    Right (parsedCmd :: Command) ->
-      case runParsedCommand parsedCmd st of
+    Right (parsedCmd :: LangCmd) ->
+      case runParsedLangCmd parsedCmd st of
         Left runErr ->
           B.continue $ unEitherSt st $ Left runErr
         Right (evNextSt :: B.EventM BrickName (B.Next St)) ->
@@ -58,11 +58,11 @@ parseAndRunCommand st =
 -- than `EventM ... St`, but it needs IO to load and save.
 -- (If I really want to keep it pure I could add a field in St
 -- that keeps a list of actions to execute.)
-runParsedCommand ::
-  Command -> St ->
+runParsedLangCmd ::
+  LangCmd -> St ->
   Either String (B.EventM BrickName (B.Next St))
-runParsedCommand                      c0 st0 =
-  prefixLeft "runParsedCommand:" $ g' c0 st0
+runParsedLangCmd                      c0 st0 =
+  prefixLeft "runParsedLangCmd:" $ g' c0 st0
   where
 
   itWorked :: String -> St -> St
@@ -77,14 +77,14 @@ runParsedCommand                      c0 st0 =
     in case st ^. blockingCycles of
       Just (_:_) ->
         case c of
-          CommandInsert _    -> Right $ B.continue $ st & showError err
-          CommandReplace _ _ -> Right $ B.continue $ st & showError err
-          CommandMove _ _    -> Right $ B.continue $ st & showError err
+          LangCmdInsert _    -> Right $ B.continue $ st & showError err
+          LangCmdReplace _ _ -> Right $ B.continue $ st & showError err
+          LangCmdMove _ _    -> Right $ B.continue $ st & showError err
           _ -> g c st
       _     -> g c st
 
-  -- todo ? duplicative of the clause for CommandInsert
-  g (CommandReplace a e) st = do
+  -- todo ? duplicative of the clause for LangCmdInsert
+  g (LangCmdReplace a e) st = do
     (r :: Rslt, cs :: [Cycle]) <-
       replaceExpr a e (st ^. appRslt)
     let st1 = st & appRslt .~ r
@@ -95,21 +95,21 @@ runParsedCommand                      c0 st0 =
       else B.continue <$> updateCycleBuffer
            ( st1 & blockingCycles .~ Just cs )
 
-  g (CommandMove old new) st = do
+  g (LangCmdMove old new) st = do
     r <- moveRefExpr old new (st ^. appRslt)
     Right $ B.continue $ st
       & appRslt .~ r
       & itWorked ( "Moved Expr from " ++ show old
                    ++ " to " ++ show new ++ "." )
 
-  g (CommandDelete a) st = do
+  g (LangCmdDelete a) st = do
     r <- deleteIfUnused a (st ^. appRslt)
     Right $ B.continue $ st & appRslt .~ r
       & itWorked ( "Deleted Expr at "
                    ++ show a ++ "." )
 
-  -- todo ? duplicative of the clause for CommandReplace
-  g (CommandInsert e) st = do
+  -- todo ? duplicative of the clause for LangCmdReplace
+  g (LangCmdInsert e) st = do
     (r :: Rslt, as :: [Aged Addr], cs :: [Cycle]) <-
       exprToAddrInsert (st ^. appRslt) e
     let st1 = st & appRslt .~ r
@@ -120,7 +120,7 @@ runParsedCommand                      c0 st0 =
       else B.continue <$> updateCycleBuffer
            ( st1 & blockingCycles .~ Just cs )
 
-  g (CommandLoad f) st = Right $ do
+  g (LangCmdLoad f) st = Right $ do
     (bad :: Bool) <-
       liftIO $ not <$> doesDirectoryExist f
     if bad
@@ -131,7 +131,7 @@ runParsedCommand                      c0 st0 =
       B.continue $ st & appRslt .~ r
         & itWorked "Rslt loaded."
 
-  g (CommandSave f) st = Right $ do
+  g (LangCmdSave f) st = Right $ do
     bad :: Bool <- liftIO $ not <$> doesDirectoryExist f
     st' <- if bad
       then return $ st & showError
@@ -141,7 +141,7 @@ runParsedCommand                      c0 st0 =
       return $ st & itWorked "Rslt saved."
     B.continue st'
 
-  g (CommandFind s h) st =
+  g (LangCmdFind s h) st =
     prefixLeft "called to find: " $ do
     let r :: Rslt = st ^. appRslt
     as :: [Addr] <-
@@ -160,7 +160,7 @@ runParsedCommand                      c0 st0 =
                 , _pMTrees = Just pr } )
       & itWorked "Search successful."
 
-  g (CommandSort _ bo t) st =
+  g (LangCmdSort _ bo t) st =
     prefixLeft "called to sort:" $ do
     st' <- sortFocusAndPeers (bo,t) st
     Right $ B.continue $ st'

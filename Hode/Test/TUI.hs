@@ -24,7 +24,7 @@ import qualified Hode.Test.Rslt.RData as D
 
 test_module_ui :: T.Test
 test_module_ui = TestList [
-    TestLabel "test_pCommand" test_pCommand
+    TestLabel "test_pLangCmd" test_pLangCmd
   , TestLabel "test_groupHostRels" test_groupHostRels
   , TestLabel "test_st_cycleBufferLenses" test_st_cycleBufferLenses
   ]
@@ -85,32 +85,32 @@ test_groupHostRels = TestCase $ do
         ,[7] ) ] )
 
 
-test_pCommand :: T.Test
-test_pCommand = TestCase $ do
-  assertBool "add" $ pCommand (error "irrelevant")
+test_pLangCmd :: T.Test
+test_pLangCmd = TestCase $ do
+  assertBool "add" $ pLangCmd (error "irrelevant")
     "/add done told ya once "
-    == Right ( CommandInsert $ Phrase "done told ya once" )
+    == Right ( LangCmdInsert $ Phrase "done told ya once" )
 
   assertBool "find" $ let s = "done told ya once"
-    in pCommand (error "irrelevant") ("/find " ++ s)
-    == Right ( CommandFind s $ HExpr $ Phrase "done told ya once" )
+    in pLangCmd (error "irrelevant") ("/find " ++ s)
+    == Right ( LangCmdFind s $ HExpr $ Phrase "done told ya once" )
 
-  assertBool "load" $ pCommand (error "irrelevant")
+  assertBool "load" $ pLangCmd (error "irrelevant")
     "/load somewhere/over/the/rainbow.exe"
-    == Right ( CommandLoad "somewhere/over/the/rainbow.exe" )
+    == Right ( LangCmdLoad "somewhere/over/the/rainbow.exe" )
 
-  assertBool "save" $ pCommand (error "irrelevant")
+  assertBool "save" $ pLangCmd (error "irrelevant")
     "/save somewhere/over/the/rainbow.exe"
-    == Right ( CommandSave "somewhere/over/the/rainbow.exe" )
+    == Right ( LangCmdSave "somewhere/over/the/rainbow.exe" )
 
-  assertBool "sort" $ pCommand D.rslt
+  assertBool "sort" $ pLangCmd D.rslt
     "/sortRight (/t /_ needs /_)"
-    == Right ( CommandSort
+    == Right ( LangCmdSort
                "sort RightEarlier: (/t /_ needs /_)"
                RightEarlier 4 )
 
-  assertBool "sort" $ pCommand D.rslt
+  assertBool "sort" $ pLangCmd D.rslt
     "/sl /@ 4"
-    == Right ( CommandSort
+    == Right ( LangCmdSort
                "sort LeftEarlier: /@ 4"
                LeftEarlier 4 )

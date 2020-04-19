@@ -30,8 +30,8 @@ handleUncaughtInput ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleUncaughtInput st ev =
   B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (BrickOptionalName Commands) ->
-      -- pipe user input into the Commands window
+    Just (BrickOptionalName LangCmds) ->
+      -- pipe user input into the LangCmds window
       B.handleEventLensed
       (hideReassurance st) commands B.handleEditorEvent ev
     _ -> return st
