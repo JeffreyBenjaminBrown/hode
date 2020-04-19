@@ -7,6 +7,26 @@ import qualified Data.List.PointedList as P
 import Hode.Brick.Help.Types
 
 
+sillyChoices :: Choice1Plist
+sillyChoices = maybe (error "impossible") id $ P.fromList
+               [ ("animals & balls",       animals_and_balls)
+               , ("chemicals & furniture", chemicals_and_furniture )
+               , ("animals only",          animals_alone ) ]
+
+animals_and_balls, chemicals_and_furniture, animals_alone :: Choice2Plist
+animals_and_balls = maybe (error "impossible") id $
+                    P.fromList [ ("animals", animals)
+                               , ("balls",   balls)
+                               , ("abab",    abab)]
+
+chemicals_and_furniture = maybe (error "impossible") id $
+                          P.fromList [ ("chemicals", chemicals)
+                                     , ("furniture", furniture)
+                                     , ("cfcf",      cfcf) ]
+
+animals_alone = maybe (error "impossible") id $
+                P.fromList [ ("(There's only one choice here.)", animals) ]
+
 animals, balls, abab, chemicals, furniture, cfcf :: Choice3Plist
 animals =
   maybe (error "impopssible") id $
@@ -48,14 +68,3 @@ cfcf =
              , ( "H", "H is for helium." )
              , ( "I", "I is for Indonesia." )
              , ( "J", "J is for jet skis." ) ]
-
-animals_and_balls, chemicals_and_furniture :: Choice2Plist
-animals_and_balls = maybe (error "impossible") id $
-                    P.fromList [ ("animals", animals)
-                               , ("balls",   balls)
-                               , ("abab",    abab)]
-
-chemicals_and_furniture = maybe (error "impossible") id $
-                          P.fromList [ ("chemicals", chemicals)
-                                     , ("furniture", furniture)
-                                     , ("cfcf",      cfcf) ]

@@ -26,12 +26,10 @@ windowFont st wn = if wn == st ^. windows . P.focus
                    then "focus"
                    else "no focus"
 
-initState :: St
-initState = St
+initState :: Choice1Plist -> St
+initState cs = St
   { _windows = allWindowNammes
-  , _choices = maybe (error "impossible") id $ P.fromList
-               [ ("animals_and_balls",       animals_and_balls)
-               , ("chemicals_and_furniture", chemicals_and_furniture ) ]
+  , _choices = cs
   , _helpHelp = True }
 
 pListToList_withFocus :: (a -> b) -> (a -> b) -> P.PointedList a -> [b]
@@ -125,5 +123,8 @@ app = B.App
       , B.appChooseCursor = B.neverShowCursor
       }
 
-main :: IO St
-main = B.defaultMain app initState
+help :: Choice1Plist -> IO St
+help = B.defaultMain app . initState
+
+silly :: IO St
+silly = help sillyChoices
