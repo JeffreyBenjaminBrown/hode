@@ -3,7 +3,7 @@
 module Hode.UI.Util (
     unEitherSt                 -- ^ Either String St -> St -> St
   , emptySt                    -- ^ Rslt -> St
-  , emptySearchBuffer          -- ^ Buffer
+  , emptySubgraphBuffer          -- ^ Buffer
   , bufferFrom_viewQuery       -- ^ ViewQuery -> Buffer
   , buffer_from_exprRowTree    -- ^ PTree ViewExprNode
                                -- -> Either String Buffer
@@ -47,7 +47,7 @@ unEitherSt _ (Right new) =
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName Commands]
-  , _searchBuffers = Just $ porestLeaf emptySearchBuffer
+  , _searchBuffers = Just $ porestLeaf emptySubgraphBuffer
                           & P.focus . pTreeHasFocus .~ True
   , _columnHExprs = [ HMemberHosts $ HVar VarRowNode ]
   , _blockingCycles = Nothing
@@ -59,13 +59,13 @@ emptySt r = St {
   , _appRslt        = r
   , _viewOptions    = defaulViewOptions
   , _showingErrorWindow  = False
-  , _showingInMainWindow = SearchBuffer
+  , _showingInMainWindow = SubgraphBuffer
   , _showingOptionalWindows = M.fromList [ (Commands   , True)
                                          , (Reassurance, True) ]
   }
 
-emptySearchBuffer :: Buffer
-emptySearchBuffer =
+emptySubgraphBuffer :: Buffer
+emptySubgraphBuffer =
   bufferFrom_viewQuery $ QueryView $ "Empty search buffer. "
   ++ "(If you run a search, the results will be shown here.)"
 

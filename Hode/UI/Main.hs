@@ -64,7 +64,7 @@ appDraw st0 = [w] where
         -- set focus in the BufferBuffer window
         . pTreeHasFocus .~ True )
     & ( stSetFocused_ViewExprNode_Tree
-        -- set focus in the SearchBuffer window
+        -- set focus in the SubgraphBuffer window
         . pTreeHasFocus .~ True )
 
   b :: Buffer = maybe
@@ -75,7 +75,7 @@ appDraw st0 = [w] where
     case st ^. showingInMainWindow of
       CommandHistory -> commandHistoryWindow
       BufferBuffer  -> bufferWindow $ st ^. searchBuffers
-      SearchBuffer  -> resultWindow (st ^. viewOptions)
+      SubgraphBuffer  -> resultWindow (st ^. viewOptions)
                        (b ^. bufferExprRowTree . pMTrees)
 
   optionalWindows :: B.Widget BrickName =
@@ -95,7 +95,7 @@ appDraw st0 = [w] where
 
   errorWindow :: B.Widget BrickName = vBox
     [ strWrap $ st ^. uiError
-    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to SearchBuffer), M-S-b (BufferBuffer), or M-S-h (command History)." ]
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to SubgraphBuffer), M-S-b (BufferBuffer), or M-S-h (command History)." ]
 
   reassuranceWindow :: B.Widget BrickName =
     withAttr (B.attrName "white on blue")
@@ -111,7 +111,7 @@ appHandleEvent st (B.VtyEvent ev) =
   case M.lookup ev $ universal_commands st of
   Just c -> c
   Nothing -> case st ^. showingInMainWindow of
-    SearchBuffer -> handleKeyboard_atResultsWindow st ev
+    SubgraphBuffer -> handleKeyboard_atResultsWindow st ev
     BufferBuffer -> handleKeyboard_atBufferWindow  st ev
     _            -> handleUncaughtInput            st ev
 appHandleEvent st _ = B.continue st

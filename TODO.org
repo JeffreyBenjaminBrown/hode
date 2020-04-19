@@ -18,7 +18,7 @@ This will load all non-broken modules when some are broken.
   -- For testing whether a key combination will be recognized.
   ( V.EvKey (V.KChar '?') [V.MMeta],
     B.continue $ st & showReassurance "Vty saw that!" ),
-*** TODO rename SearchBuffer -> GraphBuffer
+*** TODO rename SubgraphBuffer -> SubgraphBuffer
 *** commands
 **** M-w : what window to show (and maybe what mode to be in)
 If changing windows causes a mode change, announce new mode and submode.
@@ -26,7 +26,7 @@ M-w h - showingInMainWindow .~ CommandHistory
           explain that this is undocumented
 M-w b - showingInMainWindow .~ BufferBuffer
           => buffer buffer mode
-M-w g - showingInMainWindow .~ SearchBuffer
+M-w g - showingInMainWindow .~ SubgraphBuffer
           => subgraph buffer mode
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
 M-w r - <new> Toggle reassurance window.
@@ -52,8 +52,8 @@ a - nudgeFocus_inBufferTree DirUp ),
 E - nudgeFocused_buffer DirPrev ),
 D - nudgeFocused_buffer DirNext ),
 
-c - consBuffer_asChild emptySearchBuffer ),
-t - consBuffer_topNext emptySearchBuffer ),
+c - consBuffer_asChild emptySubgraphBuffer ),
+t - consBuffer_topNext emptySubgraphBuffer ),
 d - deleteFocused_buffer )
 **** subgraph window
 ***** common to all submodes: move, select, copy

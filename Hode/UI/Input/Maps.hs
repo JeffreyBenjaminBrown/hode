@@ -64,7 +64,7 @@ universal_commands st = M.fromList [
                 & showingErrorWindow .~ False ),
   ( V.EvKey (V.KChar 'R') [V.MMeta],
     B.continue
-           $ st & showingInMainWindow .~ SearchBuffer
+           $ st & showingInMainWindow .~ SubgraphBuffer
                 & showingErrorWindow .~ False )
 
   -- Brick-focus-related stuff. So far unneeded.
@@ -96,9 +96,9 @@ bufferWindow_commands st =
       go $ nudgeFocused_buffer DirNext ),
 
     ( V.EvKey (V.KChar 'c') [V.MMeta],
-      go $ consBuffer_asChild emptySearchBuffer ),
+      go $ consBuffer_asChild emptySubgraphBuffer ),
     ( V.EvKey (V.KChar 't') [V.MMeta],
-      go $ consBuffer_topNext emptySearchBuffer ),
+      go $ consBuffer_topNext emptySubgraphBuffer ),
 
     ( V.EvKey (V.KChar 'w') [V.MMeta],
       go   deleteFocused_buffer )
@@ -145,7 +145,7 @@ resultWindow_commands st =
   ( V.EvKey (V.KChar 'w') [V.MMeta],
     -- TODO : buggy: copies nonexistent empty lines.
     do liftIO ( toClipboard $ unlines $ focusedBufferStrings st )
-       go $ showReassurance "SearchBuffer window copied to clipboard." ),
+       go $ showReassurance "SubgraphBuffer window copied to clipboard." ),
 
   ( V.EvKey (V.KChar 'e') [V.MMeta],
     go $ ( stSet_focusedBuffer . bufferExprRowTree

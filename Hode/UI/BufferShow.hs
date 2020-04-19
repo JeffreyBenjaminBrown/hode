@@ -23,7 +23,7 @@ import Hode.Util.Misc
 
 bufferWindow :: Maybe (Porest Buffer) -> B.Widget BrickName
 bufferWindow = let
-  name = BrickMainName SearchBuffer
+  name = BrickMainName SubgraphBuffer
   showColumns :: Buffer -> [ColorString] =
     const [] -- there are columns in a results window, not the buffer buffer
   showNode :: Buffer -> ColorString =
@@ -36,7 +36,7 @@ bufferWindow = let
 resultWindow :: ViewOptions -> Maybe (Porest ExprRow)
              -> B.Widget BrickName
 resultWindow vo = let
-  name = BrickMainName SearchBuffer
+  name = BrickMainName SubgraphBuffer
   showColumns :: ExprRow -> [ColorString]
   showColumns er = let
     bps = _boolProps er
