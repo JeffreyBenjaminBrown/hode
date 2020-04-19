@@ -1,23 +1,30 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 -- | PITFALL: Vty's `Meta` modifier, at least on my system,
 -- cannot be used in conjunction with certain characters, such as ';'.
 
 module Hode.UI.Input.Maps (
-    universal_commands    -- ^ St -> M.Map V.Event
+    KeyCmd(..)
+  , keyCmd_name, keyCmd_func, keyCmd_key, keyCmd_guide
+
+  , universal_commands    -- ^ St -> M.Map V.Event
                           -- (B.EventM BrickName (B.Next St))
   , bufferWindow_commands -- ^ St -> M.Map V.Event
                           -- (B.EventM n         (B.Next St))
   , resultWindow_commands -- ^ St -> M.Map V.Event
                           -- (B.EventM n         (B.Next St))
-  , parseAndRunLangCmd -- ^            St ->
+  , parseAndRunLangCmd -- ^    St ->
                            -- B.EventM BrickName (B.Next St)
   , runParsedLangCmd   -- ^ LangCmd -> St -> Either String
                           -- (B.EventM BrickName (B.Next St))
   ) where
 
+import           Control.Lens hiding (folded)
+import           Control.Lens.TH
 import           Control.Monad ((>=>))
 import           Control.Monad.IO.Class (liftIO)
+import qualified Data.List             as L
 import qualified Data.Map              as M
-import           Lens.Micro hiding (folded)
 
 import qualified Brick.Main            as B
 import qualified Brick.Types           as B
@@ -39,6 +46,78 @@ import Hode.UI.Window
 
 import Hode.Brick.Help
 import Hode.Brick.Help.Types
+
+
+data KeyCmd = KeyCmd
+  { _keyCmd_name  :: String
+  , _keyCmd_func :: St -> B.EventM BrickName (B.Next St)
+  , _keyCmd_key  :: (V.Key, [V.Modifier])
+  , _keyCmd_guide :: String }
+makeLenses ''KeyCmd
+
+paragraphs :: [String] -> String
+paragraphs = concat . L.intersperse "\n"
+
+-- | `keyCmd_usePair kc` extracts the two fields of `kc` that the Hode UI
+-- uses in its normal functioning to know what to execute in response to
+-- what user input.
+-- (The other two fields are used only in the interactive help.)
+keyCmd_usePair :: KeyCmd -> (V.Event, St -> B.EventM BrickName (B.Next St))
+keyCmd_usePair kc = ( uncurry V.EvKey $ _keyCmd_key kc
+                    , _keyCmd_func kc )
+
+-- | `keyCmd_helpPair kc` extracts the name and description of the `KeyCmd`,
+-- for use in the interactive help.
+-- (The other two fields are used only outside of the interactive help.)
+keyCmd_helpPair :: KeyCmd -> (String, String)
+keyCmd_helpPair kc = ( _keyCmd_name kc
+                     , _keyCmd_guide kc )
+
+universal_keyCmds :: [KeyCmd]
+universal_keyCmds =
+  [ KeyCmd { _keyCmd_name = "Quit"
+           , _keyCmd_func = B.halt
+           , _keyCmd_key  = (V.KEsc, [V.MMeta])
+           , _keyCmd_guide = "Exit Hode." }
+  , KeyCmd { _keyCmd_name = "Test key"
+           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
+           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
+           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
+
+  , KeyCmd { _keyCmd_name = "Execute."
+           , _keyCmd_func = parseAndRunLangCmd
+           , _keyCmd_key  = (V.KChar 'x', [V.MMeta])
+           , _keyCmd_guide = paragraphs
+             [ "There are two ways to control Hode: Through keyboard shortcuts, and through commands typed into the command window. Loading, saving, adding, deleting, searching and sorting are done through the command window; everything else (mostly changing the view) is done through keyboard shortcuts. After typing a command into the command window, use this key command to run it."
+             , "The docs/ folder that comes with this app describes the language in detail --in particular, `docs/hash/the-hash-language.md`, and the `Language commands` section of `docs/ui.md`." ] }
+
+  , KeyCmd { _keyCmd_name = "command history"
+           , _keyCmd_func = B.continue
+                            . (showingInMainWindow .~ LangCmdHistory)
+                            . (showingErrorWindow .~ False )
+           , _keyCmd_key  = (V.KChar 'H', [V.MMeta])
+           , _keyCmd_guide = "Shows the history of commands the user has entered." }
+
+  , KeyCmd { _keyCmd_name = "Show BufferBuffer."
+           , _keyCmd_func = B.continue
+             . (showingInMainWindow .~ BufferBuffer)
+             . (showingErrorWindow .~ False )
+           , _keyCmd_key  = (V.KChar 'B', [V.MMeta])
+           , _keyCmd_guide = "In Hode, most of the time is spent looking at a `SubgraphBuffer`, which provides a view onto some of the data in your graph. Multiple `SubgraphBuffer`s can be open at once. The `BufferBuffer` provides a view of all the `SubgraphBuffer`s currently open." }
+
+  , KeyCmd { _keyCmd_name = "show SubgraphBuffer"
+           , _keyCmd_func = B.continue
+                            . (showingInMainWindow .~ SubgraphBuffer)
+                            . (showingErrorWindow .~ False )
+           , _keyCmd_key  = (V.KChar 'R', [V.MMeta])
+           , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." } ]
+
+
+---- | These commands are available from any window.
+--universal_commands ::
+--  St -> M.Map V.Event (B.EventM BrickName (B.Next St))
+--universal_commands =
+--  M.fromList $ map keyCmd_usePair universal_keyCmds
 
 
 -- | These commands are available from any window.
