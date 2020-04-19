@@ -75,7 +75,7 @@ ui st = let
       B.<=> let cs3 = fmap fst $ st ^. choices3
                 limit = -- the stricter limit applies
                   B.hLimitPercent 40
-                  . B.hLimit (maximum $ fmap length cs3)
+                  . B.hLimit ((+2) $ maximum $ fmap length cs3)
             in limit $ B.viewport Choice3 B.Vertical $ B.vBox
                $ drawPList (windowFont st Choice3) cs3
     , B.vBorder
