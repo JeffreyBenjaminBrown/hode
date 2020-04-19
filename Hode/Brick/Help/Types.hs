@@ -23,14 +23,14 @@ allWindowNammes :: P.PointedList WindowName
 allWindowNammes = maybe (error "impossible") id $
                   P.fromList [ Choice1, Choice2, Choice3, Content ]
 
-data St = St { _choices :: Choice1Plist
-             , _windows :: P.PointedList WindowName
-             , _helpHelp :: Bool }
+data Help = Help { _helpChoices :: Choice1Plist
+                 , _helpWindows :: P.PointedList WindowName
+                 , _helpHelp :: Bool }
   deriving (Show, Eq)
-makeLenses ''St
+makeLenses ''Help
 
-choices2 :: Lens' St Choice2Plist
-choices2 = choices . P.focus . _2
+helpChoices2 :: Lens' Help Choice2Plist
+helpChoices2 = helpChoices . P.focus . _2
 
-choices3 :: Lens' St Choice3Plist
-choices3 = choices . P.focus . _2 . P.focus . _2
+helpChoices3 :: Lens' Help Choice3Plist
+helpChoices3 = helpChoices . P.focus . _2 . P.focus . _2

@@ -37,6 +37,9 @@ import Hode.UI.Util
 import Hode.UI.Util.String
 import Hode.UI.Window
 
+import Hode.Brick.Help
+import Hode.Brick.Help.Types
+
 
 -- | These commands are available from any window.
 universal_commands ::

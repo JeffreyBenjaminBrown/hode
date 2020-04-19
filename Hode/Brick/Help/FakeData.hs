@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Hode.Brick.Help.Data where
+module Hode.Brick.Help.FakeData where
 
 import qualified Data.List.PointedList as P
 

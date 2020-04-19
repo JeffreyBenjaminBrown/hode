@@ -12,13 +12,14 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** TODO rewrite Hode command layout for interactive help
+Don't change what the modes or commands are, just how they're organized.
 *** use this to test whether key commands are recognized
 (It's already part of Maps.hs.)
 
   -- For testing whether a key combination will be recognized.
   ( V.EvKey (V.KChar '?') [V.MMeta],
     B.continue $ st & showReassurance "Vty saw that!" ),
-*** TODO rename SubgraphBuffer -> SubgraphBuffer
 *** commands
 **** M-w : what window to show (and maybe what mode to be in)
 If changing windows causes a mode change, announce new mode and submode.

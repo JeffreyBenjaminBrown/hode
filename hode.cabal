@@ -25,6 +25,9 @@ library
                 , Hode.Temp
                 , Hode.Brick
                 , Hode.Brick.Wrap
+                , Hode.Brick.Help
+                , Hode.Brick.Help.FakeData
+                , Hode.Brick.Help.Types
                 , Hode.Data.Graph
                 , Hode.Data.Map
 --                , Hode.Data.Relation
