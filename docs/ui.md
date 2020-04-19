@@ -263,7 +263,7 @@ Here's a brief refresher:
 ## Search for a Hash expression
 
 See the documentation on Hash for details.
-Here's an incomplete refresher:
+Here's a brief refresher:
 
 `/find bob`
 

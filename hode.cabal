@@ -123,6 +123,7 @@ library
                 , Hode.UI.Util
                 , Hode.UI.Util.String
                 , Hode.UI.Input
+                , Hode.UI.Input.Maps
                 , Hode.UI.Input.Parse
                 , Hode.UI.Main
                 , Hode.UI.Types.Names

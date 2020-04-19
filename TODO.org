@@ -12,6 +12,11 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** TODO universal_commands should take no St argument
+is now:
+  St -> M.Map V.Event (B.EventM BrickName (B.Next St))
+should be:
+  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
 *** TODO rewrite Hode command layout for interactive help
 Don't change what the modes or commands are, just how they're organized.
 *** use this to test whether key commands are recognized
