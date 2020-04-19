@@ -40,12 +40,13 @@ pListToList_withFocus normal focus as =
 
 ui :: St -> B.Widget WindowName
 ui st = let
+  padding = 1
   normal, highlight :: B.AttrName -> String -> B.Widget n
   normal    stylePrefix s =
-    B.padLeftRight 1 .
+    B.padLeftRight padding .
     B.withAttr stylePrefix .                  B.str $ s
   highlight stylePrefix s =
-    B.padLeftRight 1 . B.visible .
+    B.padLeftRight padding . B.visible .
     B.withAttr (stylePrefix <> "highlight") . B.str $ s
   drawPList :: B.AttrName -> C.PointedList String -> [B.Widget n]
   drawPList sp = pListToList_withFocus (normal sp) (highlight sp)
@@ -75,7 +76,8 @@ ui st = let
       B.<=> let cs3 = fmap fst $ st ^. choices3
                 limit = -- the stricter limit applies
                   B.hLimitPercent 40
-                  . B.hLimit ((+2) $ maximum $ fmap length cs3)
+                  . B.hLimit ( (+ (2 * padding))
+                               $ maximum $ fmap length cs3)
             in limit $ B.viewport Choice3 B.Vertical $ B.vBox
                $ drawPList (windowFont st Choice3) cs3
     , B.vBorder
