@@ -18,31 +18,7 @@ This will load all non-broken modules when some are broken.
   -- For testing whether a key combination will be recognized.
   ( V.EvKey (V.KChar '?') [V.MMeta],
     B.continue $ st & showReassurance "Vty saw that!" ),
-*** TODO brick experiment
-**** model code
-***** for moving highlight across some options in a window
-:l ~/code/haskell-libs/brick-stale/brick/programs/thoroughly-read/DialogDemo.hs
-***** for switching focus across windows
-:l ~/code/haskell-libs/brick-stale/brick/programs/thoroughly-read/EditDemo.hs 
-**** what it should do
-***** windows
-Two rows on the bottom, to select mode and submode.
-Above them, a window split in two.
-  On the left, a list of commands. Maybe the first is called "Intro."
-  On the right, a description of the selected command.
-At the top, a description:
-  "Press up (or e), down (or d), left (or s), right (or f), and Tab to move around this help. Press Esc to quit this help."
-***** commands
-Tab switches focus between the four user-modifiable windows.
-Arrows move the highlight within a window, unless it's the description.
-For the description window, arrows just scroll the text.
 *** TODO rename SearchBuffer -> GraphBuffer
-*** interactive help
-**** Three interactive windows
-***** The main window shows a list of commands -- the shortcut, and an explanation.
-***** Near bottom, a one-row window lists available modes.
-***** At bottom appears a one-window row of submodes.
-**** When the user enters, the mode and submode shown correspond to what they currently have.
 *** commands
 **** M-w : what window to show (and maybe what mode to be in)
 If changing windows causes a mode change, announce new mode and submode.

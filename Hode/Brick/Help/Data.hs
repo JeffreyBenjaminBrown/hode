@@ -32,7 +32,7 @@ animals =
   maybe (error "impopssible") id $
   P.fromList [ ("Apple", "Introduced evil to the world. Tasty.")
              , ( "Bird","Flies, melodious." )
-             , ( "Marsupial", "Two womby phases!" )
+             , ( "Marsupials. Here are extra words, just to see what happens.", "Two womby phases!" )
              , ( "Snail","Slimy, fries up real nice." ) ]
 
 balls =
@@ -58,7 +58,7 @@ chemicals =
 
 furniture =
   maybe (error "impopssible") id $
-  P.fromList [ ("chair","Four legs and a butt.")
+  P.fromList [ ("chair","Most of a horse: four legs, a back and a butt.")
              , ("Ottoman","A roomy stool.")
              , ("table", "An arrangement of cells into columns and rows.") ]
 

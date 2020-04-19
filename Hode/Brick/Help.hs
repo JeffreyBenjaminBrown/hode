@@ -30,7 +30,7 @@ initState :: Choice1Plist -> St
 initState cs = St
   { _windows = allWindowNammes
   , _choices = cs
-  , _helpHelp = True }
+  , _helpHelp = False }
 
 pListToList_withFocus :: (a -> b) -> (a -> b) -> P.PointedList a -> [b]
 pListToList_withFocus normal focus as =
@@ -38,12 +38,15 @@ pListToList_withFocus normal focus as =
   [focus     (as ^. P.focus)] ++
   map normal (as ^. P.suffix)
 
-ui :: St -> B.Widget n
+ui :: St -> B.Widget WindowName
 ui st = let
-  normal    stylePrefix =
-    B.padLeftRight 1 . B.withAttr stylePrefix .                  B.str
-  highlight stylePrefix =
-    B.padLeftRight 1 . B.withAttr (stylePrefix <> "highlight") . B.str
+  normal, highlight :: B.AttrName -> String -> B.Widget n
+  normal    stylePrefix s =
+    B.padLeftRight 1 .
+    B.withAttr stylePrefix .                  B.str $ s
+  highlight stylePrefix s =
+    B.padLeftRight 1 . B.visible .
+    B.withAttr (stylePrefix <> "highlight") . B.str $ s
   drawPList :: B.AttrName -> C.PointedList String -> [B.Widget n]
   drawPList sp = pListToList_withFocus (normal sp) (highlight sp)
 
@@ -52,25 +55,32 @@ ui st = let
   [ B.strWrap $ if st ^. helpHelp then "Press d and e to scroll between options, space to switch menus, Esc to quit. The mode you choose determines which submodes are possible. The submode you chooses determines which commands are possible. The command you choose will be described in the big window. If it doesn't all fit on one screen, navigate to the big window and scroll with d and e. Press h to hide this message." else "For help using this help, press h."
   , B.hBorder
 
-  , B.vLimit 2
-    ( B.hBox [ B.vBox [ B.str "choose a mode: "
-                      , B.str "choose a submode: " ]
-             , B.withBorderStyle B.ascii B.vBorder
-             , B.vBox
-               [ B.vLimit 1 $ B.hBox $ map B.center
-                 $ drawPList (windowFont st Choice1)
-                 $ fmap fst $ st ^. choices
-               , B.vLimit 1 $ B.hBox $ map B.center
-                 $ drawPList (windowFont st Choice2)
-                 $ fmap fst $ st ^. choices2 ] ] )
+  , B.vLimit 2 $ B.hBox
+    [ B.vBox [ B.str "choose a mode: "
+             , B.str "choose a submode: " ]
+    , B.withBorderStyle B.ascii B.vBorder
+    , B.vBox
+      [ B.vLimit 1 $ B.center
+        $ B.viewport Choice1 B.Horizontal
+        $ B.hBox $ drawPList (windowFont st Choice1)
+        $ fmap fst $ st ^. choices
+      , B.vLimit 1 $ B.center
+        $ B.viewport Choice2 B.Horizontal
+        $ B.hBox $ drawPList (windowFont st Choice2)
+        $ fmap fst $ st ^. choices2 ] ]
 
   , B.hBorder
-  , B.hBox ( [ B.vBox $ B.str "choose a command: " :
-               ( drawPList (windowFont st Choice3)
-                 $ fmap fst (st ^. choices3) )
-             , B.vBorder
-             , normal (windowFont st Content)
-               $ st ^. choices3 . P.focus . _2 ] ) ]
+  , B.hBox
+    [ B.str "choose a command: "
+      B.<=> let cs3 = fmap fst $ st ^. choices3
+                limit = -- the stricter limit applies
+                  B.hLimitPercent 40
+                  . B.hLimit (maximum $ fmap length cs3)
+            in limit $ B.viewport Choice3 B.Vertical $ B.vBox
+               $ drawPList (windowFont st Choice3) cs3
+    , B.vBorder
+    , normal (windowFont st Content)
+      $ st ^. choices3 . P.focus . _2 ] ]
 
 theMap :: B.AttrMap
 theMap = B.attrMap
