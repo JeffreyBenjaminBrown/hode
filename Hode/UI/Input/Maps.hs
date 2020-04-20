@@ -7,10 +7,11 @@ module Hode.UI.Input.Maps (
     KeyCmd(..)
   , keyCmd_name, keyCmd_func, keyCmd_key, keyCmd_guide
 
-  , universal_keyCmds_map -- ^ M.Map V.Event
-                          -- (St -> B.EventM BrickName (B.Next St))
-  , bufferWindow_commands -- ^ St -> M.Map V.Event
-                          -- (B.EventM n         (B.Next St))
+  , universal_keyCmds_map    -- ^ M.Map V.Event
+                             -- (St -> B.EventM BrickName (B.Next St))
+  , bufferBuffer_keyCmds_map -- ^ M.Map V.Event
+                             -- (St -> B.EventM BrickName (B.Next St))
+
   , resultWindow_commands -- ^ St -> M.Map V.Event
                           -- (B.EventM n         (B.Next St))
   , parseAndRunLangCmd -- ^    St ->
@@ -56,7 +57,13 @@ data KeyCmd = KeyCmd
 makeLenses ''KeyCmd
 
 paragraphs :: [String] -> String
-paragraphs = concat . L.intersperse "\n"
+paragraphs = concat . L.intersperse "\n\n"
+
+paragraph :: [String] -> String
+paragraph = concat . L.intersperse " "
+
+go :: (St -> St) -> St -> B.EventM n (B.Next St)
+go f = B.continue . f . hideReassurance
 
 -- | `keyCmd_usePair kc` extracts the two fields of `kc` that the Hode UI
 -- uses in its normal functioning to know what to execute in response to
@@ -112,40 +119,86 @@ universal_keyCmds =
            , _keyCmd_key  = (V.KChar 'R', [V.MMeta])
            , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." } ]
 
-
 -- | These commands are available from any window.
 universal_keyCmds_map ::
   M.Map V.Event (St -> B.EventM BrickName (B.Next St))
 universal_keyCmds_map =
   M.fromList $ map keyCmd_usePair universal_keyCmds
 
-bufferWindow_commands ::
-  St -> M.Map V.Event (B.EventM n (B.Next St))
-bufferWindow_commands st =
-  let go f = B.continue $ f $ st & hideReassurance
-  in M.fromList [
-    ( V.EvKey (V.KChar 'e') [V.MMeta],
-      go $ nudgeFocus_inBufferTree DirPrev ),
-    ( V.EvKey (V.KChar 'd') [V.MMeta],
-      go $ nudgeFocus_inBufferTree DirNext ),
-    ( V.EvKey (V.KChar 'f') [V.MMeta],
-      go $ nudgeFocus_inBufferTree DirDown ),
-    ( V.EvKey (V.KChar 's') [V.MMeta],
-      go $ nudgeFocus_inBufferTree DirUp ),
+bufferBuffer_intro :: String
+bufferBuffer_intro = paragraphs
+  [ paragraph
+      [ "The `BufferBuffer` presents a tree* of available `SubgraphBuffer`s."
+      , "The `BufferBuffer` looks similar to the `SubgraphBuffer` -- in particular, both are trees -- but whereas the `SubgraphBuffer` gives a tree of expressions in the graph, the `BufferBuffer` gives a tree of `SubgraphBuffer`s."
+      , "This permits you to keep multiple views of your graph open at once and switch between them." ]
+  , paragraph
+      [ "One of the `SubgraphBuffer`s in the `BufferBuffer` is always \"focused\" (highlighted in blue)."
+      , "The focused `SubgraphBuffer` is the one you will see when you return to the `SubgraphBuffer` view." ]
+  , "----------------"
+  , "*When the tree is flat, it looks like a list." ]
 
-    ( V.EvKey (V.KChar 'E') [V.MMeta],
-      go $ nudgeFocused_buffer DirPrev ),
-    ( V.EvKey (V.KChar 'D') [V.MMeta],
-      go $ nudgeFocused_buffer DirNext ),
+bufferBuffer_keyCmds :: [KeyCmd]
+bufferBuffer_keyCmds =
+  [ KeyCmd { _keyCmd_name = "cursor to prev"
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirPrev
+           , _keyCmd_key  = (V.KChar 'e', [V.MMeta])
+           , _keyCmd_guide = paragraphs
+             [ "Moves focus to the previous peer SubgraphView -- the one immediately above the currently focused one -- if it exists."
+             , paragraph
+               [ "PITFALL: This only moves the cursor between peers in the tree."
+               , "If the focused `SubgraphBuffer` is first among its peers, this key command does nothing. In particular, it will not take you to the parent of the focused buffer. For that, use the `cursor to parent` command." ] ] }
 
-    ( V.EvKey (V.KChar 'c') [V.MMeta],
-      go $ consBuffer_asChild emptySubgraphBuffer ),
-    ( V.EvKey (V.KChar 't') [V.MMeta],
-      go $ consBuffer_topNext emptySubgraphBuffer ),
+  , KeyCmd { _keyCmd_name = "cursor to next"
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirNext
+           , _keyCmd_key  = (V.KChar 'd', [V.MMeta])
+           , _keyCmd_guide = paragraphs
+             [ "Moves focus to the next peer SubgraphView -- the one immediately below the currently focused one -- if it exists."
+             , paragraph
+               [ "PITFALL: This only moves the cursor between peers in the tree."
+               , "Once you've reached the last peer, this key command will not take you anywhere."
+               , "You can only travel in one of the other three directions -- to the expression before this one, or to this one's parent, or (if they exist) to one of this expression's children." ] ] }
 
-    ( V.EvKey (V.KChar 'w') [V.MMeta],
-      go   deleteFocused_buffer )
-    ]
+  , KeyCmd { _keyCmd_name = "cursor to parent"
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirUp
+           , _keyCmd_key  = (V.KChar 's', [V.MMeta])
+           , _keyCmd_guide = "Moves the focus to the parent of the currently focused `SubgraphBuffer`, if it exists." }
+
+  , KeyCmd { _keyCmd_name = "cursor to child"
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirDown
+           , _keyCmd_key  = (V.KChar 'f', [V.MMeta])
+           , _keyCmd_guide = "Moves the focus to one of the child of the currently focused `SubgraphBuffer`, if it has any." }
+
+  , KeyCmd { _keyCmd_name = "nudge focused buffer up"
+           , _keyCmd_func = go $ nudgeFocused_buffer DirPrev
+           , _keyCmd_key  = (V.KChar 'E', [V.MMeta])
+           , _keyCmd_guide = "Moves the focused `SubgraphBuffer` up by one position among its peers in the tree. That is, the focused `SubgraphBuffer` trades place with the `SubgraphBuffer` that used to precede it. If the focused `SubgraphBuffer` is already first among its peers in the tree, this command does nothing." }
+
+  , KeyCmd { _keyCmd_name = "nudge focused buffer down"
+           , _keyCmd_func = go $ nudgeFocused_buffer DirNext
+           , _keyCmd_key  = (V.KChar 'D', [V.MMeta])
+           , _keyCmd_guide = "Moves the focused `SubgraphBuffer` down by one position among its peers in the tree. That is, the focused `SubgraphBuffer` trades place with the `SubgraphBuffer` that used to follow it. If the focused `SubgraphBuffer` is already last among its peers in the tree, this command does nothing." }
+
+  , KeyCmd { _keyCmd_name = "insert empty child buffer"
+           , _keyCmd_func = go $ consBuffer_asChild emptySubgraphBuffer
+           , _keyCmd_key  = (V.KChar 'c', [V.MMeta])
+           , _keyCmd_guide = "Onsert an empty `SubgraphBuffer` into the tree of `SubgraphBuffer`s, as a child of the currently focused `SubgraphBuffer`." }
+
+  , KeyCmd { _keyCmd_name = "insert empty peer buffer"
+           , _keyCmd_func = go $ consBuffer_topNext emptySubgraphBuffer
+           , _keyCmd_key  =  (V.KChar 't', [V.MMeta])
+           , _keyCmd_guide = "Inserts an empty `SubgraphBuffer` as a peer of the currently focused one, just after it." }
+
+  , KeyCmd { _keyCmd_name = "delete"
+           , _keyCmd_func = go   deleteFocused_buffer
+           , _keyCmd_key  = (V.KChar 'w', [V.MMeta])
+           , _keyCmd_guide = "Deletes the currently focused buffer." }
+  ]
+
+-- | These commands are available from any window.
+bufferBuffer_keyCmds_map ::
+  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
+bufferBuffer_keyCmds_map =
+  M.fromList $ map keyCmd_usePair bufferBuffer_keyCmds
 
 resultWindow_commands ::
   St -> M.Map V.Event (B.EventM n (B.Next St))

@@ -39,8 +39,8 @@ handleUncaughtInput st ev =
 handleKeyboard_atBufferWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atBufferWindow st ev =
-  case M.lookup ev $ bufferWindow_commands st of
-  Just c -> c
+  case M.lookup ev bufferBuffer_keyCmds_map of
+  Just c -> c st
   _ -> handleUncaughtInput st ev
 
 handleKeyboard_atResultsWindow ::

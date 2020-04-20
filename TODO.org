@@ -12,6 +12,13 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** TODO rename DirNext, DirPrev, DirUp, DirDown
+              -> ToNext, ToPrev, ToRoot, ToLeaf
+*** TODO replace consBuffer_topNext
+with consBuffer_next
+(should be easier than going all the way to the top level)
+*** TODO incorporate introductions
+Each mode has not just a list of commands, but an introduction.
 *** TODO universal_commands should take no St argument
 is now:
   St -> M.Map V.Event (B.EventM BrickName (B.Next St))
@@ -100,6 +107,13 @@ moving address
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
+** TODO don't let the user "highlight" the root of the ViewExpr tree
+(Note that this bug applies to SubgraphBuffers but not the BufferBuffer.)
+
+and then remove this comment somewhere in Hode.UI.Input
+               [ "PITFALL: BUG: If you move in the parental direction enough, you'll reach the root of the tree, and you won't see the cursor. Move it in the child direction to bring it back into sight. (I'll fix this soon.)" ]
+** TODO bug: _searchBuffers can be empty
+in which case switching to the Results view crashes.
 ** TODO the obstructive subexpression problem
 *** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:
@@ -206,8 +220,6 @@ Potentially tricky:
 ** TODO tests for the UI
 *** St could be Eq and Ord
 if I made (probably orphan) instances for Brick.Widgets.Edit.Editor
-** TODO bug: _searchBuffers can be empty
-in which case switching to the Results view crashes.
 ** TODO error window: Why is it treated differently?
 ** TODO reading and navigation are slow
 *** would help: hide in context
