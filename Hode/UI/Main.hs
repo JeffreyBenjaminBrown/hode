@@ -108,8 +108,8 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) =
-  case M.lookup ev $ universal_commands st of
-  Just c -> c
+  case M.lookup ev $ universal_keyCmds_map of
+  Just c -> c st
   Nothing -> case st ^. showingInMainWindow of
     SubgraphBuffer -> handleKeyboard_atResultsWindow st ev
     BufferBuffer -> handleKeyboard_atBufferWindow  st ev

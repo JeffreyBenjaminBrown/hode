@@ -7,8 +7,8 @@ module Hode.UI.Input.Maps (
     KeyCmd(..)
   , keyCmd_name, keyCmd_func, keyCmd_key, keyCmd_guide
 
-  , universal_commands    -- ^ St -> M.Map V.Event
-                          -- (B.EventM BrickName (B.Next St))
+  , universal_keyCmds_map -- ^ M.Map V.Event
+                          -- (St -> B.EventM BrickName (B.Next St))
   , bufferWindow_commands -- ^ St -> M.Map V.Event
                           -- (B.EventM n         (B.Next St))
   , resultWindow_commands -- ^ St -> M.Map V.Event
@@ -113,50 +113,11 @@ universal_keyCmds =
            , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." } ]
 
 
----- | These commands are available from any window.
---universal_commands ::
---  St -> M.Map V.Event (B.EventM BrickName (B.Next St))
---universal_commands =
---  M.fromList $ map keyCmd_usePair universal_keyCmds
-
-
 -- | These commands are available from any window.
-universal_commands ::
-  St -> M.Map V.Event (B.EventM BrickName (B.Next St))
-universal_commands st = M.fromList [
-  ( V.EvKey V.KEsc [V.MMeta],
-    B.halt st ),
-
-  -- For testing whether a key combination will be recognized.
-  ( V.EvKey (V.KChar '?') [V.MMeta],
-    B.continue $ st & showReassurance "Vty saw that!" ),
-
-  -- command window
-  ( V.EvKey (V.KChar 'x') [V.MMeta],
-    parseAndRunLangCmd st ),
-
-  -- switch main window content
-  ( V.EvKey (V.KChar 'H') [V.MMeta],
-    B.continue
-           $ st & showingInMainWindow .~ LangCmdHistory
-                & showingErrorWindow .~ False ),
-  ( V.EvKey (V.KChar 'B') [V.MMeta],
-    B.continue
-           $ st & showingInMainWindow .~ BufferBuffer
-                & showingErrorWindow .~ False ),
-  ( V.EvKey (V.KChar 'R') [V.MMeta],
-    B.continue
-           $ st & showingInMainWindow .~ SubgraphBuffer
-                & showingErrorWindow .~ False )
-
-  -- Brick-focus-related stuff. So far unneeded.
-    -- PITFALL: The focused `Window` is distinct from
-    -- the focused widget within the `mainWindow`.
-    -- ( V.EvKey (V.KChar '\t') [],
-    --   B.continue $ st & focusRing %~ B.focusNext ),
-    -- ( V.EvKey V.KBackTab [],
-    --   B.continue $ st & focusRing %~ B.focusPrev )
-  ]
+universal_keyCmds_map ::
+  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
+universal_keyCmds_map =
+  M.fromList $ map keyCmd_usePair universal_keyCmds
 
 bufferWindow_commands ::
   St -> M.Map V.Event (B.EventM n (B.Next St))
