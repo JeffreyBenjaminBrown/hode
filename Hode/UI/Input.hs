@@ -20,7 +20,7 @@ import qualified Brick.Widgets.Edit    as B
 import qualified Brick.Focus           as B
 import qualified Graphics.Vty          as V
 
-import Hode.UI.Input.Maps
+import Hode.UI.Input.KeyMaps_and_Docs
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Window

@@ -24,7 +24,7 @@ import Hode.Rslt.Types
 import Hode.UI.BufferShow
 import Hode.UI.Util
 import Hode.UI.Input
-import Hode.UI.Input.Maps
+import Hode.UI.Input.KeyMaps_and_Docs
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 
