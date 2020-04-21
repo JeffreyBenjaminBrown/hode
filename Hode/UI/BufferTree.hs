@@ -4,10 +4,10 @@ ViewPatterns
 #-}
 
 module Hode.UI.BufferTree
-  ( cons_focusedViewExpr_asChildOfBuffer
+  ( insert_focusedViewExpr_asChildOfBuffer
                             -- ^ St -> Either String St
-  , consBuffer_topNext      -- ^ Buffer    -> St -> St
-  , consBuffer_asChild      -- ^ Buffer    -> St -> St
+  , insertBuffer_topNext      -- ^ Buffer    -> St -> St
+  , insertBuffer_asChild      -- ^ Buffer    -> St -> St
 
   , deleteFocused_buffer    -- ^ St -> St
 
@@ -27,9 +27,9 @@ import Hode.Util.Misc
 import Hode.PTree
 
 
-cons_focusedViewExpr_asChildOfBuffer :: St -> Either String St
-cons_focusedViewExpr_asChildOfBuffer st0 =
-  prefixLeft "cons_focusedViewExpr_asChild:" $ do
+insert_focusedViewExpr_asChildOfBuffer :: St -> Either String St
+insert_focusedViewExpr_asChildOfBuffer st0 =
+  prefixLeft "insert_focusedViewExpr_asChild:" $ do
   b :: Buffer <- let s = "stBuffer returned Nothing."
     in maybe (Left s) Right $ st0 ^? stGet_focusedBuffer
   pter :: PTree ExprRow <-
@@ -43,16 +43,16 @@ cons_focusedViewExpr_asChildOfBuffer st0 =
     in buffer_from_exprRowTree
        $ pter & pTreeLabel . viewExprNode %~ f
   redraw_focusedBuffer $
-    hideReassurance . consBuffer_asChild b' $ st0
+    hideReassurance . insertBuffer_asChild b' $ st0
 
-consBuffer_topNext :: Buffer -> St -> St
-consBuffer_topNext b =
-  searchBuffers . _Just %~ cons_topNext b
+insertBuffer_topNext :: Buffer -> St -> St
+insertBuffer_topNext b =
+  searchBuffers . _Just %~ insertLeaf_topNext b
 
-consBuffer_asChild :: Buffer -> St -> St
-consBuffer_asChild b =
+insertBuffer_asChild :: Buffer -> St -> St
+insertBuffer_asChild b =
   searchBuffers . _Just . P.focus . setFocusedSubtree
-  %~ consUnder_andFocus (pTreeLeaf b)
+  %~ insertUnder_andFocus (pTreeLeaf b)
 
 deleteFocused_buffer :: St -> St
 deleteFocused_buffer st =

@@ -99,6 +99,7 @@ makeLenses      ''PTreeF
 -- has focus, its parent should be focused on it. And note that
 -- there is already a nice `Functor` instance for `PointedList`.
 
+-- | PITFALL: Not recursive -- if it returns anything, it returns a child.
 getFocusedChild :: Getter (PTree a) (Maybe (PTree a))
 getFocusedChild = to go where
   go :: PTree a -> Maybe (PTree a)
@@ -112,6 +113,7 @@ getFocusedChild = to go where
 
 -- | If the `PTree` has more than one subtree for which
 -- `pTreeHasFocus` is true (which it shouldn't), this returns the first.
+-- | PITFALL: Recursive -- might return a grandchild, etc.
 getFocusedSubtree :: Getter (PTree a) (Maybe (PTree a))
 getFocusedSubtree = to go where
   go :: PTree a -> Maybe (PTree a)
@@ -120,6 +122,9 @@ getFocusedSubtree = to go where
     Nothing -> Nothing
     Just ts -> go $ ts ^. P.focus
 
+-- | If the `PTree` has more than one subtree for which
+-- `pTreeHasFocus` is true (which it shouldn't), this returns the first.
+-- | PITFALL: Recursive -- might act on a grandchild, etc.
 setFocusedSubtree :: Setter' (PTree a) (PTree a)
 setFocusedSubtree = sets go where
   go :: forall a. (PTree a -> PTree a) -> PTree a -> PTree a

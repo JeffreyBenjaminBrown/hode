@@ -159,12 +159,12 @@ bufferBuffer_keyCmds =
            , _keyCmd_guide = "Moves the focused `SubgraphBuffer` down by one position among its peers in the view-tree. That is, the focused `SubgraphBuffer` trades place with the `SubgraphBuffer` that used to follow it. If the focused `SubgraphBuffer` is already last among its peers in the view-tree, this command does nothing." }
 
   , KeyCmd { _keyCmd_name = "insert empty child buffer"
-           , _keyCmd_func = go $ consBuffer_asChild emptySubgraphBuffer
+           , _keyCmd_func = go $ insertBuffer_asChild emptySubgraphBuffer
            , _keyCmd_key  = (V.KChar 'c', [V.MMeta])
            , _keyCmd_guide = "Onsert an empty `SubgraphBuffer` into the tree of `SubgraphBuffer`s, as a child of the currently focused `SubgraphBuffer`." }
 
   , KeyCmd { _keyCmd_name = "insert empty peer buffer"
-           , _keyCmd_func = go $ consBuffer_topNext emptySubgraphBuffer
+           , _keyCmd_func = go $ insertBuffer_topNext emptySubgraphBuffer
            , _keyCmd_key  =  (V.KChar 't', [V.MMeta])
            , _keyCmd_guide = "Inserts an empty `SubgraphBuffer` as a peer of the currently focused one, just after it." }
 
@@ -243,7 +243,7 @@ subgraphBuffer_keyCmds =
            , _keyCmd_guide = "When a long expression is a subexpression of its view-children, those view-children can become hard to read. This replaces each such subexpression with its address, which can reduce redundancy and increase readability." }
 
   , KeyCmd { _keyCmd_name = "new buffer at focus"
-           , _keyCmd_func = goe cons_focusedViewExpr_asChildOfBuffer
+           , _keyCmd_func = goe insert_focusedViewExpr_asChildOfBuffer
            , _keyCmd_key  = (V.KChar 'b', [V.MMeta])
            , _keyCmd_guide = "Create a new `SubgraphBuffer` from the focused expression and its view-descendents." }
 

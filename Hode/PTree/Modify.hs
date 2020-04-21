@@ -13,8 +13,9 @@ module Hode.PTree.Modify (
 
   -- | *** `PTree` and `Porest`
   , writeLevels         -- ^ PTree a -> PTree (Int,a)
-  , cons_topNext        -- ^       a -> Porest a -> Porest a
-  , consUnder_andFocus  -- ^ PTree a -> PTree a -> PTree a
+  , insertLeaf_topNext    -- ^       a -> Porest a -> Porest a
+  , insertLeaf_next       -- ^       a -> Porest a -> Porest a
+  , insertUnder_andFocus  -- ^ PTree a -> PTree a -> PTree a
   , deleteInPorest      -- ^ Porest a -> Maybe (Porest a)
   , deleteInPTree       -- ^ PTree a -> PTree a
   , nudgeFocus_inPTree  -- ^ Direction -> PTree a -> PTree a
@@ -99,15 +100,23 @@ writeLevels = f 0 where
       -- The outer fmap reaches into the Maybe,
       -- and the inner reaches into the PointedList.
 
-cons_topNext :: a -> Porest a -> Porest a
-cons_topNext a =
+insertLeaf_topNext :: a -> Porest a -> Porest a
+insertLeaf_topNext a =
   P.focus . pTreeHasFocus .~ False >>>
   P.insertRight (pTreeLeaf a)      >>> -- moves focus to `a`
   P.focus . pTreeHasFocus .~ True
 
--- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
-consUnder_andFocus :: forall a. PTree a -> PTree a -> PTree a
-consUnder_andFocus newFocus oldFocus =
+insertLeaf_next :: a -> Porest a -> Porest a
+insertLeaf_next a =
+  id $  P.focus . setFocusedSubtree . pTreeHasFocus .~ False
+  >>> ( P.focus . setParentOfFocusedSubtree . pMTrees . _Just %~
+        P.insertRight (pTreeLeaf a) ) -- moves focus to `a`
+  >>>   P.focus . setFocusedSubtree . pTreeHasFocus .~ True
+
+-- | Inserts `newFocus` as a child of `oldFocus`,
+-- and focuses on the newcomer.
+insertUnder_andFocus :: forall a. PTree a -> PTree a -> PTree a
+insertUnder_andFocus newFocus oldFocus =
   let ts'' :: [PTree a] =
         let m = newFocus & pTreeHasFocus .~ True
         in case _pMTrees oldFocus of

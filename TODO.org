@@ -12,8 +12,9 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
-*** TODO rename ToNext, ToPrev, ToRoot, ToLeaf
-              -> ToNext, ToPrev, ToRoot, ToLeaf
+*** TODO delete PTree . Modify . insertLeaf_topNext
+It's silly -- `insertLeaf_next`
+is almost strictly more useful, and strictly less confusing.
 *** TODO replace consBuffer_topNext
 with consBuffer_next
 (should be easier than going all the way to the top level)
@@ -55,23 +56,23 @@ M-x : parseAndRunCommand st )
 M-r : replaceCommand )
 <new> Send keystrokes to command window.
 **** buffer  window
-e - nudgeFocus_inBufferTree ToPrev ),
-d - nudgeFocus_inBufferTree ToNext ),
-f - nudgeFocus_inBufferTree ToLeaf ),
-a - nudgeFocus_inBufferTree ToRoot ),
+e - nudgeFocus_inBufferTree DirPrev ),
+d - nudgeFocus_inBufferTree DirNext ),
+f - nudgeFocus_inBufferTree DirDown ),
+a - nudgeFocus_inBufferTree DirUp ),
 
-E - nudgeFocused_buffer ToPrev ),
-D - nudgeFocused_buffer ToNext ),
+E - nudgeFocused_buffer DirPrev ),
+D - nudgeFocused_buffer DirNext ),
 
 c - consBuffer_asChild emptySubgraphBuffer ),
 t - consBuffer_topNext emptySubgraphBuffer ),
 d - deleteFocused_buffer )
 **** subgraph window
 ***** common to all submodes: move, select, copy
-e - nudgeFocus_inPTree ToPrev )
-d - nudgeFocus_inPTree ToNext )
-f - nudgeFocus_inPTree ToLeaf )
-s - nudgeFocus_inPTree ToRoot )
+e - nudgeFocus_inPTree DirPrev )
+d - nudgeFocus_inPTree DirNext )
+f - nudgeFocus_inPTree DirDown )
+s - nudgeFocus_inPTree DirUp )
 x - boolProps . selected %~ not ) ),
 X - <new> unselect all in tree
 c - toClipboard $ unlines $ focusedBufferStrings st )
@@ -87,8 +88,8 @@ m - goe insertMembers_atFocus ),
 k - close subtree
 F - stSetFocused_ViewExprNode_Tree . pTreeLabel
      . otherProps . folded
-E - nudgeInPTree ToPrev ) -- move the row, not the focus
-D - nudgeInPTree ToNext ) -- move the row, not the focus
+E - nudgeInPTree DirPrev ) -- move the row, not the focus
+D - nudgeInPTree DirNext ) -- move the row, not the focus
 ***** M-m s : sort
 A - addSelections_toSortedRegion ),
 R - removeSelections_fromSortedRegion ),

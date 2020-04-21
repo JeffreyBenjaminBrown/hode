@@ -7,6 +7,7 @@ module Hode.Test.PTree.TPModify where
 import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
+import           Control.Lens
 import qualified Data.List.PointedList as P
 
 import Hode.PTree.Initial
@@ -23,7 +24,20 @@ test_module_pTree_modify = TestList [
   , TestLabel "test_filterPList" test_filterPList
   , TestLabel "test_insertLeft_noFocusChange" test_insertLeft_noFocusChange
   , TestLabel "test_sortPList_asList" test_sortPList_asList
+  , TestLabel "test_insertLeaf_topNext" test_insertLeaf_topNext
   ]
+
+test_insertLeaf_topNext :: T.Test
+test_insertLeaf_topNext = TestCase $ do
+  let l  :: PTree Int  = PTree 1 False Nothing -- leaf, no focus
+      tn :: PTree Int  = PTree 1 False $       -- tree, no focus
+                         P.fromList [ PTree 2 False Nothing
+                                    , PTree 3 False Nothing ]
+      f1 :: Porest Int = P.PointedList []   tn []
+                         & P.focus . pTreeHasFocus .~ True
+      f2 :: Porest Int = P.PointedList [tn] l []
+                         & P.focus . pTreeHasFocus .~ True
+  assertBool "" $ insertLeaf_topNext 1 f1 == f2
 
 test_sortPList_asList :: T.Test
 test_sortPList_asList = TestCase $ do
@@ -146,11 +160,10 @@ test_nudgeFocus_inPorest = TestCase $ do
   let -- In these names, u=up, d=down, and otherwise n=next is implicit
     pList :: [a] -> P.PointedList a
     pList = maybe (error "impossible unless given [].") id . P.fromList
-    nip   = nextIfPossible
     f     = pTreeLeaf (1 :: Int)
     t     = f { _pTreeHasFocus = True }
-    _f_nt = nip $ pList [f,t]
-    _t_nf =       pList [t,f]
+    _f_nt = nextIfPossible $ pList [f,t]
+    _t_nf =                  pList [t,f]
 
   assertBool "1" $ nudgeFocus_inPorest ToNext _t_nf
                                           == _f_nt
