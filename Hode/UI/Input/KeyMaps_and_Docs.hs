@@ -5,13 +5,6 @@ module Hode.UI.Input.KeyMaps_and_Docs (
     KeyCmd(..)
   , keyCmd_name, keyCmd_func, keyCmd_key, keyCmd_guide
 
-  , universal_keyCmds_map      -- ^ M.Map V.Event
-                               -- (St -> B.EventM BrickName (B.Next St))
-  , bufferBuffer_keyCmds_map   -- ^ M.Map V.Event
-                               -- (St -> B.EventM BrickName (B.Next St))
-  , subgraphBuffer_keyCmds_map -- ^ M.Map V.Event
-                               -- (St -> B.EventM BrickName (B.Next St))
-
   , universal_intro       -- ^ String
   , universal_keyCmds     -- ^ [KeyCmd]
 
@@ -21,13 +14,6 @@ module Hode.UI.Input.KeyMaps_and_Docs (
   , subgraphBuffer_intro   -- ^ String
   , subgraphBuffer_keyCmds -- ^ [KeyCmd]
 
-  , paragraphs      -- ^ [String] -> String
-  , paragraph       -- ^ [String] -> String
-  , go  -- ^ (St -> St)               -> St -> B.EventM n (B.Next St)
-  , goe -- ^ (St -> Either String St) -> St -> B.EventM n (B.Next St)
-  , keyCmd_usePair  -- ^ KeyCmd -> (V.Event, St
-                    -- -> B.EventM BrickName (B.Next St))
-  , keyCmd_helpPair -- ^ KeyCmd -> (String, String)
   ) where
 
 import           Control.Lens hiding (folded)
@@ -54,23 +40,6 @@ import Hode.UI.Util.String
 import Hode.UI.Window
 import Hode.UI.Input.Util
 
-
--- | These commands are available from any window.
-universal_keyCmds_map ::
-  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
-universal_keyCmds_map =
-  M.fromList $ map keyCmd_usePair universal_keyCmds
-
--- | These commands are available from any window.
-bufferBuffer_keyCmds_map ::
-  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
-bufferBuffer_keyCmds_map =
-  M.fromList $ map keyCmd_usePair bufferBuffer_keyCmds
-
-subgraphBuffer_keyCmds_map ::
-  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
-subgraphBuffer_keyCmds_map =
-  M.fromList $ map keyCmd_usePair subgraphBuffer_keyCmds
 
 universal_intro :: String
 universal_intro = "These commands are always available."
