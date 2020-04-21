@@ -118,7 +118,7 @@ bufferBuffer_intro = paragraphs
 bufferBuffer_keyCmds :: [KeyCmd]
 bufferBuffer_keyCmds =
   [ KeyCmd { _keyCmd_name = "cursor to prev"
-           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirPrev
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree ToPrev
            , _keyCmd_key  = (V.KChar 'e', [V.MMeta])
            , _keyCmd_guide = paragraphs
              [ "Moves focus to the previous peer SubgraphView -- the one immediately above the currently focused one -- if it exists."
@@ -127,7 +127,7 @@ bufferBuffer_keyCmds =
                , "If the focused `SubgraphBuffer` is first among its peers, this key command does nothing. In particular, it will not take you to the parent of the focused buffer. For that, use the `cursor to parent` command." ] ] }
 
   , KeyCmd { _keyCmd_name = "cursor to next"
-           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirNext
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree ToNext
            , _keyCmd_key  = (V.KChar 'd', [V.MMeta])
            , _keyCmd_guide = paragraphs
              [ "Moves focus to the next peer SubgraphView -- the one immediately below the currently focused one -- if it exists."
@@ -137,24 +137,24 @@ bufferBuffer_keyCmds =
                , "You can still travel in one of the other three directions -- to the expression preceding this one, or to this one's view-parent, or (if they exist) to one of this expression's view-children." ] ] }
 
   , KeyCmd { _keyCmd_name = "cursor to parent"
-           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirUp
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree ToRoot
            , _keyCmd_key  = (V.KChar 's', [V.MMeta])
            , _keyCmd_guide = "Moves the focus to the view-parent of the currently focused `SubgraphBuffer`, if it exists." }
 
   , KeyCmd { _keyCmd_name = "cursor to child"
-           , _keyCmd_func = go $ nudgeFocus_inBufferTree DirDown
+           , _keyCmd_func = go $ nudgeFocus_inBufferTree ToLeaf
            , _keyCmd_key  = (V.KChar 'f', [V.MMeta])
            , _keyCmd_guide = "Moves the focus to one of the view-children of the currently focused `SubgraphBuffer`, if it has any." }
 
   , KeyCmd { _keyCmd_name = "nudge focused buffer up"
-           , _keyCmd_func = go $ nudgeFocused_buffer DirPrev
+           , _keyCmd_func = go $ nudgeFocused_buffer ToPrev
            , _keyCmd_key  = (V.KChar 'E', [V.MMeta])
            , _keyCmd_guide = paragraphs
              [ "Moves the focused `SubgraphBuffer` up by one position among its peers in the view-tree. That is, the focused `SubgraphBuffer` trades place with the `SubgraphBuffer` that used to precede it. If the focused `SubgraphBuffer` is already first among its peers in the view-tree, this command does nothing."
              , "PITFALL: This only changes the order of expressions in the view; it does not change the data in the graph." ] }
 
   , KeyCmd { _keyCmd_name = "nudge focused buffer down"
-           , _keyCmd_func = go $ nudgeFocused_buffer DirNext
+           , _keyCmd_func = go $ nudgeFocused_buffer ToNext
            , _keyCmd_key  = (V.KChar 'D', [V.MMeta])
            , _keyCmd_guide = "Moves the focused `SubgraphBuffer` down by one position among its peers in the view-tree. That is, the focused `SubgraphBuffer` trades place with the `SubgraphBuffer` that used to follow it. If the focused `SubgraphBuffer` is already last among its peers in the view-tree, this command does nothing." }
 
@@ -263,7 +263,7 @@ subgraphBuffer_keyCmds =
 
   , KeyCmd { _keyCmd_name = "cursor to previous"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeFocus_inPTree DirPrev )
+                                   %~ nudgeFocus_inPTree ToPrev )
                             . hideReassurance
            , _keyCmd_key  = (V.KChar 'e', [V.MMeta])
            , _keyCmd_guide = paragraphs
@@ -274,7 +274,7 @@ subgraphBuffer_keyCmds =
 
   , KeyCmd { _keyCmd_name = "cursor to next"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeFocus_inPTree DirNext )
+                                   %~ nudgeFocus_inPTree ToNext )
                             . hideReassurance
            , _keyCmd_key  = (V.KChar 'd', [V.MMeta])
            , _keyCmd_guide = paragraphs
@@ -286,21 +286,21 @@ subgraphBuffer_keyCmds =
 
   , KeyCmd { _keyCmd_name = "cursor to children"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeFocus_inPTree DirDown )
+                                   %~ nudgeFocus_inPTree ToLeaf )
                             . hideReassurance
            , _keyCmd_key  = (V.KChar 'f', [V.MMeta])
            , _keyCmd_guide = "Moves the focus to one of the view-children of the currently focused expression, if it has any." }
 
   , KeyCmd { _keyCmd_name = "cursor to parent"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeFocus_inPTree DirUp )
+                                   %~ nudgeFocus_inPTree ToRoot )
                             . hideReassurance
            , _keyCmd_key  = (V.KChar 's', [V.MMeta])
            , _keyCmd_guide = "Moves the focus to the view-parent of the currently focused expression, if it exists." }
 
   , KeyCmd { _keyCmd_name = "nudge up in view"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeInPTree DirPrev )
+                                   %~ nudgeInPTree ToPrev )
                             . hideReassurance
            , _keyCmd_key  = (V.KChar 'E', [V.MMeta])
            , _keyCmd_guide = paragraphs
@@ -309,7 +309,7 @@ subgraphBuffer_keyCmds =
 
   , KeyCmd { _keyCmd_name = "nudge down in view"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeInPTree DirPrev )
+                                   %~ nudgeInPTree ToPrev )
                             . hideReassurance
            , _keyCmd_key  = (V.KChar 'D', [V.MMeta])
            , _keyCmd_guide = paragraphs

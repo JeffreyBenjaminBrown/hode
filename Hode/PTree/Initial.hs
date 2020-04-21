@@ -50,7 +50,7 @@ import           Data.Maybe
 import           Data.Functor.Foldable.TH
 
 
-data Direction = DirPrev | DirNext | DirUp | DirDown
+data Direction = ToPrev | ToNext | ToRoot | ToLeaf
   deriving (Show,Eq, Ord)
 
 -- | *** `PointedList`
