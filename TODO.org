@@ -12,13 +12,16 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** TODO rearrange commands
+so that there are submodes
+details somewhere else in this doc
+*** TODO permit scrolling in the main help window
+*** TODO show command prefix, not just name of command
 *** TODO rename DirNext, DirPrev, DirUp, DirDown
               -> ToNext, ToPrev, ToRoot, ToLeaf
 *** TODO replace consBuffer_topNext
 with consBuffer_next
 (should be easier than going all the way to the top level)
-*** TODO incorporate introductions
-Each mode has not just a list of commands, but an introduction.
 *** TODO universal_commands should take no St argument
 is now:
   St -> M.Map V.Event (B.EventM BrickName (B.Next St))
