@@ -120,15 +120,17 @@ library
                 , Hode.UI.CycleBreaker
                 , Hode.UI.ExprTree
                 , Hode.UI.ExprTree.Sort
-                , Hode.UI.Util
-                , Hode.UI.Util.String
                 , Hode.UI.Input
                 , Hode.UI.Input.Maps
                 , Hode.UI.Input.Parse
+                , Hode.UI.Input.RunParsed
+                , Hode.UI.Input.Util
                 , Hode.UI.Main
                 , Hode.UI.Types.Names
                 , Hode.UI.Types.State
                 , Hode.UI.Types.Views
+                , Hode.UI.Util
+                , Hode.UI.Util.String
                 , Hode.UI.Window
 
                 , Hode.Util.Alternation
