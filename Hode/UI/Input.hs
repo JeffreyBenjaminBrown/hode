@@ -46,6 +46,6 @@ handleKeyboard_atBufferWindow st ev =
 handleKeyboard_atResultsWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev =
-  case M.lookup ev $ resultWindow_commands st of
-  Just c -> c
+  case M.lookup ev subgraphBuffer_keyCmds_map of
+  Just c -> c st
   _ -> handleUncaughtInput st ev

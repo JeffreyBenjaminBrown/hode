@@ -360,7 +360,9 @@ There are many ways you could add that search as an expression in the graph. Her
 
 `/add "alice | bob | chris"`
 
-Note that the query has been wrapped in quotation marks. Otherwise Hode would try, as usual, to interpret the `|` symbols to mean "or", and it would get confused. (If Hode enjoyed sarcasm, it might respond, "Which one do you want to add -- alice or bob or chris?")
+Note that the query has been wrapped in quotation marks. Otherwise Hode would try, as usual, to interpret the `|` symbols to mean "or", and it would get confused. After running the above expression, your graph will contain the expression
+
+`"alice | bob | chris"`.
 
 #### Why that way is fragile
 
@@ -375,7 +377,7 @@ it will continue looking for "bob", not "rob".
 
 Here is a better way to encode the same search:
 
-`/add alice # "|" # bob # "|" # chris`
+`/find alice # "|" # bob # "|" # chris`
 
 Each term in the search -- the words and the `|` symbols --
 are now separated by `#` marks. When you run the search,
@@ -392,13 +394,6 @@ it will change in the search too.
 
 (You don't have to wrap "alice" or "bob" or "chris" in quotation marks,
 because they contain no characters that Hode treats specially.)
-
-#### PITFALL: Back references are not currently implemented
-
-Suppose node X encodes a search that finds nodes Y and Z.
-If you evaluate X, you will find Y and Z.
-But if you visit Y or Z,
-you will receive no information about its relationship to X.
 
 ### `M-w`: Copy the results buffer to clipboard
 

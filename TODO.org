@@ -97,6 +97,9 @@ R - removeSelections_fromSortedRegion ),
 E - raiseSelection_inSortedRegion ),
 D - lowerSelection_inSortedRegion ),
 U - updateBlockingCycles >=> updateCycleBuffer )
+*** TODO if I want a scrollbar
+Maybe Brick offers one as part of a viewport.
+If not, could instead indicate, e.g., "Item 3 of 5" near menus.
 ** TODO document
 *** these features
 select ViewExpr (M-X)
