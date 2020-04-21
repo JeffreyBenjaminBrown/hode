@@ -2,8 +2,9 @@
 -- cannot be used in conjunction with certain characters, such as ';'.
 
 module Hode.UI.Input.KeyMaps_and_Docs (
-    KeyCmd(..)
-  , keyCmd_name, keyCmd_func, keyCmd_key, keyCmd_guide
+    modes                                            -- ^ Choice1Plist
+  , submodes                                         -- ^ Choice2Plist
+  , universal_c1, bufferBuffer_c1, subgraphBuffer_c1 -- ^ Choice3Plist
 
   , universal_intro       -- ^ String
   , universal_keyCmds     -- ^ [KeyCmd]
@@ -13,16 +14,14 @@ module Hode.UI.Input.KeyMaps_and_Docs (
 
   , subgraphBuffer_intro   -- ^ String
   , subgraphBuffer_keyCmds -- ^ [KeyCmd]
-
   ) where
 
 import           Control.Lens hiding (folded)
 import           Control.Monad ((>=>))
 import           Control.Monad.IO.Class (liftIO)
-import qualified Data.Map              as M
+import qualified Data.List.PointedList as P
 
 import qualified Brick.Main            as B
-import qualified Brick.Types           as B
 import qualified Graphics.Vty          as V
 
 import Hode.PTree
@@ -40,6 +39,27 @@ import Hode.UI.Util.String
 import Hode.UI.Window
 import Hode.UI.Input.Util
 
+import Hode.Brick.Help.Types
+
+
+modes :: Choice1Plist
+modes = maybe (error "impossible") id $ P.fromList
+        [ ("(so far there's only one mode)", submodes) ]
+
+submodes :: Choice2Plist
+submodes = maybe (error "impossible") id $ P.fromList
+           [ ("universal"     , universal_c1)
+           , ("bufferBuffer"  , bufferBuffer_c1)
+           , ("subgraphBuffer", subgraphBuffer_c1) ]
+
+universal_c1, bufferBuffer_c1, subgraphBuffer_c1 :: Choice3Plist
+[universal_c1, bufferBuffer_c1, subgraphBuffer_c1] =
+  let hp = map keyCmd_helpPair
+      i = ("Introduction",)
+  in map (maybe (error "impossible") id . P.fromList)
+     [ i universal_intro      : hp universal_keyCmds
+     , i bufferBuffer_intro   : hp bufferBuffer_keyCmds
+     , i subgraphBuffer_intro : hp subgraphBuffer_keyCmds]
 
 universal_intro :: String
 universal_intro = "These commands are always available."

@@ -45,6 +45,9 @@ helpUi :: Help -> B.Widget WindowName
 helpUi st = let
   padding = 1
   normal, highlight :: B.AttrName -> String -> B.Widget n
+  normalWrap stylePrefix s =
+    B.padLeftRight padding .
+    B.withAttr stylePrefix .                  B.strWrap $ s
   normal    stylePrefix s =
     B.padLeftRight padding .
     B.withAttr stylePrefix .                  B.str $ s
@@ -90,7 +93,7 @@ helpUi st = let
             in limit $ B.viewport Choice3 B.Vertical $ B.vBox
                $ drawPList (windowFont st Choice3) cs3
     , B.vBorder
-    , normal (windowFont st Content)
+    , normalWrap (windowFont st Content)
       $ st ^. helpChoices3 . P.focus . _2 ] ]
 
 theMap :: B.AttrMap
