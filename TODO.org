@@ -12,6 +12,17 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** language mode
+**** add a "Showing command window" state
+**** permit toggling that state
+**** show it                only when in that state
+**** direct key input to it only when in that state
+**** adjust command during that state
+M-x : parseAndRunCommand st )
+M-r : replaceCommand )
+M-c : toggle command window :: show & send keystrokes to it
+**** adjust commands in other states
+now they don't need Alt
 *** TODO universal_commands should take no St argument
 is now:
   St -> M.Map V.Event (B.EventM BrickName (B.Next St))
@@ -45,10 +56,6 @@ M-w c - <new> command window : toggle directing keyboard input to
 M-w C - <new> command window : toggle showing it
 **** M-m : what submode to be in
 Not every mode has submodes.
-**** command window
-M-x : parseAndRunCommand st )
-M-r : replaceCommand )
-<new> Send keystrokes to command window.
 **** buffer  window
 e - nudgeFocus_inBufferTree DirPrev ),
 d - nudgeFocus_inBufferTree DirNext ),
@@ -91,11 +98,12 @@ E - raiseSelection_inSortedRegion ),
 D - lowerSelection_inSortedRegion ),
 U - updateBlockingCycles >=> updateCycleBuffer )
 ** TODO document
-*** these features
+*** moving an address
+*** ? these features
+are already in the interactive help
 select ViewExpr (M-X)
 nudging (M-E, M-D)
 deleting buffers
-moving address
 *** TODO documentation: order of topics
  How to add.
  How to move focus, add neighbors.

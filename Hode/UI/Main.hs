@@ -10,12 +10,12 @@ import           Lens.Micro
 
 import qualified Brick.Main           as B
 import qualified Brick.Types          as B
-import           Brick.Widgets.Core
+import           Brick.Widgets.Core   as B
 import qualified Brick.Widgets.Center as B
 import qualified Brick.Widgets.Edit   as B
 import qualified Brick.AttrMap        as B
 import qualified Brick.Focus          as B
-import           Brick.Util (on)
+import           Brick.Util           as B
 import qualified Graphics.Vty         as V
 
 import Hode.PTree.Initial
@@ -74,9 +74,9 @@ appDraw st0 = [w] where
   mainWindow :: B.Widget BrickName =
     case st ^. showingInMainWindow of
       LangCmdHistory -> commandHistoryWindow
-      BufferBuffer  -> bufferWindow $ st ^. searchBuffers
-      SubgraphBuffer  -> resultWindow (st ^. viewOptions)
-                       (b ^. bufferExprRowTree . pMTrees)
+      BufferBuffer   -> bufferWindow $ st ^. searchBuffers
+      SubgraphBuffer -> resultWindow (st ^. viewOptions)
+                        (b ^. bufferExprRowTree . pMTrees)
 
   optionalWindows :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>

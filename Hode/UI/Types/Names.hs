@@ -12,7 +12,7 @@ import Hode.Rslt.Types
 -- Not every window Brick draws needs a name,
 -- but editors and viewports in particular do.
 data BrickName = BrickOptionalName OptionalWindowName
-               | BrickMainName MainWindowName
+               | BrickMainName     MainWindowName
   deriving (Ord, Show, Eq)
 
 data OptionalWindowName = LangCmds
