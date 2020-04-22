@@ -101,7 +101,14 @@ universal_keyCmds =
                             . (showingInMainWindow .~ SubgraphBuffer)
                             . (showingErrorWindow .~ False )
            , _keyCmd_key  = (V.KChar 'R', [V.MMeta])
-           , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." } ]
+           , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." }
+
+  , KeyCmd { _keyCmd_name = "language mode"
+           , _keyCmd_func = B.continue
+             . (showingOptionalWindows . at LangCmds %~ (<$>) not)
+           , _keyCmd_key  = (V.KChar 'L', [V.MMeta])
+           , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
+  ]
 
 bufferBuffer_intro :: String
 bufferBuffer_intro = paragraphs
