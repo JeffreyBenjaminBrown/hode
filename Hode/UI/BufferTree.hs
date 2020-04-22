@@ -6,8 +6,8 @@ ViewPatterns
 module Hode.UI.BufferTree
   ( insert_focusedViewExpr_asChildOfBuffer
                             -- ^ St -> Either String St
-  , insertBuffer_topNext      -- ^ Buffer    -> St -> St
-  , insertBuffer_asChild      -- ^ Buffer    -> St -> St
+  , insertBuffer_next       -- ^ Buffer    -> St -> St
+  , insertBuffer_asChild    -- ^ Buffer    -> St -> St
 
   , deleteFocused_buffer    -- ^ St -> St
 
@@ -45,9 +45,9 @@ insert_focusedViewExpr_asChildOfBuffer st0 =
   redraw_focusedBuffer $
     hideReassurance . insertBuffer_asChild b' $ st0
 
-insertBuffer_topNext :: Buffer -> St -> St
-insertBuffer_topNext b =
-  searchBuffers . _Just %~ insertLeaf_topNext b
+insertBuffer_next :: Buffer -> St -> St
+insertBuffer_next b =
+  searchBuffers . _Just %~ insertLeaf_next b
 
 insertBuffer_asChild :: Buffer -> St -> St
 insertBuffer_asChild b =

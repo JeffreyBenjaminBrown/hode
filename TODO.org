@@ -12,12 +12,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
-*** TODO delete PTree . Modify . insertLeaf_topNext
-It's silly -- `insertLeaf_next`
-is almost strictly more useful, and strictly less confusing.
-*** TODO replace consBuffer_topNext
-with consBuffer_next
-(should be easier than going all the way to the top level)
 *** TODO rearrange commands
 so that there are submodes
 details somewhere else in this doc

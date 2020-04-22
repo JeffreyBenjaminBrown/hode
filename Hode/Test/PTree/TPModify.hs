@@ -8,7 +8,7 @@ import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
 import           Control.Lens
-import qualified Data.List.PointedList as P
+import qualified Data.List.PointedList          as P
 
 import Hode.PTree.Initial
 import Hode.PTree.Modify
@@ -24,20 +24,31 @@ test_module_pTree_modify = TestList [
   , TestLabel "test_filterPList" test_filterPList
   , TestLabel "test_insertLeft_noFocusChange" test_insertLeft_noFocusChange
   , TestLabel "test_sortPList_asList" test_sortPList_asList
-  , TestLabel "test_insertLeaf_topNext" test_insertLeaf_topNext
+  , TestLabel "test_insertLeaf_next" test_insertLeaf_next
   ]
 
-test_insertLeaf_topNext :: T.Test
-test_insertLeaf_topNext = TestCase $ do
-  let l  :: PTree Int  = PTree 1 False Nothing -- leaf, no focus
-      tn :: PTree Int  = PTree 1 False $       -- tree, no focus
-                         P.fromList [ PTree 2 False Nothing
-                                    , PTree 3 False Nothing ]
-      f1 :: Porest Int = P.PointedList []   tn []
+test_insertLeaf_next :: T.Test
+test_insertLeaf_next = TestCase $ do
+  let l :: Int -> PTree Int
+      l i = PTree i False Nothing -- leaf, no focus
+      f1 :: Porest Int = P.PointedList [] (l 1) []
                          & P.focus . pTreeHasFocus .~ True
-      f2 :: Porest Int = P.PointedList [tn] l []
+      f2 :: Porest Int = P.PointedList [l 1] (l 2) []
                          & P.focus . pTreeHasFocus .~ True
-  assertBool "" $ insertLeaf_topNext 1 f1 == f2
+  assertBool "a flat forest" $ insertLeaf_next 2 f1 == f2
+
+  let g2 :: Porest Int = P.PointedList [] t []
+        where t = PTree 0 False $ Just -- tree, focused on 2
+                  $ P.PointedList [ PTree 1 False Nothing ]
+                                  ( PTree 2 True  Nothing )
+                                  [ PTree 3 False Nothing ]
+      g22 :: Porest Int = P.PointedList [] t []
+        where t = PTree 0 False $ Just -- tree, focused on 22
+                  $ P.PointedList [ PTree 2  False Nothing
+                                  , PTree 1  False Nothing ]
+                                  ( PTree 22 True  Nothing )
+                                  [ PTree 3  False Nothing ]
+  assertBool "a depth-2 forest" $ insertLeaf_next 22 g2 == g22
 
 test_sortPList_asList :: T.Test
 test_sortPList_asList = TestCase $ do

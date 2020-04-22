@@ -12,8 +12,8 @@ module Hode.PTree.Initial (
 
   -- | *** `PointedList`
   , PointedList(..) -- ^ exports the Ord instance
-  , getPList                       -- ^ Getter  (PointedList a) [a]
-  , setPList                       -- ^ Setter' (PointedList a) [a]
+  , getPList        -- ^ Getter  (PointedList a) [a]
+  , setPList        -- ^ Setter' (PointedList a) [a]
 
   -- | *** `PTree`, a tree made of `PointedList`s
   , PTree(..)

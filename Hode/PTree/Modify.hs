@@ -100,18 +100,25 @@ writeLevels = f 0 where
       -- The outer fmap reaches into the Maybe,
       -- and the inner reaches into the PointedList.
 
+-- | I suspect `insertLeaf_next` dominates this function.
+-- Always inserts a new top-level tree.
 insertLeaf_topNext :: a -> Porest a -> Porest a
 insertLeaf_topNext a =
   P.focus . pTreeHasFocus .~ False >>>
   P.insertRight (pTreeLeaf a)      >>> -- moves focus to `a`
   P.focus . pTreeHasFocus .~ True
 
-insertLeaf_next :: a -> Porest a -> Porest a
-insertLeaf_next a =
-  id $  P.focus . setFocusedSubtree . pTreeHasFocus .~ False
-  >>> ( P.focus . setParentOfFocusedSubtree . pMTrees . _Just %~
-        P.insertRight (pTreeLeaf a) ) -- moves focus to `a`
-  >>>   P.focus . setFocusedSubtree . pTreeHasFocus .~ True
+-- | `insertLeaf_next` inserts a new leaf after the current focus,
+-- which can be at any level in the tree.
+insertLeaf_next :: forall a. a -> Porest a -> Porest a
+insertLeaf_next a f =
+  let go :: Porest a -> Porest a =
+        P.focus . pTreeHasFocus .~ False
+        >>> P.insertRight (pTreeLeaf a) -- no `PTree` is changed
+        >>> P.focus . pTreeHasFocus .~ True
+  in f & case f ^. P.focus . pTreeHasFocus
+         of True  -> go
+            False -> P.focus . pMTrees . _Just %~ go
 
 -- | Inserts `newFocus` as a child of `oldFocus`,
 -- and focuses on the newcomer.

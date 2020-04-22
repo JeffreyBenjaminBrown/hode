@@ -164,7 +164,7 @@ bufferBuffer_keyCmds =
            , _keyCmd_guide = "Onsert an empty `SubgraphBuffer` into the tree of `SubgraphBuffer`s, as a child of the currently focused `SubgraphBuffer`." }
 
   , KeyCmd { _keyCmd_name = "insert empty peer buffer"
-           , _keyCmd_func = go $ insertBuffer_topNext emptySubgraphBuffer
+           , _keyCmd_func = go $ insertBuffer_next emptySubgraphBuffer
            , _keyCmd_key  =  (V.KChar 't', [V.MMeta])
            , _keyCmd_guide = "Inserts an empty `SubgraphBuffer` as a peer of the currently focused one, just after it." }
 
