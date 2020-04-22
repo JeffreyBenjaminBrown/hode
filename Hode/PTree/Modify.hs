@@ -13,8 +13,9 @@ module Hode.PTree.Modify (
 
   -- | *** `PTree` and `Porest`
   , writeLevels         -- ^ PTree a -> PTree (Int,a)
-  , cons_topNext        -- ^       a -> Porest a -> Porest a
-  , consUnder_andFocus  -- ^ PTree a -> PTree a -> PTree a
+  , insertLeaf_topNext    -- ^       a -> Porest a -> Porest a
+  , insertLeaf_next       -- ^       a -> Porest a -> Porest a
+  , insertUnder_andFocus  -- ^ PTree a -> PTree a -> PTree a
   , deleteInPorest      -- ^ Porest a -> Maybe (Porest a)
   , deleteInPTree       -- ^ PTree a -> PTree a
   , nudgeFocus_inPTree  -- ^ Direction -> PTree a -> PTree a
@@ -99,15 +100,30 @@ writeLevels = f 0 where
       -- The outer fmap reaches into the Maybe,
       -- and the inner reaches into the PointedList.
 
-cons_topNext :: a -> Porest a -> Porest a
-cons_topNext a =
+-- | I suspect `insertLeaf_next` dominates this function.
+-- Always inserts a new top-level tree.
+insertLeaf_topNext :: a -> Porest a -> Porest a
+insertLeaf_topNext a =
   P.focus . pTreeHasFocus .~ False >>>
   P.insertRight (pTreeLeaf a)      >>> -- moves focus to `a`
   P.focus . pTreeHasFocus .~ True
 
--- | Inserts `newFocus` under `oldFocus`, and focuses on the newcomer.
-consUnder_andFocus :: forall a. PTree a -> PTree a -> PTree a
-consUnder_andFocus newFocus oldFocus =
+-- | `insertLeaf_next` inserts a new leaf after the current focus,
+-- which can be at any level in the tree.
+insertLeaf_next :: forall a. a -> Porest a -> Porest a
+insertLeaf_next a f =
+  let go :: Porest a -> Porest a =
+        P.focus . pTreeHasFocus .~ False
+        >>> P.insertRight (pTreeLeaf a) -- no `PTree` is changed
+        >>> P.focus . pTreeHasFocus .~ True
+  in f & case f ^. P.focus . pTreeHasFocus
+         of True  -> go
+            False -> P.focus . pMTrees . _Just %~ go
+
+-- | Inserts `newFocus` as a child of `oldFocus`,
+-- and focuses on the newcomer.
+insertUnder_andFocus :: forall a. PTree a -> PTree a -> PTree a
+insertUnder_andFocus newFocus oldFocus =
   let ts'' :: [PTree a] =
         let m = newFocus & pTreeHasFocus .~ True
         in case _pMTrees oldFocus of
@@ -133,7 +149,7 @@ deleteInPTree t =
        setPeersOfFocusedSubtree .~ deleteInPorest p
 
 nudgeFocus_inPTree :: Direction -> PTree a -> PTree a
-nudgeFocus_inPTree DirUp t =
+nudgeFocus_inPTree ToRoot t =
   case t ^? getParentOfFocusedSubtree . _Just of
     Nothing -> t & pTreeHasFocus .~ True
     Just st -> let
@@ -141,14 +157,14 @@ nudgeFocus_inPTree DirUp t =
                &                             pTreeHasFocus .~ True
       in t & setParentOfFocusedSubtree .~ st'
 
-nudgeFocus_inPTree DirDown t =
+nudgeFocus_inPTree ToLeaf t =
   case t ^? getFocusedSubtree . _Just . pMTrees . _Just
   of Nothing -> t
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ True
                 in t & setFocusedSubtree . pMTrees .~ Just ts'
                      & setFocusedSubtree . pTreeHasFocus .~ False
 
-nudgeFocus_inPTree DirPrev t =
+nudgeFocus_inPTree ToPrev t =
   case t ^? getPeersOfFocusedSubtree
   of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
@@ -156,7 +172,7 @@ nudgeFocus_inPTree DirPrev t =
                              & P.focus . pTreeHasFocus .~ True
        in t & setParentOfFocusedSubtree . pMTrees .~ Just ts'
 
-nudgeFocus_inPTree DirNext t =
+nudgeFocus_inPTree ToNext t =
   case t ^? getPeersOfFocusedSubtree
   of Nothing -> t -- happens at the top of the tree
      Just ts -> let ts' = ts & P.focus . pTreeHasFocus .~ False
@@ -169,12 +185,12 @@ nudgeFocus_inPorest d p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ nudgeFocus_inPTree d
      True -> case d of
-       DirUp   -> p -- it's already as `DirUp` as it can be
-       DirDown -> p & P.focus %~ nudgeFocus_inPTree d
-       DirNext -> p & P.focus . pTreeHasFocus .~ False
+       ToRoot   -> p -- it's already as `ToRoot` as it can be
+       ToLeaf -> p & P.focus %~ nudgeFocus_inPTree d
+       ToNext -> p & P.focus . pTreeHasFocus .~ False
                      & nextIfPossible
                      & P.focus . pTreeHasFocus .~ True
-       DirPrev -> p & P.focus . pTreeHasFocus .~ False
+       ToPrev -> p & P.focus . pTreeHasFocus .~ False
                      & prevIfPossible
                      & P.focus . pTreeHasFocus .~ True
 
@@ -185,8 +201,8 @@ nudgeInPorest dir p =
   case p ^. P.focus . pTreeHasFocus
   of False -> p & P.focus %~ nudgeInPTree dir
      True -> case dir of
-               DirPrev -> nudgePrev p
-               DirNext -> nudgeNext p
+               ToPrev -> nudgePrev p
+               ToNext -> nudgeNext p
                _       -> p -- you can only nudge across the same level
 
 nudgeInPTree :: forall a. Direction -> PTree a -> PTree a

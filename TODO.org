@@ -12,7 +12,7 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
-*** language mode
+*** TODO language mode
 **** add a "Showing command window" state
 **** permit toggling that state
 **** show it                only when in that state
@@ -23,13 +23,13 @@ M-r : replaceCommand )
 M-c : toggle command window :: show & send keystrokes to it
 **** adjust commands in other states
 now they don't need Alt
-*** TODO universal_commands should take no St argument
-is now:
-  St -> M.Map V.Event (B.EventM BrickName (B.Next St))
-should be:
-  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
-*** TODO rewrite Hode command layout for interactive help
-Don't change what the modes or commands are, just how they're organized.
+*** TODO rearrange commands
+so that there are submodes
+details somewhere else in this doc
+*** TODO make the submode menu optional
+If there's only one choice in that layer, hide it.
+*** TODO show command prefix, not just name of command
+*** TODO permit scrolling in the main help window
 *** use this to test whether key commands are recognized
 (It's already part of Maps.hs.)
 
@@ -97,6 +97,9 @@ R - removeSelections_fromSortedRegion ),
 E - raiseSelection_inSortedRegion ),
 D - lowerSelection_inSortedRegion ),
 U - updateBlockingCycles >=> updateCycleBuffer )
+*** TODO if I want a scrollbar
+Maybe Brick offers one as part of a viewport.
+If not, could instead indicate, e.g., "Item 3 of 5" near menus.
 ** TODO document
 *** moving an address
 *** ? these features
@@ -108,6 +111,13 @@ deleting buffers
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
+** TODO don't let the user "highlight" the root of the ViewExpr tree
+(Note that this bug applies to SubgraphBuffers but not the BufferBuffer.)
+
+and then remove this comment somewhere in Hode.UI.Input
+               [ "PITFALL: BUG: If you move in the parental direction enough, you'll reach the root of the tree, and you won't see the cursor. Move it in the child direction to bring it back into sight. (I'll fix this soon.)" ]
+** TODO bug: _searchBuffers can be empty
+in which case switching to the Results view crashes.
 ** TODO the obstructive subexpression problem
 *** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:
@@ -214,8 +224,6 @@ Potentially tricky:
 ** TODO tests for the UI
 *** St could be Eq and Ord
 if I made (probably orphan) instances for Brick.Widgets.Edit.Editor
-** TODO bug: _searchBuffers can be empty
-in which case switching to the Results view crashes.
 ** TODO error window: Why is it treated differently?
 ** TODO reading and navigation are slow
 *** would help: hide in context

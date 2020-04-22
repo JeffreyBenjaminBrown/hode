@@ -54,16 +54,16 @@ import Util.VTree
 handleKeyboard_atBufferWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atBufferWindow st ev = case ev of
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus_inBufferTree DirPrev
+    $ unEitherSt st . moveFocus_inBufferTree ToPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus_inBufferTree DirNext
+    $ unEitherSt st . moveFocus_inBufferTree ToNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus_inBufferTree DirDown
+    $ unEitherSt st . moveFocus_inBufferTree ToLeaf
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocus_inBufferTree DirUp
+    $ unEitherSt st . moveFocus_inBufferTree ToRoot
     $ st & hideReassurance
 
   B.EvKey (B.KChar 'c') [B.MMeta] -> B.continue
@@ -94,16 +94,16 @@ handleKeyboard_atResults st ev = case ev of
       & showReassurance "SearchBuffer window copied to clipboard."
 
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedViewExprNode DirPrev
+    $ unEitherSt st . moveFocusedViewExprNode ToPrev
     $ st & hideReassurance
   B.EvKey (B.KChar 'd') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedViewExprNode DirNext
+    $ unEitherSt st . moveFocusedViewExprNode ToNext
     $ st & hideReassurance
   B.EvKey (B.KChar 'f') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedViewExprNode DirDown
+    $ unEitherSt st . moveFocusedViewExprNode ToLeaf
     $ st & hideReassurance
   B.EvKey (B.KChar 's') [B.MMeta] -> B.continue
-    $ unEitherSt st . moveFocusedViewExprNode DirUp
+    $ unEitherSt st . moveFocusedViewExprNode ToRoot
     $ st & hideReassurance
 
   _ -> handleUncaughtInput st ev

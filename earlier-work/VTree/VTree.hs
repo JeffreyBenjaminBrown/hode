@@ -91,10 +91,10 @@ consUnderFocus p new host = prefixLeft "consAtFocus:" $ do
 
 moveFocusInTree :: Direction -> (Path, VTree a)
           -> Either String (Path, VTree a)
-moveFocusInTree DirUp p@([],_) = Right p
-moveFocusInTree DirUp (p,a)    = Right (f p, a)
+moveFocusInTree ToRoot p@([],_) = Right p
+moveFocusInTree ToRoot (p,a)    = Right (f p, a)
   where f = reverse . tail . reverse
-moveFocusInTree DirDown (p,a) = prefixLeft "moveFocusInTree:" $ do
+moveFocusInTree ToLeaf (p,a) = prefixLeft "moveFocusInTree:" $ do
   foc <- let err = "bad focus " ++ show p
          in maybe (Left err) Right
             $ a ^? atPath p
@@ -102,7 +102,7 @@ moveFocusInTree DirDown (p,a) = prefixLeft "moveFocusInTree:" $ do
     then Right (p                       , a)
     else Right (p ++ [foc ^. vTreeFocalChild], a)
 
-moveFocusInTree DirPrev (p,a) = do
+moveFocusInTree ToPrev (p,a) = do
   _ <- pathInBounds a p
   let pathToParent = take (length p - 1) p
       Just parent = -- safe b/c p is in bounds
@@ -114,10 +114,10 @@ moveFocusInTree DirPrev (p,a) = do
   Right ( p & replaceLast' parFoc'
         , a & atPath pathToParent . vTreeFocalChild .~ parFoc' )
 
--- TODO : This duplicates the code for DirPrev.
+-- TODO : This duplicates the code for ToPrev.
 -- Better: factor out the computation of newFocus,
 -- as a function of parent and an adjustment function.
-moveFocusInTree DirNext (p,a) = do
+moveFocusInTree ToNext (p,a) = do
   _ <- pathInBounds a p
   let pathToParent = take (length p - 1) p
       Just parent = -- safe b/c p is in bounds
@@ -132,14 +132,14 @@ moveFocusInTree DirNext (p,a) = do
 
 moveFocusInVorest :: forall a. Direction -> (Vath, Vorest a)
                            -> Either String (Vath, Vorest a)
-moveFocusInVorest DirUp ((i,[]),vor) = Right ((i,[]),vor)
-moveFocusInVorest DirDown ((i,[]),vor) = prefixLeft "moveFocusInVorest:" $ do
+moveFocusInVorest ToRoot ((i,[]),vor) = Right ((i,[]),vor)
+moveFocusInVorest ToLeaf ((i,[]),vor) = prefixLeft "moveFocusInVorest:" $ do
   inBounds' vor i
   let j = (vor V.! i) ^. vTreeFocalChild
   Right ((i,[j]),vor)
-moveFocusInVorest DirPrev ((i,[]),vor) = Right ((i',[]),vor) where
+moveFocusInVorest ToPrev ((i,[]),vor) = Right ((i',[]),vor) where
   i' = max (i-1) 0
-moveFocusInVorest DirNext ((i,[]),vor) = Right ((i',[]),vor) where
+moveFocusInVorest ToNext ((i,[]),vor) = Right ((i',[]),vor) where
   i' = min (i+1) $ V.length vor - 1
 moveFocusInVorest d ((i,p),vor) = prefixLeft "moveFocusInVorest:" $ do
   -- TODO : simplify via liftEitherIntoTraversal

@@ -24,7 +24,6 @@ import Hode.Rslt.Types
 import Hode.UI.BufferShow
 import Hode.UI.Util
 import Hode.UI.Input
-import Hode.UI.Input.Maps
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 
@@ -108,8 +107,8 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) =
-  case M.lookup ev $ universal_commands st of
-  Just c -> c
+  case M.lookup ev $ universal_keyCmds_map of
+  Just c -> c st
   Nothing -> case st ^. showingInMainWindow of
     SubgraphBuffer -> handleKeyboard_atResultsWindow st ev
     BufferBuffer -> handleKeyboard_atBufferWindow  st ev

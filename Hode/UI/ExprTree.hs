@@ -57,7 +57,7 @@ insertSearchResults_atFocus st =
                     , _viewForkType = VFSearch } )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
-                 %~ consUnder_andFocus new )
+                 %~ insertUnder_andFocus new )
 
 searchResults_at :: Rslt -> Addr -> Either String (Set Addr)
 searchResults_at r a =
@@ -87,7 +87,7 @@ insertMembers_atFocus st =
                                                , _childSort = Nothing } } )
         & pMTrees .~ Just leaves
   Right $ st & ( stSetFocused_ViewExprNode_Tree
-                 %~ consUnder_andFocus new )
+                 %~ insertUnder_andFocus new )
 
 insertHosts_atFocus :: St -> Either String St
 insertHosts_atFocus st =
@@ -136,7 +136,7 @@ groupHostRels r a0 =
           isTplt :: ((Role,HostAddr),ExprCtr) -> Bool
           isTplt = (\case TpltCtr -> True; _ -> False) . snd
 
-      maybeConsTpltHosts :: [(ViewFork, [Addr])]
+      maybeInsertTpltHosts :: [(ViewFork, [Addr])]
                          -> [(ViewFork, [Addr])]
         -- There is at most one `TpltHostFork`.
         = if null tplt_ras then id
@@ -182,7 +182,7 @@ groupHostRels r a0 =
                   tplt a = es
                     where Right (ExprTplt es) = addrToExpr r a
 
-  Right $ maybeConsTpltHosts
+  Right $ maybeInsertTpltHosts
     $ map mkRelFork
     $ M.toList rel_groups
 

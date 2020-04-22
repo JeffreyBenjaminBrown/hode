@@ -7,7 +7,8 @@ module Hode.Test.PTree.TPModify where
 import qualified Test.HUnit      as T
 import           Test.HUnit hiding (Test, test)
 
-import qualified Data.List.PointedList as P
+import           Control.Lens
+import qualified Data.List.PointedList          as P
 
 import Hode.PTree.Initial
 import Hode.PTree.Modify
@@ -23,7 +24,31 @@ test_module_pTree_modify = TestList [
   , TestLabel "test_filterPList" test_filterPList
   , TestLabel "test_insertLeft_noFocusChange" test_insertLeft_noFocusChange
   , TestLabel "test_sortPList_asList" test_sortPList_asList
+  , TestLabel "test_insertLeaf_next" test_insertLeaf_next
   ]
+
+test_insertLeaf_next :: T.Test
+test_insertLeaf_next = TestCase $ do
+  let l :: Int -> PTree Int
+      l i = PTree i False Nothing -- leaf, no focus
+      f1 :: Porest Int = P.PointedList [] (l 1) []
+                         & P.focus . pTreeHasFocus .~ True
+      f2 :: Porest Int = P.PointedList [l 1] (l 2) []
+                         & P.focus . pTreeHasFocus .~ True
+  assertBool "a flat forest" $ insertLeaf_next 2 f1 == f2
+
+  let g2 :: Porest Int = P.PointedList [] t []
+        where t = PTree 0 False $ Just -- tree, focused on 2
+                  $ P.PointedList [ PTree 1 False Nothing ]
+                                  ( PTree 2 True  Nothing )
+                                  [ PTree 3 False Nothing ]
+      g22 :: Porest Int = P.PointedList [] t []
+        where t = PTree 0 False $ Just -- tree, focused on 22
+                  $ P.PointedList [ PTree 2  False Nothing
+                                  , PTree 1  False Nothing ]
+                                  ( PTree 22 True  Nothing )
+                                  [ PTree 3  False Nothing ]
+  assertBool "a depth-2 forest" $ insertLeaf_next 22 g2 == g22
 
 test_sortPList_asList :: T.Test
 test_sortPList_asList = TestCase $ do
@@ -112,21 +137,21 @@ test_nudgeInPTree = TestCase $ do
           P.fromList [ PTree 2 False Nothing
                      , PTree 1 False Nothing]
   assertBool "top" $
-    nudgeInPTree DirPrev topFocused == topFocused &&
-    nudgeInPTree DirNext topFocused == topFocused
+    nudgeInPTree ToPrev topFocused == topFocused &&
+    nudgeInPTree ToNext topFocused == topFocused
 
   let midFocused = PTree 0 False $ Just $ P.PointedList
         [ PTree 1 False Nothing ]
         ( PTree 2 True  Nothing )
         [ PTree 3 False Nothing ]
   assertBool "prev" $
-    nudgeInPTree DirPrev midFocused ==
+    nudgeInPTree ToPrev midFocused ==
     PTree 0 False ( Just $ P.PointedList []
                     ( PTree 2 True  Nothing ) -- focused
                     [ PTree 1 False Nothing
                     , PTree 3 False Nothing ] )
   assertBool "next" $
-    nudgeInPTree DirNext midFocused ==
+    nudgeInPTree ToNext midFocused ==
     PTree 0 False ( Just $ P.PointedList
                     [ PTree 3 False Nothing
                     , PTree 1 False Nothing ]
@@ -146,19 +171,18 @@ test_nudgeFocus_inPorest = TestCase $ do
   let -- In these names, u=up, d=down, and otherwise n=next is implicit
     pList :: [a] -> P.PointedList a
     pList = maybe (error "impossible unless given [].") id . P.fromList
-    nip   = nextIfPossible
     f     = pTreeLeaf (1 :: Int)
     t     = f { _pTreeHasFocus = True }
-    _f_nt = nip $ pList [f,t]
-    _t_nf =       pList [t,f]
+    _f_nt = nextIfPossible $ pList [f,t]
+    _t_nf =                  pList [t,f]
 
-  assertBool "1" $ nudgeFocus_inPorest DirNext _t_nf
+  assertBool "1" $ nudgeFocus_inPorest ToNext _t_nf
                                           == _f_nt
-  assertBool "2" $ nudgeFocus_inPorest DirNext _f_nt
+  assertBool "2" $ nudgeFocus_inPorest ToNext _f_nt
                                           == _f_nt
-  assertBool "1" $ nudgeFocus_inPorest DirPrev _t_nf
+  assertBool "1" $ nudgeFocus_inPorest ToPrev _t_nf
                                           == _t_nf
-  assertBool "2" $ nudgeFocus_inPorest DirPrev _f_nt
+  assertBool "2" $ nudgeFocus_inPorest ToPrev _f_nt
                                           == _t_nf
 
 test_nudgeFocus_inPTree :: T.Test
@@ -173,21 +197,21 @@ test_nudgeFocus_inPTree = TestCase $ do
     f_dt_df_uf = f { _pMTrees =                    P.fromList [t_df,f] }
     f_df_dt_uf = f { _pMTrees =                    P.fromList [f_dt,f] }
 
-  assertBool "Next"             $ nudgeFocus_inPTree DirNext f_dt_f == f_df_t
-  assertBool "Next maxed out 1" $ nudgeFocus_inPTree DirNext f_df_t == f_df_t
+  assertBool "Next"             $ nudgeFocus_inPTree ToNext f_dt_f == f_df_t
+  assertBool "Next maxed out 1" $ nudgeFocus_inPTree ToNext f_df_t == f_df_t
 
-  assertBool "Prev maxed out 1" $ nudgeFocus_inPTree DirPrev f_dt_f == f_dt_f
-  assertBool "Prev"             $ nudgeFocus_inPTree DirPrev f_df_t == f_dt_f
+  assertBool "Prev maxed out 1" $ nudgeFocus_inPTree ToPrev f_dt_f == f_dt_f
+  assertBool "Prev"             $ nudgeFocus_inPTree ToPrev f_df_t == f_dt_f
 
-  assertBool "Down maxed out 1" $ nudgeFocus_inPTree DirDown f_dt == f_dt
-  assertBool "Down"             $ nudgeFocus_inPTree DirDown t_df == f_dt
-  assertBool "Down from middle" $ nudgeFocus_inPTree DirDown f_dt_df_uf
+  assertBool "Down maxed out 1" $ nudgeFocus_inPTree ToLeaf f_dt == f_dt
+  assertBool "Down"             $ nudgeFocus_inPTree ToLeaf t_df == f_dt
+  assertBool "Down from middle" $ nudgeFocus_inPTree ToLeaf f_dt_df_uf
                                                         == f_df_dt_uf
 
-  assertBool "Up maxed out 1"   $ nudgeFocus_inPTree DirUp t    == t
-  assertBool "Up maxed out 2"   $ nudgeFocus_inPTree DirUp f    == t
-  assertBool "Up maxed out 3"   $ nudgeFocus_inPTree DirUp t_df == t_df
-  assertBool "Up"               $ nudgeFocus_inPTree DirUp f_dt == t_df
+  assertBool "Up maxed out 1"   $ nudgeFocus_inPTree ToRoot t    == t
+  assertBool "Up maxed out 2"   $ nudgeFocus_inPTree ToRoot f    == t
+  assertBool "Up maxed out 3"   $ nudgeFocus_inPTree ToRoot t_df == t_df
+  assertBool "Up"               $ nudgeFocus_inPTree ToRoot f_dt == t_df
   assertBool "Up from bottom of 3 layers"
-                                $ nudgeFocus_inPTree DirUp f_df_dt_uf
+                                $ nudgeFocus_inPTree ToRoot f_df_dt_uf
                                                       == f_dt_df_uf

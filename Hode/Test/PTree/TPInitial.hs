@@ -147,16 +147,16 @@ test_parentOfFocusedSubtree = TestCase $ do
   assertBool "g4" $ (ff ^. getParentOfFocusedSubtree) == Nothing
   assertBool "g4" $ (tf ^. getParentOfFocusedSubtree) == Nothing
 
-test_consUnder_andFocus :: T.Test
-test_consUnder_andFocus = TestCase $ do
+test_insertUnder_andFocus :: T.Test
+test_insertUnder_andFocus = TestCase $ do
   let f    = pTreeLeaf (1 :: Int)
       t    = f { _pTreeHasFocus = True }
       f_t  = f { _pMTrees = P.fromList   [t] }
       f_ft = f { _pMTrees = P.fromList [f,t] }
-  assertBool "1" $ consUnder_andFocus t f   == f_t
-  assertBool "2" $ consUnder_andFocus t t   == f_t
-  assertBool "3" $ consUnder_andFocus f t   == f_t
-  assertBool "4" $ consUnder_andFocus t f_t == f_ft
+  assertBool "1" $ insertUnder_andFocus t f   == f_t
+  assertBool "2" $ insertUnder_andFocus t t   == f_t
+  assertBool "3" $ insertUnder_andFocus f t   == f_t
+  assertBool "4" $ insertUnder_andFocus t f_t == f_ft
 
 test_focusedSubtree :: T.Test
 test_focusedSubtree = TestCase $ do
