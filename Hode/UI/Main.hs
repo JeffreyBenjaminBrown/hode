@@ -112,8 +112,8 @@ appHandleEvent st (B.VtyEvent ev) =
   case M.lookup ev $ universal_keyCmds_map of
   Just c -> c st
   Nothing -> case stMode st of
-    SubgraphMode -> handleKeyboard_atResultsWindow st ev
-    BufferMode   -> handleKeyboard_atBufferWindow  st ev
+    SubgraphMode -> handleKeyboard_atSubgraphBuffer st ev
+    BufferMode   -> handleKeyboard_atBufferBuffer  st ev
     LangCmdMode  -> handleKeyboard_atCommandWindow st ev
     _            -> B.continue st
 appHandleEvent st _ = B.continue st

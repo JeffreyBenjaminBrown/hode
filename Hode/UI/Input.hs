@@ -5,9 +5,9 @@
 module Hode.UI.Input (
     handleKeyboard_atCommandWindow -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atResultsWindow -- ^ St -> V.Event ->
+  , handleKeyboard_atSubgraphBuffer -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow  -- ^ St -> V.Event ->
+  , handleKeyboard_atBufferBuffer  -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
 
   , universal_keyCmds_map      -- ^ M.Map V.Event
@@ -48,16 +48,16 @@ handleKeyboard_atCommandWindow st ev =
         (hideReassurance st) commands B.handleEditorEvent ev
       _ -> return st
 
-handleKeyboard_atBufferWindow ::
+handleKeyboard_atBufferBuffer ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atBufferWindow st ev =
+handleKeyboard_atBufferBuffer st ev =
   case M.lookup ev bufferBuffer_keyCmds_map of
   Just c -> c st
   _ -> B.continue st
 
-handleKeyboard_atResultsWindow ::
+handleKeyboard_atSubgraphBuffer ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atResultsWindow st ev =
+handleKeyboard_atSubgraphBuffer st ev =
   case M.lookup ev subgraphBuffer_keyCmds_map of
   Just c -> c st
   _ -> B.continue st

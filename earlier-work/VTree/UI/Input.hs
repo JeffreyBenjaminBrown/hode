@@ -6,7 +6,7 @@
 module UI.VTree.Input (
   handleKeyboard_atResults             -- ^ St -> B.Event ->
                                        -- B.EventM BrickName (B.Next St)
-  , handleKeyboard_atBufferWindow        -- ^ St -> B.Event ->
+  , handleKeyboard_atBufferBuffer        -- ^ St -> B.Event ->
                                          -- B.EventM BrickName (B.Next St)
 
   , parseAndRunCommand        -- ^ St -> B.EventM BrickName (B.Next St)
@@ -51,8 +51,8 @@ import Util.VTree
 
 
 
-handleKeyboard_atBufferWindow :: St -> B.Event -> B.EventM BrickName (B.Next St)
-handleKeyboard_atBufferWindow st ev = case ev of
+handleKeyboard_atBufferBuffer :: St -> B.Event -> B.EventM BrickName (B.Next St)
+handleKeyboard_atBufferBuffer st ev = case ev of
   B.EvKey (B.KChar 'e') [B.MMeta] -> B.continue
     $ unEitherSt st . moveFocus_inBufferTree ToPrev
     $ st & hideReassurance
