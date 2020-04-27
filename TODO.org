@@ -14,7 +14,6 @@ This will load all non-broken modules when some are broken.
 ** TODO modes and keymap
 *** TODO the window idiom is a mess
 **** TODO migration path
-***** rename ResultsWindow -> SubgraphWindow
 ***** use modes
 When switching to error window, make mode NoMode.
 ***** keep submode states

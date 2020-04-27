@@ -76,10 +76,6 @@ universal_keyCmds =
            , _keyCmd_func = B.halt
            , _keyCmd_key  = (V.KEsc, [V.MMeta])
            , _keyCmd_guide = "Exit Hode." }
-  , KeyCmd { _keyCmd_name = "Test key"
-           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
-           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
-           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
 
   , KeyCmd { _keyCmd_name = "command history"
            , _keyCmd_func = B.continue
@@ -109,6 +105,11 @@ universal_keyCmds =
                        Nothing -> Just () )
            , _keyCmd_key  = (V.KChar 'L', [V.MMeta])
            , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
+
+  , KeyCmd { _keyCmd_name = "Test key"
+           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
+           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
+           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
   ]
 
 bufferBuffer_intro :: String
