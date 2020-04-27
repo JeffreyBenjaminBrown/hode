@@ -12,9 +12,41 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** TODO the window idiom is a mess
+**** migration path
+***** make _showingOptionalWindows a set, not a map
+***** make the error window an optional one.
+***** compute mode from windows
+***** keep submode states
+A separate submode variable for each mode that has submodes.
+***** implement submodes
+**** should be : independent states
+***** mode, submode
+language, subgraphbuffer, bufferbuffer, history, help
+***** main window
+error, subgraphbuffer, bufferBuffer, history
+***** showing reassurance window
+**** DONE currently
+***** confused logic
+ Either of the optional windows can be shown in any context.
+   _showingOptionalWindows :: Map {LangCmds, Reassurance} Bool
+ One of the main windows must be showing
+   _showingInMainWindow = LangCmdHistory, SubgraphBuffer or BufferBuffer
+ The error window overrides the main window.
+   _showingErrorWindow :: Bool
+ The mode is a function of all of those.
+   If the command window is showing, it's command mode.
+   Otherwise it's a function of the main window --
+     even if that's hidden by the error window.
+***** overlapping states
+  , _showingErrorWindow     :: Bool -- ^ overrides main window
+  , _showingInMainWindow    :: MainWindowName
+  , _showingOptionalWindows :: Map OptionalWindowName Bool -- lang, reassure
 *** TODO language mode
-**** add a "Showing command window" state
-**** permit toggling that state
+**** write an "inputMode" function
+if (st ^. showingOptionalWindows) M.! LangCmds
+then it's LangCmd.
+Otherwise it's a function of `st ^. showingInMainWindow`
 **** show it                only when in that state
 **** direct key input to it only when in that state
 **** adjust command during that state

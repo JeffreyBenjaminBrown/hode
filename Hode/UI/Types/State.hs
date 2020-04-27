@@ -41,6 +41,7 @@ module Hode.UI.Types.State (
 import           Control.Lens
 import           Data.Foldable (toList)
 import           Data.Map (Map)
+import           Data.Set (Set)
 import qualified Data.List.PointedList as P
 
 import qualified Brick.Widgets.Edit as B
@@ -70,20 +71,24 @@ getBuffer_viewForkType =
 data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ Technically used, but unused in spirit.
+
   , _searchBuffers          :: Maybe (Porest Buffer)
   , _columnHExprs           :: [HExpr]
   , _commandHistory         :: [LangCmd]
   , _blockingCycles         :: Maybe [Cycle]
+  , _appRslt                :: Rslt
 
+  , _viewOptions            :: ViewOptions
   , _uiError                :: String
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
 
-  , _appRslt                :: Rslt
-  , _viewOptions            :: ViewOptions
   , _showingErrorWindow     :: Bool -- ^ overrides main window
   , _showingInMainWindow    :: MainWindowName
-  , _showingOptionalWindows :: Map OptionalWindowName Bool
+    -- ^ There's always exactly one of these showing,
+    -- unless it's blocked by the error window.
+  , _showingOptionalWindows :: Set OptionalWindowName
+    -- ^ There are sometimes none of these showing.
   }
 makeLenses ''St
 

@@ -5,7 +5,8 @@
 module Hode.UI.Main where
 
 import qualified Data.List.PointedList as P
-import qualified Data.Map             as M
+import qualified Data.Set              as S
+import qualified Data.Map              as M
 import           Lens.Micro
 
 import qualified Brick.Main           as B
@@ -81,7 +82,7 @@ appDraw st0 = [w] where
     mShow Reassurance reassuranceWindow <=>
     mShow LangCmds commandWindow
     where mShow wName window =
-            if (st ^. showingOptionalWindows) M.! wName
+            if S.member wName $ st ^. showingOptionalWindows
             then window else emptyWidget
 
   commandHistoryWindow :: B.Widget BrickName =

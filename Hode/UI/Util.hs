@@ -60,8 +60,7 @@ emptySt r = St {
   , _viewOptions    = defaulViewOptions
   , _showingErrorWindow  = False
   , _showingInMainWindow = SubgraphBuffer
-  , _showingOptionalWindows = M.fromList [ (LangCmds   , True)
-                                         , (Reassurance, True) ]
+  , _showingOptionalWindows = S.fromList [ LangCmds, Reassurance ]
   }
 
 emptySubgraphBuffer :: Buffer

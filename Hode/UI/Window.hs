@@ -7,7 +7,7 @@ module Hode.UI.Window (
   , replaceLangCmd                          -- ^ St -> St
   ) where
 
-import qualified Data.Map                 as M
+import qualified Data.Set                 as S
 import           Lens.Micro
 import qualified Data.Text.Zipper.Generic as TxZ
 
@@ -20,15 +20,15 @@ import Hode.UI.Types.Views
 
 hideReassurance :: St -> St
 hideReassurance = showingOptionalWindows
-                  %~ M.insert Reassurance False
+                  %~ S.delete Reassurance
 
 showError, showReassurance :: String -> St -> St
 showError msg =
-  (showingOptionalWindows %~ M.insert Reassurance False)
+  (showingOptionalWindows %~ S.delete Reassurance)
   . (showingErrorWindow .~ True)
   . (uiError .~ msg)
 showReassurance msg =
-  (showingOptionalWindows %~ M.insert Reassurance True)
+  (showingOptionalWindows %~ S.insert Reassurance)
   . (showingErrorWindow .~ False)
   . (reassurance .~ msg)
 

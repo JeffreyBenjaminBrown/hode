@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 -- | PITFALL: Vty's `Meta` modifier, at least on my system,
 -- cannot be used in conjunction with certain characters, such as ';'.
 
@@ -105,7 +107,9 @@ universal_keyCmds =
 
   , KeyCmd { _keyCmd_name = "language mode"
            , _keyCmd_func = B.continue
-             . (showingOptionalWindows . at LangCmds %~ (<$>) not)
+             . (\st -> st & showingOptionalWindows . at LangCmds %~
+                 \case Just () -> Nothing
+                       Nothing -> Just () )
            , _keyCmd_key  = (V.KChar 'L', [V.MMeta])
            , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
   ]
