@@ -113,8 +113,8 @@ appHandleEvent st (B.VtyEvent ev) =
   Just c -> c st
   Nothing -> case st ^. mainWindow of
     SubgraphBuffer -> handleKeyboard_atResultsWindow st ev
-    BufferBuffer -> handleKeyboard_atBufferWindow  st ev
-    _            -> handleUncaughtInput            st ev
+    BufferBuffer   -> handleKeyboard_atBufferWindow  st ev
+    _              -> handleUncaughtInput            st ev
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap
