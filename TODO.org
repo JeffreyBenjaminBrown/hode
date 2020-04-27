@@ -12,124 +12,52 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
-*** TODO the window idiom is a mess
-**** TODO migration path
-***** use modes
-When switching to error window, make mode NoMode.
-***** keep submode states
-A separate submode variable for each mode that has submodes.
-***** implement submodes
-***** implement help mode
+*** TODO implement help mode
 it should be another MainWindow constructor
-**** should be : independent states
-***** mode, submode
-language, subgraphbuffer, bufferbuffer, history, help
-***** main window
-error, subgraphbuffer, bufferBuffer, history
-***** showing reassurance window
-**** DONE currently
-***** confused logic
- Either of the optional windows can be shown in any context.
-   _optionalWindows :: Map {LangCmds, Reassurance} Bool
- One of the main windows must be showing
-   _mainWindow = LangCmdHistory, SubgraphBuffer or BufferBuffer
- The error window overrides the main window.
-   _showingErrorWindow :: Bool
- The mode is a function of all of those.
-   If the command window is showing, it's command mode.
-   Otherwise it's a function of the main window --
-     even if that's hidden by the error window.
-***** overlapping states
-  , _showingErrorWindow     :: Bool -- ^ overrides main window
-  , _mainWindow    :: MainWindowName
-  , _optionalWindows :: Map OptionalWindowName Bool -- lang, reassure
-*** TODO language mode
-**** write an "inputMode" function
-if (st ^. optionalWindows) M.! LangCmds
-then it's LangCmd.
-Otherwise it's a function of `st ^. mainWindow`
-**** show it                only when in that state
-**** direct key input to it only when in that state
-**** adjust command during that state
-M-x : parseAndRunCommand st )
-M-r : replaceCommand )
-M-c : toggle command window :: show & send keystrokes to it
-**** adjust commands in other states
-now they don't need Alt
-*** TODO rearrange commands
-so that there are submodes
-details somewhere else in this doc
-*** TODO commands
-**** M-w : what window to show (and maybe what mode to be in)
-If changing windows causes a mode change, announce new mode and submode.
-M-w h - mainWindow .~ CommandHistory
-          explain that this is undocumented
-M-w b - mainWindow .~ BufferBuffer
-          => buffer buffer mode
-M-w g - mainWindow .~ SubgraphBuffer
-          => subgraph buffer mode
+**** TODO make the submode menu optional
+If there's only one choice in that layer, hide it.
+**** TODO show command prefix, not just name of command
+
+**** TODO permit scrolling in the main help window
+*** TODO commands, submodes
+**** implement submodes
+Will need a separate submode variable for each mode that has submodes.
+***** subgraph submods
+****** common to all submodes: move, select, copy
+ e - nudgeFocus_inPTree DirPrev )
+ d - nudgeFocus_inPTree DirNext )
+ f - nudgeFocus_inPTree DirDown )
+ s - nudgeFocus_inPTree DirUp )
+ x - boolProps . selected %~ not ) ),
+ X - <new> unselect all in tree
+ c - toClipboard $ unlines $ focusedBufferStrings st )
+****** M-m v : view
+ a - viewOptions . viewOpt_ShowAddresses %~ not)
+ A - viewOptions . viewOpt_ShowAsAddresses %~ not) ),
+ s - goe cons_focusedViewExpr_asChildOfBuffer ) -- for "subtree"
+   -- should only work from the subgraph window
+****** M-m b : build
+ S - goe insertSearchResults_atFocus ),
+ h - goe insertHosts_atFocus ),
+ m - goe insertMembers_atFocus ),
+ k - close subtree
+ F - stSetFocused_ViewExprNode_Tree . pTreeLabel
+      . otherProps . folded
+ E - nudgeInPTree DirPrev ) -- move the row, not the focus
+ D - nudgeInPTree DirNext ) -- move the row, not the focus
+****** M-m s : sort
+ A - addSelections_toSortedRegion ),
+ R - removeSelections_fromSortedRegion ),
+ E - raiseSelection_inSortedRegion ),
+ D - lowerSelection_inSortedRegion ),
+ U - updateBlockingCycles >=> updateCycleBuffer )
+**** If changing windows causes a mode change, announce new mode and submode.
+**** new window commands
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
 M-w r - <new> Toggle reassurance window.
 M-?   - Show interactive help.
           => do not announce it, but now in "help mode"
 ???   - Toggle the "press Alt-? for help" window.
-M-w q - B.halt st
-M-w c - <new> command window : toggle directing keyboard input to
-          (and if it's not shown, show it).
-M-w C - <new> command window : toggle showing it
-**** M-m : what submode to be in
-Not every mode has submodes.
-**** buffer window
-e - nudgeFocus_inBufferTree DirPrev ),
-d - nudgeFocus_inBufferTree DirNext ),
-f - nudgeFocus_inBufferTree DirDown ),
-a - nudgeFocus_inBufferTree DirUp ),
-
-E - nudgeFocused_buffer DirPrev ),
-D - nudgeFocused_buffer DirNext ),
-
-c - consBuffer_asChild emptySubgraphBuffer ),
-t - consBuffer_topNext emptySubgraphBuffer ),
-d - deleteFocused_buffer )
-**** subgraph window
-***** common to all submodes: move, select, copy
-e - nudgeFocus_inPTree DirPrev )
-d - nudgeFocus_inPTree DirNext )
-f - nudgeFocus_inPTree DirDown )
-s - nudgeFocus_inPTree DirUp )
-x - boolProps . selected %~ not ) ),
-X - <new> unselect all in tree
-c - toClipboard $ unlines $ focusedBufferStrings st )
-***** M-m v : view
-a - viewOptions . viewOpt_ShowAddresses %~ not)
-A - viewOptions . viewOpt_ShowAsAddresses %~ not) ),
-s - goe cons_focusedViewExpr_asChildOfBuffer ) -- for "subtree"
-  -- should only work from the subgraph window
-***** M-m b : build
-S - goe insertSearchResults_atFocus ),
-h - goe insertHosts_atFocus ),
-m - goe insertMembers_atFocus ),
-k - close subtree
-F - stSetFocused_ViewExprNode_Tree . pTreeLabel
-     . otherProps . folded
-E - nudgeInPTree DirPrev ) -- move the row, not the focus
-D - nudgeInPTree DirNext ) -- move the row, not the focus
-***** M-m s : sort
-A - addSelections_toSortedRegion ),
-R - removeSelections_fromSortedRegion ),
-E - raiseSelection_inSortedRegion ),
-D - lowerSelection_inSortedRegion ),
-U - updateBlockingCycles >=> updateCycleBuffer )
-*** TODO make the submode menu optional
-If there's only one choice in that layer, hide it.
-*** TODO show command prefix, not just name of command
-*** TODO permit scrolling in the main help window
-*** use this to test whether key commands are recognized
-(It's already part of Maps.hs.)
-
-  -- For testing whether a key combination will be recognized.
-  ( V.EvKey (V.KChar '?') [V.MMeta],
-    B.continue $ st & showReassurance "Vty saw that!" ),
 *** TODO if I want a scrollbar
 Maybe Brick offers one as part of a viewport.
 If not, could instead indicate, e.g., "Item 3 of 5" near menus.
