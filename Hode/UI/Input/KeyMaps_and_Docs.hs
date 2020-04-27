@@ -8,14 +8,17 @@ module Hode.UI.Input.KeyMaps_and_Docs (
   , submodes                                         -- ^ Choice2Plist
   , universal_c1, bufferBuffer_c1, subgraphBuffer_c1 -- ^ Choice3Plist
 
-  , universal_intro       -- ^ String
-  , universal_keyCmds     -- ^ [KeyCmd]
+  , universal_intro        -- ^ String
+  , universal_keyCmds      -- ^ [KeyCmd]
 
-  , bufferBuffer_intro    -- ^ String
-  , bufferBuffer_keyCmds  -- ^ [KeyCmd]
+  , bufferBuffer_intro     -- ^ String
+  , bufferBuffer_keyCmds   -- ^ [KeyCmd]
 
   , subgraphBuffer_intro   -- ^ String
   , subgraphBuffer_keyCmds -- ^ [KeyCmd]
+
+  , commandWindow_intro    -- ^ String
+  , commandWindow_keyCmds  -- ^ [KeyCmd]
   ) where
 
 import           Control.Lens hiding (folded)
@@ -78,13 +81,6 @@ universal_keyCmds =
            , _keyCmd_key  = (V.KChar '?', [V.MMeta])
            , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
 
-  , KeyCmd { _keyCmd_name = "Execute."
-           , _keyCmd_func = parseAndRunLangCmd
-           , _keyCmd_key  = (V.KChar 'x', [V.MMeta])
-           , _keyCmd_guide = paragraphs
-             [ "There are two ways to control Hode: Through keyboard shortcuts, and through commands typed into the command window. Loading, saving, adding, deleting, searching and sorting are done through the command window; everything else (mostly changing the view) is done through keyboard shortcuts. After typing a command into the command window, use this key command to run it."
-             , "The docs/ folder that comes with this app describes the language in detail --in particular, `docs/hash/the-hash-language.md`, and the `Language commands` section of `docs/ui.md`." ] }
-
   , KeyCmd { _keyCmd_name = "command history"
            , _keyCmd_func = B.continue
                             . (mainWindow .~ LangCmdHistory)
@@ -126,6 +122,21 @@ bufferBuffer_intro = paragraphs
       , "The focused `SubgraphBuffer` is the one you will see when you return to the `SubgraphBuffer` view." ]
   , "----------------"
   , "*When the tree is flat, it looks like a list." ]
+
+commandWindow_intro :: String
+commandWindow_intro = paragraphs
+  [ "There are two ways to control Hode: Through keyboard shortcuts, and through commands typed into the command window. Loading, saving, adding, deleting, searching and sorting are done through the command window; everything else (mostly changing the view) is done through keyboard shortcuts. After typing a command into the command window, use this key command to run it."
+  , "The docs/ folder that comes with this app describes the command language in detail --in particular, `docs/hash/the-hash-language.md`, and the `Language commands` section of `docs/ui.md`."
+  ]
+
+commandWindow_keyCmds :: [KeyCmd]
+commandWindow_keyCmds =
+  [ KeyCmd { _keyCmd_name = "Execute command."
+           , _keyCmd_func = parseAndRunLangCmd
+           , _keyCmd_key  = (V.KChar 'x', [V.MMeta])
+           , _keyCmd_guide =
+             "Execute the command currently shown in the Command window." }
+  ]
 
 bufferBuffer_keyCmds :: [KeyCmd]
 bufferBuffer_keyCmds =

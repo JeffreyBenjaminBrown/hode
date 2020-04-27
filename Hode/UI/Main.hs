@@ -111,10 +111,11 @@ appHandleEvent :: St -> B.BrickEvent BrickName e
 appHandleEvent st (B.VtyEvent ev) =
   case M.lookup ev $ universal_keyCmds_map of
   Just c -> c st
-  Nothing -> case st ^. mainWindow of
-    SubgraphBuffer -> handleKeyboard_atResultsWindow st ev
-    BufferBuffer   -> handleKeyboard_atBufferWindow  st ev
-    _              -> handleUncaughtInput            st ev
+  Nothing -> case stMode st of
+    SubgraphMode -> handleKeyboard_atResultsWindow st ev
+    BufferMode   -> handleKeyboard_atBufferWindow  st ev
+    LangCmdMode  -> handleKeyboard_atCommandWindow st ev
+    _            -> B.continue st
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap

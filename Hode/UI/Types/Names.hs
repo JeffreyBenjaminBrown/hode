@@ -26,8 +26,8 @@ data MainWindowName = LangCmdHistory
   deriving (Ord, Show, Eq)
 
 data Mode = BufferMode
-          | LangCmdMode
           | SubgraphMode
+          | LangCmdMode
           | WindowMode
           | NoMode -- ^ For when there's nothing for the user to do but
                    -- switch to another context (which is always possible).

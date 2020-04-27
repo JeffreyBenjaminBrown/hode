@@ -3,7 +3,7 @@
 , TupleSections #-}
 
 module Hode.UI.Input (
-    handleUncaughtInput            -- ^ St -> V.Event ->
+    handleKeyboard_atCommandWindow -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
   , handleKeyboard_atResultsWindow -- ^ St -> V.Event ->
                                    -- B.EventM BrickName (B.Next St)
@@ -15,6 +15,8 @@ module Hode.UI.Input (
   , bufferBuffer_keyCmds_map   -- ^ M.Map V.Event
                                -- (St -> B.EventM BrickName (B.Next St))
   , subgraphBuffer_keyCmds_map -- ^ M.Map V.Event
+                               -- (St -> B.EventM BrickName (B.Next St))
+  , commandWindow_keyCmds_map  -- ^ M.Map V.Event
                                -- (St -> B.EventM BrickName (B.Next St))
   ) where
 
@@ -34,29 +36,31 @@ import Hode.UI.Types.State
 import Hode.UI.Window
 
 
-handleUncaughtInput ::
+handleKeyboard_atCommandWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
-handleUncaughtInput st ev =
-  B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
-    Just (BrickOptionalName LangCmds) ->
-      -- pipe user input into the LangCmds window
-      B.handleEventLensed
-      (hideReassurance st) commands B.handleEditorEvent ev
-    _ -> return st
+handleKeyboard_atCommandWindow st ev =
+  case M.lookup ev commandWindow_keyCmds_map of
+    Just c -> c st
+    _ -> B.continue =<< case B.focusGetCurrent $ st ^. focusRing of
+      Just (BrickOptionalName LangCmds) ->
+        -- pipe user input into the LangCmds window
+        B.handleEventLensed
+        (hideReassurance st) commands B.handleEditorEvent ev
+      _ -> return st
 
 handleKeyboard_atBufferWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atBufferWindow st ev =
   case M.lookup ev bufferBuffer_keyCmds_map of
   Just c -> c st
-  _ -> handleUncaughtInput st ev
+  _ -> B.continue st
 
 handleKeyboard_atResultsWindow ::
   St -> V.Event -> B.EventM BrickName (B.Next St)
 handleKeyboard_atResultsWindow st ev =
   case M.lookup ev subgraphBuffer_keyCmds_map of
   Just c -> c st
-  _ -> handleUncaughtInput st ev
+  _ -> B.continue st
 
 -- TODO ? The next three definitions seem either too short,
 -- or too redundant, or both.
@@ -75,3 +79,8 @@ subgraphBuffer_keyCmds_map ::
   M.Map V.Event (St -> B.EventM BrickName (B.Next St))
 subgraphBuffer_keyCmds_map =
   M.fromList $ map keyCmd_usePair subgraphBuffer_keyCmds
+
+commandWindow_keyCmds_map ::
+  M.Map V.Event (St -> B.EventM BrickName (B.Next St))
+commandWindow_keyCmds_map =
+  M.fromList $ map keyCmd_usePair commandWindow_keyCmds
