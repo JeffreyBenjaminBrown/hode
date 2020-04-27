@@ -79,7 +79,7 @@ M-w c - <new> command window : toggle directing keyboard input to
 M-w C - <new> command window : toggle showing it
 **** M-m : what submode to be in
 Not every mode has submodes.
-**** buffer  window
+**** buffer window
 e - nudgeFocus_inBufferTree DirPrev ),
 d - nudgeFocus_inBufferTree DirNext ),
 f - nudgeFocus_inBufferTree DirDown ),

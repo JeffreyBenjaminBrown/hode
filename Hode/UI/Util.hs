@@ -65,7 +65,7 @@ emptySt r = St {
 emptySubgraphBuffer :: Buffer
 emptySubgraphBuffer =
   bufferFrom_viewQuery $ QueryView $ "Empty search buffer. "
-  ++ "(If you run a search, the results will be shown here.)"
+  ++ "(If this is focused when you run a search, it will be populated with the search results.)"
 
 bufferFrom_viewQuery :: ViewQuery -> Buffer
 bufferFrom_viewQuery vq = Buffer
