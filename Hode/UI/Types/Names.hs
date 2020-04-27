@@ -25,6 +25,15 @@ data MainWindowName = LangCmdHistory
                     | BufferBuffer
   deriving (Ord, Show, Eq)
 
+data Mode = BufferMode
+          | LangCmdMode
+          | SubgraphMode
+          | WindowMode
+          | NoMode -- ^ For when there's nothing for the user to do but
+                   -- switch to another context (which is always possible).
+  -- \ TODO : HelpMode
+  deriving (Ord, Show, Eq)
+
 data LangCmd =
     LangCmdInsert        Expr
   | LangCmdReplace  Addr Expr

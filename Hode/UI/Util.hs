@@ -47,18 +47,18 @@ unEitherSt _ (Right new) =
 emptySt :: Rslt -> St
 emptySt r = St {
     _focusRing = B.focusRing [BrickOptionalName LangCmds]
-  , _searchBuffers = Just $ porestLeaf emptySubgraphBuffer
-                          & P.focus . pTreeHasFocus .~ True
-  , _columnHExprs = [ HMemberHosts $ HVar VarRowNode ]
-  , _blockingCycles = Nothing
-  , _uiError     = ""
-  , _reassurance = "This window provides reassurance. It's all good."
-  , _commands    = B.editor (BrickOptionalName LangCmds)
-                   Nothing ""
-  , _commandHistory = []
-  , _appRslt        = r
-  , _viewOptions    = defaulViewOptions
-  , _mainWindow = SubgraphBuffer
+  , _searchBuffers   = Just ( porestLeaf emptySubgraphBuffer
+                              & P.focus . pTreeHasFocus .~ True )
+  , _columnHExprs    = [ HMemberHosts $ HVar VarRowNode ]
+  , _blockingCycles  = Nothing
+  , _uiError         = ""
+  , _reassurance     = "This window provides reassurance. It's all good."
+  , _commands        = B.editor (BrickOptionalName LangCmds) Nothing ""
+  , _commandHistory  = []
+  , _appRslt         = r
+  , _viewOptions     = defaulViewOptions
+  , _inWindowMode    = False
+  , _mainWindow      = SubgraphBuffer
   , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
   }
 

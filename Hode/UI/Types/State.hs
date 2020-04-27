@@ -12,29 +12,31 @@ module Hode.UI.Types.State (
   , getBuffer_viewForkType -- ^ Traversal' Buffer ViewForkType
 
   , St(..)
-  , focusRing              -- ^ fetch a B.FocusRing BrickName
-  , searchBuffers          -- ^ fetch a Maybe (Porest Buffer)
-  , columnHExprs           -- ^ fetch a [HExpr]
-  , blockingCycles         -- ^ fetch a Maybe [Cycle]
-  , uiError                -- ^ fetch a String
-  , reassurance            -- ^ fetch a String
-  , commands               -- ^ fetch a B.Editor String BrickName
-  , commandHistory         -- ^ fetch a [LangCmd]
-  , appRslt                -- ^ fetch a Rslt
-  , viewOptions            -- ^ fetch a ViewOptions
-  , mainWindow    -- ^ fetch a MainWindowName
+  , focusRing       -- ^ fetch a B.FocusRing BrickName
+  , searchBuffers   -- ^ fetch a Maybe (Porest Buffer)
+  , columnHExprs    -- ^ fetch a [HExpr]
+  , blockingCycles  -- ^ fetch a Maybe [Cycle]
+  , uiError         -- ^ fetch a String
+  , reassurance     -- ^ fetch a String
+  , commands        -- ^ fetch a B.Editor String BrickName
+  , commandHistory  -- ^ fetch a [LangCmd]
+  , appRslt         -- ^ fetch a Rslt
+  , viewOptions     -- ^ fetch a ViewOptions
+  , inWindowMode    -- ^ fetch a Bool
+  , mainWindow      -- ^ fetch a MainWindowName
   , optionalWindows -- ^ fetch a Map OptionalWindowName Bool
 
   -- * misc
+  , stMode                         -- ^ St -> Mode
   , stGet_focusedBuffer            -- ^ Fold St Buffer
   , stSet_focusedBuffer            -- ^ Setter' St Buffer
   , stGetTopLevelBuffer_byQuery    -- ^ Getter  St (Maybe Buffer)
   , stSetTopLevelBuffer_byQuery    -- ^ Setter' St Buffer
   , stGetFocused_ViewExprNode_Tree -- ^ Fold St (PTree ExprRow)
   , stSetFocused_ViewExprNode_Tree -- ^ Setter' St (PTree ExprRow)
-  , resultWindow_focusAddr  -- ^ St -> Either String Addr
-  , stFocusPeers            -- ^ Fold St (Porest ExprRow)
-  , stFocusGroupOrder -- ^ Fold St (BinOrientation, TpltAddr)
+  , resultWindow_focusAddr         -- ^ St -> Either String Addr
+  , stFocusPeers                   -- ^ Fold St (Porest ExprRow)
+  , stFocusGroupOrder              -- ^ Fold St (BinOrientation, TpltAddr)
   ) where
 
 import           Control.Lens
@@ -70,18 +72,19 @@ data St = St {
     _focusRing              :: B.FocusRing BrickName
     -- ^ Technically used, but unused in spirit.
 
-  , _searchBuffers          :: Maybe (Porest Buffer)
-  , _columnHExprs           :: [HExpr]
-  , _commandHistory         :: [LangCmd]
-  , _blockingCycles         :: Maybe [Cycle]
-  , _appRslt                :: Rslt
+  , _searchBuffers   :: Maybe (Porest Buffer)
+  , _columnHExprs    :: [HExpr]
+  , _commandHistory  :: [LangCmd]
+  , _blockingCycles  :: Maybe [Cycle]
+  , _appRslt         :: Rslt
 
-  , _viewOptions            :: ViewOptions
-  , _uiError                :: String
-  , _reassurance            :: String
-  , _commands               :: B.Editor String BrickName
+  , _viewOptions     :: ViewOptions
+  , _uiError         :: String
+  , _reassurance     :: String
+  , _commands        :: B.Editor String BrickName
 
-  , _mainWindow    :: MainWindowName
+  , _inWindowMode    :: Bool
+  , _mainWindow      :: MainWindowName
     -- ^ There's always exactly one of these showing,
     -- unless it's blocked by the optional `Error` window.
   , _optionalWindows :: Set OptionalWindowName
@@ -90,6 +93,17 @@ data St = St {
     -- windows as mutually exclusive. Maybe that should be reified here.
   }
 makeLenses ''St
+
+stMode :: St -> Mode
+stMode st =
+  case st ^. optionalWindows . at LangCmds of
+    Just () -> LangCmdMode
+    Nothing -> if st ^. inWindowMode
+      then WindowMode
+      else case st ^. mainWindow of
+             BufferBuffer -> BufferMode
+             SubgraphBuffer -> SubgraphMode
+             _ -> NoMode
 
 stGet_focusedBuffer :: Fold St Buffer
 stGet_focusedBuffer =

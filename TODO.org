@@ -18,6 +18,8 @@ This will load all non-broken modules when some are broken.
 ***** keep submode states
 A separate submode variable for each mode that has submodes.
 ***** implement submodes
+***** implement help mode
+it should be another MainWindow constructor
 **** should be : independent states
 ***** mode, submode
 language, subgraphbuffer, bufferbuffer, history, help
@@ -56,17 +58,7 @@ now they don't need Alt
 *** TODO rearrange commands
 so that there are submodes
 details somewhere else in this doc
-*** TODO make the submode menu optional
-If there's only one choice in that layer, hide it.
-*** TODO show command prefix, not just name of command
-*** TODO permit scrolling in the main help window
-*** use this to test whether key commands are recognized
-(It's already part of Maps.hs.)
-
-  -- For testing whether a key combination will be recognized.
-  ( V.EvKey (V.KChar '?') [V.MMeta],
-    B.continue $ st & showReassurance "Vty saw that!" ),
-*** commands
+*** TODO commands
 **** M-w : what window to show (and maybe what mode to be in)
 If changing windows causes a mode change, announce new mode and submode.
 M-w h - mainWindow .~ CommandHistory
@@ -127,6 +119,16 @@ R - removeSelections_fromSortedRegion ),
 E - raiseSelection_inSortedRegion ),
 D - lowerSelection_inSortedRegion ),
 U - updateBlockingCycles >=> updateCycleBuffer )
+*** TODO make the submode menu optional
+If there's only one choice in that layer, hide it.
+*** TODO show command prefix, not just name of command
+*** TODO permit scrolling in the main help window
+*** use this to test whether key commands are recognized
+(It's already part of Maps.hs.)
+
+  -- For testing whether a key combination will be recognized.
+  ( V.EvKey (V.KChar '?') [V.MMeta],
+    B.continue $ st & showReassurance "Vty saw that!" ),
 *** TODO if I want a scrollbar
 Maybe Brick offers one as part of a viewport.
 If not, could instead indicate, e.g., "Item 3 of 5" near menus.
