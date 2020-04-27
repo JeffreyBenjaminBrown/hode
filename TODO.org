@@ -27,9 +27,9 @@ error, subgraphbuffer, bufferBuffer, history
 **** DONE currently
 ***** confused logic
  Either of the optional windows can be shown in any context.
-   _showingOptionalWindows :: Map {LangCmds, Reassurance} Bool
+   _optionalWindows :: Map {LangCmds, Reassurance} Bool
  One of the main windows must be showing
-   _showingInMainWindow = LangCmdHistory, SubgraphBuffer or BufferBuffer
+   _mainWindow = LangCmdHistory, SubgraphBuffer or BufferBuffer
  The error window overrides the main window.
    _showingErrorWindow :: Bool
  The mode is a function of all of those.
@@ -38,13 +38,13 @@ error, subgraphbuffer, bufferBuffer, history
      even if that's hidden by the error window.
 ***** overlapping states
   , _showingErrorWindow     :: Bool -- ^ overrides main window
-  , _showingInMainWindow    :: MainWindowName
-  , _showingOptionalWindows :: Map OptionalWindowName Bool -- lang, reassure
+  , _mainWindow    :: MainWindowName
+  , _optionalWindows :: Map OptionalWindowName Bool -- lang, reassure
 *** TODO language mode
 **** write an "inputMode" function
-if (st ^. showingOptionalWindows) M.! LangCmds
+if (st ^. optionalWindows) M.! LangCmds
 then it's LangCmd.
-Otherwise it's a function of `st ^. showingInMainWindow`
+Otherwise it's a function of `st ^. mainWindow`
 **** show it                only when in that state
 **** direct key input to it only when in that state
 **** adjust command during that state
@@ -69,11 +69,11 @@ If there's only one choice in that layer, hide it.
 *** commands
 **** M-w : what window to show (and maybe what mode to be in)
 If changing windows causes a mode change, announce new mode and submode.
-M-w h - showingInMainWindow .~ CommandHistory
+M-w h - mainWindow .~ CommandHistory
           explain that this is undocumented
-M-w b - showingInMainWindow .~ BufferBuffer
+M-w b - mainWindow .~ BufferBuffer
           => buffer buffer mode
-M-w g - showingInMainWindow .~ SubgraphBuffer
+M-w g - mainWindow .~ SubgraphBuffer
           => subgraph buffer mode
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
 M-w r - <new> Toggle reassurance window.

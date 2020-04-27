@@ -22,8 +22,8 @@ module Hode.UI.Types.State (
   , commandHistory         -- ^ fetch a [LangCmd]
   , appRslt                -- ^ fetch a Rslt
   , viewOptions            -- ^ fetch a ViewOptions
-  , showingInMainWindow    -- ^ fetch a MainWindowName
-  , showingOptionalWindows -- ^ fetch a Map OptionalWindowName Bool
+  , mainWindow    -- ^ fetch a MainWindowName
+  , optionalWindows -- ^ fetch a Map OptionalWindowName Bool
 
   -- * misc
   , stGet_focusedBuffer            -- ^ Fold St Buffer
@@ -39,7 +39,6 @@ module Hode.UI.Types.State (
 
 import           Control.Lens
 import           Data.Foldable (toList)
-import           Data.Map (Map)
 import           Data.Set (Set)
 import qualified Data.List.PointedList as P
 
@@ -82,10 +81,10 @@ data St = St {
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
 
-  , _showingInMainWindow    :: MainWindowName
+  , _mainWindow    :: MainWindowName
     -- ^ There's always exactly one of these showing,
     -- unless it's blocked by the optional `Error` window.
-  , _showingOptionalWindows :: Set OptionalWindowName
+  , _optionalWindows :: Set OptionalWindowName
     -- ^ There are sometimes none of these showing.
     -- TODO | PITFALL: The code treats the Error and Reassurance
     -- windows as mutually exclusive. Maybe that should be reified here.

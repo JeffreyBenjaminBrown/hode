@@ -15,8 +15,8 @@ data St = St {
   , _commandHistory         :: [Command]
   , _appRslt                :: Rslt
   , _showingErrorWindow     :: Bool -- ^ overrides main window
-  , _showingInMainWindow    :: MainWindowName
-  , _showingOptionalWindows :: Map OptionalWindowName Bool
+  , _mainWindow    :: MainWindowName
+  , _optionalWindows :: Map OptionalWindowName Bool
   }
 
 -- TODO ? Dangerous: taking an `St` argument seems like it might

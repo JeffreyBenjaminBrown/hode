@@ -67,7 +67,7 @@ runParsedLangCmd                      c0 st0 =
 
   itWorked :: String -> St -> St
   itWorked s = showReassurance s
-               . (showingInMainWindow .~ SubgraphBuffer)
+               . (mainWindow .~ SubgraphBuffer)
 
   g' c st =
     let err = "There is currently at least one cycle in what should be transitive relationships (see the Cycle Buffer). Until all such cycles are eliminated, the following features are disabled:" ++

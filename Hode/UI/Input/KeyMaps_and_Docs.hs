@@ -87,28 +87,28 @@ universal_keyCmds =
 
   , KeyCmd { _keyCmd_name = "command history"
            , _keyCmd_func = B.continue
-                            . (showingInMainWindow .~ LangCmdHistory)
-                            . (showingOptionalWindows %~ S.delete Error)
+                            . (mainWindow .~ LangCmdHistory)
+                            . (optionalWindows %~ S.delete Error)
            , _keyCmd_key  = (V.KChar 'H', [V.MMeta])
            , _keyCmd_guide = "Shows the history of commands the user has entered." }
 
   , KeyCmd { _keyCmd_name = "Show BufferBuffer."
            , _keyCmd_func = B.continue
-             . (showingInMainWindow .~ BufferBuffer)
-             . (showingOptionalWindows %~ S.delete Error)
+             . (mainWindow .~ BufferBuffer)
+             . (optionalWindows %~ S.delete Error)
            , _keyCmd_key  = (V.KChar 'B', [V.MMeta])
            , _keyCmd_guide = "In Hode, most of the time is spent looking at a `SubgraphBuffer`, which provides a view onto some of the data in your graph. Multiple `SubgraphBuffer`s can be open at once. The `BufferBuffer` provides a view of all the `SubgraphBuffer`s currently open." }
 
   , KeyCmd { _keyCmd_name = "show SubgraphBuffer"
            , _keyCmd_func = B.continue
-                            . (showingInMainWindow .~ SubgraphBuffer)
-                            . (showingOptionalWindows %~ S.delete Error)
+                            . (mainWindow .~ SubgraphBuffer)
+                            . (optionalWindows %~ S.delete Error)
            , _keyCmd_key  = (V.KChar 'R', [V.MMeta])
            , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." }
 
   , KeyCmd { _keyCmd_name = "language mode"
            , _keyCmd_func = B.continue
-             . (\st -> st & showingOptionalWindows . at LangCmds %~
+             . (\st -> st & optionalWindows . at LangCmds %~
                  \case Just () -> Nothing
                        Nothing -> Just () )
            , _keyCmd_key  = (V.KChar 'L', [V.MMeta])

@@ -19,17 +19,17 @@ import Hode.UI.Types.Views
 
 
 hideReassurance :: St -> St
-hideReassurance = showingOptionalWindows
+hideReassurance = optionalWindows
                   %~ S.delete Reassurance
 
 showError, showReassurance :: String -> St -> St
 showError msg =
-  ( showingOptionalWindows %~
+  ( optionalWindows %~
     S.delete Reassurance
     . S.insert Error )
   . (uiError .~ msg)
 showReassurance msg =
-  ( showingOptionalWindows %~
+  ( optionalWindows %~
     S.insert Reassurance
     . S.delete Error )
   . (reassurance .~ msg)

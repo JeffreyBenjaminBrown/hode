@@ -61,7 +61,7 @@ updateCycleBuffer _st =
       Right ( _st & stSetTopLevelBuffer_byQuery CycleView .~ cb
               & showReassurance "Cycle detected. Add, move, and replace will be disabled until it is broken. See Cycle Buffer." )
     _ -> -- applies both to Just [] and to Nothing
-        (showingInMainWindow .~ SubgraphBuffer)
+        (mainWindow .~ SubgraphBuffer)
         . (blockingCycles .~ Nothing)
         . showReassurance "No cycles identified."
         <$> delete_cycleBuffer _st

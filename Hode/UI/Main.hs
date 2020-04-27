@@ -55,9 +55,9 @@ appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
   w :: B.Widget BrickName =
     B.center $
-    ( if isJust $ st0 ^. showingOptionalWindows . at Error
-      then errorWindow else mainWindow )
-    <=> optionalWindows
+    ( if isJust $ st0 ^. optionalWindows . at Error
+      then errorWindow else mainWindowUi )
+    <=> optionalWindowUis
 
   st :: St = st0
     & ( searchBuffers . _Just . P.focus
@@ -72,18 +72,18 @@ appDraw st0 = [w] where
     (error "Focused Buffer not found.") id
     $ st0 ^? stGet_focusedBuffer
 
-  mainWindow :: B.Widget BrickName =
-    case st ^. showingInMainWindow of
+  mainWindowUi :: B.Widget BrickName =
+    case st ^. mainWindow of
       LangCmdHistory -> commandHistoryWindow
       BufferBuffer   -> bufferWindow $ st ^. searchBuffers
       SubgraphBuffer -> resultWindow (st ^. viewOptions)
                         (b ^. bufferExprRowTree . pMTrees)
 
-  optionalWindows :: B.Widget BrickName =
+  optionalWindowUis :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>
     mShow LangCmds commandWindow
     where mShow wName window =
-            if S.member wName $ st ^. showingOptionalWindows
+            if S.member wName $ st ^. optionalWindows
             then window else emptyWidget
 
   commandHistoryWindow :: B.Widget BrickName =
@@ -111,7 +111,7 @@ appHandleEvent :: St -> B.BrickEvent BrickName e
 appHandleEvent st (B.VtyEvent ev) =
   case M.lookup ev $ universal_keyCmds_map of
   Just c -> c st
-  Nothing -> case st ^. showingInMainWindow of
+  Nothing -> case st ^. mainWindow of
     SubgraphBuffer -> handleKeyboard_atResultsWindow st ev
     BufferBuffer -> handleKeyboard_atBufferWindow  st ev
     _            -> handleUncaughtInput            st ev
