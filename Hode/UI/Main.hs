@@ -4,10 +4,11 @@
 
 module Hode.UI.Main where
 
+import           Control.Lens
 import qualified Data.List.PointedList as P
 import qualified Data.Set              as S
 import qualified Data.Map              as M
-import           Lens.Micro
+import           Data.Maybe
 
 import qualified Brick.Main           as B
 import qualified Brick.Types          as B
@@ -54,7 +55,7 @@ appDraw :: St -> [B.Widget BrickName]
 appDraw st0 = [w] where
   w :: B.Widget BrickName =
     B.center $
-    ( if st0 ^. showingErrorWindow
+    ( if isJust $ st0 ^. showingOptionalWindows . at Error
       then errorWindow else mainWindow )
     <=> optionalWindows
 

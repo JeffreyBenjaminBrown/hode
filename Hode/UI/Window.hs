@@ -24,12 +24,14 @@ hideReassurance = showingOptionalWindows
 
 showError, showReassurance :: String -> St -> St
 showError msg =
-  (showingOptionalWindows %~ S.delete Reassurance)
-  . (showingErrorWindow .~ True)
+  ( showingOptionalWindows %~
+    S.delete Reassurance
+    . S.insert Error )
   . (uiError .~ msg)
 showReassurance msg =
-  (showingOptionalWindows %~ S.insert Reassurance)
-  . (showingErrorWindow .~ False)
+  ( showingOptionalWindows %~
+    S.insert Reassurance
+    . S.delete Error )
   . (reassurance .~ msg)
 
 emptyLangCmdWindow :: St -> St

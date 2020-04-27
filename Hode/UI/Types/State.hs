@@ -22,7 +22,6 @@ module Hode.UI.Types.State (
   , commandHistory         -- ^ fetch a [LangCmd]
   , appRslt                -- ^ fetch a Rslt
   , viewOptions            -- ^ fetch a ViewOptions
-  , showingErrorWindow     -- ^ fetch a Bool -- overrides main window
   , showingInMainWindow    -- ^ fetch a MainWindowName
   , showingOptionalWindows -- ^ fetch a Map OptionalWindowName Bool
 
@@ -83,12 +82,13 @@ data St = St {
   , _reassurance            :: String
   , _commands               :: B.Editor String BrickName
 
-  , _showingErrorWindow     :: Bool -- ^ overrides main window
   , _showingInMainWindow    :: MainWindowName
     -- ^ There's always exactly one of these showing,
-    -- unless it's blocked by the error window.
+    -- unless it's blocked by the optional `Error` window.
   , _showingOptionalWindows :: Set OptionalWindowName
     -- ^ There are sometimes none of these showing.
+    -- TODO | PITFALL: The code treats the Error and Reassurance
+    -- windows as mutually exclusive. Maybe that should be reified here.
   }
 makeLenses ''St
 

@@ -42,7 +42,7 @@ unEitherSt :: St -> Either String St -> St
 unEitherSt old (Left s) =
   old & showError s
 unEitherSt _ (Right new) =
-  new & showingErrorWindow .~ False
+  new & showingOptionalWindows %~ S.delete Error
 
 emptySt :: Rslt -> St
 emptySt r = St {
@@ -58,7 +58,6 @@ emptySt r = St {
   , _commandHistory = []
   , _appRslt        = r
   , _viewOptions    = defaulViewOptions
-  , _showingErrorWindow  = False
   , _showingInMainWindow = SubgraphBuffer
   , _showingOptionalWindows = S.fromList [ LangCmds, Reassurance ]
   }

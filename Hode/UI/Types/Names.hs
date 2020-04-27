@@ -17,6 +17,7 @@ data BrickName = BrickOptionalName OptionalWindowName
 
 data OptionalWindowName = LangCmds
                         | Reassurance
+                        | Error
   deriving (Ord, Show, Eq)
 
 data MainWindowName = LangCmdHistory

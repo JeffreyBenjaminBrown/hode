@@ -13,9 +13,7 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO modes and keymap
 *** TODO the window idiom is a mess
-**** migration path
-***** make _showingOptionalWindows a set, not a map
-***** make the error window an optional one.
+**** TODO migration path
 ***** compute mode from windows
 ***** keep submode states
 A separate submode variable for each mode that has submodes.
