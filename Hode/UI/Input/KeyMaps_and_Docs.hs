@@ -6,7 +6,7 @@
 module Hode.UI.Input.KeyMaps_and_Docs (
     modes                                            -- ^ Choice1Plist
   , submodes                                         -- ^ Choice2Plist
-  , universal_c1, bufferBuffer_c1, subgraphBuffer_c1 -- ^ Choice3Plist
+  , universal_c3, bufferBuffer_c3, subgraphBuffer_c3 -- ^ Choice3Plist
 
   , universal_intro        -- ^ String
   , universal_keyCmds      -- ^ [KeyCmd]
@@ -72,12 +72,12 @@ modes = maybe (error "impossible") id $ P.fromList
 
 submodes :: Choice2Plist
 submodes = maybe (error "impossible") id $ P.fromList
-           [ ( "select mode"     , universal_c1      )
-           , ( "select subgraph" , bufferBuffer_c1   )
-           , ( "subgraph"        , subgraphBuffer_c1 ) ]
+           [ ( "select mode"     , universal_c3      )
+           , ( "select subgraph" , bufferBuffer_c3   )
+           , ( "subgraph"        , subgraphBuffer_c3 ) ]
 
-universal_c1, bufferBuffer_c1, subgraphBuffer_c1 :: Choice3Plist
-[universal_c1, bufferBuffer_c1, subgraphBuffer_c1] =
+universal_c3, bufferBuffer_c3, subgraphBuffer_c3 :: Choice3Plist
+[universal_c3, bufferBuffer_c3, subgraphBuffer_c3] =
   let hp = map keyCmd_helpPair
       i = ("Introduction",)
   in map (maybe (error "impossible") id . P.fromList)
