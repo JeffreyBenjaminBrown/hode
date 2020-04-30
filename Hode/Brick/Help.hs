@@ -44,7 +44,7 @@ pListToList_withFocus normal focus as =
 helpUi :: Help -> B.Widget WindowName
 helpUi st = let
   padding = 1
-  normal, highlight :: B.AttrName -> String -> B.Widget n
+  normalWrap, normal, highlight :: B.AttrName -> String -> B.Widget n
   normalWrap stylePrefix s =
     B.padLeftRight padding .
     B.withAttr stylePrefix .                  B.strWrap $ s
@@ -100,7 +100,7 @@ theMap :: B.AttrMap
 theMap = B.attrMap
          (V.white `B.on` V.black) -- default
          [ ("no focus",                V.white `B.on` V.black)
-         , ("no focus" <> "highlight", V.black `B.on` V.green) 
+         , ("no focus" <> "highlight", V.black `B.on` V.green)
          , ("focus",                   V.white `B.on` V.blue)
          , ("focus" <> "highlight",    V.black `B.on` V.green) ]
 

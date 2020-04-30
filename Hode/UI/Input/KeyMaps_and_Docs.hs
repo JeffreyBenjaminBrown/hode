@@ -48,9 +48,27 @@ import Hode.UI.Input.Util
 import Hode.Brick.Help.Types
 
 
+prefixKeyCmdName_withKey :: KeyCmd -> KeyCmd
+prefixKeyCmdName_withKey kc = let
+  keyPrefix :: (V.Key, [V.Modifier]) -> String
+  keyPrefix (k0,ms) = let
+    e :: Show a => a -> b
+    e a = error $ "keyPrefix does not yet handle " ++ show a
+    in ( case ms of
+           [] -> ""
+           [V.MMeta] -> "M-"
+           m:_ -> e m )
+       ++ case k0 of V.KEsc -> "Esc"
+                     V.KChar c -> [c]
+                     k -> e k
+  in kc { _keyCmd_name = keyPrefix (_keyCmd_key kc)
+                         ++ ": "
+                         ++ _keyCmd_name kc }
+
 modes :: Choice1Plist
 modes = maybe (error "impossible") id $ P.fromList
-        [ ("(so far there's only one mode)", submodes) ]
+        [ ("(Press space to skip -- there's only one choice.)",
+            submodes) ]
 
 submodes :: Choice2Plist
 submodes = maybe (error "impossible") id $ P.fromList
@@ -72,6 +90,7 @@ universal_intro = "These commands are always available."
 
 universal_keyCmds :: [KeyCmd]
 universal_keyCmds =
+  map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "Quit"
            , _keyCmd_func = B.halt
            , _keyCmd_key  = (V.KEsc, [V.MMeta])
@@ -132,6 +151,7 @@ commandWindow_intro = paragraphs
 
 commandWindow_keyCmds :: [KeyCmd]
 commandWindow_keyCmds =
+  map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "Execute command."
            , _keyCmd_func = parseAndRunLangCmd
            , _keyCmd_key  = (V.KChar 'x', [V.MMeta])
@@ -146,6 +166,7 @@ commandWindow_keyCmds =
 
 bufferBuffer_keyCmds :: [KeyCmd]
 bufferBuffer_keyCmds =
+  map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "cursor to prev"
            , _keyCmd_func = go $ nudgeFocus_inBufferTree ToPrev
            , _keyCmd_key  = (V.KChar 'e', [])
@@ -220,6 +241,7 @@ subgraphBuffer_intro = paragraphs
 
 subgraphBuffer_keyCmds :: [KeyCmd]
 subgraphBuffer_keyCmds =
+  map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "insert search results"
            , _keyCmd_func = goe insertSearchResults_atFocus
            , _keyCmd_key  = (V.KChar 'S', [])

@@ -14,11 +14,10 @@ This will load all non-broken modules when some are broken.
 ** TODO modes and keymap
 *** TODO implement help mode
 it should be another MainWindow constructor
-**** TODO make the submode menu optional
-If there's only one choice in that layer, hide it.
 **** TODO show command prefix, not just name of command
-
-**** TODO permit scrolling in the main help window
+**** permit scrolling in the main help window
+**** make the submode menu optional
+If there's only one choice in that layer, hide it.
 *** TODO commands, submodes
 **** implement submodes
 Will need a separate submode variable for each mode that has submodes.
