@@ -72,9 +72,9 @@ modes = maybe (error "impossible") id $ P.fromList
 
 submodes :: Choice2Plist
 submodes = maybe (error "impossible") id $ P.fromList
-           [ ("universal"     , universal_c1)
-           , ("bufferBuffer"  , bufferBuffer_c1)
-           , ("subgraphBuffer", subgraphBuffer_c1) ]
+           [ ( "select mode"     , universal_c1      )
+           , ( "select subgraph" , bufferBuffer_c1   )
+           , ( "subgraph"        , subgraphBuffer_c1 ) ]
 
 universal_c1, bufferBuffer_c1, subgraphBuffer_c1 :: Choice3Plist
 [universal_c1, bufferBuffer_c1, subgraphBuffer_c1] =
@@ -86,7 +86,26 @@ universal_c1, bufferBuffer_c1, subgraphBuffer_c1 :: Choice3Plist
      , i subgraphBuffer_intro : hp subgraphBuffer_keyCmds]
 
 universal_intro :: String
-universal_intro = "These commands are always available."
+universal_intro = paragraphs
+  [ paragraph
+    [ "These commands are always available."
+    , "They let you select what window to view, and if applicable, what submode to be in." ]
+  , paragraph
+    [ "There are a few kinds of windows."
+    , "Check the entries after this introduction for more up-to-date info, but so far the kinds of windows are these:"
+    , "The Error window explains when something goes wrong."
+    , "The Subgraph window shows some of the data in your graph."
+    , "The Subgraph Choice window lets you choose which Subgraph to view."
+    , "(Each subgraph view is kept in its own \"buffer\".)"
+    , "The Command window is where you type commands."
+    , "(There are also keyboard shortcuts, which don't require it, and which generally don't work unless you've hidden the Command window.)"
+    , "The History window shows a history of commands executed in the Command window." ]
+  , paragraph
+    [ "For some windows there is no choice of submode."
+    , "For instance, in the History window, there's just History mode."
+    , "However, for other windows, there is a choice of submodes."
+    , "For instance, in the Subgraph window, you are always in Subgraph mode, but you might be in the ViewTree submode, or you might be in the Sort submode."
+    , "The choice of submode determines which commands are available (although some commands are always available)." ]
 
 universal_keyCmds :: [KeyCmd]
 universal_keyCmds =
@@ -96,21 +115,21 @@ universal_keyCmds =
            , _keyCmd_key  = (V.KEsc, [V.MMeta])
            , _keyCmd_guide = "Exit Hode." }
 
-  , KeyCmd { _keyCmd_name = "command history"
+  , KeyCmd { _keyCmd_name = "History window"
            , _keyCmd_func = B.continue
                             . (mainWindow .~ LangCmdHistory)
                             . (optionalWindows %~ S.delete Error)
            , _keyCmd_key  = (V.KChar 'h', [V.MMeta])
            , _keyCmd_guide = "Shows the history of commands the user has entered." }
 
-  , KeyCmd { _keyCmd_name = "BufferBuffer."
+  , KeyCmd { _keyCmd_name = "Buffer window."
            , _keyCmd_func = B.continue
              . (mainWindow .~ BufferBuffer)
              . (optionalWindows %~ S.delete Error)
            , _keyCmd_key  = (V.KChar 'b', [V.MMeta])
            , _keyCmd_guide = "In Hode, most of the time is spent looking at a `SubgraphBuffer`, which provides a view onto some of the data in your graph. Multiple `SubgraphBuffer`s can be open at once. The `BufferBuffer` provides a view of all the `SubgraphBuffer`s currently open." }
 
-  , KeyCmd { _keyCmd_name = "SubgraphBuffer"
+  , KeyCmd { _keyCmd_name = "Subgraph window"
            , _keyCmd_func = B.continue
                             . (mainWindow .~ SubgraphBuffer)
                             . (optionalWindows %~ S.delete Error)
@@ -125,10 +144,10 @@ universal_keyCmds =
            , _keyCmd_key  = (V.KChar 'c', [V.MMeta])
            , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
 
-  , KeyCmd { _keyCmd_name = "Test key"
-           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
-           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
-           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
+--  , KeyCmd { _keyCmd_name = "Test key"
+--           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
+--           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
+--           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
   ]
 
 bufferBuffer_intro :: String
@@ -241,73 +260,14 @@ subgraphBuffer_intro = paragraphs
 
 subgraphBuffer_keyCmds :: [KeyCmd]
 subgraphBuffer_keyCmds =
+  subgraphBuffer_universal_keyCmds
+  ++ subgraphBuffer_viewTree_KeyCmds
+  ++ subgraphBuffer_sort_keyCmds
+
+subgraphBuffer_universal_keyCmds :: [KeyCmd]
+subgraphBuffer_universal_keyCmds =
   map prefixKeyCmdName_withKey
-  [ KeyCmd { _keyCmd_name = "insert search results"
-           , _keyCmd_func = goe insertSearchResults_atFocus
-           , _keyCmd_key  = (V.KChar 'S', [])
-           , _keyCmd_guide = paragraphs
-             [ "An expression in the graph can be interpreted as representing a search over the graph. This command does so, and inserts the results of searching for that expression as its children."
-             , "Top-level joints in the searched-for expression are removed before searching. Thus, if the expression `a # \"|\" # b` is in your graph, focusing on (highlighting) that expression and evaluating this command will cause Hode to find what it would find if you evaluated \"/f a | b\", and insert those as children of the focused expression."
-             , "See the section of `docs/ui.md` entitled \"Insert results of evaluating focus as a search\" for a longer discussion." ] }
-
-  , KeyCmd { _keyCmd_name = "insert host relationships"
-           , _keyCmd_func = goe insertHosts_atFocus
-           , _keyCmd_key  = (V.KChar 'h', [])
-           , _keyCmd_guide = "The focused expression might be a member of other expressions. If so, this command will find those host relationships, and insert them into the view, as children of the focused epxression." }
-
-  , KeyCmd { _keyCmd_name = "insert members"
-           , _keyCmd_func = goe insertMembers_atFocus
-           , _keyCmd_key  = (V.KChar 'm', [])
-           , _keyCmd_guide = "The focused expression might be a relationship. If so, it contains sub-expressions. This command will find those member expressions, and insert them into the view, as children of the focused epxression." }
-
-  , KeyCmd { _keyCmd_name = "close descendents"
-           , _keyCmd_func = go $
-             stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing
-           , _keyCmd_key  = (V.KChar 'c', [])
-           , _keyCmd_guide = "Removes all view-descendents of the focused expression, if any exist. Does not change the graph, just the present view of it. Note that they can also be `folded`, which is less destructive. If you've carefully built up an elaborate tree to display your data, and want to temporarily hide it, you'll want to fold it, rather than close it." }
-
-  , KeyCmd { _keyCmd_name = "(un)fold descendents"
-           , _keyCmd_func = go ( stSetFocused_ViewExprNode_Tree . pTreeLabel
-                                 . otherProps . folded %~ not )
-           , _keyCmd_key  = (V.KChar 'F', [])
-           , _keyCmd_guide = "Folding hides the view-descendents of the focused node. Unfolding replaces them. Neither operation changes the graph, just the current view of it."}
-
-  , KeyCmd { _keyCmd_name = "(un)select expression"
-           , _keyCmd_func = go ( stSetFocused_ViewExprNode_Tree . pTreeLabel
-                                 . boolProps . selected %~ not )
-           , _keyCmd_key  = (V.KChar 'X', [])
-           , _keyCmd_guide = "Select an expression. One of the columns to the left of the `SubgraphBuffer` indicates an `x` next to each selected expression. There's no reason to do this except in conjunction with other commands, for instance to insert expressions into an order." }
-
-  , KeyCmd { _keyCmd_name = "show addresses"
-           , _keyCmd_func =
-             go $ (viewOptions . viewOpt_ShowAddresses %~ not)
-             . showReassurance "Toggled: show addresses to left of expressions."
-           , _keyCmd_key  = (V.KChar 'a', [])
-           , _keyCmd_guide = "Precedes each expression with its address." }
-
-  , KeyCmd { _keyCmd_name = "replace with addresses"
-           , _keyCmd_func =
-             goe $ redraw_focusedBuffer
-             . showReassurance "Toggled: replace some already-stated expressions with their addresses."
-             . (viewOptions . viewOpt_ShowAsAddresses %~ not)
-           , _keyCmd_key  = (V.KChar 'A', [])
-           , _keyCmd_guide = "When a long expression is a subexpression of its view-children, those view-children can become hard to read. This replaces each such subexpression with its address, which can reduce redundancy and increase readability." }
-
-  , KeyCmd { _keyCmd_name = "new buffer at focus"
-           , _keyCmd_func = goe insert_focusedViewExpr_asChildOfBuffer
-           , _keyCmd_key  = (V.KChar 'b', [])
-           , _keyCmd_guide = "Create a new `SubgraphBuffer` from the focused expression and its view-descendents." }
-
-  , KeyCmd { _keyCmd_name = "copy buffer to clipboard"
-           , _keyCmd_func = \st -> do
-               liftIO $ toClipboard $ unlines $ focusedBufferStrings st
-               go (showReassurance "SubgraphBuffer copied to clipboard.") st
-           , _keyCmd_key  = (V.KChar 'w', [])
-           , _keyCmd_guide = paragraphs
-             [ "Copies the contents of the `SubgraphBuffer` to the clipboard, for use in other apps."
-             , "BUG : On some systems this copies extra whitespace." ] }
-
-  , KeyCmd { _keyCmd_name = "cursor to previous"
+  [ KeyCmd { _keyCmd_name = "cursor to previous"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
                                    %~ nudgeFocus_inPTree ToPrev )
                             . hideReassurance
@@ -344,6 +304,75 @@ subgraphBuffer_keyCmds =
            , _keyCmd_key  = (V.KChar 's', [])
            , _keyCmd_guide = "Moves the focus to the view-parent of the currently focused expression, if it exists." }
 
+  , KeyCmd { _keyCmd_name = "(un)select expression"
+           , _keyCmd_func = go ( stSetFocused_ViewExprNode_Tree . pTreeLabel
+                                 . boolProps . selected %~ not )
+           , _keyCmd_key  = (V.KChar 'x', [])
+           , _keyCmd_guide = "Select an expression. One of the columns to the left of the `SubgraphBuffer` indicates an `x` next to each selected expression. There's no reason to do this except in conjunction with other commands, for instance to insert expressions into an order." }
+
+  , KeyCmd { _keyCmd_name = "copy buffer to clipboard"
+           , _keyCmd_func = \st -> do
+               liftIO $ toClipboard $ unlines $ focusedBufferStrings st
+               go (showReassurance "SubgraphBuffer copied to clipboard.") st
+           , _keyCmd_key  = (V.KChar 'w', [])
+           , _keyCmd_guide = paragraphs
+             [ "Copies the contents of the `SubgraphBuffer` to the clipboard, for use in other apps."
+             , "BUG : On some systems this copies extra whitespace." ] }
+  ]
+
+subgraphBuffer_viewTree_KeyCmds :: [KeyCmd]
+subgraphBuffer_viewTree_KeyCmds =
+  map prefixKeyCmdName_withKey
+  [ KeyCmd { _keyCmd_name = "insert host relationships"
+           , _keyCmd_func = goe insertHosts_atFocus
+           , _keyCmd_key  = (V.KChar 'h', [])
+           , _keyCmd_guide = "The focused expression might be a member of other expressions. If so, this command will find those host relationships, and insert them into the view, as children of the focused epxression." }
+
+  , KeyCmd { _keyCmd_name = "insert members"
+           , _keyCmd_func = goe insertMembers_atFocus
+           , _keyCmd_key  = (V.KChar 'm', [])
+           , _keyCmd_guide = "The focused expression might be a relationship. If so, it contains sub-expressions. This command will find those member expressions, and insert them into the view, as children of the focused epxression." }
+
+  , KeyCmd { _keyCmd_name = "insert search results"
+           , _keyCmd_func = goe insertSearchResults_atFocus
+           , _keyCmd_key  = (V.KChar 'S', [])
+           , _keyCmd_guide = paragraphs
+             [ "An expression in the graph can be interpreted as representing a search over the graph. This command does so, and inserts the results of searching for that expression as its children."
+             , "Top-level joints in the searched-for expression are removed before searching. Thus, if the expression `a # \"|\" # b` is in your graph, focusing on (highlighting) that expression and evaluating this command will cause Hode to find what it would find if you evaluated \"/f a | b\", and insert those as children of the focused expression."
+             , "See the section of `docs/ui.md` entitled \"Insert results of evaluating focus as a search\" for a longer discussion." ] }
+
+  , KeyCmd { _keyCmd_name = "(un)fold descendents"
+           , _keyCmd_func = go ( stSetFocused_ViewExprNode_Tree . pTreeLabel
+                                 . otherProps . folded %~ not )
+           , _keyCmd_key  = (V.KChar 'F', [])
+           , _keyCmd_guide = "Folding hides the view-descendents of the focused node. Unfolding replaces them. Neither operation changes the graph, just the current view of it."}
+
+  , KeyCmd { _keyCmd_name = "close descendents"
+           , _keyCmd_func = go $
+             stSetFocused_ViewExprNode_Tree . pMTrees .~ Nothing
+           , _keyCmd_key  = (V.KChar 'k', [])
+           , _keyCmd_guide = "Removes all view-descendents of the focused expression, if any exist. Does not change the graph, just the present view of it. Note that they can also be `folded`, which is less destructive. If you've carefully built up an elaborate tree to display your data, and want to temporarily hide it, you'll want to fold it, rather than close it." }
+
+  , KeyCmd { _keyCmd_name = "show addresses"
+           , _keyCmd_func =
+             go $ (viewOptions . viewOpt_ShowAddresses %~ not)
+             . showReassurance "Toggled: show addresses to left of expressions."
+           , _keyCmd_key  = (V.KChar 'a', [])
+           , _keyCmd_guide = "Precedes each expression with its address." }
+
+  , KeyCmd { _keyCmd_name = "replace with addresses"
+           , _keyCmd_func =
+             goe $ redraw_focusedBuffer
+             . showReassurance "Toggled: replace some already-stated expressions with their addresses."
+             . (viewOptions . viewOpt_ShowAsAddresses %~ not)
+           , _keyCmd_key  = (V.KChar 'A', [])
+           , _keyCmd_guide = "When a long expression is a subexpression of its view-children, those view-children can become hard to read. This replaces each such subexpression with its address, which can reduce redundancy and increase readability." }
+
+  , KeyCmd { _keyCmd_name = "new buffer at focus"
+           , _keyCmd_func = goe insert_focusedViewExpr_asChildOfBuffer
+           , _keyCmd_key  = (V.KChar 'b', [])
+           , _keyCmd_guide = "Create a new `SubgraphBuffer` from the focused expression and its view-descendents." }
+
   , KeyCmd { _keyCmd_name = "nudge up in view"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
                                    %~ nudgeInPTree ToPrev )
@@ -361,8 +390,13 @@ subgraphBuffer_keyCmds =
            , _keyCmd_guide = paragraphs
              [ "Moves the focused expression up by one position among its peers in the view-tree. That is, the focused expression trades place with the one that used to follow it. If the focused expression is already last among its peers in the view-tree, this command does nothing."
              , "PITFALL: This only changes the order of expressions in the view; it does not change the data in the graph." ] }
+  ]
 
-  , KeyCmd { _keyCmd_name = "insert into order"
+subgraphBuffer_sort_keyCmds :: [KeyCmd]
+subgraphBuffer_sort_keyCmds =
+  map prefixKeyCmdName_withKey
+
+  [ KeyCmd { _keyCmd_name = "insert into order"
            , _keyCmd_func = goe $ addSelections_toSortedRegion
            , _keyCmd_key  = (V.KChar 'i', [])
            , _keyCmd_guide = paragraphs
@@ -371,21 +405,21 @@ subgraphBuffer_keyCmds =
 
   , KeyCmd { _keyCmd_name = "remove from order"
            , _keyCmd_func = goe $ removeSelections_fromSortedRegion
-           , _keyCmd_key  = (V.KChar 'y', []) -- 'y' is for "yank"
+           , _keyCmd_key  = (V.KChar 'r', [])
            , _keyCmd_guide = paragraphs
              [ "Removes those selected expressions which are in the order from the order. This changes the graph, not just the view."
              , "PITFALL: This changes the graph, not just the view." ] }
 
   , KeyCmd { _keyCmd_name = "raise in order"
            , _keyCmd_func = goe $ raiseSelection_inSortedRegion
-           , _keyCmd_key  = (V.KChar 'k', []) -- near 'l' for 'lower'
+           , _keyCmd_key  = (V.KChar 'E', [])
            , _keyCmd_guide = paragraphs
              [ "Raises a group of contiguous selected expressions in the order by one position. For instance, if the order reads \"A > B > C > D > E\", and C and D are selected, the order after running this command will be \"A > C > D > B > E\"."
              , "PITFALL: This changes the graph, not just the view." ] }
 
   , KeyCmd { _keyCmd_name = "lower in order"
            , _keyCmd_func = goe $ lowerSelection_inSortedRegion
-           , _keyCmd_key  = (V.KChar 'l', [])
+           , _keyCmd_key  = (V.KChar 'D', [])
            , _keyCmd_guide = paragraphs
              [ "Lowers a group of contiguous selected expressions in the order by one position. For instance, if the order reads \"A > B > C > D > E\", and B and C are selected, the order after running this command will be \"A > D > B > C > E\"."
              , "PITFALL: This changes the graph, not just the view." ] }
@@ -393,6 +427,6 @@ subgraphBuffer_keyCmds =
   , KeyCmd { _keyCmd_name = "update cycle buffer"
            , _keyCmd_func =
                goe $ updateBlockingCycles >=> updateCycleBuffer
-           , _keyCmd_key  = (V.KChar 'o', [])
+           , _keyCmd_key  = (V.KChar 'u', [])
            , _keyCmd_guide = "When Hode detects a cycle in a transitive relationship, it suspends normal operation and displays the cycle in a `CycleBuffer`, and asks the user to break the cycle somewhere. Once the cycle is broken, running this command will cause Hode to determine if there are any more cycles." }
   ]

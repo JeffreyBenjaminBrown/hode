@@ -96,7 +96,7 @@ appDraw st0 = [w] where
 
   errorWindow :: B.Widget BrickName = vBox
     [ strWrap $ st ^. uiError
-    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, press M-S-r (to go to SubgraphBuffer), M-S-b (BufferBuffer), or M-S-h (command History)." ]
+    , padTop (B.Pad 2) $ strWrap $ "(To escape this error message, pick another window. For help press M-h (on most systems that means Alt-h).)" ]
 
   reassuranceWindow :: B.Widget BrickName =
     withAttr (B.attrName "white on blue")

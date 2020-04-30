@@ -14,42 +14,12 @@ This will load all non-broken modules when some are broken.
 ** TODO modes and keymap
 *** TODO implement help mode
 it should be another MainWindow constructor
-**** TODO show command prefix, not just name of command
 **** permit scrolling in the main help window
 **** make the submode menu optional
 If there's only one choice in that layer, hide it.
 *** TODO commands, submodes
 **** implement submodes
 Will need a separate submode variable for each mode that has submodes.
-***** subgraph submods
-****** common to all submodes: move, select, copy
- e - nudgeFocus_inPTree DirPrev )
- d - nudgeFocus_inPTree DirNext )
- f - nudgeFocus_inPTree DirDown )
- s - nudgeFocus_inPTree DirUp )
- x - boolProps . selected %~ not ) ),
- X - <new> unselect all in tree
- c - toClipboard $ unlines $ focusedBufferStrings st )
-****** M-m v : view
- a - viewOptions . viewOpt_ShowAddresses %~ not)
- A - viewOptions . viewOpt_ShowAsAddresses %~ not) ),
- s - goe cons_focusedViewExpr_asChildOfBuffer ) -- for "subtree"
-   -- should only work from the subgraph window
-****** M-m b : build
- S - goe insertSearchResults_atFocus ),
- h - goe insertHosts_atFocus ),
- m - goe insertMembers_atFocus ),
- k - close subtree
- F - stSetFocused_ViewExprNode_Tree . pTreeLabel
-      . otherProps . folded
- E - nudgeInPTree DirPrev ) -- move the row, not the focus
- D - nudgeInPTree DirNext ) -- move the row, not the focus
-****** M-m s : sort
- A - addSelections_toSortedRegion ),
- R - removeSelections_fromSortedRegion ),
- E - raiseSelection_inSortedRegion ),
- D - lowerSelection_inSortedRegion ),
- U - updateBlockingCycles >=> updateCycleBuffer )
 **** If changing windows causes a mode change, announce new mode and submode.
 **** new window commands
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
@@ -57,6 +27,7 @@ M-w r - <new> Toggle reassurance window.
 M-?   - Show interactive help.
           => do not announce it, but now in "help mode"
 ???   - Toggle the "press Alt-? for help" window.
+*** TODO show mode, submode
 *** TODO if I want a scrollbar
 Maybe Brick offers one as part of a viewport.
 If not, could instead indicate, e.g., "Item 3 of 5" near menus.
