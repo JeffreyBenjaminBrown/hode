@@ -106,6 +106,7 @@ universal_intro = paragraphs
     , "However, for other windows, there is a choice of submodes."
     , "For instance, in the Subgraph window, you are always in Subgraph mode, but you might be in the ViewTree submode, or you might be in the Sort submode."
     , "The choice of submode determines which commands are available (although some commands are always available)." ]
+  ]
 
 universal_keyCmds :: [KeyCmd]
 universal_keyCmds =
