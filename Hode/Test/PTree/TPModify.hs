@@ -9,6 +9,7 @@ import           Test.HUnit hiding (Test, test)
 
 import           Control.Lens
 import qualified Data.List.PointedList          as P
+import           Data.Maybe
 
 import Hode.PTree.Initial
 import Hode.PTree.Modify
@@ -53,7 +54,7 @@ test_insertLeaf_next = TestCase $ do
 test_sortPList_asList :: T.Test
 test_sortPList_asList = TestCase $ do
   let as :: P.PointedList ((),Int) =
-        maybe (error "impossible") id $ P.fromList
+        fromJust $ P.fromList
         $ fmap ((),) [0..6]
       bs :: [Int] = [4,2,6,0]
   assertBool "" $

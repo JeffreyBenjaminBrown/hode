@@ -266,7 +266,7 @@ justUnders (bo,t) r a0 =
     ( hExprToAddrs r mempty $ HMap $ M.singleton
       ( RoleInRel' $ RoleMember earlier)
       $ HExpr $ ExprAddr a0 )
-  Right $ S.map (maybe (error "impossible") id) $
+  Right $ S.map fromJust $
     S.filter isJust $
     S.map laterMember relsUsing_t_inWhich_a0_IsEarlier
 

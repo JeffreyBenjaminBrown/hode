@@ -15,6 +15,7 @@ import           Control.Lens hiding (re, below)
 import           Data.Foldable (toList)
 import qualified Data.List             as L
 import qualified Data.List.PointedList as P
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set              as S
 
@@ -57,7 +58,7 @@ sortFocusAndPeers (bo, t) st =
       order :: [Addr]       = sorted ++ isol
       peers1 :: Porest ExprRow = -- sort
         sortPList_asList
-        ( maybe (error "impossible") id
+        ( fromJust
           . (^? pTreeLabel . exprRow_addr))
         order peers
   peers2 :: Porest ExprRow <- let -- modify _boolProps

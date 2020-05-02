@@ -5,6 +5,7 @@ module Hode.Brick.Help.Types where
 
 import Control.Lens
 import qualified Data.List.PointedList as P
+import           Data.Maybe
 
 
 type Focused = Bool
@@ -20,7 +21,7 @@ data WindowName = Choice1 | Choice2 | Choice3 | Content
 makeLenses ''WindowName
 
 allWindowNammes :: P.PointedList WindowName
-allWindowNammes = maybe (error "impossible") id $
+allWindowNammes = fromJust $
                   P.fromList [ Choice1, Choice2, Choice3, Content ]
 
 data Help = Help { _helpChoices :: Choice1Plist

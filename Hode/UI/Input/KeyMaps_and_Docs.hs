@@ -25,6 +25,7 @@ import           Control.Lens hiding (folded)
 import           Control.Monad ((>=>))
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.List.PointedList as P
+import           Data.Maybe
 import qualified Data.Set              as S
 
 import qualified Brick.Main            as B
@@ -66,12 +67,12 @@ prefixKeyCmdName_withKey kc = let
                          ++ _keyCmd_name kc }
 
 modes :: Choice1Plist
-modes = maybe (error "impossible") id $ P.fromList
+modes = fromJust $ P.fromList
         [ ("(Press space to skip -- there's only one choice.)",
             submodes) ]
 
 submodes :: Choice2Plist
-submodes = maybe (error "impossible") id $ P.fromList
+submodes = fromJust $ P.fromList
            [ ( "select mode"     , universal_c3      )
            , ( "select subgraph" , bufferBuffer_c3   )
            , ( "subgraph"        , subgraphBuffer_c3 ) ]
@@ -80,7 +81,7 @@ universal_c3, bufferBuffer_c3, subgraphBuffer_c3 :: Choice3Plist
 [universal_c3, bufferBuffer_c3, subgraphBuffer_c3] =
   let hp = map keyCmd_helpPair
       i = ("Introduction",)
-  in map (maybe (error "impossible") id . P.fromList)
+  in map (fromJust . P.fromList)
      [ i universal_intro      : hp universal_keyCmds
      , i bufferBuffer_intro   : hp bufferBuffer_keyCmds
      , i subgraphBuffer_intro : hp subgraphBuffer_keyCmds]
