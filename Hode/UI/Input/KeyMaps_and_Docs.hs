@@ -4,13 +4,11 @@
 -- cannot be used in conjunction with certain characters, such as ';'.
 
 module Hode.UI.Input.KeyMaps_and_Docs (
-    modes                                            -- ^ Choice1Plist
-  , submodes                                         -- ^ Choice2Plist
-  , universal_c3, bufferBuffer_c3, subgraphBuffer_c3 -- ^ Choice3Plist
+    modes -- ^ Choice1Plist
 
   , universal_intro        -- ^ String
   , universal_keyCmds      -- ^ [KeyCmd]
-
+]
   , bufferBuffer_intro     -- ^ String
   , bufferBuffer_keyCmds   -- ^ [KeyCmd]
 
@@ -67,24 +65,35 @@ prefixKeyCmdName_withKey kc = let
                          ++ _keyCmd_name kc }
 
 modes :: Choice1Plist
-modes = fromJust $ P.fromList
-        [ ("(Press space to skip -- there's only one choice.)",
-            submodes) ]
+modes = let
+  skippable :: String
+  skippable = "(This has only one submode. Press space to skip.)"
+  in fromJust $ P.fromList
+  [ ( "universal"
+    , fromJust $ P.fromList [ (skippable, universal_c3) ] )
+  , ( "bufferBuffer"
+    , fromJust $ P.fromList [ (skippable, bufferBuffer_c3) ] )
+  , ( "subgraphBuffer"
+    , fromJust $ P.fromList
+      [ ("introduction", subgraphBuffer_universal_keyCmds_c3)
+      , ("viewTree",     subgraphBuffer_viewTree_keyCmds_c3)
+      , ("sort",         subgraphBuffer_sort_keyCmds_c3) ] ) ]
 
-submodes :: Choice2Plist
-submodes = fromJust $ P.fromList
-           [ ( "select mode"     , universal_c3      )
-           , ( "select subgraph" , bufferBuffer_c3   )
-           , ( "subgraph"        , subgraphBuffer_c3 ) ]
-
-universal_c3, bufferBuffer_c3, subgraphBuffer_c3 :: Choice3Plist
-[universal_c3, bufferBuffer_c3, subgraphBuffer_c3] =
+universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_viewTree_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
+[   universal_c3
+  , bufferBuffer_c3
+  , subgraphBuffer_universal_keyCmds_c3
+  , subgraphBuffer_viewTree_keyCmds_c3
+  , subgraphBuffer_sort_keyCmds_c3
+  ] =
   let hp = map keyCmd_helpPair
       i = ("Introduction",)
   in map (fromJust . P.fromList)
      [ i universal_intro      : hp universal_keyCmds
      , i bufferBuffer_intro   : hp bufferBuffer_keyCmds
-     , i subgraphBuffer_intro : hp subgraphBuffer_keyCmds]
+     , i subgraphBuffer_intro : hp subgraphBuffer_universal_keyCmds
+     ,                          hp subgraphBuffer_viewTree_keyCmds
+     ,                          hp subgraphBuffer_sort_keyCmds ]
 
 universal_intro :: String
 universal_intro = paragraphs
@@ -262,8 +271,8 @@ subgraphBuffer_intro = paragraphs
 
 subgraphBuffer_keyCmds :: [KeyCmd]
 subgraphBuffer_keyCmds =
-  subgraphBuffer_universal_keyCmds
-  ++ subgraphBuffer_viewTree_KeyCmds
+     subgraphBuffer_universal_keyCmds
+  ++ subgraphBuffer_viewTree_keyCmds
   ++ subgraphBuffer_sort_keyCmds
 
 subgraphBuffer_universal_keyCmds :: [KeyCmd]
@@ -322,8 +331,8 @@ subgraphBuffer_universal_keyCmds =
              , "BUG : On some systems this copies extra whitespace." ] }
   ]
 
-subgraphBuffer_viewTree_KeyCmds :: [KeyCmd]
-subgraphBuffer_viewTree_KeyCmds =
+subgraphBuffer_viewTree_keyCmds :: [KeyCmd]
+subgraphBuffer_viewTree_keyCmds =
   map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "insert host relationships"
            , _keyCmd_func = goe insertHosts_atFocus

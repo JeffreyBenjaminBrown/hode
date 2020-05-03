@@ -12,6 +12,13 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
+*** TODO implement the submodes
+**** TODO delete some silly definitions in Input.hs
+ and move all that code into Main.hs
+ they all have the type
+   M.Map V.Event (St -> B.EventM BrickName (B.Next St))
+**** TODO delete subgraphBuffer_keyCmds
+This will force me to use its three components instead.
 *** TODO implement help mode
 it should be another MainWindow constructor
 **** permit scrolling in the main help window
