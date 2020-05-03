@@ -21,9 +21,6 @@ import Hode.Brick.Help.FakeData
 import Hode.Brick.Help.Types
 
 
-isFocusedWindow :: Help -> HelpWindow -> Bool
-isFocusedWindow st = (==) (st ^. helpWindows . P.focus)
-
 windowFont :: Help -> HelpWindow -> B.AttrName
 windowFont st wn = if wn == st ^. helpWindows . P.focus
                    then "focus"
