@@ -3,6 +3,7 @@ module Hode.UI.Types.Names where
 import Hode.Hash.Types
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
+import Hode.Brick.Help.Types
 
 
 -- | = Tiny types: names for windows, commands, folders
@@ -13,6 +14,7 @@ import Hode.Rslt.Types
 -- but editors and viewports in particular do.
 data BrickName = BrickOptionalName OptionalWindowName
                | BrickMainName     MainWindowName
+               | BrickHelpName     HelpWindow
   deriving (Ord, Show, Eq)
 
 data OptionalWindowName = LangCmds
@@ -23,14 +25,20 @@ data OptionalWindowName = LangCmds
 data MainWindowName = LangCmdHistory
                     | SubgraphBuffer
                     | BufferBuffer
+                    | HelpBuffer
   deriving (Ord, Show, Eq)
 
+-- | PITFALL: This looks massively redundant given MainWindowName.
+-- It would be, if they were both fields in the State type.
+-- In fact, though, the State type only has a MainWindowName field.
+-- Mode is computed as a function of that and other stuff.
 data Mode = BufferMode
           | SubgraphMode
           | LangCmdMode
+          | HelpMode
           | NoMode -- ^ For when there's nothing for the user to do but
                    -- switch to another context (which is always possible).
-  -- \ TODO : HelpMode
+                   -- This might be reachable.
   deriving (Ord, Show, Eq)
 
 data SubgraphSubmode =

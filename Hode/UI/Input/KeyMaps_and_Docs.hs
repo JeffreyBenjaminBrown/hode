@@ -149,6 +149,12 @@ universal_keyCmds = let
            , _keyCmd_key  = (V.KEsc, [V.MMeta])
            , _keyCmd_guide = "Exit Hode." }
 
+  , KeyCmd { _keyCmd_name = "Help"
+           , _keyCmd_func = B.continue
+             . (mainWindow .~ HelpBuffer)
+           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
+           , _keyCmd_guide = "Brings you to this help menu." }
+
   , KeyCmd { _keyCmd_name = "History view"
            , _keyCmd_func = B.continue
              . (\st -> showReassurance (mode_report st) st)

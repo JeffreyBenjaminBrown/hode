@@ -13,9 +13,11 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO modes and keymap
 *** TODO implement help mode
-Add a HelpMode constructor to the Mode type.
-Branch the display (appDraw).
-Branch the commands (appHandleEvent).
+**** TODO HelpWindow must become an abstract type `a`
+and the functions that use it must accept a constructor of type
+`HelpWindow -> a`
+**** TODO Branch the display (appDraw).
+**** TODO Branch the commands (appHandleEvent).
 **** permit scrolling in the main help window
 **** make the submode menu optional
 If there's only one choice in that layer, hide it.

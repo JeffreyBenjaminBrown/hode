@@ -20,16 +20,18 @@ import qualified Brick.Focus          as B
 import           Brick.Util           as B
 import qualified Graphics.Vty         as V
 
-import Hode.PTree.Initial
-import Hode.Rslt.Index (mkRslt)
-import Hode.Rslt.Types
-import Hode.UI.BufferShow
-import Hode.UI.Input.KeyMaps_and_Docs
-import Hode.UI.Input.Util
-import Hode.UI.Types.Names
-import Hode.UI.Types.State
-import Hode.UI.Util
-import Hode.UI.Window
+import qualified Hode.Brick.Help       as H
+import qualified Hode.Brick.Help.Types as H
+import           Hode.PTree.Initial
+import           Hode.Rslt.Index (mkRslt)
+import           Hode.Rslt.Types
+import           Hode.UI.BufferShow
+import           Hode.UI.Input.KeyMaps_and_Docs
+import           Hode.UI.Input.Util
+import           Hode.UI.Types.Names
+import           Hode.UI.Types.State
+import           Hode.UI.Util
+import           Hode.UI.Window
 
 
 ui :: IO St

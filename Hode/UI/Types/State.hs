@@ -95,14 +95,20 @@ data St = St {
 makeLenses ''St
 
 stMode :: St -> Mode
-stMode st =
-  case st ^. optionalWindows . at LangCmds of
-    Just () -> LangCmdMode
-    Nothing ->
-      case st ^. mainWindow of
-        BufferBuffer -> BufferMode
-        SubgraphBuffer -> SubgraphMode
-        _ -> NoMode
+stMode st = let
+  lc = maybe False (const True)
+       $ st ^. optionalWindows . at LangCmds
+  mw = st ^. mainWindow
+  in case (mw,lc) of
+       -- Help overrides everything.
+       -- If not in Help, LangCmdMode overrides everything.
+       -- Otherwise, mode is a function of the main window.
+       (HelpBuffer, _)    -> HelpMode
+       (_,True)           -> LangCmdMode
+       (LangCmdHistory,_) -> LangCmdMode
+       (BufferBuffer,_)   -> BufferMode
+       (SubgraphBuffer,_) -> SubgraphMode
+       _                  -> NoMode
 
 stGet_focusedBuffer :: Fold St Buffer
 stGet_focusedBuffer =
