@@ -12,26 +12,18 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO modes and keymap
-*** TODO implement the submodes
-**** TODO delete subgraphBuffer_keyCmds
-This will force me to use its three components instead.
-**** TODO implement mode, submode when changed
 *** TODO implement help mode
 it should be another MainWindow constructor
 **** permit scrolling in the main help window
 **** make the submode menu optional
 If there's only one choice in that layer, hide it.
 *** TODO commands, submodes
-**** implement submodes
-Will need a separate submode variable for each mode that has submodes.
-**** If changing windows causes a mode change, announce new mode and submode.
 **** new window commands
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
 M-w r - <new> Toggle reassurance window.
 M-?   - Show interactive help.
           => do not announce it, but now in "help mode"
 ???   - Toggle the "press Alt-? for help" window.
-*** TODO show mode, submode
 *** TODO if I want a scrollbar
 Maybe Brick offers one as part of a viewport.
 If not, could instead indicate, e.g., "Item 3 of 5" near menus.
