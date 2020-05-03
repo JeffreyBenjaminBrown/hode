@@ -21,10 +21,10 @@ import Hode.Brick.Help.FakeData
 import Hode.Brick.Help.Types
 
 
-isFocusedWindow :: Help -> WindowName -> Bool
+isFocusedWindow :: Help -> HelpWindow -> Bool
 isFocusedWindow st = (==) (st ^. helpWindows . P.focus)
 
-windowFont :: Help -> WindowName -> B.AttrName
+windowFont :: Help -> HelpWindow -> B.AttrName
 windowFont st wn = if wn == st ^. helpWindows . P.focus
                    then "focus"
                    else "no focus"
@@ -41,7 +41,7 @@ pListToList_withFocus normal focus as =
   [focus     (as ^. P.focus)] ++
   map normal (as ^. P.suffix)
 
-helpUi :: Help -> B.Widget WindowName
+helpUi :: Help -> B.Widget HelpWindow
 helpUi st = let
   padding = 1
   normalWrap, normal, highlight :: B.AttrName -> String -> B.Widget n
@@ -104,8 +104,8 @@ theMap = B.attrMap
          , ("focus",                   V.white `B.on` V.blue)
          , ("focus" <> "highlight",    V.black `B.on` V.green) ]
 
-respond :: Help -> B.BrickEvent WindowName e
-                -> B.EventM WindowName (B.Next Help)
+respond :: Help -> B.BrickEvent HelpWindow e
+                -> B.EventM HelpWindow (B.Next Help)
 respond st (B.VtyEvent ev) =
   case ev of
     V.EvKey V.KEsc [] -> B.halt st
@@ -138,7 +138,7 @@ respond st (B.VtyEvent ev) =
       _ -> B.continue st
 respond st _ = B.continue st
 
-app :: B.App Help e WindowName
+app :: B.App Help e HelpWindow
 app = B.App
       { B.appDraw = (:[]) . helpUi
       , B.appHandleEvent = respond

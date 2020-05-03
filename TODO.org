@@ -13,7 +13,9 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO modes and keymap
 *** TODO implement help mode
-it should be another MainWindow constructor
+Add a HelpMode constructor to the Mode type.
+Branch the display (appDraw).
+Branch the commands (appHandleEvent).
 **** permit scrolling in the main help window
 **** make the submode menu optional
 If there's only one choice in that layer, hide it.
@@ -50,11 +52,11 @@ in which case switching to the Results view crashes.
 Just add some more indicators to _columnHExprs:
   not, maybe, and warning
 *** after using the app more, maybe consider the more general problem
+** TODO change: can insertHosts_atFocus when they're already there
 ** TODO ? multi-line expressions
 ** TODO folding indicator
 Visually indicate whether a node with descendents is folded.
 Or at least, upon inserting contents, unfold.
-** TODO change: can insertHosts_atFocus when they're already there
 ** TODO ? compress binary groups
 ** manual update
 * TODO unsorted
