@@ -117,9 +117,19 @@ appHandleEvent st (B.VtyEvent ev) =
   Nothing -> case stMode st of
     SubgraphMode ->
       case M.lookup ev $ M.fromList $
-           map keyCmd_usePair subgraphBuffer_keyCmds
+           map keyCmd_usePair subgraphBuffer_universal_keyCmds
       of Just c -> c st
-         _ -> B.continue st
+         _ -> case st ^. subgraphSubmode of
+           SubgraphSubmode_primary ->
+             case M.lookup ev $ M.fromList $
+                  map keyCmd_usePair subgraphBuffer_primary_keyCmds
+             of Just c -> c st
+                _ -> B.continue st
+           SubgraphSubmode_sort ->
+             case M.lookup ev $ M.fromList $
+                  map keyCmd_usePair subgraphBuffer_sort_keyCmds
+             of Just c -> c st
+                _ -> B.continue st
     BufferMode ->
       case M.lookup ev $ M.fromList $
            map keyCmd_usePair bufferBuffer_keyCmds

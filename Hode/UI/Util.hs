@@ -59,6 +59,7 @@ emptySt r = St {
   , _viewOptions     = defaulViewOptions
   , _mainWindow      = SubgraphBuffer
   , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
+  , _subgraphSubmode  = SubgraphSubmode_primary
   }
 
 emptySubgraphBuffer :: Buffer

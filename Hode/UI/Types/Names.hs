@@ -33,6 +33,12 @@ data Mode = BufferMode
   -- \ TODO : HelpMode
   deriving (Ord, Show, Eq)
 
+data SubgraphSubmode =
+    SubgraphSubmode_primary -- ^ most of the time
+  | SubgraphSubmode_sort -- ^ to rearrange order
+                         -- (without using the command window)
+  deriving (Ord, Show, Eq)
+
 data LangCmd =
     LangCmdInsert        Expr
   | LangCmdReplace  Addr Expr

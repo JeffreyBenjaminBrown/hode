@@ -15,6 +15,7 @@ This will load all non-broken modules when some are broken.
 *** TODO implement the submodes
 **** TODO delete subgraphBuffer_keyCmds
 This will force me to use its three components instead.
+**** TODO implement mode, submode when changed
 *** TODO implement help mode
 it should be another MainWindow constructor
 **** permit scrolling in the main help window

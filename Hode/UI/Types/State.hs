@@ -24,6 +24,7 @@ module Hode.UI.Types.State (
   , viewOptions     -- ^ fetch a ViewOptions
   , mainWindow      -- ^ fetch a MainWindowName
   , optionalWindows -- ^ fetch a Map OptionalWindowName Bool
+  , subgraphSubmode -- ^ fetch a SubgraphSubmode
 
   -- * misc
   , stMode                         -- ^ St -> Mode
@@ -89,6 +90,7 @@ data St = St {
     -- ^ There are sometimes none of these showing.
     -- TODO | PITFALL: The code treats the Error and Reassurance
     -- windows as mutually exclusive. Maybe that should be reified here.
+  , _subgraphSubmode  :: SubgraphSubmode
   }
 makeLenses ''St
 

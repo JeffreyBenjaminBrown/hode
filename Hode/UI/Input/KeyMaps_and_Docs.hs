@@ -4,7 +4,9 @@
 -- cannot be used in conjunction with certain characters, such as ';'.
 
 module Hode.UI.Input.KeyMaps_and_Docs (
-    modes -- ^ Choice1Plist
+    keyPrefix -- ^ (V.Key, [V.Modifier]) -> String
+
+  , modes -- ^ Choice1Plist
 
   , universal_intro        -- ^ String
   , universal_keyCmds      -- ^ [KeyCmd]
@@ -12,8 +14,10 @@ module Hode.UI.Input.KeyMaps_and_Docs (
   , bufferBuffer_intro     -- ^ String
   , bufferBuffer_keyCmds   -- ^ [KeyCmd]
 
-  , subgraphBuffer_intro   -- ^ String
-  , subgraphBuffer_keyCmds -- ^ [KeyCmd]
+  , subgraphBuffer_intro             -- ^ String
+  , subgraphBuffer_universal_keyCmds -- ^ [KeyCmd]
+  , subgraphBuffer_primary_keyCmds   -- ^ [KeyCmd]
+  , subgraphBuffer_sort_keyCmds      -- ^ [KeyCmd]
 
   , commandWindow_intro    -- ^ String
   , commandWindow_keyCmds  -- ^ [KeyCmd]
@@ -46,23 +50,23 @@ import Hode.UI.Input.Util
 
 import Hode.Brick.Help.Types
 
+keyPrefix :: (V.Key, [V.Modifier]) -> String
+keyPrefix (k0,ms) = let
+  e :: Show a => a -> b
+  e a = error $ "keyPrefix does not yet handle " ++ show a
+  in ( case ms of
+         [] -> ""
+         [V.MMeta] -> "M-"
+         m:_ -> e m )
+     ++ case k0 of V.KEsc -> "Esc"
+                   V.KChar c -> [c]
+                   k -> e k
 
 prefixKeyCmdName_withKey :: KeyCmd -> KeyCmd
-prefixKeyCmdName_withKey kc = let
-  keyPrefix :: (V.Key, [V.Modifier]) -> String
-  keyPrefix (k0,ms) = let
-    e :: Show a => a -> b
-    e a = error $ "keyPrefix does not yet handle " ++ show a
-    in ( case ms of
-           [] -> ""
-           [V.MMeta] -> "M-"
-           m:_ -> e m )
-       ++ case k0 of V.KEsc -> "Esc"
-                     V.KChar c -> [c]
-                     k -> e k
-  in kc { _keyCmd_name = keyPrefix (_keyCmd_key kc)
-                         ++ ": "
-                         ++ _keyCmd_name kc }
+prefixKeyCmdName_withKey kc =
+  kc { _keyCmd_name = keyPrefix (_keyCmd_key kc)
+                      ++ ": "
+                      ++ _keyCmd_name kc }
 
 modes :: Choice1Plist
 modes = let
@@ -76,14 +80,14 @@ modes = let
   , ( "subgraphBuffer"
     , fromJust $ P.fromList
       [ ("introduction", subgraphBuffer_universal_keyCmds_c3)
-      , ("viewTree",     subgraphBuffer_viewTree_keyCmds_c3)
+      , ("viewTree",     subgraphBuffer_primary_keyCmds_c3)
       , ("sort",         subgraphBuffer_sort_keyCmds_c3) ] ) ]
 
-universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_viewTree_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
+universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_primary_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
 [   universal_c3
   , bufferBuffer_c3
   , subgraphBuffer_universal_keyCmds_c3
-  , subgraphBuffer_viewTree_keyCmds_c3
+  , subgraphBuffer_primary_keyCmds_c3
   , subgraphBuffer_sort_keyCmds_c3
   ] =
   let hp = map keyCmd_helpPair
@@ -92,7 +96,7 @@ universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuff
      [ i universal_intro      : hp universal_keyCmds
      , i bufferBuffer_intro   : hp bufferBuffer_keyCmds
      , i subgraphBuffer_intro : hp subgraphBuffer_universal_keyCmds
-     ,                          hp subgraphBuffer_viewTree_keyCmds
+     ,                          hp subgraphBuffer_primary_keyCmds
      ,                          hp subgraphBuffer_sort_keyCmds ]
 
 universal_intro :: String
@@ -154,6 +158,18 @@ universal_keyCmds =
                        Nothing -> Just () )
            , _keyCmd_key  = (V.KChar 'c', [V.MMeta])
            , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
+
+  , KeyCmd { _keyCmd_name = "Subgraph submode : primary"
+           , _keyCmd_func = B.continue
+             . (subgraphSubmode .~ SubgraphSubmode_sort)
+           , _keyCmd_key  = (V.KChar 's', [V.MMeta])
+           , _keyCmd_guide = "Toggle the primary submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the command window. Perhaps most importantly, it lets you add and delete branches of the viewtree. See the help for the Subgraph mode for more details." }
+
+  , KeyCmd { _keyCmd_name = "Subgraph submode : sort"
+           , _keyCmd_func = B.continue
+             . (subgraphSubmode .~ SubgraphSubmode_sort)
+           , _keyCmd_key  = (V.KChar 's', [V.MMeta])
+           , _keyCmd_guide = "Toggle sort submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to rearrange the order of things without typing into the command window. See the help for the Subgraph mode for more details." }
 
 --  , KeyCmd { _keyCmd_name = "Test key"
 --           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
@@ -269,12 +285,6 @@ subgraphBuffer_intro = paragraphs
     , "For instance, they might be subexpression of it, or it might be a subexpression of them." ]
   ]
 
-subgraphBuffer_keyCmds :: [KeyCmd]
-subgraphBuffer_keyCmds =
-     subgraphBuffer_universal_keyCmds
-  ++ subgraphBuffer_viewTree_keyCmds
-  ++ subgraphBuffer_sort_keyCmds
-
 subgraphBuffer_universal_keyCmds :: [KeyCmd]
 subgraphBuffer_universal_keyCmds =
   map prefixKeyCmdName_withKey
@@ -331,8 +341,8 @@ subgraphBuffer_universal_keyCmds =
              , "BUG : On some systems this copies extra whitespace." ] }
   ]
 
-subgraphBuffer_viewTree_keyCmds :: [KeyCmd]
-subgraphBuffer_viewTree_keyCmds =
+subgraphBuffer_primary_keyCmds :: [KeyCmd]
+subgraphBuffer_primary_keyCmds =
   map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "insert host relationships"
            , _keyCmd_func = goe insertHosts_atFocus
