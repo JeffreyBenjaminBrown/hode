@@ -8,7 +8,7 @@ module Hode.UI.Input.KeyMaps_and_Docs (
 
   , universal_intro        -- ^ String
   , universal_keyCmds      -- ^ [KeyCmd]
-]
+
   , bufferBuffer_intro     -- ^ String
   , bufferBuffer_keyCmds   -- ^ [KeyCmd]
 

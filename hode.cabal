@@ -120,7 +120,6 @@ library
                 , Hode.UI.CycleBreaker
                 , Hode.UI.ExprTree
                 , Hode.UI.ExprTree.Sort
-                , Hode.UI.Input
                 , Hode.UI.Input.KeyMaps_and_Docs
                 , Hode.UI.Input.Parse
                 , Hode.UI.Input.RunParsed

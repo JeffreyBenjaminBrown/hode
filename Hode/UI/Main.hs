@@ -24,10 +24,12 @@ import Hode.PTree.Initial
 import Hode.Rslt.Index (mkRslt)
 import Hode.Rslt.Types
 import Hode.UI.BufferShow
-import Hode.UI.Util
-import Hode.UI.Input
+import Hode.UI.Input.KeyMaps_and_Docs
+import Hode.UI.Input.Util
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
+import Hode.UI.Util
+import Hode.UI.Window
 
 
 ui :: IO St
@@ -109,13 +111,32 @@ appChooseCursor = B.focusRingCursor (^. focusRing)
 appHandleEvent :: St -> B.BrickEvent BrickName e
                -> B.EventM BrickName (B.Next St)
 appHandleEvent st (B.VtyEvent ev) =
-  case M.lookup ev $ universal_keyCmds_map of
-  Just c -> c st
+  case M.lookup ev $ M.fromList $
+       map keyCmd_usePair universal_keyCmds of
+  Just c  -> c st
   Nothing -> case stMode st of
-    SubgraphMode -> handleKeyboard_atSubgraphBuffer st ev
-    BufferMode   -> handleKeyboard_atBufferBuffer  st ev
-    LangCmdMode  -> handleKeyboard_atCommandWindow st ev
-    _            -> B.continue st
+    SubgraphMode ->
+      case M.lookup ev $ M.fromList $
+           map keyCmd_usePair subgraphBuffer_keyCmds
+      of Just c -> c st
+         _ -> B.continue st
+    BufferMode ->
+      case M.lookup ev $ M.fromList $
+           map keyCmd_usePair bufferBuffer_keyCmds
+      of Just c -> c st
+         _ -> B.continue st
+    LangCmdMode ->
+      case M.lookup ev $ M.fromList $
+           map keyCmd_usePair commandWindow_keyCmds
+      of Just c -> c st
+         _ -> B.continue =<<
+           case B.focusGetCurrent $ st ^. focusRing of
+           Just (BrickOptionalName LangCmds) ->
+             -- pipe user input into the LangCmds window
+             B.handleEventLensed (hideReassurance st)
+             commands B.handleEditorEvent ev
+           _ -> return st
+    _ -> B.continue st
 appHandleEvent st _ = B.continue st
 
 appAttrMap :: B.AttrMap

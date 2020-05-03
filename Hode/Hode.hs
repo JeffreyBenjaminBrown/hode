@@ -60,7 +60,6 @@ import Hode.UI.Clipboard as X
 import Hode.UI.ExprTree as X
 import Hode.UI.Util as X
 import Hode.UI.Util.String as X
-import Hode.UI.Input as X
 import Hode.UI.Input.Parse as X
 import Hode.UI.Main as X
 import Hode.UI.Types.Names as X
