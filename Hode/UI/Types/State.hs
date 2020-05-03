@@ -22,7 +22,6 @@ module Hode.UI.Types.State (
   , commandHistory  -- ^ fetch a [LangCmd]
   , appRslt         -- ^ fetch a Rslt
   , viewOptions     -- ^ fetch a ViewOptions
-  , inWindowMode    -- ^ fetch a Bool
   , mainWindow      -- ^ fetch a MainWindowName
   , optionalWindows -- ^ fetch a Map OptionalWindowName Bool
 
@@ -83,7 +82,6 @@ data St = St {
   , _reassurance     :: String
   , _commands        :: B.Editor String BrickName
 
-  , _inWindowMode    :: Bool
   , _mainWindow      :: MainWindowName
     -- ^ There's always exactly one of these showing,
     -- unless it's blocked by the optional `Error` window.
@@ -98,12 +96,11 @@ stMode :: St -> Mode
 stMode st =
   case st ^. optionalWindows . at LangCmds of
     Just () -> LangCmdMode
-    Nothing -> if st ^. inWindowMode
-      then WindowMode
-      else case st ^. mainWindow of
-             BufferBuffer -> BufferMode
-             SubgraphBuffer -> SubgraphMode
-             _ -> NoMode
+    Nothing ->
+      case st ^. mainWindow of
+        BufferBuffer -> BufferMode
+        SubgraphBuffer -> SubgraphMode
+        _ -> NoMode
 
 stGet_focusedBuffer :: Fold St Buffer
 stGet_focusedBuffer =

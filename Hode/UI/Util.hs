@@ -57,7 +57,6 @@ emptySt r = St {
   , _commandHistory  = []
   , _appRslt         = r
   , _viewOptions     = defaulViewOptions
-  , _inWindowMode    = False
   , _mainWindow      = SubgraphBuffer
   , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
   }

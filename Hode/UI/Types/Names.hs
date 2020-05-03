@@ -28,7 +28,6 @@ data MainWindowName = LangCmdHistory
 data Mode = BufferMode
           | SubgraphMode
           | LangCmdMode
-          | WindowMode
           | NoMode -- ^ For when there's nothing for the user to do but
                    -- switch to another context (which is always possible).
   -- \ TODO : HelpMode
