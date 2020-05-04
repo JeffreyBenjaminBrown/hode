@@ -17,8 +17,8 @@ import qualified Brick.Types                as B
 import qualified Brick.Util                 as B
 import qualified Brick.Widgets.Core         as B
 
-import Hode.Brick.Help.FakeData
 import Hode.Brick.Help.Types
+import Hode.Brick.Help.FakeData
 
 
 windowFont :: Help -> HelpWindow -> B.AttrName
@@ -38,10 +38,10 @@ pListToList_withFocus normal focus as =
   [focus     (as ^. P.focus)] ++
   map normal (as ^. P.suffix)
 
-helpUi :: (Ord n, Show n) =>
-  (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
-                    -- app into which this help is incorporated.
-                    -- This argument is probably a constructor of that type.
+helpUi :: (Ord n, Show n)
+  => (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
+       -- app into which this help is incorporated.
+       -- This argument is probably a constructor of that type.
   -> Help
   -> B.Widget n
 
@@ -144,20 +144,25 @@ respond st (B.VtyEvent ev) =
       _ -> B.continue st
 respond st _ = B.continue st
 
--- | PITFALL: This module is not meant to stand alone, but rather to be
--- incorporated into a bigger app. That's why this function is called
--- `demo` rather than `app`.
-demo :: B.App Help e HelpWindow
-demo = B.App
-      { B.appDraw = (:[]) . helpUi id
+app :: (Ord n, Show n)
+  => (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
+    -- app into which this help is incorporated.
+    -- This argument is probably a constructor.
+  -> B.App Help e n
+app wrapName = B.App
+      { B.appDraw = (:[]) . helpUi wrapName
       , B.appHandleEvent = respond
       , B.appStartEvent = return
       , B.appAttrMap = const theMap
       , B.appChooseCursor = B.neverShowCursor
       }
 
-help :: Choice1Plist -> IO Help
-help = B.defaultMain demo . initState
+demo :: (Ord n, Show n)
+  => (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
+     -- app into which this help is incorporated.
+     -- This argument is probably a constructor.
+  -> Choice1Plist -> IO Help
+demo wrapName = B.defaultMain (app wrapName) . initState
 
 silly :: IO Help
-silly = help sillyChoices
+silly = demo id sillyChoices

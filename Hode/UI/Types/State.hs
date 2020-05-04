@@ -108,7 +108,6 @@ stMode st = let
        (LangCmdHistory,_) -> LangCmdMode
        (BufferBuffer,_)   -> BufferMode
        (SubgraphBuffer,_) -> SubgraphMode
-       _                  -> NoMode
 
 stGet_focusedBuffer :: Fold St Buffer
 stGet_focusedBuffer =
