@@ -38,8 +38,14 @@ pListToList_withFocus normal focus as =
   [focus     (as ^. P.focus)] ++
   map normal (as ^. P.suffix)
 
-helpUi :: Help -> B.Widget HelpWindow
-helpUi st = let
+helpUi :: (Ord n, Show n) =>
+  (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
+                    -- app into which this help is incorporated.
+                    -- This argument is probably a constructor of that type.
+  -> Help
+  -> B.Widget n
+
+helpUi liftName st = let
   padding = 1
   normalWrap, normal, highlight :: B.AttrName -> String -> B.Widget n
   normalWrap stylePrefix s =
@@ -63,6 +69,7 @@ helpUi st = let
                    , "Press d and e to scroll between options."
                    , "The mode you choose determines which submodes are possible. The submode you chooses determines which commands are possible. The command you choose will be described in the big window. If it doesn't all fit on one screen, navigate to the big window and scroll with d and e." ]
                 else "For help using this help, press h." )
+
   , B.hBorder
 
   , B.vLimit 2 $ B.hBox
@@ -71,15 +78,16 @@ helpUi st = let
     , B.withBorderStyle B.ascii B.vBorder
     , B.vBox
       [ B.vLimit 1 $ B.center
-        $ B.viewport Choice1 B.Horizontal
+        $ B.viewport (liftName Choice1) B.Horizontal
         $ B.hBox $ drawPList (windowFont st Choice1)
         $ fmap fst $ st ^. helpChoices
       , B.vLimit 1 $ B.center
-        $ B.viewport Choice2 B.Horizontal
+        $ B.viewport (liftName Choice2) B.Horizontal
         $ B.hBox $ drawPList (windowFont st Choice2)
         $ fmap fst $ st ^. helpChoices2 ] ]
 
   , B.hBorder
+
   , B.hBox
     [ B.str "choose a command: "
       B.<=> let cs3 = fmap fst $ st ^. helpChoices3
@@ -87,11 +95,12 @@ helpUi st = let
                   B.hLimitPercent 40
                   . B.hLimit ( (+ (2 * padding))
                                $ maximum $ fmap length cs3)
-            in limit $ B.viewport Choice3 B.Vertical $ B.vBox
-               $ drawPList (windowFont st Choice3) cs3
+            in limit $ B.viewport (liftName Choice3) B.Vertical
+               $ B.vBox $ drawPList (windowFont st Choice3) cs3
     , B.vBorder
     , normalWrap (windowFont st Content)
-      $ st ^. helpChoices3 . P.focus . _2 ] ]
+      $ st ^. helpChoices3 . P.focus . _2 ]
+  ]
 
 theMap :: B.AttrMap
 theMap = B.attrMap
@@ -101,8 +110,8 @@ theMap = B.attrMap
          , ("focus",                   V.white `B.on` V.blue)
          , ("focus" <> "highlight",    V.black `B.on` V.green) ]
 
-respond :: Help -> B.BrickEvent HelpWindow e
-                -> B.EventM HelpWindow (B.Next Help)
+respond :: Help -> B.BrickEvent n e
+                -> B.EventM n (B.Next Help)
 respond st (B.VtyEvent ev) =
   case ev of
     V.EvKey V.KEsc [] -> B.halt st
@@ -135,9 +144,12 @@ respond st (B.VtyEvent ev) =
       _ -> B.continue st
 respond st _ = B.continue st
 
-app :: B.App Help e HelpWindow
-app = B.App
-      { B.appDraw = (:[]) . helpUi
+-- | PITFALL: This module is not meant to stand alone, but rather to be
+-- incorporated into a bigger app. That's why this function is called
+-- `demo` rather than `app`.
+demo :: B.App Help e HelpWindow
+demo = B.App
+      { B.appDraw = (:[]) . helpUi id
       , B.appHandleEvent = respond
       , B.appStartEvent = return
       , B.appAttrMap = const theMap
@@ -145,7 +157,7 @@ app = B.App
       }
 
 help :: Choice1Plist -> IO Help
-help = B.defaultMain app . initState
+help = B.defaultMain demo . initState
 
 silly :: IO Help
 silly = help sillyChoices
