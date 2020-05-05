@@ -194,7 +194,7 @@ universal_keyCmds = let
            , _keyCmd_func = B.continue
              . (\st -> showReassurance (mode_report st) st)
              . (subgraphSubmode .~ SubgraphSubmode_sort)
-           , _keyCmd_key  = (V.KChar 's', [V.MMeta])
+           , _keyCmd_key  = (V.KChar 'p', [V.MMeta])
            , _keyCmd_guide = "Toggle the primary submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the command window. Perhaps most importantly, it lets you add and delete branches of the viewtree. See the help for the Subgraph mode for more details." }
 
   , KeyCmd { _keyCmd_name = "Subgraph submode : sort"
@@ -351,12 +351,25 @@ subgraphBuffer_universal_keyCmds =
            , _keyCmd_key  = (V.KChar 'f', [])
            , _keyCmd_guide = "Moves the focus to one of the view-children of the currently focused expression, if it has any." }
 
-  , KeyCmd { _keyCmd_name = "cursor to parent"
-           , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
-                                   %~ nudgeFocus_inPTree ToRoot )
-                            . hideReassurance
-           , _keyCmd_key  = (V.KChar 's', [])
-           , _keyCmd_guide = "Moves the focus to the view-parent of the currently focused expression, if it exists." }
+  , KeyCmd
+  -- Prevents the user from focusing the root of a subgraph view.
+  -- Allowing it would be confusing, because said root is not visible,
+  -- because it's not a common `ViewForkType`. Specifically, it's a `VFQuery`,
+  -- which is only ever (supposed to be) at the top of the viewTRee,
+  -- and is only shown in the buffer select view, not the subgraph view.
+
+      { _keyCmd_name = "cursor to parent"
+      , _keyCmd_func = go $
+        hideReassurance
+        . \st -> let
+            st' = st & stSet_focusedBuffer . bufferExprRowTree
+                  %~ nudgeFocus_inPTree ToRoot
+            in case st' ^? stGet_focusedBuffer
+                    . bufferExprRowTree . pTreeHasFocus
+               of Just False -> st'
+                  _          -> st
+      , _keyCmd_key  = (V.KChar 's', [])
+      , _keyCmd_guide = "Moves the focus to the view-parent of the currently focused expression, if it exists." }
 
   , KeyCmd { _keyCmd_name = "(un)select expression"
            , _keyCmd_func = go ( stSetFocused_ViewExprNode_Tree . pTreeLabel

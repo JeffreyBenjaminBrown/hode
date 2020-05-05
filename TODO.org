@@ -35,11 +35,6 @@ deleting buffers
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
-** TODO don't let the user "highlight" the root of the ViewExpr tree
-(Note that this bug applies to SubgraphBuffers but not the BufferBuffer.)
-
-and then remove this comment somewhere in Hode.UI.Input
-               [ "PITFALL: BUG: If you move in the parental direction enough, you'll reach the root of the tree, and you won't see the cursor. Move it in the child direction to bring it back into sight. (I'll fix this soon.)" ]
 ** TODO the obstructive subexpression problem
 *** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:
