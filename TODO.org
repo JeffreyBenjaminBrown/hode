@@ -13,9 +13,6 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO modes and keymap
 *** TODO implement help mode
-**** TODO HelpWindow must become an abstract type `a`
-and the functions that use it must accept a constructor of type
-`HelpWindow -> a`
 **** TODO Branch the display (appDraw).
 **** TODO Branch the commands (appHandleEvent).
 **** permit scrolling in the main help window

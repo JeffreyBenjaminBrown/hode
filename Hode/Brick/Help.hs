@@ -144,25 +144,21 @@ respond st (B.VtyEvent ev) =
       _ -> B.continue st
 respond st _ = B.continue st
 
-app :: (Ord n, Show n)
+demo :: forall n. (Ord n, Show n)
   => (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
-    -- app into which this help is incorporated.
-    -- This argument is probably a constructor.
-  -> B.App Help e n
-app wrapName = B.App
-      { B.appDraw = (:[]) . helpUi wrapName
-      , B.appHandleEvent = respond
-      , B.appStartEvent = return
-      , B.appAttrMap = const theMap
-      , B.appChooseCursor = B.neverShowCursor
-      }
-
-demo :: (Ord n, Show n)
-  => (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
-     -- app into which this help is incorporated.
-     -- This argument is probably a constructor.
-  -> Choice1Plist -> IO Help
-demo wrapName = B.defaultMain (app wrapName) . initState
+                       -- app into which this help is incorporated.
+                       -- This argument is probably a constructor.
+  -> Choice1Plist
+  -> IO Help
+demo wrapName = let
+  app = B.App
+        { B.appDraw = (:[]) . helpUi wrapName
+        , B.appHandleEvent = respond
+        , B.appStartEvent = return
+        , B.appAttrMap = const theMap
+        , B.appChooseCursor = B.neverShowCursor
+        }
+  in B.defaultMain app . initState
 
 silly :: IO Help
 silly = demo id sillyChoices
