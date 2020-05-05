@@ -11,24 +11,19 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO modes and keymap
-*** TODO implement help mode
-**** TODO Branch the commands (appHandleEvent)
-Requires handing a lens to Hode.Brick.Help,
-from the main state to the Help substate.
-**** permit scrolling in the main help window
-**** make the submode menu optional
+** permit scrolling
+*** in the main help window
+*** in the history window
+*** if I want a scrollbar
+ Maybe Brick offers one as part of a viewport.
+ If not, could instead indicate, e.g., "Item 3 of 5" near menus.
+** modes and keymap
+*** help mode: make the submode menu optional
 If there's only one choice in that layer, hide it.
-*** TODO commands, submodes
-**** new window commands
+*** implement new commands
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
 M-w r - <new> Toggle reassurance window.
-M-?   - Show interactive help.
-          => do not announce it, but now in "help mode"
 ???   - Toggle the "press Alt-? for help" window.
-*** TODO if I want a scrollbar
-Maybe Brick offers one as part of a viewport.
-If not, could instead indicate, e.g., "Item 3 of 5" near menus.
 ** TODO document
 *** moving an address
 *** ? these features
@@ -45,8 +40,6 @@ deleting buffers
 
 and then remove this comment somewhere in Hode.UI.Input
                [ "PITFALL: BUG: If you move in the parental direction enough, you'll reach the root of the tree, and you won't see the cursor. Move it in the child direction to bring it back into sight. (I'll fix this soon.)" ]
-** TODO bug: _searchBuffers can be empty
-in which case switching to the Results view crashes.
 ** TODO the obstructive subexpression problem
 *** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:

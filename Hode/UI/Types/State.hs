@@ -108,7 +108,8 @@ stMode st = let
        -- Otherwise, mode is a function of the main window.
        (HelpBuffer, _)    -> HelpMode
        (_,True)           -> LangCmdMode
-       (LangCmdHistory,_) -> LangCmdMode
+       (LangCmdHistory,_) -> NoMode
+         -- TODO : define HistoryMode, permit scrolling in it
        (BufferBuffer,_)   -> BufferMode
        (SubgraphBuffer,_) -> SubgraphMode
 

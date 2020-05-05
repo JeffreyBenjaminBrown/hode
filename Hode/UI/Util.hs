@@ -43,7 +43,7 @@ unEitherSt _ (Right new) =
 emptySubgraphBuffer :: Buffer
 emptySubgraphBuffer =
   bufferFrom_viewQuery $ QueryView $ "Empty search buffer. "
-  ++ "(If this is focused when you run a search, it will be populated with the search results.)"
+  ++ "(Run a search to populate it with a view of your graph.)"
 
 bufferFrom_viewQuery :: ViewQuery -> Buffer
 bufferFrom_viewQuery vq = Buffer
