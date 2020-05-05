@@ -25,6 +25,7 @@ module Hode.UI.Types.State (
   , mainWindow      -- ^ fetch a MainWindowName
   , optionalWindows -- ^ fetch a Map OptionalWindowName Bool
   , subgraphSubmode -- ^ fetch a SubgraphSubmode
+  , stHelp          -- ^ fetch a Help
 
   -- * misc
   , stMode                         -- ^ St -> Mode
@@ -47,6 +48,7 @@ import qualified Data.List.PointedList as P
 import qualified Brick.Widgets.Edit as B
 import qualified Brick.Focus as B
 
+import Hode.Brick.Help.Types
 import Hode.Hash.Types
 import Hode.PTree.Initial
 import Hode.Rslt.Binary (BinOrientation)
@@ -91,6 +93,7 @@ data St = St {
     -- TODO | PITFALL: The code treats the Error and Reassurance
     -- windows as mutually exclusive. Maybe that should be reified here.
   , _subgraphSubmode  :: SubgraphSubmode
+  , _stHelp           :: Help
   }
 makeLenses ''St
 

@@ -2,8 +2,7 @@
 
 module Hode.UI.Util (
     unEitherSt                 -- ^ Either String St -> St -> St
-  , emptySt                    -- ^ Rslt -> St
-  , emptySubgraphBuffer          -- ^ Buffer
+  , emptySubgraphBuffer        -- ^ Buffer
   , bufferFrom_viewQuery       -- ^ ViewQuery -> Buffer
   , buffer_from_exprRowTree    -- ^ PTree ViewExprNode
                                -- -> Either String Buffer
@@ -21,9 +20,6 @@ import qualified Data.Map              as M
 import           Data.Set (Set)
 import qualified Data.Set              as S
 import           Lens.Micro
-
-import qualified Brick.Focus           as B
-import qualified Brick.Widgets.Edit    as B
 
 import Hode.Brick
 import Hode.Hash.Lookup
@@ -43,24 +39,6 @@ unEitherSt old (Left s) =
   old & showError s
 unEitherSt _ (Right new) =
   new & optionalWindows %~ S.delete Error
-
-emptySt :: Rslt -> St
-emptySt r = St {
-    _focusRing = B.focusRing [BrickOptionalName LangCmds]
-  , _searchBuffers   = Just ( porestLeaf emptySubgraphBuffer
-                              & P.focus . pTreeHasFocus .~ True )
-  , _columnHExprs    = [ HMemberHosts $ HVar VarRowNode ]
-  , _blockingCycles  = Nothing
-  , _uiError         = ""
-  , _reassurance     = "This window provides reassurance. It's all good."
-  , _commands        = B.editor (BrickOptionalName LangCmds) Nothing ""
-  , _commandHistory  = []
-  , _appRslt         = r
-  , _viewOptions     = defaulViewOptions
-  , _mainWindow      = SubgraphBuffer
-  , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
-  , _subgraphSubmode  = SubgraphSubmode_primary
-  }
 
 emptySubgraphBuffer :: Buffer
 emptySubgraphBuffer =

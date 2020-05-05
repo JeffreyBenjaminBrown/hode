@@ -131,6 +131,7 @@ universal_keyCmds = let
       LangCmdHistory -> "command history"
       SubgraphBuffer -> "subgraph"
       BufferBuffer -> "buffer select"
+      HelpBuffer -> "Help"
     ++ ". Mode: "
     ++ case stMode st of
          BufferMode -> "buffer select."
@@ -138,6 +139,7 @@ universal_keyCmds = let
                          ++ case st ^. subgraphSubmode of
                               SubgraphSubmode_primary -> "primary."
                               SubgraphSubmode_sort -> "sort."
+         HelpMode -> "help."
          LangCmdMode -> "command language."
          NoMode -> paragraph [ "Nothing in particular;"
                              , "only universal commands are available." ]

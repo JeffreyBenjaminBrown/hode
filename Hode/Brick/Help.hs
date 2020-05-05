@@ -1,4 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings
+, RankNTypes
+#-}
 
 module Hode.Brick.Help where
 
@@ -110,40 +112,47 @@ attrMap = B.attrMap
          , ("focus",                   V.white `B.on` V.blue)
          , ("focus" <> "highlight",    V.black `B.on` V.green) ]
 
-respond :: Help -> B.BrickEvent n e
-                -> B.EventM n (B.Next Help)
-respond st (B.VtyEvent ev) =
+respond :: Lens' st Help
+        -> (st -> st)
+        -> st
+        -> B.BrickEvent n e
+        -> B.EventM n (B.Next st)
+respond help exitHelp st (B.VtyEvent ev) =
   case ev of
-    V.EvKey V.KEsc [] -> B.halt st
+    V.EvKey V.KEsc [] -> B.continue $ exitHelp st
     V.EvKey (V.KChar ' ') [] ->
-      B.continue $ st & helpWindows %~ C.next
+      B.continue $ st & help . helpWindows %~ C.next
     V.EvKey (V.KChar 'h') [] ->
-      B.continue $ st & helpHelp %~ not
-    _ -> case st ^. helpWindows . P.focus of
+      B.continue $ st & help . helpHelp %~ not
+    _ -> case st ^. help . helpWindows . P.focus of
 
       Choice1 -> case ev of
         V.EvKey (V.KChar 'e') [] ->
-          B.continue $ st & helpChoices %~ C.previous
+          B.continue $ st & help . helpChoices %~ C.previous
         V.EvKey (V.KChar 'd') [] ->
-          B.continue $ st & helpChoices %~ C.next
+          B.continue $ st & help . helpChoices %~ C.next
         _ -> B.continue st
 
       Choice2 -> case ev of
         V.EvKey (V.KChar 'e') [] ->
-          B.continue $ st & helpChoices2 %~ C.previous
+          B.continue $ st & help . helpChoices2 %~ C.previous
         V.EvKey (V.KChar 'd') [] ->
-          B.continue $ st & helpChoices2 %~ C.next
+          B.continue $ st & help . helpChoices2 %~ C.next
         _ -> B.continue st
 
       Choice3 -> case ev of
         V.EvKey (V.KChar 'e') [] ->
-          B.continue $ st & helpChoices3 %~ C.previous
+          B.continue $ st & help . helpChoices3 %~ C.previous
         V.EvKey (V.KChar 'd') [] ->
-          B.continue $ st & helpChoices3 %~ C.next
+          B.continue $ st & help . helpChoices3 %~ C.next
         _ -> B.continue st
       _ -> B.continue st
-respond st _ = B.continue st
+respond _ _ st _ = B.continue st
 
+-- | This demonstrates what the help menu does.
+-- It does not demonstrate how to integrate the help into a bigger app --
+-- the definition would need something more complex than
+-- `id` and `error` for that.
 demo :: forall n. (Ord n, Show n)
   => (HelpWindow -> n) -- ^ `n` is the type used to name windows in the
                        -- app into which this help is incorporated.
@@ -153,7 +162,8 @@ demo :: forall n. (Ord n, Show n)
 demo wrapName = let
   app = B.App
         { B.appDraw = (:[]) . helpUi wrapName
-        , B.appHandleEvent = respond
+        , B.appHandleEvent = respond id $
+                             error "this is a goofy way to exit"
         , B.appStartEvent = return
         , B.appAttrMap = const attrMap
         , B.appChooseCursor = B.neverShowCursor

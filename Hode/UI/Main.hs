@@ -21,8 +21,9 @@ import           Brick.Util           as B
 import qualified Graphics.Vty         as V
 
 import qualified Hode.Brick.Help       as H
-import qualified Hode.Brick.Help.Types as H
+import           Hode.Hash.Types
 import           Hode.PTree.Initial
+import           Hode.Qseq.Types (Var(..))
 import           Hode.Rslt.Index (mkRslt)
 import           Hode.Rslt.Types
 import           Hode.UI.BufferShow
@@ -48,12 +49,13 @@ app = B.App
   { B.appDraw = \st ->
       case st ^. mainWindow of
         HelpBuffer -> [ H.helpUi BrickHelpName $
-                        H.initState modes ]
+                        st ^. stHelp ]
         _          -> appDraw st
   , B.appChooseCursor = appChooseCursor
   , B.appHandleEvent  = \st ->
       case st ^. mainWindow of
---        HelpBuffer -> H.respond st
+        HelpBuffer -> H.respond stHelp
+                      (mainWindow .~ SubgraphBuffer) st
         _          -> appHandleEvent st
   , B.appStartEvent   = return
   , B.appAttrMap      = \st ->
@@ -92,6 +94,7 @@ appDraw st0 = [w] where
       BufferBuffer   -> bufferWindow $ st ^. searchBuffers
       SubgraphBuffer -> resultWindow (st ^. viewOptions)
                         (b ^. bufferExprRowTree . pMTrees)
+      HelpBuffer     -> error "impossible -- this case was handled already, in the definition of Hode.UI.Main.app."
 
   optionalWindowUis :: B.Widget BrickName =
     mShow Reassurance reassuranceWindow <=>
@@ -180,3 +183,22 @@ appAttrMap = let
     , (B.attrName "white on green"   , white   `on` darkGreen)
     , (B.attrName "white on blue"    , white   `on` darkBlue)
     ]
+
+emptySt :: Rslt -> St
+emptySt r = St {
+    _focusRing = B.focusRing [BrickOptionalName LangCmds]
+  , _searchBuffers   = Just ( porestLeaf emptySubgraphBuffer
+                              & P.focus . pTreeHasFocus .~ True )
+  , _columnHExprs    = [ HMemberHosts $ HVar VarRowNode ]
+  , _blockingCycles  = Nothing
+  , _uiError         = ""
+  , _reassurance     = "This window provides reassurance. It's all good."
+  , _commands        = B.editor (BrickOptionalName LangCmds) Nothing ""
+  , _commandHistory  = []
+  , _appRslt         = r
+  , _viewOptions     = defaulViewOptions
+  , _mainWindow      = SubgraphBuffer
+  , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
+  , _subgraphSubmode  = SubgraphSubmode_primary
+  , _stHelp           = H.initState modes
+  }
