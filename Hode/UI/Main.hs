@@ -45,12 +45,22 @@ uiFromRslt = B.defaultMain app . emptySt
 
 app :: B.App St e BrickName
 app = B.App
-  { B.appDraw         = appDraw
+  { B.appDraw = \st ->
+      case st ^. mainWindow of
+        HelpBuffer -> [ H.helpUi BrickHelpName $
+                        H.initState modes ]
+        _          -> appDraw st
   , B.appChooseCursor = appChooseCursor
-  , B.appHandleEvent  = appHandleEvent
+  , B.appHandleEvent  = \st ->
+      case st ^. mainWindow of
+--        HelpBuffer -> H.respond st
+        _          -> appHandleEvent st
   , B.appStartEvent   = return
-  , B.appAttrMap      = const appAttrMap
-  }
+  , B.appAttrMap      = \st ->
+      case st ^. mainWindow of
+        HelpBuffer -> H.attrMap
+        _          -> appAttrMap
+}
 
 
 -- | The focused subview is recalculated at each call to `appDisplay`.

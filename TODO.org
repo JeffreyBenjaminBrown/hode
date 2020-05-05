@@ -13,8 +13,9 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO modes and keymap
 *** TODO implement help mode
-**** TODO Branch the display (appDraw).
-**** TODO Branch the commands (appHandleEvent).
+**** TODO Branch the commands (appHandleEvent)
+Requires handing a lens to Hode.Brick.Help,
+from the main state to the Help substate.
 **** permit scrolling in the main help window
 **** make the submode menu optional
 If there's only one choice in that layer, hide it.

@@ -102,8 +102,8 @@ helpUi liftName st = let
       $ st ^. helpChoices3 . P.focus . _2 ]
   ]
 
-theMap :: B.AttrMap
-theMap = B.attrMap
+attrMap :: B.AttrMap
+attrMap = B.attrMap
          (V.white `B.on` V.black) -- default
          [ ("no focus",                V.white `B.on` V.black)
          , ("no focus" <> "highlight", V.black `B.on` V.green)
@@ -155,7 +155,7 @@ demo wrapName = let
         { B.appDraw = (:[]) . helpUi wrapName
         , B.appHandleEvent = respond
         , B.appStartEvent = return
-        , B.appAttrMap = const theMap
+        , B.appAttrMap = const attrMap
         , B.appChooseCursor = B.neverShowCursor
         }
   in B.defaultMain app . initState
