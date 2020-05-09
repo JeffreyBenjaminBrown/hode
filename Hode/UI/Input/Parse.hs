@@ -29,6 +29,7 @@ pLangCmd r s =
     "/replace"   -> pLangCmd_replace r t
     "/r"         -> pLangCmd_replace r t
     "/move"      -> pLangCmd_move      t
+    "/m"         -> pLangCmd_move      t
     "/delete"    -> pLangCmd_delete    t
     "/d"         -> pLangCmd_delete    t
     "/load"      -> pLangCmd_load      t

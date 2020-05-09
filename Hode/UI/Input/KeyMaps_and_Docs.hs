@@ -1,4 +1,5 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase
+, TupleSections #-}
 
 -- | PITFALL: Vty's `Meta` modifier, at least on my system,
 -- cannot be used in conjunction with certain characters, such as ';'.
@@ -193,7 +194,7 @@ universal_keyCmds = let
   , KeyCmd { _keyCmd_name = "Subgraph submode : primary"
            , _keyCmd_func = B.continue
              . (\st -> showReassurance (mode_report st) st)
-             . (subgraphSubmode .~ SubgraphSubmode_sort)
+             . (subgraphSubmode .~ SubgraphSubmode_primary)
            , _keyCmd_key  = (V.KChar 'p', [V.MMeta])
            , _keyCmd_guide = "Toggle the primary submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the command window. Perhaps most importantly, it lets you add and delete branches of the viewtree. See the help for the Subgraph mode for more details." }
 
@@ -353,9 +354,9 @@ subgraphBuffer_universal_keyCmds =
 
   , KeyCmd
   -- Prevents the user from focusing the root of a subgraph view.
-  -- Allowing it would be confusing, because said root is not visible,
-  -- because it's not a common `ViewForkType`. Specifically, it's a `VFQuery`,
-  -- which is only ever (supposed to be) at the top of the viewTRee,
+  -- Allowing that would be confusing, because the root is not visible,
+  -- because it's not a common `ViewForkType`. Instead it's a `VFQuery`,
+  -- which is only ever (supposed to be) at the top of the viewTree,
   -- and is only shown in the buffer select view, not the subgraph view.
 
       { _keyCmd_name = "cursor to parent"

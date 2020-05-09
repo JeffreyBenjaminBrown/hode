@@ -11,6 +11,41 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
+** TODO why does this search fail?
+The first two work, the last fails:
+/a       ##a b   #c d
+/f       ##a /_  #c d
+/f /eval ##a /it #c d
+
+All of these work:
+/a       b   #c d ##a
+/f       /_  #c d ##a
+/f /eval /it #c d ##a
+** TODO ? multi-line expressions, easier parser
+*** cannot implement the separator "#:"
+** TODO check for cycles when a tplt is declared transitive
+Check for cycles non-locally --
+that is, with reference to no particular point in the cycle.
+* TODO critical but can wait until after beta release
+** TODO document
+*** moving an address
+*** ? these features
+are already in the interactive help
+select ViewExpr (M-X)
+nudging (M-E, M-D)
+deleting buffers
+*** TODO documentation: order of topics
+ How to add.
+ How to move focus, add neighbors.
+ *Then* what the Rslt is and how to query.
+** TODO shrink memory footprint, git-compatible, keep timestamps
+Aggregate data into fewer files.
+After each node ID, keep its creation date and its last modified date.
+That way a little awk or something can find me the diff history of that node,
+without bringinng the history of everything else with it.
+** TODO batch add
+/a (patience | humor) #is-a (virtue | skill)
+** TODO save should first delete all .rslt files
 ** permit scrolling
 *** in the main help window
 *** in the history window
@@ -24,24 +59,12 @@ If there's only one choice in that layer, hide it.
 M-w e - <new> Show error "buffer". (Why is this not a proper buffer?)
 M-w r - <new> Toggle reassurance window.
 ???   - Toggle the "press Alt-? for help" window.
-** TODO document
-*** moving an address
-*** ? these features
-are already in the interactive help
-select ViewExpr (M-X)
-nudging (M-E, M-D)
-deleting buffers
-*** TODO documentation: order of topics
- How to add.
- How to move focus, add neighbors.
- *Then* what the Rslt is and how to query.
 ** TODO the obstructive subexpression problem
 *** EASY: the "don't show X in maybe X" problem
 Just add some more indicators to _columnHExprs:
   not, maybe, and warning
 *** after using the app more, maybe consider the more general problem
 ** TODO change: can insertHosts_atFocus when they're already there
-** TODO ? multi-line expressions
 ** TODO folding indicator
 Visually indicate whether a node with descendents is folded.
 Or at least, upon inserting contents, unfold.
@@ -118,6 +141,8 @@ Potentially tricky:
   building a tree from the top while knowing where the focus is.
   Optics (refer to the PointedList implementation).
 ** TODO establish an informal schema
+*** TODO Is (#maybe _) different from (#question _)?
+(#question _) seems more general -- it permits non-boolean members.
 *** AMR might be useful
  https://github.com/nschneid/amr-tutorial/raw/master/slides/AMR-TUTORIAL-FULL.pdf
  (in my Downloads/ folder)
@@ -172,7 +197,6 @@ A single decimal (hex) digit can indicate whether an `Expr`
 matches up to 3 (4) separate `HExpr`s.
 ** TODO filters, throughout the view-Porest
 not just its top level
-** cannot implement the separator "#:"
 * TODO easy
 ** TODO insertion list
 *** plan
@@ -186,9 +210,6 @@ not just its top level
 ** TODO the color "white text on black background"
 ** TODO new in GHC 8.10: :instances
 Given a type, shows its classes.
-** TODO check for cycles when a tplt is declared transitive
-Check for cycles non-locally --
-that is, with reference to no particular point in the cycle.
 ** TODO shortcut to empty the command window
 was implemented already once
 ** TODO merge two nodes
