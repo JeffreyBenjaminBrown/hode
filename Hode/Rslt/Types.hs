@@ -42,7 +42,8 @@ data Role = RoleInTplt' RoleInTplt | RoleInRel' RoleInRel
 type RelPath = [RoleInRel] -- ^ A path to a sub-expression. For instance,
   -- if the sub-expression is the second member of the first member of the
   -- top expression, the path would be `[RoleMember 1, RoleMember 2]`.
-
+  -- That is, searching from the top of the superexpression corresponds
+  -- to reading the path left to right.
 
 -- | = `Expr` is the fundamental type.
 

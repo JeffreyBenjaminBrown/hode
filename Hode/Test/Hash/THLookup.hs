@@ -113,7 +113,6 @@ test_hExprToExpr = TestCase $ do
 test_hExprToAddrs :: Test
 test_hExprToAddrs = TestCase $ do
   -- TODO ? Still untested:
-    -- HEval paths of length > 1
     -- One HEval inside another
 
   assertBool "find 2" $ hExprToAddrs D.big M.empty
@@ -132,7 +131,7 @@ test_hExprToAddrs = TestCase $ do
                             HExpr $ ExprAddr 10) ] )
     == Right S.empty
 
-  assertBool "2 is the first member of the only thing (9) that has 2 as its first member. (Duh.)"
+  assertBool "2 is the first member of the only thing (9) that has 2 as its first member."
     $ hExprToAddrs D.big M.empty
     ( HEval
       ( HMap $ M.fromList [ (RoleInRel' $ RoleMember 1,
@@ -162,6 +161,29 @@ test_hExprToAddrs = TestCase $ do
                                     HExpr $ ExprAddr 2) ] )
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
+
+  let Right r = nInserts (mkRslt mempty)
+                [ "a ## b # c"
+                , "e # f ## g" ]
+      addrOf :: String -> Addr
+      addrOf s = either (error "absent") id
+                 $ fst . head <$> nFind r s
+
+    in do
+    assertBool "Find something with \"a\" as its first member. Return the first member of its second member." $
+      ( hExprToAddrs r M.empty $ HEval
+        ( HMap $ M.fromList [ ( RoleInRel' $ RoleMember 1,
+                                HExpr $ Phrase "a") ] )
+        [ [ RoleMember 2, RoleMember 1 ] ] )
+      == Right (S.singleton $ addrOf "b")
+
+    assertBool "Find something with \"g\" as its first member. Return the first member of its first member." $
+      ( hExprToAddrs r M.empty $ HEval
+        ( HMap $ M.fromList [ (RoleInRel' $ RoleMember 2,
+                               HExpr $ Phrase "g") ] )
+        [ [ RoleMember 1, RoleMember 1 ] ] )
+      == Right (S.singleton $ addrOf "e")
+
 
 test_subExprs :: Test
 test_subExprs = TestCase $ do

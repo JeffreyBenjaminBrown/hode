@@ -119,8 +119,8 @@ subExpr :: Rslt -> Addr -> RelPath -> Either String Addr
 subExpr _ a [] = Right a
 subExpr r a (rl : rls) =
   prefixLeft "subExpr:" $ do
-  (aHas :: Map Role Addr) <- has r a
-  (member_of_a :: Addr) <-
+  aHas :: Map Role Addr <- has r a
+  member_of_a :: Addr <-
     maybe (Left $ "looking up Role " ++ show rl ++ ".") Right
     $ M.lookup (RoleInRel' rl) aHas
   subExpr r member_of_a rls

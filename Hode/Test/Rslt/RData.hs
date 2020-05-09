@@ -121,3 +121,4 @@ b2 = mkRslt $ M.fromList
   , (18, Rel' $ Rel [17,2] 7) -- dolphins #need fish
   , (19, Rel' $ Rel [17,3] 8) -- dolphins #like water
   ]
+

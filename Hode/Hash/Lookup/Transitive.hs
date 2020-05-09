@@ -115,10 +115,10 @@ hExprToAddrs r s (HMemberHostsRec k h) =
 
 hExprToAddrs r s (HEval hm paths) =
   prefixLeft "hExprToAddrs, called on HEval:" $ do
-    (hosts :: Set Addr) <-
+    hosts :: Set Addr <-
       prefixLeft "computing hosts:"
       $ hExprToAddrs r s hm
-    (its :: Set (Set Addr)) <-
+    its :: Set (Set Addr) <-
       ifLefts_set $ S.map (subExprs r paths) hosts
     Right $ S.unions its
 
