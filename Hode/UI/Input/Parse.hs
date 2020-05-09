@@ -79,7 +79,7 @@ pLangCmd_find :: Rslt -> String -> Either String LangCmd
 -- PITFALL: Don't add an implicit Eval at the top of every search parsed in
 -- the UI, because an Eval will return nothing if there are no Its below.
 pLangCmd_find r s = prefixLeft "pLangCmd_find:" $ do
-  (e1 :: PExpr) <- mapLeft show (parse _pHashExpr "UI.Input.Parse error 4" s)
+  e1 :: PExpr <- mapLeft show (parse _pHashExpr "UI.Input.Parse error 4" s)
   LangCmdFind s <$> pExprToHExpr r e1
 
 -- TODO ? In `pLangCmd_sort`, it's kind of ugly that

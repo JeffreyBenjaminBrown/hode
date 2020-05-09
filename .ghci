@@ -22,6 +22,7 @@ import qualified Data.Set as S
 import qualified Data.List.PointedList as P
 import           Data.Text (pack, unpack)
 import qualified Data.Text.Lazy.IO as LT -- writeFile
+import qualified Text.Megaparsec as MP
 
 import qualified Text.Pretty.Simple as Pr
 

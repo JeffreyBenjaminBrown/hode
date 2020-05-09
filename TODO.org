@@ -12,15 +12,26 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO why does this search fail?
+*** TODO rearrange definitions in|from THLookup.hs
+There are some top-level things (e.g. addrOf) that shouldn't be.
+There are tests in test_hExprToAddrs that are tests of the parser,
+not hExprToAddrs.
+*** TODO it seems to be a parsing problem
+see the new failing test
+*** TODO fix THLookup
+see this comment:
+  -- TODO : These HEval expressions aren't right -- they omit the templates,
+  -- and all structure below the top level.
+*** example
 The first two work, the last fails:
-/a       ##a b   #c d
-/f       ##a /_  #c d
-/f /eval ##a /it #c d
+/a        ##a b   #c d
+/f        ##a /_  #c d
+/f (/eval ##a /it #c d)
 
 All of these work:
-/a       b   #c d ##a
-/f       /_  #c d ##a
-/f /eval /it #c d ##a
+/a        b   #c d ##a
+/f        /_  #c d ##a
+/f (/eval /it #c d ##a)
 ** TODO ? multi-line expressions, easier parser
 *** cannot implement the separator "#:"
 ** TODO check for cycles when a tplt is declared transitive

@@ -142,7 +142,7 @@ runParsedLangCmd                      c0 st0 =
     B.continue st'
 
   g (LangCmdFind s h) st =
-    prefixLeft "called to find: " $ do
+    prefixLeft ("called to find: " ++ show h) $ do
     let r :: Rslt = st ^. appRslt
     as :: [Addr] <-
       S.toList <$> hExprToAddrs r mempty h

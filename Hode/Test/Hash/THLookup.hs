@@ -6,9 +6,11 @@ import           Data.Either
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
+import           Text.Megaparsec
 
 import Hode.Hash.Convert
 import Hode.Hash.Lookup
+import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Edit.Initial (insertAt)
@@ -162,6 +164,8 @@ test_hExprToAddrs = TestCase $ do
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 
+  -- TODO : These HEval expressions aren't right -- they omit the templates,
+  -- and all structure below the top level.
   let Right r = nInserts (mkRslt mempty)
                 [ "a ## b # c"
                 , "e # f ## g" ]
@@ -170,20 +174,70 @@ test_hExprToAddrs = TestCase $ do
                  $ fst . head <$> nFind r s
 
     in do
-    assertBool "Find something with \"a\" as its first member. Return the first member of its second member." $
+    assertBool "Find an unlabeled rel with \"a\" as its first member and an unlabeled rel as its second member. Return the first member of the second member. It should be \"b\"." $
       ( hExprToAddrs r M.empty $ HEval
         ( HMap $ M.fromList [ ( RoleInRel' $ RoleMember 1,
                                 HExpr $ Phrase "a") ] )
         [ [ RoleMember 2, RoleMember 1 ] ] )
       == Right (S.singleton $ addrOf "b")
 
-    assertBool "Find something with \"g\" as its first member. Return the first member of its first member." $
+    assertBool "Find an unlabeled rel with \"g\" as its first member and an unlabeled rel as its second member. Return the first member of the first member. It should be \"e\"." $
       ( hExprToAddrs r M.empty $ HEval
         ( HMap $ M.fromList [ (RoleInRel' $ RoleMember 2,
                                HExpr $ Phrase "g") ] )
         [ [ RoleMember 1, RoleMember 1 ] ] )
       == Right (S.singleton $ addrOf "e")
 
+  let u_it_b_y = HEval
+        ( HMap $ M.fromList
+          [ ( RoleInRel' RoleTplt
+            , HExpr $ ExprTplt $ Tplt
+              (Just $ Phrase "u") [] Nothing )
+          , ( RoleInRel' $ RoleMember 1
+            , HMap $ M.fromList
+              [ ( RoleInRel' RoleTplt
+                , HExpr $ ExprTplt $ Tplt
+                  Nothing [Phrase "b"] Nothing )
+              , ( RoleInRel' $ RoleMember 2
+                , HExpr $ Phrase "y" ) ] ) ] )
+        [ [ RoleMember 1, RoleMember 1 ] ]
+    in do
+    assertBool "This fails because the path gets parsed wrong -- the top-level, unary relationship should only have one member, but the first element of the path is `RoleMember 2`." $ parsed_u_it_b_y == u_it_b_y
+    assertBool "" $
+      hExprToAddrs r M.empty u_it_b_y
+      == Right (S.singleton $ addrOf "x")
+
+  let it_b_y_u = HEval
+        ( HMap $ M.fromList
+          [ ( RoleInRel' RoleTplt
+            , HExpr $ ExprTplt $ Tplt
+              Nothing [] (Just $ Phrase "u") )
+          , ( RoleInRel' $ RoleMember 1
+            , HMap $ M.fromList
+              [ ( RoleInRel' RoleTplt
+                , HExpr $ ExprTplt $ Tplt
+                  Nothing [Phrase "b"] Nothing )
+              , ( RoleInRel' $ RoleMember 2
+                , HExpr $ Phrase "y" ) ] ) ] )
+        [ [ RoleMember 1, RoleMember 1 ] ]
+    in do
+    assertBool "This fails because the path gets parsed wrong -- the top-level, unary relationship should only have one member, but the first element of the path is `RoleMember 2`." $ parsed_it_b_y_u == it_b_y_u
+    assertBool "" $
+      hExprToAddrs r M.empty it_b_y_u
+      == Right (S.singleton $ addrOf "x")
+
+Right r = nInserts (mkRslt mempty)
+                [ "##u x #b y" -- (u)nary and (b)inary
+                , "x #b y ##u" ]
+addrOf :: String -> Addr
+addrOf s = either (error "absent") id
+           $ fst . head <$> nFind r s
+Right (Right parsed_u_it_b_y) = pExprToHExpr r <$>
+  parse _pHashExpr "blerk" "/eval ##u /it #b y"
+Right (Right parsed_it_b_y_u) = pExprToHExpr r <$>
+  parse _pHashExpr "blerk2" "/eval /it #b y ##u"
+Right (Right h) = pExprToHExpr r <$>
+  parse _pHashExpr "blerk" "/eval ##u /it #b y"
 
 test_subExprs :: Test
 test_subExprs = TestCase $ do
