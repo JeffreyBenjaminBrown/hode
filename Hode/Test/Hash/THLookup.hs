@@ -162,8 +162,14 @@ test_hExprToAddrs = TestCase $ do
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 
-  -- TODO : Some of the following HEval expressions aren't right --
-  -- they omit the templates, and|or all structure below the top level.
+  -- TODO ? While these tests are valid, some of the HEval expressions
+  -- are not what would be generated in the normal operation of Hode.
+  -- Instead they omit templates, and|or all structure below the top level.
+  -- By contrast, if a user asked to search for, say, "/eval ##u /it #b x",
+  -- the HEval generated would specify all of the structure that the user
+  -- described -- namely, that the top relationship is a unary
+  -- "u"-relationship, and that its first (only) member is a binary
+  -- "b"-relationship with second member "x".
   let Right r = nInserts (mkRslt mempty)
                 [ "a ## b # c"
                 , "e # f ## g" ]

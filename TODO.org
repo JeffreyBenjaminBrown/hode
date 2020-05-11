@@ -12,10 +12,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO why does this search fail?
-*** TODO fix THLookup
-see this comment:
-  -- TODO : These HEval expressions aren't right -- they omit the templates,
-  -- and all structure below the top level.
 *** example
 The first two work, the last fails:
 /a        ##a b   #c d
