@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 
-module Hode.UI.Input.RunParsed (
+module Hode.UI.Input.LangCmd.Run (
     parseAndRunLangCmd -- ^            St ->
                        -- B.EventM BrickName (B.Next St)
   , runParsedLangCmd   -- ^ LangCmd -> St ->
@@ -27,7 +27,7 @@ import Hode.UI.ExprTree
 import Hode.UI.ExprTree.Sort
 import Hode.UI.CycleBuffer
 import Hode.UI.Util
-import Hode.UI.Input.Parse
+import Hode.UI.Input.LangCmd.Parse
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

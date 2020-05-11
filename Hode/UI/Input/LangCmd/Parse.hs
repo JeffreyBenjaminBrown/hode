@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hode.UI.Input.Parse (pLangCmd) where
+module Hode.UI.Input.LangCmd.Parse (pLangCmd) where
 
 import           Data.Either.Combinators (mapLeft)
 import           Data.Set (Set)

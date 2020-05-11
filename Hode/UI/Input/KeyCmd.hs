@@ -41,7 +41,7 @@ import Hode.UI.Clipboard
 import Hode.UI.CycleBuffer
 import Hode.UI.ExprTree
 import Hode.UI.ExprTree.Sort
-import Hode.UI.Input.RunParsed
+import Hode.UI.Input.LangCmd.Run
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views

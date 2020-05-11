@@ -122,8 +122,8 @@ library
                 , Hode.UI.ExprTree.Sort
                 , Hode.UI.Input.KeyCmd
                 , Hode.UI.Input.KeyCmd.Util
-                , Hode.UI.Input.Parse
-                , Hode.UI.Input.RunParsed
+                , Hode.UI.Input.LangCmd.Parse
+                , Hode.UI.Input.LangCmd.Run
                 , Hode.UI.Input.Util
                 , Hode.UI.Main
                 , Hode.UI.Types.Names
