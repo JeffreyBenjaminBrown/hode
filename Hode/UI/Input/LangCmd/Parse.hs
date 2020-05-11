@@ -1,8 +1,13 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables
+, TemplateHaskell
+#-}
 
 module Hode.UI.Input.LangCmd.Parse (pLangCmd) where
 
+import           Control.Lens
 import           Data.Either.Combinators (mapLeft)
+import           Data.Map (Map)
+import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
@@ -14,31 +19,85 @@ import Hode.Hash.Types
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
 import Hode.UI.Types.Names
+import Hode.UI.Types.State
 import Hode.Util.Misc
 import Hode.Util.Parse
 
 
+data LangCmd_MapItem = LangCmd_MapItem
+  { _langCmd_name  :: String
+  , _langCmd_func  :: Rslt -> String -> Either String LangCmd
+  , _langCmd_keyword :: [String]
+  , _langCmd_guide :: String }
+makeLenses ''LangCmd_MapItem
+
+langCmds =
+  [ LangCmd_MapItem {
+      _langCmd_name = "add expression",
+      _langCmd_func = pLangCmd_insert,
+      _langCmd_keyword = ["/add","/a"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "find",
+      _langCmd_func = pLangCmd_find,
+      _langCmd_keyword = ["/find","/f"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "replace",
+      _langCmd_func = pLangCmd_replace,
+      _langCmd_keyword = ["/replace","/r"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "move",
+      _langCmd_func = \_ t -> pLangCmd_move t,
+      _langCmd_keyword = ["/move","/m"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "delete",
+      _langCmd_func = \_ t -> pLangCmd_delete t,
+      _langCmd_keyword = ["/delete","/d"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "load",
+      _langCmd_func = \_ t -> pLangCmd_load t,
+      _langCmd_keyword = ["/load","/l"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "save",
+      _langCmd_func = \_ t -> pLangCmd_save t,
+      _langCmd_keyword = ["/save","/s"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "sort right",
+      _langCmd_func = pLangCmd_sort RightEarlier,
+      _langCmd_keyword = ["/sortRight","/sr"],
+      _langCmd_guide = "describe" }
+
+  , LangCmd_MapItem {
+      _langCmd_name = "sort left",
+      _langCmd_func = pLangCmd_sort LeftEarlier,
+      _langCmd_keyword = ["/sortLeft","/sl"],
+      _langCmd_guide = "describe" }
+  ]
+
 pLangCmd :: Rslt -> String -> Either String LangCmd
 pLangCmd r s =
   let (h,t) = splitAfterFirstLexeme s
-  in case h of
-    "/add"       -> pLangCmd_insert  r t
-    "/a"         -> pLangCmd_insert  r t
-    "/find"      -> pLangCmd_find    r t
-    "/f"         -> pLangCmd_find    r t
-    "/replace"   -> pLangCmd_replace r t
-    "/r"         -> pLangCmd_replace r t
-    "/move"      -> pLangCmd_move      t
-    "/m"         -> pLangCmd_move      t
-    "/delete"    -> pLangCmd_delete    t
-    "/d"         -> pLangCmd_delete    t
-    "/load"      -> pLangCmd_load      t
-    "/save"      -> pLangCmd_save      t
-    "/sortRight" -> pLangCmd_sort RightEarlier  r t
-    "/sr"        -> pLangCmd_sort RightEarlier  r t
-    "/sortLeft"  -> pLangCmd_sort LeftEarlier r t
-    "/sl"        -> pLangCmd_sort LeftEarlier r t
-    _            -> Left $ "Unrecognized start of command."
+      langCmd_map :: Map String (Rslt -> String -> Either String LangCmd)
+      langCmd_map = M.fromList $ concatMap f langCmds where
+        f lcmi = [ ( x
+                   , _langCmd_func lcmi )
+                 | x <- _langCmd_keyword lcmi ]
+  in case M.lookup h langCmd_map of
+    Just f -> f r t
+    _      -> Left $ "Unrecognized start of command."
 
 pLangCmd_insert :: Rslt -> String -> Either String LangCmd
 pLangCmd_insert r s = LangCmdInsert <$>
