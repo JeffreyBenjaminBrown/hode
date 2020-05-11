@@ -301,7 +301,7 @@ test_pExprToHExpr = TestCase $ do
                   , HExpr $ Phrase "y" ) ] ) ] )
           [ [ RoleMember 1, RoleMember 1 ] ]
     in do
-    assertBool "A unary relationship where the joint comes last. /eval /it #b y ##u" $ parsed_it_b_y_u == it_b_y_u
+    assertBool "A unary relationship where the joint comes last: /eval /it #b y ##u" $ parsed_it_b_y_u == it_b_y_u
 
   let Right (Right parsed_u_it_b_y) = pExprToHExpr r <$>
         parse _pHashExpr "blerk" "/eval ##u /it #b y"
@@ -317,10 +317,10 @@ test_pExprToHExpr = TestCase $ do
                     Nothing [Phrase "b"] Nothing )
                 , ( RoleInRel' $ RoleMember 2
                   , HExpr $ Phrase "y" ) ] ) ] )
-          [ [ RoleMember 2, RoleMember 1 ] ]
+          [ [ RoleMember 1, RoleMember 1 ] ]
     in do
-    assertBool "A unary relationship where the joint comes first: /eval ##u /it #b y. These two two expressions should *not* be equivalent. The `[RelPath]` should begin with `RoleMember 1`. To expose the bug I have instead defined it in `u_it_b_y` as `RoleMember 2`, because that's what `pExprToHExpr` is giving me for `parsed_u_it_b_y`."
-      $ parsed_u_it_b_y /= u_it_b_y
+    assertBool "A unary relationship where the joint comes first: /eval ##u /it #b y"
+      $ parsed_u_it_b_y == u_it_b_y
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do

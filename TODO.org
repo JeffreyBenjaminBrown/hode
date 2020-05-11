@@ -11,17 +11,6 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO why does this search fail?
-*** example
-The first two work, the last fails:
-/a        ##a b   #c d
-/f        ##a /_  #c d
-/f (/eval ##a /it #c d)
-
-All of these work:
-/a        b   #c d ##a
-/f        /_  #c d ##a
-/f (/eval /it #c d ##a)
 ** TODO ? multi-line expressions, easier parser
 *** cannot implement the separator "#:"
 ** TODO check for cycles when a tplt is declared transitive

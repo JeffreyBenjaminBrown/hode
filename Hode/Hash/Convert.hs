@@ -102,7 +102,7 @@ pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
   PMap m        -> HMap        <$> pMapToHMap r m
   PMember m     -> HMemberHosts      <$> pExprToHExpr r m
   PInvolves k m -> HMemberHostsRec k <$> pExprToHExpr r m
-  PEval pnr -> do (x :: HExpr) <- pExprToHExpr r pnr
+  PEval pnr -> do x :: HExpr <- pExprToHExpr r pnr
                   ps <- pathsToIts_pExpr pnr
                   Right $ HEval x ps
   PVar s    -> Right $ HVar s
@@ -200,7 +200,9 @@ roleToRoleInRel p = Left $ "roleToRoleInRel: Role " ++ show p ++
                     " is not a RoleInRel."
 
 pathsToIts_sub_pExpr :: PExpr -> Either String [RelPath]
-pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
+pathsToIts_sub_pExpr =
+  prefixLeft "pathsToIts_sub_pExpr: "
+  . para f where
 
   f :: Base PExpr (PExpr, Either String [RelPath])
     -> Either String [RelPath]
@@ -229,11 +231,14 @@ pathsToIts_sub_pExpr = prefixLeft "pathsToIts_sub_pExpr:" . para f where
   f (ItF Nothing)  = Right [[]] -- PITFALL: *not* empty! Rather, found it.
   f (ItF (Just pnr)) = fmap ([] :) $ snd pnr
   f (PRelF pr)       = pathsToIts_sub_pRel pr
-  f PTpltsF        = Right []
+  f PTpltsF          = Right []
 
 pathsToIts_sub_pRel :: PRel -> Either String [RelPath]
-pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel:" . cata f where
-  f :: Base PRel (Either String [RelPath])
+pathsToIts_sub_pRel =
+  prefixLeft "pathsToIts_sub_pRel:"
+  . para f where
+
+  f :: Base PRel (PRel, Either String [RelPath])
     -> Either String [RelPath]
   f AbsentF         = Right []
   f (PNonRelF pnr)  = pathsToIts_sub_pExpr pnr
@@ -241,5 +246,9 @@ pathsToIts_sub_pRel = prefixLeft "pathsToIts_sub_pRel:" . cata f where
   f (ClosedF ms _)  = do
     let g :: (Int,[RelPath]) -> [RelPath]
         g (i,ps) = map ((:) $ RoleMember i) ps
-    ms' <- ifLefts ms
-    Right $ concatMap g $ zip [1..] ms'
+    paths :: [[RelPath]] <- let
+      notAbsent = \case Absent -> False; _ -> True
+      in ifLefts $ map snd $ filter (notAbsent . fst) ms
+      -- Why this filter: If an "it" falls in the second member,
+      -- but the first is Absent, then really "it" is in the first member.
+    Right $ concatMap g $ zip [1..] paths

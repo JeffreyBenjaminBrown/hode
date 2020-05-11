@@ -93,8 +93,8 @@ data PRel -- ^ intermediate type, on the way to parsing an `HExpr`
    = Absent -- ^ The leftmost and rightmost members of an `Open` or
      -- `Closed` might be absent. Interior ones should not be.
    | Closed     [PRel] [Separator] -- ^ First list: members. Second: separators.
-   -- Only the first and last members can be Absent.
-   -- |separators| + 1 = |members|
+   -- Only the first and last members can be `Absent`.
+   -- |separators| + 1 = |members, including `Absent`s|
    | Open Level [PRel] [Separator] -- ^ Like `Closed`,
    -- but potentially incompletely parsed -- that is, more things
    -- might be inserted into it.
