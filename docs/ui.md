@@ -1,3 +1,7 @@
+You don't need to remember all these commands!
+They're easy to find in the in-app help.
+Read this just to get a sense of what's possible.
+
 # The UI
 
 The UI lets you load, save, add to,

@@ -1,3 +1,7 @@
+You don't need to memorize all these commands.
+They're easy to find in the in-app help.
+Read this just to get a sense of what's possible.
+
 # The Hash Language
 
 (If you're hurrying to the part where you can actually use the app,

@@ -23,6 +23,8 @@ deleting buffers
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
+*** TODO document language commands in help
+I already promised that in docs/.
 ** TODO check for cycles when a tplt is declared transitive
 Check for cycles non-locally --
 that is, with reference to no particular point in the cycle.

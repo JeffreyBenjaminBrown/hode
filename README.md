@@ -1,9 +1,10 @@
 Skip to the end of this README for how to install.
 
+
 # There are video introductions
 
-These were made in early 2019.
-The app has gotten much slicker since,
+The app has gotten much slicker since these were made in early 2019,
+and it has new features,
 but the basic idea remains the same.
 
 The video on navigation is probably more interesting.
@@ -15,18 +16,34 @@ but I'm not sure.
 
 [Video: How to edit](https://www.youtube.com/watch?v=fuCREbf1m9k).
 
-# What this is
+
+# There is in-app help
+
+And it's more up-to-date:
+it includes some features not otherwise documented,
+and the keywords and keyboard shortcuts it describes are guaranteed to be correct,
+whereas the documentation outside of the app might not be.
+
+You'll still need to use the out-of-app documentation
+for a good introduction to the app.
+But once you've read that stuff,
+the in-app help is a good way to remind yourself how things work,
+what the keyboard shortcuts andn commands are, etc.
+
+Access the help by pressing `M-?`.
+(That probably means `Alt-?`, unless you use a Mac).
+
+# What Hode is, and how it works
 
 Hode is an editor for higher-order data.
 
 There are four main branches to the project.
 Each branch is described in the [docs](docs) folder.
-They are -- and this is probably the order in which you should read about them:
 
-## The Rslt
+## The Rslt data structure
 
-A `Rslt` is a data structure that generalizes the graph.
-It can easily represent any natural language expression.
+The Rslt is a generalization of the knowledge graph.
+It lets a user easily represent any natural language expression.
 (The `Rslt` is isomorphic to what some programmers call a "hypergraph" --
 but mathematicians claimed that term first,
 and in math it means something much less general.)
@@ -34,40 +51,53 @@ and in math it means something much less general.)
 A `Rslt`is a collection of expressions,
 each of which is either a phrase (like "cats"),
 or a relationship (like "cats have noses")
-or a template (like "_ have _") that relationships share.
+or a template (like "_ have _") shared by many relationships.
 
 What distinguishes a `Rslt` from the a `graph`
-is that the relationships can involve any (positive) number of members,
-and any relationship can itself belong to other relationships.
+is that a relationships can involve any (positive) number of members,
+and a relationship can itself belong to other relationships.
 
-It only takes about 500 words to describe a
+This reading is optional,
+but it only takes about 500 words to describe a
 [Rslt in detail](docs/rslt/rslt.md).
 
 ## Hash
 
-[`Hash`](docs/hash/the-hash-language.md) is a language,
+Hash is a language,
 close to ordinary natural language,
 for talking about a `Rslt`.
-`Hash` offers a concise representation,
+It offers a concise representation,
 both for individual `Expr`s (expressions) in a `Rslt`,
 and for queries which retrieve subsets of a `Rslt`.
 
+To use Hode you'll need to
+[read about `Hash`](docs/hash/the-hash-language.md).
+
 ## The UI
 
-[The UI](docs/ui.md) lets you do stuff
+The UI lets you do stuff
 -- insert data, search for data, view data, save data, load data.
+
+To use Hode you'll need to
+[read about the UI](docs/ui.md).
 
 ## Qseq
 
-(This hasn't made it's way into the UI yet,
-but if you're a curious hacker, it's implemented.)
+If you're a curious hacker, this has been implemented,
+but it hasn't made it's way into the UI yet.
 
 [Qseq](Hode/Qseq/) is a metalanguage for search.
 It lets you use existential and universal quantifiers to string together searches in some underlying search language.
 
+
 # How to install
 
-Hode is unavailable for Windows. (That's because it relies on the [Brick](https://hackage.haskell.org/package/brick) terminal interface library.)
+## If you run Windows, you'll need to run Linux inside it
+
+That's because Hode relies on the
+[Brick](https://hackage.haskell.org/package/brick)
+terminal interface library.
+There are, fortunately, lots of ways to run Linux in Windows.
 
 ## Prerequisites
 

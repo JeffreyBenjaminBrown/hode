@@ -66,10 +66,15 @@ helpUi liftName st = let
   B.vBox
   [ B.strWrap ( if st ^. helpHelp
                 then concat $ L.intersperse "\n"
-                   [ "Press Esc to quit. Press h to hide this message."
+                   [ "Press Esc to quit the app."
                    , "Press the spacebar to switch menus."
                    , "Press d and e to scroll between options."
-                   , "The mode you choose determines which submodes are possible. The submode you chooses determines which commands are possible. The command you choose will be described in the big window. If it doesn't all fit on one screen, navigate to the big window and scroll with d and e." ]
+                   , concat $ L.intersperse " "
+                     [ "The mode you choose determines which submodes are possible."
+                     , "The submode you chooses determines which commands are possible."
+                     , "The command you choose will be described in the big window."
+                     , "If it doesn't all fit on one screen, navigate to the big window and scroll with d and e." ]
+                   , "Press h to hide this message."]
                 else "For help using this help, press h." )
 
   , B.hBorder
