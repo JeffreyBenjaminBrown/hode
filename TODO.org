@@ -14,11 +14,10 @@ This will load all non-broken modules when some are broken.
 ** TODO ? multi-line expressions, easier parser
 *** cannot implement the separator "#:"
 ** TODO document
-*** TODO move KeyCmd to the KeyMap file
-and rename that KeyCmd
-and then do similar with language commands
 *** TODO document language commands in help
-I already promised that in docs/.
+(I already promised this in docs/.)
+Resume at module Hode.UI.Input.LangCmd.Parse
+Then do similar for the Hash parser.
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)

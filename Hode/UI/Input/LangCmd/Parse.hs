@@ -1,10 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables
-, TemplateHaskell
 #-}
+-- , TemplateHaskell
 
 module Hode.UI.Input.LangCmd.Parse (pLangCmd) where
 
-import           Control.Lens
+--import           Control.Lens
 import           Data.Either.Combinators (mapLeft)
 import           Data.Map (Map)
 import qualified Data.Map as M
@@ -18,8 +18,8 @@ import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
+import Hode.UI.Input.Util
 import Hode.UI.Types.Names
-import Hode.UI.Types.State
 import Hode.Util.Misc
 import Hode.Util.Parse
 
@@ -29,69 +29,101 @@ data LangCmd_MapItem = LangCmd_MapItem
   , _langCmd_func  :: Rslt -> String -> Either String LangCmd
   , _langCmd_keyword :: [String]
   , _langCmd_guide :: String }
-makeLenses ''LangCmd_MapItem
+--makeLenses ''LangCmd_MapItem
 
-langCmds =
+langCmd_MapItems :: [LangCmd_MapItem]
+langCmd_MapItems =
   [ LangCmd_MapItem {
       _langCmd_name = "add expression",
       _langCmd_func = pLangCmd_insert,
       _langCmd_keyword = ["/add","/a"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraphs
+        [ "Adds an expression to the graph."
+        , "For instance, `/add Bob #likes pizza`." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "find",
       _langCmd_func = pLangCmd_find,
       _langCmd_keyword = ["/find","/f"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Find an expression or set of expressions in the graph."
+        , "For instance, `/find /_ #likes pizza` would find both `Bob #likes pizza` and `Mary #likes pizza`." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "replace",
       _langCmd_func = pLangCmd_replace,
       _langCmd_keyword = ["/replace","/r"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Replace the content of an expression."
+        , "The first argument is the address, and the second is the expression to replace it with."
+        , "For instance, `/replace 100 Bob #needs damp sponges`." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "move",
       _langCmd_func = \_ t -> pLangCmd_move t,
       _langCmd_keyword = ["/move","/m"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Move an expression to a new address."
+        , "The first argument is the old address, and the second one is the new address."
+        , "For instance, `/move 33 333` would move whatever was at address 33 to address 333."
+        , "PITFALL: If the new address is not empty, it will be moved to an unoccupied address -- specifically, the one just after the maximum address in the graph." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "delete",
       _langCmd_func = \_ t -> pLangCmd_delete t,
       _langCmd_keyword = ["/delete","/d"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Deletes the expression at the given address."
+        , "For instance, `/d 77` deletes what was at address 77."
+        , "PITFALL: An expression can only be deleted if it is not a member of any other expression." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "load",
       _langCmd_func = \_ t -> pLangCmd_load t,
       _langCmd_keyword = ["/load","/l"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Loads the data at the specified path."
+        , "For instance, `/load path/to/my/data`."
+        , "Every file ending in `.rslt` is loaded."
+        , "All others are ignored." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "save",
       _langCmd_func = \_ t -> pLangCmd_save t,
       _langCmd_keyword = ["/save","/s"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Saves the data at the specified path."
+        , "For instance, `/load path/to/my/data`."
+        , "PITFALL: Does not delete anything that was previously there."
+        , "If there was already a graph there, this can create an inconsistent graph -- it might have duplicate entries, and if so you'll only find one of them when you search for it."
+        , "To be safe, first delete all files ending in `.rslt` from the destination." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "sort right",
       _langCmd_func = pLangCmd_sort RightEarlier,
       _langCmd_keyword = ["/sortRight","/sr"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Sorts by the given template, putting right members earlier, left members later."
+        , "Example: `/sortRight /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
+        , "If the template is t, and two expressions a and b are related by t, then b will come first in the sort order, because b is on the right side of the template."
+        , "For details on sorting, see docs/ui/transitivity.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/ui/transitivity.md." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "sort left",
       _langCmd_func = pLangCmd_sort LeftEarlier,
       _langCmd_keyword = ["/sortLeft","/sl"],
-      _langCmd_guide = "describe" }
+      _langCmd_guide = paragraph
+        [ "Sorts by the given template, putting left members earlier, right members later."
+        , "Example: `/sortLeft /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
+        , "If the template is t, and two expressions a and b are related by t, then a will come first in the sort order, because b is on the left side of the template."
+        , "For details on sorting, see docs/ui/transitivity.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/ui/transitivity.md." ] }
   ]
 
 pLangCmd :: Rslt -> String -> Either String LangCmd
 pLangCmd r s =
   let (h,t) = splitAfterFirstLexeme s
       langCmd_map :: Map String (Rslt -> String -> Either String LangCmd)
-      langCmd_map = M.fromList $ concatMap f langCmds where
+      langCmd_map = M.fromList $ concatMap f langCmd_MapItems where
         f lcmi = [ ( x
                    , _langCmd_func lcmi )
                  | x <- _langCmd_keyword lcmi ]
