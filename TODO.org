@@ -12,12 +12,6 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO why does this search fail?
-*** TODO rearrange definitions in|from THLookup.hs
-There are some top-level things (e.g. addrOf) that shouldn't be.
-There are tests in test_hExprToAddrs that are tests of the parser,
-not hExprToAddrs.
-*** TODO it seems to be a parsing problem
-see the new failing test
 *** TODO fix THLookup
 see this comment:
   -- TODO : These HEval expressions aren't right -- they omit the templates,

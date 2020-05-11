@@ -6,11 +6,9 @@ import           Data.Either
 import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
-import           Text.Megaparsec
 
 import Hode.Hash.Convert
 import Hode.Hash.Lookup
-import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Edit.Initial (insertAt)
@@ -164,8 +162,8 @@ test_hExprToAddrs = TestCase $ do
              [ [ RoleMember 1 ] ] ) )
     == Right ( S.fromList [7] )
 
-  -- TODO : These HEval expressions aren't right -- they omit the templates,
-  -- and all structure below the top level.
+  -- TODO : Some of the following HEval expressions aren't right --
+  -- they omit the templates, and|or all structure below the top level.
   let Right r = nInserts (mkRslt mempty)
                 [ "a ## b # c"
                 , "e # f ## g" ]
@@ -195,8 +193,6 @@ test_hExprToAddrs = TestCase $ do
     addrOf :: String -> Addr
     addrOf s = either (error "absent") id
                $ fst . head <$> nFind r s
-    Right (Right h) = pExprToHExpr r <$>
-      parse _pHashExpr "blerk" "/eval ##u /it #b y"
     in do
     let u_it_b_y = HEval
           ( HMap $ M.fromList
