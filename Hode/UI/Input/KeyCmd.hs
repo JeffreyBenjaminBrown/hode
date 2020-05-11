@@ -5,7 +5,7 @@
 -- | PITFALL: Vty's `Meta` modifier, at least on my system,
 -- cannot be used in conjunction with certain characters, such as ';'.
 
-module Hode.UI.Input.KeyMaps_and_Docs (
+module Hode.UI.Input.KeyCmd (
     keyPrefix -- ^ (V.Key, [V.Modifier]) -> String
 
   , modes -- ^ Choice1Plist

@@ -8,14 +8,11 @@ module Hode.UI.Input.Util (
   , goe -- ^ (St -> Either String St) -> St -> B.EventM n (B.Next St)
   ) where
 
-import           Control.Lens hiding (folded)
 import qualified Data.List             as L
 
 import qualified Brick.Main            as B
 import qualified Brick.Types           as B
-import qualified Graphics.Vty          as V
 
-import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Util
 import Hode.UI.Window

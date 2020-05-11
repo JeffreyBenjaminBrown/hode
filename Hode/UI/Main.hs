@@ -27,7 +27,7 @@ import           Hode.Qseq.Types (Var(..))
 import           Hode.Rslt.Index (mkRslt)
 import           Hode.Rslt.Types
 import           Hode.UI.BufferShow
-import           Hode.UI.Input.KeyMaps_and_Docs
+import           Hode.UI.Input.KeyCmd
 import           Hode.UI.Types.Names
 import           Hode.UI.Types.State
 import           Hode.UI.Util
