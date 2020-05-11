@@ -281,6 +281,16 @@ Here's a brief refresher:
 
 See the [documentation on transitivity](ui/transitivity.md).
 
+## Move an expression (change its address)
+
+This is kind of a strange thing to do.
+You probably won't ever need to.
+However, just in case:
+
+To move the expression at address `a` to address `b`, type this:
+
+`/move a b`.
+
 # Keyboard commands
 
 ## Keyboard commands that work from multiple places

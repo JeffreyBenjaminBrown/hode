@@ -13,12 +13,7 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ? multi-line expressions, easier parser
 *** cannot implement the separator "#:"
-** TODO check for cycles when a tplt is declared transitive
-Check for cycles non-locally --
-that is, with reference to no particular point in the cycle.
-* TODO critical but can wait until after beta release
 ** TODO document
-*** moving an address
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)
@@ -28,6 +23,10 @@ deleting buffers
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
+** TODO check for cycles when a tplt is declared transitive
+Check for cycles non-locally --
+that is, with reference to no particular point in the cycle.
+* TODO critical but can wait until after beta release
 ** TODO shrink memory footprint, git-compatible, keep timestamps
 Aggregate data into fewer files.
 After each node ID, keep its creation date and its last modified date.
