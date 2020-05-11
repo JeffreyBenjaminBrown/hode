@@ -188,56 +188,52 @@ test_hExprToAddrs = TestCase $ do
         [ [ RoleMember 1, RoleMember 1 ] ] )
       == Right (S.singleton $ addrOf "e")
 
-  let u_it_b_y = HEval
-        ( HMap $ M.fromList
-          [ ( RoleInRel' RoleTplt
-            , HExpr $ ExprTplt $ Tplt
-              (Just $ Phrase "u") [] Nothing )
-          , ( RoleInRel' $ RoleMember 1
-            , HMap $ M.fromList
-              [ ( RoleInRel' RoleTplt
-                , HExpr $ ExprTplt $ Tplt
-                  Nothing [Phrase "b"] Nothing )
-              , ( RoleInRel' $ RoleMember 2
-                , HExpr $ Phrase "y" ) ] ) ] )
-        [ [ RoleMember 1, RoleMember 1 ] ]
+  let
+    Right r = nInserts (mkRslt mempty)
+                    [ "##u x #b y" -- (u)nary and (b)inary
+                    , "x #b y ##u" ]
+    addrOf :: String -> Addr
+    addrOf s = either (error "absent") id
+               $ fst . head <$> nFind r s
+    Right (Right h) = pExprToHExpr r <$>
+      parse _pHashExpr "blerk" "/eval ##u /it #b y"
     in do
-    assertBool "This fails because the path gets parsed wrong -- the top-level, unary relationship should only have one member, but the first element of the path is `RoleMember 2`." $ parsed_u_it_b_y == u_it_b_y
-    assertBool "" $
-      hExprToAddrs r M.empty u_it_b_y
-      == Right (S.singleton $ addrOf "x")
+    let u_it_b_y = HEval
+          ( HMap $ M.fromList
+            [ ( RoleInRel' RoleTplt
+              , HExpr $ ExprTplt $ Tplt
+                (Just $ Phrase "u") [] Nothing )
+            , ( RoleInRel' $ RoleMember 1
+              , HMap $ M.fromList
+                [ ( RoleInRel' RoleTplt
+                  , HExpr $ ExprTplt $ Tplt
+                    Nothing [Phrase "b"] Nothing )
+                , ( RoleInRel' $ RoleMember 2
+                  , HExpr $ Phrase "y" ) ] ) ] )
+          [ [ RoleMember 1, RoleMember 1 ] ]
 
-  let it_b_y_u = HEval
-        ( HMap $ M.fromList
-          [ ( RoleInRel' RoleTplt
-            , HExpr $ ExprTplt $ Tplt
-              Nothing [] (Just $ Phrase "u") )
-          , ( RoleInRel' $ RoleMember 1
-            , HMap $ M.fromList
-              [ ( RoleInRel' RoleTplt
-                , HExpr $ ExprTplt $ Tplt
-                  Nothing [Phrase "b"] Nothing )
-              , ( RoleInRel' $ RoleMember 2
-                , HExpr $ Phrase "y" ) ] ) ] )
-        [ [ RoleMember 1, RoleMember 1 ] ]
-    in do
-    assertBool "This fails because the path gets parsed wrong -- the top-level, unary relationship should only have one member, but the first element of the path is `RoleMember 2`." $ parsed_it_b_y_u == it_b_y_u
-    assertBool "" $
-      hExprToAddrs r M.empty it_b_y_u
-      == Right (S.singleton $ addrOf "x")
+      in do
+      assertBool "" $
+        hExprToAddrs r M.empty u_it_b_y
+        == Right (S.singleton $ addrOf "x")
 
-Right r = nInserts (mkRslt mempty)
-                [ "##u x #b y" -- (u)nary and (b)inary
-                , "x #b y ##u" ]
-addrOf :: String -> Addr
-addrOf s = either (error "absent") id
-           $ fst . head <$> nFind r s
-Right (Right parsed_u_it_b_y) = pExprToHExpr r <$>
-  parse _pHashExpr "blerk" "/eval ##u /it #b y"
-Right (Right parsed_it_b_y_u) = pExprToHExpr r <$>
-  parse _pHashExpr "blerk2" "/eval /it #b y ##u"
-Right (Right h) = pExprToHExpr r <$>
-  parse _pHashExpr "blerk" "/eval ##u /it #b y"
+    let it_b_y_u = HEval
+          ( HMap $ M.fromList
+            [ ( RoleInRel' RoleTplt
+              , HExpr $ ExprTplt $ Tplt
+                Nothing [] (Just $ Phrase "u") )
+            , ( RoleInRel' $ RoleMember 1
+              , HMap $ M.fromList
+                [ ( RoleInRel' RoleTplt
+                  , HExpr $ ExprTplt $ Tplt
+                    Nothing [Phrase "b"] Nothing )
+                , ( RoleInRel' $ RoleMember 2
+                  , HExpr $ Phrase "y" ) ] ) ] )
+          [ [ RoleMember 1, RoleMember 1 ] ]
+      in do
+      assertBool "" $
+        hExprToAddrs r M.empty it_b_y_u
+        == Right (S.singleton $ addrOf "x")
 
 test_subExprs :: Test
 test_subExprs = TestCase $ do
