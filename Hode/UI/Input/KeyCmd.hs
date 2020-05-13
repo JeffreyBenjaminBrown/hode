@@ -7,7 +7,7 @@
 module Hode.UI.Input.KeyCmd (
     keyPrefix -- ^ (V.Key, [V.Modifier]) -> String
 
-  , modes -- ^ Choice1Plist
+  , hodeHelp -- ^ Choice1Plist
 
   , universal_intro        -- ^ String
   , universal_keyCmds      -- ^ [KeyCmd]
@@ -72,8 +72,8 @@ prefixKeyCmdName_withKey kc =
                       ++ ": "
                       ++ _keyCmd_name kc }
 
-modes :: Choice1Plist
-modes = let
+hodeHelp :: Choice1Plist
+hodeHelp = let
   skippable :: String
   skippable = "(This has only one submode. Press space to skip.)"
   in fromJust $ P.fromList

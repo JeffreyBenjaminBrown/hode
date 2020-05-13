@@ -27,7 +27,7 @@ import Hode.Util.Parse
 data LangCmd_MapItem = LangCmd_MapItem
   { _langCmd_name  :: String
   , _langCmd_func  :: Rslt -> String -> Either String LangCmd
-  , _langCmd_keyword :: [String]
+  , _langCmd_keywords :: [String]
   , _langCmd_guide :: String }
 --makeLenses ''LangCmd_MapItem
 
@@ -36,7 +36,7 @@ langCmd_MapItems =
   [ LangCmd_MapItem {
       _langCmd_name = "add expression",
       _langCmd_func = pLangCmd_insert,
-      _langCmd_keyword = ["/add","/a"],
+      _langCmd_keywords = ["/add","/a"],
       _langCmd_guide = paragraphs
         [ "Adds an expression to the graph."
         , "For instance, `/add Bob #likes pizza`." ] }
@@ -44,7 +44,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "find",
       _langCmd_func = pLangCmd_find,
-      _langCmd_keyword = ["/find","/f"],
+      _langCmd_keywords = ["/find","/f"],
       _langCmd_guide = paragraph
         [ "Find an expression or set of expressions in the graph."
         , "For instance, `/find /_ #likes pizza` would find both `Bob #likes pizza` and `Mary #likes pizza`." ] }
@@ -52,7 +52,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "replace",
       _langCmd_func = pLangCmd_replace,
-      _langCmd_keyword = ["/replace","/r"],
+      _langCmd_keywords = ["/replace","/r"],
       _langCmd_guide = paragraph
         [ "Replace the content of an expression."
         , "The first argument is the address, and the second is the expression to replace it with."
@@ -61,7 +61,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "move",
       _langCmd_func = \_ t -> pLangCmd_move t,
-      _langCmd_keyword = ["/move","/m"],
+      _langCmd_keywords = ["/move","/m"],
       _langCmd_guide = paragraph
         [ "Move an expression to a new address."
         , "The first argument is the old address, and the second one is the new address."
@@ -71,7 +71,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "delete",
       _langCmd_func = \_ t -> pLangCmd_delete t,
-      _langCmd_keyword = ["/delete","/d"],
+      _langCmd_keywords = ["/delete","/d"],
       _langCmd_guide = paragraph
         [ "Deletes the expression at the given address."
         , "For instance, `/d 77` deletes what was at address 77."
@@ -80,7 +80,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "load",
       _langCmd_func = \_ t -> pLangCmd_load t,
-      _langCmd_keyword = ["/load","/l"],
+      _langCmd_keywords = ["/load","/l"],
       _langCmd_guide = paragraph
         [ "Loads the data at the specified path."
         , "For instance, `/load path/to/my/data`."
@@ -90,7 +90,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "save",
       _langCmd_func = \_ t -> pLangCmd_save t,
-      _langCmd_keyword = ["/save","/s"],
+      _langCmd_keywords = ["/save","/s"],
       _langCmd_guide = paragraph
         [ "Saves the data at the specified path."
         , "For instance, `/load path/to/my/data`."
@@ -101,7 +101,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "sort right",
       _langCmd_func = pLangCmd_sort RightEarlier,
-      _langCmd_keyword = ["/sortRight","/sr"],
+      _langCmd_keywords = ["/sortRight","/sr"],
       _langCmd_guide = paragraph
         [ "Sorts by the given template, putting right members earlier, left members later."
         , "Example: `/sortRight /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
@@ -111,7 +111,7 @@ langCmd_MapItems =
   , LangCmd_MapItem {
       _langCmd_name = "sort left",
       _langCmd_func = pLangCmd_sort LeftEarlier,
-      _langCmd_keyword = ["/sortLeft","/sl"],
+      _langCmd_keywords = ["/sortLeft","/sl"],
       _langCmd_guide = paragraph
         [ "Sorts by the given template, putting left members earlier, right members later."
         , "Example: `/sortLeft /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
@@ -126,7 +126,7 @@ pLangCmd r s =
       langCmd_map = M.fromList $ concatMap f langCmd_MapItems where
         f lcmi = [ ( x
                    , _langCmd_func lcmi )
-                 | x <- _langCmd_keyword lcmi ]
+                 | x <- _langCmd_keywords lcmi ]
   in case M.lookup h langCmd_map of
     Just f -> f r t
     _      -> Left $ "Unrecognized start of command."

@@ -199,5 +199,5 @@ emptySt r = St {
   , _mainWindow      = SubgraphBuffer
   , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
   , _subgraphSubmode  = SubgraphSubmode_primary
-  , _stHelp           = H.initState modes
+  , _stHelp           = H.initState hodeHelp
   }
