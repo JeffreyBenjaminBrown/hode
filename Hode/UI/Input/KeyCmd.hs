@@ -41,14 +41,15 @@ import Hode.UI.Clipboard
 import Hode.UI.CycleBuffer
 import Hode.UI.ExprTree
 import Hode.UI.ExprTree.Sort
+import Hode.UI.Input.LangCmd.Parse
 import Hode.UI.Input.LangCmd.Run
+import Hode.UI.Input.Util
 import Hode.UI.Types.Names
 import Hode.UI.Types.State
 import Hode.UI.Types.Views
 import Hode.UI.Util
 import Hode.UI.Util.String
 import Hode.UI.Window
-import Hode.UI.Input.Util
 
 import Hode.UI.Input.KeyCmd.Util
 import Hode.Brick.Help.Types
@@ -77,11 +78,13 @@ hodeHelp = let
   skippable :: String
   skippable = "(This has only one submode. Press space to skip.)"
   in fromJust $ P.fromList
-  [ ( "universal"
+  [ ( "ui text commands"
+    , fromJust $ P.fromList [ (skippable, langHelp) ] )
+  , ( "universal key commands"
     , fromJust $ P.fromList [ (skippable, universal_c3) ] )
-  , ( "bufferBuffer"
+  , ( "buffer view"
     , fromJust $ P.fromList [ (skippable, bufferBuffer_c3) ] )
-  , ( "subgraphBuffer"
+  , ( "subgraph view"
     , fromJust $ P.fromList
       [ ("introduction", subgraphBuffer_universal_keyCmds_c3)
       , ("viewTree",     subgraphBuffer_primary_keyCmds_c3)

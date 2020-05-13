@@ -1,17 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables
 #-}
--- , TemplateHaskell
 
-module Hode.UI.Input.LangCmd.Parse (pLangCmd) where
+module Hode.UI.Input.LangCmd.Parse (
+    pLangCmd -- ^ Rslt -> String -> Either String LangCmd
+  , langHelp -- ^ Choice3Plist
+  ) where
 
---import           Control.Lens
 import           Data.Either.Combinators (mapLeft)
+import qualified Data.List.PointedList as P
 import           Data.Map (Map)
 import qualified Data.Map as M
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
 
+import Hode.Brick.Help.Types
 import Hode.Hash.Convert
 import Hode.Hash.Lookup
 import Hode.Hash.Parse
@@ -29,7 +33,15 @@ data LangCmd_MapItem = LangCmd_MapItem
   , _langCmd_func  :: Rslt -> String -> Either String LangCmd
   , _langCmd_keywords :: [String]
   , _langCmd_guide :: String }
---makeLenses ''LangCmd_MapItem
+
+langHelp :: Choice3Plist
+langHelp = let
+  helpItem :: LangCmd_MapItem -> [(String, String)]
+  helpItem i = [ ( kw ++ ": " ++ _langCmd_name i
+                 , _langCmd_guide i )
+               | kw <- _langCmd_keywords i ]
+  in fromJust . P.fromList
+     $ concatMap helpItem langCmd_MapItems
 
 langCmd_MapItems :: [LangCmd_MapItem]
 langCmd_MapItems =
