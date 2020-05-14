@@ -25,7 +25,7 @@ test_module_hash_parse = TestList [
   , TestLabel "test_parse_pPExpr" test_parse_pPExpr
   , TestLabel "test_parse_hExpr" test_parse_hExpr
   , TestLabel "test_parse_tplt" test_parse_tplt
-  , TestLabel "test_hashIdentifier" test_hashIdentifier
+  , TestLabel "test_hashWord" test_hashWord
   , TestLabel "test_hashPhrase" test_hashPhrase
   , TestLabel "test_pAny" test_pAny
   , TestLabel "test_pIt" test_pIt
@@ -59,13 +59,13 @@ test_hashPhrase = TestCase $ do
   assertBool "" $ parse hashPhrase "" "a b \"c d\" e f"
     == Right "a b c d e f"
 
-test_hashIdentifier :: Test
-test_hashIdentifier = TestCase $ do
+test_hashWord :: Test
+test_hashWord = TestCase $ do
   let s = "start!@%^*+=-`~_[]{}:;<>?,.finish"
       t = "start " ++ s ++ " finish"
-  assertBool "" $ parse hashIdentifier "" s == Right s
-  assertBool "" $ parse hashIdentifier "" t == Right "start"
-  assertBool "" $ isLeft $ parse hashIdentifier "" ""
+  assertBool "" $ parse hashWord "" s == Right s
+  assertBool "" $ parse hashWord "" t == Right "start"
+  assertBool "" $ isLeft $ parse hashWord "" ""
 
 test_parse_tplt :: Test
 test_parse_tplt = TestCase $ do

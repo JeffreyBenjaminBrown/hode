@@ -19,14 +19,14 @@ That should be either parens containing anything,
 or an identifier containing anything but #.
 ***** sets of consecutive |, & and \
 should be preceded by a single /, just like they were keywords.
-***** hash word (currently "hashIdentifier")
+***** hash word (currently "hashWord")
 Can begin with anything but #.
 Can contain anything but
 ***** hashPhrase
 **** research
 ***** parsers of special interest
  hashPhrase
- hashIdentifier
+ hashWord
  pHash
  pDiff
  pAnd

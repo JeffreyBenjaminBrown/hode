@@ -27,7 +27,7 @@ module Hode.Hash.Parse (
   , pAny           -- ^ Parser PExpr
   , pIt            -- ^ Parser PExpr
   , hashPhrase     -- ^ Parser String
-  , hashIdentifier -- ^ Parser String
+  , hashWord -- ^ Parser String
   , nonPrefix      -- ^ String -> Parser String
   ) where
 
@@ -70,7 +70,7 @@ pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
   label <- option ""
-    $ hashIdentifier
+    $ hashWord
     <|> parens ( concat . L.intersperse " "
                  <$> some (lexeme hashPhrase) )
   return $ hash n label
@@ -222,7 +222,7 @@ pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
               $ map (try . nonPrefix) ["/var","/v"] )
-          lexeme hashIdentifier >>= return . PVar . VarString
+          lexeme hashWord >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
@@ -238,7 +238,7 @@ pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
 hashPhrase :: Parser String
 hashPhrase =
   concat . intersperse " "
-  <$> some (lexeme quoted <|> hashIdentifier)
+  <$> some (lexeme quoted <|> hashWord)
  where
 
   quoted :: Parser String
@@ -266,8 +266,8 @@ hashPhrase =
   nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"
 
 -- | Every character that isn't special Hash syntax.
-hashIdentifier :: Parser String
-hashIdentifier = lexeme $ some $ foldr1 (<|>)
+hashWord :: Parser String
+hashWord = lexeme $ some $ foldr1 (<|>)
   ( alphaNumChar : map char
     [ '!','@','%','^','*','+','=','-','`','~','_','[',']'
     ,'{','}',':',';','<','>','?',',','.' ] )
