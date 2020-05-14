@@ -13,15 +13,20 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO ? parser
 *** TODO make it easier
-**** parsers of special interest
-hashPhrase
-hashIdentifier
-**** allow any special symbol but # in identifiers without \
-and treat \# as non-special
-**** require all special symbols but # be preceded by \
-**** delete /@, rename /@s to /@
-*** multi-line expressions
-*** cannot implement the separator "#:"
+**** research
+***** parsers of special interest
+ hashPhrase
+ hashIdentifier
+ pHash
+ pDiff
+ pAnd
+ pOr
+**** goals
+***** allow any special symbol but a leading # in identifiers, without \
+and permit a leading \#, which reads the # like an ordinary character
+***** => require all special symbols but # be preceded by \
+A lot of them can be preceded by a single \.
+*** TODO multi-line expressions
 ** TODO document
 *** TODO document language commands in help
 (I already promised this in docs/.)

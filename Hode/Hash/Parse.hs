@@ -17,7 +17,6 @@ module Hode.Hash.Parse (
   , pTransLeft     -- ^ Parser PExpr
   , pHashExpr      -- ^ Parser PExpr
   , _pHashExpr     -- ^ Parser PExpr
-  , pAddr          -- ^ Parser Expr
   , pAddrs         -- ^ Parser PExpr
   , pPhrase        -- ^ Parser PExpr
   , pTplt          -- ^ Parser Expr
@@ -59,8 +58,8 @@ _pRel = eMakeExprParser pTerm
  [ [ EInfixL $ try $ pHash n
    , EInfixL $ try $ pDiff n
    , EInfixL $ try $ pAnd n
-   , EInfixL $ try $ pOr n
-   ] | n <- [1..8] ]
+   , EInfixL $ try $ pOr n ]
+ | n <- [1..8] ]
 
 pTerm :: Parser PRel
 pTerm = close <$> parens _pRel
@@ -108,7 +107,6 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
 
        -- the PExpr constructor
        , pAddrs
-       , PExpr <$> pAddr
        , pPhrase
        , PExpr <$> pTplt
 
@@ -153,17 +151,12 @@ pHashExpr = lexeme
 _pHashExpr :: Parser PExpr
 _pHashExpr = PRel <$> pRel
 
-pAddr :: Parser Expr
-pAddr = lexeme  ( foldr1 (<|>)
-                  $ map (try . nonPrefix) ["/addr","/@"] )
-        >> ExprAddr . fromIntegral <$> integer
-
 -- | `pAddrs` parses the string "/@s 1-10 100 30-40 101"
 -- to be the disjunction (POr) of 22 `Addr`s.
 pAddrs :: Parser PExpr
 pAddrs = do
   _ <- lexeme $ foldr1 (<|>) $
-       map (try . nonPrefix) ["/addrs","/@s"]
+       map (try . nonPrefix) ["/addr","/@"]
   let range :: Parser [Integer]
       range = do min0 <- lexeme integer
                  _    <- lexeme $ char '-'
@@ -209,7 +202,7 @@ pMember = lexeme ( foldr1 (<|>)
 pAllTplts :: Parser PExpr
 pAllTplts = lexeme ( foldr1 (<|>)
                      $ map (try . nonPrefix)
-                     ["/templates","/tplts","/ts"] )
+                     ["/templates","/ts"] )
             >> return PTplts
 
 -- | Example: "/i-2 a" finds any `Rel` that involves "a"
