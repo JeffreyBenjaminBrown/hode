@@ -29,6 +29,7 @@ module Hode.Hash.Parse (
   , pIt            -- ^ Parser PExpr
   , hashPhrase     -- ^ Parser String
   , hashIdentifier -- ^ Parser String
+  , nonPrefix      -- ^ String -> Parser String
   ) where
 
 import           Control.Monad (void)
@@ -40,9 +41,9 @@ import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (decimal)
 
 import Hode.Hash.EitherExpr
+import Hode.Hash.Hash
 import Hode.Hash.Types
 import Hode.Hash.Util
-import Hode.Hash.Hash
 import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
@@ -123,27 +124,30 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        , pVar
        , pAny
        , pIt
+
+       -- this calls PRel
        , pHashExpr
        ]
 
 pReach :: Parser PExpr
-pReach = lexeme ( try $ precisely "/tr" )
+pReach = lexeme ( try $ nonPrefix "/tr" )
          >> PReach <$> _pHashExpr
 
 pTransLeft :: Parser PExpr
 pTransLeft = lexeme ( foldr1 (<|>)
-                      $ map (try . precisely) ["/trl","/transLeft"] )
+                      $ map (try . nonPrefix) ["/trl","/transLeft"] )
              >> ( PTrans SearchLeftward . PEval <$> _pHashExpr )
 
 pTransRight :: Parser PExpr
 pTransRight = lexeme ( foldr1 (<|>)
-                      $ map (try . precisely) ["/trr","/transRight"] )
+                      $ map (try . nonPrefix) ["/trr","/transRight"] )
              >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
 
+-- | PITFALL: I'm not sure this is actually ever needed.
 pHashExpr :: Parser PExpr
 pHashExpr = lexeme
-            ( try ( precisely "/hash"  <|>
-                    precisely "/h"    ) )
+            ( try ( nonPrefix "/hash"  <|>
+                    nonPrefix "/h"    ) )
             >> _pHashExpr
 
 _pHashExpr :: Parser PExpr
@@ -151,7 +155,7 @@ _pHashExpr = PRel <$> pRel
 
 pAddr :: Parser Expr
 pAddr = lexeme  ( foldr1 (<|>)
-                  $ map (try . precisely) ["/addr","/@"] )
+                  $ map (try . nonPrefix) ["/addr","/@"] )
         >> ExprAddr . fromIntegral <$> integer
 
 -- | `pAddrs` parses the string "/@s 1-10 100 30-40 101"
@@ -159,7 +163,7 @@ pAddr = lexeme  ( foldr1 (<|>)
 pAddrs :: Parser PExpr
 pAddrs = do
   _ <- lexeme $ foldr1 (<|>) $
-       map (try . precisely) ["/addrs","/@s"]
+       map (try . nonPrefix) ["/addrs","/@s"]
   let range :: Parser [Integer]
       range = do min0 <- lexeme integer
                  _    <- lexeme $ char '-'
@@ -174,7 +178,7 @@ pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme ( foldr1 (<|>) $
-                 map (try . precisely) ["/tplt","/t"] )
+                 map (try . nonPrefix) ["/tplt","/t"] )
         >> _pTplt
 
 _pTplt :: Parser Expr
@@ -185,26 +189,26 @@ _pTplt =
      return . ExprTplt . fmap Phrase . tpltFromEithers
 
 pMap :: Parser PExpr
-pMap = lexeme (precisely "/map" <|> precisely "/roles")
+pMap = lexeme (nonPrefix "/map" <|> nonPrefix "/roles")
        >> PMap . M.fromList <$> some ( lexeme $ parens $ pMbr
                                        <|> pTplt' )
   where
     pTplt', pMbr :: Parser (Role, PExpr)
-    pTplt' = do void $ lexeme $ precisely "tplt"
+    pTplt' = do void $ lexeme $ nonPrefix "tplt"
                 t <- _pTplt
-                return ( RoleInRel' RoleTplt      , PExpr t )
+                return ( RoleInRel' $ RoleTplt    , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
                 x <- pPExpr
                 return ( RoleInRel' $ RoleMember i, x       )
 
 pMember :: Parser PExpr
 pMember = lexeme ( foldr1 (<|>)
-                 $ map (try . precisely) ["/member","/m"] )
+                 $ map (try . nonPrefix) ["/member","/m"] )
          >> ( PMember <$> _pHashExpr )
 
 pAllTplts :: Parser PExpr
 pAllTplts = lexeme ( foldr1 (<|>)
-                     $ map (try . precisely)
+                     $ map (try . nonPrefix)
                      ["/templates","/tplts","/ts"] )
             >> return PTplts
 
@@ -218,32 +222,33 @@ pInvolves = do
 
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)
-                 $ map (try . precisely) ["/eval","/e"] )
+                 $ map (try . nonPrefix) ["/eval","/e"] )
          >> ( PEval <$> _pHashExpr )
 
 pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
-              $ map (try . precisely) ["/var","/v"] )
+              $ map (try . nonPrefix) ["/var","/v"] )
           lexeme hashIdentifier >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
-                $ map (try . precisely) ["/_","/any"] )
+                $ map (try . nonPrefix) ["/_","/any"] )
        >> return Any
 
 -- | PITFALL: the /it= keyword, like other keywords,
 -- cannot be followed by an adjacent alphanumeric character.
 pIt :: Parser PExpr
-pIt =     (lexeme (precisely "/it=") >> It . Just <$> _pHashExpr)
-      <|> (lexeme (precisely "/it")  >> return (It Nothing) )
+pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
+      <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
 
 -- | like `phrase`, but includes every character that's not special
 -- Hash syntax.
 hashPhrase :: Parser String
 hashPhrase =
   quoted
-  <|> concat . intersperse " " <$> some hashIdentifier
+  <|> ( concat . intersperse " "
+        <$> some hashIdentifier )
  where
 
   quoted :: Parser String
@@ -257,7 +262,9 @@ hashPhrase =
               return $ concat strings
 
   quotedCharacter :: Parser String
-  quotedCharacter = fmap return nonEscape <|> escape
+  quotedCharacter =
+    fmap return nonEscape -- `fmap return` wraps the `Char` into a `String`
+    <|> escape
 
   escape :: Parser String
   escape = do
@@ -275,5 +282,5 @@ hashIdentifier = lexeme $ some $ foldr1 (<|>)
     [ '!','@','%','^','*','+','=','-','`','~','_','[',']'
     ,'{','}',':',';','<','>','?',',','.' ] )
 
-precisely :: String -> Parser String
-precisely s = string s <* notFollowedBy alphaNumChar
+nonPrefix :: String -> Parser String
+nonPrefix s = string s <* notFollowedBy alphaNumChar

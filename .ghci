@@ -14,17 +14,18 @@ import Data.Foldable
 import Data.Functor.Foldable
 
 import           Data.Either
-import qualified Data.List as L
+import qualified Data.List                  as L
 import           Data.Map (Map)
-import qualified Data.Map as M
+import qualified Data.Map                   as M
 import           Data.Set (Set)
-import qualified Data.Set as S
-import qualified Data.List.PointedList as P
+import qualified Data.Set                   as S
+import qualified Data.List.PointedList      as P
 import           Data.Text (pack, unpack)
-import qualified Data.Text.Lazy.IO as LT -- writeFile
-import qualified Text.Megaparsec as MP
+import qualified Data.Text.Lazy.IO          as LT -- writeFile
+import qualified Text.Megaparsec            as MP
+import qualified Text.Megaparsec.Char       as MP
+import qualified Text.Megaparsec.Char.Lexer as MP
 
-import qualified Text.Pretty.Simple as Pr
+import qualified Text.Pretty.Simple         as Pr
 
-import qualified Hode.Test.Rslt.RData as D
-
+import qualified Hode.Test.Rslt.RData       as D

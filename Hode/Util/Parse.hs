@@ -25,6 +25,7 @@ hasMultipleWords = (/=) "" . snd . splitAfterFirstLexeme
 
 type Parser = Parsec Void String
 
+-- | space consumer
 sc :: Parser ()
 sc = L.space space1 lineCmnt blockCmnt
   where
@@ -42,10 +43,6 @@ parens = between (symbol "(") $ symbol ")"
 
 integer :: Parser Integer
 integer = lexeme L.decimal
-
--- | parses a semicolon
-semi :: Parser String
-semi = symbol ";"
 
 filepath :: Parser String
 filepath = lexeme $ some $ foldr1 (<|>)

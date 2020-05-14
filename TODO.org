@@ -11,7 +11,16 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO ? multi-line expressions, easier parser
+** TODO ? parser
+*** TODO make it easier
+**** parsers of special interest
+hashPhrase
+hashIdentifier
+**** allow any special symbol but # in identifiers without \
+and treat \# as non-special
+**** require all special symbols but # be preceded by \
+**** delete /@, rename /@s to /@
+*** multi-line expressions
 *** cannot implement the separator "#:"
 ** TODO document
 *** TODO document language commands in help
