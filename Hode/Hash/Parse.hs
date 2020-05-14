@@ -235,13 +235,10 @@ pIt :: Parser PExpr
 pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
       <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
 
--- | like `phrase`, but includes every character that's not special
--- Hash syntax.
 hashPhrase :: Parser String
 hashPhrase =
-  quoted
-  <|> ( concat . intersperse " "
-        <$> some hashIdentifier )
+  concat . intersperse " "
+  <$> some (lexeme quoted <|> hashIdentifier)
  where
 
   quoted :: Parser String

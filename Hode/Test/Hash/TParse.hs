@@ -56,6 +56,8 @@ test_hashPhrase = TestCase $ do
     parse hashPhrase "" "\"\"" == Right ""
   assertBool "not the empty phrase" $
     isLeft $ parse hashPhrase "" ""
+  assertBool "" $ parse hashPhrase "" "a b \"c d\" e f"
+    == Right "a b c d e f"
 
 test_hashIdentifier :: Test
 test_hashIdentifier = TestCase $ do
