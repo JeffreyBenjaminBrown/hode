@@ -35,6 +35,7 @@ import           Control.Monad (void)
 import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.List (intersperse)
+import           GHC.Unicode (isSpace)
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (decimal)
@@ -70,23 +71,26 @@ pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
   label <- option ""
-    $ hashWord
+    $ hashWord2
     <|> parens ( concat . L.intersperse " "
                  <$> some (lexeme hashPhrase) )
   return $ hash n label
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pDiff n = lexeme $ do
+  char '/'
   thisMany n '\\'
   return $ \a b -> Right $ PNonRel $ PDiff (PRel a) (PRel b)
 
 pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
+  char '/'
   thisMany n '&'
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pOr n = lexeme $ do
+  char '/'
   thisMany n '|'
   return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
@@ -264,6 +268,12 @@ hashPhrase =
 
   nonEscape :: Parser Char
   nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"
+
+hashWord2 :: Parser String
+hashWord2 = lexeme $ do
+  h <- satisfy $ \c -> not (isSpace c) &&
+                       not (elem c "#/\"()")
+  (h:) <$> many (satisfy $ not . isSpace)
 
 -- | Every character that isn't special Hash syntax.
 hashWord :: Parser String

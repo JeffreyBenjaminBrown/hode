@@ -143,7 +143,7 @@ test_parse_pPExpr = TestCase $ do
         [""] ) )
 
   assertBool "/it= needs a space after" $
-    parse pEval "" "/eval (/it= 0|1) # 2" == Right
+    parse pEval "" "/eval (/it= 0 /| 1) # 2" == Right
     ( PEval $ PRel $ Open 1
       [ PNonRel $ It $ Just $ POr [ PExpr (Phrase "0"),
                                     PExpr (Phrase "1") ],
@@ -193,23 +193,23 @@ test_parse_rels = TestCase $ do
                [ "so" ] )
 
   assertBool "\\, 1 level" $ parse pRel "wut"
-    "a \\ b"
+    "a /\\ b"
     == Right ( PNonRel $ PDiff ( PExpr $ Phrase "a" )
                                ( PExpr $ Phrase "b" ) )
 
   assertBool "&, 1 level" $ parse pRel "wut"
-    "a & b"
+    "a /& b"
     == Right ( PNonRel $ PAnd [ PExpr $ Phrase "a"
                               , PExpr $ Phrase "b" ] )
 
-  assertBool "& under #, 1 level" $ parse pRel "wut" "a & b ## c"
+  assertBool "& under #, 1 level" $ parse pRel "wut" "a /& b ## c"
     == Right
     ( Open 2 [ PNonRel $ PAnd [ PExpr $ Phrase "a"
                               , PExpr $ Phrase "b" ]
              , PNonRel $ PExpr $ Phrase "c" ]
       [""] )
 
-  assertBool "& over #, 1 level" $ parse pRel "wut" "a && b # c"
+  assertBool "& over #, 1 level" $ parse pRel "wut" "a /&& b # c"
     == Right
     ( PNonRel $ PAnd [ PExpr $ Phrase "a"
                      , PRel $ Open 1 [ PNonRel $ PExpr $ Phrase "b"
@@ -217,21 +217,21 @@ test_parse_rels = TestCase $ do
                        [""] ] )
 
   assertBool "2 levels of &, arities 2 and 3"
-    $ parse pRel "wut" "a & b && c & d && e"
+    $ parse pRel "wut" "a /& b /&& c /& d /&& e"
     == Right ( PNonRel $ PAnd
                $ map (PExpr . Phrase) ["a", "b", "c", "d", "e"] )
 
   assertBool "or, 1 levels" $ parse pRel "wut"
-    "a | b"
+    "a /| b"
     == Right ( PNonRel $ POr [ PExpr $ Phrase "a"
                              , PExpr $ Phrase "b" ] )
 
   assertBool "or, 2 levels" $ parse pRel "wut"
-    "a | b || c | d"
+    "a /| b /|| c /| d"
     == Right ( PNonRel $ POr $ map (PExpr . Phrase) ["a","b","c","d"] )
 
   assertBool "3 levels of &, | and #"
-    $ parse pRel "wut" "a # b && c | d ||| a ## b # c"
+    $ parse pRel "wut" "a # b /&& c /| d /||| a ## b # c"
     == Right
     ( PNonRel
       ( POr
@@ -250,7 +250,7 @@ test_parse_rels = TestCase $ do
                  [ ""])]))
 
   assertBool "3 levels of \\, &, | and #, where the L in EInfixL matters"
-    $ parse pRel "wut" "a # b \\\\ c | d ||| a && b \\\\ c"
+    $ parse pRel "wut" "a # b /\\\\ c /| d /||| a /&& b /\\\\ c"
     == Right
     ( PNonRel ( POr [ PDiff ( PRel ( Open 1
                                      [ PNonRel $ PExpr $ Phrase "a"

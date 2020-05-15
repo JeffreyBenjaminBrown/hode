@@ -37,7 +37,7 @@ test_trans = TestCase $ do
                            [ "0 #< 1"
                            , "1 #< 2" ]
 
-  let rel = "1 #< (/it= 0 | 2)" in do
+  let rel = "1 #< (/it= 0 /| 2)" in do
     assertBool "Among 0 and 2, only 2 is greater than 1." $
       nFindExprs r1 ("/trr " ++ rel) ==
       Right (S.fromList [Phrase "2"])
@@ -45,7 +45,7 @@ test_trans = TestCase $ do
       nFindExprs r1 ("/trl " ++ rel) ==
       Right (S.fromList [Phrase "2"])
 
-  let rel = "(/it= 0 | 2) #< 1" in do
+  let rel = "(/it= 0 /| 2) #< 1" in do
     assertBool "Among 0 and 2, only 0 is less than 1." $
       nFindExprs r1 ("/trr " ++ rel) ==
       Right (S.fromList [Phrase "0"])
@@ -61,7 +61,7 @@ test_nested_eval = TestCase $ do
                            , "0    #is mystical" ]
 
   assertBool "a non-nested eval : which among 0 and 1024 is mystical" $
-    nFindExprs r1 "/eval (/it= 0 | 1024) #is mystical" ==
+    nFindExprs r1 "/eval (/it= 0 /| 1024) #is mystical" ==
     Right (S.fromList [Phrase "0"])
 
   assertBool "an equivalent nested eval : which number is mystical" $
@@ -107,7 +107,7 @@ test_HEval = TestCase $ do
   assertBool "/it should be able to reach into a disjunction -- e.g. to ask which of Jack and Jill need water" $
     isRight ( fromRight (error "") $
               pExprToHExpr (mkRslt mempty) <$>
-              parse pPExpr "" "/eval /it=(Jack | Jill) #needs water" )
+              parse pPExpr "" "/eval /it=(Jack /| Jill) #needs water" )
 
 test_pathsToIts_pExpr :: Test
 test_pathsToIts_pExpr = TestCase $ do
@@ -278,12 +278,12 @@ test_pExprToHExpr = TestCase $ do
   assertBool "HTrans rightward between disjunctions" $
     isRight ( fromRight (error "?") $
               pExprToHExpr (mkRslt mempty) <$>
-              parse pPExpr "" "/trr (0 | 2) #< (1|4)" )
+              parse pPExpr "" "/trr (0 /| 2) #< (1/|4)" )
 
   assertBool "HTrans rightward between disjunctions with target" $
     isRight ( fromRight (error "?") $
               pExprToHExpr (mkRslt mempty) <$>
-              parse pPExpr "" "/trr (/it=(0 | 2)) #< (1|4)" )
+              parse pPExpr "" "/trr (/it=(0 /| 2)) #< (1|4)" )
 
   let Right (Right parsed_it_b_y_u) = pExprToHExpr r <$>
         parse _pHashExpr "blerk2" "/eval /it #b y ##u"
