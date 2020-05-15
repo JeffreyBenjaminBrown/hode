@@ -73,7 +73,7 @@ pHash n = lexeme $ do
   label <- option ""
     $ hashWord2
     <|> parens ( concat . L.intersperse " "
-                 <$> some (lexeme hashPhrase) )
+                 <$> some (lexeme hashPhrase2) )
   return $ hash n label
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -171,7 +171,7 @@ pAddrs = do
   return $ POr $ map (PExpr . ExprAddr . fromIntegral) $ concat as
 
 pPhrase :: Parser PExpr
-pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
+pPhrase = lexeme $ hashPhrase2 >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme ( foldr1 (<|>) $
@@ -273,11 +273,16 @@ hashPhrase_higher p =
   nonEscape :: Parser Char
   nonEscape = noneOf "\\\"\0\n\r\v\t\b\f"
 
+-- | Can contain anything but space, (") or parens,
+-- and it cannot start with / or #. (`hashPhrase` is more permissive.)
 hashWord2 :: Parser String
 hashWord2 = lexeme $ do
-  h <- satisfy $ \c -> not (isSpace c) &&
-                       not (elem c "#/\"()")
-  (h:) <$> many (satisfy $ not . isSpace)
+  let notSpaceOrThese :: String -> Parser Char
+      notSpaceOrThese these =
+        satisfy $ \c -> not (isSpace c) &&
+                        not (elem c these)
+  h <-           notSpaceOrThese "#/\"()"
+  (h:) <$> many (notSpaceOrThese   "\"()")
 
 -- | Every character that isn't special Hash syntax.
 hashWord :: Parser String
