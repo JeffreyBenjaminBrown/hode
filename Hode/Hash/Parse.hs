@@ -180,8 +180,8 @@ pTplt = lexeme ( foldr1 (<|>) $
 
 _pTplt :: Parser Expr
 _pTplt =
-  let blank = Left  <$> pAny
-      separator = Right <$> lexeme hashPhrase
+  let blank     = Left  <$> pAny
+      separator = Right <$> lexeme hashPhrase2
   in some (blank <|> separator) >>=
      return . ExprTplt . fmap Phrase . tpltFromEithers
 
@@ -239,10 +239,14 @@ pIt :: Parser PExpr
 pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
       <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
 
-hashPhrase :: Parser String
-hashPhrase =
+hashPhrase, hashPhrase2 :: Parser String
+hashPhrase  = hashPhrase_higher hashWord
+hashPhrase2 = hashPhrase_higher hashWord2
+
+hashPhrase_higher :: Parser String -> Parser String
+hashPhrase_higher p =
   concat . intersperse " "
-  <$> some (lexeme quoted <|> hashWord)
+  <$> some (lexeme quoted <|> p)
  where
 
   quoted :: Parser String
