@@ -11,32 +11,7 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO ? parser
-*** TODO make it easier
-**** thinking aloud
-***** Hash parses something next to a #.
-That should be either parens containing anything,
-or an identifier containing anything but #.
-***** sets of consecutive |, & and \
-should be preceded by a single /, just like they were keywords.
-***** hashWord
-Can begin with anything but #.
-Can contain anything but
-***** hashPhrase
-**** research
-***** parsers of special interest
- hashPhrase
- hashWord
- pHash
- pDiff
- pAnd
- pOr
-**** goals
-***** allow any special symbol but a leading # in identifiers, without \
-and permit a leading \#, which reads the # like an ordinary character
-***** => require all special symbols but # be preceded by \
-A lot of them can be preceded by a single \.
-*** TODO multi-line expressions
+** TODO ? multi-line expressions
 ** TODO document
 *** TODO document language commands in help
 (I already promised this in docs/.)

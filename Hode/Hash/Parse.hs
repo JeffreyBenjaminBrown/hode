@@ -71,9 +71,9 @@ pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
   thisMany n '#'
   label <- option ""
-    $ hashWord2
+    $ hashWord
     <|> parens ( concat . L.intersperse " "
-                 <$> some (lexeme hashPhrase2) )
+                 <$> some (lexeme hashPhrase) )
   return $ hash n label
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
@@ -171,7 +171,7 @@ pAddrs = do
   return $ POr $ map (PExpr . ExprAddr . fromIntegral) $ concat as
 
 pPhrase :: Parser PExpr
-pPhrase = lexeme $ hashPhrase2 >>= return . PExpr . Phrase
+pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme ( foldr1 (<|>) $
@@ -181,7 +181,7 @@ pTplt = lexeme ( foldr1 (<|>) $
 _pTplt :: Parser Expr
 _pTplt =
   let blank     = Left  <$> pAny
-      separator = Right <$> lexeme hashPhrase2
+      separator = Right <$> lexeme hashPhrase
   in some (blank <|> separator) >>=
      return . ExprTplt . fmap Phrase . tpltFromEithers
 
@@ -226,7 +226,7 @@ pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
               $ map (try . nonPrefix) ["/var","/v"] )
-          lexeme hashWord2 >>= return . PVar . VarString
+          lexeme hashWord >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
@@ -239,14 +239,10 @@ pIt :: Parser PExpr
 pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
       <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
 
-hashPhrase, hashPhrase2 :: Parser String
-hashPhrase  = hashPhrase_higher hashWord
-hashPhrase2 = hashPhrase_higher hashWord2
-
-hashPhrase_higher :: Parser String -> Parser String
-hashPhrase_higher p =
+hashPhrase :: Parser String
+hashPhrase =
   concat . intersperse " "
-  <$> some (lexeme quoted <|> p)
+  <$> some (lexeme quoted <|> hashWord)
  where
 
   quoted :: Parser String
@@ -275,21 +271,14 @@ hashPhrase_higher p =
 
 -- | Can contain anything but space, (") or parens,
 -- and it cannot start with / or #. (`hashPhrase` is more permissive.)
-hashWord2 :: Parser String
-hashWord2 = lexeme $ do
+hashWord :: Parser String
+hashWord = lexeme $ do
   let notSpaceOrThese :: String -> Parser Char
       notSpaceOrThese these =
         satisfy $ \c -> not (isSpace c) &&
                         not (elem c these)
   h <-           notSpaceOrThese "#/\"()"
   (h:) <$> many (notSpaceOrThese   "\"()")
-
--- | Every character that isn't special Hash syntax.
-hashWord :: Parser String
-hashWord = lexeme $ some $ foldr1 (<|>)
-  ( alphaNumChar : map char
-    [ '!','@','%','^','*','+','=','-','`','~','_','[',']'
-    ,'{','}',':',';','<','>','?',',','.' ] )
 
 nonPrefix :: String -> Parser String
 nonPrefix s = string s <* notFollowedBy alphaNumChar
