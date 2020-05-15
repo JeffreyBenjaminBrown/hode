@@ -283,7 +283,7 @@ test_pExprToHExpr = TestCase $ do
   assertBool "HTrans rightward between disjunctions with target" $
     isRight ( fromRight (error "?") $
               pExprToHExpr (mkRslt mempty) <$>
-              parse pPExpr "" "/trr (/it=(0 /| 2)) #< (1|4)" )
+              parse pPExpr "" "/trr (/it=(0 /| 2)) #< (1/|4)" )
 
   let Right (Right parsed_it_b_y_u) = pExprToHExpr r <$>
         parse _pHashExpr "blerk2" "/eval /it #b y ##u"

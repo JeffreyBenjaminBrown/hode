@@ -78,19 +78,19 @@ pHash n = lexeme $ do
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pDiff n = lexeme $ do
-  char '/'
+  void $ char '/'
   thisMany n '\\'
   return $ \a b -> Right $ PNonRel $ PDiff (PRel a) (PRel b)
 
 pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
-  char '/'
+  void $ char '/'
   thisMany n '&'
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pOr n = lexeme $ do
-  char '/'
+  void $ char '/'
   thisMany n '|'
   return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
@@ -226,7 +226,7 @@ pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
               $ map (try . nonPrefix) ["/var","/v"] )
-          lexeme hashWord >>= return . PVar . VarString
+          lexeme hashWord2 >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
