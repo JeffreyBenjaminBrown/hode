@@ -79,20 +79,17 @@ pHash n = lexeme $ do
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pDiff n = lexeme $ do
-  void $ char '/'
-  pThisMany n "\\"
+  KW.pThisMany n KW.diff
   return $ \a b -> Right $ PNonRel $ PDiff (PRel a) (PRel b)
 
 pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
-  void $ char '/'
-  pThisMany n "&"
+  KW.pThisMany n KW.hAnd
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pOr n = lexeme $ do
-  void $ char '/'
-  pThisMany n "|"
+  KW.pThisMany n KW.hOr
   return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
 pAbsentMember :: Parser PRel

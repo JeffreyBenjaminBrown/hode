@@ -17,22 +17,23 @@ show' hs =
   (if _slashPrefix hs then "/" else "")
   ++ _rawSymbol hs
 
-rep :: Int -> HashSymbol -> String
-rep n hs = (if _slashPrefix hs then "/" else "")
-           ++ concat (replicate n $ _rawSymbol hs)
-
 data HashKeyword = HashKeyword
   { _title :: String
   , _symbol :: HashSymbol
   , _help :: String }
   deriving (Show, Eq, Ord)
 
-pThisMany :: Int -> HashKeyword -> Parser ()
-pThisMany n hk = let
+rep :: Int -> HashKeyword -> String
+rep n hk = let
   hs = _symbol hk
-  in string (rep n hs)
-     <* notFollowedBy (string $ _rawSymbol hs)
-     >> return ()
+  in (if _slashPrefix hs then "/" else "")
+     ++ concat (replicate n $ _rawSymbol hs)
+
+pThisMany :: Int -> HashKeyword -> Parser ()
+pThisMany n hk =
+  string (rep n hk)
+  <* notFollowedBy (string $ _rawSymbol $ _symbol hk)
+  >> return ()
 
 hash :: HashKeyword
 hash = let
@@ -46,7 +47,7 @@ hash = let
       [ paragraph
         [ "The " ++ s ++ " symbol is used to define relationships."
         , "It is the fundamental operator in the Hash language."
-        , "See docs/hash/the-hash-language.md for a more in-depth discussion." ]
+        , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
 
       , paragraph
         [ "Here are some examples: "
@@ -55,4 +56,43 @@ hash = let
         , "`Bill " ++ s ++ "eats pizza " ++ concat (replicate 2 s) ++ "because bill " ++ s ++ "cannot cook` defines a \"because\" relationship between two relationships." ]
 
       , paragraph
-        [ "The last example illustrates the use of symbols like " ++ error "TODO: illustrate ##, ### etc." ] ] }
+        [ "The last example illustrates the use of symbols like " ++ error "TODO: illustrate ##, ### etc." ]
+      ] }
+
+hOr :: HashKeyword
+hOr = let
+  hs = HashSymbol { _rawSymbol = "|"
+                  , _slashPrefix = True }
+  s = show' hs
+  in HashKeyword {
+    _title = "or",
+    _symbol = hs,
+    _help = "TODO" }
+
+diff :: HashKeyword
+diff = let
+  hs = HashSymbol { _rawSymbol = "\\"
+                  , _slashPrefix = True }
+  s = show' hs
+  in HashKeyword {
+    _title = "difference",
+    _symbol = hs,
+    _help = "TODO" }
+
+hAnd :: HashKeyword
+hAnd = let
+  hs = HashSymbol { _rawSymbol = "&"
+                  , _slashPrefix = True }
+  s = show' hs
+  in HashKeyword {
+    _title = "and",
+    _symbol = hs,
+    _help = paragraphs
+      [ paragraph
+        [ "The " ++ s ++ " symbol is used for logical conjunction."
+        , "`a " ++ s ++ " b` represents all expressions that match both `a` and `b`."
+        , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
+      , paragraph
+        [ "Here are some examples: "
+        , error "TODO: illustrate `eval` and precedence." ]
+      ] }
