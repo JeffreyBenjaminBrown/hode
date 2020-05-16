@@ -13,7 +13,9 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
-All special Hash symbols but # require a leading /.
+Handle synonyms gracefully.
+Write the help blurbs.
+Share help blurbs for /trl and /trr.
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)

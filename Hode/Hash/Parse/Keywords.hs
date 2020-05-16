@@ -35,6 +35,26 @@ pThisMany n hk =
   <* notFollowedBy (string $ _rawSymbol $ _symbol hk)
   >> return ()
 
+reach :: HashKeyword
+reach = let
+  hs = HashSymbol { _rawSymbol = "#"
+                  , _slashPrefix = True }
+  s = show' hs
+  in HashKeyword {
+    _title = "transitively reachable",
+    _symbol = hs,
+    _help = "`/tr /_ #<= b` finds everything less than or equal to b." }
+
+transLeft :: HashKeyword
+transLeft = let
+  hs = HashSymbol { _rawSymbol = "trl"
+                  , _slashPrefix = True }
+  s = show' hs
+  in HashKeyword {
+    _title = "leftward transitive search",
+    _symbol = hs,
+    _help = "If `0 #< 1 #< 2 #< 3`, then `/trr (/it= 1/|3) #< 2` will return 1 and not 3, and search leftward. If the it= was on the other side, then it would return 2, because for something in {1,3}, the relationship holds." }
+
 hash :: HashKeyword
 hash = let
   hs = HashSymbol { _rawSymbol = "#"
