@@ -69,7 +69,7 @@ pTerm = close <$> parens _pRel
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
-  thisMany n '#'
+  thisMany n "#"
   label <- option ""
     $ hashWord
     <|> parens ( concat . L.intersperse " "
@@ -79,19 +79,19 @@ pHash n = lexeme $ do
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pDiff n = lexeme $ do
   void $ char '/'
-  thisMany n '\\'
+  thisMany n "\\"
   return $ \a b -> Right $ PNonRel $ PDiff (PRel a) (PRel b)
 
 pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
   void $ char '/'
-  thisMany n '&'
+  thisMany n "&"
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pOr n = lexeme $ do
   void $ char '/'
-  thisMany n '|'
+  thisMany n "|"
   return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
 pAbsentMember :: Parser PRel
