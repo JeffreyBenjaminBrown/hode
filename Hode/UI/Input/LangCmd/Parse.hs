@@ -22,7 +22,6 @@ import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Rslt.Binary
 import Hode.Rslt.Types
-import Hode.UI.Input.Util
 import Hode.UI.Types.Names
 import Hode.Util.Misc
 import Hode.Util.Parse
