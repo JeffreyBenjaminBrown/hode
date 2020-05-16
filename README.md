@@ -57,8 +57,7 @@ What distinguishes a `Rslt` from the a `graph`
 is that a relationships can involve any (positive) number of members,
 and a relationship can itself belong to other relationships.
 
-This reading is optional,
-but it only takes about 500 words to describe a
+It only takes about 500 words to describe a
 [Rslt in detail](docs/rslt/rslt.md).
 
 ## Hash

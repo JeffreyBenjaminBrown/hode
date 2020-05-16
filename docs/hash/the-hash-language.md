@@ -2,11 +2,6 @@ You don't need to memorize all these commands.
 They're easy to find in the in-app help.
 Read this just to get a sense of what's possible.
 
-# The Hash Language
-
-(If you're hurrying to the part where you can actually use the app,
-you could skip the "advanced queries" section.)
-
 # What Hash is
 
 Hash is a language for reading and writing a `Rslt`.
@@ -18,7 +13,7 @@ and *way*,
 # Writing to a Rslt with Hash
 
 If you've read about [the Rslt](docs/the-rslt.md),
-you know how to write `Expr`s.
+you know how to define `Expr`s.
 To add them to a `Rslt` using the UI,
 you'll only need one extra symbols: `/add` (or `/a`).
 

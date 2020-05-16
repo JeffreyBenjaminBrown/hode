@@ -48,9 +48,9 @@ and the "maybe" `Tplt` as "maybe _".
 
 Note that the term "separator" is not exactly accurate:
 A separator in a `Tplt` in Hode usually separates two things,
-but in some cases it only borders on one
-(like the "maybe" in "#maybe I'm amazed",
-or the "sometimes" in "everybody #needs somebody #sometimes).
+but in some cases it only has one neighbor.
+Examples include the "maybe" in "#maybe I'm amazed",
+and the "sometimes" in "everybody #needs somebody #sometimes".
 
 ## Compound `Rel`s
 

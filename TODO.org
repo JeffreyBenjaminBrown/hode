@@ -11,12 +11,9 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo
 * TODO critical
-** TODO ? multi-line expressions
 ** TODO document
-*** TODO document language commands in help
-(I already promised this in docs/.)
-Resume at module Hode.UI.Input.LangCmd.Parse
-Then do similar for the Hash parser.
+*** TODO document Hash in interactive help
+All special Hash symbols but # require a leading /.
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)
@@ -26,6 +23,7 @@ deleting buffers
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
+** TODO ? multi-line expressions
 ** TODO check for cycles when a tplt is declared transitive
 Check for cycles non-locally --
 that is, with reference to no particular point in the cycle.
