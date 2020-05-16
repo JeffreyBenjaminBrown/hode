@@ -35,12 +35,14 @@ import qualified Data.Set              as S
 import qualified Brick.Main            as B
 import qualified Graphics.Vty          as V
 
+import Hode.Brick.Help.Types
 import Hode.PTree
 import Hode.UI.BufferTree
 import Hode.UI.Clipboard
 import Hode.UI.CycleBuffer
 import Hode.UI.ExprTree
 import Hode.UI.ExprTree.Sort
+import Hode.UI.Input.KeyCmd.Util
 import Hode.UI.Input.LangCmd.Parse
 import Hode.UI.Input.LangCmd.Run
 import Hode.UI.Input.Util
@@ -50,9 +52,7 @@ import Hode.UI.Types.Views
 import Hode.UI.Util
 import Hode.UI.Util.String
 import Hode.UI.Window
-
-import Hode.UI.Input.KeyCmd.Util
-import Hode.Brick.Help.Types
+import Hode.Util.Misc
 
 
 keyPrefix :: (V.Key, [V.Modifier]) -> String

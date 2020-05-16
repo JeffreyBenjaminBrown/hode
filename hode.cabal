@@ -37,6 +37,7 @@ library
                 , Hode.Hash.Lookup
                 , Hode.Hash.Lookup.Transitive
                 , Hode.Hash.Parse
+                , Hode.Hash.Parse.Keywords
                 , Hode.Hash.Types
                 , Hode.Hash.Util
                 , Hode.Hash.Hash

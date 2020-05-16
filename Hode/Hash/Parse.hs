@@ -40,15 +40,16 @@ import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 import           Text.Megaparsec.Char.Lexer (decimal)
 
-import Hode.Hash.EitherExpr
-import Hode.Hash.Hash
-import Hode.Hash.Types
-import Hode.Hash.Util
-import Hode.Qseq.Types (Var(..))
-import Hode.Rslt.Binary
-import Hode.Rslt.Types
-import Hode.Util.Alternation
-import Hode.Util.Parse
+import           Hode.Hash.EitherExpr
+import           Hode.Hash.Hash
+import qualified Hode.Hash.Parse.Keywords as KW
+import           Hode.Hash.Types
+import           Hode.Hash.Util
+import           Hode.Qseq.Types (Var(..))
+import           Hode.Rslt.Binary
+import           Hode.Rslt.Types
+import           Hode.Util.Alternation
+import           Hode.Util.Parse
 
 
 pRel :: Parser PRel

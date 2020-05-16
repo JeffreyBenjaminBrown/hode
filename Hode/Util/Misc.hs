@@ -20,6 +20,10 @@ module Hode.Util.Misc (
   , eitherIntoLens -- ^ Lens' St a -> (a -> Either String a)
                                 -- -> St -> Either String St
 
+  -- | = Strings
+  , paragraphs -- ^ [String] -> String
+  , paragraph -- ^ [String] -> String
+
    -- | = collections
   , intersections      -- ^ Set (Set a) -> Set a
   , replaceNth         -- ^ a -> Int -> [a] -> Either String [a]
@@ -105,6 +109,15 @@ eitherIntoTraversal l f st = do
 eitherIntoLens :: Lens' a b -> (b -> Either left b) -> a -> Either left a
 eitherIntoLens l f st = do b' <- f $ st ^. l
                            Right $ st & l .~ b'
+
+
+-- | = String
+
+paragraphs :: [String] -> String
+paragraphs = concat . L.intersperse "\n\n"
+
+paragraph :: [String] -> String
+paragraph = concat . L.intersperse " "
 
 
 -- | = Collections
