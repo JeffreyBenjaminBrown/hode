@@ -59,8 +59,3 @@ identifier_alphaLed = lexeme $ (:) <$> letterChar <*> many alphaNumChar
 
 phrase :: Parser String -- | does not accept the empty string
 phrase = concat . L.intersperse " " <$> some identifier
-
-pThisMany :: Int -> String -> Parser ()
-pThisMany n c = string (concat $ replicate n c)
-               <* notFollowedBy (string c)
-               >> return ()

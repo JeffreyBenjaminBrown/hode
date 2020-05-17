@@ -13,9 +13,15 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
-Handle synonyms gracefully.
-Write the help blurbs.
-Share help blurbs for /trl and /trr.
+**** Write the help blurbs.
+**** Share help blurbs for /trl and /trr.
+**** Ensure that no strings are hard-coded in Hash/Parse.hs
+**** Ensure that no "/" appears in            Hash/Parse/Keywords.hs
+**** Ensure that each keyword works.
+  I modified their order, and it's sensitive to that.
+  Previously each prefix came after whatever it's a prefix of.
+  Without that, it's broken until I do something different.
+**** TODO resume at pMap
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)
