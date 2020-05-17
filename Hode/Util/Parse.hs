@@ -59,3 +59,6 @@ identifier_alphaLed = lexeme $ (:) <$> letterChar <*> many alphaNumChar
 
 phrase :: Parser String -- | does not accept the empty string
 phrase = concat . L.intersperse " " <$> some identifier
+
+nonPrefix :: String -> Parser String
+nonPrefix s = string s <* notFollowedBy alphaNumChar

@@ -28,7 +28,6 @@ module Hode.Hash.Parse (
   , pIt            -- ^ Parser PExpr
   , hashPhrase     -- ^ Parser String
   , hashWord -- ^ Parser String
-  , nonPrefix      -- ^ String -> Parser String
   ) where
 
 import           Control.Monad (void)
@@ -50,7 +49,6 @@ import           Hode.Qseq.Types (Var(..))
 import           Hode.Rslt.Binary
 import           Hode.Rslt.Types
 import           Hode.Util.Alternation
-import           Hode.Util.Parse
 
 
 pRel :: Parser PRel
@@ -277,6 +275,3 @@ hashWord = lexeme $ do
                         not (elem c these)
   h <-           notSpaceOrThese "#/\"()"
   (h:) <$> many (notSpaceOrThese   "\"()")
-
-nonPrefix :: String -> Parser String
-nonPrefix s = string s <* notFollowedBy alphaNumChar
