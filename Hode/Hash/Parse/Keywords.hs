@@ -4,9 +4,17 @@ import Hode.Hash.Parse.Util
 import Hode.Util.Misc
 
 
+addrs :: HashKeyword
+addrs = let
+  hs = hashSymbol_withSlash <$> ["@","addrs"]
+  in HashKeyword {
+    _title = "address range",
+    _symbol = hs,
+    _help = "TODO" }
+
 reach :: HashKeyword
 reach = let
-  hs = [HashSymbol { _rawSymbol = "#"
+  hs = [HashSymbol { _rawSymbol = "/tr"
                    , _slashPrefix = True } ]
   in HashKeyword {
     _title = "transitive reach",

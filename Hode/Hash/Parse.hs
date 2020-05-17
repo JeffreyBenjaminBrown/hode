@@ -158,8 +158,7 @@ _pHashExpr = PRel <$> pRel
 -- to be the disjunction (POr) of 22 `Addr`s.
 pAddrs :: Parser PExpr
 pAddrs = do
-  _ <- lexeme $ foldr1 (<|>) $
-       map (try . nonPrefix) ["/addr","/@"]
+  _ <- lexeme $ U.pThisMany 1 KW.addrs
   let range :: Parser [Integer]
       range = do min0 <- lexeme integer
                  _    <- lexeme $ char '-'
