@@ -38,7 +38,7 @@ pThisMany n hk =
       p1 hs = string (rep n hs)
               <* notFollowedBy (string $ _rawSymbol hs)
               >> return ()
-  in foldl1 (<|>) $ map p1 hss
+  in foldl1 (<|>) $ map (try . p1) hss
 
 hashSymbol_withSlash :: String -> HashSymbol
 hashSymbol_withSlash s =

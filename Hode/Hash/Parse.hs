@@ -49,6 +49,7 @@ import           Hode.Qseq.Types (Var(..))
 import           Hode.Rslt.Binary
 import           Hode.Rslt.Types
 import           Hode.Util.Alternation
+import           Hode.Util.Parse
 
 
 pRel :: Parser PRel

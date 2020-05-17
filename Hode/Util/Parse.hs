@@ -61,4 +61,11 @@ phrase :: Parser String -- | does not accept the empty string
 phrase = concat . L.intersperse " " <$> some identifier
 
 nonPrefix :: String -> Parser String
-nonPrefix s = string s <* notFollowedBy alphaNumChar
+nonPrefix s =
+  string s
+  <* ( -- This double-negative says it must be followed by whitespace,
+       -- a quotation mark, or a paren. I would use "followed by",
+       -- but I don't see it in Text.Megaparsec.
+       -- TODO : This feels inelegant, like it works against the lexer.
+       notFollowedBy $ satisfy $ \c -> not $ elem c " \"()" )
+  

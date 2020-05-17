@@ -6,7 +6,7 @@ import Hode.Util.Misc
 
 member :: HashKeyword
 member = let
-  hs = hashSymbol_withSlash <$> ["/m","/member"]
+  hs = hashSymbol_withSlash <$> ["m","member"]
   in HashKeyword {
     _title = "exprs containing an expr",
     _symbol = hs,
@@ -30,7 +30,7 @@ tplt = let
 
 addrs :: HashKeyword
 addrs = let
-  hs = hashSymbol_withSlash <$> ["@","addrs"]
+  hs = hashSymbol_withSlash <$> ["@","addr"]
   in HashKeyword {
     _title = "address range",
     _symbol = hs,
