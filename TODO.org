@@ -12,6 +12,9 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO document
+*** TODO nonPrefix is buggy
+It only watches against alphanum;
+it should watch against almost everything.
 *** TODO document Hash in interactive help
 **** Write the help blurbs.
 **** Share help blurbs for /trl and /trr.

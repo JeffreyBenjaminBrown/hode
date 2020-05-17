@@ -4,6 +4,30 @@ import Hode.Hash.Parse.Util
 import Hode.Util.Misc
 
 
+member :: HashKeyword
+member = let
+  hs = hashSymbol_withSlash <$> ["/m","/member"]
+  in HashKeyword {
+    _title = "exprs containing an expr",
+    _symbol = hs,
+    _help = "TDOO" }
+
+map :: HashKeyword
+map = let
+  hs = hashSymbol_withSlash <$> ["map","roles"]
+  in HashKeyword {
+    _title = "map roles to exprs",
+    _symbol = hs,
+    _help = "TODO" }
+
+tplt :: HashKeyword
+tplt = let
+  hs = hashSymbol_withSlash <$> ["t","tplt"]
+  in HashKeyword {
+    _title = "template",
+    _symbol = hs,
+    _help = "TODO" }
+
 addrs :: HashKeyword
 addrs = let
   hs = hashSymbol_withSlash <$> ["@","addrs"]
@@ -14,7 +38,7 @@ addrs = let
 
 reach :: HashKeyword
 reach = let
-  hs = [HashSymbol { _rawSymbol = "/tr"
+  hs = [HashSymbol { _rawSymbol = "tr"
                    , _slashPrefix = True } ]
   in HashKeyword {
     _title = "transitive reach",
