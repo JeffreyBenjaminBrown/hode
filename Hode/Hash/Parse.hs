@@ -43,6 +43,7 @@ import           Text.Megaparsec.Char.Lexer (decimal)
 import           Hode.Hash.EitherExpr
 import           Hode.Hash.Hash
 import qualified Hode.Hash.Parse.Keywords as KW
+import qualified Hode.Hash.Parse.Util     as U
 import           Hode.Hash.Types
 import           Hode.Hash.Util
 import           Hode.Qseq.Types (Var(..))
@@ -70,7 +71,7 @@ pTerm = close <$> parens _pRel
 
 pHash :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pHash n = lexeme $ do
-  KW.pThisMany n KW.hash
+  U.pThisMany n KW.hash
   label <- option ""
     $ hashWord
     <|> parens ( concat . L.intersperse " "
@@ -79,17 +80,17 @@ pHash n = lexeme $ do
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pDiff n = lexeme $ do
-  KW.pThisMany n KW.diff
+  U.pThisMany n KW.diff
   return $ \a b -> Right $ PNonRel $ PDiff (PRel a) (PRel b)
 
 pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
-  KW.pThisMany n KW.hAnd
+  U.pThisMany n KW.hAnd
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pOr n = lexeme $ do
-  KW.pThisMany n KW.hOr
+  U.pThisMany n KW.hOr
   return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
 pAbsentMember :: Parser PRel
