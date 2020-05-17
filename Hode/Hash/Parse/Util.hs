@@ -3,7 +3,6 @@ module Hode.Hash.Parse.Util where
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 
-import Hode.Util.Misc
 import Hode.Util.Parse
 
 

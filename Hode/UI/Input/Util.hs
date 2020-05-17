@@ -6,8 +6,6 @@ module Hode.UI.Input.Util (
   , goe -- ^ (St -> Either String St) -> St -> B.EventM n (B.Next St)
   ) where
 
-import qualified Data.List             as L
-
 import qualified Brick.Main            as B
 import qualified Brick.Types           as B
 

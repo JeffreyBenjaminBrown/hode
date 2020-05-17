@@ -1,11 +1,7 @@
 module Hode.Hash.Parse.Keywords where
 
-import           Text.Megaparsec hiding (label)
-import           Text.Megaparsec.Char
-
 import Hode.Hash.Parse.Util
 import Hode.Util.Misc
-import Hode.Util.Parse
 
 
 reach :: HashKeyword
