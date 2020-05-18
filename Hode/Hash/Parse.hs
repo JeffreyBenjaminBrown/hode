@@ -172,7 +172,7 @@ pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme ( foldr1 (<|>) $
-                 map (try . nonPrefix) ["/t","/tplt"] )
+                 map (try . nonPrefix) ["/t","/tplt","/template"] )
         >> _pTplt
 
 _pTplt :: Parser Expr
@@ -203,7 +203,7 @@ pMember = lexeme ( foldr1 (<|>)
 pAllTplts :: Parser PExpr
 pAllTplts = lexeme ( foldr1 (<|>)
                      $ map (try . nonPrefix)
-                     ["/templates","/ts"] )
+                     ["/ts","/tplts","/templates"] )
             >> return PTplts
 
 -- | Example: "/i-2 a" finds any `Rel` that involves "a"
@@ -219,6 +219,12 @@ pEval = lexeme ( foldr1 (<|>)
                  $ map (try . nonPrefix) ["/eval","/e"] )
          >> ( PEval <$> _pHashExpr )
 
+-- | PITFALL: the /it= keyword, like other keywords,
+-- cannot be followed by an adjacent alphanumeric character.
+pIt :: Parser PExpr
+pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
+      <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
+
 pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
@@ -229,12 +235,6 @@ pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
                 $ map (try . nonPrefix) ["/_","/any"] )
        >> return Any
-
--- | PITFALL: the /it= keyword, like other keywords,
--- cannot be followed by an adjacent alphanumeric character.
-pIt :: Parser PExpr
-pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
-      <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
 
 hashPhrase :: Parser String
 hashPhrase =

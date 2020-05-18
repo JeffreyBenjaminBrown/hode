@@ -12,18 +12,20 @@ This will load all non-broken modules when some are broken.
 * backup the data repo
 * TODO critical
 ** TODO document
-*** TODO maybe the # parser should be treated specially
-and the "slashPrefix" field dropped
 *** TODO document Hash in interactive help
-**** Write the help blurbs.
-**** Share help blurbs for /trl and /trr.
-**** Ensure that no strings are hard-coded in Hash/Parse.hs
-**** Ensure that no "/" appears in            Hash/Parse/Keywords.hs
-**** Ensure that each keyword works.
+**** TODO The "involves" parser needs special treatment
+because it is followed by a number.
+**** TODO Ensure that no strings are hard-coded in Hash/Parse.hs
+**** TODO Ensure that no "/" appears in            Hash/Parse/Keywords.hs
+**** TODO Ensure that each keyword works.
   I modified their order, and it's sensitive to that.
   Previously each prefix came after whatever it's a prefix of.
   Without that, it's broken until I do something different.
+**** TODO Write the help blurbs.
+**** TODO Share help blurbs for /trl and /trr.
 **** TODO resume at pMap
+*** TODO maybe the # parser should be treated specially
+and the "slashPrefix" field dropped
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)

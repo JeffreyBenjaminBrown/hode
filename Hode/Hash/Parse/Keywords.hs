@@ -4,11 +4,59 @@ import Hode.Hash.Parse.Util
 import Hode.Util.Misc
 
 
+itMatching :: HashKeyword
+itMatching = let
+  hs = hashSymbol_withSlash <$> [ "it=" ]
+  in HashKeyword {
+    _title = "TODO ? should not have a help title separate from `eval`",
+    _symbol = hs,
+    _help = "TODO ? should not have a help blurb separate from `eval`" }
+
+it :: HashKeyword
+it = let
+  hs = hashSymbol_withSlash <$> [ "it" ]
+  in HashKeyword {
+    _title = "TODO ? should not have a help title separate from `eval`",
+    _symbol = hs,
+    _help = "TODO ? should not have a help blurb separate from `eval`" }
+
+any :: HashKeyword
+any = let
+  hs = hashSymbol_withSlash <$> [ "_", "any" ]
+  in HashKeyword {
+    _title = "anything",
+    _symbol = hs,
+    _help = "TODO" }
+
+var :: HashKeyword
+var = let
+  hs = hashSymbol_withSlash <$> [ "v", "var" ]
+  in HashKeyword {
+    _title = "TODO ? should not have a help title",
+    _symbol = hs,
+    _help = "TODO ? not really implemented" }
+
+eval :: HashKeyword
+eval = let
+  hs = hashSymbol_withSlash <$> ["/e","/eval"]
+  in HashKeyword {
+    _title = "find subexpression",
+    _symbol = hs,
+    _help = "TODO" }
+
+involves :: HashKeyword
+involves = let
+  hs = hashSymbol_withSlash <$> ["i","involves"]
+  in HashKeyword {
+    _title = "with sub-expr at depth",
+    _symbol = hs,
+    _help = "TODO" }
+
 member :: HashKeyword
 member = let
   hs = hashSymbol_withSlash <$> ["m","member"]
   in HashKeyword {
-    _title = "exprs containing an expr",
+    _title = "with top-level sub-expr",
     _symbol = hs,
     _help = "TDOO" }
 
@@ -20,9 +68,17 @@ map = let
     _symbol = hs,
     _help = "TODO" }
 
+tplts :: HashKeyword
+tplts = let
+  hs = hashSymbol_withSlash <$> ["ts","tplts","templates"]
+  in HashKeyword {
+    _title = "all templates",
+    _symbol = hs,
+    _help = "TODO" }
+
 tplt :: HashKeyword
 tplt = let
-  hs = hashSymbol_withSlash <$> ["t","tplt"]
+  hs = hashSymbol_withSlash <$> ["t","tplt","template"]
   in HashKeyword {
     _title = "template",
     _symbol = hs,
