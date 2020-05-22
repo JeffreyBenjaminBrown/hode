@@ -67,4 +67,4 @@ nonPrefix s =
        -- a quotation mark, or a paren. I would use "followed by",
        -- but I don't see it in Text.Megaparsec.
        -- TODO : This feels inelegant, like it works against the lexer.
-       notFollowedBy $ satisfy $ \c -> not $ elem c " \"()" )
+       notFollowedBy $ satisfy $ \c -> not $ elem c "\n \"()" )

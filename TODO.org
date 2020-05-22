@@ -10,23 +10,15 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo(s)
-* TODO BUG: "/f a # /_" no longer works
-but "/f /_ # b" does
-** changing the definition of nonPrefix "fixes" it
-but undoes the reasons that I made those changes.
-Namely, set it back to `... <* notFollowedBy alphaNumChar`
-** TODO learn how lexing works
-The problem is that I've absorbed the detection of parens and quotation marks
-(and space?) into the parsers for individual terms.
-** TODO add these tests
- MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_ /_ hoohaa"
- Right ["/_","/_"]
+* TODO add these tests
+MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_ /_ hoohaa"
+Right ["/_","/_"]
 
- MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_f"
- should find none
+MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_f"
+should find none
 
- MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_."
- should find none
+MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_."
+should find none
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
@@ -90,6 +82,17 @@ Or at least, upon inserting contents, unfold.
 ** TODO ? compress binary groups
 ** manual update
 * TODO unsorted
+** TODO BUG: does the ui insert "\n" at the end of user commands?
+ In open code, this always works:
+   MP.parse _pHashExpr "" "a # /_ "
+ But in the ui, "/f a # /_" generates a parse error
+   if nonPrefix is not checking for \n.
+*** changing the definition of nonPrefix "fixes" it
+ but undoes the reasons that I made those changes.
+ Namely, set it back to `... <* notFollowedBy alphaNumChar`
+*** TODO learn how lexing works
+ The problem is that I've absorbed the detection of parens and quotation marks
+ (and space?) into the parsers for individual terms.
 ** ordering
 *** TODO ? BUG : when removing from an order, connect any gaps created
 (The relevant function is removeSelections_fromSortedRegion.)
