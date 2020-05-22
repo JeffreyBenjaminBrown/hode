@@ -9,31 +9,24 @@ https://github.com/commercialhaskell/stack/issues/5037
 This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
-* backup the data repo
+* backup the data repo(s)
 * TODO BUG: "/f a # /_" no longer works
 but "/f /_ # b" does
-** the commit where it broke
-*** git commit info
-commit 5ffeb73d7a2d90dd49d79c44f8d807f2da0db917
-Author: JeffreyBenjaminBrown <jeffbrown.the@gmail.com>
-Date:   Sun May 17 18:55:55 2020 -0500
+** changing the definition of nonPrefix "fixes" it
+but undoes the reasons that I made those changes.
+Namely, set it back to `... <* notFollowedBy alphaNumChar`
+** TODO learn how lexing works
+The problem is that I've absorbed the detection of parens and quotation marks
+(and space?) into the parsers for individual terms.
+** TODO add these tests
+ MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_ /_ hoohaa"
+ Right ["/_","/_"]
 
-    nonPrefix: bugfix
-      It only watched for alphanum;
-      it now watches for any other potential part of a word.
-*** apply this diff to fix that commit
- diff --git a/Hode/Hash/Parse.hs b/Hode/Hash/Parse.hs
- index a41c528..ddc1f1c 100644
- --- a/Hode/Hash/Parse.hs
- +++ b/Hode/Hash/Parse.hs
- @@ -49,6 +49,7 @@ import           Hode.Qseq.Types (Var(..))
-  import           Hode.Rslt.Binary
-  import           Hode.Rslt.Types
-  import           Hode.Util.Alternation
- +import           Hode.Util.Parse
+ MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_f"
+ should find none
 
-
-  pRel :: Parser PRel
+ MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_."
+ should find none
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
