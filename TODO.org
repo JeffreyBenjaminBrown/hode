@@ -23,7 +23,7 @@ should find none
 ** TODO document
 *** TODO document Hash in interactive help
 **** TODO RESUME HERE : test each parser
-Resume reading up in Hode/Hash/Parse.hs from pMember,
+Resume reading up in Hode/Hash/Parse.hs from pHashExpr,
 which is the last parser I tested.
 **** TODO Ensure that no strings are hard-coded in Hash/Parse.hs
 **** TODO Ensure that no "/" appears in            Hash/Parse/Keywords.hs

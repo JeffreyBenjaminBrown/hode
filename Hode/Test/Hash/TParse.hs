@@ -22,19 +22,52 @@ vs = VarString
 test_module_hash_parse :: Test
 test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
-  , TestLabel "test_parse_pPExpr" test_parse_pPExpr
+  , TestLabel "test_pPhrase" test_pPhrase
+  , TestLabel "test_pMember" test_pMember
   , TestLabel "test_pEval" test_pEval
+  , TestLabel "test_pMap" test_pMap
   , TestLabel "test_parse_hExpr" test_parse_hExpr
   , TestLabel "test_parse_tplt" test_parse_tplt
   , TestLabel "test_hashWord" test_hashWord
   , TestLabel "test_hashPhrase" test_hashPhrase
-  , TestLabel "test_pMember" test_pMember
   , TestLabel "test_pAllTplts" test_pAllTplts
   , TestLabel "test_pAny" test_pAny
   , TestLabel "test_pVar" test_pVar
   , TestLabel "test_pIt" test_pIt
   , TestLabel "test_pInvolves" test_pInvolves
+  , TestLabel "test_pAddr" test_pAddr
+  , TestLabel "test_pHashExpr" test_pHashExpr
   ]
+
+test_pHashExpr :: Test
+test_pHashExpr = TestCase $ do
+  assertBool "it $ just a # b" $
+    parse pIt "a" "/it= /hash a # b" ==
+    parse pIt "b" "/it=       a # b"
+
+  assertBool "eval $ just a # b" $
+    parse pEval "a" "/eval /hash a # b" ==
+    parse pEval "b" "/eval       a # b"
+
+  assertBool "eval $ just a # b" $
+    parse pRel "a" "/hash (a # /hash b)" ==
+    parse pRel "b"       "(a #       b)"
+
+  assertBool "map" $
+    parse pMap "a"
+    ( "/map (1 /hash a) (2 /hash b) " ++
+      "(tplt remember to /_ whenever there is /_ because /_)" )
+    == parse pMap "a"
+    ( "/map (1       a) (2       b) " ++
+      "(tplt remember to /_ whenever there is /_ because /_)" )
+
+test_pAddr :: Test
+test_pAddr = TestCase $ do
+  let a = parse pAddrs ""    "/@ 0 2-4 6"
+      b = parse pAddrs "" "/addr 0 2-4 6"
+  assertBool "" $ a == b
+  assertBool "" $ a == Right
+    (POr $ map (PExpr . ExprAddr) [0,2,3,4,6] )
 
 test_pInvolves :: Test
 test_pInvolves = TestCase $ do
@@ -128,26 +161,35 @@ test_hashWord = TestCase $ do
 
 test_parse_tplt :: Test
 test_parse_tplt = TestCase $ do
-  assertBool "1" $ parse _pTplt "parse error"
-    "/_ sees /_ whenever there is /_"
+  assertBool "_pTplt is like pTpl" $ let
+    a = parse _pTplt "parse error"    "/_ x /_ y"
+    b = parse  pTplt "parse error" "/t /_ x /_ y"
+    in a == Right ( ExprTplt $ Tplt
+                    Nothing
+                    [Phrase "x"]
+                    (Just $ Phrase "y") )
+       && a == b
+
+  assertBool "no caps" $ parse _pTplt "parse error"
+    "/_ sees /_ when /_"
     == Right ( ExprTplt $ Tplt
                Nothing
                [ Phrase "sees",
-                 Phrase "whenever there is"]
+                 Phrase "when"]
                Nothing )
 
-  assertBool "2" $ parse _pTplt "parse error"
-    "remember /_ whenever there is /_"
+  assertBool "left cap" $ parse _pTplt "parse error"
+    "remember /_ when /_"
     == Right ( ExprTplt $ Tplt
                ( Just $ Phrase "remember" )
-               [ Phrase "whenever there is"]
+               [ Phrase "when"]
                Nothing )
 
-  assertBool "3" $ parse _pTplt "parse error"
-    "/_ whenever there is /_ please"
+  assertBool "right cap" $ parse _pTplt "parse error"
+    "/_ when /_ please"
     == Right ( ExprTplt $ Tplt
                Nothing
-               [ Phrase "whenever there is"]
+               [ Phrase "when"]
                ( Just $ Phrase "please" ) )
 
 test_parse_hExpr :: Test
@@ -163,21 +205,26 @@ test_parse_hExpr = TestCase $ do
          , ( RoleInRel' $ RoleMember 2
            , HExpr $ Phrase "w" ) ] )
 
-test_parse_pPExpr :: Test
-test_parse_pPExpr = TestCase $ do
-  assertBool "word" $ parse pPhrase "wut" "sammich bagel 1234"
+test_pPhrase :: Test
+test_pPhrase = TestCase $ do
+  assertBool "phrase" $ parse pPhrase "" "sammich bagel 1234"
     == Right (PExpr $ Phrase "sammich bagel 1234")
+  assertBool "phrase with weird chars" $
+    parse pPhrase "" "sammich bagel 1234!@#$% ..."
+    == Right (PExpr $ Phrase "sammich bagel 1234!@#$% ...")
 
+test_pMap :: Test
+test_pMap = TestCase $ do
   assertBool "map" $ parse pMap "wut"
-    ( "/map (1 /hash a) (2 /hash b) " ++
-      "(tplt remember to /_ whenever there is /_ because /_)" )
+    ( "/map (1 a) (2 b) " ++
+      "(tplt remember to /_ when there is /_ because /_)" )
     == Right
     ( PMap $ M.fromList
       [ ( RoleInRel' $ RoleMember 1, PExpr $ Phrase "a" )
       , ( RoleInRel' $ RoleMember 2, PExpr $ Phrase "b" )
       , ( RoleInRel' $ RoleTplt, PExpr $ ExprTplt $ Tplt
           ( Just $ Phrase "remember to" )
-          [ Phrase "whenever there is",
+          [ Phrase "when there is",
             Phrase "because" ]
           Nothing ) ] )
 

@@ -146,28 +146,14 @@ pTransRight = lexeme ( foldr1 (<|>)
                       $ map (try . nonPrefix) ["/trr","/transRight"] )
              >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
 
--- | PITFALL: I'm not sure this is actually ever needed.
+-- | Anywhere that a hash expression could be parsed,
+-- it can optionally be preceded by a keyword like "/hash".
+-- TODO ? PITFALL: I'm not sure this is actually ever needed.
 pHashExpr :: Parser PExpr
 pHashExpr = lexeme
             ( try ( nonPrefix "/hash"  <|>
                     nonPrefix "/h"    ) )
             >> _pHashExpr
---test_pHashExpr
---  assertBool "it $ just a # b" $
---    parse pIt "wut" "/it= /hash a # b" ==
---    Right ( It $ Just $ PRel
---            ( Open 1 [ PNonRel $ PExpr $ Phrase "a"
---                     , PNonRel $ PExpr $ Phrase "b" ]
---              [""] ) )
---  assertBool "eval $ just a # b" $ parse pEval "wut" "/eval /hash a # b"
---    == Right
---    ( PEval $ PRel
---      ( Open 1 [ PNonRel $ PExpr $ Phrase "a"
---               , PNonRel $ PExpr $ Phrase "b" ]
---        [""] ) )
---  assertBool "eval $ just a # b" $ parse pEval "wut" "/hash (a # /hash b)"
---    parse pEval "wutn't" "a # b"
-
 
 _pHashExpr :: Parser PExpr
 _pHashExpr = PRel <$> pRel
