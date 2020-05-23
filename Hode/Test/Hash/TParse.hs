@@ -2,7 +2,7 @@
 
 module Hode.Test.Hash.TParse where
 
-import           Data.Either (isLeft)
+import           Data.Either (isLeft, fromRight)
 import qualified Data.Map as M
 import           Text.Megaparsec
 import           Test.HUnit
@@ -15,6 +15,7 @@ import Hode.Qseq.Types (Var(..))
 import Hode.Rslt.Binary
 import Hode.Rslt.Index
 import Hode.Rslt.Types
+import Hode.Util.Parse
 
 
 vs :: String -> Var
@@ -40,7 +41,46 @@ test_module_hash_parse = TestList [
   , TestLabel "test_pHashExpr" test_pHashExpr
   , TestLabel "test_pTrans" test_pTrans
   , TestLabel "test_pReach" test_pReach
+  , TestLabel "test_pAbsentMember" test_pAbsentMember
+  , TestLabel "test_binOps" test_binOps
   ]
+
+test_binOps :: Test
+test_binOps = TestCase $ do
+  let h n = fromRight undefined $
+            parse (pHash n) "" $
+            replicate n '#' ++ "is"
+    in assertBool "" $ and
+       [ h n Absent (PNonRel Any)
+         == Right (Open n [Absent, PNonRel Any] ["is"])
+       | n <- [1..3] ]
+
+  let d n = fromRight undefined $ parse (pDiff n) ""
+            $ '/' : replicate n '\\'
+    in assertBool "" $ and
+       [ d n (PNonRel $ It Nothing) (PNonRel Any) == Right
+         (PNonRel $ PDiff (PRel $ PNonRel $ It Nothing)
+                          (PRel $ PNonRel Any) )
+       | n <- [1..3] ]
+
+  let testBoolOp :: ([PExpr] -> PExpr) -> Char
+                 -> (Level -> Parser (PRel -> PRel -> Either String PRel))
+                 -> Assertion
+      testBoolOp op c parser =
+        let d n = fromRight undefined $ parse (parser n) ""
+                  $ '/' : replicate n c
+        in assertBool "" $ and
+           [ d n (PNonRel $ It Nothing) (PNonRel Any) == Right
+             (PNonRel $ op [ PRel $ PNonRel $ It Nothing
+                           , PRel $ PNonRel Any ] )
+           | n <- [1..3] ]
+    in do testBoolOp PAnd '&' pAnd
+          testBoolOp POr  '|' pOr
+
+test_pAbsentMember :: Test
+test_pAbsentMember = TestCase $ do
+  assertBool "" $ parse pAbsentMember "" ""          == Right Absent
+  assertBool "" $ parse pAbsentMember "" "#maybe so" == Right Absent
 
 test_pReach :: Test
 test_pReach = TestCase $ do
