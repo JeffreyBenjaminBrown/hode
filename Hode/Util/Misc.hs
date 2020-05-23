@@ -139,9 +139,9 @@ intersections s | null s    = S.empty
 replaceNth :: a -> Int -> [a] -> Either String [a]
 replaceNth a n as = do
   if not $ n < 1 then Right ()
-    else Left $ "replaceNth: index " ++ show n ++ " not a natural number.\n"
+    else Left $ "replaceNth: index " ++ show n ++ " not a natural number."
   if not $ n > length as then Right ()
-    else Left $ "replaceNth: index " ++ show n ++ " greater than list length.\n"
+    else Left $ "replaceNth: index " ++ show n ++ " greater than list length."
   let (before, _:after) = splitAt (n-1) as
   Right $ before ++ a : after
 
@@ -188,7 +188,7 @@ beforeDuringAfter predi as =
 
 keyErr :: (Show a, Show k) => String -> k -> Map k a -> String
 keyErr callingFunction key m =  callingFunction ++ ": key "
-  ++ show key ++ " not found in map " ++ show m ++ ".\n"
+  ++ show key ++ " not found in map " ++ show m ++ "."
 
 prefixLeft :: String -> Either String a -> Either String a
 prefixLeft prefix =

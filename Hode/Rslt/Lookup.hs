@@ -50,7 +50,7 @@ import Hode.Util.Misc
 
 variety :: Rslt -> Addr -> Either String (ExprCtr, Arity)
 variety r a = maybe err Right $ M.lookup a $ _variety r
-  where err = Left $ "variety: Addr " ++ show a ++ " not found.\n"
+  where err = Left $ "variety: Addr " ++ show a ++ " not found."
 
 -- | Whereas a `Tplt` has a well-defined arity on its own,
 -- the arity of an `Expr` might be unknowable without a `Rslt`.
@@ -62,7 +62,7 @@ arityIn r (ExprRel (Rel ms t)) =
   ta <- arityIn r t
   if ta == length ms then Right ta
     else Left $ "Rel Tplt " ++ show t
-         ++ " does not match number of Rel members " ++ show ms ++ ".\n"
+         ++ " does not match number of Rel members " ++ show ms ++ "."
 arityIn _ (ExprTplt (Tplt _ bs _))  =
   Right $ length bs + 1
 

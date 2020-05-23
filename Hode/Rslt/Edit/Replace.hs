@@ -45,7 +45,7 @@ replaceInRole spot new host r =
   (hostHas :: Map Role Addr) <- has r host
   (old :: Addr) <- let
     err = Left $ "RefExpr at " ++ show host
-          ++ " includes no position " ++ show spot ++ "\n."
+          ++ " includes no position " ++ show spot ++ "."
     in maybe err Right $ M.lookup spot hostHas
 
   (newHostRefExpr :: RefExpr) <-

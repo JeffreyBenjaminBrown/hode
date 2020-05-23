@@ -109,7 +109,7 @@ insertAt :: Addr -> RefExpr -> Rslt -> Either String Rslt
 insertAt a e r =
   prefixLeft "insertAt:" $ do
   void $ validRefExpr r e
-  let errMsg = "Addr " ++ show a ++ " already occupied.\n"
+  let errMsg = "Addr " ++ show a ++ " already occupied."
       in void $ either Right (const $ Left errMsg)
          $ addrToRefExpr r a
   Right $ _insert a e r
@@ -138,7 +138,7 @@ deleteIfUnused a r =
   if null users
     then _deleteInternalMentionsOf_unsafe a r
     else Left $ "deleteIfUnused: Expr at Addr " ++ show a
-         ++ " is used in other Exprs.\n"
+         ++ " is used in other Exprs."
 
 -- | PITFALL: `_deleteInternalMentionsOf a`
 -- could put the `Rslt` into an invalid state,

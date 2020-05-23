@@ -40,7 +40,7 @@ exprToAddrInsert :: Rslt -> Expr
                    , [Aged Addr] -- ^ added or already present
                    , [Cycle] ) -- ^ any new cycles
 exprToAddrInsert r ei =
-  prefixLeft ("exprToAddrInsert, called on " ++ show ei ++ ":\n") $
+  prefixLeft ("exprToAddrInsert, called on " ++ show ei ++ ": ") $
   let mra :: Maybe Addr = either (const Nothing) Just
                           $ exprToAddr r ei
   in case mra of
@@ -55,7 +55,7 @@ exprToAddrInsert r ei =
 exprToAddrInsert_rootNotFound ::
   Rslt -> Expr -> Either String (Rslt, [Aged Addr], [Cycle])
 exprToAddrInsert_rootNotFound _ (ExprAddr a) =
-  Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found.\n"
+  Left $ "exprToAddrInsert: Addr " ++ show a ++ "not found."
 
 exprToAddrInsert_rootNotFound r0 (Phrase w) = do
   a <- nextAddr r0

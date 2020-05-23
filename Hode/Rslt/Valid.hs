@@ -88,10 +88,10 @@ validTplt r (Rel' (Rel aMembers aTplt)) =
   prefixLeft "validTplt:" $ do
     (ctr,ar) <- variety r aTplt
     if ctr == TpltCtr        then Right ()
-      else Left $ "expr at " ++ show aTplt ++ " not a Tplt.\n"
+      else Left $ "expr at " ++ show aTplt ++ " not a Tplt."
     if ar == length aMembers then Right ()
       else Left $ "expr at " ++ show aTplt
-           ++ " does not match arity of " ++ show aMembers ++ ".\n"
+           ++ " does not match arity of " ++ show aMembers ++ "."
 validTplt _ (Tplt' (Tplt Nothing [] Nothing)) =
   Left "validTplt: Null Tplt."
 validTplt _ _ = Right ()
@@ -116,11 +116,11 @@ validRslt r =
   prefixLeft "validRslt:" $ do
   let unmatched = relsWithoutMatchingTplts r
       in if null unmatched then Right ()
-         else Left $ "rels without matching Tplts:\n"
-              ++ show unmatched ++ ".\n"
+         else Left $ "rels without matching Tplts:"
+              ++ show unmatched ++ "."
   let unfillable = collectionsWithAbsentAddrs r
       in if null unfillable then Right ()
-         else Left $ "collections with absent Addrs:\n"
+         else Left $ "collections with absent Addrs:"
               ++ show unfillable
 
 collectionsWithAbsentAddrs :: Rslt -> Map Addr [Addr]

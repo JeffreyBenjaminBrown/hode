@@ -58,7 +58,7 @@ exprToAddr r e = prefixLeft "exprToAddr:" $
 
 addrToRefExpr :: Rslt -> Addr -> Either String RefExpr
 addrToRefExpr r a =
-  maybe (Left $ "addrToRefExpr: Addr " ++ show a ++ " absent.\n") Right
+  maybe (Left $ "addrToRefExpr: Addr " ++ show a ++ " absent.") Right
   $ M.lookup a $ _addrToRefExpr r
 
 
@@ -66,4 +66,4 @@ refExprToAddr :: Rslt -> RefExpr -> Either String Addr
 refExprToAddr r e = maybe err Right $
                     M.lookup e $ _refExprToAddr r
   where err = Left $ "refExprToAddr: RefExpr " ++
-              show e ++ " not found.\n"
+              show e ++ " not found."

@@ -173,7 +173,7 @@ refExprVariety e@(Rel' _)     = (RelCtr , arity e)
 
 maxAddr :: Rslt -> Either String Addr
 maxAddr = maybe errMsg Right . S.lookupMax . M.keysSet . _addrToRefExpr
-  where errMsg = Left $ "maxAddr: empty Rslt.\n"
+  where errMsg = Left $ "maxAddr: empty Rslt."
 
 nextAddr :: Rslt -> Either String Addr
 nextAddr r = (+1) <$> prefixLeft "nextAddr:" (maxAddr r)
