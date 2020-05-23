@@ -23,30 +23,69 @@ test_module_hash_parse :: Test
 test_module_hash_parse = TestList [
     TestLabel "test_parse_rels" test_parse_rels
   , TestLabel "test_parse_pPExpr" test_parse_pPExpr
+  , TestLabel "test_pEval" test_pEval
   , TestLabel "test_parse_hExpr" test_parse_hExpr
   , TestLabel "test_parse_tplt" test_parse_tplt
   , TestLabel "test_hashWord" test_hashWord
   , TestLabel "test_hashPhrase" test_hashPhrase
+  , TestLabel "test_pAllTplts" test_pAllTplts
   , TestLabel "test_pAny" test_pAny
+  , TestLabel "test_pVar" test_pVar
   , TestLabel "test_pIt" test_pIt
+  , TestLabel "test_pInvolves" test_pInvolves
   ]
+
+test_pInvolves :: Test
+test_pInvolves = TestCase $ do
+  assertBool "" $
+    parse pInvolves "" "/i-2 a" == Right
+    (PInvolves 2 $ PRel $ PNonRel $ PExpr $ Phrase "a")
 
 test_pIt :: Test
 test_pIt = TestCase $ do
-  assertBool "" $ parse pIt "" "/it" == Right (It Nothing)
-  assertBool "PITFALL: This demonstrates an error: Hash expressions need to be prefixed with /h, unless they are 0-level words or phrases." $
+  assertBool "it is unspecified" $
+    parse pIt "" "/it" == Right (It Nothing)
+  assertBool "It= a pRel." $
     parse pIt ""                 "/it= 333 # 555" ==
     Right ( It $ Just $ PRel ( Open 1 [ PNonRel $ PExpr $ Phrase "333"
                                       , PNonRel $ PExpr $ Phrase "555" ]
                                [""] ) )
-  assertBool "A 0-level phrase." $
+  assertBool "It= a 0-level phrase." $
     (simplifyPExpr <$> parse pIt "" "/it= 333 555") ==
     (Right $ It $ Just $ PExpr $ Phrase "333 555")
 
+test_pAllTplts :: Test
+test_pAllTplts = TestCase $ do
+  assertBool "one /ts"
+    $ parse pAllTplts "" "/ts"         == Right PTplts
+  assertBool "one /tplts"
+    $ parse pAllTplts "" "/tplts "     == Right PTplts
+  assertBool "one /templates"
+    $ parse pAllTplts "" "/templates " == Right PTplts
+
+  assertBool "not a prefix" $ isLeft $
+    parse pAllTplts "" "/templates-are-cool"
+  assertBool "many `/ts`s" $ parse (many pAllTplts) "" "/ts /ts /ts /ts"
+    == Right (take 4 $ repeat PTplts)
+
 test_pAny :: Test
 test_pAny = TestCase $ do
-  assertBool "1" $ parse pAny "" "/_"    == Right Any
-  assertBool "2" $ parse pAny "" "/any " == Right Any
+  assertBool "not a prefix" $ isLeft $
+    parse pAny "" "/_."
+  assertBool "one /_" $ Right Any ==
+    parse pAny "" "/_"
+  assertBool "one /any" $ parse pAny "" "/any " == Right Any
+  assertBool "many /_s" $ parse (many pAny) "" "/_ /_ /_ /_"
+    == Right (take 4 $ repeat Any)
+
+test_pVar :: Test
+test_pVar = TestCase $ do
+  assertBool "not a prefix" $ isLeft $
+    parse pAny "" "/v."
+  assertBool "some `/v`s" $ parse (many pVar) "" "/v a /v b"
+    == Right (map (PVar . VarString) ["a","b"])
+  assertBool "some `/var`s" $ parse (many pVar) "" "/var a /var   b    "
+    == Right (map (PVar . VarString) ["a","b"])
 
 test_hashPhrase :: Test
 test_hashPhrase = TestCase $ do
@@ -122,32 +161,22 @@ test_parse_pPExpr = TestCase $ do
             Phrase "because" ]
           Nothing ) ] )
 
-  assertBool "any" $ parse pAny "any" "/_ "
-    == Right Any
-  assertBool "var" $ parse pVar "wut" "/var x1 "
-    == Right (PVar $ vs "x1")
-  assertBool "it nothing" $ parse pIt "wut" "/it "
-    == Right (It Nothing)
-  assertBool "it $ just a # b" $
-    parse pIt "wut" "/it= /hash a # b" ==
-    Right ( It $ Just $ PRel
-            ( Open 1 [ PNonRel $ PExpr $ Phrase "a"
-                     , PNonRel $ PExpr $ Phrase "b" ]
-              [""] ) )
-
-  assertBool "eval $ just a # b" $ parse pEval "wut" "/eval /hash a # b"
+test_pEval :: Test
+test_pEval = TestCase $ do
+  assertBool "eval $ just a # b" $ parse pEval "wut" "/eval a # b"
     == Right
     ( PEval $ PRel
       ( Open 1 [ PNonRel $ PExpr $ Phrase "a"
                , PNonRel $ PExpr $ Phrase "b" ]
         [""] ) )
 
-  assertBool "/it= needs a space after" $
+  assertBool "/eval (/it= 0 /| 1) # 2" $
     parse pEval "" "/eval (/it= 0 /| 1) # 2" == Right
     ( PEval $ PRel $ Open 1
       [ PNonRel $ It $ Just $ POr [ PExpr (Phrase "0"),
                                     PExpr (Phrase "1") ],
         PNonRel (PExpr $ Phrase "2")] [""])
+
   assertBool "/it= needs a space after" $
     isLeft $ parse pEval "" "/eval (/it=0|1) # 2"
 
