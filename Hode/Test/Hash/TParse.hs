@@ -12,6 +12,7 @@ import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Hash.Util
 import Hode.Qseq.Types (Var(..))
+import Hode.Rslt.Binary
 import Hode.Rslt.Index
 import Hode.Rslt.Types
 
@@ -37,7 +38,21 @@ test_module_hash_parse = TestList [
   , TestLabel "test_pInvolves" test_pInvolves
   , TestLabel "test_pAddr" test_pAddr
   , TestLabel "test_pHashExpr" test_pHashExpr
+  , TestLabel "test_pTrans" test_pTrans
   ]
+
+test_pTrans :: Test
+test_pTrans = TestCase $ do
+  let aTest (parser, dir, (kw1, kw2)) =
+        let p1 = parse parser "" ("/" ++ kw1 ++ " a")
+            p2 = parse parser "" ("/" ++ kw2 ++ " a")
+        in do
+          assertBool "PITFALL: This uses an invalid PTrans, but is a reasonable test of the parser." $
+            p1 == Right ( PTrans dir $ PEval $ PRel $ PNonRel
+                          $ PExpr $ Phrase "a")
+          assertBool "both keywords work" $ p1 == p2
+  aTest (pTransRight, SearchRightward, ("trr", "transRight"))
+  aTest (pTransLeft,  SearchLeftward,  ("trl", "transLeft"))
 
 test_pHashExpr :: Test
 test_pHashExpr = TestCase $ do

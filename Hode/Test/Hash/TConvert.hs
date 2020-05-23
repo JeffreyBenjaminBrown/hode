@@ -269,7 +269,7 @@ test_pExprToHExpr = TestCase $ do
 
   assertBool "HTrans rightward, return leftward items" $
     ( pExprToHExpr (mkRslt mempty) <$>
-      parse pPExpr "" "/trr (/it= a) # b" ) ==
+      parse pTransRight "" "/trr (/it= a) # b" ) ==
     ( Right $ Right $ HTrans SearchRightward [SearchLeftward]
       ( HExpr $ ExprTplt $ Tplt Nothing [Phrase ""] Nothing)
       ( HExpr $ Phrase "b")
@@ -278,12 +278,12 @@ test_pExprToHExpr = TestCase $ do
   assertBool "HTrans rightward between disjunctions" $
     isRight ( fromRight (error "?") $
               pExprToHExpr (mkRslt mempty) <$>
-              parse pPExpr "" "/trr (0 /| 2) #< (1/|4)" )
+              parse pExpr "" "/trr (0 /| 2) #< (1/|4)" )
 
   assertBool "HTrans rightward between disjunctions with target" $
     isRight ( fromRight (error "?") $
               pExprToHExpr (mkRslt mempty) <$>
-              parse pPExpr "" "/trr (/it=(0 /| 2)) #< (1/|4)" )
+              parse pTransRight "" "/trr (/it=(0 /| 2)) #< (1/|4)" )
 
   let Right (Right parsed_it_b_y_u) = pExprToHExpr r <$>
         parse _pHashExpr "blerk2" "/eval /it #b y ##u"
