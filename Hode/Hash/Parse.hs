@@ -22,6 +22,7 @@ module Hode.Hash.Parse (
   , pTplt          -- ^ Parser Expr
   , _pTplt         -- ^ Parser Expr
   , pMap           -- ^ Parser PExpr
+  , pMember        -- ^ Parser PExpr
   , pAllTplts      -- ^ Parser PExpr
   , pInvolves      -- ^ Parser PExpr
   , pEval          -- ^ Parser PExpr
@@ -216,7 +217,7 @@ pMap = lexeme (nonPrefix "/map" <|> nonPrefix "/roles")
 pMember :: Parser PExpr
 pMember = lexeme ( foldr1 (<|>)
                  $ map (try . nonPrefix) ["/m","/member"] )
-         >> ( PMember <$> _pHashExpr )
+          >> ( PMember <$> _pHashExpr )
 
 pAllTplts :: Parser PExpr
 pAllTplts = lexeme ( foldr1 (<|>)

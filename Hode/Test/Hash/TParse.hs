@@ -28,6 +28,7 @@ test_module_hash_parse = TestList [
   , TestLabel "test_parse_tplt" test_parse_tplt
   , TestLabel "test_hashWord" test_hashWord
   , TestLabel "test_hashPhrase" test_hashPhrase
+  , TestLabel "test_pMember" test_pMember
   , TestLabel "test_pAllTplts" test_pAllTplts
   , TestLabel "test_pAny" test_pAny
   , TestLabel "test_pVar" test_pVar
@@ -53,6 +54,25 @@ test_pIt = TestCase $ do
   assertBool "It= a 0-level phrase." $
     (simplifyPExpr <$> parse pIt "" "/it= 333 555") ==
     (Right $ It $ Just $ PExpr $ Phrase "333 555")
+
+test_pMember :: Test
+test_pMember = TestCase $ do
+  assertBool "one /member" $
+    parse pMember "" "/member a"
+    == Right (PMember $ PRel $ PNonRel $ PExpr $ Phrase "a")
+  assertBool "one /m" $
+    parse pMember "" "/m a"
+    == Right (PMember $ PRel $ PNonRel $ PExpr $ Phrase "a")
+
+  assertBool "/m a # b" $
+    parse pMember "" "/m a # b"
+    == Right ( PMember $ PRel $
+               Open 1 [ PNonRel $ PExpr $ Phrase "a",
+                        PNonRel $ PExpr $ Phrase "b"]
+               [""] )
+
+  assertBool "not a prefix" $ isLeft $
+    parse pMember "" "/m@m"
 
 test_pAllTplts :: Test
 test_pAllTplts = TestCase $ do
