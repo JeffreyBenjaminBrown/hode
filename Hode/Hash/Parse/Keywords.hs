@@ -94,8 +94,7 @@ addrs = let
 
 reach :: HashKeyword
 reach = let
-  hs = [HashSymbol { _rawSymbol = "tr"
-                   , _slashPrefix = True } ]
+  hs = hashSymbol_withSlash <$> ["tr","reach"]
   in HashKeyword {
     _title = "transitive reach",
     _symbol = hs,

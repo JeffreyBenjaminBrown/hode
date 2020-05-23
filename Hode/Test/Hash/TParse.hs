@@ -39,7 +39,18 @@ test_module_hash_parse = TestList [
   , TestLabel "test_pAddr" test_pAddr
   , TestLabel "test_pHashExpr" test_pHashExpr
   , TestLabel "test_pTrans" test_pTrans
+  , TestLabel "test_pReach" test_pReach
   ]
+
+test_pReach :: Test
+test_pReach = TestCase $ do
+  let short = parse pReach "" "/tr a"
+      long  = parse pReach "" "/reach a"
+
+  assertBool "PITFALL: This uses an invalid PReach, but is a reasonable test of the parser." $
+    short == Right (PReach $ PRel $ PNonRel $ PExpr $ Phrase "a")
+
+  assertBool "both keywords work" $ short == long
 
 test_pTrans :: Test
 test_pTrans = TestCase $ do

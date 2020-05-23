@@ -133,7 +133,8 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        ]
 
 pReach :: Parser PExpr
-pReach = lexeme ( try $ nonPrefix "/tr" )
+pReach = lexeme ( foldr1 (<|>)
+                  $ map (try . nonPrefix) ["/tr","/reach"] )
          >> PReach <$> _pHashExpr
 
 pTransLeft :: Parser PExpr
