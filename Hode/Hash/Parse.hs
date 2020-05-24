@@ -1,4 +1,8 @@
 -- | Based on and simplifying digraphs-with-text/src/Dwt/Hash/Parse.hs
+--
+-- PITFALL: Very mutually recursive.
+-- In addition to the immediate recursion between pRel, pTerm, and pPExpr,
+-- many things call _pHashExpr, which calls pRel, the "top" parser.
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -15,8 +19,6 @@ module Hode.Hash.Parse (
   , pReach         -- ^ Parser PExpr
   , pTransRight    -- ^ Parser PExpr
   , pTransLeft     -- ^ Parser PExpr
-  , pHashExpr      -- ^ Parser PExpr
-  , _pHashExpr     -- ^ Parser PExpr
   , pAddrs         -- ^ Parser PExpr
   , pPhrase        -- ^ Parser PExpr
   , pTplt          -- ^ Parser Expr
@@ -29,6 +31,8 @@ module Hode.Hash.Parse (
   , pVar           -- ^ Parser PExpr
   , pAny           -- ^ Parser PExpr
   , pIt            -- ^ Parser PExpr
+  , pHashExpr      -- ^ Parser PExpr
+  , _pHashExpr     -- ^ Parser PExpr
   , hashPhrase     -- ^ Parser String
   , hashWord -- ^ Parser String
   ) where
@@ -147,17 +151,6 @@ pTransRight =
   lexeme (nonPrefix $ pThisMany 1 KW.transRight)
   >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
 
--- | Anywhere that a hash expression could be parsed,
--- it can optionally be preceded by a keyword like "/hash".
--- TODO ? PITFALL: I'm not sure this is actually ever needed.
-pHashExpr :: Parser PExpr
-pHashExpr =
-  lexeme (nonPrefix $ pThisMany 1 KW.hashKeyword)
-  >> _pHashExpr
-
-_pHashExpr :: Parser PExpr
-_pHashExpr = PRel <$> pRel
-
 -- | `pAddrs` parses the string "/@s 1-10 100 30-40 101"
 -- to be the disjunction (POr) of 22 `Addr`s.
 pAddrs :: Parser PExpr
@@ -241,6 +234,17 @@ pAny :: Parser PExpr
 pAny =
   lexeme (nonPrefix $ pThisMany 1 KW.any)
   >> return Any
+
+-- | Anywhere that a hash expression could be parsed,
+-- it can optionally be preceded by a keyword like "/hash".
+-- TODO ? PITFALL: I'm not sure this is actually ever needed.
+pHashExpr :: Parser PExpr
+pHashExpr =
+  lexeme (nonPrefix $ pThisMany 1 KW.hashKeyword)
+  >> _pHashExpr
+
+_pHashExpr :: Parser PExpr
+_pHashExpr = PRel <$> pRel
 
 hashPhrase :: Parser String
 hashPhrase =
