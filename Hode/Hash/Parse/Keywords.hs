@@ -4,6 +4,19 @@ import Hode.Hash.Parse.Util
 import Hode.Util.Misc
 
 
+
+hashKeyword :: HashKeyword
+hashKeyword = let
+  hs = hashSymbol_withSlash <$> [ "hash", "h" ]
+  s :: String = rep 1 $ head hs
+  in HashKeyword {
+    _title = "maybe stupid",
+    _symbol = hs,
+    _help = let
+      dumb = "'" ++ s ++ " a # " ++ s ++ " b'"
+      dumb2 = s ++ " (" ++ dumb ++ ")"
+      in "This keyword indicates that what follows is a Hash expression. I'm not sure you ever need it. For instance, you could write " ++ dumb ++ ", or even " ++ dumb2 ++ ", but it would be easier to write 'a # b'."}
+
 itMatching :: HashKeyword
 itMatching = let
   hs = hashSymbol_withSlash <$> [ "it=" ]
@@ -30,7 +43,7 @@ any = let
 
 var :: HashKeyword
 var = let
-  hs = hashSymbol_withSlash <$> [ "v", "var" ]
+  hs = hashSymbol_withSlash <$> [ "var", "v" ]
   in HashKeyword {
     _title = "TODO ? should not have a help title",
     _symbol = hs,
@@ -38,7 +51,7 @@ var = let
 
 eval :: HashKeyword
 eval = let
-  hs = hashSymbol_withSlash <$> ["/e","/eval"]
+  hs = hashSymbol_withSlash <$> ["eval","e"]
   in HashKeyword {
     _title = "find subexpression",
     _symbol = hs,
@@ -46,7 +59,7 @@ eval = let
 
 involves :: HashKeyword
 involves = let
-  hs = hashSymbol_withSlash <$> ["i","involves"]
+  hs = hashSymbol_withSlash <$> ["involves","i"]
   in HashKeyword {
     _title = "with sub-expr at depth",
     _symbol = hs,
@@ -54,7 +67,7 @@ involves = let
 
 member :: HashKeyword
 member = let
-  hs = hashSymbol_withSlash <$> ["m","member"]
+  hs = hashSymbol_withSlash <$> ["member","m"]
   in HashKeyword {
     _title = "with top-level sub-expr",
     _symbol = hs,
@@ -70,7 +83,7 @@ map = let
 
 tplts :: HashKeyword
 tplts = let
-  hs = hashSymbol_withSlash <$> ["ts","tplts","templates"]
+  hs = hashSymbol_withSlash <$> ["templates","tplts","ts"]
   in HashKeyword {
     _title = "all templates",
     _symbol = hs,
@@ -78,7 +91,7 @@ tplts = let
 
 tplt :: HashKeyword
 tplt = let
-  hs = hashSymbol_withSlash <$> ["t","tplt","template"]
+  hs = hashSymbol_withSlash <$> ["template","tplt","t"]
   in HashKeyword {
     _title = "template",
     _symbol = hs,
@@ -94,7 +107,7 @@ addrs = let
 
 reach :: HashKeyword
 reach = let
-  hs = hashSymbol_withSlash <$> ["tr","reach"]
+  hs = hashSymbol_withSlash <$> ["reach","tr"]
   in HashKeyword {
     _title = "transitive reach",
     _symbol = hs,
@@ -102,7 +115,7 @@ reach = let
 
 transLeft :: HashKeyword
 transLeft = let
-  hs = hashSymbol_withSlash <$> ["trl","transLeft"]
+  hs = hashSymbol_withSlash <$> ["transLeft","trl"]
   in HashKeyword {
     _title = "leftward transitive search",
     _symbol = hs,
@@ -110,7 +123,7 @@ transLeft = let
 
 transRight :: HashKeyword
 transRight = let
-  hs = hashSymbol_withSlash <$> ["trr","transRight"]
+  hs = hashSymbol_withSlash <$> ["transRight","trr"]
   in HashKeyword {
     _title = "rightward transitive search",
     _symbol = hs,
@@ -120,7 +133,7 @@ hash :: HashKeyword
 hash = let
   hs = [ HashSymbol { _rawSymbol = "#"
                     , _slashPrefix = False } ]
-  s = rep 1 $ head hs
+  s :: String = rep 1 $ head hs
   in HashKeyword {
     _title = "build relationships",
     _symbol = hs,

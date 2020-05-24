@@ -143,17 +143,17 @@ pTransLeft =
   >> ( PTrans SearchLeftward . PEval <$> _pHashExpr )
 
 pTransRight :: Parser PExpr
-pTransRight = lexeme ( foldr1 (<|>)
-                      $ map (try . nonPrefix . string) ["/trr","/transRight"] )
-             >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
+pTransRight =
+  lexeme (nonPrefix $ pThisMany 1 KW.transRight)
+  >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
 
 -- | Anywhere that a hash expression could be parsed,
 -- it can optionally be preceded by a keyword like "/hash".
 -- TODO ? PITFALL: I'm not sure this is actually ever needed.
 pHashExpr :: Parser PExpr
-pHashExpr = lexeme ( foldr1 (<|>) $ map (try . nonPrefix . string)
-                     ["/hash","/h"] )
-            >> _pHashExpr
+pHashExpr =
+  lexeme (nonPrefix $ pThisMany 1 KW.hashKeyword)
+  >> _pHashExpr
 
 _pHashExpr :: Parser PExpr
 _pHashExpr = PRel <$> pRel
@@ -176,9 +176,9 @@ pPhrase :: Parser PExpr
 pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
-pTplt = lexeme ( foldr1 (<|>) $
-                 map (try . nonPrefix . string) ["/t","/tplt","/template"] )
-        >> _pTplt
+pTplt =
+  lexeme (nonPrefix $ pThisMany 1 KW.tplt)
+  >> _pTplt
 
 _pTplt :: Parser Expr
 _pTplt =
@@ -188,10 +188,10 @@ _pTplt =
      return . ExprTplt . fmap Phrase . tpltFromEithers
 
 pMap :: Parser PExpr
-pMap = lexeme ( foldr1 (<|>) $
-                map (nonPrefix . try . string) ["/map", "/roles"] )
-       >> PMap . M.fromList <$> some ( lexeme $ parens $ pMbr
-                                       <|> pTplt' )
+pMap =
+  lexeme (nonPrefix $ pThisMany 1 KW.map)
+  >> PMap . M.fromList <$> some ( lexeme $ parens $ pMbr
+                                  <|> pTplt' )
   where
     pTplt', pMbr :: Parser (Role, PExpr)
     pTplt' = do void $ lexeme $ nonPrefix $ string "tplt"
@@ -202,47 +202,45 @@ pMap = lexeme ( foldr1 (<|>) $
                 return ( RoleInRel' $ RoleMember i, x       )
 
 pMember :: Parser PExpr
-pMember = lexeme ( foldr1 (<|>)
-                 $ map (try . nonPrefix . string) ["/m","/member"] )
-          >> ( PMember <$> _pHashExpr )
+pMember =
+  lexeme (nonPrefix $ pThisMany 1 KW.member)
+  >> ( PMember <$> _pHashExpr )
 
 pAllTplts :: Parser PExpr
-pAllTplts = lexeme ( foldr1 (<|>)
-                     $ map (try . nonPrefix . string)
-                     ["/ts","/tplts","/templates"] )
-            >> return PTplts
+pAllTplts =
+  lexeme (nonPrefix $ pThisMany 1 KW.tplts)
+  >> return PTplts
 
 -- | Example: "/i-2 a" finds any `Rel` that involves "a"
 -- in either its first or its second level.
 pInvolves :: Parser PExpr
 pInvolves = do
-  foldr1 (<|>) (map (try . string) ["/i","/involves"])
+  pThisMany 1 KW.involves
   >> string "-"
   >> PInvolves <$> decimal <*> _pHashExpr
 
 pEval :: Parser PExpr
-pEval = lexeme ( foldr1 (<|>)
-                 $ map (try . nonPrefix . string) ["/eval","/e"] )
-         >> ( PEval <$> _pHashExpr )
+pEval =
+  lexeme (nonPrefix $ pThisMany 1 KW.eval)
+  >> ( PEval <$> _pHashExpr )
 
 -- | PITFALL: the /it= keyword, like other keywords,
 -- cannot be followed by an adjacent alphanumeric character.
 pIt :: Parser PExpr
 pIt = let
-  keyword = lexeme . nonPrefix . string
-  in (keyword "/it=" >> It . Just <$> _pHashExpr) <|>
-     (keyword "/it"  >> return (It Nothing)     )
+  keyword = lexeme . nonPrefix . pThisMany 1
+  in (keyword KW.itMatching >> It . Just <$> _pHashExpr) <|>
+     (keyword KW.it         >> return (It Nothing)     )
 
 pVar :: Parser PExpr
-pVar = do void $ lexeme
-            ( foldr1 (<|>)
-              $ map (try . nonPrefix . string) ["/var","/v"] )
-          lexeme hashWord >>= return . PVar . VarString
+pVar = do
+  lexeme $ nonPrefix $ pThisMany 1 KW.var
+  lexeme hashWord >>= return . PVar . VarString
 
 pAny :: Parser PExpr
-pAny = lexeme ( foldr1 (<|>)
-                $ map (try . nonPrefix . string) ["/_","/any"] )
-       >> return Any
+pAny =
+  lexeme (nonPrefix $ pThisMany 1 KW.any)
+  >> return Any
 
 hashPhrase :: Parser String
 hashPhrase =
