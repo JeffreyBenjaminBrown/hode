@@ -134,26 +134,25 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
 
 pReach :: Parser PExpr
 pReach = lexeme ( foldr1 (<|>)
-                  $ map (try . nonPrefix) ["/tr","/reach"] )
+                  $ map (try . nonPrefix . string) ["/tr","/reach"] )
          >> PReach <$> _pHashExpr
 
 pTransLeft :: Parser PExpr
 pTransLeft = lexeme ( foldr1 (<|>)
-                      $ map (try . nonPrefix) ["/trl","/transLeft"] )
+                      $ map (try . nonPrefix . string) ["/trl","/transLeft"] )
              >> ( PTrans SearchLeftward . PEval <$> _pHashExpr )
 
 pTransRight :: Parser PExpr
 pTransRight = lexeme ( foldr1 (<|>)
-                      $ map (try . nonPrefix) ["/trr","/transRight"] )
+                      $ map (try . nonPrefix . string) ["/trr","/transRight"] )
              >> ( PTrans SearchRightward . PEval <$> _pHashExpr )
 
 -- | Anywhere that a hash expression could be parsed,
 -- it can optionally be preceded by a keyword like "/hash".
 -- TODO ? PITFALL: I'm not sure this is actually ever needed.
 pHashExpr :: Parser PExpr
-pHashExpr = lexeme
-            ( try ( nonPrefix "/hash"  <|>
-                    nonPrefix "/h"    ) )
+pHashExpr = lexeme ( foldr1 (<|>) $ map (try . nonPrefix . string)
+                     ["/hash","/h"] )
             >> _pHashExpr
 
 _pHashExpr :: Parser PExpr
@@ -178,7 +177,7 @@ pPhrase = lexeme $ hashPhrase >>= return . PExpr . Phrase
 
 pTplt :: Parser Expr
 pTplt = lexeme ( foldr1 (<|>) $
-                 map (try . nonPrefix) ["/t","/tplt","/template"] )
+                 map (try . nonPrefix . string) ["/t","/tplt","/template"] )
         >> _pTplt
 
 _pTplt :: Parser Expr
@@ -189,12 +188,13 @@ _pTplt =
      return . ExprTplt . fmap Phrase . tpltFromEithers
 
 pMap :: Parser PExpr
-pMap = lexeme (nonPrefix "/map" <|> nonPrefix "/roles")
+pMap = lexeme ( foldr1 (<|>) $
+                map (nonPrefix . try . string) ["/map", "/roles"] )
        >> PMap . M.fromList <$> some ( lexeme $ parens $ pMbr
                                        <|> pTplt' )
   where
     pTplt', pMbr :: Parser (Role, PExpr)
-    pTplt' = do void $ lexeme $ nonPrefix "tplt"
+    pTplt' = do void $ lexeme $ nonPrefix $ string "tplt"
                 t <- _pTplt
                 return ( RoleInRel' $ RoleTplt    , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
@@ -203,12 +203,12 @@ pMap = lexeme (nonPrefix "/map" <|> nonPrefix "/roles")
 
 pMember :: Parser PExpr
 pMember = lexeme ( foldr1 (<|>)
-                 $ map (try . nonPrefix) ["/m","/member"] )
+                 $ map (try . nonPrefix . string) ["/m","/member"] )
           >> ( PMember <$> _pHashExpr )
 
 pAllTplts :: Parser PExpr
 pAllTplts = lexeme ( foldr1 (<|>)
-                     $ map (try . nonPrefix)
+                     $ map (try . nonPrefix . string)
                      ["/ts","/tplts","/templates"] )
             >> return PTplts
 
@@ -222,24 +222,26 @@ pInvolves = do
 
 pEval :: Parser PExpr
 pEval = lexeme ( foldr1 (<|>)
-                 $ map (try . nonPrefix) ["/eval","/e"] )
+                 $ map (try . nonPrefix . string) ["/eval","/e"] )
          >> ( PEval <$> _pHashExpr )
 
 -- | PITFALL: the /it= keyword, like other keywords,
 -- cannot be followed by an adjacent alphanumeric character.
 pIt :: Parser PExpr
-pIt =     (lexeme (nonPrefix "/it=") >> It . Just <$> _pHashExpr)
-      <|> (lexeme (nonPrefix "/it")  >> return (It Nothing) )
+pIt = let
+  keyword = lexeme . nonPrefix . string
+  in (keyword "/it=" >> It . Just <$> _pHashExpr) <|>
+     (keyword "/it"  >> return (It Nothing)     )
 
 pVar :: Parser PExpr
 pVar = do void $ lexeme
             ( foldr1 (<|>)
-              $ map (try . nonPrefix) ["/var","/v"] )
+              $ map (try . nonPrefix . string) ["/var","/v"] )
           lexeme hashWord >>= return . PVar . VarString
 
 pAny :: Parser PExpr
 pAny = lexeme ( foldr1 (<|>)
-                $ map (try . nonPrefix) ["/_","/any"] )
+                $ map (try . nonPrefix . string) ["/_","/any"] )
        >> return Any
 
 hashPhrase :: Parser String
