@@ -102,8 +102,7 @@ reach = let
 
 transLeft :: HashKeyword
 transLeft = let
-  hs = [ HashSymbol { _rawSymbol = "trl"
-                    , _slashPrefix = True } ]
+  hs = hashSymbol_withSlash <$> ["trl","transLeft"]
   in HashKeyword {
     _title = "leftward transitive search",
     _symbol = hs,
@@ -111,8 +110,7 @@ transLeft = let
 
 transRight :: HashKeyword
 transRight = let
-  hs = [ HashSymbol { _rawSymbol = "trr"
-                    , _slashPrefix = True } ]
+  hs = hashSymbol_withSlash <$> ["trr","transRight"]
   in HashKeyword {
     _title = "rightward transitive search",
     _symbol = hs,
