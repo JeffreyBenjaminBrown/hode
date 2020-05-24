@@ -10,23 +10,13 @@ This will load all non-broken modules when some are broken.
   stack exec -- ghci -Wall
   :l Hode.Hode
 * backup the data repo(s)
-* TODO add these tests
-MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_ /_ hoohaa"
-Right ["/_","/_"]
-
-MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_f"
-should find none
-
-MP.parse (MP.many $ lexeme $ nonPrefix "/_") "" "/_."
-should find none
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
 **** TODO Write the help blurbs.
 **** TODO Share help blurbs for /trl and /trr.
-**** TODO resume at pMap
 *** TODO maybe the # parser should be treated specially
-and the "slashPrefix" field dropped
+and the "slashPrefix" field dropped.
 *** ? these features
 are already in the interactive help
 select ViewExpr (M-X)

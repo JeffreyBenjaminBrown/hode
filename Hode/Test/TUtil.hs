@@ -5,10 +5,13 @@ module Hode.Test.TUtil where
 
 import Test.HUnit
 import Data.Either
+import Text.Megaparsec
+import Text.Megaparsec.Char
 
-import Hode.Util.Misc
 import Hode.Rslt.Types
 import Hode.Util.Alternation
+import Hode.Util.Misc
+import Hode.Util.Parse
 
 
 test_module_util :: Test
@@ -16,7 +19,20 @@ test_module_util = TestList [
     TestLabel "test_tpltFromEithers" test_tpltFromEithers
   , TestLabel "test_transpose" test_transpose
   , TestLabel "test_beforeDuringAfter" test_beforeDuringAfter
+  , TestLabel "test_nonPrefix" test_nonPrefix
   ]
+
+test_nonPrefix :: Test
+test_nonPrefix = TestCase $ do
+  assertBool "" $ parse
+    (many $ lexeme $ nonPrefix $ string "/_") ""
+    "/_ /_ hoohaa" == Right ["/_","/_"]
+  assertBool "it can't be a prefix" $
+    isLeft $ parse
+    (many $ lexeme $ nonPrefix $ string "/_") "" "/_f"
+  assertBool "periods count as potentially the rest of the word" $
+    isLeft $ parse
+    (many $ lexeme $ nonPrefix $ string "/_") "" "/_."
 
 test_beforeDuringAfter :: Test
 test_beforeDuringAfter = TestCase $ do
