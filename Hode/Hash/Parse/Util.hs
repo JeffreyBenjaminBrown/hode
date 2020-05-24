@@ -36,8 +36,13 @@ pThisMany n hk =
       hss = _symbol hk
       p1 :: HashSymbol -> Parser ()
       p1 hs = string (rep n hs)
-              <* notFollowedBy (string $ _rawSymbol hs)
-              >> return ()
+        <* notFollowedBy (string $ _rawSymbol hs)
+          -- PITFALL: This looks like `nonPrefix`, but it's not.
+          -- `nonPrefix` ensures that a string is followed by space or ().
+          -- This just ensures it's not followed by another copy of itself.
+          -- That's important for parsing, e.g., the # in "this #is tricky",
+          -- or the "/i" in "/i-2".
+        >> return ()
   in foldl1 (<|>) $ map (try . p1) hss
 
 hashSymbol_withSlash :: String -> HashSymbol
