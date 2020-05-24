@@ -82,17 +82,17 @@ pHash n = lexeme $ do
 
 pDiff :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pDiff n = lexeme $ do
-  pThisMany n KW.diff
+  nonPrefix $ pThisMany n KW.diff
   return $ \a b -> Right $ PNonRel $ PDiff (PRel a) (PRel b)
 
 pAnd :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pAnd n = lexeme $ do
-  pThisMany n KW.hAnd
+  nonPrefix $ pThisMany n KW.hAnd
   return $ \a b -> Right $ PNonRel $ PAnd $ map PRel [a,b]
 
 pOr :: Level -> Parser (PRel -> PRel -> Either String PRel)
 pOr n = lexeme $ do
-  pThisMany n KW.hOr
+  nonPrefix $ pThisMany n KW.hOr
   return $ \a b -> Right $ PNonRel $ POr $ map PRel [a,b]
 
 pAbsentMember :: Parser PRel
@@ -133,8 +133,7 @@ pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
        ]
 
 pReach :: Parser PExpr
-pReach = lexeme ( foldr1 (<|>)
-                  $ map (try . nonPrefix . string) ["/tr","/reach"] )
+pReach = lexeme (nonPrefix $ pThisMany 1 KW.reach)
          >> PReach <$> _pHashExpr
 
 pTransLeft :: Parser PExpr
