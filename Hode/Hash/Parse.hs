@@ -194,7 +194,7 @@ pMap =
                                   <|> pTplt' )
   where
     pTplt', pMbr :: Parser (Role, PExpr)
-    pTplt' = do void $ lexeme $ nonPrefix $ string "tplt"
+    pTplt' = do void $ lexeme $ nonPrefix $ string "t"
                 t <- _pTplt
                 return ( RoleInRel' $ RoleTplt    , PExpr t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer

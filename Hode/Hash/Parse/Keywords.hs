@@ -76,10 +76,13 @@ member = let
 map :: HashKeyword
 map = let
   hs = hashSymbol_withSlash <$> ["map","roles"]
-  in HashKeyword {
-    _title = "map roles to exprs",
-    _symbol = hs,
-    _help = "TODO" }
+  in HashKeyword
+  { _title = "map roles to exprs"
+  , _symbol = hs
+  , _help = -- PITFALL: This keyword is unlike the others,
+    -- in that some parsing functionality (the "t" and integer keywords)
+    -- are hard-coded in Hode/Hash/Parse.hs, and not reified here.
+    "TODO" }
 
 tplts :: HashKeyword
 tplts = let
