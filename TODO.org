@@ -15,6 +15,7 @@ This will load all non-broken modules when some are broken.
 *** TODO document Hash in interactive help
 **** TODO Write the help blurbs.
 **** TODO Share help blurbs for /trl and /trr.
+**** TODO prefix each blurb with a mention of the other keywords
 *** TODO maybe the # parser should be treated specially
 and the "slashPrefix" field dropped.
 *** ? these features

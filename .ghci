@@ -25,7 +25,7 @@ import qualified Data.Text.Lazy.IO          as LT -- writeFile
 import qualified Text.Megaparsec            as MP
 import qualified Text.Megaparsec.Char       as MP
 import qualified Text.Megaparsec.Char.Lexer as MP
-
 import qualified Text.Pretty.Simple         as Pr
 
 import qualified Hode.Test.Rslt.RData       as D
+import qualified Hode.Hash.Parse.Keywords   as KW

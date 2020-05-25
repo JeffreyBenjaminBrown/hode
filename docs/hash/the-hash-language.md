@@ -131,10 +131,10 @@ then the command `/find /eval bob #flattered /it` would return "alice" and "chuc
 
 That tells the interpreter
 "I am looking for the thing in the superexpression marked `/eval` that occupies the position marked `/it`.
-Rather than returning the `/eval` superexpression,
-only return the `/it` subexpression."
+Rather than returning the entire relationship `bob #flattered /it`,
+the search will only return the `/it` subexpression."
 
-The `/eval` keyword is necessary because otherwise the parser would not know which superexpression to replace witht the expression in the `/it` position.
+The `/eval` keyword is necessary because otherwise the parser would not know which superexpression to replace with the expression in the `/it` position.
 
 For instance, consider the following two similar-looking queries:
 
@@ -143,13 +143,15 @@ For instance, consider the following two similar-looking queries:
 /find (/eval /it #breathes CO2) #eats bugs
 ```
 
-The first query doesn't make sense.
+The first query is nonsense.
 It will look for arity-3 expressions of the form
 `/it #breathes CO2 #eats bugs`,
-and return the `/it`.
+and try to return the `/it` part.
+But it won't find anything, because the relationship "_ breathes _ eats _"
+makes no sense.
 
 The second query is reasonable.
-It will first find every expression X for which `X breathes CO2`,
+It will first find every X for which `X breathes CO2`,
 and then find the subset of those X-values for which `X eats bugs`,
 and return a set of expressions of the form `X eats bugs`.
 For instance, it might return `the venus flytrap #eats bugs`.
