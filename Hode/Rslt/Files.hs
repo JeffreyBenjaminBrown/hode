@@ -2,10 +2,11 @@
 
 module Hode.Rslt.Files where
 
-import qualified Data.Map       as M
+import qualified Data.Map as M
 import           Text.Regex
 import           System.Directory (listDirectory)
 import           System.FilePath.Posix (dropExtension, takeExtension)
+import           System.Process (createProcess_, shell)
 
 import Hode.Rslt.Types
 import Hode.Rslt.Index
@@ -36,7 +37,10 @@ writeRslt p r = let
   writeRefExpr (a,e) =
     writeFile name $ _brief $ show e ++ "\n"
     where name = p ++ "/" ++ show a ++ ".rslt"
-  in mapM_ writeRefExpr $ M.toList $ _addrToRefExpr r
+  in do
+  createProcess_ "Is this message important?"
+    (shell $ "rm " ++ p ++ "/*.rslt")
+  mapM_ writeRefExpr (M.toList $ _addrToRefExpr r)
 
 _brief :: String -> String
 _brief = subRegex_safe "^Phrase' "       "p " .
