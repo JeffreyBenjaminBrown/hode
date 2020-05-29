@@ -11,6 +11,9 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo(s)
 * TODO critical
+** TODO BUG : can't insert based on address
+Solution: If an HOr has exactly one member,
+simplify it, make it not an HOr.
 ** TODO document
 *** TODO document Hash in interactive help
 **** TODO Write the help blurbs.
