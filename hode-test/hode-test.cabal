@@ -1,0 +1,91 @@
+cabal-version: 1.12
+
+-- This file was generated from package.yaml by hpack version 0.31.1.
+-- see: https://github.com/sol/hpack
+-- hash: 50c217e5504795a9a5e4f7076fe411927aff1660b9a3254c11556b640002d529
+
+name:           hode-test
+version:        0.1.0.0
+description:    Please see the README file
+homepage:       https://github.com/JeffreyBenjaminBrown/hode
+bug-reports:    https://github.com/JeffreyBenjaminBrown/hode/issues
+author:         Jeffrey Benjamin Brown
+maintainer:     jeffbrown.the@gmail.com
+copyright:      2019 Jeffrey Benjamin Brown
+license:        GPL-3
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/JeffreyBenjaminBrown/hode
+
+library
+  exposed-modules:
+                  Hode.Test.Hash.Main
+                , Hode.Test.Hash.TConvert
+                , Hode.Test.Hash.THLookup
+                , Hode.Test.Hash.TParse
+                , Hode.Test.Hash.TTransitive
+
+                , Hode.Test.Main
+
+                , Hode.Test.PTree.TPInitial
+                , Hode.Test.PTree.TPModify
+                , Hode.Test.PTree.TPShow
+
+                , Hode.Test.Qseq.Main
+                , Hode.Test.Qseq.TLeaf
+                , Hode.Test.Qseq.TProgram
+                , Hode.Test.Qseq.TQuery
+                , Hode.Test.Qseq.TSubst
+                , Hode.Test.Qseq.TValid
+
+                , Hode.Test.Rslt.Main
+                , Hode.Test.Rslt.RData
+                , Hode.Test.Rslt.RProgram
+                , Hode.Test.Rslt.TEdit
+                , Hode.Test.Rslt.TIndex
+                , Hode.Test.Rslt.TLookup
+                , Hode.Test.Rslt.TRUtil
+                , Hode.Test.Rslt.TShow
+                , Hode.Test.Rslt.TSort
+                , Hode.Test.Rslt.Sort.TDefault
+                , Hode.Test.Rslt.TValid
+
+                , Hode.Test.TBrick
+                , Hode.Test.TGraph
+                , Hode.Test.TNoUI
+                , Hode.Test.TUI
+                , Hode.Test.TUtil
+  other-modules:
+  build-depends:
+                hode
+              , hode-ui
+
+              , base
+              , bifunctors
+              , brick
+                , vty
+              , containers
+              , deriving-compat
+              , directory
+              , either
+              , filepath
+              , HUnit
+              , lens
+                , microlens
+                , microlens-th
+              , parser-combinators
+                , megaparsec
+              , pointedlist
+              , pretty-simple
+              , process
+              , recursion-schemes
+              , text
+                , regex-compat
+              , vector
+              , zippers
+                , text-zipper
+  default-language: Haskell2010
+  ghc-options: -Wall
+  default-extensions: ScopedTypeVariables
