@@ -1,7 +1,7 @@
 Skip to the end of this README for how to install.
 
 
-# There are video introductions
+# There are video guides
 
 The app has gotten much slicker since these were made in early 2019,
 and it has new features,
