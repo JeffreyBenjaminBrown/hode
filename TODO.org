@@ -79,6 +79,7 @@ Or at least, upon inserting contents, unfold.
 *** TODO learn how lexing works
  The problem is that I've absorbed the detection of parens and quotation marks
  (and space?) into the parsers for individual terms.
+** TODO ? use BiMap to associate Addrs and Exprs
 ** ordering
 *** TODO ? BUG : when removing from an order, connect any gaps created
 (The relevant function is removeSelections_fromSortedRegion.)
