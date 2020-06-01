@@ -42,7 +42,11 @@ import Hode.Util.Misc
 -- the outer separator on that side of the corresponding HExpr should be null.
 
 pRelToHExpr :: Rslt -> PRel -> Either String HExpr
-pRelToHExpr r = prefixLeft "pRelToHExpr:" . para f where
+pRelToHExpr r =
+  prefixLeft "pRelToHExpr:" .
+  (simplifyHExpr <$>) .
+  para f
+  where
   f :: Base PRel (PRel, Either String HExpr) -> Either String HExpr
 
   f (PNonRelF pn) = pExprToHExpr r pn -- PITFALL: must recurse by hand.
@@ -94,7 +98,11 @@ pRelToHExpr r = prefixLeft "pRelToHExpr:" . para f where
 --    go _ = error "todo: even more"
 
 pExprToHExpr :: Rslt -> PExpr -> Either String HExpr
-pExprToHExpr r = prefixLeft "pExprToHExpr:" . \case
+pExprToHExpr r =
+  prefixLeft "pExprToHExpr:" .
+  (simplifyHExpr <$>) .
+  \case
+
   px@(pExprIsSpecific -> False) ->
     Left $ show px ++ " is not specific enough."
 

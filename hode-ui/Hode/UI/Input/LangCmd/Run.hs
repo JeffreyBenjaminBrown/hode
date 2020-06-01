@@ -108,7 +108,7 @@ runParsedLangCmd                      c0 st0 =
       & itWorked ( "Deleted Expr at "
                    ++ show a ++ "." )
 
-  -- todo ? duplicative of the clause for LangCmdReplace
+  -- todo ? duplicative of the clause in `g` for LangCmdReplace
   g (LangCmdInsert e) st = do
     (r :: Rslt, as :: [Aged Addr], cs :: [Cycle]) <-
       exprToAddrInsert (st ^. appRslt) e

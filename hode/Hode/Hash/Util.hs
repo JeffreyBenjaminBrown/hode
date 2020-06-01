@@ -11,6 +11,7 @@ module Hode.Hash.Util (
   , pnrPhrase       -- ^ String -> PRel
   , pExprIsSpecific -- ^ PExpr  -> Bool
   , pExprIsUnique   -- ^ PExpr  -> Bool
+  , simplifyHExpr   -- ^ HExpr -> HExpr
   , simplifyPRel    -- ^ PRel   -> PRel
   , simplifyPExpr   -- ^ PExpr  -> PExpr
   ) where
@@ -73,6 +74,17 @@ pExprIsSpecific = cata f where
 pExprIsUnique :: PExpr -> Bool
 pExprIsUnique = \case PExpr _ -> True
                       _       -> False
+
+-- | If an `HAnd` or `HOr` constructor contains a single item,
+-- the expression can be reduced:
+-- omitting the constructor introduces no semantic change.
+simplifyHExpr :: HExpr -> HExpr
+simplifyHExpr = cata f where
+  f :: Base HExpr HExpr -> HExpr
+  f = \case
+    HAndF [x] -> x
+    HOrF  [x] -> x
+    wrapper   -> embed wrapper
 
 -- | To simplify a `PRel` or `PExpr` is to
 -- (1) flatten sections of the form `PNonRel (PRel x)` into `x`
