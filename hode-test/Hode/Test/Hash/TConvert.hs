@@ -324,9 +324,14 @@ test_pExprToHExpr = TestCase $ do
 
 test_simplifyPExpr :: Test
 test_simplifyPExpr = TestCase $ do
-  assertBool "1" $
+  assertBool "bools" $
     simplifyPExpr ( PAnd [ PAnd [ PAnd [ PExpr $ Phrase "a"
                                        , PExpr $ Phrase "b" ]
                          , PAnd [ PAnd [ PExpr $ Phrase "c"
                                        , PExpr $ Phrase "d" ] ] ] ] )
     == PAnd (map (PExpr . Phrase) ["a","b","c","d"] )
+  assertBool "rel . nonrel" $
+    let p = PExpr $ Phrase "a"
+        f = PRel . PNonRel
+    in simplifyPExpr (f $ f p) == p
+
