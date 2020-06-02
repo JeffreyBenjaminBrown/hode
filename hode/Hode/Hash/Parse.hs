@@ -110,6 +110,18 @@ pAbsentMember = const Absent <$> f
 
 -- | = parse a PExpr
 
+-- | `pPExpr` parses terms for `pRel`.
+--
+-- PITFALL: Any place it might be tempting to use pPExpr,
+-- it's likely that PRel would be better.
+-- That's because pPExpr cannot handle (top-level) binary operators.
+-- For instance, pRel gets this right, but pPExpr doesn't:
+--   MP.parse pPExpr ""         "(/@ 10) /| (/@ 11)"
+--   MP.parse pRel   ""         "(/@ 10) /| (/@ 11)"
+-- This can't be fixed in pPExpr,
+-- because by construction pPExpr is what pRel uses to parse things
+-- that do not involve binary operators like /|.
+
 pPExpr :: Parser PExpr
 pPExpr = simplifyPExpr <$> ( foldl1 (<|>) $ map try ps ) where
   ps = [ parens pPExpr
@@ -182,17 +194,18 @@ _pTplt =
 
 pMap :: Parser PExpr
 pMap =
+  fmap simplifyPExpr $
   lexeme (nonPrefix $ pThisMany 1 KW.map)
   >> PMap . M.fromList <$> some ( lexeme $ parens $ pMbr
                                   <|> pTplt' )
   where
     pTplt', pMbr :: Parser (Role, PExpr)
     pTplt' = do void $ lexeme $ nonPrefix $ string "t"
-                t <- pRel
-                return ( RoleInRel' $ RoleTplt    , PRel t )
+                t <- _pHashExpr
+                return ( RoleInRel' $ RoleTplt    , t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
-                x <- pRel
-                return ( RoleInRel' $ RoleMember i, PRel x )
+                x <- _pHashExpr
+                return ( RoleInRel' $ RoleMember i, x )
 
 pMember :: Parser PExpr
 pMember =

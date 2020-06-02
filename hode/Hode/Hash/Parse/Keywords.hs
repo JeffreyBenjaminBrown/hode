@@ -208,10 +208,10 @@ map = let
   in HashKeyword
   { _title = "map roles to exprs"
   , _symbol = hs
-  , _help = -- PITFALL: This keyword is unlike the others,
+    -- PITFALL: This keyword is unlike the others,
     -- in that some parsing functionality (the "t" and integer keywords)
     -- are hard-coded in Hode/Hash/Parse.hs, and not reified in this module.
-    "TODO" }
+  , _help = "TODO" } -- TODO : RESUME HERE
 
 member :: HashKeyword
 member = let

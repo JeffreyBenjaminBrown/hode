@@ -115,4 +115,4 @@ simplifyPExpr = cata f where
     (ands, others) = L.partition (\case PAnd _ -> True; _ -> False) xs
   f (POrF xs)  = POr  $ concatMap (\(POr  c) -> c) ors  ++ others where
     (ors,  others) = L.partition (\case POr  _ -> True; _ -> False) xs
-  f x                   = embed x
+  f x = embed x

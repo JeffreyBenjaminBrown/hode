@@ -280,18 +280,17 @@ test_pPhrase = TestCase $ do
 test_pMap :: Test
 test_pMap = TestCase $ do
   assertBool "map" $
-    let annoy = PRel . PNonRel . PExpr
-    in parse pMap "wut"
-       ( "/map (1 a) (2 b) " ++       "(t /t remember to /_ when there is /_ because /_)" )
-       == Right
-       ( PMap $ M.fromList
-         [ ( RoleInRel' $ RoleMember 1, annoy $ Phrase "a" )
-         , ( RoleInRel' $ RoleMember 2, annoy $ Phrase "b" )
-         , ( RoleInRel' $ RoleTplt,     annoy $ ExprTplt $ Tplt
-             ( Just $ Phrase "remember to" )
-             [ Phrase "when there is",
-               Phrase "because" ]
-             Nothing ) ] )
+    parse pMap "wut"
+     ( "/map (1 a) (2 b) " ++       "(t /t remember to /_ when there is /_ because /_)" )
+     == Right
+     ( PMap $ M.fromList
+       [ ( RoleInRel' $ RoleMember 1, PExpr $ Phrase "a" )
+       , ( RoleInRel' $ RoleMember 2, PExpr $ Phrase "b" )
+       , ( RoleInRel' $ RoleTplt,     PExpr $ ExprTplt $ Tplt
+           ( Just $ Phrase "remember to" )
+           [ Phrase "when there is",
+             Phrase "because" ]
+           Nothing ) ] )
 
 test_pEval :: Test
 test_pEval = TestCase $ do
