@@ -148,7 +148,10 @@ any = let
   in HashKeyword
      { _title = "anything"
      , _symbol = hs
-     , _help = "The " ++ one ++ " symbol represents anything at all. It is meaningless by itself, but meaningful as a sub-expression. For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`." }
+     , _help = paragraphs
+         [ "The " ++ one ++ " symbol represents anything at all. It is meaningless by itself, but meaningful as a sub-expression. For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
+         , "Geeky sidenote: In some math and computer science contexts, `any` applied to an empty argument list is defined to return True. If Hode worked like that, it would return the entire graph. That would be dumb. Instead it returns nothing."
+         ] }
 
 eval :: HashKeyword
 eval = let
@@ -166,9 +169,10 @@ hashKeyword = let
      { _title = "maybe stupid"
      , _symbol = hs
      , _help = let
+         simple = "'a # b'"
          dumb = "'" ++ s ++ " a # " ++ s ++ " b'"
          dumb2 = s ++ " (" ++ dumb ++ ")"
-       in "This keyword indicates that what follows is a Hash expression. I'm not sure you ever need it. For instance, you could write " ++ dumb ++ ", or even " ++ dumb2 ++ ", but it would be easier to write 'a # b'."}
+       in "This keyword indicates that what follows is a Hash expression. I'm not sure you ever need it. For instance, you could write " ++ dumb ++ ", or even " ++ dumb2 ++ ", but it would be easier to write " ++ simple ++ "."}
 
 involves :: HashKeyword
 involves = let
@@ -194,9 +198,9 @@ itMatching :: HashKeyword
 itMatching = let
   hs = hashSymbol_withSlash <$> [ "it=" ]
   in HashKeyword
-     { _title = "TODO ? should not have a help title separate from `eval`"
+     { _title = "id & limit subexpression"
      , _symbol = hs
-     , _help = "TODO ? should not have a help blurb separate from `eval`" }
+     , _help = blurb_eval_and_it }
 
 map :: HashKeyword
 map = let

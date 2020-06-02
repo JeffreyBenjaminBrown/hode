@@ -9,6 +9,19 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo(s)
 * TODO critical
+** TODO BUG: pPExpr used when pRel should be
+*** background
+pPExpr cuts off too soon. For instance,
+pRel gets this right, pPExpr doesn't:
+  MP.parse pPExpr ""         "(/@ 10) /| (/@ 11)"
+  MP.parse pRel   ""         "(/@ 10) /| (/@ 11)"
+This can't be fixed in pPExpr,
+because by construction pPExpr is what pRel uses to parse things
+that do not involve binary operators like /|.
+*** TODO write (or find) something that simplifies PNonRel . PRel and vice-versa
+and use it wherever pPExpr is switched to pRel.
+In particular, any time that pRel is used,
+and its output wrapped in a PRel constructor.
 ** TODO document
 *** TODO document Hash in interactive help
 **** TODO Write the help blurbs.

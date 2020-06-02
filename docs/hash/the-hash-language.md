@@ -223,8 +223,16 @@ Consider the command `/find /roles (1 a) (2 a # b)`.
 This returns all relationships for which the first member is the word "a"
 and the second is the relationship "a # b".
 
-(There's also a way to specify the template,
-but in that case it's not clear why you wouldn't use a hash expression instead of /map.)
+In addition to the keywords `1`, `2`, etc. (any positive integer),
+you can use the keyword `t` to specify the template.
+For instance, `/map (t /t /_ is /_) (1 bill)`
+is equivalent to `bill #is /any`.
+
+What follows each of the keywords `1`, `2`, ... and `t`
+can be an arbitrary Hash expression.
+For instance, the following identifies everything for which the template
+is either the binary `is` template or the template at `Addr 7`:
+`/map /t (/_ is /_) | (/@ 7)`.
 
 ### You might (?) need to precede a Hash expression with the /hash keyword
 
