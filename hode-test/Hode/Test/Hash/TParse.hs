@@ -121,7 +121,7 @@ test_pHashExpr = TestCase $ do
 
   assertBool "map" $ let
     s = "(1 /hash a) (2 /hash b) " ++
-        "(t remember to /_ whenever there is /_ because /_)"
+        "(t /t remember to /_ whenever there is /_ because /_)"
     in parse pMap "a" ("/map "   ++ s)
     == parse pMap "b" ("/roles " ++ s)
 
@@ -281,7 +281,7 @@ test_pMap :: Test
 test_pMap = TestCase $ do
   assertBool "map" $ parse pMap "wut"
     ( "/map (1 a) (2 b) " ++
-      "(t remember to /_ when there is /_ because /_)" )
+      "(t /t remember to /_ when there is /_ because /_)" )
     == Right
     ( PMap $ M.fromList
       [ ( RoleInRel' $ RoleMember 1, PExpr $ Phrase "a" )

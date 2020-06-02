@@ -188,11 +188,11 @@ pMap =
   where
     pTplt', pMbr :: Parser (Role, PExpr)
     pTplt' = do void $ lexeme $ nonPrefix $ string "t"
-                t <- _pTplt
-                return ( RoleInRel' $ RoleTplt    , PExpr t )
+                t <- pPExpr
+                return ( RoleInRel' $ RoleTplt    , t )
     pMbr   = do i <- lexeme $ fromIntegral <$> integer
                 x <- pPExpr
-                return ( RoleInRel' $ RoleMember i, x       )
+                return ( RoleInRel' $ RoleMember i, x )
 
 pMember :: Parser PExpr
 pMember =
