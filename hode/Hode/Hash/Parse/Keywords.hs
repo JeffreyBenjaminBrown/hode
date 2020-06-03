@@ -54,6 +54,7 @@ hash = let
        , "The last example illustrates the use of symbols like `##` and `###`. These are interpreted exactly like `#`, but they bind later. For instance, `a ## b # c` is a relationship between `a` and (the relationship between `b` and `c`). If you don't like using multiple # symbols, you could instead define the order of operations with parentheses: `a # (b # c)` means the same thing. So does `a ### b ## c` -- the number of `#` characters in a hash operator is meaningful only relative to the number in other operators in the same expression."
        ] }
 
+-- | Help for the `/eval`, `/it` and `/it=` keywords.
 blurb_eval_and_it :: String
 blurb_eval_and_it = paragraphs
   [ paragraph
@@ -63,6 +64,30 @@ blurb_eval_and_it = paragraphs
   , "If (in the database) Bob has flattered both Alice and Chuck, then the command `/find " ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ "` would return `Alice` and `Chuck`."
   , "The result of using " ++ reph 1 eval ++ " can be referred to from an outer expression. For instance, if (continuing the previous example) the database also knows that `Alice #enjoys surfing`, then `(" ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ ") #enjoys " ++ reph 1 any ++ "` would return `Alice #enjoys surfing`. (It first finds both Alice and Chuck, because Bob flattered both of them. But only Alice enjoys surfing, so that's the only result.)"
   , "It is also possible to use the " ++ reph 1 itMatching ++ " keyword to restrict the possible values of " ++ reph 1 it ++ "; see the help for " ++ reph 1 itMatching ++ " for details." ]
+
+-- | Help for the `/member` and `/involves` keywords.
+blurb_member_and_involves :: String
+blurb_member_and_involves = let
+  inv = _rawSymbol $ head $ _symbol involves
+  in paragraphs
+  [ paragraph
+    [ "If you'd like to find every relationship with 'salsa'"
+    , "as a top-level member,"
+    , "you can write '" ++ reph 1 member ++ " salsa'." ]
+
+  , "Equivalently, you could write '" ++ reph 1 involves ++ " salsa'."
+
+  , paragraph
+    [ "If you'd like to find anything for which 'salsa'"
+    , "is in one of the top two levels,"
+    , "you can write '" ++ reph 2 involves ++ " salsa'."
+    , "Note that `" ++ inv ++ "' is strictly more general than '"
+      ++ reph 1 member ++ "'." ]
+
+  , paragraph
+    [ "You can write '/involves-k' for any positive value of 'k'."
+    , "If you ask for a big value, the search might be slow." ]
+  ]
 
 example_precedence :: HashSymbol -> String
 example_precedence hs = let
@@ -184,7 +209,7 @@ involves = let
   in HashKeyword
      { _title = "with sub-expr at depth"
      , _symbol = hs
-     , _help = "TODO" }
+     , _help = "blurb_member_and_involves" }
 
 it :: HashKeyword
 it = let
@@ -205,13 +230,34 @@ itMatching = let
 map :: HashKeyword
 map = let
   hs = hashSymbol_withSlash <$> ["map","roles"]
+  s :: String = rep 1 $ head hs
   in HashKeyword
   { _title = "map roles to exprs"
   , _symbol = hs
     -- PITFALL: This keyword is unlike the others,
     -- in that some parsing functionality (the "t" and integer keywords)
     -- are hard-coded in Hode/Hash/Parse.hs, and not reified in this module.
-  , _help = "TODO" } -- TODO : RESUME HERE
+  , _help = paragraphs
+    [ paragraph
+      [ "Consider the command `/find " ++ s ++ " (1 a) (2 b)`."
+      , "This returns all relationships for which the first member is the word \"a\""
+      , "and the second is \"b\"."
+      , "Notice that unlike, say, the expression `a #eats b`,"
+      , "the `" ++ s ++ "` idiom lets you leave the template unspecified."
+      , "It also lets you put other restrictions on the template,"
+      , "specifying it somewhat but not completely." ]
+    , paragraph
+      [   "In addition to the keywords `1`, `2`, etc. (any positive integer),"
+        , "the keyword `t` specifies the template."
+        , "For instance, `" ++ s ++ " (t /t /_ is /_) (1 bill)`"
+        , "is (pointlessly verbose but) equivalent to `bill #is /any`." ]
+    , paragraph
+      [ "What follows each of the keywords `1`, `2`, ... and `t`"
+      , "can be an arbitrary Hash expression."
+      , "For instance, the following identifies everything for which the template"
+      , "is either the binary `is` template or the expression at `Addr 7`:"
+      , "`" ++ s ++ "t /t (/_ is /_) | (/@ 7)`."
+      ] ] }
 
 member :: HashKeyword
 member = let
@@ -219,7 +265,7 @@ member = let
   in HashKeyword
      { _title = "with top-level sub-expr"
      , _symbol = hs
-     , _help = "TDOO" }
+     , _help = blurb_member_and_involves }
 
 reach :: HashKeyword
 reach = let
@@ -235,7 +281,21 @@ tplt = let
   in HashKeyword
      { _title = "template"
      , _symbol = hs
-     , _help = "TODO" }
+     , _help = paragraphs
+       [ paragraph
+         [ "Usually you'll query for phrases and relationships,"
+         , "but sometimes you might want to find a specific template --"
+         , "for instance, when using the `"
+           ++ reph 1 Hode.Hash.Parse.Keywords.map ++ "` keyword." ]
+       , paragraph
+         [ "The query `" ++ reph 1 tplts
+           ++ " /_ is /_` represents the binary `is` template --"
+         , "the one used in relationships like 'swimming #is delicious'."
+         , "Each spot for a member in the relationship is marked using the `/_` wildcard."
+         , "The joints between those members can include multiple wordss:"
+         , "`" ++ reph 1 tplts ++ " /_ is kind of /_`, for instance,"
+         , "is the template of the relationship `chess #(is kind of) fun`." ]
+       ] }
 
 tplts :: HashKeyword
 tplts = let
@@ -243,7 +303,7 @@ tplts = let
   in HashKeyword
      { _title = "all templates"
      , _symbol = hs
-     , _help = "TODO" }
+     , _help = "'" ++ reph 1 tplts ++ "' represents all the templates in the graph." }
 
 transLeft :: HashKeyword
 transLeft = let
@@ -265,6 +325,6 @@ var :: HashKeyword
 var = let
   hs = hashSymbol_withSlash <$> [ "var", "v" ]
   in HashKeyword
-     { _title = "TODO ? should not have a help title"
+     { _title = "variable"
      , _symbol = hs
      , _help = "TODO ? not really implemented" }

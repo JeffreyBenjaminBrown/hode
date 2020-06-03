@@ -68,7 +68,9 @@ type HMap = Map Role HExpr
 
 -- | = For parsing an HExpr
 
-data PExpr = -- ^ intermediate type, on the way to parsing an `HExpr`
+-- ^ intermediate type, on the way to parsing an `HExpr`
+-- Most or all of these constructors correspond to some `HExpr` constructor.
+data PExpr =
     PExpr Expr
   | PMap PMap
   | PMember PExpr

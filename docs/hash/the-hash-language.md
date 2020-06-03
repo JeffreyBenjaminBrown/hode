@@ -105,6 +105,21 @@ and `|` the `union` operator.
 `(/eval you #like /it) \ (/eval I #(cannot afford) /it)`
 will list the things you like, minus the ones I cannot afford.
 
+### Query for a template with `/tplt`
+
+(`/tplt` and `/template` and `/t` are all equivalent.)
+
+Usually you'll query for phrases and relationships.
+Every now and then, though, you might want to look for a specific template --
+for instance, when using the `/map` (or `/roles`) keyword.
+
+The query `/tplt /_ is /_` represents the binary `is` template --
+the one used in relationships like 'swimming #is delicious'.
+Each spot for a member in the relationship is marked using the `/_` wildcard.
+The joints between those members can include multiple wordss:
+`/tplt /_ is kind of /_`, for instance,
+is the template for the relationship `suddoku #(is kind of) fun`.
+
 ## Advanced queries
 
 ### Query for superexpressions using `/member` (or `/m` and `/involves` (or `/i`)
@@ -219,20 +234,24 @@ It saves three keystrokes, and is arguably more readable.
 
 ### Query for "Hash maps" using /roles or /map
 
-Consider the command `/find /roles (1 a) (2 a # b)`.
+Consider the command `/find /roles (1 a) (2 b)`.
 This returns all relationships for which the first member is the word "a"
-and the second is the relationship "a # b".
+and the second is "b".
+Notice that unlike, say, the expression `a #eats b`,
+the `/roles` idiom lets you leave the template unspecified.
+It also lets you put other restrictions on the template,
+specifying it somewhat but not completely.
 
 In addition to the keywords `1`, `2`, etc. (any positive integer),
-you can use the keyword `t` to specify the template.
-For instance, `/map (t /t /_ is /_) (1 bill)`
-is equivalent to `bill #is /any`.
+the keyword `t` specifies the template.
+For instance, `/roles (t /t /_ is /_) (1 bill)`
+is (pointlessly verbose but) equivalent to `bill #is /any`.
 
 What follows each of the keywords `1`, `2`, ... and `t`
 can be an arbitrary Hash expression.
 For instance, the following identifies everything for which the template
-is either the binary `is` template or the template at `Addr 7`:
-`/map /t (/_ is /_) | (/@ 7)`.
+is either the binary `is` template or the expression at `Addr 7`:
+`/roles /t (/_ is /_) | (/@ 7)`.
 
 ### You might (?) need to precede a Hash expression with the /hash keyword
 
