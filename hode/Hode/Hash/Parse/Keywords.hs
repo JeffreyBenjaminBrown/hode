@@ -89,6 +89,25 @@ blurb_member_and_involves = let
     , "If you ask for a big value, the search might be slow." ]
   ]
 
+trans_blurb :: String
+trans_blurb = paragraphs
+       [ paragraph
+         [ reph 1 transLeft ++ " and " ++ reph 1 transRight ++ " are almost identical."
+         , "One of them searches leftward, the other rightward."
+         , "Depending on how your graph branches, one of them might be faster than the other in some cases."
+         , "Otherwise they are entirely equivalent."
+         , "This discussion will use " ++ reph 1 transRight ++ ", but everything said below is equally true of " ++ reph 1 transLeft ++ "." ]
+       , paragraph
+         [ reph 1 transRight ++ "is used to find which of a specified set of things lies on one side or the other of another expression."
+         , "For instance, consider a graph with the following data: "
+         , "0 #< 1."
+         , "1 #< 2."
+         , "2 #< 3."
+         , "3 #< 4."
+         , "Suppose we want to know whether 0 or 4 is less than 2."
+         , "(Notice that neither 0 nor 4 is connected directly to 2 directly; hence the use of transitivity.)"
+         , "The search " ++ reph 1 transRight ++ "(" ++ reph 1 itMatching ++ " 0 " ++ reph 1 hOr ++ " 4) #< 2` will determine that 0 is less than 2, and 4 is not." ] ]
+
 example_precedence :: HashSymbol -> String
 example_precedence hs = let
   one = rep 1 hs
@@ -207,25 +226,25 @@ involves = let
   -- but instead a dash and then an integer.
   -- That's hard-coded in Hode/Hash/Parse.hs, and not reified in this module.
   in HashKeyword
-     { _title = "with sub-expr at depth"
-     , _symbol = hs
-     , _help = "blurb_member_and_involves" }
+  { _title = "with sub-expr at depth"
+  , _symbol = hs
+  , _help = "blurb_member_and_involves" }
 
 it :: HashKeyword
 it = let
   hs = hashSymbol_withSlash <$> [ "it" ]
   in HashKeyword
-     { _title = "identify subexpression"
-     , _symbol = hs
-     , _help = blurb_eval_and_it }
+  { _title = "identify subexpression"
+  , _symbol = hs
+  , _help = blurb_eval_and_it }
 
 itMatching :: HashKeyword
 itMatching = let
   hs = hashSymbol_withSlash <$> [ "it=" ]
   in HashKeyword
-     { _title = "id & limit subexpression"
-     , _symbol = hs
-     , _help = blurb_eval_and_it }
+  { _title = "id & limit subexpression"
+  , _symbol = hs
+  , _help = "The " ++ reph 1 itMatching ++ " keyword is used in two contexts: " ++ reph 1 eval ++ " and " ++ reph 1 transLeft ++ " or " ++ reph 1 transRight ++ ". See the documentation of those for details." }
 
 map :: HashKeyword
 map = let
@@ -267,14 +286,6 @@ member = let
      , _symbol = hs
      , _help = blurb_member_and_involves }
 
-reach :: HashKeyword
-reach = let
-  hs = hashSymbol_withSlash <$> ["reach","tr"]
-  in HashKeyword
-     { _title = "transitive reach"
-     , _symbol = hs
-     , _help = "`/tr /_ #<= b` finds everything less than or equal to b." }
-
 tplt :: HashKeyword
 tplt = let
   hs = hashSymbol_withSlash <$> ["template","tplt","t"]
@@ -305,26 +316,43 @@ tplts = let
      , _symbol = hs
      , _help = "'" ++ reph 1 tplts ++ "' represents all the templates in the graph." }
 
+reach :: HashKeyword
+reach = let
+  hs = hashSymbol_withSlash <$> ["reach","tr"]
+  in HashKeyword
+     { _title = "transitive reach"
+     , _symbol = hs
+     , _help = paragraphs
+       [ paragraph
+         [ "The `" ++ reph 1 reach ++ "` keyword is used to find everything on one side or the other of some expression, where `side` is defined in terms of some transitive relationship."
+         , "For instance, `" ++ reph 1 reach ++ " " ++ reph 1 any ++ " #<= b` finds everything less than or equal to `b`."
+         , "Notice the importance of the position of the " ++ reph 1 any ++ " in that expression."
+         , "If we reversed it, to `" ++ reph 1 reach ++ " b #<= " ++ reph 1 any ++ "`, we would get everything that `b` is less than or equal to, rather than everything less than or equal to `b`." ]
+       , paragraph
+         [ "Here's a less numerical example: `" ++ reph 1 reach ++ " (animals " ++ reph 1 hOr ++ " plants) #need " ++ reph 1 any ++ "`` would find everything that plants or animals need, recursively."
+         , "If either one of them needs dirt, and dirt needs atmospheric shielding, then dirt and atmospheric shielding will both be in the results." ]
+       ] }
+
 transLeft :: HashKeyword
 transLeft = let
   hs = hashSymbol_withSlash <$> ["transLeft","trl"]
   in HashKeyword
-     { _title = "leftward transitive search"
+     { _title = "left transitive search"
      , _symbol = hs
-     , _help = "If `0 #< 1 #< 2 #< 3`, then `/trl (/it= 1/|3) #< 2` will return 1 and not 3, and search leftward. If the it= was on the other side, then it would return 2, because for something in {1,3}, the relationship holds." }
+     , _help = trans_blurb }
 
 transRight :: HashKeyword
 transRight = let
   hs = hashSymbol_withSlash <$> ["transRight","trr"]
   in HashKeyword
-     { _title = "rightward transitive search"
+     { _title = "right transitive search"
      , _symbol = hs
-     , _help = "If `0 #< 1 #< 2 #< 3`, then `/trl (/it= 1/|3) #< 2` will return 1 and not 3, and search leftward. If the it= was on the other side, then it would return 2, because for something in {1,3}, the relationship holds." }
+     , _help = trans_blurb }
 
 var :: HashKeyword
 var = let
   hs = hashSymbol_withSlash <$> [ "var", "v" ]
   in HashKeyword
-     { _title = "variable"
+     { _title = "variable (pending)"
      , _symbol = hs
-     , _help = "TODO ? not really implemented" }
+     , _help = "This isn't implemented yet. Its purpose is to permit the use of the Qseq meta-search language." }

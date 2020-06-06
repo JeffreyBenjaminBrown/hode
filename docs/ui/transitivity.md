@@ -9,9 +9,14 @@ For instance, "greater than" relationships are transitive:
 If a is greater than b, and b is greater than c, then a is greater than c.
 
 Transitive templates cannot form cycles.
-(If it formed a cycle, Hode could not sort the data.)
+This prevents nonsense like `a > b > c > a` from happening --
+if those inequalities were all true,
+transitivity would imply that `a > a`.
 
-Templates in Hode can be marked as transitive.
+Not all templates should be transitive. The "buys stuff from"
+relationship, for instance, forms cycles.
+
+Templates in Hode can be marked as transitive (see below).
 Search results can be sorted by any transitive relationship.
 Some transitive templates I find useful include "is more important than",
 "preceded (in time)", and "should precede when reading".
@@ -26,33 +31,76 @@ we would simply add the following expression:
 (/t /_ is greater than /_) #is transitive
 ```
 
+Or, if we already know the template's address,
+we can just refer to it that way:
+```
+(/@ 31) #is transitive
+```
+
+# Transitive search
+## (Reflexive) transitive reach
+
+Suppose your graph has the two relationships "0 #< 1" and "1 #< 2",
+and you'd like to find everything that is greater than or equal to 0.
+You can find out by running the query `/f /reach 0 #< /_`.
+Similarly, you can find everything less than or equal to 2 by running
+`/f /reach /_ #< 2`.
+
+Hash treats any relationship used in a transitive search as reflexive.
+Thus even though we called the relationship "#<",
+Hode acts like it is is "<=". This is why the search
+`/f /reach 0 #< /_`
+includes 0 among the results.
+
+## PITFALL: Hode believes you
+
+Hode does not know which of your relationships "should" be transitive;
+it only treats a relationship as such when specifically asked to do so.
+
+## PITFALL: You can sneak cycles into Hode
+
+If you mark a template as transitive before you start using it,
+then Hode will prevent you from creating cycles with it.
+However, before you've marked the relationship as transitive,
+Hode will let you do whatever you want, including create cycles with it.
+
+If you're not sure whether a relationship forms cycles --
+for instance, not just "0 #< 1" and "1 #< 2", but also "2 #< 0" --
+then save your work before searching it transitively.
+
+That's because Hode will crash if it encounters a cycle.
+It won't respond to keypresses, and you'll need to kill it from outside.
+
 
 # Sorting by transitive relationships
 
 You can sort by any transitive relationship.
-Therefore, in a graph with the following data:
+
+For instance, in a graph with the following data:
 ```
-frogs #eat bugs
+trees #are awesome
 bugs #outrun frogs
+frogs #eat bugs
 (/t /_ eat /_) #is transitive
 ```
-we can sort by the "eat" relationship.
-(Note that "eat" is not truly a transitive relationship.
-For one thing, snakes eat frogs and frogs eat snakes.
-For another thing, eagles eat mice and mice eat grains,
-but eagles don't eat grains. Still, I'm going to use the example.)
+we could sort by the "eat" template.
+(In reality, "eat" relationships are not transitive.
+For one thing, they form cycles: snakes eat frogs and frogs eat snakes.
+For another, eagles eat mice and mice eat grains,
+but eagles don't eat grains.
+But this example graph doesn't know that.)
 
-Let's get frogs and bugs on the screen by running `/f frogs | bugs`.
-If we now move the cursor over one of them
-(see "move focus" under "keyboard commands" for how to do that),
-we can now run `/sortLeft (/t /_ eat /_)` to sort by the "eat" relationship,
+Let's get trees, frogs and bugs on the screen by running
+`/f frogs /| trees /| bugs`.
+Next, let's move the cursor over one of them
+(see "move focus" under "keyboard commands" for how to do that).
+Now we can run `/sortLeft (/t /_ eat /_)` to sort by the "eat" relationship,
 with things on the left side of the relationship shown earlier in the results.
 Since `frogs #eat bugs`, frogs are left of bugs in the eat relationship,
 so frogs will precede bugs in the list.
-
-If trees was also in our list of results,
-and trees was not in an eat relationship with either frogs or bugs,
-trees would come last in the sort.
+Since trees is also in our list of results,
+and trees is not in an eat-relationship with either frogs or bugs,
+trees will come last in the sort.
 
 `sl` is a synonym for `sortLeft`,
 and `sr` is a synonym for `sortRight`.
@@ -73,6 +121,7 @@ To break the cycle, you must delete one of the relationships in it.
 Then press `M-o` to search for cycles again.
 If none are found, Hode will say so.
 
+
 ## Example: Breaking a cycle
 
 Consider an Rslt which contains these relationships:
@@ -82,27 +131,24 @@ b #x a
 (/t /_ x /_) #is transitive
 ```
 
-The Cycle Buffer will show us something like the following:
-
+When Hode detects the cycle (which happens as soon as it's created),
+the Cycle Buffer will show something like the following:
 ```
-4  _ x _
-6 b
-5 a
-6 b
+address  expression
+4        _ x _          -- the template
+6        b
+5        a
+6        b
 ```
-
-(I have omitted the columns on the left, 
-as they are hard to read in black and white.
-The first number in each row is the expression's address.)
 
 The way to read that is "the template `_ x _` forms the cycle `a -> b -> a`.
 
-Notice that it only tells us the expressions in the cycle, 
+Notice that the Cycle Buffer only shows the expressions in the cycle,
 not the relationships that join those elements.
 But to break the cycle, we need to delete one of those relationships.
-So let's find some of them. 
+So let's find some of them.
 Move the cursor to the first instance of the expression `b`,
-and unfold the host relationships that contain it (`M-h`):
+and unfold the host relationships that contain it:
 
 ```
 4  _  _
@@ -119,6 +165,17 @@ Now we see that the relationship `b #x a` is at address 10,
 and `a #x b` is at 7.
 
 We can break the cycle by deleting either one.
-Let's delete the one at 7, by entering the command "/d 7".
+Let's delete the one at `7`, by entering the command `/d 7`.
 Now we can run `M-o` to search for cycles again.
 This time Hode finds none, and allows us to return to our normal activities.
+
+
+# PITFALL: Don't declare a template transitive after forming cycles in it
+
+Hode will allow you to declare that a template is transitive *after*
+creating cycles with it. Later, when you try to sort by that template,
+Hode might crash.
+
+The easiest way to avoid this problem is to tell Hode
+that a template is transitive
+(if in fact it is) as soon as you start using it.
