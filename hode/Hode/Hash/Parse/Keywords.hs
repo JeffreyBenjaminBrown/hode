@@ -59,30 +59,39 @@ blurb_eval_and_it :: String
 blurb_eval_and_it = paragraphs
   [ paragraph
     [ "The " ++ reph 1 eval ++ " symbol is used to extract subexpressions from superexpressions."
-    , "It must be used in conjunction with the " ++ reph 1 it ++ " and " ++ reph 1 itMatching ++ " symbols."
+    , "It must be used in conjunction with either the " ++ reph 1 it ++ " or the " ++ reph 1 itMatching ++ " symbol."
     , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
   , "If (in the database) Bob has flattered both Alice and Chuck, then the command `/find " ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ "` would return `Alice` and `Chuck`."
-  , "The result of using " ++ reph 1 eval ++ " can be referred to from an outer expression. For instance, if (continuing the previous example) the database also knows that `Alice #enjoys surfing`, then `(" ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ ") #enjoys " ++ reph 1 any ++ "` would return `Alice #enjoys surfing`. (It first finds both Alice and Chuck, because Bob flattered both of them. But only Alice enjoys surfing, so that's the only result.)"
-  , "It is also possible to use the " ++ reph 1 itMatching ++ " keyword to restrict the possible values of " ++ reph 1 it ++ "; see the help for " ++ reph 1 itMatching ++ " for details." ]
+  , paragraph
+    [ "Results from " ++ reph 1 eval ++ " can be referred to by an outer expression."
+    , "For instance, if (continuing the previous example) the database also knows that `Alice #enjoys surfing`, then `(" ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ ") #enjoys " ++ reph 1 any ++ "` would return `Alice #enjoys surfing`."
+    , "The parenthesized part matches both Alice and Chuck, because Bob flattered both of them."
+    , "But only Alice enjoys surfing, so that's the only expression returned." ]
+  , paragraph
+    [ "It is also possible to use the " ++ reph 1 itMatching ++ " keyword to restrict the possible values considered by " ++ reph 1 eval ++ "."
+    , "For instance, suppose you need to know whether Jane or Jim is invited to your wedding, and you don't want to be bothered with the names of anybody else."
+    , "You could in that case ask Hode to find `" ++ reph 1 eval ++ " (" ++ reph 1 itMatching ++ " Jane " ++ reph 1 hOr ++ " Jim) #is invited to my wedding`."
+    , "If only Jim and Alice are invited, this will return Jim, but not Jane (because she's not invited) and not Alice (because she was not specified in the query)." ] ]
 
 -- | Help for the `/member` and `/involves` keywords.
 blurb_member_and_involves :: String
 blurb_member_and_involves = let
-  inv = _rawSymbol $ head $ _symbol involves
   in paragraphs
-  [ paragraph
+  [ "The " ++ reph 1 member ++ " and " ++ reph 1 involves ++ " keywords are similar. Both let you find the set of expressions containing some sub-expression, without specifying precisely where the sub-expression should be."
+  , paragraph
     [ "If you'd like to find every relationship with 'salsa'"
     , "as a top-level member,"
-    , "you can write '" ++ reph 1 member ++ " salsa'." ]
-
-  , "Equivalently, you could write '" ++ reph 1 involves ++ " salsa'."
+    , "you can write '" ++ reph 1 member ++ " salsa'."
+    , "This will find `salsa #has tomatoes` and `Jenny #hates salsa` and `I #buy salsa #from Trader Joe's`."
+    , "It will not return `salsa`, because that's not a relationship."
+    , "Nor will it return `Jenny #is (allergic #to salsa)`, because salsa is not a top-level member of that relationship (although it is a level-2 member)." ]
 
   , paragraph
-    [ "If you'd like to find anything for which 'salsa'"
+    [ "The " ++ reph 1 involves ++ " keyword is similar, but more general than "  ++ reph 1 member ++ "."
+    , "Whereas " ++ reph 1 member ++ " only allows you to search for top-level members, " ++ reph 1 involves ++ " lets you search the top level, or the top two levels, or the top three, etc."
+    , "For instance, if you'd like to find anything for which 'salsa'"
     , "is in one of the top two levels,"
-    , "you can write '" ++ reph 2 involves ++ " salsa'."
-    , "Note that `" ++ inv ++ "' is strictly more general than '"
-      ++ reph 1 member ++ "'." ]
+    , "you can write '" ++ reph 1 involves ++ "-2 salsa'." ]
 
   , paragraph
     [ "You can write '/involves-k' for any positive value of 'k'."
@@ -91,28 +100,39 @@ blurb_member_and_involves = let
 
 trans_blurb :: String
 trans_blurb = paragraphs
-       [ paragraph
-         [ reph 1 transLeft ++ " and " ++ reph 1 transRight ++ " are almost identical."
-         , "One of them searches leftward, the other rightward."
-         , "Depending on how your graph branches, one of them might be faster than the other in some cases."
-         , "Otherwise they are entirely equivalent."
-         , "This discussion will use " ++ reph 1 transRight ++ ", but everything said below is equally true of " ++ reph 1 transLeft ++ "." ]
+       [ paragraphs
+         [ reph 1 transRight ++ " and " ++ reph 1 transLeft ++ " are almost identical."
+         , "First I'll explain how to use " ++ reph 1 transRight ++ "; then I'll explain how it differs from " ++ reph 1 transLeft ++ "." ]
        , paragraph
-         [ reph 1 transRight ++ "is used to find which of a specified set of things lies on one side or the other of another expression."
-         , "For instance, consider a graph with the following data: "
+         [ reph 1 transRight ++ " is used to find which of a specified set of things lies on one side or the other of another expression."
+         , "For instance, consider a graph with a transitive `#<` template, containing the following relationships: "
          , "0 #< 1."
          , "1 #< 2."
          , "2 #< 3."
          , "3 #< 4."
          , "Suppose we want to know whether 0 or 4 is less than 2."
-         , "(Notice that neither 0 nor 4 is connected directly to 2 directly; hence the use of transitivity.)"
-         , "The search " ++ reph 1 transRight ++ "(" ++ reph 1 itMatching ++ " 0 " ++ reph 1 hOr ++ " 4) #< 2` will determine that 0 is less than 2, and 4 is not." ] ]
+         , "(Neither 0 nor 4 is connected directly to 2, but transitivity allows us to infer their relationships to it.)"
+         , "The search `" ++ reph 1 transRight ++ " (" ++ reph 1 itMatching ++ " 0 " ++ reph 1 hOr ++ " 4) #< 2` will return `0` and not `4`, because (transitively) `0 #< 2`, and `4` is not."
+         , "The search could be translated into English as `show me which expressions in the set {0,4} are less than 2`."]
+       , paragraph
+         [ "Note that we must use " ++ reph 1 itMatching ++ " to identify which side of the relationship to return results from."
+         , "If we had put " ++ reph 1 itMatching ++ " on the other side, as in `" ++ reph 1 transRight ++ " ( 0 " ++ reph 1 hOr ++ " 4) #< " ++ reph 1 itMatching ++ "2`, then the search would return 2, because 0 < 2."
+         , "This second search could be translated as `show me which expressions in the set {2} is greater than something in the set {0, 4}`." ]
+       , paragraph
+         [ reph 1 transLeft ++ " searches leftward (from right to left), while " ++ reph 1 transRight ++ " searches rightward (from left to right)."
+         , "Both give the same results, but one might be faster than the other."
+         , "Consider for instance the search `" ++ reph 1 transLeft ++ " (" ++ reph 1 itMatching ++ " a " ++ reph 1 hOr ++ " b) #is (c " ++ reph 1 hOr ++ " d)`."
+         , "This will start by finding `a` and `b`, and then see if it can reach `c` or `d`."
+         , "If we use " ++ reph 1 transRight ++ ", Hode will instead start by finding `c` and `d`, and then work leftward to see if it can reach `a` or `b` from there."
+         , "Note that " ++ reph 1 itMatching ++ " does not determine the direction of search; it only determines which side is returned as the result of the search."
+         , "Both of the previous searches will return some subset of the set {a,b}."
+         ] ]
 
 example_precedence :: HashSymbol -> String
 example_precedence hs = let
   one = rep 1 hs
   two = rep 2 hs
-  in "The following isn't important, because you can always use parentheses instead, but the " ++ one ++ " symbol obeys the same precedence rules as # and the other binary operators. For instance, `a " ++ reph 1 hOr ++ " b " ++ two ++ " c " ++ reph 1 hash ++ " d` means the same thing as `(a " ++ reph 1 hOr ++ " b) " ++ one ++ " (c " ++ reph 1 hash ++ " d)`: Since " ++ two ++ " has two characters (the leading slash doesn't count), and the others have only one, it binds after them."
+  in "If you don't like using parentheses to control the order in which binary operators operate, you can avoid them. The " ++ one ++ " symbol obeys the same precedence rules as # and the other binary operators. For instance, `a " ++ reph 1 hOr ++ " b " ++ two ++ " c " ++ reph 1 hash ++ " d` means the same thing as `(a " ++ reph 1 hOr ++ " b) " ++ one ++ " (c " ++ reph 1 hash ++ " d)`: Since " ++ two ++ " has two characters (the leading slash doesn't count), and the others have only one, it binds after them."
 
 hAnd :: HashKeyword
 hAnd = let
@@ -129,7 +149,7 @@ hAnd = let
            " b` represents all expressions that match both `a` and `b`."
          , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
        , let itHelps = reph 1 eval ++ " " ++ reph 1 it ++ " #helps"
-         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ itHelps ++ " purple people)` will find everything that helps both green people and purple people."
+         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " " ++ itHelps ++ " purple people)` will find everything that helps both green people and purple people."
        , "The operator can be chained: `a " ++ one ++ " b " ++ one ++ " c " ++ one ++ " ...` will find all expressions that match `a` and `b` and `c` ..."
        , example_precedence $ head hs
        ] }
@@ -149,7 +169,7 @@ hOr = let
            " b` represents all expressions that match either `a` or `b`."
          , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
        , let itHelps = reph 1 eval ++ " " ++ reph 1 it ++ " #helps"
-         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ itHelps ++ " purple people)` will find everything that helps green people or purple people or both."
+         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " " ++ itHelps ++ " purple people)` will find everything that helps green people or purple people or both."
        , "The operator can be chained: `a " ++ one ++ " b " ++ one ++ " c " ++ one ++ " ...` will find all expressions that match at least one of `a` or `b` or `c` or the rest."
        , example_precedence $ head hs
        ] }
@@ -169,7 +189,7 @@ diff = let
            " b` represents all expressions that match `a` and do *not* match `b`."
          , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
        , let itHelps = reph 1 eval ++ " " ++ reph 1 it ++ " #helps"
-         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ itHelps ++ " purple people)` will find everything that helps green people and does not help purple people."
+         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " " ++ itHelps ++ " purple people)` will find everything that helps green people and does not help purple people."
        , example_precedence $ head hs
        ] }
 
@@ -193,8 +213,8 @@ any = let
      { _title = "anything"
      , _symbol = hs
      , _help = paragraphs
-         [ "The " ++ one ++ " symbol represents anything at all. It is meaningless by itself, but meaningful as a sub-expression. For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
-         , "Geeky sidenote: In some math and computer science contexts, `any` applied to an empty argument list is defined to return True. If Hode worked like that, it would return the entire graph. That would be dumb. Instead it returns nothing."
+         [ "The " ++ one ++ " symbol represents anything at all. It is meaningless by itself, but useful as a sub-expression. For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
+         , "(Geeky sidenote: In some math and computer science contexts, `any` applied to an empty argument list is defined to return True. If Hode worked like that, it would return the entire graph. That would be dumb. Instead it returns nothing.)"
          ] }
 
 eval :: HashKeyword
@@ -228,7 +248,7 @@ involves = let
   in HashKeyword
   { _title = "with sub-expr at depth"
   , _symbol = hs
-  , _help = "blurb_member_and_involves" }
+  , _help = blurb_member_and_involves }
 
 it :: HashKeyword
 it = let
@@ -244,7 +264,7 @@ itMatching = let
   in HashKeyword
   { _title = "id & limit subexpression"
   , _symbol = hs
-  , _help = "The " ++ reph 1 itMatching ++ " keyword is used in two contexts: " ++ reph 1 eval ++ " and " ++ reph 1 transLeft ++ " or " ++ reph 1 transRight ++ ". See the documentation of those for details." }
+  , _help = "The " ++ reph 1 itMatching ++ " keyword is used in two contexts: " ++ reph 1 eval ++ " and " ++ reph 1 transLeft ++ " (or " ++ reph 1 transRight ++ "). See the documentation regarding those keywords for details." }
 
 map :: HashKeyword
 map = let
