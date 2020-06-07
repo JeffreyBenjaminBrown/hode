@@ -18,7 +18,7 @@ show' hs =
 
 data HashKeyword = HashKeyword
   { hashKeyword_title :: String
-  , hashKeyword_symbol :: [HashSymbol]
+  , hashKeyword_symbols :: [HashSymbol]
   , hashKeyword_help :: String }
   deriving (Show, Eq, Ord)
 
@@ -28,12 +28,12 @@ rep n hs =
   ++ concat (replicate n $ _rawSymbol hs)
 
 reph :: Int -> HashKeyword -> String
-reph n hk = rep n $ head $ hashKeyword_symbol hk
+reph n hk = rep n $ head $ hashKeyword_symbols hk
 
 pThisMany :: Int -> HashKeyword -> Parser ()
 pThisMany n hk =
   let hss :: [HashSymbol]
-      hss = hashKeyword_symbol hk
+      hss = hashKeyword_symbols hk
       p1 :: HashSymbol -> Parser ()
       p1 hs = string (rep n hs)
         <* notFollowedBy (string $ _rawSymbol hs)
@@ -49,3 +49,4 @@ hashSymbol_withSlash :: String -> HashSymbol
 hashSymbol_withSlash s =
   HashSymbol { _rawSymbol = s
              , _slashPrefix = True }
+
