@@ -7,8 +7,6 @@
 module Hode.UI.Input.KeyCmd (
     keyPrefix -- ^ (V.Key, [V.Modifier]) -> String
 
-  , hodeHelp -- ^ Choice1Plist
-
   , universal_intro        -- ^ String
   , universal_keyCmds      -- ^ [KeyCmd]
 
@@ -22,6 +20,13 @@ module Hode.UI.Input.KeyCmd (
 
   , commandWindow_intro    -- ^ String
   , commandWindow_keyCmds  -- ^ [KeyCmd]
+
+  , universal_c3                        -- ^ Choice3Plist
+  , bufferBuffer_c3                     -- ^ Choice3Plist
+  , subgraphBuffer_universal_keyCmds_c3 -- ^ Choice3Plist
+  , subgraphBuffer_primary_keyCmds_c3   -- ^ Choice3Plist
+  , subgraphBuffer_sort_keyCmds_c3      -- ^ Choice3Plist
+
   , module Hode.UI.Input.KeyCmd.Util
   ) where
 
@@ -43,7 +48,6 @@ import Hode.UI.CycleBuffer
 import Hode.UI.ExprTree
 import Hode.UI.ExprTree.Sort
 import Hode.UI.Input.KeyCmd.Util
-import Hode.UI.Input.LangCmd.Parse
 import Hode.UI.Input.LangCmd.Run
 import Hode.UI.Input.Util
 import Hode.UI.Types.Names
@@ -72,23 +76,6 @@ prefixKeyCmdName_withKey kc =
   kc { _keyCmd_name = keyPrefix (_keyCmd_key kc)
                       ++ ": "
                       ++ _keyCmd_name kc }
-
-hodeHelp :: Choice1Plist
-hodeHelp = let
-  skippable :: String
-  skippable = "(This has only one submode. Press space to skip.)"
-  in fromJust $ P.fromList
-  [ ( "ui text commands"
-    , fromJust $ P.fromList [ (skippable, langHelp) ] )
-  , ( "universal key commands"
-    , fromJust $ P.fromList [ (skippable, universal_c3) ] )
-  , ( "buffer view"
-    , fromJust $ P.fromList [ (skippable, bufferBuffer_c3) ] )
-  , ( "subgraph view"
-    , fromJust $ P.fromList
-      [ ("introduction", subgraphBuffer_universal_keyCmds_c3)
-      , ("viewTree",     subgraphBuffer_primary_keyCmds_c3)
-      , ("sort",         subgraphBuffer_sort_keyCmds_c3) ] ) ]
 
 universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_primary_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
 [   universal_c3

@@ -27,6 +27,7 @@ library
                 , Hode.UI.CycleBreaker
                 , Hode.UI.ExprTree
                 , Hode.UI.ExprTree.Sort
+                , Hode.UI.Help
                 , Hode.UI.Input.KeyCmd
                 , Hode.UI.Input.KeyCmd.Util
                 , Hode.UI.Input.LangCmd.Parse
