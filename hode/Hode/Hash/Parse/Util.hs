@@ -1,5 +1,6 @@
 module Hode.Hash.Parse.Util where
 
+import           Data.List (intercalate)
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 
@@ -50,3 +51,13 @@ hashSymbol_withSlash s =
   HashSymbol { _rawSymbol = s
              , _slashPrefix = True }
 
+-- | Prefixes to the help blurb a caveat,
+-- that there are equivalent synonyms to the keyword it describes.
+synonymBlurb :: HashKeyword -> (String -> String)
+synonymBlurb hk = let
+  syms :: [HashSymbol] = hashKeyword_symbols hk
+  ss :: String = intercalate ", " $ map (rep 1) syms
+  in case length syms of
+       0 -> error "A HashKeyword should define at least one symbol."
+       1 -> id
+       _ -> (++) $ "(The keywords {" ++ ss ++ "} are all synonyms; they do exactly the same thing, and it doesn't matter which one you use.)\n\n"
