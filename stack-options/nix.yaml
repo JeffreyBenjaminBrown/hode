@@ -1,6 +1,6 @@
 # Make this your stack.yaml file if you use NixOS.
 
-resolver: nightly-2020-01-04
+resolver: lts-16.0
 
 nix:
   enable: true
