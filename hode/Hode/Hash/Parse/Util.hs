@@ -18,7 +18,7 @@ show' hs =
   ++ _rawSymbol hs
 
 data HashKeyword = HashKeyword
-  { hashKeyword_title :: String
+  { hashKeyword_name :: String
   , hashKeyword_symbols :: [HashSymbol]
   , hashKeyword_help :: String }
   deriving (Show, Eq, Ord)

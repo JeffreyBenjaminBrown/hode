@@ -207,6 +207,7 @@ not just its top level
 * TODO easy
 ** TODO use HasCallStack to mark partial functions.
  https://www.tweag.io/posts/2020-04-16-exceptions-in-haskell.html
+** TODO don't print zeroes in the columns
 ** TODO insertion list
 *** plan
 **** data St = ...

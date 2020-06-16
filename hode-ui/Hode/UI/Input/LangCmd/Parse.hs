@@ -3,7 +3,7 @@
 
 module Hode.UI.Input.LangCmd.Parse (
     pLangCmd -- ^ Rslt -> String -> Either String LangCmd
-  , langHelp -- ^ Choice3Plist
+  , uiLangHelp -- ^ Choice3Plist
   ) where
 
 import           Data.Either.Combinators (mapLeft)
@@ -33,8 +33,8 @@ data LangCmd_MapItem = LangCmd_MapItem
   , _langCmd_keywords :: [String]
   , _langCmd_guide :: String }
 
-langHelp :: Choice3Plist
-langHelp = let
+uiLangHelp :: Choice3Plist
+uiLangHelp = let
   helpItem :: LangCmd_MapItem -> [(String, String)]
   helpItem i = [ ( kw ++ ": " ++ _langCmd_name i
                  , _langCmd_guide i )

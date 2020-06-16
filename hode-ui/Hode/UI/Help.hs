@@ -16,7 +16,7 @@ hodeHelp = let
   skippable = "(This has only one submode. Press space to skip.)"
   in fromJust $ P.fromList
   [ ( "ui text commands"
-    , fromJust $ P.fromList [ (skippable, langHelp) ] )
+    , fromJust $ P.fromList [ (skippable, uiLangHelp) ] )
   , ( "universal key commands"
     , fromJust $ P.fromList [ (skippable, universal_c3) ] )
   , ( "buffer view"

@@ -37,7 +37,7 @@ hash = let
                     , _slashPrefix = False } ]
   s :: String = rep 1 $ head hs
   in HashKeyword
-     { hashKeyword_title = "build relationships"
+     { hashKeyword_name = "build relationships"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
        [ paragraph
@@ -140,7 +140,7 @@ hAnd = let
                     , _slashPrefix = True } ]
   one = rep 1 $ head hs
   in HashKeyword
-     { hashKeyword_title = "and"
+     { hashKeyword_name = "and"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
        [ paragraph
@@ -159,7 +159,7 @@ hOr = let
   hs = [ HashSymbol { _rawSymbol = "|"
                     , _slashPrefix = True } ]
   in HashKeyword
-     { hashKeyword_title = "or"
+     { hashKeyword_name = "or"
      , hashKeyword_symbols = hs
      , hashKeyword_help = let one = rep 1 $ head hs
        in paragraphs
@@ -179,7 +179,7 @@ diff = let
   hs = [ HashSymbol { _rawSymbol = "\\"
                     , _slashPrefix = True } ]
   in HashKeyword
-     { hashKeyword_title = "difference"
+     { hashKeyword_name = "difference"
      , hashKeyword_symbols = hs
      , hashKeyword_help = let one = rep 1 $ head hs
        in paragraphs
@@ -201,7 +201,7 @@ addrs = let
   hs = hashSymbol_withSlash <$> ["@","addr"]
   one = rep 1 $ head hs
   in HashKeyword
-     { hashKeyword_title = "address range"
+     { hashKeyword_name = "address range"
      , hashKeyword_symbols = hs
      , hashKeyword_help = "The " ++ one ++ " symbol precedes a specification of expressions via their addresses. For instance, `" ++ one ++ " 1 3-5 8` represents every expression whose address is either 1, 3, 4, 5 or 8. The " ++ one ++ " symbol can be followed by any number of integers (like `3`) or integer ranges (like `3-5`)." }
 
@@ -210,7 +210,7 @@ any = let
   hs = hashSymbol_withSlash <$> [ "_", "any" ]
   one = rep 1 $ head hs
   in HashKeyword
-     { hashKeyword_title = "anything"
+     { hashKeyword_name = "anything"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
          [ "The " ++ one ++ " symbol represents anything at all. It is meaningless by itself, but useful as a sub-expression. For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
@@ -221,7 +221,7 @@ eval :: HashKeyword
 eval = let
   hs = hashSymbol_withSlash <$> ["eval","e"]
   in HashKeyword
-     { hashKeyword_title = "find subexpression"
+     { hashKeyword_name = "find subexpression"
      , hashKeyword_symbols = hs
      , hashKeyword_help = blurb_eval_and_it }
 
@@ -230,7 +230,7 @@ hashKeyword = let
   hs = hashSymbol_withSlash <$> [ "hash", "h" ]
   s :: String = rep 1 $ head hs
   in HashKeyword
-     { hashKeyword_title = "maybe stupid"
+     { hashKeyword_name = "maybe stupid"
      , hashKeyword_symbols = hs
      , hashKeyword_help = let
          simple = "'a # b'"
@@ -246,7 +246,7 @@ involves = let
   -- but instead a dash and then an integer.
   -- That's hard-coded in Hode/Hash/Parse.hs, and not reified in this module.
   in HashKeyword
-  { hashKeyword_title = "with sub-expr at depth"
+  { hashKeyword_name = "with sub-expr at depth"
   , hashKeyword_symbols = hs
   , hashKeyword_help = blurb_member_and_involves }
 
@@ -254,7 +254,7 @@ it :: HashKeyword
 it = let
   hs = hashSymbol_withSlash <$> [ "it" ]
   in HashKeyword
-  { hashKeyword_title = "identify subexpression"
+  { hashKeyword_name = "identify subexpression"
   , hashKeyword_symbols = hs
   , hashKeyword_help = blurb_eval_and_it }
 
@@ -262,7 +262,7 @@ itMatching :: HashKeyword
 itMatching = let
   hs = hashSymbol_withSlash <$> [ "it=" ]
   in HashKeyword
-  { hashKeyword_title = "id & limit subexpression"
+  { hashKeyword_name = "id & limit subexpression"
   , hashKeyword_symbols = hs
   , hashKeyword_help = "The " ++ reph 1 itMatching ++ " keyword is used in two contexts: " ++ reph 1 eval ++ " and " ++ reph 1 transLeft ++ " (or " ++ reph 1 transRight ++ "). See the documentation regarding those keywords for details." }
 
@@ -271,7 +271,7 @@ map = let
   hs = hashSymbol_withSlash <$> ["map","roles"]
   s :: String = rep 1 $ head hs
   in HashKeyword
-  { hashKeyword_title = "map roles to exprs"
+  { hashKeyword_name = "map roles to exprs"
   , hashKeyword_symbols = hs
     -- PITFALL: This keyword is unlike the others,
     -- in that some parsing functionality (the "t" and integer keywords)
@@ -302,7 +302,7 @@ member :: HashKeyword
 member = let
   hs = hashSymbol_withSlash <$> ["member","m"]
   in HashKeyword
-     { hashKeyword_title = "with top-level sub-expr"
+     { hashKeyword_name = "with top-level sub-expr"
      , hashKeyword_symbols = hs
      , hashKeyword_help = blurb_member_and_involves }
 
@@ -310,7 +310,7 @@ tplt :: HashKeyword
 tplt = let
   hs = hashSymbol_withSlash <$> ["template","tplt","t"]
   in HashKeyword
-     { hashKeyword_title = "template"
+     { hashKeyword_name = "template"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
        [ paragraph
@@ -332,7 +332,7 @@ tplts :: HashKeyword
 tplts = let
   hs = hashSymbol_withSlash <$> ["templates","tplts","ts"]
   in HashKeyword
-     { hashKeyword_title = "all templates"
+     { hashKeyword_name = "all templates"
      , hashKeyword_symbols = hs
      , hashKeyword_help = "'" ++ reph 1 tplts ++ "' represents all the templates in the graph." }
 
@@ -340,7 +340,7 @@ reach :: HashKeyword
 reach = let
   hs = hashSymbol_withSlash <$> ["reach","tr"]
   in HashKeyword
-     { hashKeyword_title = "transitive reach"
+     { hashKeyword_name = "transitive reach"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
        [ paragraph
@@ -357,7 +357,7 @@ transLeft :: HashKeyword
 transLeft = let
   hs = hashSymbol_withSlash <$> ["transLeft","trl"]
   in HashKeyword
-     { hashKeyword_title = "left transitive search"
+     { hashKeyword_name = "left transitive search"
      , hashKeyword_symbols = hs
      , hashKeyword_help = trans_blurb }
 
@@ -365,7 +365,7 @@ transRight :: HashKeyword
 transRight = let
   hs = hashSymbol_withSlash <$> ["transRight","trr"]
   in HashKeyword
-     { hashKeyword_title = "right transitive search"
+     { hashKeyword_name = "right transitive search"
      , hashKeyword_symbols = hs
      , hashKeyword_help = trans_blurb }
 
@@ -373,6 +373,6 @@ var :: HashKeyword
 var = let
   hs = hashSymbol_withSlash <$> [ "var", "v" ]
   in HashKeyword
-     { hashKeyword_title = "variable (pending)"
+     { hashKeyword_name = "variable (pending)"
      , hashKeyword_symbols = hs
      , hashKeyword_help = "This isn't implemented yet. Its purpose is to permit the use of the Qseq meta-search language." }
