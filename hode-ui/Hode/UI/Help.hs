@@ -2,6 +2,7 @@ module Hode.UI.Help (
   hodeHelp -- ^ Choice1Plist
   ) where
 
+import           Control.Lens
 import qualified Data.List.PointedList as P
 import           Data.Maybe
 
@@ -44,29 +45,33 @@ hash_binops_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Plist
   hash_trans_c3,
   hash_ignore_c3 ] =
 
-  map (fromJust . P.fromList . map hashKeyword_helpPair) $
-  [ [ KW.hash
-    , KW.hAnd
-    , KW.hOr
-    , KW.diff
-    , KW.any
-    , KW.tplt
-    , KW.tplts
-    , KW.addrs
-    ]
+  let ss :: HashKeyword -> (String, String)
+      ss hk = _2 %~ synonymBlurb hk $
+              hashKeyword_helpPair hk
 
-  , [ KW.member
-    , KW.involves
-    , KW.eval
-    , KW.it
-    , KW.itMatching
-    , KW.map
-    ]
+  in fromJust . P.fromList . map ss <$>
+     [ [ KW.hash
+       , KW.hAnd
+       , KW.hOr
+       , KW.diff
+       , KW.any
+       , KW.tplt
+       , KW.tplts
+       , KW.addrs
+       ]
 
-  , [ KW.reach
-    , KW.transLeft
-    , KW.transRight
-    ]
+     , [ KW.member
+       , KW.involves
+       , KW.eval
+       , KW.it
+       , KW.itMatching
+       , KW.map
+       ]
 
-  , [ KW.hashKeyword
-    , KW.var ] ]
+     , [ KW.reach
+       , KW.transLeft
+       , KW.transRight
+       ]
+
+     , [ KW.hashKeyword
+       , KW.var ] ]
