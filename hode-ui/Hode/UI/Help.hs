@@ -18,8 +18,12 @@ hodeHelp = let
   skippable :: String
   skippable = "(This has only one submode. Press space to skip.)"
   in fromJust $ P.fromList
+
   [ ( "universal key commands"
-    , fromJust $ P.fromList [ (skippable, universal_c3) ] )
+    , fromJust $ P.fromList
+      [ ("change mode",    change_mode_keyCmds_c3)
+      , ("change submode", change_submode_keyCmds_c3) ] )
+
   , ( "ui text commands"
     , fromJust $ P.fromList [ (skippable, uiLangHelp) ] )
 

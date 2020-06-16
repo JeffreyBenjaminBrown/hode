@@ -7,11 +7,11 @@
 module Hode.UI.Input.KeyCmd (
     keyPrefix -- ^ (V.Key, [V.Modifier]) -> String
 
-  , universal_intro        -- ^ String
-  , universal_keyCmds      -- ^ [KeyCmd]
+  , universal_intro      -- ^ String
+  , universal_keyCmds    -- ^ [KeyCmd]
 
-  , bufferBuffer_intro     -- ^ String
-  , bufferBuffer_keyCmds   -- ^ [KeyCmd]
+  , bufferBuffer_intro   -- ^ String
+  , bufferBuffer_keyCmds -- ^ [KeyCmd]
 
   , subgraphBuffer_intro             -- ^ String
   , subgraphBuffer_universal_keyCmds -- ^ [KeyCmd]
@@ -21,7 +21,8 @@ module Hode.UI.Input.KeyCmd (
   , commandWindow_intro    -- ^ String
   , commandWindow_keyCmds  -- ^ [KeyCmd]
 
-  , universal_c3                        -- ^ Choice3Plist
+  , change_mode_keyCmds_c3              -- ^ Choice3Plist
+  , change_submode_keyCmds_c3           -- ^ Choice3Plist
   , bufferBuffer_c3                     -- ^ Choice3Plist
   , subgraphBuffer_universal_keyCmds_c3 -- ^ Choice3Plist
   , subgraphBuffer_primary_keyCmds_c3   -- ^ Choice3Plist
@@ -77,8 +78,9 @@ prefixKeyCmdName_withKey kc =
                       ++ ": "
                       ++ _keyCmd_name kc }
 
-universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_primary_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
-[   universal_c3
+change_mode_keyCmds_c3, change_submode_keyCmds_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_primary_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
+[   change_mode_keyCmds_c3
+  , change_submode_keyCmds_c3
   , bufferBuffer_c3
   , subgraphBuffer_universal_keyCmds_c3
   , subgraphBuffer_primary_keyCmds_c3
@@ -87,7 +89,8 @@ universal_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuff
   let hp = map keyCmd_helpPair
       i = ("Introduction",)
   in map (fromJust . P.fromList)
-     [ i universal_intro      : hp universal_keyCmds
+     [ i universal_intro      : hp change_mode_keyCmds
+     , i universal_intro      : hp change_submode_keyCmds
      , i bufferBuffer_intro   : hp bufferBuffer_keyCmds
      , i subgraphBuffer_intro : hp subgraphBuffer_universal_keyCmds
      ,                          hp subgraphBuffer_primary_keyCmds
@@ -117,92 +120,105 @@ universal_intro = paragraphs
   ]
 
 universal_keyCmds :: [KeyCmd]
-universal_keyCmds = let
-  mode_report :: St -> String
-  mode_report st =
-    " View: "
-    ++ case st ^. mainWindow of
-      LangCmdHistory -> "command history"
-      SubgraphBuffer -> "subgraph"
-      BufferBuffer -> "buffer select"
-      HelpBuffer -> "Help"
-    ++ ". Mode: "
-    ++ case stMode st of
-         BufferMode -> "buffer select."
-         SubgraphMode -> "subgraph. Submode: "
-                         ++ case st ^. subgraphSubmode of
-                              SubgraphSubmode_primary -> "primary."
-                              SubgraphSubmode_sort -> "sort."
-         HelpMode -> "help."
-         LangCmdMode -> "command language."
-         NoMode -> paragraph [ "Nothing in particular;"
-                             , "only universal commands are available." ]
+universal_keyCmds =
+  change_mode_keyCmds ++
+  change_submode_keyCmds
+
+change_mode_keyCmds, change_submode_keyCmds :: [KeyCmd]
+[ change_mode_keyCmds,
+  change_submode_keyCmds] =
+
+  let
+    mode_report :: St -> String
+    mode_report st =
+      " View: "
+      ++ case st ^. mainWindow of
+        LangCmdHistory -> "command history"
+        SubgraphBuffer -> "subgraph"
+        BufferBuffer -> "buffer select"
+        HelpBuffer -> "Help"
+      ++ ". Mode: "
+      ++ case stMode st of
+           BufferMode -> "buffer select."
+           SubgraphMode -> "subgraph. Submode: "
+                           ++ case st ^. subgraphSubmode of
+                                SubgraphSubmode_primary -> "primary."
+                                SubgraphSubmode_sort -> "sort."
+           HelpMode -> "help."
+           LangCmdMode -> "command language."
+           NoMode -> paragraph [ "Nothing in particular;"
+                               , "only universal commands are available." ]
   in
 
   map prefixKeyCmdName_withKey
-  [ KeyCmd { _keyCmd_name = "Quit"
-           , _keyCmd_func = B.halt
-           , _keyCmd_key  = (V.KEsc, [V.MMeta])
-           , _keyCmd_guide = "Exit Hode." }
+  <$>
 
-  , KeyCmd { _keyCmd_name = "Help"
-           , _keyCmd_func = B.continue
-             . (mainWindow .~ HelpBuffer)
-           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
-           , _keyCmd_guide = "Brings you to this help menu." }
+  [ -- change_mode_keyCmds
+    [ KeyCmd { _keyCmd_name = "Quit"
+             , _keyCmd_func = B.halt
+             , _keyCmd_key  = (V.KEsc, [V.MMeta])
+             , _keyCmd_guide = "Exit Hode." }
 
-  , KeyCmd { _keyCmd_name = "History view"
-           , _keyCmd_func = B.continue
-             . (\st -> showReassurance (mode_report st) st)
-             . (mainWindow .~ LangCmdHistory)
-             . (optionalWindows %~ S.delete Error)
-           , _keyCmd_key  = (V.KChar 'h', [V.MMeta])
-           , _keyCmd_guide = "Shows the history of commands the user has entered." }
+    , KeyCmd { _keyCmd_name = "Help"
+             , _keyCmd_func = B.continue
+               . (mainWindow .~ HelpBuffer)
+             , _keyCmd_key  = (V.KChar '?', [V.MMeta])
+             , _keyCmd_guide = "Brings you to this help menu." }
 
-  , KeyCmd { _keyCmd_name = "Buffer select"
-           , _keyCmd_func = B.continue
-             . (\st -> showReassurance (mode_report st) st)
-             . (mainWindow .~ BufferBuffer)
-             . (optionalWindows %~ S.delete Error)
-           , _keyCmd_key  = (V.KChar 'b', [V.MMeta])
-           , _keyCmd_guide = "In Hode, most of the time is spent looking at a `SubgraphBuffer`, which provides a view onto some of the data in your graph. Multiple `SubgraphBuffer`s can be open at once. The `BufferBuffer` provides a view of all the `SubgraphBuffer`s currently open." }
+    , KeyCmd { _keyCmd_name = "History view"
+             , _keyCmd_func = B.continue
+               . (\st -> showReassurance (mode_report st) st)
+               . (mainWindow .~ LangCmdHistory)
+               . (optionalWindows %~ S.delete Error)
+             , _keyCmd_key  = (V.KChar 'h', [V.MMeta])
+             , _keyCmd_guide = "Shows the history of commands the user has entered." }
 
-  , KeyCmd { _keyCmd_name = "Subgraph mode"
-           , _keyCmd_func = B.continue
-             . (\st -> showReassurance (mode_report st) st)
-             . (mainWindow .~ SubgraphBuffer)
-             . (optionalWindows %~ S.delete Error)
-           , _keyCmd_key  = (V.KChar 'g', [V.MMeta])
-           , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." }
+    , KeyCmd { _keyCmd_name = "Buffer select"
+             , _keyCmd_func = B.continue
+               . (\st -> showReassurance (mode_report st) st)
+               . (mainWindow .~ BufferBuffer)
+               . (optionalWindows %~ S.delete Error)
+             , _keyCmd_key  = (V.KChar 'b', [V.MMeta])
+             , _keyCmd_guide = "In Hode, most of the time is spent looking at a `SubgraphBuffer`, which provides a view onto some of the data in your graph. Multiple `SubgraphBuffer`s can be open at once. The `BufferBuffer` provides a view of all the `SubgraphBuffer`s currently open." }
 
-  , KeyCmd { _keyCmd_name = "Command window"
-           , _keyCmd_func = B.continue
-             . (\st -> showReassurance (mode_report st) st)
-             . (\st -> st & optionalWindows . at LangCmds %~
-                 \case Just () -> Nothing
-                       Nothing -> Just () )
-           , _keyCmd_key  = (V.KChar 'c', [V.MMeta])
-           , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
+    , KeyCmd { _keyCmd_name = "Subgraph mode"
+             , _keyCmd_func = B.continue
+               . (\st -> showReassurance (mode_report st) st)
+               . (mainWindow .~ SubgraphBuffer)
+               . (optionalWindows %~ S.delete Error)
+             , _keyCmd_key  = (V.KChar 'g', [V.MMeta])
+             , _keyCmd_guide = "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here." }
 
-  , KeyCmd { _keyCmd_name = "Subgraph submode : primary"
-           , _keyCmd_func = B.continue
-             . (\st -> showReassurance (mode_report st) st)
-             . (subgraphSubmode .~ SubgraphSubmode_primary)
-           , _keyCmd_key  = (V.KChar 'p', [V.MMeta])
-           , _keyCmd_guide = "Toggle the primary submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the command window. Perhaps most importantly, it lets you add and delete branches of the viewtree. See the help for the Subgraph mode for more details." }
+    , KeyCmd { _keyCmd_name = "Command window"
+             , _keyCmd_func = B.continue
+               . (\st -> showReassurance (mode_report st) st)
+               . (\st -> st & optionalWindows . at LangCmds %~
+                   \case Just () -> Nothing
+                         Nothing -> Just () )
+             , _keyCmd_key  = (V.KChar 'c', [V.MMeta])
+             , _keyCmd_guide = "Toggle language mode. From language mode you can use the Hash language to enter commands, such as to create, modify, or delete data. See `docs/hash/the-hash-language.md` and `docs/ui.md` for more information." }
 
-  , KeyCmd { _keyCmd_name = "Subgraph submode : sort"
-           , _keyCmd_func = B.continue
-             . (\st -> showReassurance (mode_report st) st)
-             . (subgraphSubmode .~ SubgraphSubmode_sort)
-           , _keyCmd_key  = (V.KChar 's', [V.MMeta])
-           , _keyCmd_guide = "Toggle sort submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to rearrange the order of things without typing into the command window. See the help for the Subgraph mode for more details." }
+  --  , KeyCmd { _keyCmd_name = "Test key"
+  --           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
+  --           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
+  --           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
+    ]
 
---  , KeyCmd { _keyCmd_name = "Test key"
---           , _keyCmd_func = B.continue . showReassurance "Vty saw that!"
---           , _keyCmd_key  = (V.KChar '?', [V.MMeta])
---           , _keyCmd_guide = "This isn't really part of the program; this is just used so I can test whether Brick has access to a certain key command on my console." }
-  ]
+  ,  -- change_submode_keyCmds
+    [ KeyCmd { _keyCmd_name = "Subgraph submode : primary"
+             , _keyCmd_func = B.continue
+               . (\st -> showReassurance (mode_report st) st)
+               . (subgraphSubmode .~ SubgraphSubmode_primary)
+             , _keyCmd_key  = (V.KChar 'p', [V.MMeta])
+             , _keyCmd_guide = "Toggle the primary submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the command window. Perhaps most importantly, it lets you add and delete branches of the viewtree. See the help for the Subgraph mode for more details." }
+
+    , KeyCmd { _keyCmd_name = "Subgraph submode : sort"
+             , _keyCmd_func = B.continue
+               . (\st -> showReassurance (mode_report st) st)
+               . (subgraphSubmode .~ SubgraphSubmode_sort)
+             , _keyCmd_key  = (V.KChar 's', [V.MMeta])
+             , _keyCmd_guide = "Toggle sort submode of subgraph mode. When in subgraph mode (because you're viewing a subgraph), this submode permits you to rearrange the order of things without typing into the command window. See the help for the Subgraph mode for more details." }
+    ] ]
 
 bufferBuffer_intro :: String
 bufferBuffer_intro = paragraphs
