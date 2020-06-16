@@ -23,6 +23,13 @@ data HashKeyword = HashKeyword
   , hashKeyword_help :: String }
   deriving (Show, Eq, Ord)
 
+-- | `hashKeyword_helpPair kc` extracts the name and description of the `HashKeyword`,
+-- for use in the interactive help.
+-- (The other two fields are used only outside of the interactive help.)
+hashKeyword_helpPair :: HashKeyword -> (String, String)
+hashKeyword_helpPair kc = ( hashKeyword_name kc
+                          , hashKeyword_help kc )
+
 rep :: Int -> HashSymbol -> String
 rep n hs =
   (if _slashPrefix hs then "/" else "")
