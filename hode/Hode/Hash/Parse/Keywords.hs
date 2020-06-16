@@ -24,9 +24,9 @@ module Hode.Hash.Parse.Keywords
   ) where
 
 import Prelude hiding (any)
+
 import Hode.Hash.Parse.Util
 import Hode.Util.Misc
-
 
 
 -- | * The binary operations

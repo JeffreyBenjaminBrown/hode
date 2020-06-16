@@ -11,7 +11,6 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
-**** TODO integrate the new help blurbs into the help
 **** TODO prefix each blurb with a mention of the other keywords
 using Hode.Hash.Parse.Util.synonymBlurb
   :: HashKeyword -> (String -> String)
