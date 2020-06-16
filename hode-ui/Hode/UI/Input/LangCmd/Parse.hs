@@ -3,7 +3,8 @@
 
 module Hode.UI.Input.LangCmd.Parse (
     pLangCmd -- ^ Rslt -> String -> Either String LangCmd
-  , uiLangHelp -- ^ Choice3Plist
+  , uiLangHelp_basic -- ^ Choice3Plist
+  , uiLangHelp_sort  -- ^ Choice3Plist
   ) where
 
 import           Data.Either.Combinators (mapLeft)
@@ -33,17 +34,21 @@ data LangCmd_MapItem = LangCmd_MapItem
   , _langCmd_keywords :: [String]
   , _langCmd_guide :: String }
 
-uiLangHelp :: Choice3Plist
-uiLangHelp = let
-  helpItem :: LangCmd_MapItem -> [(String, String)]
-  helpItem i = [ ( kw ++ ": " ++ _langCmd_name i
-                 , _langCmd_guide i )
-               | kw <- _langCmd_keywords i ]
-  in fromJust . P.fromList
-     $ concatMap helpItem langCmd_MapItems
+uiLangHelp_basic, uiLangHelp_sort :: Choice3Plist
+[ uiLangHelp_basic,
+  uiLangHelp_sort] =
 
-langCmd_MapItems :: [LangCmd_MapItem]
-langCmd_MapItems =
+  let helpItem :: LangCmd_MapItem -> [(String, String)]
+      helpItem i = [ ( kw ++ ": " ++ _langCmd_name i
+                     , _langCmd_guide i )
+                   | kw <- _langCmd_keywords i ]
+  in fromJust . P.fromList . concatMap helpItem
+     <$>
+     [ langCmd_MapItems_basic
+     , langCmd_MapItems_sort ]
+
+langCmd_MapItems_basic :: [LangCmd_MapItem]
+langCmd_MapItems_basic =
   [ LangCmd_MapItem {
       _langCmd_name = "add expression",
       _langCmd_func = pLangCmd_insert,
@@ -108,8 +113,11 @@ langCmd_MapItems =
         , "PITFALL: Does not delete anything that was previously there."
         , "If there was already a graph there, this can create an inconsistent graph -- it might have duplicate entries, and if so you'll only find one of them when you search for it."
         , "To be safe, first delete all files ending in `.rslt` from the destination." ] }
+  ]
 
-  , LangCmd_MapItem {
+langCmd_MapItems_sort :: [LangCmd_MapItem]
+langCmd_MapItems_sort =
+  [ LangCmd_MapItem {
       _langCmd_name = "sort right",
       _langCmd_func = pLangCmd_sort RightEarlier,
       _langCmd_keywords = ["/sortRight","/sr"],
@@ -134,7 +142,7 @@ pLangCmd :: Rslt -> String -> Either String LangCmd
 pLangCmd r s =
   let (h,t) = splitAfterFirstLexeme s
       langCmd_map :: Map String (Rslt -> String -> Either String LangCmd)
-      langCmd_map = M.fromList $ concatMap f langCmd_MapItems where
+      langCmd_map = M.fromList $ concatMap f langCmd_MapItems_basic where
         f lcmi = [ ( x
                    , _langCmd_func lcmi )
                  | x <- _langCmd_keywords lcmi ]

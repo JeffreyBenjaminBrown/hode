@@ -11,9 +11,9 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
-**** TODO prefix each blurb with a mention of the other keywords
-using Hode.Hash.Parse.Util.synonymBlurb
-  :: HashKeyword -> (String -> String)
+**** TODO uiLangHelp has duplicates
+Instead, prefix each help blurb with a mention of the synonyms,
+like elsewhere.
 **** TODO QC (verify) the help blurbs
 **** TODO align the interactive help with the docs/ folder
 *** TODO maybe the # parser should be treated specially

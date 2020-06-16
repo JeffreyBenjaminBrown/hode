@@ -25,11 +25,13 @@ hodeHelp = let
       , ("change submode", change_submode_keyCmds_c3) ] )
 
   , ( "ui text commands"
-    , fromJust $ P.fromList [ (skippable, uiLangHelp) ] )
+    , fromJust $ P.fromList
+      [ ("fundamentals", uiLangHelp_basic)
+      , ("sorting",      uiLangHelp_sort) ] )
 
   , ( "the hash language"
     , fromJust $ P.fromList
-      [ ("basic",                  hash_binops_c3)
+      [ ("fundamentals",           hash_fundamentals_c3)
       , ("subexpression matching", hash_subexp_c3)
       , ("transitivity",           hash_trans_c3)
       , ("unimportant",            hash_ignore_c3)
@@ -43,8 +45,8 @@ hodeHelp = let
       , ("viewTree",     subgraphBuffer_primary_keyCmds_c3)
       , ("sort",         subgraphBuffer_sort_keyCmds_c3) ] ) ]
 
-hash_binops_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Plist
-[ hash_binops_c3,
+hash_fundamentals_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Plist
+[ hash_fundamentals_c3,
   hash_subexp_c3,
   hash_trans_c3,
   hash_ignore_c3 ] =
