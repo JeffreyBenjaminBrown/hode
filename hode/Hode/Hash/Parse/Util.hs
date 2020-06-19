@@ -1,6 +1,5 @@
 module Hode.Hash.Parse.Util where
 
-import           Data.List (intercalate)
 import           Text.Megaparsec hiding (label)
 import           Text.Megaparsec.Char
 
@@ -63,7 +62,9 @@ hashSymbol_withSlash s =
 synonymBlurb :: HashKeyword -> (String -> String)
 synonymBlurb hk = let
   syms :: [HashSymbol] = hashKeyword_symbols hk
-  ss :: String = intercalate ", " $ map (rep 1) syms
+  ss :: String =
+    let kws = map (rep 1) syms
+    in concatMap (++ " and ") (tail kws) ++ head kws
   in case length syms of
        0 -> error "A HashKeyword should define at least one symbol."
        1 -> id

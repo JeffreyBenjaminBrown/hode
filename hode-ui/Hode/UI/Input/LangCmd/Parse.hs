@@ -8,10 +8,12 @@ module Hode.UI.Input.LangCmd.Parse (
   ) where
 
 import           Data.Either.Combinators (mapLeft)
+import           Data.List (maximumBy)
 import qualified Data.List.PointedList as P
 import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Maybe
+import           Data.Ord (comparing)
 import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
@@ -38,11 +40,26 @@ uiLangHelp_basic, uiLangHelp_sort :: Choice3Plist
 [ uiLangHelp_basic,
   uiLangHelp_sort] =
 
-  let helpItem :: LangCmd_MapItem -> [(String, String)]
-      helpItem i = [ ( kw ++ ": " ++ _langCmd_name i
-                     , _langCmd_guide i )
-                   | kw <- _langCmd_keywords i ]
-  in fromJust . P.fromList . concatMap helpItem
+  let
+    prefix_synonymBlurb :: LangCmd_MapItem -> (String -> String)
+    prefix_synonymBlurb lm =
+      case _langCmd_keywords lm of
+        []  -> error $ _langCmd_name lm ++ " has no associated keywords."
+        [_] -> id
+        as  -> \s -> "(The keywords {"
+          ++ concatMap (++ " and ") (tail as) ++ head as
+          ++ "} are synonyms. They do exactly the same thing, "
+          ++ "and id doesn't matter which you use.)\n\n"
+          ++ s
+
+    helpItem :: LangCmd_MapItem -> (String, String)
+    helpItem i =
+      let kw :: String =
+            maximumBy (comparing length) $ _langCmd_keywords i
+      in ( kw ++ ": " ++ _langCmd_name i
+         , prefix_synonymBlurb i $ _langCmd_guide i )
+
+  in fromJust . P.fromList . map (helpItem)
      <$>
      [ langCmd_MapItems_basic
      , langCmd_MapItems_sort ]
