@@ -54,8 +54,9 @@ hash_fundamentals_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Pl
   hash_ignore_c3 ] =
 
   let ss :: HashKeyword -> (String, String)
-      ss hk = _2 %~ synonymBlurb hk $
-              hashKeyword_helpPair hk
+      ss hk = hashKeyword_helpPair hk &
+              (_1 %~ ((reph 1 hk ++ ": ") ++)) .
+              (_2 %~ synonymBlurb hk)
 
   in fromJust . P.fromList . map ss <$>
      [ [ KW.hash

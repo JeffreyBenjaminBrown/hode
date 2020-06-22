@@ -12,8 +12,8 @@ This will load all non-broken modules when some are broken.
 ** TODO document
 *** TODO document Hash in interactive help
 **** DONE edit help blurb text
-**** TODO attach command names to blurbs
-they are missing in some cases
+**** TODO attach command names to Hash language help blurbs
+hash_fundamentals_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Plist
 **** TODO QC (verify) the help blurbs
 **** TODO align the interactive help with the docs/ folder
 *** TODO needs hyperlinks
