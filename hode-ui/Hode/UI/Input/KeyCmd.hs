@@ -257,11 +257,11 @@ change_mode_keyCmds, change_submode_keyCmds :: [KeyCmd]
 bufferBuffer_intro :: String
 bufferBuffer_intro = paragraphs
   [ paragraph
-      [ "The `Select Grpah Buffer` Buffer presents a tree* of available `Graph Buffer`s."
-      , "The `Select Grpah Buffer` Buffer looks similar to the `Graph Buffer` -- in particular, both are trees -- but whereas the `Graph Buffer` gives a tree of expressions in the graph, the `Select Grpah Buffer` Buffer gives a tree of `Graph Buffer`s."
+      [ "The `Select Graph Buffer` Buffer presents a tree* of available `Graph Buffer`s."
+      , "The `Select Graph Buffer` Buffer looks similar to the `Graph Buffer` -- in particular, both are trees -- but whereas the `Graph Buffer` gives a tree of expressions in the graph, the `Select Graph Buffer` Buffer gives a tree of `Graph Buffer`s."
       , "This permits you to keep multiple views of your graph open at once and switch between them." ]
   , paragraph
-      [ "One of the `Graph Buffer`s in the `Select Grpah Buffer` Buffer is always \"focused\" (highlighted in blue)."
+      [ "One of the `Graph Buffer`s in the `Select Graph Buffer` Buffer is always \"focused\" (highlighted in blue)."
       , "That's the one you will see when you return to the `Graph Buffer` view." ]
   , "----------------"
   , "*When the tree is flat, it looks like a list." ]
