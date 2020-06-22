@@ -68,4 +68,4 @@ synonymBlurb hk = let
   in case length syms of
        0 -> error "A HashKeyword should define at least one symbol."
        1 -> id
-       _ -> (++) $ "(The keywords {" ++ ss ++ "} are all synonyms; they do exactly the same thing, and it doesn't matter which one you use.)\n\n"
+       _ -> (++) $ "(The keywords " ++ ss ++ " are synonyms; they do exactly the same thing, and it doesn't matter which one you use.)\n\n"

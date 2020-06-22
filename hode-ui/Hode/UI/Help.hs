@@ -16,7 +16,7 @@ import           Hode.UI.Input.LangCmd.Parse
 hodeHelp :: Choice1Plist
 hodeHelp = let
   skippable :: String
-  skippable = "(This has only one submode. Press space to skip.)"
+  skippable = "(This has only one submode. Press space to skip this choice.)"
   in fromJust $ P.fromList
 
   [ ( "universal key commands"

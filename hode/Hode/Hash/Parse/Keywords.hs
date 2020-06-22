@@ -37,7 +37,7 @@ hash = let
                     , _slashPrefix = False } ]
   s :: String = rep 1 $ head hs
   in HashKeyword
-     { hashKeyword_name = "build relationships"
+     { hashKeyword_name = "relate"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
        [ paragraph
@@ -149,7 +149,7 @@ hAnd = let
            " b` represents all expressions that match both `a` and `b`."
          , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
        , let itHelps = reph 1 eval ++ " " ++ reph 1 it ++ " #helps"
-         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " " ++ itHelps ++ " purple people)` will find everything that helps both green people and purple people."
+         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " (" ++ itHelps ++ " purple people)` will find everything that helps both green people and purple people."
        , "The operator can be chained: `a " ++ one ++ " b " ++ one ++ " c " ++ one ++ " ...` will find all expressions that match `a` and `b` and `c` ..."
        , example_precedence $ head hs
        ] }
@@ -166,10 +166,10 @@ hOr = let
        [ paragraph
          [ "The " ++ one ++ " symbol represents logical disjunction in queries."
          , "That is, `a " ++ one ++
-           " b` represents all expressions that match either `a` or `b`."
+           " b` represents all expressions that match either `a` or `b` (or both)."
          , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
        , let itHelps = reph 1 eval ++ " " ++ reph 1 it ++ " #helps"
-         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " " ++ itHelps ++ " purple people)` will find everything that helps green people or purple people or both."
+         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " (" ++ itHelps ++ " purple people)` will find everything that helps green people or purple people or both."
        , "The operator can be chained: `a " ++ one ++ " b " ++ one ++ " c " ++ one ++ " ...` will find all expressions that match at least one of `a` or `b` or `c` or the rest."
        , example_precedence $ head hs
        ] }
@@ -189,7 +189,7 @@ diff = let
            " b` represents all expressions that match `a` and do *not* match `b`."
          , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
        , let itHelps = reph 1 eval ++ " " ++ reph 1 it ++ " #helps"
-         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " " ++ itHelps ++ " purple people)` will find everything that helps green people and does not help purple people."
+         in "For instance, `(" ++ itHelps ++ " green people) " ++ one ++ " (" ++ itHelps ++ " purple people)` will find everything that helps green people and does not help purple people."
        , example_precedence $ head hs
        ] }
 
@@ -203,7 +203,12 @@ addrs = let
   in HashKeyword
      { hashKeyword_name = "address range"
      , hashKeyword_symbols = hs
-     , hashKeyword_help = "The " ++ one ++ " symbol precedes a specification of expressions via their addresses. For instance, `" ++ one ++ " 1 3-5 8` represents every expression whose address is either 1, 3, 4, 5 or 8. The " ++ one ++ " symbol can be followed by any number of integers (like `3`) or integer ranges (like `3-5`)." }
+     , hashKeyword_help = paragraph
+       [ "The " ++ one ++ " symbol precedes a specification of expressions via their addresses."
+       , "For instance, `" ++ one ++ " 1 3-5 8` represents every expression whose address is either 1, 3, 4, 5 or 8."
+       , "The " ++ one ++ " symbol can be followed by any number of integers (like `3`) and integer ranges (like `3-5`)."
+       , "They don't have to be in order."
+       ] }
 
 any :: HashKeyword
 any = let
@@ -213,8 +218,9 @@ any = let
      { hashKeyword_name = "anything"
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
-         [ "The " ++ one ++ " symbol represents anything at all. It is meaningless by itself, but useful as a sub-expression. For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
-         , "(Geeky sidenote: In some math and computer science contexts, `any` applied to an empty argument list is defined to return True. If Hode worked like that, it would return the entire graph. That would be dumb. Instead it returns nothing.)"
+         [ "The " ++ one ++ " symbol is a `wildcard`: it represents anything at all. It is meaningless by itself [see footnote], but useful as a sub-expression."
+         , "For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
+         , "Footnote: It did not have to be meaningless by itself. Hode could have been written so that if you asked for `/_`, it would return everything in your graph. But you probably wouldn't want that, and it might crash your computer."
          ] }
 
 eval :: HashKeyword
@@ -319,12 +325,12 @@ tplt = let
          , "for instance, when using the `"
            ++ reph 1 Hode.Hash.Parse.Keywords.map ++ "` keyword." ]
        , paragraph
-         [ "The query `" ++ reph 1 tplts
+         [ "The query `" ++ reph 1 tplt
            ++ " /_ is /_` represents the binary `is` template --"
          , "the one used in relationships like 'swimming #is delicious'."
          , "Each spot for a member in the relationship is marked using the `/_` wildcard."
          , "The joints between those members can include multiple wordss:"
-         , "`" ++ reph 1 tplts ++ " /_ is kind of /_`, for instance,"
+         , "`" ++ reph 1 tplt ++ " /_ is kind of /_`, for instance,"
          , "is the template of the relationship `chess #(is kind of) fun`." ]
        ] }
 

@@ -46,10 +46,10 @@ uiLangHelp_basic, uiLangHelp_sort :: Choice3Plist
       case _langCmd_keywords lm of
         []  -> error $ _langCmd_name lm ++ " has no associated keywords."
         [_] -> id
-        as  -> \s -> "(The keywords {"
+        as  -> \s -> "(The keywords "
           ++ concatMap (++ " and ") (tail as) ++ head as
-          ++ "} are synonyms. They do exactly the same thing, "
-          ++ "and id doesn't matter which you use.)\n\n"
+          ++ " are synonyms. They do exactly the same thing, "
+          ++ "and it doesn't matter which you use.)\n\n"
           ++ s
 
     helpItem :: LangCmd_MapItem -> (String, String)
@@ -72,7 +72,10 @@ langCmd_MapItems_basic =
       _langCmd_keywords = ["/add","/a"],
       _langCmd_guide = paragraphs
         [ "Adds an expression to the graph."
-        , "For instance, `/add Bob #likes pizza`." ] }
+        , paragraph
+          [ "For instance, the command `/add Bob #likes pizza` would add the expression `Bob #likes pizza` to the graph."
+          , "If the phrase `Bob`, or the phrase `pizza`, or the template `_ likes _` is missing from the graph, they will be added first, before adding the relationship involving them."
+          ] ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "find",
@@ -89,25 +92,29 @@ langCmd_MapItems_basic =
       _langCmd_guide = paragraph
         [ "Replace the content of an expression."
         , "The first argument is the address, and the second is the expression to replace it with."
-        , "For instance, `/replace 100 Bob #needs damp sponges`." ] }
+        , "For instance, the command `/replace 100 Bob #needs damp sponges` would replace whatever is at address 100 with the expression `Bob #needs damp sponges`." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "move",
       _langCmd_func = \_ t -> pLangCmd_move t,
       _langCmd_keywords = ["/move","/m"],
-      _langCmd_guide = paragraph
-        [ "Move an expression to a new address."
-        , "The first argument is the old address, and the second one is the new address."
-        , "For instance, `/move 33 333` would move whatever was at address 33 to address 333."
-        , "PITFALL: If the new address is not empty, it will be moved to an unoccupied address -- specifically, the one just after the maximum address in the graph." ] }
+      _langCmd_guide = paragraphs
+        [ paragraph
+          [ "Move an expression to a new address."
+          , "The first argument is the old address, and the second one is the new address."
+          , "For instance, `/move 33 333` would move whatever was at address 33 to address 333."
+          ]
+        , "PITFALL: If the new address (the second argument) is not empty, whatever currently occupies it will be moved to an unoccupied address -- specifically, the one just after the maximum address in the graph." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "delete",
       _langCmd_func = \_ t -> pLangCmd_delete t,
       _langCmd_keywords = ["/delete","/d"],
-      _langCmd_guide = paragraph
-        [ "Deletes the expression at the given address."
-        , "For instance, `/d 77` deletes what was at address 77."
+      _langCmd_guide = paragraphs
+        [ paragraph
+          [ "Deletes the expression at the given address."
+          , "For instance, `/d 77` deletes what was at address 77."
+          ]
         , "PITFALL: An expression can only be deleted if it is not a member of any other expression." ] }
 
   , LangCmd_MapItem {
@@ -117,19 +124,24 @@ langCmd_MapItems_basic =
       _langCmd_guide = paragraph
         [ "Loads the data at the specified path."
         , "For instance, `/load path/to/my/data`."
-        , "Every file ending in `.rslt` is loaded."
-        , "All others are ignored." ] }
+        , "Every top-level file ending in `.rslt` is loaded."
+        , "All other files and all subfolders are ignored."
+        ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "save",
       _langCmd_func = \_ t -> pLangCmd_save t,
       _langCmd_keywords = ["/save","/s"],
-      _langCmd_guide = paragraph
-        [ "Saves the data at the specified path."
-        , "For instance, `/load path/to/my/data`."
-        , "PITFALL: Does not delete anything that was previously there."
-        , "If there was already a graph there, this can create an inconsistent graph -- it might have duplicate entries, and if so you'll only find one of them when you search for it."
-        , "To be safe, first delete all files ending in `.rslt` from the destination." ] }
+      _langCmd_guide = paragraphs
+        [ paragraph
+          [ "Saves the data at the specified path."
+          , "For instance, `/load path/to/my/data`."
+          ]
+        , paragraph
+          [ "PITFALL: Does not delete anything that was previously there."
+          , "If there was already a graph there, this can create an inconsistent graph -- it might have duplicate entries, and if so you'll only find one of them when you search for it."
+          , "To be safe, first delete all files ending in `.rslt` from the destination."
+          ] ] }
   ]
 
 langCmd_MapItems_sort :: [LangCmd_MapItem]
@@ -138,20 +150,24 @@ langCmd_MapItems_sort =
       _langCmd_name = "sort right",
       _langCmd_func = pLangCmd_sort RightEarlier,
       _langCmd_keywords = ["/sortRight","/sr"],
-      _langCmd_guide = paragraph
+      _langCmd_guide = paragraphs
         [ "Sorts by the given template, putting right members earlier, left members later."
-        , "Example: `/sortRight /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
-        , "If the template is t, and two expressions a and b are related by t, then b will come first in the sort order, because b is on the right side of the template."
+        , paragraph
+          [ "Example: `/sortRight /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
+          , "If the template is t, and two expressions a and b are related by t, then a will come first in the sort order if it is the left-hand member of the t-relationship between a and b."
+          ]
         , "For details on sorting, see docs/ui/transitivity.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/ui/transitivity.md." ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "sort left",
       _langCmd_func = pLangCmd_sort LeftEarlier,
       _langCmd_keywords = ["/sortLeft","/sl"],
-      _langCmd_guide = paragraph
+      _langCmd_guide = paragraphs
         [ "Sorts by the given template, putting left members earlier, right members later."
-        , "Example: `/sortLeft /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
-        , "If the template is t, and two expressions a and b are related by t, then a will come first in the sort order, because b is on the left side of the template."
+        , paragraph
+          [ "Example: `/sortLeft /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
+          , "If the template is t, and two expressions a and b are related by t, then a will come first in the sort order if it is the right-hand member of the t-relationship between a and b."
+          ]
         , "For details on sorting, see docs/ui/transitivity.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/ui/transitivity.md." ] }
   ]
 
