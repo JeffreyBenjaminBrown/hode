@@ -61,7 +61,10 @@ blurb_eval_and_it = paragraphs
     [ "The " ++ reph 1 eval ++ " symbol is used to extract subexpressions from superexpressions."
     , "It must be used in conjunction with either the " ++ reph 1 it ++ " or the " ++ reph 1 itMatching ++ " symbol."
     , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
-  , "If (in the database) Bob has flattered both Alice and Chuck, then the command `/find " ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ "` would return `Alice` and `Chuck`."
+  , paragraph
+    [ "If (in the database) Bob has flattered both Alice and Chuck, then the command `/find " ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ "` would return `Alice` and `Chuck`."
+    , "Notice that it does *not* return the entire `flattered` relationship; it only returns the subexpression in the " ++ reph 1 it ++ " position."
+    ]
   , paragraph
     [ "Results from " ++ reph 1 eval ++ " can be referred to by an outer expression."
     , "For instance, if (continuing the previous example) the database also knows that `Alice #enjoys surfing`, then `(" ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ ") #enjoys " ++ reph 1 any ++ "` would return `Alice #enjoys surfing`."
@@ -84,12 +87,14 @@ blurb_member_and_involves = let
     , "you can write '" ++ reph 1 member ++ " salsa'."
     , "This will find `salsa #has tomatoes` and `Jenny #hates salsa` and `I #buy salsa #from Trader Joe's`."
     , "It will not return `salsa`, because that's not a relationship."
-    , "Nor will it return `Jenny #is (allergic #to salsa)`, because salsa is not a top-level member of that relationship (although it is a level-2 member)." ]
+ ]
 
   , paragraph
-    [ "The " ++ reph 1 involves ++ " keyword is similar, but more general than "  ++ reph 1 member ++ "."
+    [ "Nor will it return `Jenny #is (allergic #to salsa)`, because salsa is not a top-level member of that relationship -- it is a level-2 member."
+    , "If you wish it did, don't worry -- there's another keyword for that."
+    , "The " ++ reph 1 involves ++ " keyword is similar to " ++ reph 1 member ++ ", but more general."
     , "Whereas " ++ reph 1 member ++ " only allows you to search for top-level members, " ++ reph 1 involves ++ " lets you search the top level, or the top two levels, or the top three, etc."
-    , "For instance, if you'd like to find anything for which 'salsa'"
+    , "Returning to our example, if you'd like to find anything for which 'salsa'"
     , "is in one of the top two levels,"
     , "you can write '" ++ reph 1 involves ++ "-2 salsa'." ]
 
@@ -227,7 +232,7 @@ eval :: HashKeyword
 eval = let
   hs = hashSymbol_withSlash <$> ["eval","e"]
   in HashKeyword
-     { hashKeyword_name = "find subexpression"
+     { hashKeyword_name = "find expr, return subexpr"
      , hashKeyword_symbols = hs
      , hashKeyword_help = blurb_eval_and_it }
 
@@ -260,7 +265,7 @@ it :: HashKeyword
 it = let
   hs = hashSymbol_withSlash <$> [ "it" ]
   in HashKeyword
-  { hashKeyword_name = "identify subexpression"
+  { hashKeyword_name = "id subexpr in expr"
   , hashKeyword_symbols = hs
   , hashKeyword_help = blurb_eval_and_it }
 
@@ -268,7 +273,7 @@ itMatching :: HashKeyword
 itMatching = let
   hs = hashSymbol_withSlash <$> [ "it=" ]
   in HashKeyword
-  { hashKeyword_name = "id & limit subexpression"
+  { hashKeyword_name = "id & limit subexpr in expr"
   , hashKeyword_symbols = hs
   , hashKeyword_help = "The " ++ reph 1 itMatching ++ " keyword is used in two contexts: " ++ reph 1 eval ++ " and " ++ reph 1 transLeft ++ " (or " ++ reph 1 transRight ++ "). See the documentation regarding those keywords for details." }
 
@@ -351,9 +356,10 @@ reach = let
      , hashKeyword_help = paragraphs
        [ paragraph
          [ "The `" ++ reph 1 reach ++ "` keyword is used to find everything on one side or the other of some expression, where `side` is defined in terms of some transitive relationship."
-         , "For instance, `" ++ reph 1 reach ++ " " ++ reph 1 any ++ " #<= b` finds everything less than or equal to `b`."
+         , "For instance, suppose the graph contains `0 #<= 1`, `1 #<= 2` and `2 #<=3`."
+         , "In that case, `" ++ reph 1 reach ++ " " ++ reph 1 any ++ " #<= b` would find everything less than or equal to `b`."
          , "Notice the importance of the position of the " ++ reph 1 any ++ " in that expression."
-         , "If we reversed it, to `" ++ reph 1 reach ++ " b #<= " ++ reph 1 any ++ "`, we would get everything that `b` is less than or equal to, rather than everything less than or equal to `b`." ]
+         , "If we reversed it, to `" ++ reph 1 reach ++ " b #<= " ++ reph 1 any ++ "`, we would instead get everything that `b` is less than or equal to." ]
        , paragraph
          [ "Here's a less numerical example: `" ++ reph 1 reach ++ " (animals " ++ reph 1 hOr ++ " plants) #need " ++ reph 1 any ++ "`` would find everything that plants or animals need, recursively."
          , "If either one of them needs dirt, and dirt needs atmospheric shielding, then dirt and atmospheric shielding will both be in the results." ]

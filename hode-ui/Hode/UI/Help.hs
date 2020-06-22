@@ -24,26 +24,28 @@ hodeHelp = let
       [ ("change mode",    change_mode_keyCmds_c3)
       , ("change submode", change_submode_keyCmds_c3) ] )
 
+  , ( "graph buffer"
+    , fromJust $ P.fromList
+      [ ("fundamentals", graphBuffer_universal_keyCmds_c3)
+      , ("viewTree",     graphBuffer_primary_keyCmds_c3)
+      , ("order",        graphBuffer_sort_keyCmds_c3) ] )
+
   , ( "ui text commands"
     , fromJust $ P.fromList
       [ ("fundamentals", uiLangHelp_basic)
-      , ("sorting",      uiLangHelp_sort) ] )
+      , ("order",        uiLangHelp_sort) ] )
 
   , ( "the hash language"
     , fromJust $ P.fromList
       [ ("fundamentals",           hash_fundamentals_c3)
       , ("subexpression matching", hash_subexp_c3)
-      , ("transitivity",           hash_trans_c3)
+      , ("order & transitivity",   hash_trans_c3)
       , ("unimportant",            hash_ignore_c3)
       ] )
 
-  , ( "buffer view"
+  , ( "`select graph buffer` buffer"
     , fromJust $ P.fromList [ (skippable, bufferBuffer_c3) ] )
-  , ( "subgraph view"
-    , fromJust $ P.fromList
-      [ ("introduction", graphBuffer_universal_keyCmds_c3)
-      , ("viewTree",     graphBuffer_primary_keyCmds_c3)
-      , ("sort",         graphBuffer_sort_keyCmds_c3) ] ) ]
+  ]
 
 hash_fundamentals_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Plist
 [ hash_fundamentals_c3,

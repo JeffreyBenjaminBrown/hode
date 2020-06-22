@@ -74,8 +74,8 @@ you can switch to the current results buffer by pressing
 `M-S-r` (that is, probably, `Alt + Shift + r`).
 
 Sometimes you wiill want to show all the results buffers at once.
-Switch to the `buffer buffer` to do that, with `M-S-b`.
-The buffer buffer is described below.
+Switch to the `Select Grpah Buffer` Buffer to do that.
+The `Select Grpah Buffer` Buffer is described below.
 
 When an error happens,
 the main window will automatically switch to the `error buffer`.
@@ -304,14 +304,14 @@ To move the expression at address `a` to address `b`, type this:
 ### Move focus: `M-e` (up), `M-f` (right), `M-d` (down), `M-s` (left)
 
 One result in the results buffer is always focused.
-Similarly, one buffer in the buffer buffer is always focused.
+Similarly, one buffer in the `Select Grpah Buffer` Buffer is always focused.
 These move that around.
 
 PITFALL: There are two separate kinds of focus.
 Every results buffer has a focused result;
 it's the one with a different color scheme.
 Exactly one of the results buffers is itself focused;
-it's the buffer with a different color scheme in the buffer buffer.
+it's the buffer with a different color scheme in the `Select Grpah Buffer` Buffer.
 
 ### `M-x`: Execute command
 
@@ -322,7 +322,7 @@ do this to run it.
 
 Show (the currently focused) results buffer: `M-r`
 
-Show (the) buffer buffer: `M-b`
+Show (the) `Select Grpah Buffer` buffer: `M-b`
 
 Show (the) command history buffer: `M-h`
 
@@ -351,7 +351,7 @@ This can clean it up.
 This creates a new results buffer showing exactly one thing,
 the result that was focused in the previous buffer.
 The previous results buffer continues to exist,
-and in the buffer buffer,
+and in the `Select Grpah Buffer` buffer,
 the new results buffer is a child of the old one.
 
 ### `M-S`: Insert results of evaluating focus as a search

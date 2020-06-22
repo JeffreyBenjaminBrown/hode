@@ -11,10 +11,13 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
-**** TODO resume reviewing help blurbs at
-hash commands / expression matching
+**** DONE edit help blurb text
+**** TODO replace Grpah with Graph
+**** TODO attach command names to blurbs
+they are missing in some cases
 **** TODO QC (verify) the help blurbs
 **** TODO align the interactive help with the docs/ folder
+*** TODO needs hyperlinks
 *** TODO maybe the # parser should be treated specially
 and the "slashPrefix" field dropped.
 *** ? these features
