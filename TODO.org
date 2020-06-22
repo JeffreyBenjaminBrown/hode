@@ -11,6 +11,8 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO document Hash in interactive help
+**** TODO resume reviewing help blurbs at
+hash commands / expression matching
 **** TODO QC (verify) the help blurbs
 **** TODO align the interactive help with the docs/ folder
 *** TODO maybe the # parser should be treated specially

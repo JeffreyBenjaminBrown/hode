@@ -24,7 +24,7 @@ module Hode.UI.Types.State (
   , viewOptions     -- ^ fetch a ViewOptions
   , mainWindow      -- ^ fetch a MainWindowName
   , optionalWindows -- ^ fetch a Map OptionalWindowName Bool
-  , subgraphSubmode -- ^ fetch a SubgraphSubmode
+  , subgraphSubmode -- ^ fetch a Graphsubmode
   , stHelp          -- ^ fetch a Help
 
   -- * misc
@@ -92,7 +92,7 @@ data St = St {
     -- ^ There are sometimes none of these showing.
     -- TODO | PITFALL: The code treats the Error and Reassurance
     -- windows as mutually exclusive. Maybe that should be reified here.
-  , _subgraphSubmode  :: SubgraphSubmode
+  , _subgraphSubmode  :: Graphsubmode
   , _stHelp           :: Help
   }
 makeLenses ''St
@@ -111,7 +111,7 @@ stMode st = let
        (LangCmdHistory,_) -> NoMode
          -- TODO : define HistoryMode, permit scrolling in it
        (BufferBuffer,_)   -> BufferMode
-       (SubgraphBuffer,_) -> SubgraphMode
+       (SubgraphBuffer,_) -> GraphMode
 
 stGet_focusedBuffer :: Fold St Buffer
 stGet_focusedBuffer =

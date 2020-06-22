@@ -14,10 +14,10 @@ module Hode.UI.Input.KeyCmd (
   , bufferBuffer_intro   -- ^ String
   , bufferBuffer_keyCmds -- ^ [KeyCmd]
 
-  , subgraphBuffer_intro             -- ^ String
-  , subgraphBuffer_universal_keyCmds -- ^ [KeyCmd]
-  , subgraphBuffer_primary_keyCmds   -- ^ [KeyCmd]
-  , subgraphBuffer_sort_keyCmds      -- ^ [KeyCmd]
+  , graphBuffer_intro             -- ^ String
+  , graphBuffer_universal_keyCmds -- ^ [KeyCmd]
+  , graphBuffer_primary_keyCmds   -- ^ [KeyCmd]
+  , graphBuffer_sort_keyCmds      -- ^ [KeyCmd]
 
   , commandWindow_intro    -- ^ String
   , commandWindow_keyCmds  -- ^ [KeyCmd]
@@ -25,9 +25,9 @@ module Hode.UI.Input.KeyCmd (
   , change_mode_keyCmds_c3              -- ^ Choice3Plist
   , change_submode_keyCmds_c3           -- ^ Choice3Plist
   , bufferBuffer_c3                     -- ^ Choice3Plist
-  , subgraphBuffer_universal_keyCmds_c3 -- ^ Choice3Plist
-  , subgraphBuffer_primary_keyCmds_c3   -- ^ Choice3Plist
-  , subgraphBuffer_sort_keyCmds_c3      -- ^ Choice3Plist
+  , graphBuffer_universal_keyCmds_c3 -- ^ Choice3Plist
+  , graphBuffer_primary_keyCmds_c3   -- ^ Choice3Plist
+  , graphBuffer_sort_keyCmds_c3      -- ^ Choice3Plist
 
   , module Hode.UI.Input.KeyCmd.Util
   ) where
@@ -79,13 +79,13 @@ prefixKeyCmdName_withKey kc =
                       ++ ": "
                       ++ _keyCmd_name kc }
 
-change_mode_keyCmds_c3, change_submode_keyCmds_c3, bufferBuffer_c3, subgraphBuffer_universal_keyCmds_c3, subgraphBuffer_primary_keyCmds_c3, subgraphBuffer_sort_keyCmds_c3 :: Choice3Plist
+change_mode_keyCmds_c3, change_submode_keyCmds_c3, bufferBuffer_c3, graphBuffer_universal_keyCmds_c3, graphBuffer_primary_keyCmds_c3, graphBuffer_sort_keyCmds_c3 :: Choice3Plist
 [   change_mode_keyCmds_c3
   , change_submode_keyCmds_c3
   , bufferBuffer_c3
-  , subgraphBuffer_universal_keyCmds_c3
-  , subgraphBuffer_primary_keyCmds_c3
-  , subgraphBuffer_sort_keyCmds_c3
+  , graphBuffer_universal_keyCmds_c3
+  , graphBuffer_primary_keyCmds_c3
+  , graphBuffer_sort_keyCmds_c3
   ] =
   let hp = map keyCmd_helpPair
       i = ("Introduction",)
@@ -93,9 +93,9 @@ change_mode_keyCmds_c3, change_submode_keyCmds_c3, bufferBuffer_c3, subgraphBuff
      [ i choose_mode_intro    : hp change_mode_keyCmds
      , i choose_submode_intro : hp change_submode_keyCmds
      , i bufferBuffer_intro   : hp bufferBuffer_keyCmds
-     , i subgraphBuffer_intro : hp subgraphBuffer_universal_keyCmds
-     ,                          hp subgraphBuffer_primary_keyCmds
-     ,                          hp subgraphBuffer_sort_keyCmds ]
+     , i graphBuffer_intro : hp graphBuffer_universal_keyCmds
+     ,                          hp graphBuffer_primary_keyCmds
+     ,                          hp graphBuffer_sort_keyCmds ]
 
 choose_mode_intro :: String
 choose_mode_intro = paragraphs
@@ -113,7 +113,7 @@ choose_mode_intro = paragraphs
     [ "The Command Window is where you type commands."
     , "(There are also keyboard shortcuts, which don't require it, and which generally don't work unless you've hidden the Command Window.)"
     , "The Command Window is unusual, in that it is small, and (when present) overlaps the others."
-    , "When you're in Subgraph Mode, for instance, you always see the Subgraph Window, but you might or might not see the Command Window, depending on whether you've opened it or not."
+    , "When you're in Graph Mode, for instance, you always see the Subgraph Window, but you might or might not see the Command Window, depending on whether you've opened it or not."
     ] ]
 
 choose_submode_intro :: String
@@ -124,7 +124,7 @@ choose_submode_intro = paragraphs
   , paragraph
     [ "In some modes, there is no choice of submode."
     , "For instance, when viewing the History window, you're in History Mode, and it has no submodes."
-    , "On the other hand, when viewing the Subgraph Window, you are always in Subgraph Mode, but you might be in the ViewTree submode, or you might be in the Sort submode."
+    , "On the other hand, when viewing the Subgraph Window, you are always in Graph Mode, but you might be in the ViewTree submode, or you might be in the Sort submode."
     , "The choice of submode determines which commands are available. (These commands to choose mode and submode are always available)."
     ] ]
 
@@ -149,10 +149,10 @@ change_mode_keyCmds, change_submode_keyCmds :: [KeyCmd]
       ++ ". Mode: "
       ++ case stMode st of
            BufferMode -> "buffer select."
-           SubgraphMode -> "subgraph. Submode: "
+           GraphMode -> "subgraph. Submode: "
                            ++ case st ^. subgraphSubmode of
-                                SubgraphSubmode_primary -> "primary."
-                                SubgraphSubmode_sort -> "sort."
+                                Graphsubmode_primary -> "primary."
+                                Graphsubmode_sort -> "sort."
            HelpMode -> "help."
            LangCmdMode -> "command language."
            NoMode -> paragraph [ "Nothing in particular;"
@@ -175,7 +175,7 @@ change_mode_keyCmds, change_submode_keyCmds :: [KeyCmd]
              , _keyCmd_guide = "Brings you to this help menu." }
 
     , KeyCmd
-      { _keyCmd_name = "Subgraph Mode"
+      { _keyCmd_name = "Graph Mode"
       , _keyCmd_func = B.continue
         . (\st -> showReassurance (mode_report st) st)
         . (mainWindow .~ SubgraphBuffer)
@@ -186,7 +186,7 @@ change_mode_keyCmds, change_submode_keyCmds :: [KeyCmd]
             [ "A `SubgraphBuffer` provides a view of some of the data in the graph. Most of a user's time in Hode will be spent here."
             , "When you first open Hode you are presented with an empty SubgraphBuffer."
             , "You'll have to either create or load some data, and then search for some of it, to populate the view."
-            , "You can create multiple Subgraph buffers, and switch between them using the Select Subgraph Mode."
+            , "You can create multiple Subgraph buffers, and switch between them using the Select Graph Mode."
             ] ] }
 
     , KeyCmd { _keyCmd_name = "Select Subgraph"
@@ -232,23 +232,23 @@ change_mode_keyCmds, change_submode_keyCmds :: [KeyCmd]
     [ KeyCmd { _keyCmd_name = "Subgraph submode : primary"
              , _keyCmd_func = B.continue
                . (\st -> showReassurance (mode_report st) st)
-               . (subgraphSubmode .~ SubgraphSubmode_primary)
+               . (subgraphSubmode .~ Graphsubmode_primary)
              , _keyCmd_key  = (V.KChar 'p', [V.MMeta])
              , _keyCmd_guide = paragraph
-               [ "Toggle the primary submode of Subgraph Mode."
-               , "When in Subgraph Mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the Command Window."
+               [ "Toggle the primary submode of Graph Mode."
+               , "When in Graph Mode (because you're viewing a subgraph), this submode permits you to do most of the things that are possible without typing commands into the Command Window."
                , "Perhaps most importantly, it lets you add and delete branches of the viewtree."
-               , "See the help for the Subgraph Mode for more details." ] }
+               , "See the help for the Graph Mode for more details." ] }
 
     , KeyCmd { _keyCmd_name = "Subgraph submode : sort"
              , _keyCmd_func = B.continue
                . (\st -> showReassurance (mode_report st) st)
-               . (subgraphSubmode .~ SubgraphSubmode_sort)
+               . (subgraphSubmode .~ Graphsubmode_sort)
              , _keyCmd_key  = (V.KChar 's', [V.MMeta])
              , _keyCmd_guide = paragraph
-               [ "Toggle sort submode of Subgraph Mode."
-               , "When in Subgraph Mode (because you're viewing a subgraph), this submode permits you to rearrange the order of things without typing into the Command Window."
-               , "See the help for the Subgraph Mode for more details." ] }
+               [ "Toggle sort submode of Graph Mode."
+               , "When in Graph Mode (because you're viewing a subgraph), this submode permits you to rearrange the order of things without typing into the Command Window."
+               , "See the help for the Graph Mode for more details." ] }
     ] ]
 
 bufferBuffer_intro :: String
@@ -356,8 +356,8 @@ bufferBuffer_keyCmds =
            , _keyCmd_guide = "Closes (deletes) the currently focused buffer. Does not change the graph, just the set of views into it." }
   ]
 
-subgraphBuffer_intro :: String
-subgraphBuffer_intro = paragraphs
+graphBuffer_intro :: String
+graphBuffer_intro = paragraphs
   [ paragraph
     [ "Most of your time using Hode will probably be spent in a `SubgraphBuffer`, which provides a view of some of your graph."
     , "To initially populate the subgraph requires running a search using the Hash language in the Command Window."
@@ -371,8 +371,8 @@ subgraphBuffer_intro = paragraphs
     , "For instance, they might be subexpression of it, or it might be a subexpression of them." ]
   ]
 
-subgraphBuffer_universal_keyCmds :: [KeyCmd]
-subgraphBuffer_universal_keyCmds =
+graphBuffer_universal_keyCmds :: [KeyCmd]
+graphBuffer_universal_keyCmds =
   map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "cursor to previous"
            , _keyCmd_func = go $ ( stSet_focusedBuffer . bufferExprRowTree
@@ -445,8 +445,8 @@ subgraphBuffer_universal_keyCmds =
              , "BUG : On some systems this copies extra whitespace." ] }
   ]
 
-subgraphBuffer_primary_keyCmds :: [KeyCmd]
-subgraphBuffer_primary_keyCmds =
+graphBuffer_primary_keyCmds :: [KeyCmd]
+graphBuffer_primary_keyCmds =
   map prefixKeyCmdName_withKey
   [ KeyCmd { _keyCmd_name = "insert host relationships"
            , _keyCmd_func = goe insertHosts_atFocus
@@ -546,8 +546,8 @@ subgraphBuffer_primary_keyCmds =
              , "PITFALL: This only changes the order of expressions in the view; it does not change the data in the graph." ] }
   ]
 
-subgraphBuffer_sort_keyCmds :: [KeyCmd]
-subgraphBuffer_sort_keyCmds =
+graphBuffer_sort_keyCmds :: [KeyCmd]
+graphBuffer_sort_keyCmds =
   map prefixKeyCmdName_withKey
 
   [ KeyCmd { _keyCmd_name = "insert into order"

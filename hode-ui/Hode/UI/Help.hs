@@ -41,9 +41,9 @@ hodeHelp = let
     , fromJust $ P.fromList [ (skippable, bufferBuffer_c3) ] )
   , ( "subgraph view"
     , fromJust $ P.fromList
-      [ ("introduction", subgraphBuffer_universal_keyCmds_c3)
-      , ("viewTree",     subgraphBuffer_primary_keyCmds_c3)
-      , ("sort",         subgraphBuffer_sort_keyCmds_c3) ] ) ]
+      [ ("introduction", graphBuffer_universal_keyCmds_c3)
+      , ("viewTree",     graphBuffer_primary_keyCmds_c3)
+      , ("sort",         graphBuffer_sort_keyCmds_c3) ] ) ]
 
 hash_fundamentals_c3, hash_subexp_c3, hash_trans_c3, hash_ignore_c3 :: Choice3Plist
 [ hash_fundamentals_c3,

@@ -130,19 +130,19 @@ appHandleEvent st (B.VtyEvent ev) =
        map keyCmd_usePair universal_keyCmds of
   Just c  -> c st
   Nothing -> case stMode st of
-    SubgraphMode ->
+    GraphMode ->
       case M.lookup ev $ M.fromList $
-           map keyCmd_usePair subgraphBuffer_universal_keyCmds
+           map keyCmd_usePair graphBuffer_universal_keyCmds
       of Just c -> c st
          _ -> case st ^. subgraphSubmode of
-           SubgraphSubmode_primary ->
+           Graphsubmode_primary ->
              case M.lookup ev $ M.fromList $
-                  map keyCmd_usePair subgraphBuffer_primary_keyCmds
+                  map keyCmd_usePair graphBuffer_primary_keyCmds
              of Just c -> c st
                 _ -> B.continue st
-           SubgraphSubmode_sort ->
+           Graphsubmode_sort ->
              case M.lookup ev $ M.fromList $
-                  map keyCmd_usePair subgraphBuffer_sort_keyCmds
+                  map keyCmd_usePair graphBuffer_sort_keyCmds
              of Just c -> c st
                 _ -> B.continue st
     BufferMode ->
@@ -199,6 +199,6 @@ emptySt r = St {
   , _viewOptions     = defaulViewOptions
   , _mainWindow      = SubgraphBuffer
   , _optionalWindows = S.fromList [ LangCmds, Reassurance ]
-  , _subgraphSubmode  = SubgraphSubmode_primary
+  , _subgraphSubmode  = Graphsubmode_primary
   , _stHelp           = H.initState hodeHelp
   }

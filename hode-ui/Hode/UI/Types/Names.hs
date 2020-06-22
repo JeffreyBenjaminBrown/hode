@@ -33,7 +33,7 @@ data MainWindowName = LangCmdHistory
 -- In fact, though, the State type only has a MainWindowName field.
 -- Mode is computed as a function of that and other stuff.
 data Mode = BufferMode
-          | SubgraphMode
+          | GraphMode
           | LangCmdMode
           | HelpMode
           | NoMode -- ^ For when there's nothing for the user to do but
@@ -41,9 +41,9 @@ data Mode = BufferMode
                    -- This might be reachable.
   deriving (Ord, Show, Eq)
 
-data SubgraphSubmode =
-    SubgraphSubmode_primary -- ^ most of the time
-  | SubgraphSubmode_sort -- ^ to rearrange order
+data Graphsubmode =
+    Graphsubmode_primary -- ^ most of the time
+  | Graphsubmode_sort -- ^ to rearrange order
                          -- (without using the command window)
   deriving (Ord, Show, Eq)
 
