@@ -82,4 +82,5 @@ executable hode-exe
       base
     , hode
     , hode-ui
+    , read-editor
   default-language: Haskell2010

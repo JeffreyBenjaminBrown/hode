@@ -11,6 +11,7 @@ import           Control.Monad.IO.Class (liftIO)
 import qualified Data.List.PointedList as P
 import qualified Data.Set              as S
 import qualified Data.Text             as T
+import qualified System.ReadEditor     as E
 import           Lens.Micro
 import           System.Directory
 
@@ -56,8 +57,8 @@ parseAndRunLangCmd st =
 
 -- | Pitfall: this looks like it could just return `St` rather
 -- than `EventM ... St`, but it needs IO to load and save.
--- (If I really want to keep it pure I could add a field in St
--- that keeps a list of actions to execute.)
+-- TODO ? To keep it pure, add a field to St
+-- that keeps a list of actions to execute.
 runParsedLangCmd ::
   LangCmd -> St ->
   Either String (B.EventM BrickName (B.Next St))
@@ -119,6 +120,10 @@ runParsedLangCmd                      c0 st0 =
                         show (catNews as) )
       else B.continue <$> updateCycleBuffer
            ( st1 & blockingCycles .~ Just cs )
+
+  g (LangCmdEditPhrase a) st = Right $ do
+    s :: String <- liftIO $ E.readEditorWith "initial text"
+    B.continue $ showReassurance s st
 
   g (LangCmdLoad f) st = Right $ do
     (bad :: Bool) <-

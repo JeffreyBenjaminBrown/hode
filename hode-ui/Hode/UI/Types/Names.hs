@@ -48,14 +48,15 @@ data Graphsubmode =
   deriving (Ord, Show, Eq)
 
 data LangCmd =
-    LangCmdInsert        Expr
-  | LangCmdReplace  Addr Expr
-  | LangCmdMove     Addr Addr
-  | LangCmdDelete   Addr
-  | LangCmdFind     String HExpr
-  | LangCmdSort     String BinOrientation TpltAddr
-  | LangCmdLoad     Folder
-  | LangCmdSave     Folder
+    LangCmdInsert          Expr
+  | LangCmdReplace    Addr Expr
+  | LangCmdMove       Addr Addr
+  | LangCmdDelete     Addr
+  | LangCmdFind       String HExpr
+  | LangCmdSort       String BinOrientation TpltAddr
+  | LangCmdEditPhrase Addr
+  | LangCmdLoad       Folder
+  | LangCmdSave       Folder
   deriving (Show, Eq, Ord)
 
 type Folder = String

@@ -118,6 +118,15 @@ langCmd_MapItems_basic =
         , "PITFALL: An expression can only be deleted if it is not a member of any other expression." ] }
 
   , LangCmd_MapItem {
+      _langCmd_name = "edit phrase",
+      _langCmd_func = \_ t -> pLangCmd_editPhrase t,
+      _langCmd_keywords = ["/edit","/e"],
+      _langCmd_guide = paragraph
+        [ "Opens the user's editor (as defined by the sytem variable $EDITOR)"
+        , "so that they can edit the phrase at the provided address."
+        ] }
+
+  , LangCmd_MapItem {
       _langCmd_name = "load",
       _langCmd_func = \_ t -> pLangCmd_load t,
       _langCmd_keywords = ["/load","/l"],
@@ -243,6 +252,11 @@ pLangCmd_sort bo r s =
            ("sort " ++ show bo ++ ": " ++ s) bo t
     _ -> Left $ "Can only sort by exactly one Tplt, but "
          ++ " these Tplts were found: " ++ show ts ++ "."
+
+pLangCmd_editPhrase :: String -> Either String LangCmd
+pLangCmd_editPhrase s = LangCmdEditPhrase . fromIntegral <$>
+  ( prefixLeft "pLangCmd_editPhrase:"
+    $ mapLeft show (parse integer "UI.Input.Parse error 5.5" s) )
 
 pLangCmd_load :: String -> Either String LangCmd
 pLangCmd_load s = LangCmdLoad <$>
