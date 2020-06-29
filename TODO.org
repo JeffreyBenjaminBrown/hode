@@ -10,8 +10,21 @@ This will load all non-broken modules when some are broken.
 * backup the data repo(s)
 * TODO critical
 ** TODO document
+*** TODO ensure orphans are covered
+**** # operator precedence
+We can vary the number of hash symbols attached to a separator to indicate how high a relationship is.
+This is optional, but it makes things easier to read.
+For instance, the previous relationship could be written without parentheses as
+`Mary ##knows Bill #likes Sue`.
+
+When you're writing data into a `Rslt` you can use either style,
+parentheses or multiple hashmarks, to structure an expression.
+You can even mix them both in the same expression.
+*** TODO test links to subsections
+At the end of README.md there is one.
+**** TODO if it works, inform Github
+https://gist.github.com/asabaylus/3071099
 *** TODO document Hash in interactive help
-**** DONE edit help blurb text
 **** TODO QC (verify) the help blurbs
 **** TODO align the interactive help with the docs/ folder
 *** TODO documentation: order of topics
