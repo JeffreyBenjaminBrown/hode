@@ -334,7 +334,7 @@ tplt = let
            ++ " /_ is /_` represents the binary `is` template --"
          , "the one used in relationships like 'swimming #is delicious'."
          , "Each spot for a member in the relationship is marked using the `/_` wildcard."
-         , "The joints between those members can include multiple wordss:"
+         , "The separators between those members can include multiple words:"
          , "`" ++ reph 1 tplt ++ " /_ is kind of /_`, for instance,"
          , "is the template of the relationship `chess #(is kind of) fun`." ]
        ] }

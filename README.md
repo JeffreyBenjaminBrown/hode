@@ -19,19 +19,20 @@ but I'm not sure.
 
 # There is in-app help
 
-And it's more up-to-date:
+And it's more up-to-date --
 it includes some features not otherwise documented,
 and the keywords and keyboard shortcuts it describes are guaranteed to be correct,
 whereas the documentation outside of the app might not be.
 
 You'll still need to use the out-of-app documentation
 for a good introduction to the app.
-But once you've read that stuff,
-the in-app help is a good way to remind yourself how things work,
-what the keyboard shortcuts andn commands are, etc.
+But you don't have to study it too hard,
+because once you've seen what Hode can do,
+the in-app help is an easy way to remind yourself exactly how to do it.
 
 Access the help by pressing `M-?`.
 (That probably means `Alt-?`, unless you use a Mac).
+
 
 # What Hode is, and how it works
 
@@ -42,9 +43,10 @@ Each branch is described in the [docs](docs) folder.
 
 ## The Rslt data structure
 
-The Rslt is a generalization of the knowledge graph.
+A Rslt (Recursive Set of Labeled Tuples)
+is a generalization of a knowledge graph.
 It lets a user easily represent any natural language expression.
-(The `Rslt` is isomorphic to what some programmers call a "hypergraph" --
+(A `Rslt` is isomorphic to what some programmers call a "hypergraph" --
 but mathematicians claimed that term first,
 and in math it means something much less general.)
 
@@ -53,8 +55,8 @@ each of which is either a phrase (like "cats"),
 or a relationship (like "cats have noses")
 or a template (like "_ have _") shared by many relationships.
 
-What distinguishes a `Rslt` from the a `graph`
-is that a relationships can involve any (positive) number of members,
+What distinguishes a `Rslt` from a `graph`
+is that relationships can involve any (positive) number of members,
 and a relationship can itself belong to other relationships.
 
 It only takes about 500 words to describe a
@@ -128,3 +130,8 @@ If it does, install those too.
 Then return to the cloned repo and try `stack ghci` again.
 
 Once that works and you're in GHCI, run `ui`.
+
+
+# This is a test
+
+[does this link to another file?](docs/rslt/rslt.md#The-definition-in-code)
