@@ -69,8 +69,10 @@ its address appears (if the user so chooses) at its left.
 That address can be referred to when creating new `Expr`s,
 or when searching for `Expr`s.
 For instance,
-suppose `giant volcano turtles #lay eggs` is stored at `Addr` 13.
-In that case, we could represent `giant volcano turtles #lay eggs ##during spring` with the shorter expression `/addr 13 #during spring`.
+suppose `giant volcano turtles #lay really hot eggs` is stored at `Addr` 13.
+In that case, we could represent
+`(giant volcano turtles #lay really hot eggs) #during spring`
+with the shorter expression `/addr 13 #during spring`.
 
 # Footnotes
 
@@ -87,4 +89,5 @@ data Expr =
 ```
 
 That still omits a couple details;
-the true definition can be seen in [Rslt.Types](../../hode/Hode/Rslt/Types.hs).
+the true definition can be found in
+[Rslt.Types](../../hode/Hode/Rslt/Types.hs).

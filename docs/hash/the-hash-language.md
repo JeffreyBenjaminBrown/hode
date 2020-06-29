@@ -1,10 +1,10 @@
-You don't need to memorize all these commands.
-They're easy to find in the in-app help.
+You don't need to memorize ethese commands,
+because they're easy to find in the in-app help.
 Read this just to get a sense of what's possible.
 
 # What Hash is
 
-Hash is a language for reading and writing a `Rslt`.
+Hash is a language for writing and searching a `Rslt`.
 Even though a `Rslt` is more complex than a graph,
 Hash is simpler than common graph-writing languages (e.g. Turtle),
 and *way*,
@@ -15,62 +15,70 @@ and *way*,
 If you've read about [the Rslt](docs/the-rslt.md),
 you know how to define `Expr`s.
 To add them to a `Rslt` using the UI,
-you'll only need one extra symbols: `/add` (or `/a`).
+you'll only need one extra symbol: `/add` (or `/a`).
+
+(The `/add` symbol is not actually part of the Hash language;
+it's part of the [UI language](../ui.md),
+which is even simpler than Hash.)
 
 For instance, `/add Kurt #played guitar` creates a "played" relationship between "Kurt" and "guitar".
 If any of those things ("Kurt", or "guitar", or the "_ played _" relationship) didn't exist before,
 they do now.
 
-(Because I feel like writing out the word `/add` is too much work,
-there are 2-character abbreviations available for every common keyword.
-See the "abbreviations" file in the documentation.)
+(`/add` can also be written more briefly, as `/a`.
+Check the in-app help to find all the abbrevations available for any keyword.)
 
 ## Special characters, quotes and escape characters
 
-Hash uses the following special characters: `# & | / \ ( )`.
-Most of them are only used for querying,
-as explained in the rest of this document.
-However, when adding (not querying for) data in a `Rslt`,
-one has to be aware of them.
-To enter a `Phrase` involving any of those special characters,
-just enclose it in parentheses.
-Within those parentheses,
-if you need to write a literal quotation mark or `\` character,
-you can do so by "escaping" it,
-that is, by putting a `\` in front of it.
+(If your phrases are all alphanumeric you don't need to know any of this.)
 
-For instance,
-`"I said, \"Hi!\" (It was easy.)"`
-is a valid `Phrase`.
-The parentheses don't need escaping,
-because they are inside quotation marks.
-The inner quotation marks do need escaping, though.
-(Otherwise the parser would think you were done writing the phrase
-when it encountered the quotation mark to the left of `Hi`).
+Hash uses the following special characters: `# / ( ) \"`.
+The `#` symbol, as we have seen,
+is used to join expressions into relationships.
+Parentheses are used to group Hash expressions --
+`a # (b # c)` means something different from `(a # b) # c`.
+
+The `/` symbol identifies keywords.
+Every keyword except `#` must be prefixed by `/`.
+If a word starts with `/` and is not a keyword,
+Hode will throw an error.
+
+To use any of the special symbols in a phrase,
+just enclose the phrase in quotation marks.
+That's what is special about quotation marks.
+
+To make a quotation mark part of a phrase,
+precede the quotation mark with the ordinary escape character '\',
+and wrap the phrase in quotation marks.
+For instance, if I want to add the relationship
+`the Declaration of Independence #says "all men are created equal"`,
+I would write this:
+`/add the Declaration of Independence #says "\"all men are created equal\""`,
 
 # Querying a RSLT with Hash
 
 Querying is a little more complex than writing,
-because we query for multiple expressions at once.
+because a query can specify multiple expressions at once.
 We still use the same language, Hash,
-but we introduce a few "reserved words".
-Each of them is preceded by the `/` symbol.
+but we introduce a few keywords.
 
-Every query starts with the symbol `/find` (or `/f`).
+Every search starts with the symbol `/find` (or `/f`).
+This, again, is not part of the Hash language,
+but rather the dead-simple [UI language](../ui.md).
 
 ## Basic queries
 
-### Query for a Phrase by writing it
+### Query for a `Phrase` by writing it
 
 `/find bob` will display the `Expr` "bob", if it is present.
 This is good for two things:
 determining whether it's in the database,
 and finding its address.
 
-### Query for a Hash expression by, again, writing it
+### Query for a `Rel` expression by writing it
 
 For instance,
-`/find bob #flattered alice` will search for and return the `Expr`
+`/find bob #flattered alice` will search for and return the `Rel`
 `bob #flattered alice`,
 if it is present.
 

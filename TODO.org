@@ -10,6 +10,9 @@ This will load all non-broken modules when some are broken.
 * backup the data repo(s)
 * TODO critical
 ** TODO document
+*** TODO resume doc QA at
+Hash#Query for anything using the wildcard
+*** TODO align the interactive help with the docs/ folder
 *** TODO ensure orphans are covered
 **** # operator precedence
 We can vary the number of hash symbols attached to a separator to indicate how high a relationship is.
@@ -20,21 +23,15 @@ For instance, the previous relationship could be written without parentheses as
 When you're writing data into a `Rslt` you can use either style,
 parentheses or multiple hashmarks, to structure an expression.
 You can even mix them both in the same expression.
-*** TODO test links to subsections
-At the end of README.md there is one.
-**** TODO if it works, inform Github
-https://gist.github.com/asabaylus/3071099
-*** TODO document Hash in interactive help
-**** TODO QC (verify) the help blurbs
-**** TODO align the interactive help with the docs/ folder
+*** TODO add hyperlinks
+Could stick in the markdown easily.
+Not so easy in the app.
 *** TODO documentation: order of topics
  How to add.
  How to move focus, add neighbors.
  *Then* what the Rslt is and how to query.
-*** TODO needs hyperlinks
-Could stick in the markdown easily.
-Not so easy in the app.
-*** TODO maybe the # parser should be treated specially
+*** TODO verify hyperlinks
+*** maybe the # parser should be treated specially
 and the "slashPrefix" field dropped.
 *** ? these features
 are already in the interactive help

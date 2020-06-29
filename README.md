@@ -24,11 +24,11 @@ it includes some features not otherwise documented,
 and the keywords and keyboard shortcuts it describes are guaranteed to be correct,
 whereas the documentation outside of the app might not be.
 
-You'll still need to use the out-of-app documentation
+You'll still need to use this out-of-app documentation
 for a good introduction to the app.
 But you don't have to study it too hard,
-because once you've seen what Hode can do,
-the in-app help is an easy way to remind yourself exactly how to do it.
+because once you've seen *what* can be done,
+the in-app help can quickly reveal *how* to do it.
 
 Access the help by pressing `M-?`.
 (That probably means `Alt-?`, unless you use a Mac).
@@ -38,8 +38,16 @@ Access the help by pressing `M-?`.
 
 Hode is an editor for higher-order data.
 
-There are four main branches to the project.
+There are three branches to Hode:
+The data structure, the language for talking about it,
+and the UI for using them.
 Each branch is described in the [docs](docs) folder.
+
+(The UI is recommended but actually optional. The module
+[Hode.NoUI](hode/Hode/NoUI.hs)
+is designed to allow someone to use Hode directly from GHCI, without a UI.
+NoUI is not as complete as the UI, though -- in particular,
+transitivity and order are hard to deal with outside of the UI.)
 
 ## The Rslt data structure
 
@@ -48,7 +56,7 @@ is a generalization of a knowledge graph.
 It lets a user easily represent any natural language expression.
 (A `Rslt` is isomorphic to what some programmers call a "hypergraph" --
 but mathematicians claimed that term first,
-and in math it means something much less general.)
+and in math it means something much less expressive.)
 
 A `Rslt`is a collection of expressions,
 each of which is either a phrase (like "cats"),
@@ -59,17 +67,18 @@ What distinguishes a `Rslt` from a `graph`
 is that relationships can involve any (positive) number of members,
 and a relationship can itself belong to other relationships.
 
-It only takes about 500 words to describe a
+Hode will make much more sense once you've read about the
 [Rslt in detail](docs/rslt/rslt.md).
+(That's a super-short document -- under 600 words.)
 
 ## Hash
 
 Hash is a language,
 close to ordinary natural language,
-for talking about a `Rslt`.
+for talking about expressions in a `Rslt`.
 It offers a concise representation,
 both for individual `Expr`s (expressions) in a `Rslt`,
-and for queries which retrieve subsets of a `Rslt`.
+and for queries to retrieve sets of `Expr`s.
 
 To use Hode you'll need to
 [read about `Hash`](docs/hash/the-hash-language.md).
@@ -82,13 +91,14 @@ The UI lets you do stuff
 To use Hode you'll need to
 [read about the UI](docs/ui.md).
 
-## Qseq
+## You can ignore Qseq
 
-If you're a curious hacker, this has been implemented,
-but it hasn't made it's way into the UI yet.
-
+The fourth branch of Hode,
 [Qseq](Hode/Qseq/) is a metalanguage for search.
 It lets you use existential and universal quantifiers to string together searches in some underlying search language.
+
+If you're a curious hacker, Qseq has been implemented,
+but it hasn't made it's way into the UI yet.
 
 
 # How to install
@@ -98,7 +108,8 @@ It lets you use existential and universal quantifiers to string together searche
 That's because Hode relies on the
 [Brick](https://hackage.haskell.org/package/brick)
 terminal interface library.
-There are, fortunately, lots of ways to run Linux in Windows.
+There are, fortunately, lots of ways to run Linux in Windows
+-- Docker, for instance.
 
 ## Prerequisites
 
@@ -130,8 +141,3 @@ If it does, install those too.
 Then return to the cloned repo and try `stack ghci` again.
 
 Once that works and you're in GHCI, run `ui`.
-
-
-# This is a test
-
-[does this link to another file?](docs/rslt/rslt.md#The-definition-in-code)
