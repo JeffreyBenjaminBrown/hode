@@ -26,11 +26,23 @@ You can even mix them both in the same expression.
 *** TODO add hyperlinks
 Could stick in the markdown easily.
 Not so easy in the app.
-*** TODO documentation: order of topics
- How to add.
- How to move focus, add neighbors.
- *Then* what the Rslt is and how to query.
+*** TODO IMPORTANT documentation: order of topics
+**** TODO Hash ops:
+Important because if set ops are introduced before /eval,
+either it's confusing or they look useless.
+***** fundamental: #, /_, /t, /ts, /@
+***** set ops
+***** subexpr matching
+  /member: with top-level sub-expr
+  /involves: with sub-expr at depth
+  /eval: find expr, return subexpr
+  /it: id subexpr in expr
+  /it=: id & limit subexpr in expr
+  /map: map roles to exprs
+***** order & transitivity
+  reach, transLeft, transRight
 *** TODO verify hyperlinks
+*** TODO verify docs/ coverage
 *** maybe the # parser should be treated specially
 and the "slashPrefix" field dropped.
 *** ? these features

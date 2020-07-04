@@ -60,13 +60,24 @@ blurb_eval_and_it = paragraphs
   [ paragraph
     [ "The " ++ reph 1 eval ++ " symbol is used to extract subexpressions from superexpressions."
     , "It must be used in conjunction with either the " ++ reph 1 it ++ " or the " ++ reph 1 itMatching ++ " symbol."
-    , "See docs/hash/the-hash-language.md for an in-depth discussion." ]
+    , "See docs/hash/the-hash-language.md for a more in-depth discussion." ]
   , paragraph
-    [ "If (in the database) Bob has flattered both Alice and Chuck, then the command `/find " ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ "` would return `Alice` and `Chuck`."
-    , "Notice that it does *not* return the entire `flattered` relationship; it only returns the subexpression in the " ++ reph 1 it ++ " position."
+    [ "We have already seen that if (in the database)"
+    , "bob has flattered both alice and chuck,"
+    , "then `/find bob #flattered /it` would return both `bob #flattered alice`"
+    , "and `bob #flattered chuck`."
+    , "That is, it returns two `_ flattered _` relationships."
     ]
+
   , paragraph
-    [ "Results from " ++ reph 1 eval ++ " can be referred to by an outer expression."
+    [ "What if we don't want those relationships,"
+    , "but instead just their right-hand members `alice` and `chuck`?"
+    , "That's what `/eval` is for. `/find /eval bob #flattered /it`"
+    , "would return two people, not two `_ flattered _` relationships." ]
+
+  , paragraph
+    [ reph 1 eval ++ " expressions do not have to be top-level --"
+    , "the results of " ++ reph 1 eval ++ " can be referred to by an outer expression."
     , "For instance, if (continuing the previous example) the database also knows that `Alice #enjoys surfing`, then `(" ++ reph 1 eval ++ " Bob #flattered " ++ reph 1 it ++ ") #enjoys " ++ reph 1 any ++ "` would return `Alice #enjoys surfing`."
     , "The parenthesized part matches both Alice and Chuck, because Bob flattered both of them."
     , "But only Alice enjoys surfing, so that's the only expression returned." ]
@@ -82,16 +93,19 @@ blurb_member_and_involves = let
   in paragraphs
   [ "The " ++ reph 1 member ++ " and " ++ reph 1 involves ++ " keywords are similar. Both let you find the set of expressions containing some sub-expression, without specifying precisely where the sub-expression should be."
   , paragraph
-    [ "If you'd like to find every relationship with 'salsa'"
+    [ "For instance, to indicate every relationship with 'salsa'"
     , "as a top-level member,"
     , "you can write '" ++ reph 1 member ++ " salsa'."
     , "This will find `salsa #has tomatoes` and `Jenny #hates salsa` and `I #buy salsa #from Trader Joe's`."
     , "It will not return `salsa`, because that's not a relationship."
- ]
+    ]
 
   , paragraph
-    [ "Nor will it return `Jenny #is (allergic #to salsa)`, because salsa is not a top-level member of that relationship -- it is a level-2 member."
-    , "If you wish it did, don't worry -- there's another keyword for that."
+    [ reph 1 member ++ " only searches for top-level members."
+    , "Therefore, '" ++ reph 1 member ++ "salsa' will not find `Jenny #is (allergic #to salsa)`, because salsa is not a top-level member of that relationship -- it is a level-2 member."
+    ]
+  , paragraph
+    [ "If you want to include more than top-level members, you can -- that's what " ++ reph 1 involves ++ " is for."
     , "The " ++ reph 1 involves ++ " keyword is similar to " ++ reph 1 member ++ ", but more general."
     , "Whereas " ++ reph 1 member ++ " only allows you to search for top-level members, " ++ reph 1 involves ++ " lets you search the top level, or the top two levels, or the top three, etc."
     , "Returning to our example, if you'd like to find anything for which 'salsa'"
@@ -99,7 +113,7 @@ blurb_member_and_involves = let
     , "you can write '" ++ reph 1 involves ++ "-2 salsa'." ]
 
   , paragraph
-    [ "You can write '/involves-k' for any positive value of 'k'."
+    [ "You can write '" ++ reph 1 involves ++ "-k' for any positive value of 'k'."
     , "If you ask for a big value, the search might be slow." ]
   ]
 
@@ -137,7 +151,7 @@ example_precedence :: HashSymbol -> String
 example_precedence hs = let
   one = rep 1 hs
   two = rep 2 hs
-  in "If you don't like using parentheses to control the order in which binary operators operate, you can avoid them. The " ++ one ++ " symbol obeys the same precedence rules as # and the other binary operators. For instance, `a " ++ reph 1 hOr ++ " b " ++ two ++ " c " ++ reph 1 hash ++ " d` means the same thing as `(a " ++ reph 1 hOr ++ " b) " ++ one ++ " (c " ++ reph 1 hash ++ " d)`: Since " ++ two ++ " has two characters (the leading slash doesn't count), and the others have only one, it binds after them."
+  in "If you don't like using parentheses to control the order in which binary operators operate, you can avoid them. The " ++ one ++ " symbol obeys the same precedence rules as # and the other binary operators. For instance, `a " ++ reph 1 hOr ++ " b " ++ two ++ " c " ++ reph 1 hash ++ " d` means the same thing as `(a " ++ reph 1 hOr ++ " b) " ++ one ++ " (c " ++ reph 1 hash ++ " d)`: Since " ++ two ++ " has two characters (the leading slash doesn't count), and the others have only one, " ++ two ++ " binds after them."
 
 hAnd :: HashKeyword
 hAnd = let
@@ -224,7 +238,8 @@ any = let
      , hashKeyword_symbols = hs
      , hashKeyword_help = paragraphs
          [ "The " ++ one ++ " symbol is a `wildcard`: it represents anything at all. It is meaningless by itself [see footnote], but useful as a sub-expression."
-         , "For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes Picasso` and any other relationship of the form `Bob #likes <blank>`."
+         , "For instance, `Bob #likes " ++ one ++ "` will match `Bob #likes orangutans` and `Bob #likes (diving #for doughnuts)` and any other relationship of the form `Bob #likes <blank>`."
+         , "=================="
          , "Footnote: It did not have to be meaningless by itself. Hode could have been written so that if you asked for `/_`, it would return everything in your graph. But you probably wouldn't want that, and it might crash your computer."
          ] }
 

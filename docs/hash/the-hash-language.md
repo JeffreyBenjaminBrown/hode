@@ -84,100 +84,134 @@ if it is present.
 
 ### Query for anything using the wildcard `/_`
 
-For instance, if (in the database) bob has flattered alice and chuck,
-then the command `/find bob #flattered /_`
-would return `bob #flattered alice` and `bob #flattered chuck`.
+The `/_` symbol is a "wildcard": it represents anything at all. 
+It is meaningless by itself, but useful as a sub-expression.
 
-If you only want it to return "alice" and "chuck",
-rather than the entire "flattered" relationship,
-you can use the keywords `/eval` and `/it`
-(see the "advanced queries" section below).
+For instance, `Bob #likes /_` will match `Bob #likes orangutans` 
+and `Bob #likes (diving #for doughnuts)` 
+and any other relationship of the form `Bob #likes _`."
 
-### Query for an `Addr` with `/addr` (or `/@`), followed by a number
+#### Sidenote: Why `/_` is meaningless by itself
 
-For instance, if "bob" is stored at `Addr` 1,
-then `/f /@ 1 #flattered /_` will find every expression of the form `bob #flattered /_`.
+Hode could have been written such that if you asked for `/_`, 
+it would return everything in your graph. 
+But you probably wouldn't want that, and it might crash your computer.
 
-### Query for multiple `Addrs` with `/addrs` (or `/@s`), followed by numbers and (dash-separated) ranges of numbers
+### Query for `Addr`s with `/addr` (or `/@`)
 
-For instance, the command "/f /@s 1 10-12 42" would display the five `Expr`s located at the following `Addr` values: 1, 10, 11, 12 and 42.
+The /@ symbol precedes a specification of expressions via their addresses.
+For instance, `/@ 1 3-5 8` represents every expression whose address is either 1, 3, 4, 5 or 8.
+The /@ symbol can be followed by any number of integers (like `3`) and integer ranges (like `3-5`).
+They don't have to be in order.
 
-### Set operations: union (`|`), interseciton (`&`), and difference (`\`)
+### Set operations: union (`/|`), interseciton (`/&`), and difference (`/\`)
 
-`(/eval I #like /it) & (/eval you #like /it)` will return everything that you and I both like.
-`(/eval I #like /it) | (/eval you #like /it)` will return everything that at least one of us likes.
-`&` is called the `intersection` operator,
-and `|` the `union` operator.
+Set operations are ways to combine sets. Given two sets A and B, we can consider their "intersection" (things in both), or their "union" (things in either), or their "difference" (things in one but not the other).
 
-`\` represents the `difference` operator.
-`(/eval you #like /it) \ (/eval I #(cannot afford) /it)`
-will list the things you like, minus the ones I cannot afford.
+For instance:
+`(/eval I #like /it) /& (/eval you #like /it)` gives the intersection:
+it will return everything that you and I both like.
+`(/eval I #like /it) /| (/eval you #like /it)` gives the union:
+it will return everything that you or I like
+-- that is, everything you like, and everything that I like.
+`(/eval you #like /it) /\ (/eval I #like /it)` gives the difference:
+it will return the things you like, minus the things that I like.
 
-### Query for a template with `/tplt`
+These operator can be chained: `a /& b /& c /& ...`
+will find all expressions that match `a` and `b` and `c` ...
 
-(`/tplt` and `/template` and `/t` are all equivalent.)
+If you don't like using parentheses to control the order in which binary operators operate,
+you can avoid them.
+The set operatoions obey the same precedence rules as #.
+For instance, `a /| b /&& c # d` means the same thing as
+`(a /| b) /& (c # d)`:
+Since `/&&` has two characters (the leading slash doesn't count),
+and the others have only one, `/&&` binds after them.
+
+### Query for a template with `/tplt` (or `/template` or `/t`)
 
 Usually you'll query for phrases and relationships.
 Every now and then, though, you might want to look for a specific template --
-for instance, when using the `/map` (or `/roles`) keyword.
+for instance, when using the `/map` (or `/roles`) keyword (described later).
 
-The query `/tplt /_ is /_` represents the binary `is` template --
+For instance,
+the query `/tplt /_ is /_` represents the binary `is` template --
 the one used in relationships like 'swimming #is delicious'.
 Each spot for a member in the relationship is marked using the `/_` wildcard.
 The joints between those members can include multiple wordss:
 `/tplt /_ is kind of /_`, for instance,
-is the template for the relationship `suddoku #(is kind of) fun`.
+is the template used by the relationship `suddoku #(is kind of) fun`.
 
 ## Advanced queries
 
-### Query for superexpressions using `/member` (or `/m` and `/involves` (or `/i`)
+### Query for superexpressions using `/member` (or `/m`) and `/involves` (or `/i`)
 
-If you'd like to find every relationship with "salsa"
-as a top-level member,
-you can write "/member salsa".
+The /member and /involves keywords are similar.
+Both let you find the set of expressions containing some sub-expression,
+without specifying precisely where the sub-expression should be.
 
-Equivalently, you could write "/involves-1 salsa".
+For instance, to indicate every relationship with
+`salsa` as a top-level member, you can write `/member salsa`.
+This will find `salsa #has tomatoes` and `Jenny #hates salsa`
+and `I #buy salsa #from Trader Joe's`.
+It will not return `salsa`, because that's not a relationship.
 
-If you'd like to find anything for which "salsa"
-is in one of the top two levels,
-you can write "/involves-2 salsa".
+`/member` only searches for top-level members.
+Therefore, `/member salsa` will not return `Jenny #is (allergic #to salsa)`,
+because salsa is not a top-level member of that relationship --
+it is a level-2 member.
 
-You can write "/involves-k" for any positive value of "k".
+If you want to include more than top-level members, you can --
+that's what `/involves` is for.
+Whereas `/member` only allows you to search for top-level members,
+`/involves` lets you search the top level, or the top two levels,
+or the top three, etc. Returning to our example,
+if you'd like to find everything for which `salsa`
+is in one of the top two levels, you can write `/involves-2 salsa`.
+
+You can write `/involves-k` for any positive value of `k`.
 If you ask for a big value, the search might be slow.
 
-### Replace a superexpression with a subexpression using `/eval` and `/it` (or `/it=`)
 
-(Note: This is about replacement within search results. To replace one `Expr` with another in an `Rslt`, see the section on the `/replace` keyword in [the ui documentation](docs/ui.md).)
+### Return a subexpression with `/eval` and `/it` (or `/it=`)
 
-If (in the database) bob has flattered both alice and chuck,
-then the command `/find /eval bob #flattered /it` would return "alice" and "chuck".
+The symbols `/eval`, `/it` and `/it=` 
+are used to extract subexpressions from superexpressions.
 
-That tells the interpreter
-"I am looking for the thing in the superexpression marked `/eval` that occupies the position marked `/it`.
-Rather than returning the entire relationship `bob #flattered /it`,
-the search will only return the `/it` subexpression."
+We have already seen that if (in the database)
+bob has flattered both alice and chuck,
+then `/find bob #flattered /it` would return both `bob #flattered alice`
+and `bob #flattered chuck`.
+That is, it returns two `_ flattered _` relationships.
 
-The `/eval` keyword is necessary because otherwise the parser would not know which superexpression to replace with the expression in the `/it` position.
+What if we don't want those relationships,
+but instead just their right-hand members `alice` and `chuck`?
+That's what `/eval` is for.
+`/find /eval bob #flattered /it` would return `alice` and `chuck`.
 
+Generally, the command tells the interpreter
+"I am looking for the thing in the superexpression marked `/eval`
+that occupies the position marked `/it`."
+
+`/eval` expressions do not have to be top-level:
+the results of `/eval` can be referred to by an outer expression.
 For instance, consider the following two similar-looking queries:
 
 ```
-/find  /eval /it #breathes CO2  #eats bugs
-/find (/eval /it #breathes CO2) #eats bugs
+/find (/eval /it #breathes through its skin) #eats bugs
+/find  /eval /it #breathes through its skin  #eats bugs
 ```
 
-The first query is nonsense.
-It will look for arity-3 expressions of the form
-`/it #breathes CO2 #eats bugs`,
-and try to return the `/it` part.
-But it won't find anything, because the relationship "_ breathes _ eats _"
-makes no sense.
+The first query is reasonable.
+It will first find every X for which `X #breathes through its skin`,
+and then return every `X eats bugs` relationship involving one of those Xs.
 
-The second query is reasonable.
-It will first find every X for which `X breathes CO2`,
-and then find the subset of those X-values for which `X eats bugs`,
-and return a set of expressions of the form `X eats bugs`.
-For instance, it might return `the venus flytrap #eats bugs`.
+The second query is nonsense.
+It will look for arity-3 expressions of the form
+`/it #breathes through its skin #eats bugs`,
+and try to return the `/it` part.
+But it won't find anything,
+because the template "_ breathes _ eats _" makes no sense.
 
 You can actually include more than one `/it` in an `/eval` statement.
 For instance, `/eval /it #married /it` would return every married person,
@@ -189,15 +223,33 @@ You might want to restrict the set of possibilities considered for the "/it" var
 
 `/f /eval (/it= Jane | Jim) #is invited to my wedding`
 
-And if you didn't want to have to list all the possibilities explicitly,
-you could use a nested "/eval' statement to, say,
-ask which of your classmates is invited:
+This way, if Jim is invited and Jane is not, 
+you'll just see Jim in the results,
+rather than Jim and everyone else who is invited.
+(Note that there is another way to get the same result:
+you could search for
+`(Jane /| Jim) /& (/eval /it #is invited to my wedding)`.)
 
-`/f /eval (/it= (/eval /it #is a classmate of mine)) #is coming to my wedding`
+You can nest `/eval` statements.
+For instance, if Hode were to evaluate the following query:
+
+`/f /eval (/it= (/eval /it
+                       #is a classmate of mine))
+           #is coming to my wedding`
+
+it would first (in the inner `/eval`) find every classmate of yours,
+and then (in the outer `eval`) find which of them is coming to your wedding.
+It would return a list of people, not `#is` relationships.
+(Hode treats all whitespace as a single space; 
+I only used newlines and big spaces above to make the query easier to read.)
 
 #### PITFALL: `/it=` cannot be followed by an alphanumeric character
 
-`/it=` is a keyword, just like `/it` or `/eval`, which means it must be followed by a non-alphanumeric character (typically a space or a left parenthesis).b Just like writing `/italy` or `/evaleye` would confuse the parser, so too will writing `/it=x` confuse the parser.
+`/it=` is a keyword, just like `/it` or `/eval`,
+which means it must be followed by a non-alphanumeric character
+(typically a space or a left parenthesis).
+Just as writing `/italy` or `/evalentine` would confuse the parser,
+so too will writing `/it=x` confuse the parser.
 
 ### (Reflexive) transitive search
 
@@ -237,7 +289,7 @@ specifying it somewhat but not completely.
 In addition to the keywords `1`, `2`, etc. (any positive integer),
 the keyword `t` specifies the template.
 For instance, `/roles (t /t /_ is /_) (1 bill)`
-is (pointlessly verbose but) equivalent to `bill #is /any`.
+is (pointlessly verbose but) equivalent to `bill #is /_`.
 
 What follows each of the keywords `1`, `2`, ... and `t`
 can be an arbitrary Hash expression.
