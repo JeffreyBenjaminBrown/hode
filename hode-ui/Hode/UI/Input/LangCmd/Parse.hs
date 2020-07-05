@@ -64,6 +64,10 @@ uiLangHelp_basic, uiLangHelp_sort :: Choice3Plist
      [ langCmd_MapItems_basic
      , langCmd_MapItems_sort ]
 
+langCmd_MapItems :: [LangCmd_MapItem]
+langCmd_MapItems = langCmd_MapItems_basic ++
+                   langCmd_MapItems_sort
+
 langCmd_MapItems_basic :: [LangCmd_MapItem]
 langCmd_MapItems_basic =
   [ LangCmd_MapItem {
@@ -173,15 +177,18 @@ langCmd_MapItems_sort =
 
 pLangCmd :: Rslt -> String -> Either String LangCmd
 pLangCmd r s =
-  let (h,t) = splitAfterFirstLexeme s
+  let (h :: String, t :: String) =
+        splitAfterFirstLexeme s
       langCmd_map :: Map String (Rslt -> String -> Either String LangCmd)
-      langCmd_map = M.fromList $ concatMap f langCmd_MapItems_basic where
+      langCmd_map =
+        M.fromList $ concatMap f langCmd_MapItems
+        where
         f lcmi = [ ( x
                    , _langCmd_func lcmi )
                  | x <- _langCmd_keywords lcmi ]
   in case M.lookup h langCmd_map of
     Just f -> f r t
-    _      -> Left $ "Unrecognized start of command."
+    _      -> Left $ "Unrecognized start of command: " ++ h
 
 pLangCmd_insert :: Rslt -> String -> Either String LangCmd
 pLangCmd_insert r s = LangCmdInsert <$>
