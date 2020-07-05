@@ -84,17 +84,17 @@ if it is present.
 
 ### Query for anything using the wildcard `/_`
 
-The `/_` symbol is a "wildcard": it represents anything at all. 
+The `/_` symbol is a "wildcard": it represents anything at all.
 It is meaningless by itself, but useful as a sub-expression.
 
-For instance, `Bob #likes /_` will match `Bob #likes orangutans` 
-and `Bob #likes (diving #for doughnuts)` 
+For instance, `Bob #likes /_` will match `Bob #likes orangutans`
+and `Bob #likes (diving #for doughnuts)`
 and any other relationship of the form `Bob #likes _`."
 
 #### Sidenote: Why `/_` is meaningless by itself
 
-Hode could have been written such that if you asked for `/_`, 
-it would return everything in your graph. 
+Hode could have been written such that if you asked for `/_`,
+it would return everything in your graph.
 But you probably wouldn't want that, and it might crash your computer.
 
 ### Query for `Addr`s with `/addr` (or `/@`)
@@ -106,7 +106,9 @@ They don't have to be in order.
 
 ### Set operations: union (`/|`), interseciton (`/&`), and difference (`/\`)
 
-Set operations are ways to combine sets. Given two sets A and B, we can consider their "intersection" (things in both), or their "union" (things in either), or their "difference" (things in one but not the other).
+Set operations are ways to combine sets. Given two sets A and B,
+we can consider their "intersection" (things in both), or their "union" (things in either),
+or their "difference" (things in one but not the other).
 
 For instance:
 `(/eval I #like /it) /& (/eval you #like /it)` gives the intersection:
@@ -175,7 +177,7 @@ If you ask for a big value, the search might be slow.
 
 ### Return a subexpression with `/eval` and `/it` (or `/it=`)
 
-The symbols `/eval`, `/it` and `/it=` 
+The symbols `/eval`, `/it` and `/it=`
 are used to extract subexpressions from superexpressions.
 
 We have already seen that if (in the database)
@@ -217,20 +219,26 @@ You can actually include more than one `/it` in an `/eval` statement.
 For instance, `/eval /it #married /it` would return every married person,
 regardless of whether they are listed first or second in the marriage relationship.
 
-#### Using `/it=` to restrict the possible targets in an `/eval` query
+#### Use `/it=` to restrict the possible targets in an `/eval` query
 
-You might want to restrict the set of possibilities considered for the "/it" variable(s) in an "/eval" expression. For instance, if you want to know who among Jane and Jim is coming to your wedding, you could ask:
+You might want to restrict the set of possibilities considered for the
+"/it" variable(s) in an "/eval" expression.
+For instance, if you want to know whether Jane or Jim (or both)
+is coming to your wedding, you could ask:
 
 `/f /eval (/it= Jane | Jim) #is invited to my wedding`
 
-This way, if Jim is invited and Jane is not, 
-you'll just see Jim in the results,
-rather than Jim and everyone else who is invited.
+This way, if Jim and Alice are invited, and Jane is not,
+you'll find Jim in the search results,
+but not Jane (because she's not invited),
+and not Alice (because the `/it=` clause does not include Alice).
+
 (Note that there is another way to get the same result:
 you could search for
 `(Jane /| Jim) /& (/eval /it #is invited to my wedding)`.)
 
-You can nest `/eval` statements.
+#### You can nest `/eval` statements.
+
 For instance, if Hode were to evaluate the following query:
 
 `/f /eval (/it= (/eval /it
@@ -240,14 +248,13 @@ For instance, if Hode were to evaluate the following query:
 it would first (in the inner `/eval`) find every classmate of yours,
 and then (in the outer `eval`) find which of them is coming to your wedding.
 It would return a list of people, not `#is` relationships.
-(Hode treats all whitespace as a single space; 
-I only used newlines and big spaces above to make the query easier to read.)
+(Hode treats all whitespace as a single space;
+the newlines and big chunks of space above are only to make the query easier to read.)
 
 #### PITFALL: `/it=` cannot be followed by an alphanumeric character
 
-`/it=` is a keyword, just like `/it` or `/eval`,
-which means it must be followed by a non-alphanumeric character
-(typically a space or a left parenthesis).
+`/it=` is a keyword, just like `/it` or `/eval`.
+It should be followed by a space.
 Just as writing `/italy` or `/evalentine` would confuse the parser,
 so too will writing `/it=x` confuse the parser.
 
@@ -259,35 +266,43 @@ See [the documentation on transitivity](docs/transitivity.md)
 for details on how to create, search, and order the displayed results
 based on transitivity.
 
-### Count `&`, `|` and `\` symbols like `#` symbols
+### Control the precedence of `/&`, `/|` and `/\` symbols the same way as `#` symbols
 
-The set operators `&`, `|` and `\` can be repeated,
+You can always use parentheses to force particular groupings.
+You might, however, sometimes find this more convenient.
+
+The set operators `/&`, `/|` and `/\` can be repeated,
 just like the `#` symbol,
 to decrease their precedence (making them "bind later").
 For instance, rather than
 ```
-(/eval /it #helps Democrats) & (/eval /it #helps Republicans)
+(a /| b) /& (c /| d)
 ```
 
 you could write
 ```
-/eval /it #helps Democrats && /eval /it #helps Republicans
+a /| b /&& c /| d
 ```
 
 It saves three keystrokes, and is arguably more readable.
 
-### Query for "Hash maps" using /roles or /map
+### Query for "relationship maps" using `/roles` (or `/map`)
 
-Consider the command `/find /roles (1 a) (2 b)`.
-This returns all relationships for which the first member is the word "a"
-and the second is "b".
-Notice that unlike, say, the expression `a #eats b`,
-the `/roles` idiom lets you leave the template unspecified.
-It also lets you put other restrictions on the template,
-specifying it somewhat but not completely.
+Every relationship has a template and a number of members dictated by the template's arity.
+For instance, the relationship `knots #are countable`
+has the template `/_ are /_`, which is arity 2,
+corresponding to the relatinoship's two members `knots` and `countable`.
+
+Consider the Hash expression `/roles (1 knots) (2 countable)`.
+This matches all relationships for which the first member is the word `knots`
+and the second is `countable`.
+Notice that unlike the "`#` idiom" used in `knots #are countable`,
+the "`/roles` idiom" lets you leave the template unspecified.
 
 In addition to the keywords `1`, `2`, etc. (any positive integer),
-the keyword `t` specifies the template.
+the keyword `t` can be used to specify the template.
+It also lets you put other restrictions on the template,
+specifying it somewhat but not completely.
 For instance, `/roles (t /t /_ is /_) (1 bill)`
 is (pointlessly verbose but) equivalent to `bill #is /_`.
 
@@ -296,14 +311,11 @@ can be an arbitrary Hash expression.
 For instance, the following identifies everything for which the template
 is either the binary `is` template or the expression at `Addr 7`:
 `/roles /t (/_ is /_) | (/@ 7)`.
+(When the `/roles` keyword is given only one argument,
+that argument does not need to be in parentheses.)
 
-### You might (?) need to precede a Hash expression with the /hash keyword
+The map must include at least 1 value -- either the template or some member.
 
-For instance,
-`/find /hash bob #flattered alice` will search for and return
-the `Expr` "bob #flattered alice",
-if it is present.
-
-I have tried to render the `/hash` keyword unnecessary,
-but if you find something's not parsing that ought to,
-it might help.
+Note that the lexemes `t`, `1`, `2` ...
+are only treated as keywords at the start of one of the arguments
+`/roles` expression. Anywhere else, they are treated as ordinary strings.

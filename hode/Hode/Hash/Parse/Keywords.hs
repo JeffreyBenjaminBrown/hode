@@ -309,11 +309,10 @@ map = let
       , "and the second is \"b\"."
       , "Notice that unlike, say, the expression `a #eats b`,"
       , "the `" ++ s ++ "` idiom lets you leave the template unspecified."
-      , "It also lets you put other restrictions on the template,"
-      , "specifying it somewhat but not completely." ]
+      ]
     , paragraph
       [   "In addition to the keywords `1`, `2`, etc. (any positive integer),"
-        , "the keyword `t` specifies the template."
+        , "the keyword `t` allows you to specify the template."
         , "For instance, `" ++ s ++ " (t /t /_ is /_) (1 bill)`"
         , "is (pointlessly verbose but) equivalent to `bill #is /any`." ]
     , paragraph
@@ -322,7 +321,13 @@ map = let
       , "For instance, the following identifies everything for which the template"
       , "is either the binary `is` template or the expression at `Addr 7`:"
       , "`" ++ s ++ "t /t (/_ is /_) | (/@ 7)`."
-      ] ] }
+      ]
+    , "The map must include at least 1 value -- either the template or some member."
+    , paragraph
+      [ "Note that the lexemes `t`, `1`, `2` ..."
+      , "are only treated as keywords at the start of one of the arguments"
+      , "`/roles` expression. Anywhere else, they are treated as ordinary strings." ]
+    ] }
 
 member :: HashKeyword
 member = let
