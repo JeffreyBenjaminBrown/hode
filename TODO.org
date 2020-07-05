@@ -9,10 +9,11 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo(s)
 * TODO critical
+** TODO bug: /sortLeft, /sortRight stopped working
 ** TODO document
 *** TODO resume doc QA at
-Hash#Query for anything using the wildcard
-*** TODO docs/ui/transitivity.md
+docs/order.md
+"Now we can run `/sortLeft (/t /_ eat /_)` to sort by the `eat` relationship."
 *** TODO align the interactive help with the docs/ folder
 *** TODO ensure orphans are covered
 **** # operator precedence
