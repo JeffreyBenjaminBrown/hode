@@ -283,7 +283,7 @@ Here's a brief refresher:
 
 ## Sort the peers of the currently focused node
 
-See the [documentation on transitivity](ui/transitivity.md).
+See the [documentation on transitivity](transitivity.md).
 
 ## Move an expression (change its address)
 

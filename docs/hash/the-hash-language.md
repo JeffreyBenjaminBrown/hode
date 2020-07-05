@@ -255,7 +255,7 @@ so too will writing `/it=x` confuse the parser.
 
 If `a > b` and `b > c`, you might want Hode to infer that `a > c`.
 That's called transitivity.
-See [the documentation on transitivity](docs/ui/transitivity.md)
+See [the documentation on transitivity](docs/transitivity.md)
 for details on how to create, search, and order the displayed results
 based on transitivity.
 

@@ -12,6 +12,7 @@ This will load all non-broken modules when some are broken.
 ** TODO document
 *** TODO resume doc QA at
 Hash#Query for anything using the wildcard
+*** TODO docs/ui/transitivity.md
 *** TODO align the interactive help with the docs/ folder
 *** TODO ensure orphans are covered
 **** # operator precedence
