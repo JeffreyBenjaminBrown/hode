@@ -63,7 +63,7 @@ updateCycleBuffer _st =
     _ -> -- applies both to Just [] and to Nothing
         (mainWindow .~ SubgraphBuffer)
         . (blockingCycles .~ Nothing)
-        . showReassurance "No cycles identified."
+        . showReassurance "No further cycles were identified."
         <$> delete_cycleBuffer _st
 
 bufferFromPath :: St -> ViewQuery -> (TpltAddr,[Addr])

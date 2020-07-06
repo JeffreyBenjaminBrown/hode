@@ -9,11 +9,13 @@ This will load all non-broken modules when some are broken.
   :l Hode.Hode
 * backup the data repo(s)
 * TODO critical
-** TODO bug: /sortLeft, /sortRight stopped working
 ** TODO document
 *** TODO resume doc QA at
+not sure, but I just finished
 docs/order.md
-"Now we can run `/sortLeft (/t /_ eat /_)` to sort by the `eat` relationship."
+*** TODO better intro
+Explain that to use it, you don't need to know any Hash except how to use #.
+The rest is just for doing fancy searches.
 *** TODO align the interactive help with the docs/ folder
 *** TODO ensure orphans are covered
 **** # operator precedence

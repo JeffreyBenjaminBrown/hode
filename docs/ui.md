@@ -66,14 +66,14 @@ Press `C-a` to put the cursor at the front of the line.
 Press `C-k` to delete everything at or after the cursor.
 
 Most of the time,
-the main window will display a `results buffer`.
+the main window will display a `subgraph buffer`.
 There can be multiple buffers open at the same time,
 each corresponding to a (probably) different search.
 Whatever the main window is currently showing,
-you can switch to the current results buffer by pressing
+you can switch to the current subgraph buffer by pressing
 `M-S-r` (that is, probably, `Alt + Shift + r`).
 
-Sometimes you wiill want to show all the results buffers at once.
+Sometimes you wiill want to show all the subgraph buffers at once.
 Switch to the `Select Graph Buffer` Buffer to do that.
 The `Select Graph Buffer` Buffer is described below.
 
@@ -81,7 +81,7 @@ When an error happens,
 the main window will automatically switch to the `error buffer`.
 You can also manually switch to the error buffer with `M-S-e`.
 (There are lots of ways to escape the error buffer --
-for instance, by switching to the results buffer,
+for instance, by switching to the subgraph buffer,
 as described above.)
 
 ## The Search Results window
@@ -105,7 +105,7 @@ Thereafter you can use keyboard commands
 to complicate that view,
 inserting things that are justified farther to the right.
 
-Here's an example of a Search Results buffer's contents,
+Here's an example of a Search subgraph buffer's contents,
 after such complication.
 (The actual display is in color, which makes it more readable.
 The column of numbers at the far left is described in the next section.)
@@ -303,14 +303,14 @@ To move the expression at address `a` to address `b`, type this:
 
 ### Move focus: `M-e` (up), `M-f` (right), `M-d` (down), `M-s` (left)
 
-One result in the results buffer is always focused.
+One result in the subgraph buffer is always focused.
 Similarly, one buffer in the `Select Graph Buffer` Buffer is always focused.
 These move that around.
 
 PITFALL: There are two separate kinds of focus.
-Every results buffer has a focused result;
+Every subgraph buffer has a focused result;
 it's the one with a different color scheme.
-Exactly one of the results buffers is itself focused;
+Exactly one of the subgraph buffers is itself focused;
 it's the buffer with a different color scheme in the `Select Graph Buffer` Buffer.
 
 ### `M-x`: Execute command
@@ -320,7 +320,7 @@ do this to run it.
 
 ### Switch the kind of buffer shown
 
-Show (the currently focused) results buffer: `M-r`
+Show (the currently focused) subgraph buffer: `M-r`
 
 Show (the) `Select Graph Buffer` buffer: `M-b`
 
@@ -328,11 +328,11 @@ Show (the) command history buffer: `M-h`
 
 Show (the) error buffer: `M-e`
 
-## Keyboard commands that work from the Results buffer
+## Keyboard commands that work from the subgraph buffer
 
 ### `M-h`: Insert hosts at focus
 
-The focused result in the results buffer might be a member of other relationships.
+The focused result in the subgraph buffer might be a member of other relationships.
 If it is, this displays those relationships "under" it
 (that is, below it and slightly to its right).
 
@@ -348,11 +348,11 @@ This can clean it up.
 
 ### `M-b`: Switch to a new buffer rooted at the focused result
 
-This creates a new results buffer showing exactly one thing,
+This creates a new subgraph buffer showing exactly one thing,
 the result that was focused in the previous buffer.
-The previous results buffer continues to exist,
+The previous subgraph buffer continues to exist,
 and in the `Select Graph Buffer` buffer,
-the new results buffer is a child of the old one.
+the new subgraph buffer is a child of the old one.
 
 ### `M-S`: Insert results of evaluating focus as a search
 
@@ -409,19 +409,19 @@ it will change in the search too.
 (You don't have to wrap "alice" or "bob" or "chris" in quotation marks,
 because they contain no characters that Hode treats specially.)
 
-### `M-w`: Copy the results buffer to clipboard
+### `M-w`: Copy the subgraph buffer to clipboard
 
-This copies everything in the currently-displayed results buffer,
+This copies everything in the currently-displayed subgraph buffer,
 even if it does not all fit on the screen.
 
 ### `M-r`: Replace the command window with this buffer's last successful search
 
-## Keyboard commands that work from the Buffers buffer
+## Keyboard commands that work from the "select subgraph" buffer
 
 From the buffer window you can create new buffers
 and switch between them by moving focus (as described above).
 Once you've moved focus to the buffer you'd like to see,
-you can switch back to the results buffer with `M-S-r`.
+you can switch back to the subgraph buffer with `M-S-r`.
 
 ### `M-t`: Create new empty top-level buffer
 

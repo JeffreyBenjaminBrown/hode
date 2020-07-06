@@ -88,36 +88,46 @@ That's because Hode will crash if it encounters a cycle.
 It won't respond to keypresses, and you'll need to kill it from outside.
 
 
-# Sorting by transitive relationships
+# Sorting part of the viewtree by transitive relationships
 
-You can sort by any transitive relationship.
+You can sort any set of peers in a view tree by any transitive relationship.
+This does not change the data in your graph,
+just the way they are presented.
 
 For instance, in a graph with the following data:
 ```
-trees #are awesome
-bugs #outrun frogs
-frogs #eat bugs
-(/t /_ eat /_) #is transitive
+settlement #preceded independence
+independence #preceded space travel
+McCarthyism #is scary
+(/t /_ preceded /_) #is transitive
 ```
-we could sort by the `eat` template.
-(In reality, `eat` relationships are not transitive.
-For one thing, they form cycles: snakes eat frogs and frogs eat snakes.
-For another, eagles eat mice and mice eat grains,
-but eagles don't eat grains.
-But Hode doesn't know that.)
+we could sort by the `/_ preceded /_` template.
 
-Let's get trees, frogs and bugs on the screen by running
-`/f frogs /| trees /| bugs`.
-Next, let's move the cursor over one of them
-(see "move focus" in the [ui documentation](ui.md) for how to do that).
+Let's get the expressions `space travel`, `settlement`, and `McCarthyism`
+on the screen by running `/find settlement /| space travel /| McCarthyism`.
 
-Now we can run `/sortLeft (/t /_ eat /_)` to sort by the `eat` relationship.
-This puts things on the left side of the relationship earlier (higher) in the results.
-Since `frogs #eat bugs`, frogs are left of bugs in the eat relationship,
-so frogs will precede bugs in the list.
-Since trees is also in our list of results,
-and trees is not in an eat-relationship with either frogs or bugs,
-trees will come last in the sort.
+Those three expressions are now peers in the subgraph viewtree.
+(Assuming you haven't unfolded any branches from it
+(as described in [ui.md](ui.md))
+the viewtree is currently just a flat list of three expressions).
+We can therefore now run `/sortRight (/t /_ preceded /_)`
+to sort them by the `/_ precedes /_` template.
+This puts things on the right side of any transitive `/_ preceded /_`
+relationship earlier (higher) in the subgraph viewtree.
+
+Even though the graph includes no direct `/_ preceded /_`
+relationship involving `settlement` and `space travel`,
+they are transitively related. It is as if the graph included
+`settlement #preceded space travel`.
+Since we ran `/sortRight`,
+and `space travel` is on the right side of that transitive relationship,
+`space travel` will appear before (above) `settlement` in the viewtree.
+
+Since `McCarthyism` is also in our list of results,
+and it is not in a `/_ preceded /_` relationship with anything else on screen,
+`McCarthyism` will come last in the sort.
+The colors of the far left column distinguish things which are part of the sort, such as `space travel` and `settlement`,
+from things which are not involved, such as `McCarthyism`.
 
 `sl` is a synonym for `sortLeft`,
 and `sr` is a synonym for `sortRight`.
@@ -136,16 +146,18 @@ and press `M-S-r` to go to the Results Buffer.)
 
 To break the cycle, you must delete one of the relationships in it.
 Then press `M-o` to search for cycles again.
-If none are found, Hode will say so.
+(This is necessary because when you add a relationship,
+it's possible that it created more than one cycle.)
+If no more cycles are found, Hode will say so.
 
 
 ## Example: Breaking a cycle
 
 Consider an Rslt which contains these relationships:
 ```
+(/t /_ x /_) #is transitive
 a #x b
 b #x a
-(/t /_ x /_) #is transitive
 ```
 
 When Hode detects the cycle (which happens as soon as it's created),
@@ -165,7 +177,8 @@ not the relationships that join those elements.
 But to break the cycle, we need to delete one of those relationships.
 So let's find some of them.
 Move the cursor to the first instance of the expression `b`,
-and unfold the host relationships that contain it:
+and unfold the host relationships that contain it.
+The viewtree should now look something like the following:
 
 ```
 4  _  _
@@ -178,8 +191,11 @@ and unfold the host relationships that contain it:
 6 b
 ```
 
+(The numbers above are the addresses of the expressions they precede.
+If you don't see those, press `a` while in subgraph mode to enable them.)
+
 Now we see that the relationship `b #x a` is at address 10,
-and `a #x b` is at 7.
+and `a #x b` is at address 7.
 
 We can break the cycle by deleting either one.
 Let's delete the one at `7`, by entering the command `/d 7`.

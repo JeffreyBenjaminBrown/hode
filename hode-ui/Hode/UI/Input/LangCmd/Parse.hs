@@ -160,7 +160,7 @@ langCmd_MapItems_sort =
           [ "Example: `/sortRight /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
           , "If the template is t, and two expressions a and b are related by t, then a will come first in the sort order if it is the left-hand member of the t-relationship between a and b."
           ]
-        , "For details on sorting, see docs/ui/transitivity.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/ui/transitivity.md." ] }
+        , "For details on sorting, see docs/order.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/order.md" ] }
 
   , LangCmd_MapItem {
       _langCmd_name = "sort left",
@@ -172,7 +172,7 @@ langCmd_MapItems_sort =
           [ "Example: `/sortLeft /@ 14` sorts by the template located at address 14, and `/sortLeft (/t /_ eat /_)` sorts by the `_ eat _` template."
           , "If the template is t, and two expressions a and b are related by t, then a will come first in the sort order if it is the right-hand member of the t-relationship between a and b."
           ]
-        , "For details on sorting, see docs/ui/transitivity.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/ui/transitivity.md." ] }
+        , "For details on sorting, see docs/order.md in your clone of Hode, or visit https://github.com/JeffreyBenjaminBrown/hode/blob/master/docs/order.md" ] }
   ]
 
 pLangCmd :: Rslt -> String -> Either String LangCmd
