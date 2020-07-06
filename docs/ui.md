@@ -1,5 +1,6 @@
 You don't need to remember all these commands!
-They're easy to find in the in-app help.
+They're easy to find in the in-app help, which you can open by running
+`M-x` (which probably means `Alt x`, unless you use a Mac).
 Read this just to get a sense of what's possible.
 
 # The UI
@@ -9,8 +10,8 @@ search for, and navigate your data,
 as well as choose how it is displayed.
 
 The text editor in Hode is extremely simple.
-When I plan to enter a complex expression,
-I prefer to write it in another application,
+To enter a complex expression into Hode,
+I prefer to write it in another application (Emacs),
 then copy and paste it into Hode.
 
 ## Note: Hode does not back up your data.
@@ -27,11 +28,11 @@ making the diffs between versions of your data readable.
 
 # To start the UI
 
-## The simplest way
+## The simplest way to start the UI
 
 Call `stack run` from the command line.
 
-## A more flexible way
+## A more flexible way to start the UI
 
 Call `stack ghci` from the command line.
 Now, from within GHCI, you can:
