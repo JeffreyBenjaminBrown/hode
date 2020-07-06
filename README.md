@@ -1,10 +1,16 @@
-Skip to the end of this README for how to install.
+Hode is, loosely speaking, a hypergraph editor.
 
 
-# There are video guides
+# Three ways to learn about Hode
 
-The app has gotten much slicker since these were made in early 2019,
-and it has new features,
+## This documentation
+
+## Video introductions
+
+These are not a complete guide to Hode,
+but they quickly show what it's good for.
+Hode has gotten slicker since these videos were made,
+and it has new features (e.g., Hode handles order now),
 but the basic idea remains the same.
 
 The video on navigation is probably more interesting.
@@ -17,18 +23,21 @@ but I'm not sure.
 [Video: How to edit](https://www.youtube.com/watch?v=fuCREbf1m9k).
 
 
-# There is in-app help
+## The in-app help
 
-And it's more up-to-date --
-it includes some features not otherwise documented,
-and the keywords and keyboard shortcuts it describes are guaranteed to be correct,
+The in-app help describes all the UI and language features of Hode.
+
+You'll still need to use the out-of-app documentation
+for a good introduction to the app --
+one that covers *what* and *why*, not just *how*.
+But you don't have to study the docs too thoroughly,
+because once you've seen what can be done,
+the in-app help can quickly reveal how to do it.
+
+The in-app help is more up-to-date than the docs --
+it might cover advanced features not otherwise documented,
+and the keywords and keyboard shortcuts it describes are guaranteed to be correct and complete,
 whereas the documentation outside of the app might not be.
-
-You'll still need to use this out-of-app documentation
-for a good introduction to the app.
-But you don't have to study it too hard,
-because once you've seen *what* can be done,
-the in-app help can quickly reveal *how* to do it.
 
 Access the help by pressing `M-?`.
 (That probably means `Alt-?`, unless you use a Mac).
@@ -39,14 +48,15 @@ Access the help by pressing `M-?`.
 Hode is an editor for higher-order data.
 
 There are three branches to Hode:
-The data structure, the language for talking about it,
-and the UI for using them.
+The RSLT data structure,
+the Hash language for describing subsets of an RSLT,
+and the UI, which lets you use the previous two things.
 Each branch is described in the [docs](docs) folder.
 
-(The UI is recommended but actually optional. The module
+(The UI is actually optional. The module
 [Hode.NoUI](hode/Hode/NoUI.hs)
 is designed to allow someone to use Hode directly from GHCI, without a UI.
-NoUI is not as complete as the UI, though -- in particular,
+The NoUI module is not as complete as the UI, though -- in particular,
 transitivity and order are hard to deal with outside of the UI.)
 
 ## The Rslt data structure
@@ -67,9 +77,9 @@ What distinguishes a `Rslt` from a `graph`
 is that relationships can involve any (positive) number of members,
 and a relationship can itself belong to other relationships.
 
-Hode will make much more sense once you've read about the
+To use Hode you'll need to read about the
 [Rslt in detail](docs/rslt/rslt.md).
-(That's a super-short document -- under 600 words.)
+It's a super-short document -- under 600 words.
 
 ## Hash
 
@@ -120,7 +130,7 @@ Before installing Hode, you'll need to first have installed
 * [`Git`](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), the version-control software
 
 * Optionally, you can install [`xsel`](https://linux.die.net/man/1/xsel)
-for trafficking to and from the clipboard without using the mouse.
+for some clipboard functionality.
 
 ## Install Hode
 
@@ -141,3 +151,7 @@ If it does, install those too.
 Then return to the cloned repo and try `stack ghci` again.
 
 Once that works and you're in GHCI, run `ui`.
+(If you're a hacker, you might want to run `st <- ui`,
+so that you can inspect `st` after exiting Hode.
+After inspection, you can resume where you left off by running
+`st <- uiFromSt st`.)

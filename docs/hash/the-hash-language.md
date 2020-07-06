@@ -1,25 +1,45 @@
-You don't need to memorize ethese commands,
+You don't need to memorize the syntax described here,
 because they're easy to find in the in-app help.
 Read this just to get a sense of what's possible.
 
 # What Hash is
 
-Hash is a language for writing and searching a `Rslt`.
-Even though a `Rslt` is more complex than a graph,
+Hash is a language for writing and searching a `RSLT`.
+Even though a `RSLT` is more complex than a graph,
 Hash is simpler than common graph-writing languages (e.g. Turtle),
 and *way*,
 *way* simpler than other graph query languages (e.g. Sparql or Gremlin).
 
-# Writing to a Rslt with Hash
+# Writing is easy and critical. Searching is not critical.
 
-If you've read about [the Rslt](docs/the-rslt.md),
+The Hash language is what you use to write to Hode,
+and also what you use to search Hode.
+
+To use Hash to construct expressions to write,
+you only need one special piece of syntax, the `#` symbol.
+If (as the README suggests) you read the documentation for
+[the RSLT data structure](../rslt/rslt.md) before this document,
+you've already learned how to use the `#` symbol.
+
+There's a lot of Hash syntax for ways to search Hode.
+None of it are really necessary.
+For instance, if you want to find all of John's friends,
+you can just search for John by typing `/find John`,
+and then use [the UI](../ui.md)
+to interactively explore the relationships John is in.
+Using a fancier Hash command will let you find them faster,
+but you don't really need to know how to state searches in Hash
+in order to use Hode.
+
+# Writing to a RSLT with Hash
+
+If you've read about [the RSLT](docs/the-rslt.md),
 you know how to define `Expr`s.
-To add them to a `Rslt` using the UI,
+To add them to a `RSLT` using the UI,
 you'll only need one extra symbol: `/add` (or `/a`).
-
 (The `/add` symbol is not actually part of the Hash language;
 it's part of the [UI language](../ui.md),
-which is even simpler than Hash.)
+which is much simpler than Hash.)
 
 For instance, `/add Kurt #played guitar` creates a "played" relationship between "Kurt" and "guitar".
 If any of those things ("Kurt", or "guitar", or the "_ played _" relationship) didn't exist before,
@@ -30,7 +50,8 @@ Check the in-app help to find all the abbrevations available for any keyword.)
 
 ## Special characters, quotes and escape characters
 
-(If your phrases are all alphanumeric you don't need to know any of this.)
+(If your phrases don't involve any of the Hash special characters,
+you don't need to know any of this.)
 
 Hash uses the following special characters: `# / ( ) \"`.
 The `#` symbol, as we have seen,
