@@ -28,4 +28,6 @@ import qualified Text.Megaparsec.Char.Lexer as MP
 import qualified Text.Pretty.Simple         as Pr
 
 import qualified Hode.Test.Rslt.RData       as D
+
+:m -Hode.Hash.Parse.Keywords
 import qualified Hode.Hash.Parse.Keywords   as KW
