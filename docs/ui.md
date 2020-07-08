@@ -133,7 +133,8 @@ everything it finds is displayed left-justified.
 Thereafter you can use keyboard commands
 (e.g. `insert hosts`, described later in this document)
 to complicate that view,
-inserting things that are justified farther to the right.
+inserting things that are justified farther to the right,
+creating a multi-level `view-tree`.
 
 Here's an example of a subgraph buffer's contents,
 after such complication.
@@ -153,7 +154,7 @@ The column of numbers at the far left is described in the next section.)
 #### The address to the left of each expression
 
 Each expression is stored at an `address` in the graph.
-By default, that address is displayed to the immediate left of the expression itself, in a different color.
+By default, that address is displayed to the immediate left of the expression located there, in a different color.
 For instance, in this example,
 the expression "benchmark #using haskell" is at address 89.
 
@@ -170,15 +171,15 @@ those addresses can be toggled off and on by pressing `a`:
 0 java
 ```
 
-#### Grouping
+#### Grouping parts of the view-tree
 
 Note that some of the rows of the example display have no number in the column at the far left.
 That is because they are not expressions in the graph.
 They are used, rather, to group the expressions below them.
 Where they say `it`, `it` refers to their immediate parent --
-e.g. in the example above, `it` means "haskell"e.
+e.g. in the example above, `it` means "haskell".
 
-#### Redundancy
+#### Substituting addresses to eliminate redundancy in viewsa
 
 If "haskell" was a much longer phrase,
 you might wish that the display did not repeat it.
@@ -224,13 +225,16 @@ Just change the `_columnHExprs` field in the app's `St`.
 
 # Language commands vs. keyboard commands
 
-Commands in this application divide neatly into two categories.
+Commands in Hode divide come in two flavors.
 `Language commands` require you to type a statement into the command window,
-and then execute the statement.
-`Keyboard commands` resemble using the cursor keys in a text editor.
+and then execute it (`M-x`).
+Unlike `language command`, `keyboard commands` are not a two-step process:
+you press a key (or key combination) and something immediately happens.
 
-Language commands can be executed from anywhere.
-The keyboard commands available depend on what is shown in the main window.
+Language commands can be executed any time you are in `command mode`
+(which you can toggle with `M-c`).
+The keyboard commands that are available depend on what `mode` and, perhaps,
+`submode` you are in.
 
 # Language commands
 
@@ -238,19 +242,22 @@ These are entered in the command window, and executed with `M-x`.
 
 ## Load a Rslt from disk
 
-Type something like `/load folder/subfolder/subfolder`.
+Type something like `/load path/to/my/data`.
 (It has to start with the symbol `/load`, followed by a space.)
 If there are `.rslt` files in the path you entered,
-they will be loaded into the graph.
-Anything that was already in it will disappear.
-
-Write the path in absolute terms,
-or relative to wherever you started GHCI from.
+they will be loaded into Hode, flushing out whatever was previously loaded.
+Subfolders are ignroed.
 
 ## Save a Rslt to disk
 
 Same idea:
 `/save folder/subfolder/subfolder`
+
+PIFALL: Saving does not first erase the contents of the folder.
+This is a bug.
+If you load your data, and then change the address of an expression,
+or delete an expression, and then write your data to disk,
+the old expression at the old address will still be there.
 
 ## Replace an expression
 
@@ -259,7 +266,7 @@ followed by the expression's address,
 followed by what should be there.
 
 For instance, `/replace 3 x # y` would replace
-whatever used to be at address 3 with the expression `x # y`.
+whatever used to be at address `3` with the expression `x # y`.
 
 ### Note: Replacement-induced deletion is not recursive
 
@@ -274,7 +281,7 @@ destroy the old expression's sub-expressions.
 This has security implications.
 For instance, if your graph used to contain the statement,
 "I #enjoy pornography", and you replaced that with
-"I #enjoy ethnography", your graph still contains
+"I #enjoy ethnography", your graph still contains the word
 "pornography".
 
 ## Delete an expression
@@ -294,7 +301,7 @@ Here's a brief refresher:
 
 `/add /addr 1 #because /addr 2`
 
-`/add /addr 1 #because it's cheap ##(and therefore) /addr 3`
+`/add /addr 1 #is (cheaper #than stan's bike) ##(and therefore) /addr 3`
 
 ## Search for a Hash expression
 
@@ -310,7 +317,7 @@ Here's a brief refresher:
 `/find /eval bob #likes pizza ##with pineapple ###because /it)`
   -- Returns only the reason, not the full "because" relationship.
 
-`/find bob #likes /_ || bob #dislikes /_`
+`/find bob #likes /_ /|| bob #dislikes /_`
   -- Every #likes and every #dislikes statement with bob on the left.
 
 ## Sort the peers of the currently focused node
@@ -326,6 +333,9 @@ However, just in case:
 To move the expression at address `a` to address `b`, type this:
 
 `/move a b`.
+
+If `b` was already occupied, whatever was there is now located at `n+1`,
+where `n` was the maximum address in your graph before the `/move`.
 
 # Keyboard commands
 
