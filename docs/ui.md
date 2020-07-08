@@ -1,6 +1,6 @@
 You don't need to remember all these commands!
 They're easy to find in the in-app help, which you can open by running
-`M-x` (which probably means `Alt x`, unless you use a Mac).
+`M-?` (which probably means `Alt ?`, unless you use a Mac).
 Read this just to get a sense of what's possible.
 
 In fact, this documentation might go stale,
