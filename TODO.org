@@ -103,6 +103,8 @@ Or at least, upon inserting contents, unfold.
 *** TODO learn how lexing works
  The problem is that I've absorbed the detection of parens and quotation marks
  (and space?) into the parsers for individual terms.
+** TODO restore: there used to be a way to switch to the error buffer
+It was `M-e` or `M-E`.
 ** TODO ? use BiMap to associate Addrs and Exprs
 ** ordering
 *** TODO ? BUG : when removing from an order, connect any gaps created

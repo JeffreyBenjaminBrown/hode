@@ -66,34 +66,36 @@ and sometimes at the bottom, it also shows the `command window`.
 Show or hide the command window with `M-c`
 (i.e. probably `Alt-c`, unless you use a Mac).
 
-When it is showing, anything typed without using a special modifier key
+When the command window is showing,
+anything typed without using a special modifier key
 will modify the text in the command window.
 Once you have typed a command,
 execute it by pressing `M-x`.
 
 A subset of the Emacs (and Bash)
 keyboard shortcuts are available in the command window.
-Press `C-a` to put the cursor at the front of the line.
+Press `C-a` (that's probably `Control-C`)
+to put the cursor at the front of the line.
 Press `C-k` to delete everything at or after the cursor.
+
+## The subgraph buffer
 
 Most of the time,
 the main window will display a `subgraph buffer`.
-There can be multiple buffers open at the same time,
-each corresponding to a (probably) different search.
+There can be multiple `subgraph buffer`s open at the same time,
+each (probably) corresponding to a different search.
 Whatever the main window is currently showing,
-you can switch to the current subgraph buffer by pressing
-`M-S-r` (that is, probably, `Alt + Shift + r`).
+you can switch to the current `subgraph buffer` by pressing `M-g`.
 
-Sometimes you wiill want to show all the subgraph buffers at once.
-Switch to the `Select Graph Buffer` Buffer to do that.
-The `Select Graph Buffer` Buffer is described below.
+Sometimes you wiill want to switch between subgraph buffers.
+Switch to the `buffer select buffer` to do that.
+The `buffer select buffer` is described below.
 
 When an error happens,
 the main window will automatically switch to the `error buffer`.
-You can also manually switch to the error buffer with `M-S-e`.
-(There are lots of ways to escape the error buffer --
+There are lots of ways to escape the error buffer --
 for instance, by switching to the subgraph buffer,
-as described above.)
+as described above.
 
 ## The Search Results window
 
