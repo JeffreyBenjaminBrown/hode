@@ -343,120 +343,133 @@ where `n` was the maximum address in your graph before the `/move`.
 
 ### Quit: `M-esc`
 
-### Move focus: `M-e` (up), `M-f` (right), `M-d` (down), `M-s` (left)
+### Move focus: `e` (up), `f` (right), `d` (down), `s` (left)
 
-One result in the subgraph buffer is always focused.
-Similarly, one buffer in the `Select Graph Buffer` Buffer is always focused.
-These move that around.
+One result in the `subgraph buffer` is always "focused".
+It shows up in a different color.
+Similarly, one buffer in the `select buffer buffer` is always focused.
+These shortcuts move that focus around.
 
 PITFALL: There are two separate kinds of focus.
 Every subgraph buffer has a focused result;
 it's the one with a different color scheme.
 Exactly one of the subgraph buffers is itself focused;
-it's the buffer with a different color scheme in the `Select Graph Buffer` Buffer.
+it's the buffer with a different color scheme in the `select buffer buffer`.
+
+The only `subgraph buffer` you can ever see is the focused one.
+Changing which one is focused is what the `select buffer buffer` is for.
 
 ### `M-x`: Execute command
 
 Once you've typed something into the Command window,
 do this to run it.
 
-### Switch the kind of buffer shown
+### Change what is shown in the main window
 
-Show (the currently focused) subgraph buffer: `M-r`
+Show the currently focused `subgraph buffer`: `M-g`
 
-Show (the) `Select Graph Buffer` buffer: `M-b`
+Show the `select buffer buffer`: `M-s`
 
-Show (the) command history buffer: `M-h`
+Show the `command history buffer`: `M-h`
 
-Show (the) error buffer: `M-e`
+### `M-r`: Replace the command window's contents with the last successful search
 
-## Keyboard commands that work from the subgraph buffer
+## Subgraph mode, primary submode shortcuts
 
-### `M-h`: Insert hosts at focus
+### `h`: Insert hosts at focus
 
 The focused result in the subgraph buffer might be a member of other relationships.
 If it is, this displays those relationships "under" it
 (that is, below it and slightly to its right).
 
-### `M-m`: Insert members at focus
+### `m`: Insert members at focus
 
 The focused result, if it is a relationship, consists of members.
 This displays each of those members under it.
 
-### `M-c`: Close whatever is displayed underneath the focused result
+### `k`: Remove from display whatever was underneath the focused result
 
 Repeated use of the previous two commands can lead to a very cluttered view.
 This can clean it up.
+This does not change your graph, just the view.
 
-### `M-b`: Switch to a new buffer rooted at the focused result
+### `b`: Switch to a new buffer rooted at the focused result
 
 This creates a new subgraph buffer showing exactly one thing,
-the result that was focused in the previous buffer.
+the expression that was focused in the previous buffer.
 The previous subgraph buffer continues to exist,
-and in the `Select Graph Buffer` buffer,
-the new subgraph buffer is a child of the old one.
+and in the `select buffer buffer`,
+the new `subgraph buffer` is a child of the old one.
 
-### `M-S`: Insert results of evaluating focus as a search
+### `S`: Insert results of evaluating focus as a search
 
 #### The idea
 
 Suppose you often find yourself running
 
-`/find alice | bob | chris`
+`/find alice /| bob /| chris`
 
 You can add that search as an expression to your graph.
 Once it's in your graph, when it has focus
 (see the section called "Move focus" earlier),
-you can run it by pressing `M-S`.
+you can run it by pressing `S`.
 The search results will be inserted underneath it.
 
 #### Encoding a search: the fragile way
 
-There are many ways you could add that search as an expression in the graph. Here is the simplest way:
+There are many ways you could add that search as an expression in the graph.
+Here is the simplest way:
 
-`/add "alice | bob | chris"`
+`/add "alice /| bob /| chris"`
 
-Note that the query has been wrapped in quotation marks. Otherwise Hode would try, as usual, to interpret the `|` symbols to mean "or", and it would get confused. After running the above expression, your graph will contain the expression
+Note that the query has been wrapped in quotation marks.
+(Otherwise Hode would try, as usual,
+to interpret the `|` symbols to mean "or", and it would get confused,
+because it's trying to add a single thing, not search for a few things.)
 
-`"alice | bob | chris"`.
+After running the above expression, your graph will contain the expression
+
+`"alice /| bob /| chris"`
 
 #### Why that way is fragile
 
-Suppose your graph had an error, and you had to change "bob" to "rob".
-Every expression that "bob" was in now says "rob" instead.
-But the search you encoded did not include "bob" --
-it contained instead the string "alice | bob | chris".
+Suppose your graph had an error, and you had to change `bob` to `rob`.
+Every expression that `bob` was in now says `rob` instead.
+But the search you encoded did not include `bob` --
+it contained instead the string `alice /| bob /| chris`.
 So now the search is broken --
-it will continue looking for "bob", not "rob".
+it will continue looking for `bob`, not `rob`.
 
 #### Econding a search: the robust way
 
 Here is a better way to encode the same search:
 
-`/find alice # "|" # bob # "|" # chris`
+`/find alice # "/|" # bob # "/|" # chris`
 
-Each term in the search -- the words and the `|` symbols --
+Each term in the search -- the words and the `/|` symbols --
 are now separated by `#` marks. When you run the search,
-the expression is "flattened": the # marks are stripped away,
+the expression is "flattened": the `#` marks are stripped away,
 and the results joined together (with spaces in between).
 
-This way, when you press `M-S`, the search that gets run is the same:
+This way, when you press `S`, the search that gets run is the same:
 
-`alice | bob | chris`
+`alice /| bob /| chris`
 
 But since each term in the search has been encoded as a separate entity,
-Hode "knows what they are". If you change "bob" to "rob",
+Hode "knows what they are". If you change `bob` to `rob`,
 it will change in the search too.
 
-(You don't have to wrap "alice" or "bob" or "chris" in quotation marks,
+(You don't have to wrap `alice` or `bob` or `chris` in quotation marks,
 because they contain no characters that Hode treats specially.)
 
-### `M-w`: Copy the subgraph buffer to clipboard
+### `w`: Copy the subgraph buffer to clipboard
 
 This copies everything in the currently-displayed subgraph buffer,
 even if it does not all fit on the screen.
 
-### `M-r`: Replace the command window with this buffer's last successful search
+## Subgraph mode, order submode shortcuts
+
+These are described in the [docs on order and transitivity](order.md).
 
 ## Keyboard commands that work from the "select subgraph" buffer
 
@@ -465,6 +478,6 @@ and switch between them by moving focus (as described above).
 Once you've moved focus to the buffer you'd like to see,
 you can switch back to the subgraph buffer with `M-S-r`.
 
-### `M-t`: Create new empty top-level buffer
+### `p`: Create new empty peer buffer
 
-### `M-c`: Create new empty buffer as a child of the currently focused buffer
+### `c`: Create new empty child buffer

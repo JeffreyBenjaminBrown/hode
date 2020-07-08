@@ -11,8 +11,7 @@ This will load all non-broken modules when some are broken.
 * TODO critical
 ** TODO document
 *** TODO resume doc QA at
-not sure, but I just finished
-docs/order.md
+ui.md # Keyboard commands
 *** TODO better intro
 Explain that to use it, you don't need to know any Hash except how to use #.
 The rest is just for doing fancy searches.
