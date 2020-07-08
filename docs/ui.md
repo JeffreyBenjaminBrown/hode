@@ -54,14 +54,32 @@ and otherwise use all the default values.
 
 # What you see (and how to change the way things are shown)
 
-## Windows and buffers
+## Windows, buffers, modes and submodes
 
 I have tried to use Emacs terms as much as possible.
 
 The app always shows the `main window`,
 and sometimes at the bottom, it also shows the `command window`.
 
-### Using the command window
+Whenever the command window is showing, you are in `command mode`.
+This is true regardless of what is shown in the main window.
+
+If the command window is not showing,
+then the `mode` you are in is determined by what is in the `main winndow`.
+For instance, if the `main window` is showing the `subgraph buffer`,
+and the `command window` is hidden, then you are in `subgraph mode`.
+
+Together, the current `mode` and `submode`
+determine what commands are available.
+Not every `mode` has submodes.
+For instance, currently the `subgraph mode` has two `submode`s:
+`primary` and `order` (described below),
+but the other `mode`s don't have `submode`s.
+Although this document might go stale,
+you can always check the interactive help (by pressing `M-?`)
+for an up-to-date list of available modes and submodes.
+
+## Using the command window
 
 Show or hide the command window with `M-c`
 (i.e. probably `Alt-c`, unless you use a Mac).
@@ -78,7 +96,9 @@ Press `C-a` (that's probably `Control-C`)
 to put the cursor at the front of the line.
 Press `C-k` to delete everything at or after the cursor.
 
-## The subgraph buffer
+## The main window
+
+The main window can show a few different kinds of things.
 
 Most of the time,
 the main window will display a `subgraph buffer`.
@@ -97,18 +117,15 @@ There are lots of ways to escape the error buffer --
 for instance, by switching to the subgraph buffer,
 as described above.
 
-## The Search Results window
+## The subgraph buffer
 
-You'll spend most of your time looking at this window.
+A subgraph buffer shows a subset of your data.
+It's initially populated by running a search (something starting with `/find`)
+in the command window.
 
-### Expressions
+### The things on the right side are expressions
 
-Hode explores the expressions in [a Rslt](rslt/rslt.md).
-A rslt is very much like a knowledge graph.
-In fact I usually call it a graph,
-although that's not really accurate.
-
-The UI displays expressions from the graph using
+The UI displays expressions from your graph using
 [the Hash language](hash/the-hash-language.md).
 
 When you first run a search,
@@ -118,7 +135,7 @@ Thereafter you can use keyboard commands
 to complicate that view,
 inserting things that are justified farther to the right.
 
-Here's an example of a Search subgraph buffer's contents,
+Here's an example of a subgraph buffer's contents,
 after such complication.
 (The actual display is in color, which makes it more readable.
 The column of numbers at the far left is described in the next section.)
@@ -139,8 +156,9 @@ Each expression is stored at an `address` in the graph.
 By default, that address is displayed to the immediate left of the expression itself, in a different color.
 For instance, in this example,
 the expression "benchmark #using haskell" is at address 89.
-The display of those addresses can be toggled off and on
-by pressing `M-a`:
+
+When you're in `subgraph mode` (i.e. you've hidden the command window),
+those addresses can be toggled off and on by pressing `a`:
 
 ```
 3 haskell
@@ -157,15 +175,16 @@ by pressing `M-a`:
 Note that some of the rows of the example display have no number in the column at the far left.
 That is because they are not expressions in the graph.
 They are used, rather, to group the expressions below them.
-Where they say "it", "it" refers to haskell.
+Where they say `it`, `it` refers to their immediate parent --
+e.g. in the example above, `it` means "haskell"e.
 
 #### Redundancy
 
 If "haskell" was a much longer phrase,
 you might wish that the display did not repeat it.
-In fact, by default it does not.
-
-You can toggle whether descendents restate the expressions they are descended from with `M-A`. For instance, the above example would become this:
+In `subgraph mode`,
+you can toggle whether descendents restate the expressions they are descended from by pressing `A`.
+For instance, the above example would become this:
 
 ```
 3 6 haskell
