@@ -3,6 +3,10 @@ They're easy to find in the in-app help, which you can open by running
 `M-x` (which probably means `Alt x`, unless you use a Mac).
 Read this just to get a sense of what's possible.
 
+In fact, this documentation might go stale,
+describing keyboard shortcuts that don't work.
+That is less likely for the in-app help, which is somewhat self-updating.
+
 # The UI
 
 The UI lets you load, save, add to,
@@ -39,7 +43,7 @@ Now, from within GHCI, you can:
 
 * Call `st <- ui` to start the UI. This way, once you exit the UI,
 `st` will be an object of type `St` (the state of the app),
-which you can mess with.
+which you can inspect and mess with.
 
 * Call `uiFromSt st` from GHCI, where `st` has type `St`,
 to provide your own initial state to the app.
@@ -52,14 +56,20 @@ and otherwise use all the default values.
 
 ## Windows and buffers
 
-I have tried to borrow Emacs terms as much as possible.
+I have tried to use Emacs terms as much as possible.
 
-The app is divided into a `main window` and a `command window`.
-Any time you type without using a special modifier key
-(e.g. `Alt`),
-you modify the text in the command window.
-Once you have typed a command worth executing,
-you can execute it by pressing `M-x` (i.e., probably, `Alt x`).
+The app always shows the `main window`,
+and sometimes at the bottom, it also shows the `command window`.
+
+### Using the command window
+
+Show or hide the command window with `M-c`
+(i.e. probably `Alt-c`, unless you use a Mac).
+
+When it is showing, anything typed without using a special modifier key
+will modify the text in the command window.
+Once you have typed a command,
+execute it by pressing `M-x`.
 
 A subset of the Emacs (and Bash)
 keyboard shortcuts are available in the command window.

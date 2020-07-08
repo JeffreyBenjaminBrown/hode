@@ -144,7 +144,7 @@ Clone the repo, enter it, and start ghci:
 ```
 git clone https://github.com/JeffreyBenjaminBrown/hode
 cd hode
-stack ghci
+stack run
 ```
 The first time you try that,
 it will take a long time to start.
@@ -154,9 +154,3 @@ you need a few more things installed.
 (`libxrandr-dev`, `lbxss-dev` and `libx11-dev`, maybe?).
 If it does, install those too.
 Then return to the cloned repo and try `stack ghci` again.
-
-Once that works and you're in GHCI, run `ui`.
-(If you're a hacker, you might want to run `st <- ui`,
-so that you can inspect `st` after exiting Hode.
-After inspection, you can resume where you left off by running
-`st <- uiFromSt st`.)
