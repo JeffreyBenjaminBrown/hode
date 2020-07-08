@@ -36,7 +36,7 @@ library
                 , Hode.Hash.Lookup
                 , Hode.Hash.Lookup.Transitive
                 , Hode.Hash.Parse
---                , Hode.Hash.Parse.Keywords -- imported qualified in .ghci
+                , Hode.Hash.Parse.Keywords
                 , Hode.Hash.Parse.Util
                 , Hode.Hash.Types
                 , Hode.Hash.Util

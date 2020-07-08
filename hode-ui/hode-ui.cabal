@@ -24,7 +24,7 @@ library
                   Hode.UI.BufferShow
                 , Hode.UI.BufferTree
                 , Hode.UI.Clipboard
-                , Hode.UI.CycleBreaker
+                , Hode.UI.CycleBuffer
                 , Hode.UI.ExprTree
                 , Hode.UI.ExprTree.Sort
                 , Hode.UI.Help
