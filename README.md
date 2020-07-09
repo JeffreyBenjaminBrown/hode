@@ -51,11 +51,10 @@ There are three branches to Hode:
 The RSLT data structure,
 the Hash language for describing subsets of an RSLT,
 and the UI, which lets you use the previous two things.
-Each branch is described in the [docs](docs) folder.
 
 ## The Rslt data structure
 
-A Rslt (Recursive Set of Labeled Tuples)
+A Rslt (Reflexive Set of Labeled Tuples)
 is a generalization of a knowledge graph.
 It lets a user easily represent any natural language expression.
 (A `Rslt` is isomorphic to what some programmers call a "hypergraph" --
@@ -88,7 +87,12 @@ Hash doesn't do anything. It is used only to describe parts of a graph:
 The expression you'd like to add,
 the subset you'd like to search for, etc.
 
-To use Hode you'll need to
+To run simple searches you won't need to know anything about Hash.
+Most of the searches I run are simple -- e.g. `/find Steve`
+will tell Hode to find the phrase "Steve".
+To run fancier searches -- "find me everyone who came to my wedding",
+"find every food Sam likes that Ella isn't allergic to" --
+you'll need to
 [read about `Hash`](docs/hash/the-hash-language.md).
 
 ## The UI
