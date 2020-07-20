@@ -5,6 +5,11 @@ Hode is, loosely speaking, a hypergraph editor.
 
 ## This documentation
 
+The [quickstart guide](docs/quickstart.md)
+is a super-short (730 word) introduction to Hode.
+Once you've slugged that down,
+come back to this README for a deeper look.
+
 ## Video introductions
 
 These are not a complete guide to Hode,
@@ -21,7 +26,6 @@ but I'm not sure.
 ](https://www.youtube.com/watch?v=o6yifYdKlU0).
 
 [Video: How to edit](https://www.youtube.com/watch?v=fuCREbf1m9k).
-
 
 ## The in-app help
 
@@ -70,9 +74,10 @@ What distinguishes a `Rslt` from a `graph`
 is that relationships can involve any (positive) number of members,
 and a relationship can itself belong to other relationships.
 
-To use Hode you'll need to read about the
+If you already read the [quickstart guide](docs/quickstart.md),
+you might not even need to read about the
 [Rslt in detail](docs/rslt/rslt.md).
-It's a super-short document -- under 600 words.
+But it's a super-short document -- under 600 words.
 
 ## Hash
 
@@ -83,7 +88,7 @@ It offers a concise representation,
 both for individual `Expr`s (expressions) in a `Rslt`,
 and for queries to retrieve sets of `Expr`s.
 
-Hash doesn't do anything. It is used only to describe parts of a graph:
+Hash doesn't *do* anything. It is used only to describe parts of a graph:
 The expression you'd like to add,
 the subset you'd like to search for, etc.
 
@@ -97,18 +102,17 @@ you'll need to
 
 ## The UI
 
-The UI lets you do stuff to your data
+Txhe UI lets you do stuff to your data
 -- add to it, modify it, search for it, load and save it, etc.
 
-To use Hode you'll need to
+To use Hode you'll probablyxneed to
 [read about the UI](docs/ui.md).
 
-(Actually, no, the UI is optional.
+(Actually, the UI is optional.
 The module [Hode.NoUI](hode/Hode/NoUI.hs)
 lets you use Hode directly from GHCI, without a UI.
 The NoUI module is not as complete as the UI, though -- in particular,
 transitivity and order are hard to deal with outside of the UI.)
-
 
 ## You can ignore Qseq
 
