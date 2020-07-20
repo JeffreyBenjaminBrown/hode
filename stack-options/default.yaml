@@ -1,3 +1,12 @@
-# Make this your stack.yaml file if you use anything but NixOS.
+# Make this your stack.yaml file if you use NixOS.
 
 resolver: lts-16.0
+
+packages:
+- ./hode
+- ./hode-ui
+- ./hode-test
+
+extra-deps:
+   - brick-0.50@sha256:c06764c6471f982283d68757dbbf6ab6c75a7e86dd9ca93d3abad7e9c89b766a,14378
+   - vty-5.26@sha256:7b1aeebff12d9c8ad43fe997ee0e29cd651eff2d5a0aeceeb9df2ee68efe9c53,20307

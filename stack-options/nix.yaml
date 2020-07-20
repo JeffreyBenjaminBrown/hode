@@ -2,6 +2,11 @@
 
 resolver: lts-16.0
 
+packages:
+- ./hode
+- ./hode-ui
+- ./hode-test
+
 nix:
   enable: true
   packages: [xsel]
