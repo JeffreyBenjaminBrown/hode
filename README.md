@@ -145,6 +145,13 @@ Before installing Hode, you'll need to first have installed
 * Optionally, you can install [`xsel`](https://linux.die.net/man/1/xsel)
 for some clipboard functionality.
 
+## Configure the project for Stack
+
+In the folder `stack-options` you'll find two files.
+One of them is what to use if you run NixOS.
+The other is what to use if you run anything else.
+Copy one of them to the root of the project, and rename it `stack.yaml`.
+
 ## Install Hode
 
 Open a console (a.k.a. "terminal", "command line", "command prompt").
