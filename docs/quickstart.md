@@ -5,7 +5,7 @@ They are the commands I find myself using most.
 # Start it
 
 This does not provide installation instructions;
-for that, see [the README](../README.
+for that, see [the README](../README.md).
 
 Assuming you've run `stack ghci`
 and it has successfully loaded the Hode libraries,
@@ -61,7 +61,7 @@ This command, for instance, creates one with three members:
 Type `/find Bill`. Execute it with `M-x`.
 If Bill is an expression in your graph, you now see something like this:
 
-![found bill](pics/found bill.png)
+![found bill](pics/found-bill.png)
 
 ## Find a relationship
 
@@ -88,7 +88,7 @@ Now hide the command window with `M-c`
 (which, as usual, probably means `Alt-c`).
 You should see something like this:
 
-![subgraph mode, oil](pics/subgraph mode, oil.png)
+![subgraph mode, oil](pics/subgraph-mode-oil.png)
 
 The text at the bottom indicates  that we are no longer in
 "command language mode", but rather in "subgraph mode".
@@ -100,7 +100,7 @@ The 2 in the second column of characters next to `oil` indicates that it is a me
 ## Find host relationships with `h`
 
 Press `h`. You should now see something like this:
-![oil and neighbors](pics/oil and neighbors.png)
+![oil and neighbors](pics/oil-and-neighbors.png)
 
 In the second layer of the tree,
 we see that `oil` is in two kinds of relationship:
