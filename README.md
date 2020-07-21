@@ -117,7 +117,7 @@ transitivity and order are hard to deal with outside of the UI.)
 ## You can ignore Qseq
 
 The fourth branch of Hode,
-[Qseq](Hode/Qseq/) is a metalanguage for search.
+[Qseq](hode/Hode/Qseq/) is a metalanguage for search.
 It lets you use existential and universal quantifiers to string together searches in some underlying search language.
 
 If you're a curious hacker, Qseq has been implemented,

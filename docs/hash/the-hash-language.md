@@ -33,7 +33,7 @@ in order to use Hode.
 
 # Writing to a RSLT with Hash
 
-If you've read about [the RSLT](docs/the-rslt.md),
+If you've read about [the RSLT](../rslt/rslt.md),
 you know how to define `Expr`s.
 To add them to a `RSLT` using the UI,
 you'll only need one extra symbol: `/add` (or `/a`).
