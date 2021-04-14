@@ -32,7 +32,7 @@ it is `_ inhabit fewer places than _`.
 A `Tplt` contains a list of `Expr` values,
 which we might call "separators".
 In the relationshiop `Bill #gave flowers #to Mary`,
-the `Tplt` has two separators: `gave` and `flowers`.
+the `Tplt` has two separators: `gave` and `to`.
 A separator can involve multiple words,
 in which case it helps to use parentheses,
 as in, `Bill #(handed or threw) flowers #to Mary`.
