@@ -15,37 +15,43 @@ import Hode.Rslt.Types
 import Hode.Rslt.Binary
 
 
-type Level = Int
+type Level = Int -- TODO Add explanatory comment.
 type Separator = String
 
+--- TODO Explain each constructor.
 -- | An `HExpr` describes a set (maybe empty) of `Expr`s in a `Rslt`.
 data HExpr where
   -- GADT only for the sake of adding comments to constructor arguments
   HExpr :: Expr -> HExpr
   -- ^ When you want exactly one `Expr`, and know which.
   -- The `Addr` constructor permits referring to an `Expr` by its `Addr`.
-  HMap :: HMap -> HExpr -- ^ The search workhorse.
+  HMap :: HMap -> HExpr -- ^ The search workhorse. See the `HMap` type.
   HMemberHosts :: HExpr -> HExpr -- ^ Things it is a member of.
   HMemberHostsRec :: Int -> HExpr -> HExpr
   HEval :: HExpr      -- ^ First, find matches to this.
-        -> [RelPath] -- ^ Then, traverse each match along these paths,
-        -- and return whatever each path leads to.
+        -> [RelPath] -- ^ Then, traverse into each match along these paths.
+        -- Return whatever each path leads to.
         -- (Using more than one path is weird but legal.)
         -> HExpr
   HVar ::  Var -> HExpr -- ^ To look up the `Var` from a `Subst Addr Rslt`.
-  HDiff :: HExpr -> HExpr -> HExpr -- ^ Set difference.
-  HAnd :: [HExpr] -> HExpr -- ^ Intersection.
-  HOr ::  [HExpr] -> HExpr -- ^ Union.
-  HReach :: SearchDir
-         -> HExpr -- ^ template(s) to search along
-                  -- (using more than one is weird but legal)
-         -> HExpr -- ^ expression(s) to start from
-         -> HExpr -- ^ every `Expr` that can be reached by traversing
-         -- from the starting `Expr`s along the specified `Tplt`(s) in the specified direction
-  HTrans :: SearchDir -- ^ the direction in which to search
-    -> [SearchDir] -- ^ whether to return left, right or both members found.
-                   -- ^ (The empty list is also valid, but pointless.)
-    -- such that s is one of the starting `Expr`s, f is one of the ending `Expr`s, and `s` is transitively related to `f`. This list is then used to deterine what from those pairs to return -- either all the left members (`[RoleMember 1]`), all the right members (`[RoleMember 2]`), or both (`[RoleMember 1, RoleMember 2]`).
+  HDiff :: HExpr -> HExpr -> HExpr -- ^ Set difference: things that match the first argument and not the second.
+  HAnd :: [HExpr] -> HExpr -- ^ Intersection: things matching all of them.
+  HOr ::  [HExpr] -> HExpr -- ^ Union: things matching any of them.
+  HReach -- ^ Return all nodes that can be reached by starting somewhere and proceeding in a certain direction.
+    :: SearchDir
+    -> HExpr -- ^ template(s) to search along
+             -- (using more than one is weird but legal)
+    -> HExpr -- ^ expression(s) to start from
+    -> HExpr -- ^ every `Expr` that can be reached by traversing
+    -- from the starting `Expr`s along the specified `Tplt`(s) in the specified direction
+  HTrans -- ^ Determine which in a set of potential start points can reach a set of potential endpoints, or which endpoints can be reached by the startpoints, or both.
+    :: SearchDir -- ^ the direction in which to search
+    -> [SearchDir] -- ^ whether to return left,
+      -- right or both members found.
+      -- (The empty list is also valid, but pointless.)
+      -- Example: If searching rightward and this argument is
+      -- `[SearchRightward]`,
+      -- then the search will return the endpoints reached.
     -> HExpr -- ^ template(s) to search along
              -- (using more than one is weird but legal)
     -> HExpr -- ^ expression(s) to end at
@@ -54,21 +60,18 @@ data HExpr where
   HTplts :: HExpr -- ^ find all `Tplt`s in the `Rslt`
   deriving (Eq, Ord, Show)
 
--- | Example: if x is never the second member of anything, then the `HMap`
--- `M.singleton (RoleMember 2) x` will find nothing.
---
--- Definition:
--- An `HMap` m is used to request all expressions x such that for each
--- key r in m, such that r is mapped to h, some expression in the
--- result of searching for h appears in position r in x.
--- This is not type-enforced, but to be valid an HMap must be nonempty.
--- Searches that find nothing are easily specified -- for instance,
+-- | Defining this is hard but an example is easy.
+-- Suppose `(m :: HMap) = Map.fromList [(k,v),(k',v')].
+-- Then HMap represents all expressions such that
+-- something matching `v` is in role `k` and something matching
+-- `v'` is in role `k'`.
+-- To be valid an HMap must be nonempty, but this is not type-enforced.
 type HMap = Map Role HExpr
 
 
 -- | = For parsing an HExpr
 
--- ^ intermediate type, on the way to parsing an `HExpr`
+-- ^ Intermediate type, on the way to parsing an `HExpr`.
 -- Most or all of these constructors correspond to some `HExpr` constructor.
 data PExpr =
     PExpr Expr
@@ -91,7 +94,7 @@ data PExpr =
 type PMap = Map Role PExpr
 
 
-data PRel -- ^ intermediate type, on the way to parsing an `HExpr`
+data PRel   -- ^ Intermediate type, on the way to parsing an `HExpr`
    = Absent -- ^ The leftmost and rightmost members of an `Open` or
      -- `Closed` might be absent. Interior ones should not be.
    | Closed     [PRel] [Separator] -- ^ First list: members. Second: separators.

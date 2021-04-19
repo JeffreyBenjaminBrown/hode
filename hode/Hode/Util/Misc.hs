@@ -206,6 +206,8 @@ ifNothings ms =
 --   as :: [a] <- mapM f xs
 -- with
 --   as :: [a] <- ifLefts $ map f xs
+--
+-- TODO ? Use Data.Validation instead.
 class LeftStrings t where
   ifLefts :: t (Either String a) -> Either String (t a)
 

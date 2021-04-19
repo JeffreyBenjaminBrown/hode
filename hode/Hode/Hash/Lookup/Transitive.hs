@@ -103,6 +103,7 @@ hExprToAddrs r s (HMemberHosts h) =
 hExprToAddrs r s (HMemberHostsRec 1 h) =
   hExprToAddrs r s $ HMemberHosts h
 
+-- TODO Replace the case statement with a smart constructor.
 hExprToAddrs r s (HMemberHostsRec k h) =
   case k < 1 of
   True -> Left $ "First argument of HMemberHostsRec must be an integer > 0."

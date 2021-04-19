@@ -25,7 +25,7 @@ then `a` is greater than `c`.
 Transitive relationships cannot form cycles.
 This prevents nonsense like `a > b > c > a` from happening.
 (If those inequalities were all true,
-transitivity would imply that `b > a`.)
+transitivity would imply that `b > a`, contradicting `a > b`.)
 
 You can tell Hode that a template is transitive (see below).
 Search results can be sorted by any transitive relationship.
@@ -211,4 +211,4 @@ Hode might crash.
 
 The easiest way to avoid this problem is to tell Hode
 that a template is transitive
-(if in fact it is) as soon as you start using it.
+(if in fact it is) as soon as you introduce the template.

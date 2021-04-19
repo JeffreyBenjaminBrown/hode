@@ -1,5 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
+-- TODO jbb : Did someone say Data.Bimap is better than this?
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Relation
