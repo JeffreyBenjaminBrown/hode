@@ -64,7 +64,7 @@ blurb_eval_and_it = paragraphs
   , paragraph
     [ "We have already seen that if (in the database)"
     , "bob has flattered both alice and chuck,"
-    , "then `/find bob #flattered /it` would return both `bob #flattered alice`"
+    , "then `/find bob #flattered /any` would return both `bob #flattered alice`"
     , "and `bob #flattered chuck`."
     , "That is, it returns two `_ flattered _` relationships."
     ]
@@ -73,7 +73,7 @@ blurb_eval_and_it = paragraphs
     [ "What if we don't want those relationships,"
     , "but instead just their right-hand members `alice` and `chuck`?"
     , "That's what `/eval` is for. `/find /eval bob #flattered /it`"
-    , "would return two people, not two `_ flattered _` relationships." ]
+    , "would return `alice` and `chuck`, not two `_ flattered _` relationships." ]
 
   , paragraph
     [ reph 1 eval ++ " expressions do not have to be top-level --"

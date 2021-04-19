@@ -69,10 +69,23 @@ data HExpr where
 type HMap = Map Role HExpr
 
 
--- | = For parsing an HExpr
+-- | = Intermediate types, on the way to parsing an `HExpr`.
 
--- ^ Intermediate type, on the way to parsing an `HExpr`.
+-- | A `PExpr` is something that parses to an HExpr.
 -- Most or all of these constructors correspond to some `HExpr` constructor.
+-- Most (all?) of these constructors corresponds to a separate Hash keyword.
+-- For instance, `/member` corresponds to the PMember constructor.
+-- They are documented in the interactive help
+-- (select "The Hash Language" from the top menu).
+-- (Also, those `PExpr` contstructors (e.g. `PMap`) that correspond to an
+-- `HExpr` constructor (e.g. `HMap`), if missing comments under this type,
+-- probably have comments under that type.)
+--
+-- Most of these terms are exclusive to search.
+-- If all you ever did was insert nodes into the graph,
+-- `PExpr` would only need two constructors: `PExpr` and `PRel`.
+--
+-- PITFALL: The two types `PExpr` and `PRel` are mutually recursive.
 data PExpr =
     PExpr Expr
   | PMap PMap
@@ -85,15 +98,19 @@ data PExpr =
   | POr [PExpr]
   | PReach           PExpr -- ^ SearchDir implied by which member is Any
   | PTrans SearchDir PExpr
-  | Any
-  | It (Maybe PExpr)
+  | Any -- ^ Indicates "Don't restrict the search results by whatever occupies this spot." For instance, "goats #eat /any" would return anything goats eat.
+  | It (Maybe PExpr) -- ^ Indicates "this is the spot where I want to retrieve results from." For instance, "/eval bob #flattered /it" would return all the people Bob had flattered.
   | PRel PRel
-  | PTplts
+  | PTplts -- ^ All the templates in the graph.
    deriving (Eq, Show)
 
 type PMap = Map Role PExpr
 
 
+-- | A `PRel` is used to parse relationships, such as
+-- "#maybe (Bob #likes Janice) ##because Janice #rescued Tom".
+--
+-- PITFALL: The two types `PExpr` and `PRel` are mutually recursive.
 data PRel   -- ^ Intermediate type, on the way to parsing an `HExpr`
    = Absent -- ^ The leftmost and rightmost members of an `Open` or
      -- `Closed` might be absent. Interior ones should not be.
