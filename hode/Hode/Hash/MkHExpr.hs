@@ -6,7 +6,7 @@
 , ScopedTypeVariables
 #-}
 
-module Hode.Hash.Convert (
+module Hode.Hash.MkHExpr (
     pRelToHExpr          -- ^ PRel  -> Either String HExpr
   , pExprToHExpr         -- ^ PExpr -> Either String HExpr
   , pMapToHMap           -- ^ PMap  -> Either String HMap

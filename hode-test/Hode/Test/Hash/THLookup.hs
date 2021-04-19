@@ -7,7 +7,7 @@ import qualified Data.Map       as M
 import qualified Data.Set       as S
 import           Test.HUnit
 
-import Hode.Hash.Convert
+import Hode.Hash.MkHExpr
 import Hode.Hash.Lookup
 import Hode.Hash.Types
 import Hode.Qseq.Types (Var(..))

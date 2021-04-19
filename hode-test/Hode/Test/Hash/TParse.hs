@@ -7,7 +7,7 @@ import qualified Data.Map as M
 import           Text.Megaparsec
 import           Test.HUnit
 
-import Hode.Hash.Convert
+import Hode.Hash.MkHExpr
 import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Hash.Util

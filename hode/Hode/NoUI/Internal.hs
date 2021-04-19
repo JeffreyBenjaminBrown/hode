@@ -15,7 +15,7 @@ import           Data.Set (Set)
 import qualified Data.Set as S
 import           Text.Megaparsec
 
-import Hode.Hash.Convert
+import Hode.Hash.MkHExpr
 import Hode.Hash.Lookup
 import Hode.Hash.Parse
 import Hode.Hash.Types

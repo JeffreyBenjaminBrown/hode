@@ -28,7 +28,7 @@ import Hode.Test.Main as X
 -- import Hode.Test.TPTree as X
 -- import Hode.Test.TUI as X
 
-import Hode.Hash.Convert as X
+import Hode.Hash.MkHExpr as X
 import Hode.Hash.EitherExpr as X
 import Hode.Hash.Lookup as X
 import Hode.Hash.Parse as X

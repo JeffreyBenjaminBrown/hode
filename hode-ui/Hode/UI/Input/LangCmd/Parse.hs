@@ -19,7 +19,7 @@ import qualified Data.Set as S
 import           Text.Megaparsec
 
 import Hode.Brick.Help.Types
-import Hode.Hash.Convert
+import Hode.Hash.MkHExpr
 import Hode.Hash.Lookup
 import Hode.Hash.Parse
 import Hode.Hash.Types

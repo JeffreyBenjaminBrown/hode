@@ -9,7 +9,7 @@ import qualified Data.Set       as S
 import           Test.HUnit
 import           Text.Megaparsec (parse)
 
-import Hode.Hash.Convert
+import Hode.Hash.MkHExpr
 import Hode.Hash.Parse
 import Hode.Hash.Types
 import Hode.Hash.Util
