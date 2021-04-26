@@ -67,4 +67,3 @@ nonPrefix p = p <*
     -- but I don't see it in Text.Megaparsec.
     -- TODO : This feels inelegant, like it works against the lexer.
     notFollowedBy $ satisfy $ \c -> not $ elem c "\n \"()" )
-

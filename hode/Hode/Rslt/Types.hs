@@ -16,6 +16,7 @@ import           Data.Set (Set)
 type Addr = Int
 type Cycle = (TpltAddr, [Addr]) -- TODO The Tplt should be binary and the Addrs are in left to right order, right?
 type Arity = Int
+  -- TODO Once we have dependent types, require Arity > 0.
 
 class HasArity e where
   arity :: e -> Arity
@@ -51,6 +52,7 @@ data Role = RoleInTplt' RoleInTplt | RoleInRel' RoleInRel
 -- That is, searching from the top of the superexpression corresponds
 -- to reading the path left to right.
 type RelPath = [RoleInRel]
+  -- TODO seems like a better name might be PathInExpr
 
 
 -- | = `Expr` is the fundamental type.
@@ -84,6 +86,7 @@ deriveEq1 ''Rel
 -- #j _ #j _    = Just j  [j] Nothing
 -- #j _ #j _ #j = Just j  [j] Just j
 -- etc.
+-- TODO reify the constraint that one of the things in a Tplt must be non-null.
 data Tplt a = Tplt (Maybe a) [a] (Maybe a)
   deriving (Eq, Ord, Read, Show, Foldable, Functor, Traversable)
 deriveShow1 ''Tplt
@@ -107,7 +110,7 @@ deriveShow1 ''ExprF
 deriveEq1 ''ExprF
 
 -- ^ Use `ExprFWith a` with `Fix` to attach an `a`
--- to every level of an Expr:
+-- to every level of an `ExprF`:
 --   import Data.Functor.Foldable (Fix)
 --   x :: Fix (ExprFWith Int)
 --   x = Fix $ EFW (1, ExprRelF $ Rel [...]
@@ -137,7 +140,7 @@ data Rslt = Rslt {
       -- ^ Tells you its members, if any.
   , _isIn          :: Map Addr (Set (Role, Addr))
       -- ^ Tells you its hosts, i.e. what it belongs to.
-  , _tplts         :: Set Addr
+  , _tplts         :: Set TpltAddr
   } deriving (Eq, Ord, Read, Show)
 
 -- | An (Expr)ession, the contents of which are (Ref)erred to via `Addr`s.
@@ -156,6 +159,11 @@ instance HasArity RefExpr where
   arity (Tplt' (Tplt _ js _)) = length js + 1
 
 -- | The constructor that a `RefExpr` uses.
--- TODO ? Can I avoid this definition by using DataKinds?
+--
+-- TODO ? Can I avoid this definition?
+-- (I don't see how DataKinds could do the job.
+-- `Expr` or `ExprF` both could,
+-- but would require writing some superfluous data,
+-- probably usually `undefined`.)
 data ExprCtr = PhraseCtr | RelCtr | TpltCtr
   deriving (Eq, Ord, Read, Show)
