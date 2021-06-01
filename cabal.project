@@ -1,0 +1,1 @@
+packages: ./hode-ui/hode-ui.cabal ./hode-test/hode-test.cabal ./hode/hode.cabal
