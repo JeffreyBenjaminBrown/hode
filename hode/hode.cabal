@@ -101,7 +101,7 @@ library
               , pointedlist
               , pretty-simple
               , process
-              , recursion-schemes
+              , recursion-schemes <= 5.1.3
               , text
                 , regex-compat
               , vector
