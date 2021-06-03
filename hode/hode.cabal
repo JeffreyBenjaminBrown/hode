@@ -31,7 +31,7 @@ library
                 , Hode.Data.Map
 --                , Hode.Data.Relation
 
-                , Hode.Hash.Convert
+                , Hode.Hash.MkHExpr
                 , Hode.Hash.EitherExpr
                 , Hode.Hash.Hash
                 , Hode.Hash.Lookup
